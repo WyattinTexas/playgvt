@@ -41,6 +41,65 @@
   @media (orientation: portrait) {
     #rotate { display:flex; z-index:50; }
   }
+  /* ---- BATTLEFIELD QUEUE (FAVOR's beat in GVT's tin) ----
+     a non-modal pill ticks at the top while "players" drop into the roster,
+     then the BATTLE READY ring lands with a draining countdown. */
+  #bfqChip { position:fixed; top:10px; left:50%; transform:translateX(-50%) translateY(-64px); z-index:45;
+    display:flex; align-items:center; gap:10px; padding:8px 14px 8px 16px; border-radius:999px;
+    background:linear-gradient(180deg, rgba(32,36,27,0.96), rgba(20,16,12,0.96));
+    border:1px solid rgba(127,163,92,0.6); box-shadow:0 8px 26px rgba(0,0,0,0.55);
+    font-family:'Arial Narrow', Impact, sans-serif; font-weight:bold; font-size:15px; letter-spacing:0.05em;
+    color:#EDEADF; text-transform:uppercase; opacity:0; pointer-events:none;
+    transition:transform 0.3s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; max-width:94vw; }
+  #bfqChip.on { opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
+  #bfqChip .qdot { width:9px; height:9px; border-radius:50%; background:#FFD24A; box-shadow:0 0 8px rgba(255,210,74,0.8); animation:qpulse 1.4s ease-in-out infinite; flex-shrink:0; }
+  @keyframes qpulse { 50% { opacity:0.35; } }
+  #bfqChip .qtime { color:#FFF3C4; font-variant-numeric:tabular-nums; }
+  #bfqChip .qsub { color:#BFC6AD; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:44vw; }
+  #bfqChip .qsub b { color:#FFF3C4; }
+  #bfqChip .qx { font-family:inherit; font-weight:bold; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    color:#E8B0A0; background:rgba(120,40,30,0.55); border:1px solid rgba(200,100,80,0.5); border-radius:999px; padding:5px 12px; cursor:pointer; }
+  #bfqChip.pulse { animation:qnudge 0.45s ease; }
+  @keyframes qnudge { 30% { transform:translateX(-50%) translateY(0) scale(1.07); } }
+  #bfqRoster { position:fixed; top:64px; left:50%; transform:translateX(-50%); z-index:45; display:none; gap:12px;
+    padding:10px 12px; border-radius:14px; background:rgba(20,16,12,0.93); border:1px solid rgba(127,163,92,0.4);
+    font-family:'Arial Narrow', Impact, sans-serif; color:#EDEADF; max-height:74vh; overflow-y:auto; }
+  #bfqRoster.on { display:flex; }
+  .bfq-col { min-width:172px; }
+  .bfq-col h5 { margin:0 0 6px; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; text-align:center; }
+  .bfq-col:first-child h5 { color:#BFE39A; } .bfq-col:last-child h5 { color:#E8A08C; }
+  .bfq-row { display:flex; align-items:center; gap:7px; font-weight:bold; font-size:13.5px; padding:3px 6px; text-transform:uppercase; letter-spacing:0.03em; white-space:nowrap; }
+  .bfq-row.open { opacity:0.4; font-style:italic; }
+  .bfq-chip { width:13px; height:13px; border-radius:50%; border:2px solid rgba(255,255,255,0.5); flex-shrink:0; }
+  .bfq-chip.empty { background:transparent; border-style:dashed; }
+  #bfqFound { position:fixed; inset:0; z-index:48; display:none; align-items:center; justify-content:center; background:rgba(10,8,5,0.9); }
+  #bfqFound.on { display:flex; }
+  .bfq-stage { display:flex; flex-direction:column; align-items:center; gap:clamp(10px,2.6vh,22px); animation:bfqland 0.45s cubic-bezier(0.22,1,0.36,1); }
+  @keyframes bfqland { from { transform:scale(0.82); opacity:0; } }
+  .bfq-ringwrap { position:relative; width:min(300px,54vh); height:min(300px,54vh); filter:drop-shadow(0 14px 34px rgba(0,0,0,0.6)); }
+  .bfq-countring { position:absolute; inset:-4.5%; border-radius:50%;
+    background:conic-gradient(#BFE39A 360deg, rgba(127,163,92,0.15) 360deg);
+    -webkit-mask:radial-gradient(closest-side, transparent 88.5%, #000 89.5%);
+    mask:radial-gradient(closest-side, transparent 88.5%, #000 89.5%);
+    filter:drop-shadow(0 0 12px rgba(191,227,154,0.5)); }
+  .bfq-core { position:absolute; inset:4%; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:clamp(3px,0.9vh,8px); text-align:center; padding:6%;
+    background:radial-gradient(circle at 50% 32%, rgba(48,58,38,0.95), rgba(16,14,9,0.97) 72%);
+    border:3px solid rgba(127,163,92,0.55); box-shadow:0 0 44px rgba(127,163,92,0.2) inset; }
+  .bfq-head { font-family:'Arial Narrow', Impact, sans-serif; font-weight:900; font-size:clamp(17px,4.6vh,26px); letter-spacing:0.12em; text-transform:uppercase; color:#BFE39A; text-shadow:0 0 18px rgba(127,163,92,0.6); }
+  .bfq-sub { font-family:'Arial Narrow', Impact, sans-serif; font-weight:bold; font-size:clamp(12px,2.6vh,15px); letter-spacing:0.06em; color:#EDEADF; text-transform:uppercase; }
+  .bfq-clock { font-family:'Arial Narrow', Impact, sans-serif; font-weight:bold; font-size:clamp(13px,3vh,17px); color:#FFD24A; font-variant-numeric:tabular-nums; }
+  .bfq-actions { display:flex; flex-direction:column; align-items:center; gap:clamp(6px,1.6vh,12px); min-height:clamp(74px,16vh,96px); }
+  .bfq-go { background:#4A6B35; color:#fff; border:none; font-family:'Arial Narrow', Impact, sans-serif; font-weight:bold; font-size:1.35rem;
+    letter-spacing:0.1em; text-transform:uppercase; padding:0.85rem 3rem; border-radius:8px; cursor:pointer; box-shadow:0 0 22px rgba(127,163,92,0.4); }
+  .bfq-go:active { transform:scale(0.97); }
+  .bfq-no { font-family:'Arial Narrow', Impact, sans-serif; font-weight:bold; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
+    color:#E8B0A0; background:rgba(120,40,30,0.55); border:1px solid rgba(200,100,80,0.5); border-radius:9px; padding:8px 22px; cursor:pointer; }
+  /* squad-size picker in the battlefield panel — big kid-friendly chips */
+  .bfseg { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 12px; }
+  .bfseg button { flex:1 0 17%; min-width:74px; height:46px; font-family:inherit; font-weight:bold; font-size:1.05rem; letter-spacing:0.04em;
+    color:#EDEADF; background:rgba(0,0,0,0.3); border:2px solid rgba(127,163,92,0.4); border-radius:10px; cursor:pointer; }
+  .bfseg button.on { background:#4A6B35; border-color:#BFE39A; box-shadow:0 0 12px rgba(127,163,92,0.4); }
   #err { position:fixed; left:0; right:0; bottom:0; background:#A63B2A; color:#fff; font:12px monospace; padding:4px 8px; z-index:99; display:none; white-space:pre-wrap; }
   /* ---- HQ = Your Room: one screen, no scrolling ---- */
   .menuwrap { justify-content:center; align-items:center; overflow:hidden; padding:0; background:#141810; }
@@ -135,7 +194,7 @@
     <div class="strip stripR" id="titleStripG"></div>
     <div class="strip stripL" id="titleStripT"></div>
   </div>
-  <div class="coinop">INSERT DOG TAG TO CONTINUE · v1.3</div>
+  <div class="coinop">INSERT DOG TAG TO CONTINUE · v1.4</div>
   <div class="scanlines"></div>
 </div>
 
@@ -187,15 +246,34 @@ const COSTS = { rifleman:40, mgunner:100, bazooka:150, mortar:200, sarge:0, mine
 // BASE_HP 70 (Wyatt 7/24): at 100 the playtest landed 19-38 damage a side, so the
 // timer decided essentially every match. 70 keeps the attrition race but puts a
 // knockout back within reach of a push that genuinely cracks a lane.
-const WORLD_W=1920, MID=960, BASE_HP=70, DROP_T=5, MID_BUFFER=120;
+// TEAM SIZES 1v1–10v10 (Wyatt 7/24): the carpet and the clock grow with the
+// armies. WORLD_W/MID are LET and set per match by startBattlefield — campaign
+// code never reads them, so nothing outside the battlefield notices.
+let WORLD_W=1920, MID=960;
+const BASE_HP=70, DROP_T=5, MID_BUFFER=120, BF_MAX_TEAM=10;
+function bfWidth(team){ return 1920+(team-1)*128; }
+function bfClockFor(team){ return Math.min(150, 90+(team-1)*8); }
+// per-purse leak pressure scales with the enemy team, so the box toughens with
+// it — sub-linear, so a genuinely cracked lane still knocks one out
+function bfBaseHP(team){ return Math.round(BASE_HP*Math.pow(team,0.75)); }
+// 20 seats at 10v10 need 20 readable colours: the ten ARMIES plus these spares,
+// each hand-picked to clear hexNear() against the rest of the palette
+const BF_EXTRA_HEX=['#E890C8','#9CC24E','#6FC7E8','#223E7A','#96703F','#C24AC2','#F0E858','#7A2E2E','#1E6E62','#8EE8B0','#B0A0E0'];
 const BF_TYPES=['rifleman','mgunner','bazooka','mortar','minesweeper','flame','radioman','sarge'];
-// compressed economy — the campaign's 40-200 costs would make +1/10s cosmetic
-const BF_COST   = { rifleman:2, minesweeper:3, flame:4, mgunner:4, radioman:4, bazooka:5, mortar:6, sarge:8 };
-const BF_BOUNTY = { rifleman:1, minesweeper:2, flame:2, mgunner:2, radioman:2, bazooka:2, mortar:3, sarge:4 };
+// SAME DOG TAGS AS THE CAMPAIGN (Wyatt 7/24: "use the same ones so players
+// aren't confused") — BF_COST *is* the campaign price list, Sarge free like
+// always. The passive drip and the kill bounties are scaled into campaign
+// money so the playtested deploy cadence (a placement every 4-8s mid-game)
+// survives the switch: the old +1/10s on a 2-tag rifleman is +20/10s on a 40.
+const BF_COST   = Object.assign({}, COSTS);
+const BF_BOUNTY = { rifleman:20, minesweeper:60, flame:75, mgunner:50, radioman:50, bazooka:75, mortar:100, sarge:50 };
+const BF_TICK   = 20;    // dog tags per 10s passive drip
+const BF_START  = 210;   // opening purse — the campaign's exact wallet
 // a breakthrough is a FREE LEAK: reach the base, deal this, vanish. ~12 = a KO.
 const BF_BASEDMG= { rifleman:6, minesweeper:7, flame:8, mgunner:8, radioman:8, bazooka:9, mortar:10, sarge:18 };
-// Per-unit pace: moveSpd px/s, setup = seconds that must elapse AFTER halting
-// (re-armed by ANY movement, so relocating a heavy re-pays its whole wind-up).
+// Per-unit pace: moveSpd px/s. (The old `setup` dig-in wind-up is GONE — Wyatt
+// 7/24: "no loading bar on them firing, it just fires" — halted men shoot the
+// moment a target is in reach, exactly like the campaign.)
 // BF_PACE is the one playtest knob on top of Wyatt's table: the table was written
 // against a "~900px walk", but side-locking actually puts ~1660px between your
 // furthest-forward legal drop and their toy box — at the raw numbers a rifleman
@@ -211,22 +289,22 @@ const BF_MOVE = {
   // during its approach and nothing else was ever worth buying. Dropping BF reach
   // to 120 restores the ladder — flame 85 < MG 109 < rifle 120 < mines 130 <
   // bazooka 150 < mortar 340 — so the heavies finally out-range the line.
-  rifleman:   { moveSpd:44, setup:0.4, hp:3, rng:120 },
+  rifleman:   { moveSpd:44, hp:3, rng:120 },
   // the short-range brawlers eat free fire for their whole approach — a rifleman
   // out-ranges them 165 to 109/85 and both sides halt at their OWN range, so
   // without the extra plastic they die before they ever bite. This is what makes
   // "crawls up, slow to bite, then shreds" actually happen.
-  flame:      { moveSpd:40, setup:0.6, hp:6 },
-  minesweeper:{ moveSpd:34, setup:0.8, hp:3 },
-  radioman:   { moveSpd:32, setup:0.5, hp:3 },
-  mgunner:    { moveSpd:20, setup:1.3, hp:8 },
-  bazooka:    { moveSpd:19, setup:1.5, hp:3 },
+  flame:      { moveSpd:40, hp:6 },
+  minesweeper:{ moveSpd:34, hp:3 },
+  radioman:   { moveSpd:32, hp:3 },
+  mgunner:    { moveSpd:20, hp:8 },
+  bazooka:    { moveSpd:19, hp:3 },
   // the campaign mortar's rng:9999 was bounded by a 960 carpet and an offscreen
   // cull. On a 1920 field that would be map-wide artillery, so BF gives it a real
   // (huge) reach instead — it still outranges every gun here and keeps its
   // minRng:120 dead zone, which is the whole point of the piece.
-  mortar:     { moveSpd:12, setup:2.5, hp:3, rng:340 },
-  sarge:      { moveSpd:40, setup:0.4, hp:6 }
+  mortar:     { moveSpd:12, hp:3, rng:340 },
+  sarge:      { moveSpd:40, hp:6 }
 };
 for(const k in BF_MOVE) BF_MOVE[k].moveSpd=Math.round(BF_MOVE[k].moveSpd*BF_PACE);
 // The four maps. Each generator builds the LEFT half and the loader mirrors it
@@ -246,9 +324,9 @@ const BF_MAPS = [
 // AI difficulty. Economy is IDENTICAL to yours at every tier — the difficulty is
 // decisions, never resources. blunderP is the humanizing dial.
 const BF_AI = {
-  easy:   { every:2.5, hoard:0, counterWeight:0.1, blunderP:0.35, safeDrop:false, save:0,    focus:'center' },
-  medium: { every:1.6, hoard:5, counterWeight:0.5, blunderP:0.15, safeDrop:true,  save:0.25, focus:'weak'   },
-  hard:   { every:0.9, hoard:8, counterWeight:1.0, blunderP:0.0,  safeDrop:true,  save:0.5,  focus:'focus'  }
+  easy:   { every:2.5, hoard:0,   counterWeight:0.1, blunderP:0.35, safeDrop:false, save:0,    focus:'center' },
+  medium: { every:1.6, hoard:100, counterWeight:0.5, blunderP:0.15, safeDrop:true,  save:0.25, focus:'weak'   },
+  hard:   { every:0.9, hoard:160, counterWeight:1.0, blunderP:0.0,  safeDrop:true,  save:0.5,  focus:'focus'  }
 };
 // the daily rival's colour ALSO picks how they fight — a free themed opponent
 const BF_PERSONA = {
@@ -277,7 +355,7 @@ const META_DEFAULT = {
   // SARGE'S ARSENAL: weapons unlocked by campaign progress, equipped in the
   // Training Academy, each upgraded through the promotion picker once unlocked.
   sargeWeapon:'pistol', sargeUnlocked:[], sargeUp:{}, sargeSeen:[], saberColor:null,
-  bfMap:'open', bfWins:0, bfLosses:0, bfSeen:0            // BATTLEFIELD: last map + record
+  bfMap:'open', bfWins:0, bfLosses:0, bfSeen:0, bfTeam:1  // BATTLEFIELD: last map, record, squad size
 };
 let META = META_DEFAULT;
 try { const m = JSON.parse(localStorage.getItem('gvt_meta')||'null'); if(m && m.v===1){ META = Object.assign({}, META_DEFAULT, m); META.stats=Object.assign({},META_DEFAULT.stats,m.stats||{}); } } catch(e) {}
@@ -287,10 +365,14 @@ function saveMeta(){ try{ localStorage.setItem('gvt_meta', JSON.stringify(META))
 if(!META.deviceId && window.__GVT_KC_DEVICE && /^[a-f0-9]{16,64}$/.test(window.__GVT_KC_DEVICE)){
   META.deviceId = window.__GVT_KC_DEVICE;
 }
+// toy-soldier callsigns — yours at first boot, and the "players" who drop into
+// a battlefield queue are minted from the same tin
+const CALLSIGN_RK=['Sgt','Cpl','Capt','Maj','Pvt','Lt'];
+const CALLSIGN_NN=['Wobbles','Bootlace','Kneehigh','Sprue','Dogtag','Carpet','Blaster','Socks','Marbles','Greenie','Buttons','Tinfoil','Pockets','Freckles','Slingshot','Biscuit'];
+function callsign(){ return CALLSIGN_RK[Math.random()*CALLSIGN_RK.length|0]+' '+CALLSIGN_NN[Math.random()*CALLSIGN_NN.length|0]+' '+(10+(Math.random()*89|0)); }
 if(!META.deviceId){
   META.deviceId = Array.from({length:32},()=>'0123456789abcdef'[Math.random()*16|0]).join('');
-  const RK=['Sgt','Cpl','Capt','Maj','Pvt'], NN=['Wobbles','Bootlace','Kneehigh','Sprue','Dogtag','Carpet','Blaster','Socks','Marbles','Greenie'];
-  META.name = RK[Math.random()*RK.length|0]+' '+NN[Math.random()*NN.length|0]+' '+(10+(Math.random()*89|0));
+  META.name = callsign();
   saveMeta();
 }
 try{ if(window.webkit&&webkit.messageHandlers&&webkit.messageHandlers.gvtSign){ webkit.messageHandlers.gvtSign.postMessage({cmd:'keychain_device', device:META.deviceId}); } }catch(e){}
@@ -653,6 +735,7 @@ function reset(){
   S.ffLevel=0; S.downsLevel=0; S.invasion=null; S.bossKilled=false; S.bf=null; S.pan=null; S.speed=1;
 }
 function startBattle(levelN, rival){
+  if(typeof bfQueueTeardown==='function') bfQueueTeardown();   // a battle outranks a queue
   reset();
   S.levelN=levelN; S.rival=rival||null;
   S.cfg=levelCfg(levelN);
@@ -705,6 +788,7 @@ function defaultDefense(stars, uid){
   return out;
 }
 function startInvasion(target){
+  if(typeof bfQueueTeardown==='function') bfQueueTeardown();   // a battle outranks a queue
   reset();
   S.levelN=0; S.rival=null;
   // COLOURS: you invade in YOUR army's colour, they defend in the one on their
@@ -778,32 +862,181 @@ function bfTerrain(map){
   return { rocks, river:null, rivers };
 }
 function bfDifficulty(){ return META.starsLifetime>=500?'hard' : META.starsLifetime>=100?'medium' : 'easy'; }
-function startBattlefield(mapId,diffOverride){
+
+// ================= BATTLEFIELD: SEATS (1v1 – 10v10) =================
+// Every combatant belongs to a SEAT — an owner with a name, a colour, a purse
+// and (unless it's you) a brain. u.side stays the TEAM ('you'|'foe'), so all
+// the targeting, leak, bar and win logic never learned that 10v10 happened.
+function bfPickHex(used, prefer){
+  const cand=(prefer?[prefer]:[]).concat(ARMIES.map(a=>a.hex), BF_EXTRA_HEX);
+  for(const h of cand){ if(used.indexOf(h)<0 && !used.some(u=>hexNear(u,h))){ used.push(h); return h; } }
+  // palette ran dry (a dyed army squeezes it) — take the least-clashing spare
+  const dist=(a,b)=>{ const p=x=>[parseInt(x.slice(1,3),16),parseInt(x.slice(3,5),16),parseInt(x.slice(5,7),16)];
+    const c=p(a), d=p(b); return Math.abs(c[0]-d[0])+Math.abs(c[1]-d[1])+Math.abs(c[2]-d[2]); };
+  let best=null, bd=-1;
+  for(const h of cand){ if(used.indexOf(h)>=0) continue;
+    let m=1e9; for(const u of used) m=Math.min(m,dist(h,u));
+    if(m>bd){ bd=m; best=h; } }
+  best=best||cand[cand.length-1]; used.push(best); return best;
+}
+function bfPersonaFor(hex){
+  const ar=ARMIES.find(a=>a.hex===hex);
+  if(ar && BF_PERSONA[ar.id]) return ar.id;
+  const keys=Object.keys(BF_PERSONA);
+  return keys[(Math.random()*keys.length)|0];
+}
+function bfSeatPlan(team, riv){
+  const myHex=dyeHex()||GREEN;
+  const used=[myHex], names={ [META.name]:1 };
+  const uname=()=>{ let n=callsign(), guard=0; while(names[n] && guard++<25) n=callsign(); names[n]=1; return n; };
+  const seats=[{ i:0, name:META.name, team:'you', hex:myHex, human:true, brain:null, purse:BF_START, tagT:0, persona:null }];
+  for(let k=1;k<team;k++){ const hex=bfPickHex(used);
+    seats.push({ i:k, name:uname(), team:'you', hex, human:false, brain:null, purse:BF_START, tagT:0, persona:{id:bfPersonaFor(hex)} }); }
+  for(let k=0;k<team;k++){ const cap=(k===0);          // the daily rival captains the other side
+    const hex=bfPickHex(used, cap? riv.hex:null);
+    seats.push({ i:team+k, name:uname(), team:'foe', hex, human:false, brain:null, purse:BF_START, tagT:0,
+      persona:{ id: cap? riv.id : bfPersonaFor(hex) } }); }
+  return seats;
+}
+
+// ================= BATTLEFIELD: THE QUEUE (FAVOR's beat, GVT's tin) =========
+// Pick a squad size, and the pill starts ticking while "players" drop into the
+// roster one by one — then the BATTLE READY ring lands, a countdown drains
+// around it, and DEPLOY! (or the clock) starts the match. Withdraw is honest.
+// All fake-local today; the seat plan is the thing a real matchmaker fills later.
+let BFQ=null;
+function bfqEnsure(){
+  if(document.getElementById('bfqChip')) return;
+  const c=document.createElement('div'); c.id='bfqChip';
+  c.innerHTML='<span class="qdot"></span><span>IN QUEUE <b class="qtime" id="bfqTime">0:00</b></span>'
+    +'<span class="qsub" id="bfqSub">CALLING ALL SOLDIERS…</span>'
+    +'<button type="button" class="qx" id="bfqX">WITHDRAW</button>';
+  document.body.appendChild(c);
+  c.querySelector('#bfqX').onclick=()=>bfQueueCancel();
+  const r=document.createElement('div'); r.id='bfqRoster'; document.body.appendChild(r);
+  const f=document.createElement('div'); f.id='bfqFound'; document.body.appendChild(f);
+}
+function bfqPulse(){ const c=document.getElementById('bfqChip'); if(c){ c.classList.remove('pulse'); void c.offsetWidth; c.classList.add('pulse'); } }
+function bfqRoster(){
+  const r=document.getElementById('bfqRoster'); if(!r||!BFQ) return;
+  const col=(tm,label)=>{
+    const rows=BFQ.plan.filter(s=>s.team===tm).map(s=>{
+      const inQ=BFQ.in[s.i];
+      return '<div class="bfq-row'+(inQ?'':' open')+'">'
+        +(inQ? '<span class="bfq-chip" style="background:'+s.hex+'"></span>'+escH(s.name)+(s.i===0?' — YOU':'')
+             : '<span class="bfq-chip empty"></span>OPEN SEAT')+'</div>';
+    }).join('');
+    return '<div class="bfq-col"><h5>'+label+'</h5>'+rows+'</div>';
+  };
+  r.innerHTML=col('you','YOUR SQUAD')+col('foe','THEIR SQUAD');
+}
+function bfQueueStart(size){
+  if(BFQ){ bfqPulse(); return; }                       // already queued — the pill nudges you
+  if(S.mode!=='menu') return;                          // you queue from HQ, never over a live battle
+  size=Math.max(1,Math.min(BF_MAX_TEAM,size||1));
+  bfqEnsure();
+  const riv=todaysRival();
+  BFQ={ size, mapId:META.bfMap, plan:bfSeatPlan(size,riv), in:{0:true}, joined:1,
+        t0:Date.now(), timers:[], clockT:0, ringT:0, state:'searching' };
+  UI.closeModal();
+  document.getElementById('bfqSub').textContent='CALLING ALL SOLDIERS…';
+  document.getElementById('bfqTime').textContent='0:00';
+  document.getElementById('bfqChip').classList.add('on');
+  document.getElementById('bfqRoster').classList.add('on');
+  bfqRoster();
+  BFQ.clockT=setInterval(()=>{ if(!BFQ) return; const s=((Date.now()-BFQ.t0)/1000)|0;
+    const el=document.getElementById('bfqTime'); if(el) el.textContent=(s/60|0)+':'+String(s%60).padStart(2,'0'); },1000);
+  // the other "players" drop in one by one — a quick first bite, a rush at the end
+  const others=BFQ.plan.slice(1).map(s=>s.i);
+  for(let i=others.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=others[i]; others[i]=others[j]; others[j]=t; }
+  const total=1400+size*520;
+  const times=others.map(()=>400+Math.random()*(total-400)).sort((a,b)=>a-b);
+  times.forEach((ms,k)=>{ BFQ.timers.push(setTimeout(()=>{
+    if(!BFQ) return;
+    const st=BFQ.plan.find(s=>s.i===others[k]);
+    BFQ.in[st.i]=true; BFQ.joined++;
+    const sub=document.getElementById('bfqSub');
+    if(sub) sub.innerHTML='<b>'+escH(st.name.toUpperCase())+'</b> DROPPED IN — '+BFQ.joined+' OF '+(size*2);
+    bfqRoster(); SFX.blip(); bfqPulse();
+    if(BFQ.joined>=size*2) BFQ.timers.push(setTimeout(bfqFound,600));
+  },ms)); });
+}
+function bfqFound(){
+  if(!BFQ||BFQ.state!=='searching') return;
+  BFQ.state='found';
+  document.getElementById('bfqChip').classList.remove('on');
+  document.getElementById('bfqRoster').classList.remove('on');
+  const f=document.getElementById('bfqFound');
+  f.innerHTML='<div class="bfq-stage"><div class="bfq-ringwrap">'
+    +'<div class="bfq-countring" id="bfqRing"></div>'
+    +'<div class="bfq-core"><div class="bfq-head">BATTLE READY</div>'
+    +'<div class="bfq-sub">'+BFQ.size+' v '+BFQ.size+' · '+escH(bfMap(BFQ.mapId).name)+'</div>'
+    +'<div class="bfq-clock" id="bfqClock">10</div></div></div>'
+    +'<div class="bfq-actions"><button type="button" class="bfq-go" id="bfqGo">DEPLOY!</button>'
+    +'<button type="button" class="bfq-no" id="bfqNo">STAND DOWN</button></div></div>';
+  f.classList.add('on');
+  SFX.horn();
+  f.querySelector('#bfqGo').onclick=()=>bfqDeploy();
+  f.querySelector('#bfqNo').onclick=()=>bfQueueCancel();
+  const t0=Date.now(), MS=10000;
+  BFQ.ringT=setInterval(()=>{
+    if(!BFQ) return;
+    const left=Math.max(0,MS-(Date.now()-t0)), deg=left/MS*360;
+    const ring=document.getElementById('bfqRing'), ck=document.getElementById('bfqClock');
+    if(ring) ring.style.background='conic-gradient(#BFE39A '+deg+'deg, rgba(127,163,92,0.15) '+deg+'deg)';
+    if(ck) ck.textContent=Math.ceil(left/1000);
+    if(left<=0) bfqDeploy();                 // nobody gets left behind — it starts itself
+  },100);
+}
+function bfqDeploy(){
+  if(!BFQ) return;
+  const q=BFQ; bfQueueTeardown();
+  startBattlefield(q.mapId, null, q.size, q.plan);
+}
+function bfQueueCancel(){ if(!BFQ) return; bfQueueTeardown(); SFX.clack(); }
+function bfQueueTeardown(){
+  if(!BFQ) return;
+  BFQ.timers.forEach(t=>clearTimeout(t));
+  clearInterval(BFQ.clockT); clearInterval(BFQ.ringT);
+  BFQ=null;
+  ['bfqChip','bfqRoster','bfqFound'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('on'); });
+}
+
+function startBattlefield(mapId,diffOverride,teamSize,plan){
+  bfQueueTeardown();
   reset();                                     // invasion-style: wipe FIRST, then build the session
   S.levelN=0; S.rival=null;
   const map=bfMap(mapId||META.bfMap);
   const riv=todaysRival();
-  const mine=dyeHex(), myHex=mine||GREEN;
-  let theirs=riv.hex;
-  if(hexNear(theirs,myHex)) theirs = hexNear(TAN,myHex)? '#5B84C4' : TAN;
-  if(hexNear(theirs,myHex)) theirs = '#8E6BAE';
-  if(mine) buildUnitTint(mine);
-  buildUnitTint(theirs);
+  const team=Math.max(1,Math.min(BF_MAX_TEAM, teamSize||META.bfTeam||1));
   const diff=diffOverride||bfDifficulty();
+  WORLD_W=bfWidth(team); MID=WORLD_W/2;        // a bigger war gets a bigger carpet
+  const seats=(plan && plan.length===team*2)? plan : bfSeatPlan(team,riv);
+  for(const st of seats){ st.purse=BF_START; st.tagT=0; st.mir=(st.team==='you');
+    buildUnitTint(st.hex);
+    st.brain = st.human? null : new OpponentBrain(diff, st.persona);
+    if(st.brain) st.brain.cd = 0.7 + st.i*0.13 + Math.random()*0.5;   // 20 brains never fire in lockstep
+    // each AI seat anchors to its own slice of the front — ten brains all
+    // chasing the same "weakest lane" is a scrum in one lane and a highway
+    // everywhere else. The human takes whatever lane they please.
+    const idx=(st.i%team);
+    st.laneBias = team>1 ? 110 + (idx+0.5)*((H-220)/team) : null;   // 1v1 keeps the tuned solo brain untouched
+  }
+  const bhp=bfBaseHP(team);
   S.cfg={ n:0, hpMul:1, cntMul:1, waves:[], terrain:bfTerrain(map) };
   S.bf = { resolved:false, ending:false, mapId:map.id, mapName:map.name, phase:'live',
-    timeLeft:90, tagT:0, aiTagT:0, ot:false,
-    base:{ you:{x:130,y:300,hp:BASE_HP,hpMax:BASE_HP,dmgTaken:0},
-           foe:{x:WORLD_W-130,y:300,hp:BASE_HP,hpMax:BASE_HP,dmgTaken:0} },
-    ai:{ purse:6, diff, brain:new OpponentBrain(diff,riv) },
-    rival:riv, hex:{ you:mine, foe:theirs },
+    team, timeLeft:bfClockFor(team), ot:false, seats,
+    base:{ you:{x:130,y:300,hp:bhp,hpMax:bhp,dmgTaken:0},
+           foe:{x:WORLD_W-130,y:300,hp:bhp,hpMax:bhp,dmgTaken:0} },
+    ai:{ diff },
+    rival:riv, hex:{ you:seats[0].hex, foe:seats[team].hex },
     cam:{ x:0, vx:0 } };
-  S.plastic=6;                                 // both purses start level
-  META.bfMap=map.id; saveMeta();
-  resize();                                    // the world is 1920 wide now — refit
+  S.plastic=BF_START;                          // every purse starts level
+  META.bfMap=map.id; META.bfTeam=team; saveMeta();
+  resize();                                    // the world just got wider — refit
   hideAllOverlays();
   S.mode='play';
-  S.ann={ txt:'BATTLEFIELD — '+map.name, t:2.6 };
+  S.ann={ txt:(team>1? team+' v '+team+' — ' : 'BATTLEFIELD — ')+map.name, t:2.6 };
   SFX.horn();
 }
 const BF_END = {
@@ -826,10 +1059,18 @@ function endBattlefield(reason){
   S.mode=won?'win':'lose';
   document.getElementById(won?'win':'lose').classList.remove('hidden');
   if(won){
-    META.bfWins++; META.starBank+=2; META.starsLifetime+=2;
+    // WIN = +25★ AND A PILE OF XP (Wyatt 7/24) — bigger battles pay bigger XP,
+    // and the XP feeds the same promotion picker the campaign does.
+    META.bfWins++;
+    const starGain=25, xpGain=50+25*(bf.team||1);
+    META.starBank+=starGain; META.starsLifetime+=starGain;
+    META.xp+=xpGain;
+    let promos=0;
+    while(META.xp>=xpNeed()){ META.xp-=xpNeed(); META.lvl++; META.pendingPicks++; promos++; }
+    const spoils=' · +'+starGain+'★ SPOILS · +'+xpGain+' XP'+(promos>0? ' · PROMOTED TO LEVEL '+META.lvl+'!':'');
     const wt=document.getElementById('winTitle'); wt.style.color='#7FA35C'; wt.innerHTML=copy[0];
     document.getElementById('medalRow').textContent='⚑ ⚑ ⚑';
-    document.getElementById('medalText').textContent=margin+' · '+copy[1]+' · +2★ spoils';
+    document.getElementById('medalText').textContent=margin+' · '+copy[1]+spoils;
     // report the win to HQ the same way an invasion does — /challenge pays the
     // first-of-the-day bonus. NEVER route rewards through /sync (it clamps).
     fetch(NET+'/challenge',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -837,7 +1078,7 @@ function endBattlefield(reason){
       .then(r=>r.json()).then(d=>{
         const el=document.getElementById('medalText');
         if(el&&d&&d.bonus>0){ META.starBank+=d.bonus; META.starsLifetime+=d.bonus; saveMeta();
-          el.textContent=margin+' · FIRST BATTLEFIELD WIN TODAY — BONUS +'+d.bonus+'★ ('+d.capLeft+' left today) · +2★ spoils'; }
+          el.textContent=margin+' · FIRST BATTLEFIELD WIN TODAY — BONUS +'+d.bonus+'★ ('+d.capLeft+' left today)'+spoils; }
       }).catch(()=>{});
   } else {
     META.bfLosses++;
@@ -868,14 +1109,20 @@ function bfNearestEnemy(u,range){
 // which of them do I want. Campaign answers are unchanged.
 function TGT(u){ return S.bf ? bfEnemies(u.side) : S.foes; }
 function PRIO(u,f){ return S.bf ? Math.hypot(u.x-f.x,u.y-f.y) : Math.hypot(T.x-f.x,T.y-f.y); }
-// the AI's Sarge carries the service pistol; yours carries whatever you equipped
+// the AI's Sarge carries the service pistol; YOURS (seat 0 — the human, on any
+// team size) carries whatever you equipped. Teammate seats are AI too.
 const BF_AI_SARGE={ w:'pistol', r:0, rng:108, rate:1.8, dmg:1.5 };
-function unitSargeStats(u){ return (S.bf && u.side==='foe') ? BF_AI_SARGE : sargeStats(); }
+function bfHumanU(u){ return !S.bf || u.seat===0; }
+function unitSargeStats(u){ return (S.bf && !bfHumanU(u)) ? BF_AI_SARGE : sargeStats(); }
 function saberBlocksU(u){
   if(u.type!=='sarge') return false;
-  if(S.bf && u.side==='foe') return false;                 // AI Sarge has no blade
+  if(S.bf && !bfHumanU(u)) return false;                   // AI Sarges have no blade
   return saberBlocks(u);
 }
+// at 10v10 forty guns firing across a 3000px carpet would be a wall of bleeps —
+// battle sounds only play when the fight is actually on (or near) your screen
+function bfVis(x){ return !S.bf || Math.abs(x-(S.bf.cam.x+VW/2)) < VW/2+260; }
+function bfSfx(fn,x){ if(bfVis(x)) fn(); }
 // every damage site funnels through here so the blade can turn a round aside
 function hurt(f,dmg,src){
   if(S.bf && f.side && saberBlocksU(f)) return;
@@ -885,20 +1132,22 @@ function hurt(f,dmg,src){
 // ================= BATTLEFIELD: THE COMMAND BOUNDARY =================
 // Player taps, AI decisions and (later) a network peer all land HERE. One
 // consumer, three producers — that single seam is the whole future-PvP story.
-function applyDeploy(side,type,x,y){
+function applyDeploy(seat,type,x,y){
   const bf=S.bf; if(!bf||bf.resolved||bf.ending) return null;
+  if(typeof seat==='string') seat = seat==='foe'? bf.team : 0;   // legacy callers: first seat of that side
+  const st=bf.seats[seat]; if(!st) return null;
   if(BF_TYPES.indexOf(type)<0) return null;
   x=Math.round(x); y=Math.round(y);                        // wire form and sim agree
   const cost=BF_COST[type];
-  if(type==='sarge' && S.units.some(u=>!u.dead&&u.side===side&&u.type==='sarge')) return null;
-  if(!canPlace(x,y,type,side)) return null;
-  if(side==='you'){ if(S.plastic<cost) return null; S.plastic-=cost; }
-  else { if(bf.ai.purse<cost) return null; bf.ai.purse-=cost; }
-  const u=placeUnit(type,x,y,side);
+  if(type==='sarge' && S.units.some(u=>!u.dead&&u.seat===seat&&u.type==='sarge')) return null;   // one Sarge per PLAYER
+  if(!canPlace(x,y,type,st.team)) return null;
+  if(st.human){ if(S.plastic<cost) return null; S.plastic-=cost; }
+  else { if(st.purse<cost) return null; st.purse-=cost; }
+  const u=placeUnit(type,x,y,st.team,seat);
   // the landing reticle: a ring that closes on the spot he's dropping into
   S.fx.push({ k:'ring', x, y:y-6, r:56, R:15, t:0, dur:0.55,
-    col: side==='you'?'rgba(191,227,154,0.95)':'rgba(230,140,110,0.95)' });
-  SFX.blip();
+    col: st.team==='you'?'rgba(191,227,154,0.95)':'rgba(230,140,110,0.95)' });
+  bfSfx(SFX.blip, x);
   return u;
 }
 
@@ -920,7 +1169,7 @@ function bfMarch(u,dt,goal){
       gy = br.y;
     }
   }
-  const dx=gx-u.x, dy=gy-u.y, d=Math.hypot(dx,dy)||1, sp=u.def.moveSpd||36;
+  const dx=gx-u.x, dy=gy-u.y, d=Math.hypot(dx,dy)||1, sp=(u.def.moveSpd||36)*(u.gait||1);
   u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt;
   for(const rk of S.cfg.terrain.rocks){          // rocks shoulder him aside (reused kernel)
     const ax=u.x-rk.x, ay=u.y-rk.y, dd=Math.hypot(ax,ay), min=rk.r+16;
@@ -929,14 +1178,16 @@ function bfMarch(u,dt,goal){
   u.y=Math.max(74,Math.min(H-96,u.y));
   if(u.home){ u.home.x=u.x; u.home.y=u.y; }      // Sarge's post travels with him
 }
-function bfAtBase(u,b){ return Math.abs(u.x-b.x)<72 && Math.abs(u.y-b.y)<94; }
+// same collide as the campaign toy box (Wyatt 7/24: "boop, you hit it")
+function bfAtBase(u,b){ return Math.hypot(u.x-b.x,u.y-b.y)<LEAK_R; }
 // FREE LEAK: survive the walk, smash a chunk off their base, and you're spent.
+// Smooth like the campaign — the ouch + a ring, no fireworks. The KO below is
+// the only leak that gets to be dramatic.
 function bfLeak(u){
   const bf=S.bf, b=bf.base[enemySide(u)], dmg=BF_BASEDMG[u.type]||6;
   b.hp=Math.max(0,b.hp-dmg); b.dmgTaken+=dmg; u.dead=true;
-  S.shake=Math.max(S.shake,0.45); SFX.boom();
-  S.fx.push({k:'ring',x:b.x,y:b.y-10,r:12,R:78,t:0,dur:0.5,col:'rgba(166,59,42,0.85)'});
-  S.fx.push({k:'puff',x:b.x,y:b.y-24,t:0,dur:0.55,R:46});
+  SFX.ouch();
+  S.fx.push({k:'ring',x:b.x-10,y:b.y-10,r:10,R:60,t:0,dur:0.5,col:'rgba(166,59,42,0.8)'});
   S.floats.push({x:b.x,y:b.y-84,txt:'−'+dmg,t:0,col:u.side==='you'?'#BFE39A':'#D96A55'});
   if(bf.phase==='sudden'){ endBattlefield(u.side==='you'?'sudden':'suddenLoss'); return; }
   if(b.hp<=0){
@@ -953,24 +1204,41 @@ function bfUnitStep(u,dt){
   if(u.dropT>0){                                  // 5s ghost: inert, untargetable, invulnerable
     u.dropT-=dt;
     if(u.dropT<=0){
-      u.dropT=0; u.setupLeft=u.def.setup||0;
-      SFX.thock();
+      u.dropT=0;
+      bfSfx(SFX.thock, u.x);
       S.fx.push({k:'ring',x:u.x,y:u.y-4,r:6,R:30,t:0,dur:0.3,col:'rgba(255,255,255,0.85)'});
       S.fx.push({k:'puff',x:u.x,y:u.y-8,t:0,dur:0.3,R:18});
     }
     return false;
   }
   if(u.saberState && u.saberState!=='idle') return true;   // let a charging Sarge finish his run
+  u.marching=false;
   const tgt=bfNearestEnemy(u, bfAggro(u));
   const b=S.bf.base[enemySide(u)];
   const atBase=bfAtBase(u,b);
   if(!tgt && !atBase){
-    bfMarch(u,dt,u.goal||b);
-    u.setupLeft=u.def.setup||0;                  // MOVING re-arms setup AND means "not firing"
+    // real people don't march a ruler line (Wyatt 7/24): every man walks his own
+    // zig — a fresh sub-goal every second or so, a rare hitch in his step — and
+    // only funnels straight onto the box over the last stretch
+    if(u.pauseT>0){ u.pauseT-=dt; return false; }        // picking his footing (idle sway, no waddle)
+    if(Math.abs(b.x-u.x)<280){ u.wp=null; bfMarch(u,dt,b); }
+    else {
+      u.wpT=(u.wpT||0)-dt;
+      if(!u.wp || u.wpT<=0 || (Math.abs(u.wp.x-u.x)<14 && Math.abs(u.wp.y-u.y)<14)){
+        const dir=(u.side==='you')?1:-1, lane=(u.laneY!=null?u.laneY:b.y);
+        u.wp={ x:u.x+dir*(90+Math.random()*110),
+               y:Math.max(84,Math.min(H-104,(lane+(Math.random()-0.5)*100)*0.6+u.y*0.4)) };
+        u.wpT=1.0+Math.random()*1.3;
+        if(Math.random()<0.10) u.pauseT=0.15+Math.random()*0.3;
+      }
+      bfMarch(u,dt,u.wp);
+    }
+    u.marching=true;
     return false;
   }
-  if(u.setupLeft>0){ u.setupLeft-=dt; return false; }   // just halted — dig in before the first shot
   if(!tgt && atBase){ bfLeak(u); return false; }
+  // a target in reach and he's standing still → BOOM. No wind-up, no loading
+  // bar — straight through into the campaign's untouched weapon code.
   return true;
 }
 
@@ -992,18 +1260,26 @@ function bfTick(dt){
   if(bf.phase==='live' && !bf.ot && bf.timeLeft<=30){
     bf.ot=true; S.ann={txt:'PUSH! — DOUBLE TAGS',t:2.4,warn:true}; SFX.horn();
   }
-  // two income streams: a passive floor nobody can be bricked out of, plus kill
-  // bounties. Whoever is BEHIND on base damage ticks 25% faster — symmetric, so
-  // it never reads as the computer cheating, and close matches stay close.
+  // two income streams PER SEAT: a passive floor nobody can be bricked out of,
+  // plus kill bounties. Whichever TEAM is behind on base damage ticks 25%
+  // faster — symmetric, so it never reads as the computer cheating.
   const otm=bf.ot?2:1;
-  bf.tagT   += dt*otm*(my<th?1.25:1);
-  bf.aiTagT += dt*otm*(th<my?1.25:1);
-  if(bf.tagT>=10){ bf.tagT-=10; S.plastic++;
-    S.floats.push({x:bf.base.you.x+46,y:bf.base.you.y-72,txt:'+1',t:0,col:'#FFF3C4'}); }
-  if(bf.aiTagT>=10){ bf.aiTagT-=10; bf.ai.purse++; }
-  // the opponent decides behind the same boundary a network peer will use
-  const cmds=bf.ai.brain.decide(buildBFView(dt), bf.ai.purse)||[];
-  for(const c of cmds) applyDeploy('foe', c.type, c.x, c.y);
+  const boost={ you:(my<th?1.25:1), foe:(th<my?1.25:1) };
+  for(const st of bf.seats){
+    st.tagT += dt*otm*boost[st.team];
+    if(st.tagT>=10){ st.tagT-=10;
+      if(st.human){ S.plastic+=BF_TICK;
+        S.floats.push({x:bf.base.you.x+46,y:bf.base.you.y-72,txt:'+'+BF_TICK,t:0,col:'#FFF3C4'}); }
+      else st.purse+=BF_TICK;
+    }
+    // every AI seat decides behind the same boundary a network peer will use —
+    // teammate brains see the field MIRRORED so one tuned brain plays both ways
+    if(st.brain && st.brain.tick(dt)){
+      const view=buildBFView(dt, st);
+      const cmds=st.brain.decide(view, st.purse)||[];
+      for(const c of cmds) applyDeploy(st.i, c.type, st.mir? WORLD_W-c.x : c.x, c.y);
+    }
+  }
   if(bf.timeLeft<=0){
     bf.timeLeft=0;
     if(bf.phase==='live'){
@@ -1019,20 +1295,27 @@ function bfTick(dt){
     }
   }
 }
-// minimal, serializable, and written from the OPPONENT's point of view.
-// myPurse is exposed; the player's purse is NOT — hidden information on the one
+// minimal, serializable, and ALWAYS written as if the brain plays the right
+// side: a seat on team 'you' gets the whole field mirrored (x flipped, sides
+// swapped) so every line of the tuned brain works verbatim for both teams.
+// The terrain is mirror-symmetric by construction, so the map rides as-is.
+// myPurse is exposed; other purses are NOT — hidden information on the one
 // axis PvP would hide too, so a hard AI is still playing fair.
-function buildBFView(dt){
-  const bf=S.bf, units=[];
+function buildBFView(dt, st){
+  const bf=S.bf, mir=st.mir, units=[];
   for(const u of S.units){ if(u.dead) continue;
-    units.push({ id:u.id, side:u.side, type:u.type, x:u.x|0, y:u.y|0, hp:u.hp, dropT:u.dropT }); }
+    units.push({ id:u.id, seat:u.seat, type:u.type,
+      side: mir? (u.side==='you'?'foe':'you') : u.side,
+      x: mir? (WORLD_W-u.x)|0 : u.x|0, y:u.y|0, hp:u.hp, dropT:u.dropT }); }
+  const mine=bf.base[st.team], theirs=bf.base[st.team==='you'?'foe':'you'];
   return { dt, timeLeft:bf.timeLeft, phase:bf.phase, overtime:bf.ot,
-    myBaseHP:bf.base.foe.hp, foeBaseHP:bf.base.you.hp, myPurse:bf.ai.purse,
+    myBaseHP:mine.hp, foeBaseHP:theirs.hp, myPurse:st.purse, mySeat:st.i, laneBias:st.laneBias,
+    cp:(x,y,t)=>canPlace(Math.round(mir? WORLD_W-x : x), Math.round(y), t, st.team),
     units, map:{ width:WORLD_W, rocks:S.cfg.terrain.rocks, rivers:S.cfg.terrain.rivers } };
 }
 function bfCounter(t,mine,theirs){
   const live=theirs.filter(u=>u.dropT<=0);
-  const swarm=live.filter(u=>BF_COST[u.type]<=3).length;
+  const swarm=live.filter(u=>u.type==='rifleman'||u.type==='minesweeper').length;
   const heavies=live.filter(u=>u.type==='mortar'||u.type==='bazooka'||u.type==='mgunner').length;
   const pushing=live.filter(u=>u.x>MID-40).length;
   const turtle=live.length>=3 && live.every(u=>u.x<MID-200);
@@ -1053,34 +1336,37 @@ function OpponentBrain(diff,riv){
   this.cd=1.0;
 }
 OpponentBrain.prototype.setDiff=function(diff){ if(BF_AI[diff]){ this.diff=diff; this.d=BF_AI[diff]; } };
+// bfTick pays the cooldown here so a view is only built for a brain that will
+// actually fire — twenty idle brains at 10v10 cost nothing per frame
+OpponentBrain.prototype.tick=function(dt){ this.cd-=dt; return this.cd<=0; };
 OpponentBrain.prototype.decide=function(view,budget){
-  this.cd-=view.dt;
   if(this.cd>0) return [];
   this.cd=this.d.every;
   const mine=view.units.filter(u=>u.side==='foe'), theirs=view.units.filter(u=>u.side==='you');
-  const hasSarge=mine.some(u=>u.type==='sarge');
+  const own=mine.filter(u=>u.seat===view.mySeat);        // the men THIS purse bought
+  const hasSarge=own.some(u=>u.type==='sarge');          // one Sarge per player, not per team
   const afford=BF_TYPES.filter(t=>BF_COST[t]<=budget && (t!=='sarge'||!hasSarge));
   if(!afford.length) return [];
-  const pressure = theirs.some(u=>u.dropT<=0&&u.x>MID-80) || mine.length<2;
+  const pressure = theirs.some(u=>u.dropT<=0&&u.x>MID-80) || own.length<2;
   if(!pressure && budget<this.d.hoard) return [];                  // bank for a real answer
   if(this.d.save && !pressure && budget<BF_COST.mortar && Math.random()<this.d.save) return [];
   let pick=afford[0], bs=-1e9;
   for(const t of afford){
     // diminishing returns: a wall of one thing is exactly what a counter eats,
     // so the more of a type we already field the less another one is worth
-    const own=mine.filter(u=>u.type===t).length;
-    const v=((this.persona.pref[t]||1) + this.d.counterWeight*bfCounter(t,mine,theirs) - own*0.35) * (0.85+Math.random()*0.3);
+    const ownN=own.filter(u=>u.type===t).length;
+    const v=((this.persona.pref[t]||1) + this.d.counterWeight*bfCounter(t,own,theirs) - ownN*0.35) * (0.85+Math.random()*0.3);
     if(v>bs){ bs=v; pick=t; }
   }
   if(Math.random()<this.d.blunderP) pick=afford[(Math.random()*afford.length)|0];
-  const spot=this.pickSpot(pick,theirs,mine);
+  const spot=this.pickSpot(pick,theirs,mine,view);
   return spot? [{ kind:'place', type:pick, x:spot.x, y:spot.y }] : [];
 };
 // Where the next man goes. The whole job is INTERCEPTION: with a free leak at
 // the end of every lane, an unanswered runner is 6-18 straight off the base, so
 // the lane that matters is the one where they are advancing and we are not
 // there — never simply the lane with their biggest unit in it.
-OpponentBrain.prototype.pickSpot=function(type,theirs,mine){
+OpponentBrain.prototype.pickSpot=function(type,theirs,mine,view){
   const lo=MID+MID_BUFFER+24, hi=WORLD_W-70;
   const live=theirs.filter(u=>u.dropT<=0);
   const ours=(mine||[]).filter(u=>u.dropT<=0);
@@ -1106,13 +1392,16 @@ OpponentBrain.prototype.pickSpot=function(type,theirs,mine){
       if(s>bs){ bs=s; focusY=y; }
     }
   }
+  // a team seat leans toward its own slice of the front; interception still
+  // pulls it off-lane when someone is genuinely breaking through
+  if(view && view.laneBias!=null) focusY = focusY*0.55 + view.laneBias*0.45;
   const back=(type==='mortar'||type==='bazooka'||type==='mgunner');
   let best=null, bs=-1e9;
   for(let i=0;i<16;i++){
     const x=Math.round(lo+Math.random()*(hi-lo));
     const spread=(this.d.focus==='focus'?110:(this.d.focus==='weak'?190:300));
     const y=Math.round(Math.max(92,Math.min(H-108, focusY+(Math.random()-0.5)*spread)));
-    if(!canPlace(x,y,type,'foe')) continue;
+    if(!view.cp(x,y,type)) continue;         // the view knows which half is legal (and un-mirrors)
     const fwd=(x-lo)/(hi-lo);
     let s=(back? fwd : 1-fwd)*1.5;
     if(this.d.safeDrop){
@@ -1126,17 +1415,20 @@ OpponentBrain.prototype.pickSpot=function(type,theirs,mine){
   return best;
 };
 
-function placeUnit(type,x,y,side){
+function placeUnit(type,x,y,side,seat){
   const u = { id:idc++, type, x, y, def:UDEF[type], cd:0, down:false, downT:0, vet:false, phase:Math.random()*6.28, sprue:0.45, kills:0, hits:0, hitT:0 };
   // BATTLEFIELD combatant: HP + death + a marching goal. Campaign callers pass no
   // `side`, so their unit objects stay exactly as they were.
   if(S.bf && side){
     const b=S.bf.base[side==='you'?'foe':'you'];
     u.side=side;
+    u.seat=(seat!=null)? seat : (side==='you'? 0 : S.bf.team);
     u.def=Object.assign({}, UDEF[type], BF_MOVE[type]||{});   // per-unit copy — never mutate the shared UDEF
     u.hpMax=u.def.hp||3; u.hp=u.hpMax;
-    u.dropT=DROP_T; u.setupLeft=0; u.dead=false; u.sprue=0;
+    u.dropT=DROP_T; u.dead=false; u.sprue=0;
     u.goal={ x:b.x, y:b.y };
+    // his own lane, his own stride, his own path — the march reads like people
+    u.laneY=y; u.gait=0.92+Math.random()*0.16; u.wp=null; u.wpT=0; u.pauseT=0; u.marching=false;
     if(type==='sarge'){ u.home={x,y}; u.saberState='idle'; u.saberCd=0; }
   }
   S.units.push(u); S.placedAny=true; SFX.snap();
@@ -1306,14 +1598,15 @@ function buildUnitTint(hex){
   });
 }
 function unitImg(k,u){
-  // BATTLEFIELD fields two armies out of the SAME family, so the tint has to be
-  // resolved per combatant by his side — never from a global flag.
+  // BATTLEFIELD fields up to TWENTY armies out of the same family, so the tint
+  // resolves per combatant by his SEAT — never from a global flag.
+  if(S.bf && u && u.seat!=null){ const st=S.bf.seats[u.seat], h=st&&st.hex; return (h&&IMGU[h]&&IMGU[h][k])||IMG[k]; }
   if(S.bf && u && u.side){ const h=S.bf.hex[u.side]; return (h&&IMGU[h]&&IMGU[h][k])||IMG[k]; }
   // in an invasion these are THEIR defenders — their account colour, not yours
   if(S.invasion){ const h=S.invasion.theirHex; return (h&&IMGU[h]&&IMGU[h][k])||IMG[k]; }
   const hx=dyeHex(); return (hx&&IMGU[hx]&&IMGU[hx][k])||IMG[k];
 }
-const BF_ME={side:'you'};        // for tray cards and the dragged figure
+const BF_ME={side:'you',seat:0};        // for tray cards and the dragged figure
 // the veteran stripe has to contrast with whatever colour that army is wearing
 function vetStripe(){ const h=S.invasion? S.invasion.theirHex : dyeHex(); return (h&&h.toUpperCase()==='#E8E8E8')?'#4A4A4A':'#fff'; }
 function spawnGroup(g){
@@ -1660,7 +1953,7 @@ function update(dt){
         u.cd=1/sw.rate; const vm=(u.vet?1.5:1);
         if(sw.w==='shotgun'){
           // a wide CONE aimed at the nearest cluster — flattens everyone inside it
-          SFX.thock(); (SFX.pew)();
+          bfSfx(SFX.thock, u.x); bfSfx(SFX.pew, u.x);
           const ang=Math.atan2(best.y-u.y,best.x-u.x);
           for(let j=list.length-1;j>=0;j--){ const f=list[j]; if(f.burrow||f.dead) continue;
             const d=Math.hypot(f.x-u.x,f.y-u.y); if(d>sw.rng*rb) continue;
@@ -1669,7 +1962,7 @@ function update(dt){
           S.fx.push({k:'cone',x:u.x+8,y:u.y-24,ang,spread:sw.cone,rng:sw.rng*rb,t:0,dur:0.16});
         } else if(sw.w==='sniper'){
           // one heavy round clear across the carpet
-          SFX.tpew(); S.shake=0.14;
+          bfSfx(SFX.tpew, u.x); S.shake=0.14;
           S.fx.push({k:'tracer',x1:u.x+14,y1:u.y-28,x2:best.x,y2:best.y-18,t:0,dur:0.2,col:'#FFF3C4',w:3});
           S.fx.push({k:'puff',x:best.x,y:best.y-16,t:0,dur:0.3,R:16}); hurt(best,sw.dmg*vm,u);
         }
@@ -1687,10 +1980,10 @@ function update(dt){
         // he seeds the ground AHEAD of himself — which way that is depends on the side
         const dir=(S.bf && u.side==='foe')? -1 : 1;
         const mx=u.x+dir*(40+Math.random()*70);
-        S.mines.push({ owner:u.id, side:u.side||null,
+        S.mines.push({ owner:u.id, side:u.side||null, seat:(u.seat!=null?u.seat:null),
           x:Math.max(24,Math.min((S.bf?WORLD_W:W)-30,mx)),
           y:Math.max(70,Math.min(H-100,u.y+(Math.random()-0.5)*90)), armT:0.8 });
-        SFX.snap();
+        bfSfx(SFX.snap, u.x);
       } else u.cd=1;
       continue;
     }
@@ -1711,38 +2004,39 @@ function update(dt){
     u.cd=1/def.rate;
     // your promotion ranks come onto the battlefield with you; the opposing army
     // fights at stock strength — its difficulty is decisions, not stat padding
-    const dmg = def.dmg * (u.vet?1.5:1) * ((S.bf&&u.side==='foe')?1:upMul(u.type));
+    const dmg = def.dmg * (u.vet?1.5:1) * ((S.bf&&!bfHumanU(u))?1:upMul(u.type));
     const WX = S.bf? WORLD_W : W;
     if(u.type==='flame'){
-      SFX.mg();
+      bfSfx(SFX.mg, u.x);
       extra.slice(0,def.multi).forEach(f=>{
         S.fx.push({k:'puff',x:(u.x+f.x)/2,y:(u.y+f.y)/2-14,t:0,dur:0.25,R:14});
         hurt(f,dmg,u);
       });
       continue;
     }
+    const mzl=(S.bf&&u.side==='foe')?-1:1;         // muzzles point the way the figure faces
     if(u.type==='bazooka'){
-      SFX.rocket();
+      bfSfx(SFX.rocket, u.x);
       // dumb-fire: he shoots where they WERE, roughly. It's a big rocket.
       const a=Math.random()*6.283, r=Math.random()*def.scatter;
       const tx=Math.max(20,Math.min(WX-20,best.x+Math.cos(a)*r)), ty=Math.max(20,Math.min(H-20,best.y+Math.sin(a)*r));
-      S.shots.push({k:'rocket',x:u.x+14,y:u.y-30,tx,ty,spd:280,dmg,splash:def.splash,vx2:true,src:u});
+      S.shots.push({k:'rocket',x:u.x+14*mzl,y:u.y-30,tx,ty,spd:280,dmg,splash:def.splash,vx2:true,src:u});
     } else if(u.type==='mortar'){
-      SFX.rocket();
+      bfSfx(SFX.rocket, u.x);
       // aims at where they are + scatter — he can lead them or whiff entirely
       const a=Math.random()*6.283, r=Math.random()*def.scatter;
       const tx=Math.max(20,Math.min(WX-20,best.x+Math.cos(a)*r)), ty=Math.max(20,Math.min(H-20,best.y+Math.sin(a)*r));
       S.shots.push({k:'lob',x:u.x,y:u.y-30,tx,ty,t:0,dur:1.0,dmg,splash:def.splash,src:u});
     } else {
       const dmgF = (best.type==='crawler'&&u.type==='rifleman')? dmg*0.1 : dmg;   // crawlers shrug off rifle fire
-      const lz = (META.laserOn && !(S.bf&&u.side==='foe'))? ARMIES.find(ar=>ar.id===META.laserOn) : null;
-      if(lz){ SFX.laser(); } else { (u.type==='mgunner'?SFX.mg:SFX.pew)(); }
+      const lz = (META.laserOn && !(S.bf&&!bfHumanU(u)))? ARMIES.find(ar=>ar.id===META.laserOn) : null;   // only YOUR figures pack lasers
+      if(lz){ bfSfx(SFX.laser, u.x); } else { bfSfx(u.type==='mgunner'?SFX.mg:SFX.pew, u.x); }
       hurt(best,dmgF,u);
       if(lz){
-        S.fx.push({k:'tracer',x1:u.x+16,y1:u.y-26,x2:best.x,y2:best.y-18,t:0,dur:0.14,col:lz.hex,w:4});
-        S.fx.push({k:'tracer',x1:u.x+16,y1:u.y-26,x2:best.x,y2:best.y-18,t:0,dur:0.1,col:'#ffffff',w:1.5});
+        S.fx.push({k:'tracer',x1:u.x+16*mzl,y1:u.y-26,x2:best.x,y2:best.y-18,t:0,dur:0.14,col:lz.hex,w:4});
+        S.fx.push({k:'tracer',x1:u.x+16*mzl,y1:u.y-26,x2:best.x,y2:best.y-18,t:0,dur:0.1,col:'#ffffff',w:1.5});
       } else {
-        S.fx.push({k:'tracer',x1:u.x+16,y1:u.y-26,x2:best.x,y2:best.y-18,t:0,dur:0.08});
+        S.fx.push({k:'tracer',x1:u.x+16*mzl,y1:u.y-26,x2:best.x,y2:best.y-18,t:0,dur:0.08});
       }
     }
   }
@@ -1768,7 +2062,7 @@ function update(dt){
       if(f.burrow) continue;
       if(Math.hypot(f.x-mn.x,f.y-mn.y)<26){ S.mines.splice(i,1);
         // the sapper may already be dead — the mine still knows whose it was
-        splash(mn.x,mn.y,45,3,false, S.units.find(u=>u.id===mn.owner&&!u.dead) || (S.bf?{side:mn.side}:null)); break; }
+        splash(mn.x,mn.y,45,3,false, S.units.find(u=>u.id===mn.owner&&!u.dead) || (S.bf?{side:mn.side,seat:mn.seat}:null)); break; }
     }
   }
 
@@ -1805,12 +2099,15 @@ function hitCheck(f,u){
     f.dead=true;
     if(u && u.kills!=null) u.kills++;
     S.corpses.push({ type:f.type, x:f.x, y:f.y, rot:(Math.random()<0.5?-1.83:1.83),
-      w:(f.type==='mortar'?58:54), img:unitImg(f.type,f) });
+      w:(f.type==='mortar'?58:54), img:unitImg(f.type,f), flip:(f.side==='foe') });
     if(S.corpses.length>90) S.corpses.shift();
+    // his dog tag goes to whoever'S SEAT got him — yours as a collectible blob,
+    // an AI seat's straight into that purse
     const v=bfBounty(f.type);
-    if(u && u.side==='you') S.blobs.push({x:f.x,y:f.y-8,v,t:0});   // his dog tag, your purse
-    else if(u && u.side==='foe' && S.bf) S.bf.ai.purse+=v;
-    SFX.clack();
+    const st=(u && u.seat!=null && S.bf)? S.bf.seats[u.seat] : null;
+    if(st && st.human) S.blobs.push({x:f.x,y:f.y-8,v,t:0});
+    else if(st) st.purse+=v;
+    bfSfx(SFX.clack, f.x);
     return;
   }
   if(f.hp<=0){
@@ -1835,7 +2132,7 @@ function hitCheck(f,u){
   }
 }
 function splash(x,y,R,dmg,vx2,src){
-  SFX.boom();
+  bfSfx(SFX.boom, x);
   S.fx.push({k:'puff',x,y:y-10,t:0,dur:0.45,R:R});
   // BATTLEFIELD: one blast, both armies. Friendly fire is preserved — and now
   // it can actually kill, so "don't put your mortar where your own shells land"
@@ -1891,11 +2188,12 @@ function resize(){
 }
 window.addEventListener('resize',resize); resize();
 
-function drawSprite(k,x,y,w,rot,wob,imgOverride){
+function drawSprite(k,x,y,w,rot,wob,imgOverride,flip){
   const im=imgOverride||IMG[k]; if(!im) return;
   const h=w*(im.height/im.width);
   cx.save();
   cx.translate(x,y);
+  if(flip) cx.scale(-1,1);        // the right-side army faces the way it marches
   cx.rotate((rot||0)+(wob||0));
   cx.drawImage(im,-w/2,-h+h*0.08,w,h);
   cx.restore();
@@ -2009,7 +2307,7 @@ function draw(){
 
   // the fallen (under everything alive)
   cx.globalAlpha=0.85;
-  for(const c of S.corpses) drawSprite(c.type,c.x,c.y,c.w,c.rot,0,c.img);
+  for(const c of S.corpses) drawSprite(c.type,c.x,c.y,c.w,c.rot,0,c.img,c.flip);
   cx.globalAlpha=1;
 
   // mines (armed = red eye)
@@ -2211,34 +2509,30 @@ function drawUnit(u){
     }
   }
 }
-// THE DROP-IN. Five seconds of a plummeting, half-there figure inside a
-// shrinking sprue frame, with a ring draining around the spot he'll land on.
-// He can't move, can't shoot, can't be shot — placement becomes a PREDICTION.
+// THE DROP-IN, sleek cut (Wyatt 7/24): a figure actually FALLING — accelerating
+// down with a little pendulum sway, the shadow rushing up to meet him, one thin
+// countdown ring. No sprue box cluttering the field. He can't move, can't
+// shoot, can't be shot — placement stays a PREDICTION.
 function drawBFUnit(u,w,im){
+  const flip=(u.side==='foe');
   if(u.dropT>0){
-    const k=1-u.dropT/DROP_T, lift=(1-k)*(1-k)*70;
-    cx.globalAlpha=0.26+0.12*k; cx.fillStyle='#000';
-    cx.beginPath(); cx.ellipse(u.x,u.y,9+17*k,3.5+6*k,0,0,7); cx.fill();     // the shadow rushes up to meet him
-    cx.globalAlpha=0.42+0.4*k;
-    drawSprite(u.type,u.x,u.y-lift,w,0,0,im);
+    const k=1-u.dropT/DROP_T, lift=(1-k*k)*84;                               // a real drop speeds UP
+    const sway=Math.sin(u.phase+k*6.5)*4*(1-k);
+    cx.globalAlpha=0.24+0.16*k; cx.fillStyle='#000';
+    cx.beginPath(); cx.ellipse(u.x,u.y,8+16*k,3+6*k,0,0,7); cx.fill();      // the shadow rushes up to meet him
+    cx.globalAlpha=0.38+0.5*k;
+    drawSprite(u.type,u.x+sway,u.y-lift,w,0,Math.sin(u.phase+k*9)*0.06,im,flip);
     cx.globalAlpha=1;
-    const col=(u.side==='you'?'#BFE39A':'#E8A08C');
-    cx.strokeStyle=col; cx.lineWidth=3.5; cx.lineCap='round';               // the countdown drains away
-    cx.beginPath(); cx.arc(u.x,u.y-4,27,-Math.PI/2,-Math.PI/2+6.283*(1-k)); cx.stroke();
+    const col=(u.side==='you'?'rgba(191,227,154,0.85)':'rgba(232,160,140,0.85)');
+    cx.strokeStyle=col; cx.lineWidth=2.5; cx.lineCap='round';               // the countdown drains away
+    cx.beginPath(); cx.arc(u.x,u.y-3,21,-Math.PI/2,-Math.PI/2+6.283*(1-k)); cx.stroke();
     cx.lineCap='butt';
-    const g=1.5-k*0.5;                                                       // the sprue frame closes in
-    cx.globalAlpha=0.55*(1-k)+0.2; cx.strokeStyle=col; cx.lineWidth=4;
-    cx.strokeRect(u.x-30*g,u.y-64*g-lift,60*g,72*g);
-    cx.globalAlpha=1;
     return;
   }
-  drawSprite(u.type,u.x,u.y,w,0,Math.sin(S.t*2.2+u.phase)*0.024,im);
+  // on the march he waddles like the campaign armies do; halted he settles
+  // into the gentle idle sway — the difference is what makes the field read
+  drawSprite(u.type,u.x,u.y,w,0, u.marching? Math.sin(S.t*7+u.phase)*0.05 : Math.sin(S.t*2.2+u.phase)*0.024, im, flip);
   if(u.type==='sarge') drawSargeWeapon(u);
-  if(u.setupLeft>0){    // digging in — an amber arc that says "not firing yet"
-    const k=1-u.setupLeft/Math.max(0.01,u.def.setup||1);
-    cx.strokeStyle='rgba(255,211,74,0.9)'; cx.lineWidth=3; cx.lineCap='round';
-    cx.beginPath(); cx.arc(u.x,u.y-38,15,-Math.PI/2,-Math.PI/2+6.283*k); cx.stroke(); cx.lineCap='butt';
-  }
   if(u.hp<u.hpMax){
     const k=Math.max(0,u.hp/u.hpMax);
     cx.fillStyle='rgba(0,0,0,0.45)'; cx.fillRect(u.x-15,u.y-60,30,4);
@@ -2248,7 +2542,7 @@ function drawBFUnit(u,w,im){
 }
 // show what Sarge is packing, right on the figure
 function drawSargeWeapon(u){
-  const w=(S.bf && u.side==='foe')? 'pistol' : META.sargeWeapon;   // the AI's Sarge carries the sidearm
+  const w=(S.bf && !bfHumanU(u))? 'pistol' : META.sargeWeapon;   // every AI Sarge carries the sidearm
   if(w==='shotgun'){ cx.strokeStyle='#3a2c1c'; cx.lineWidth=5.5; cx.lineCap='round'; cx.beginPath(); cx.moveTo(u.x+4,u.y-30); cx.lineTo(u.x+30,u.y-33); cx.stroke(); cx.strokeStyle='#5a4a34'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(u.x+18,u.y-32); cx.lineTo(u.x+30,u.y-33); cx.stroke(); }
   else if(w==='sniper'){ cx.strokeStyle='#26261f'; cx.lineWidth=3.5; cx.lineCap='round'; cx.beginPath(); cx.moveTo(u.x+2,u.y-30); cx.lineTo(u.x+46,u.y-36); cx.stroke(); cx.fillStyle='#26261f'; cx.fillRect(u.x+18,u.y-41,5,6); }
   else if(w==='lightsaber'){
@@ -2335,7 +2629,7 @@ function drawHUD(){
       : 'WAVE '+(S.wave+1)+' / '+S.cfg.waves.length+' READY')), VW/2-60, 23);
   }
   cx.textAlign='right';
-  cx.fillText(S.bf? S.bf.rival.name : ((S.invasion?'THEIR BOX ×':'TOY BOX ×')+S.lives), VW-16, 23);
+  cx.fillText(S.bf? (S.bf.team>1? S.bf.team+'v'+S.bf.team : S.bf.rival.name) : ((S.invasion?'THEIR BOX ×':'TOY BOX ×')+S.lives), VW-16, 23);
   if(S.bf) drawBFBars(); else drawBossBar();
   // buttons: speed, sound & retreat to HQ (always available — even mid-Level 1)
   btn('spd', VW/2+110, 6, 62, 32, S.speed+'×');
@@ -2350,7 +2644,7 @@ function drawHUD(){
     BF_TYPES.forEach((t,i)=>{
       const x=x0+i*(tw+gap);
       trayRects[i]=[x,y0,tw,th];
-      const placed = t==='sarge' && S.units.some(u=>!u.dead&&u.side==='you'&&u.type==='sarge');
+      const placed = t==='sarge' && S.units.some(u=>!u.dead&&u.seat===0&&u.type==='sarge');
       const afford = !placed && S.plastic>=BF_COST[t];
       cx.fillStyle= afford? 'rgba(38,40,31,0.92)':'rgba(38,40,31,0.6)';
       rr(x,y0,tw,th,10); cx.fill();
@@ -2360,7 +2654,7 @@ function drawHUD(){
       cx.globalAlpha=1;
       cx.font='bold 17px "Arial Narrow", Impact, sans-serif'; cx.textAlign='center';
       cx.fillStyle= afford? '#FFF3C4':'#8b8f7a';
-      cx.fillText(placed?'★':BF_COST[t], x+tw-24, y0+th-12);
+      cx.fillText(t==='sarge'? (placed?'★':'FREE') : BF_COST[t], x+tw-24, y0+th-12);
       cx.fillStyle=afford?CREAM:'#8b8f7a'; cx.font='bold 12px "Arial Narrow", Impact, sans-serif';
       cx.fillText(UDEF[t].name, x+tw/2, y0+13);
     });
@@ -2467,7 +2761,7 @@ cv.addEventListener('pointerdown', e=>{
     for(let i=0;i<BF_TYPES.length;i++){
       if(inRect(p.x,p.y,trayRects[i])){
         const t=BF_TYPES[i];
-        const placed = t==='sarge' && S.units.some(u=>!u.dead&&u.side==='you'&&u.type==='sarge');
+        const placed = t==='sarge' && S.units.some(u=>!u.dead&&u.seat===0&&u.type==='sarge');
         if(!placed && S.plastic>=BF_COST[t]){ const w=evPosW(e); S.drag={type:t,x:w.x,y:w.y-DRAG_OFF,unit:null}; }
         else SFX.clack();
         S.sel=null; return;
@@ -2534,7 +2828,7 @@ cv.addEventListener('pointerup', e=>{
   const d=S.drag; S.drag=null;
   if(S.bf){
     const w=evPosW(e), dy=w.y-DRAG_OFF;
-    if(!applyDeploy('you', d.type, w.x, dy)) SFX.clack();
+    if(!applyDeploy(0, d.type, w.x, dy)) SFX.clack();   // seat 0 — the human's chair
     return;
   }
   const p=evPos(e);
@@ -2803,9 +3097,16 @@ function panelHTML(id){
       +(META.campaign>0?'<p style="margin-top:10px;font-size:0.9rem">Replay: '+Array.from({length:Math.min(META.campaign,5)},(_,i)=>'<a href="#" style="color:#7FA35C" onclick="UI.play('+(i+1)+');return false">L'+(i+1)+' '+'★'.repeat(META.levelStars['l'+(i+1)]||0)+'</a>').join(' · ')+'</p>':'');
     case 'bf': {
       const diff=bfDifficulty(), per=(BF_PERSONA[riv.id]||BF_PERSONA.blue).name;
+      const t=Math.max(1,Math.min(BF_MAX_TEAM,META.bfTeam||1));
       return '<h3>THE BATTLEFIELD</h3>'
-      +'<p>Two armies, one long carpet, and a toy box at each end. Drop men on <b>your</b> half — they take five seconds to land, then march, and halt to fight whatever they run into. Whoever smashes more of the other box before the whistle wins.</p>'
-      +'<p style="font-size:1rem;opacity:0.72">1:30 on the clock · dog tags tick in on their own (+1 every 10s) and every kill pays a bounty · your promotions and Sarge\'s weapon come with you</p>'
+      +'<p>Up to ten armies a side, one long carpet, and a toy box at each end. Drop men on <b>your</b> half — they take five seconds to land, then march, and halt to fight whatever they run into. Whoever smashes more of the other box before the whistle wins.</p>'
+      +'<p style="font-size:1rem;opacity:0.72">Same dog tags as the campaign — they drip in on their own (+'+BF_TICK+' every 10s) and every kill pays a bounty · your promotions and Sarge\'s weapon come with you · <b style="color:#FFF3C4">WIN = +25★ AND A PILE OF XP</b></p>'
+      +'<p style="margin:10px 0 4px"><b>SQUAD SIZE</b> <small style="opacity:0.62">— '
+        +(t===1? 'just you against one army' : 'you + '+(t-1)+' allied '+(t===2?'army':'armies')+' against '+t)+', every player their own colour</small></p>'
+      +'<div class="bfseg">'
+      + Array.from({length:BF_MAX_TEAM},(_,k)=>{ const n=k+1;
+        return '<button type="button" class="'+(t===n?'on':'')+'" onclick="UI.bfTeam('+n+')">'+n+'v'+n+'</button>'; }).join('')
+      +'</div>'
       +'<div>'
       + BF_MAPS.map(m=>{ const on=(META.bfMap===m.id);
         return '<div class="mrow" style="cursor:pointer'+(on?';background:rgba(127,163,92,0.14);border-radius:6px':'')+'" onclick="UI.bfMap(\''+m.id+'\')">'
@@ -2813,9 +3114,10 @@ function panelHTML(id){
         +(on?'<b style="color:#7FA35C">CHOSEN</b>':'<button class="mbtn" style="padding:0.3rem 0.9rem;font-size:0.9rem" onclick="event.stopPropagation();UI.bfMap(\''+m.id+'\')">PICK</button>')
         +'</div>'; }).join('')
       +'</div>'
-      +'<p style="margin-top:12px"><span class="rivalchip" style="background:'+riv.hex+'"></span>Today you face <b>'+riv.name+'</b> — they fight like <b>'+per+'</b> · '+diff.toUpperCase()+'</p>'
-      +'<button class="mbtn alt" onclick="UI.battlefield()">TAKE THE FIELD</button>'
-      +(META.bfWins+META.bfLosses>0? '<p style="font-size:0.95rem;opacity:0.6;margin-top:10px">Record: '+META.bfWins+' W · '+META.bfLosses+' L · first win each day pays a bonus.</p>':'');
+      +'<p style="margin-top:12px"><span class="rivalchip" style="background:'+riv.hex+'"></span>Today <b>'+riv.name+'</b> captains the other side — they fight like <b>'+per+'</b> · '+diff.toUpperCase()+'</p>'
+      +'<button class="mbtn alt" onclick="UI.battlefield()">QUEUE UP — '+t+'v'+t+'</button>'
+      +'<p style="font-size:0.95rem;opacity:0.6;margin-top:10px">Soldiers drop into your queue while you wait — then BOOM, the battle starts.'
+      +(META.bfWins+META.bfLosses>0? ' Record: '+META.bfWins+' W · '+META.bfLosses+' L · first win each day pays a bonus.':'')+'</p>';
     }
     case 'shop': return '<h3>THE SHOP</h3>'
       + SHOP_ITEMS.map(s=>{ const owned=META.unlocked.indexOf(s.t)>=0;
@@ -2902,7 +3204,8 @@ function showPicker(){
 window.UI = {
   play(n){ audio(); startBattle(n||META.campaign+1, null); },
   rival(){ audio(); const r=todaysRival(); startBattle(Math.max(1,Math.min(META.campaign+1,5)), r); },
-  battlefield(){ audio(); startBattlefield(META.bfMap); },
+  battlefield(){ audio(); bfQueueStart(META.bfTeam||1); },
+  bfTeam(n){ n=Math.max(1,Math.min(BF_MAX_TEAM,n|0)); META.bfTeam=n; SFX.blip(); saveMeta(); roomModal(panelHTML('bf')); },
   bfMap(id){ if(!BF_MAPS.some(m=>m.id===id)) return; META.bfMap=id; SFX.blip(); saveMeta(); roomModal(panelHTML('bf')); },
   buy(t){ const it=SHOP_ITEMS.find(s=>s.t===t); if(!it||META.starBank<it.cost||META.unlocked.indexOf(t)>=0) return;
     META.starBank-=it.cost; META.unlocked.push(t); checkAch(); saveMeta(); renderMenu(); roomModal(panelHTML('shop')); },
@@ -3003,13 +3306,13 @@ document.getElementById('title').addEventListener('pointerdown', ()=>{
 })();
 document.getElementById('retryBtn').addEventListener('click', ()=>{
   audio();
-  if(S.bf){ startBattlefield(S.bf.mapId); return; }
+  if(S.bf){ startBattlefield(S.bf.mapId, null, S.bf.team); return; }   // instant rematch, same size, no queue
   if(S.invasion && chalTarget){ startInvasion(chalTarget); }
   else startBattle(S.levelN, S.rival);
 });
 document.getElementById('againBtn').addEventListener('click', ()=>{
   audio();
-  if(S.bf){ showMenu(); return; }
+  if(S.bf){ if(META.pendingPicks>0) showPicker(); else showMenu(); return; }   // battlefield XP can promote you
   if(S.invasion){ S.invasion=null; showMenu(); return; }
   if(META.pendingPicks>0) showPicker(); else showMenu();
 });
@@ -3054,22 +3357,29 @@ window.GVT = {
   sarge(w,rank){ if(w&&w!=='pistol'&&META.sargeUnlocked.indexOf(w)<0) META.sargeUnlocked.push(w); META.sargeWeapon=w||'pistol'; if(rank!=null){ if(w==='pistol') META.up.sarge=rank; else META.sargeUp[w]=rank; } saveMeta(); return sargeStats(); },
   unlockSarge(){ META.sargeUnlocked=['shotgun','sniper','lightsaber']; saveMeta(); return META.sargeUnlocked; },
   // ===== BATTLEFIELD =====
-  battlefield(mapId,diff){ startBattlefield(mapId, diff); return S.bf.mapId+' vs '+S.bf.rival.id+' ('+S.bf.ai.diff+')'; },
-  bfSpawn(side,type,x,y){ if(!S.bf) return null; const u=placeUnit(type,Math.round(x),Math.round(y),side||'you'); return u&&u.id; },
-  bfDrop(side,type,x,y){ return S.bf? (applyDeploy(side||'you',type,x,y)||{}).id||null : null; },   // goes through the purse
-  bfAI(diff){ if(!S.bf) return null; S.bf.ai.brain.setDiff(diff); S.bf.ai.diff=S.bf.ai.brain.diff; return S.bf.ai.diff; },
+  battlefield(mapId,diff,team){ startBattlefield(mapId, diff, team); return S.bf.mapId+' '+S.bf.team+'v'+S.bf.team+' vs '+S.bf.rival.id+' ('+S.bf.ai.diff+')'; },
+  bfQueue(size){ bfQueueStart(size); return BFQ && { size:BFQ.size, joined:BFQ.joined }; },
+  bfQueueCancel(){ bfQueueCancel(); },
+  bfSpawn(s,type,x,y){ if(!S.bf) return null;
+    const seat = typeof s==='number'? s : (s==='foe'? S.bf.team : 0);
+    const st=S.bf.seats[seat]; if(!st) return null;
+    const u=placeUnit(type,Math.round(x),Math.round(y),st.team,seat); return u&&u.id; },
+  bfDrop(s,type,x,y){ return S.bf? (applyDeploy(s==null?'you':s,type,x,y)||{}).id||null : null; },   // goes through the purse
+  bfAI(diff){ if(!S.bf) return null; S.bf.seats.forEach(st=>{ if(st.brain) st.brain.setDiff(diff); });
+    S.bf.ai.diff=diff; return diff; },
   bfEnd(r){ endBattlefield(r||'time'); },
-  bfCash(n){ S.plastic=n; if(S.bf) S.bf.ai.purse=n; },
+  bfCash(n){ S.plastic=n; if(S.bf) S.bf.seats.forEach(st=>{ if(!st.human) st.purse=n; }); },
   bfClock(t){ if(S.bf) S.bf.timeLeft=t; },
   bfCam(x){ if(S.bf){ S.bf.cam.x=clampCam(x); S.bf.cam.vx=0; } return S.bf&&S.bf.cam.x; },
   bfSnap(){ if(!S.bf) return null; const b=S.bf;
-    return { map:b.mapId, phase:b.phase, t:+b.timeLeft.toFixed(1), ot:b.ot, resolved:b.resolved,
-      purse:{you:S.plastic, foe:b.ai.purse}, diff:b.ai.diff, rival:b.rival.id,
+    return { map:b.mapId, team:b.team, phase:b.phase, t:+b.timeLeft.toFixed(1), ot:b.ot, resolved:b.resolved,
+      worldW:WORLD_W, purse:{you:S.plastic, foe:b.seats[b.team].purse}, diff:b.ai.diff, rival:b.rival.id,
+      seats:b.seats.map(st=>({i:st.i,name:st.name,team:st.team,hex:st.hex,human:st.human,purse:st.human?S.plastic:st.purse})),
       baseHP:{you:b.base.you.hp, foe:b.base.foe.hp},
       razed:{you:b.base.foe.dmgTaken, them:b.base.you.dmgTaken},
       cam:Math.round(b.cam.x), vw:Math.round(VW), corpses:S.corpses.length,
-      units:S.units.filter(u=>!u.dead).map(u=>({s:u.side,t:u.type,x:u.x|0,y:u.y|0,hp:u.hp,
-        drop:+(u.dropT||0).toFixed(1), setup:+(u.setupLeft||0).toFixed(2)})) }; }
+      units:S.units.filter(u=>!u.dead).map(u=>({s:u.side,st:u.seat,t:u.type,x:u.x|0,y:u.y|0,hp:u.hp,
+        drop:+(u.dropT||0).toFixed(1), marching:!!u.marching})) }; }
 };
 </script>
 </body>
