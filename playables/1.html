@@ -25073,24 +25073,29 @@ function draw(){
 }
 let FHAND=null;
 function fhand(){ if(FHAND) return FHAND;
-  const c=document.createElement('canvas'); c.width=192; c.height=224;   // baked 2x — crisp when the draw scales it up
-  const g=c.getContext('2d'); g.scale(2,2); g.translate(34,6);
+  // the classic cartoon GLOVE (Wyatt's reference, 8/7): one plump index finger,
+  // big round palm, thumb + heel lobes, three crease lines. The unified thick
+  // outline is made the INFLATE way — the same hand filled dark at +6, then
+  // white at true size — so the contour flows around every lobe with zero
+  // interior seams.
+  const c=document.createElement('canvas'); c.width=192; c.height=240;   // baked 2x — crisp when the draw scales it up
+  const g=c.getContext('2d'); g.scale(2,2); g.translate(34,16);
   g.lineJoin='round'; g.lineCap='round';
-  // thumb first — the palm fill trims its overlap so only the tip protrudes
-  g.fillStyle='#FFFFFF'; g.strokeStyle='#2E2B26'; g.lineWidth=3;
-  g.beginPath(); g.ellipse(-13,58,8,13,0.55,0,7); g.fill(); g.stroke();
-  // palm / fist
-  g.beginPath(); g.ellipse(10,57,21,19,0,0,7); g.fill(); g.stroke();
-  // three curled knuckles — full-circle strokes read as finger separations
-  for(const [bx,by] of [[27,46],[29,57],[26,68]]){
-    g.beginPath(); g.arc(bx,by,7.5,0,7); g.fill(); g.stroke(); }
-  // the index finger, tip on the touch point, drawn last so its fill is clean
-  const cap=()=>{ g.beginPath(); g.moveTo(-6.5,8); g.arc(0,8,6.5,Math.PI,0);
-    g.lineTo(6.5,44); g.arc(0,44,6.5,0,Math.PI); g.closePath(); };
-  cap(); g.fill(); cap(); g.stroke();
-  // a nail hint sells it
-  g.globalAlpha=0.5; g.strokeStyle='#B9B2A6'; g.lineWidth=2;
-  g.beginPath(); g.arc(0,11,3.8,Math.PI*0.15,Math.PI*0.85); g.stroke(); g.globalAlpha=1;
+  const finger=r=>{ g.beginPath(); g.moveTo(-r,10.5); g.arc(0,10.5,r,Math.PI,0);
+    g.lineTo(2+r,34); g.arc(2,34,r,0,Math.PI); g.closePath(); g.fill(); };
+  const lobes=o=>{
+    g.beginPath(); g.arc(-12,68,13+o,0,7); g.fill();            // thumb
+    g.beginPath(); g.arc(8,82,11+o,0,7); g.fill();              // heel of the glove
+    g.beginPath(); g.ellipse(16,56,27+o,24+o,0,0,7); g.fill();  // the big palm
+    finger(10.5+o); };
+  g.fillStyle='#171512'; lobes(6);     // the outline IS an inflated dark hand
+  g.fillStyle='#FFFFFF'; lobes(0);     // the white glove sits inside it
+  // three crease lines where the folded fingers hide — short, flat, and well
+  // clear of the contour so they never read as notches in the outline
+  g.strokeStyle='#171512'; g.lineWidth=4;
+  g.beginPath(); g.arc(22,43,7,-0.95,0.4); g.stroke();
+  g.beginPath(); g.arc(24,54,7,-0.8,0.5); g.stroke();
+  g.beginPath(); g.arc(22,65,7,-0.65,0.6); g.stroke();
   FHAND=c; return c; }
 function drawFinger(x,y,press){
   /* playable build (Wyatt 8/7): a PROPER playable-ad hand, not a dot */
@@ -25103,7 +25108,7 @@ function drawFinger(x,y,press){
   const fsq=(1-0.10*press)*1.35;                     // playable-ad presence; the press squeezes it into the tap
   cx.scale(fsq,fsq); cx.translate(0,3*press);
   cx.shadowColor='rgba(0,0,0,0.35)'; cx.shadowBlur=7; cx.shadowOffsetX=3; cx.shadowOffsetY=4;
-  cx.drawImage(fhand(), -34, -6, 96, 112);
+  cx.drawImage(fhand(), -34, -16, 96, 120);
   cx.restore();
 }
 function ease(k){ return k<0.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2; }
