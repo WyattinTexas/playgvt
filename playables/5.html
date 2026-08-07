@@ -6,13 +6,29 @@
 <title>Green vs Tan — Play Now</title>
 <script src="mraid.js"></script>
 <style>
-  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#141810}
-  #g{position:fixed;border:0;top:0;left:0;width:100vw;height:100vh}
-  .rot #g{width:100vh;height:100vw;transform:rotate(90deg) translateY(-100%);transform-origin:top left}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#141810;
+    font-family:system-ui,-apple-system,sans-serif}
+  #col{position:fixed;inset:0;display:flex;flex-direction:column;align-items:stretch}
+  #hdr{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:calc(6px + env(safe-area-inset-top)) 8px 6px;font-family:Impact,'Arial Black',sans-serif;
+    text-transform:uppercase;letter-spacing:.04em;line-height:1}
+  #hdr .g{color:#7FA35C;font-size:26px} #hdr .v{color:#EDEADF;font-size:12px;opacity:.7} #hdr .t{color:#C09E6C;font-size:26px}
+  #g{flex:0 0 auto;border:0;width:100%;background:#141810}
+  #ftr{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    padding:8px 14px calc(10px + env(safe-area-inset-bottom))}
+  #cta{width:min(86vw,340px);background:#FFD24A;color:#3a2c1c;border:3px solid #3a2c1c;border-radius:14px;
+    padding:15px 10px;font:800 20px/1 system-ui;text-transform:uppercase;letter-spacing:.05em;text-align:center;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);cursor:pointer;user-select:none;-webkit-user-select:none;
+    animation:pu 1.6s ease-in-out infinite}
+  @keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  #sub{color:#EDEADF;opacity:.75;font-size:12px}
+  @media (orientation: landscape){ #hdr,#ftr{display:none} #g{position:fixed;inset:0;width:100vw;height:100vh !important} }
 </style>
 </head>
 <body>
-<iframe id="g" srcdoc="<!DOCTYPE html>
+<div id="col">
+  <div id="hdr"><span class="g">Green</span><span class="v">— VS —</span><span class="t">Tan</span></div>
+  <iframe id="g" srcdoc="<!DOCTYPE html>
 <!--
   GVT — GREEN VS. TAN
   © 2026 Corkscrew Games. All rights reserved.
@@ -114,7 +130,7 @@
   .scanlines { position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,0.16) 2px 4px); }
   @media (prefers-reduced-motion: reduce){ .press,.strip,.rivsquad,.rivfig,.vicfig,.roomtag.alarm,.pigwrap.hop,.starfloat,.wt-flank,.wt-play,.accard img,.promobanner,.wr-flank,.wr-act{ animation:none; } }
   @media (orientation: portrait) {
-    #rotate { display:flex; z-index:50; }
+    #rotate { display:none; }   /* playable p5: portrait IS the design */
   }
   /* ---- BATTLEFIELD QUEUE (FAVOR's beat in GVT's tin) ----
      a non-modal pill ticks at the top while &quot;players&quot; drop into the roster,
@@ -31950,7 +31966,7 @@ window.GVT = {
 </script>
 <script>
 /* ============ PLAYABLE LAYER (ad build — see playables/build_playables.py) ============ */
-window.PL={ mode:'p1', started:false, done:false, portrait:false, t0:Date.now(), ev:{} };
+window.PL={ mode:'p5', started:false, done:false, portrait:true, t0:Date.now(), ev:{} };
 var PL_IOS='https://apps.apple.com/app/id6793353373', PL_AND='https://play.google.com/store/apps/details?id=com.corkscrewgames.gvt', PL_WEB='https://playgvt.net';
 /* Funnel marks — written game-side (this script shares the global scope, so it
    reads S/COMM directly). A test harness or SDK wrapper reads PL.ev. */
@@ -32138,10 +32154,29 @@ function plEnd(){ PL.mark('end');
 </body>
 </html>
 "></iframe>
+  <div id="ftr">
+    <div id="cta">▶ Play Now — Free</div>
+    <div id="sub">Smash their toy box to win!</div>
+  </div>
+</div>
 <script>
 (function(){
-  function ap(){ document.documentElement.classList.toggle('rot', window.innerHeight > window.innerWidth); }
-  window.addEventListener('resize', ap); window.addEventListener('orientationchange', ap); ap();
+  var g=document.getElementById('g');
+  function fit(){
+    if(window.innerWidth < window.innerHeight)
+      g.style.height = Math.round(window.innerWidth * 600/480) + 'px';   // the 480-wide portrait window's own aspect
+    else g.style.height = '100vh';
+  }
+  window.addEventListener('resize', fit); window.addEventListener('orientationchange', fit); fit();
+  function store(){ var ua=navigator.userAgent||'';
+    if(/android/i.test(ua)) return 'https://play.google.com/store/apps/details?id=com.corkscrewgames.gvt';
+    if(/iphone|ipad|ipod/i.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)) return 'https://apps.apple.com/app/id6793353373';
+    return 'https://playgvt.net'; }
+  document.getElementById('cta').addEventListener('pointerdown', function(){
+    var u=store();
+    try{ if(window.mraid && mraid.open){ mraid.open(u); return; } }catch(e){}
+    try{ var w=window.open(u,'_blank'); if(!w) location.href=u; }catch(e){ location.href=u; }
+  });
 })();
 </script>
 </body>

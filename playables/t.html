@@ -57,7 +57,7 @@
    appearing after a real-ad delay. Captures the funnel the creative stamps
    (PL.ev, game-side) into a report a tester can copy and text back. */
 var Q = new URLSearchParams(location.search);
-var P = Q.get('p') === '1' ? '1' : '2';
+var P = ['1','2','4','5'].indexOf(Q.get('p')) >= 0 ? Q.get('p') : '2';
 var XDELAY = 5;                      // seconds before the ✕ appears (real-ad feel)
 var H = { t0: Date.now(), ev: {}, ctaUrl: null, reported: false };
 function hm(k){ if(!(k in H.ev)) H.ev[k] = +(((Date.now() - H.t0) / 1000).toFixed(1)); }
@@ -115,9 +115,9 @@ xBtn.addEventListener('click', function(){ hm('closed'); showReport('Ad closed w
 
 /* ---- the report card ---- */
 var LABEL = { shell:'simulator up', loaded:'ad loaded', boot:'game started', briefed:'briefing done',
-  drop1:'first soldier placed', foes:'enemy engaged', win:'🏆 VICTORY', lose:'defeat',
-  end:'PLAY NOW screen', cta:'CTA tapped', closed:'closed (✕)' };
-var ORDER = ['shell','loaded','boot','briefed','drop1','foes','win','lose','end','cta','closed'];
+  drop1:'first soldier placed', foes:'enemy engaged', crate:'💥 hit their toy box', yeti:'🥶 yeti arrived',
+  win:'🏆 VICTORY', lose:'defeat', end:'PLAY NOW screen', cta:'CTA tapped', closed:'closed (✕)' };
+var ORDER = ['shell','loaded','boot','briefed','drop1','foes','crate','yeti','win','lose','end','cta','closed'];
 function uaStore(){
   var ua = navigator.userAgent || '';
   if(/android/i.test(ua)) return 'https://play.google.com/store/apps/details?id=com.corkscrewgames.gvt';
