@@ -25778,7 +25778,7 @@ function drawFoe(f){
       cx.globalAlpha=1;
     }
   }
-  if(f.hp<f.hpMax){
+  if(f.hp<f.hpMax &amp;&amp; f.type!=='yeti'){   /* playable (Wyatt 8/7): the yeti's health bar never shows */
     const k=f.hp/f.hpMax;
     const bo=Math.min(72,f.def.w*1.1);
     cx.fillStyle='rgba(0,0,0,0.4)'; cx.fillRect(f.x-16,f.y-bo,32,4);
@@ -32111,7 +32111,8 @@ function plChipPlace(){
 /* ---- the goal cues. Wave 3 (Wyatt 8/7): the pointer says DESTROY THEIR TOY
    BOX plainly — no emoji, no arrows — and gets out of the way after 7s. The
    defend warning + hit banners are p2's alone now; p4 wears p1's text plus
-   the pointer and a plain yeti call. Slow-mo/camera/ring beats stay on both. ---- */
+   the pointer and a plain yeti call. Slow-mo/camera beats stay on both, and
+   the glow rides the crate's HEALTH READOUT while it is being shot (3.3). ---- */
 var PLC={ els:{}, hitFoe:false, hitYou:false, yeti:false, t0:0 };
 function plCueEl(id, css){ if(PLC.els[id]) return PLC.els[id];
   var d=document.createElement('div'); d.style.cssText=css; d.style.display='none';
@@ -32165,16 +32166,31 @@ function plCueTick(){ try{
       h.style.left=Math.max(r.left+6, q.x-78)+'px'; h.style.top=Math.max(r.top+46, q.y-88*scale)+'px'; }
     else h.style.display='none';
   } else h.style.display='none';
-  /* first hit on THEIR box: slow-mo beat + celebration + camera shows the crate */
+  /* first hit on THEIR box: slow-mo beat + camera on both; the banner is p2's.
+     Wyatt 8/7: NO ring around the crate — &quot;the highlight doesn't really help&quot; */
   var foeDmg = S.bf? S.bf.base.foe.dmgTaken>0 : (S.tanBase &amp;&amp; S.tanBase.hp<S.tanBase.hpMax);
   if(foeDmg &amp;&amp; !PLC.hitFoe){ PLC.hitFoe=true; PL.mark('crate');
     S.hitStop=Math.max(S.hitStop||0, 1.1);
     if(S.bf){ S.bf.cam.x=Math.max(0, Math.min(WORLD_W-VW, S.bf.base.foe.x-VW*0.62)); S.bf.cam.vx=0; }
     else if(S.cCam &amp;&amp; W>VW){ S.cCam.x=Math.max(0, Math.min(W-VW, S.tanBase.x-VW*0.62)); S.cCam.vx=0; }
     if(PL.mode==='p2') plBang('YOU HIT THEIR TOY BOX!', 'Smash it to win!', '#FFD24A', 2.0);
-    var rg=PLC.els.ring, pp=plScreen(c.x, c.y);
-    rg.style.left=(pp.x-46)+'px'; rg.style.top=(pp.y-64)+'px'; rg.style.width='92px'; rg.style.height='84px';
-    rg.style.display='block'; setTimeout(function(){ rg.style.display='none'; }, 2000);
+  }
+  /* while their box is being shot the glow rides its HEALTH READOUT instead —
+     the shrinking bar is the &quot;you're almost done!&quot; the crate ring never said
+     (campaign: THEIR TOY BOX plate top-right · bf: the tug bar top-center) */
+  var hpNow = S.bf? S.bf.base.foe.hp : (S.tanBase? S.tanBase.hp : null);
+  if(hpNow!=null){
+    if(PLC.lastHp==null || hpNow>PLC.lastHp) PLC.lastHp=hpNow;
+    if(hpNow<PLC.lastHp){
+      var rg=PLC.els.ring, bx,by,bw2,bh;
+      if(S.bf){ var tw=Math.min(340,VW*0.42), tx0=(VW-tw)/2; bx=tx0-34; by=44; bw2=tw+68; bh=28; }
+      else { var bwc=Math.min(240,(VW-40)*0.27); bx=VW-24-bwc; by=47; bw2=bwc+16; bh=28; }
+      rg.style.left=(r.left+(bx-6)*scale)+'px'; rg.style.top=(r.top+(by-6)*scale)+'px';
+      rg.style.width=((bw2+12)*scale)+'px'; rg.style.height=((bh+12)*scale)+'px';
+      rg.style.display='block';
+      clearTimeout(PLC.ringT); PLC.ringT=setTimeout(function(){ rg.style.display='none'; }, 1100);
+      PLC.lastHp=hpNow;
+    }
   }
   var youDmg = S.bf? S.bf.base.you.dmgTaken>0 : (S.lives<10);
   if(PL.mode==='p2' &amp;&amp; youDmg &amp;&amp; !PLC.hitYou){ PLC.hitYou=true;
