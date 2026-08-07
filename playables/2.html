@@ -32022,6 +32022,7 @@ function plSnowLevel(){
   try{ YETI_LEVELS[1]=32; }catch(e){}       // his rung now — arrives at 32s (Wyatt: &quot;20 seconds later&quot;)
   startCampaign(1);
 }
+/* hand art: campaign creatives only */
 /* ---- the guiding finger's second wind (wave 3, Wyatt 8/7): the coach's own
    drag demo returns whenever the player idles 3s WITH a man he could field.
    Campaign creatives only (S.sq) — drawCoach's frame pass calls this. ---- */
@@ -32044,7 +32045,8 @@ function plIdleFinger(){ try{
   var cam=(typeof S.cCam!=='undefined' &amp;&amp; S.cCam &amp;&amp; W>VW)? S.cCam.x : 0;
   var tx=Math.max(258, Math.min(400, campDeployX()-70-cam));
   var k=ease(Math.min(1,((performance.now()/1000)%1.9)/1.5));   // fingerDrag's cycle, self-clocked (coach.t is gone)
-  var x1=236,y1=540,x2=tx,y2=280, mx=(x1+x2)/2, my=Math.min(y1,y2)-70, u=1-k;
+  var t0=(typeof trayRects!=='undefined' &amp;&amp; trayRects[0])? trayRects[0] : null;   // the RIFLEMAN slot
+  var x1=t0? t0[0]+t0[2]/2 : 236, y1=t0? t0[1]+8 : 540, x2=tx, y2=280, mx=(x1+x2)/2, my=Math.min(y1,y2)-70, u=1-k;
   var fx=u*u*x1+2*u*k*mx+k*k*x2, fy=u*u*y1+2*u*k*my+k*k*y2;
   PLF.on=true;
   cx.globalAlpha=0.35; cx.setLineDash([3,9]); cx.strokeStyle='#fff'; cx.lineWidth=2.5;
