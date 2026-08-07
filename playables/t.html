@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>GVT Playable — Ad Serve Simulator</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+  #ad{position:fixed;inset:0;width:100%;height:100%;border:0;background:#141810}
+  /* the ad-network chrome: countdown ring that becomes the ✕ */
+  #ring,#x{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));
+    width:34px;height:34px;border-radius:50%;z-index:60}
+  #ring{background:conic-gradient(#FFD24A 0deg, rgba(255,255,255,.22) 0)}
+  #ring::after{content:'';position:absolute;inset:3px;border-radius:50%;background:rgba(0,0,0,.55)}
+  #x{display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);
+    border:1.5px solid rgba(255,255,255,.85);color:#fff;font:700 17px/1 system-ui;cursor:pointer;user-select:none}
+  /* session report card */
+  #shade{position:fixed;inset:0;background:rgba(10,8,6,.72);z-index:90;display:none}
+  #card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:100;display:none;
+    width:min(92vw,420px);max-height:86vh;overflow:auto;background:#141810;color:#EDEADF;
+    border:2px solid #7FA35C;border-radius:12px;padding:14px 16px;font:14px/1.45 system-ui;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+  #card h2{margin:0 0 2px;font:800 17px/1.2 system-ui;color:#7FA35C;text-transform:uppercase;letter-spacing:.04em}
+  #card .sub{color:#C09E6C;font-size:12px;margin-bottom:9px}
+  #card table{width:100%;border-collapse:collapse;margin:4px 0 10px}
+  #card td{padding:2.5px 0;border-bottom:1px dashed rgba(237,234,223,.14)}
+  #card td:last-child{text-align:right;color:#FFD24A;font-variant-numeric:tabular-nums}
+  #card .out{font-weight:800;margin:2px 0 10px}
+  #card .btns{display:flex;gap:8px;flex-wrap:wrap}
+  #card button,#card a{flex:1 1 30%;text-align:center;background:#2A2E20;color:#EDEADF;border:1.5px solid #7FA35C;
+    border-radius:8px;padding:9px 6px;font:700 13px system-ui;cursor:pointer;text-decoration:none;text-transform:uppercase}
+  #card a{border-color:#FFD24A;color:#FFD24A}
+  #dbg{position:fixed;left:4px;top:4px;z-index:80;display:none;background:rgba(0,0,0,.65);color:#9f9;
+    font:10px/1.5 ui-monospace,monospace;padding:5px 7px;border-radius:6px;white-space:pre;pointer-events:none}
+</style>
+</head>
+<body>
+<iframe id="ad" title="playable ad"></iframe>
+<div id="ring"></div><div id="x">✕</div>
+<div id="shade"></div>
+<div id="card">
+  <h2 id="cTitle">Session report</h2>
+  <div class="sub" id="cSub"></div>
+  <div class="out" id="cOut"></div>
+  <table id="cRows"></table>
+  <div class="btns">
+    <button id="bCopy">📋 Copy report</button>
+    <button id="bAgain">▶ Play again</button>
+    <a id="bStore" target="_blank" rel="noopener">🛒 Store</a>
+  </div>
+</div>
+<pre id="dbg"></pre>
+<script>
+'use strict';
+/* ============ GVT PLAYABLE AD SERVE SIMULATOR ============
+   Presents the raw creative exactly the way a network interstitial does:
+   fullscreen, an SDK-style MRAID object injected from outside, and the ✕
+   appearing after a real-ad delay. Captures the funnel the creative stamps
+   (PL.ev, game-side) into a report a tester can copy and text back. */
+var Q = new URLSearchParams(location.search);
+var P = Q.get('p') === '1' ? '1' : '2';
+var XDELAY = 5;                      // seconds before the ✕ appears (real-ad feel)
+var H = { t0: Date.now(), ev: {}, ctaUrl: null, reported: false };
+function hm(k){ if(!(k in H.ev)) H.ev[k] = +(((Date.now() - H.t0) / 1000).toFixed(1)); }
+
+var ifr = document.getElementById('ad');
+
+/* ---- the fake SDK: an MRAID object the creative discovers via parent.mraid ---- */
+function injectMraid(){
+  try{
+    var w = ifr.contentWindow; if(!w) return;
+    if(!w.mraid || !w.mraid.__sim){
+      w.mraid = { __sim: true,
+        getState: function(){ return 'default'; },
+        isViewable: function(){ return true; },
+        addEventListener: function(){}, removeEventListener: function(){},
+        useCustomClose: function(){},
+        close: function(){ showReport('Creative asked to close'); },
+        open: function(u){
+          H.ctaUrl = u; hm('cta');
+          showReport('CTA TAPPED — a real ad opens the store here');
+          try{ window.open(u, '_blank'); }catch(e){}
+        } };
+    }
+  }catch(e){}
+}
+ifr.addEventListener('load', injectMraid);
+var stubIv = setInterval(injectMraid, 150);
+setTimeout(function(){ clearInterval(stubIv); }, 6000);
+ifr.src = P + '.html';
+hm('shell');
+
+/* ---- read the creative's own funnel marks (same origin, two frames deep) ---- */
+function gamePL(){
+  try{ return ifr.contentWindow.document.getElementById('g').contentWindow.PL; }
+  catch(e){ return null; }
+}
+setInterval(function(){
+  var pl = gamePL();
+  if(pl){
+    if(!H.gameSeen){ H.gameSeen = true; hm('loaded'); }
+    for(var k in pl.ev) if(!(k in H.ev)) H.ev[k] = pl.ev[k];
+  }
+  dbgTick();
+}, 400);
+
+/* ---- the ✕ and its countdown ring ---- */
+var ring = document.getElementById('ring'), xBtn = document.getElementById('x');
+(function tick(){
+  var s = (Date.now() - H.t0) / 1000;
+  if(s >= XDELAY){ ring.style.display = 'none'; xBtn.style.display = 'flex'; return; }
+  ring.style.background = 'conic-gradient(#FFD24A ' + (360 * s / XDELAY) + 'deg, rgba(255,255,255,.22) 0)';
+  requestAnimationFrame(tick);
+})();
+xBtn.addEventListener('click', function(){ hm('closed'); showReport('Ad closed with ✕'); });
+
+/* ---- the report card ---- */
+var LABEL = { shell:'simulator up', loaded:'ad loaded', boot:'game started', briefed:'briefing done',
+  drop1:'first soldier placed', foes:'enemy engaged', win:'🏆 VICTORY', lose:'defeat',
+  end:'PLAY NOW screen', cta:'CTA tapped', closed:'closed (✕)' };
+var ORDER = ['shell','loaded','boot','briefed','drop1','foes','win','lose','end','cta','closed'];
+function uaStore(){
+  var ua = navigator.userAgent || '';
+  if(/android/i.test(ua)) return 'https://play.google.com/store/apps/details?id=com.corkscrewgames.gvt';
+  if(/iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+    return 'https://apps.apple.com/app/id6793353373';
+  return 'https://playgvt.net';
+}
+function device(){
+  var ua = navigator.userAgent || '', m = /iPhone|iPad|Android/.exec(ua);
+  return (m ? m[0] : 'desktop') + ' ' + window.innerWidth + 'x' + window.innerHeight;
+}
+function reportText(){
+  var parts = [];
+  for(var i = 0; i < ORDER.length; i++){ var k = ORDER[i];
+    if(k in H.ev && k !== 'shell') parts.push((LABEL[k] || k) + ' ' + H.ev[k] + 's'); }
+  var out = ('win' in H.ev ? 'WON' : ('lose' in H.ev ? 'LOST' : 'unfinished'))
+          + (('cta' in H.ev) ? ' + CTA' : '') + (('closed' in H.ev) ? ' + closed early' : '');
+  return 'GVT playable ' + P + ' test — ' + device() + '\n' + parts.join(' · ') + '\noutcome: ' + out;
+}
+function showReport(title){
+  if(H.reported){ document.getElementById('cTitle').textContent = title; return; }
+  H.reported = true;
+  document.getElementById('cTitle').textContent = title;
+  document.getElementById('cSub').textContent = 'Playable ' + P + ' · ' + device();
+  var rows = '';
+  for(var i = 0; i < ORDER.length; i++){ var k = ORDER[i];
+    if(k in H.ev && k !== 'shell') rows += '<tr><td>' + LABEL[k] + '</td><td>' + H.ev[k] + 's</td></tr>'; }
+  document.getElementById('cRows').innerHTML = rows;
+  document.getElementById('cOut').textContent =
+    ('win' in H.ev ? '🏆 Won the battle' : ('lose' in H.ev ? 'Lost the battle' : 'Battle unfinished'))
+    + (('cta' in H.ev) ? ' — tapped PLAY NOW' : '');
+  document.getElementById('bStore').href = H.ctaUrl || uaStore();
+  document.getElementById('shade').style.display = 'block';
+  document.getElementById('card').style.display = 'block';
+}
+document.getElementById('bAgain').addEventListener('click', function(){ location.reload(); });
+document.getElementById('bCopy').addEventListener('click', function(){
+  var t = reportText();
+  var done = function(){ document.getElementById('bCopy').textContent = '✓ Copied — text it to Wyatt'; };
+  if(navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(t).then(done, function(){ window.prompt('Copy this report:', t); });
+  else window.prompt('Copy this report:', t);
+});
+document.getElementById('shade').addEventListener('click', function(){
+  document.getElementById('shade').style.display = 'none';
+  document.getElementById('card').style.display = 'none';   // peek back at the ad; ✕ reopens
+  H.reported = false;
+});
+
+/* ---- ?debug=1 live funnel HUD ---- */
+var dbgOn = Q.get('debug') === '1';
+if(dbgOn) document.getElementById('dbg').style.display = 'block';
+function dbgTick(){
+  if(!dbgOn) return;
+  var s = 'GVT playable ' + P + ' — live funnel\n';
+  for(var i = 0; i < ORDER.length; i++){ var k = ORDER[i];
+    s += (k in H.ev ? '✓ ' + (LABEL[k] || k) + '  ' + H.ev[k] + 's' : '· ' + (LABEL[k] || k)) + '\n'; }
+  document.getElementById('dbg').textContent = s;
+}
+</script>
+</body>
+</html>
