@@ -15305,7 +15305,7 @@ function commClear(){
 // (Wyatt 8/4) — placed men march their own lane and are never lifted again.
 let coach = null;
 function coachStart(){
-  try{ if(localStorage.getItem('gvt_coach')) return; }catch(e){}
+  /* playable build: every run is a first run — the once-per-device latch is out */
   coach = { step:1, t:0, lostT:0, toast:0 };
 }
 function coachDone(){ coach=null; try{ localStorage.setItem('gvt_coach','1'); }catch(e){} }
@@ -15430,7 +15430,7 @@ function startBattle(levelN, rival){
   hideAllOverlays();
   S.mode='play';
   // no boot-camp coach mid co-op — the ally IS the coach
-  if(META.campaign===0 &amp;&amp; levelN===1 &amp;&amp; !coopLaunching) coachStart();
+  if(levelN===1 &amp;&amp; !coopLaunching) coachStart();   /* playable build: campaign progress never silences the coach */
 }
 // ================= THE CAMPAIGN (v1.28) =================
 // Wyatt, 7/25: there is ONE campaign now and it is the battlefield-style one.
@@ -25123,7 +25123,9 @@ function fingerTap(x,y){
   drawFinger(x,y+4*Math.sin(c*6.28),press);
 }
 function drawCoach(){
-  if(!coach||S.mode!=='play') return;
+  if(S.mode!=='play') return;
+  try{ if(typeof plIdleFinger==='function') plIdleFinger(); }catch(e){}
+  if(!coach) return;
   // ⚠ the finger stays INSIDE the deploy half (v1.31 drew it at x=620, which
   // canPlace refuses since the crate shipped — a coach must never demonstrate
   // an illegal drop)
@@ -25823,7 +25825,7 @@ function drawHUD(){
       // white pops where pale lime washed out. Every other rug keeps the
       // lime it always wore.
       cx.font=cf('bold 14px'); cx.fillStyle=snowField()? '#1E5A2E' : '#BFE39A';
-      fitText(cx, (n>1? tf('%1 COMMANDERS',n)+' · ':'')+tf('YOUR MEN %1/%2', sqMine(), SQ_CAP), VW/2-60, 56, VW-120, 'bold', 14, 9);
+      /* playable build (Wyatt 8/7): the YOUR MEN counter is out — noise in an ad */
       cx.font=cf('bold 23px'); cx.fillStyle=CREAM;
     }
     // (the old ALLIED MISSION sub-line is gone: since v1.28 every co-op battle
@@ -31973,7 +31975,13 @@ var PL_IOS='https://apps.apple.com/app/id6793353373', PL_AND='https://play.googl
 PL.mark=function(k){ if(!(k in PL.ev)) PL.ev[k]=+(((Date.now()-PL.t0)/1000).toFixed(1)); };
 setInterval(function(){ try{
   if(!PL.started) return;
-  if(typeof COMM!=='undefined' &amp;&amp; !COMM.brief) PL.mark('briefed');
+  /* 'briefed' means the briefing OPENED AND CLOSED — a poll landing before it
+     opens must not stamp t≈0 (wave-3 rig fix). If no briefing shows within
+     1.5s of boot (a persisted save has read it), there is none coming — mark. */
+  if(typeof COMM!=='undefined'){
+    if(COMM.brief) PL.sawBrief=true;
+    else if(PL.sawBrief || (('boot' in PL.ev) &amp;&amp; (Date.now()-PL.t0)/1000 - PL.ev.boot > 1.5)) PL.mark('briefed');
+  }
   if(typeof S!=='undefined' &amp;&amp; S){
     if(S.mode==='play'){
       var mine=0, foes=0;
@@ -32022,19 +32030,46 @@ function plStart(){ if(PL.started) return; PL.started=true; PL.mark('boot');
     plChipOn(); plCueArm();
   }
   catch(e){ if(ti) ti.classList.remove('hidden'); } }
-/* ---- p4: THE SNOW SHOWDOWN — an eased Level 14 with the yeti forced on ---- */
+/* ---- p4: THE SNOW SHOWDOWN (wave 3, Wyatt 8/7) — playable 1 on the Winter
+   Field. &quot;Same text as the first playable · units at the same pace as the
+   first level&quot;: not an eased L14 any more — it IS level 1 (briefing, coach,
+   waves, crate, first-battle mercy, all byte-inherited), re-dressed through
+   the game's own stage map, with the yeti walking on at 32s. ---- */
 function plSnowLevel(){
-  try{ YETI_LEVELS[14]=12; }catch(e){}          // his rung now — arrives at 12s, the game's own spawn path
-  startCampaign(14);
-  try{
-    S.cfg.hpMul*=0.35;                           // spawns read this — every later wave lands soft
-    S.cfg.bossF=Math.min(S.cfg.bossF||1, 0.4);
-    for(var w=0;w<S.cfg.waves.length;w++){ var gs=S.cfg.waves[w].groups||[];
-      for(var g=0;g<gs.length;g++) gs[g].n=Math.max(1, Math.round(gs[g].n*0.3)); }
-    var bh=Math.max(60, Math.round(S.tanBase.hpMax*0.4));
-    S.tanBase.hp=S.tanBase.hpMax=bh;             // a crate a rookie squad can raze
-  }catch(e){}
+  try{ CAMP_STAGES[1]='snow'; }catch(e){}   // L1 fights on THE WINTER FIELD — the stage map is the dress
+  try{ YETI_LEVELS[1]=32; }catch(e){}       // his rung now — arrives at 32s (Wyatt: &quot;20 seconds later&quot;)
+  startCampaign(1);
 }
+/* ---- the guiding finger's second wind (wave 3, Wyatt 8/7): the coach's own
+   drag demo returns whenever the player idles 3s WITH a man he could field.
+   Campaign creatives only (S.sq) — drawCoach's frame pass calls this. ---- */
+var PLF={ last:0 };
+document.addEventListener('pointerdown', function(){ PLF.last=performance.now(); }, true);
+function plIdleFinger(){ try{
+  PLF.on=false;                                                 // observable truth for the QA rig
+  if(!S.sq || S.bf) return;                                     // campaign battles only
+  if(typeof COMM!=='undefined' &amp;&amp; COMM.brief) return;           // the briefing holds the war
+  if(typeof coach!=='undefined' &amp;&amp; coach &amp;&amp; coach.step<3) return;  // the coach's own finger owns the screen
+  if(S.drag){ PLF.last=performance.now(); return; }             // mid-drag IS doing something
+  if(!PLF.last) PLF.last=performance.now();
+  if((performance.now()-PLF.last)/1000 < 3) return;
+  if(sqAtCap()) return;                                         // carpet full — nothing to demo
+  var mc=1e9, L=ownedUnits();                                   // the cheapest man he owns...
+  for(var i=0;i<L.length;i++){ var c=COSTS[L[i]]; if(c>0&amp;&amp;c<mc) mc=c; }
+  if(mc<1e9 &amp;&amp; S.plastic<mc) return;                            // ...must be affordable
+  /* the demo must land a LEGAL drop wherever the camera sits — clamp the
+     target against the deploy line (the coach's fixed 400 assumed cam home) */
+  var cam=(typeof S.cCam!=='undefined' &amp;&amp; S.cCam &amp;&amp; W>VW)? S.cCam.x : 0;
+  var tx=Math.max(258, Math.min(400, campDeployX()-70-cam));
+  var k=ease(Math.min(1,((performance.now()/1000)%1.9)/1.5));   // fingerDrag's cycle, self-clocked (coach.t is gone)
+  var x1=236,y1=540,x2=tx,y2=280, mx=(x1+x2)/2, my=Math.min(y1,y2)-70, u=1-k;
+  var fx=u*u*x1+2*u*k*mx+k*k*x2, fy=u*u*y1+2*u*k*my+k*k*y2;
+  PLF.on=true;
+  cx.globalAlpha=0.35; cx.setLineDash([3,9]); cx.strokeStyle='#fff'; cx.lineWidth=2.5;
+  cx.beginPath(); cx.moveTo(x1,y1); cx.quadraticCurveTo(mx,my,x2,y2); cx.stroke(); cx.setLineDash([]); cx.globalAlpha=1;
+  var press = k<0.08 ? 1-k/0.08 : (k>0.97 ? 1 : 0);
+  drawFinger(fx,fy,press);
+}catch(e){} }
 /* ---- the persistent PLAY NOW chip, pinned by the HUD's own scale ---- */
 var PLCHIP=null;
 function plChipOn(){
@@ -32058,7 +32093,10 @@ function plChipPlace(){
     PLCHIP.style.right=Math.max(8,(window.innerWidth - r.right))+8+'px';
   }catch(e){ PLCHIP.style.top='52px'; PLCHIP.style.right='10px'; }
 }
-/* ---- the goal cues (p2 + p4): SMASH-THIS pointer, first-hit slow-mo, defend warning ---- */
+/* ---- the goal cues. Wave 3 (Wyatt 8/7): the pointer says DESTROY THEIR TOY
+   BOX plainly — no emoji, no arrows — and gets out of the way after 7s. The
+   defend warning + hit banners are p2's alone now; p4 wears p1's text plus
+   the pointer and a plain yeti call. Slow-mo/camera/ring beats stay on both. ---- */
 var PLC={ els:{}, hitFoe:false, hitYou:false, yeti:false, t0:0 };
 function plCueEl(id, css){ if(PLC.els[id]) return PLC.els[id];
   var d=document.createElement('div'); d.style.cssText=css; d.style.display='none';
@@ -32092,20 +32130,21 @@ function plCueTick(){ try{
   if(!PL.started || PL.done || typeof S==='undefined' || !S || S.mode!=='play'){
     for(var k in PLC.els) if(k!=='bang') PLC.els[k].style.display='none'; return; }
   var c=plCrate(); if(!c) return;
-  var briefed=('briefed' in PL.ev), tGo=briefed &amp;&amp; !PLC.hitFoe &amp;&amp; (Date.now()-PLC.t0)<45000;
+  var briefed=('briefed' in PL.ev), bAt=briefed? PL.t0+PL.ev.briefed*1000 : 0;
+  var tGo=briefed &amp;&amp; !PLC.hitFoe &amp;&amp; (Date.now()-bAt)<7000;   /* say it plainly, then get out of the way */
   var p=plScreen(c.x, c.y), r=p.r, g=PLC.els.goal;
   PLC.els.bang.style.top=(r.top+Math.max(46,60*scale))+'px';
   if(tGo){
     var on = p.x>r.left+30 &amp;&amp; p.x<r.right-30;
+    g.textContent='DESTROY THEIR TOY BOX';
     g.style.display='block';
-    if(on){ g.textContent='\u2B07 SMASH THIS TOY BOX!';
+    if(on){
       g.style.left=Math.min(r.right-170, Math.max(r.left+6, p.x-85))+'px';
       g.style.top=Math.max(r.top+46, p.y-95*scale)+'px'; }
-    else { g.textContent='\u27A1 THEIR TOY BOX \u2014 SMASH IT!';
-      g.style.left=(r.right-236)+'px'; g.style.top=(r.top+(S.bf?86:64)*scale)+'px'; }
+    else { g.style.left=(r.right-236)+'px'; g.style.top=(r.top+(S.bf?86:64)*scale)+'px'; }
   } else g.style.display='none';
   var h=PLC.els.home, hb = S.bf? S.bf.base.you : (typeof T!=='undefined'? T : null);
-  if(hb &amp;&amp; briefed &amp;&amp; !PLC.hitFoe &amp;&amp; (Date.now()-PLC.t0)<26000){
+  if(PL.mode==='p2' &amp;&amp; hb &amp;&amp; briefed &amp;&amp; !PLC.hitFoe &amp;&amp; (Date.now()-bAt)<26000){
     var q=plScreen(hb.x, hb.y);
     if(q.x>r.left-40){ h.textContent='YOUR TOY BOX \u2014 DEFEND IT!'; h.style.display='block';
       h.style.left=Math.max(r.left+6, q.x-78)+'px'; h.style.top=Math.max(r.top+46, q.y-88*scale)+'px'; }
@@ -32117,16 +32156,16 @@ function plCueTick(){ try{
     S.hitStop=Math.max(S.hitStop||0, 1.1);
     if(S.bf){ S.bf.cam.x=Math.max(0, Math.min(WORLD_W-VW, S.bf.base.foe.x-VW*0.62)); S.bf.cam.vx=0; }
     else if(S.cCam &amp;&amp; W>VW){ S.cCam.x=Math.max(0, Math.min(W-VW, S.tanBase.x-VW*0.62)); S.cCam.vx=0; }
-    plBang('\uD83D\uDCA5 YOU HIT THEIR TOY BOX!', 'Smash it to win!', '#FFD24A', 2.0);
+    if(PL.mode==='p2') plBang('YOU HIT THEIR TOY BOX!', 'Smash it to win!', '#FFD24A', 2.0);
     var rg=PLC.els.ring, pp=plScreen(c.x, c.y);
     rg.style.left=(pp.x-46)+'px'; rg.style.top=(pp.y-64)+'px'; rg.style.width='92px'; rg.style.height='84px';
     rg.style.display='block'; setTimeout(function(){ rg.style.display='none'; }, 2000);
   }
   var youDmg = S.bf? S.bf.base.you.dmgTaken>0 : (S.lives<10);
-  if(youDmg &amp;&amp; !PLC.hitYou){ PLC.hitYou=true;
-    plBang('\u26A0 THEY\u2019RE HITTING YOUR TOY BOX!', S.bf? 'Hold the line!' : 'Don\u2019t let them through!', '#E8705A', 1.8); }
+  if(PL.mode==='p2' &amp;&amp; youDmg &amp;&amp; !PLC.hitYou){ PLC.hitYou=true;
+    plBang('THEY\u2019RE HITTING YOUR TOY BOX!', 'Hold the line!', '#E8705A', 1.8); }
   if(!PLC.yeti &amp;&amp; ('yeti' in PL.ev)){ PLC.yeti=true;
-    plBang('\uD83E\uDD76 THE YETI IS LOOSE!', 'He eats BOTH armies \u2014 stay clear!', '#9ad7ff', 2.4); }
+    plBang('THE YETI IS LOOSE!', 'He eats BOTH armies \u2014 stay clear!', '#9ad7ff', 2.4); }
 }catch(e){} }
 /* The end screen IS the title screen — logo, marching armies, scanlines — with
    PRESS START swapped for PLAY NOW. cloneNode drops the title's own listener. */
