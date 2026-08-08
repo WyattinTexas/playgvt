@@ -32041,15 +32041,20 @@ function plIdleFinger(){ try{
   if(!PLF.last) PLF.last=performance.now();
   if((performance.now()-PLF.last)/1000 < 3) return;
   if(sqAtCap()) return;                                         // carpet full — nothing to demo
-  var mc=1e9, L=ownedUnits();                                   // the cheapest man he owns...
-  for(var i=0;i<L.length;i++){ var c=COSTS[L[i]]; if(c>0&amp;&amp;c<mc) mc=c; }
-  if(mc<1e9 &amp;&amp; S.plastic<mc) return;                            // ...must be affordable
+  /* 3.6 (Wyatt): the demo ALTERNATES units — every 1.9s loop starts from the
+     next tray slot he could actually field (gun, bazooka, mortar, Sarge…) */
+  var L=ownedUnits(), picks=[];
+  for(var i=0;i<L.length;i++){ var c=COSTS[L[i]]||0;
+    if(c>0? S.plastic>=c : !(S.sargeCd>0)) picks.push(i); }
+  if(!picks.length) return;                                     // nothing he could field — no demo
+  var si=picks[Math.floor(performance.now()/1900)%picks.length];
+  PLF.slot=si;                                                  // observable for the QA rig
   /* the demo must land a LEGAL drop wherever the camera sits — clamp the
      target against the deploy line (the coach's fixed 400 assumed cam home) */
   var cam=(typeof S.cCam!=='undefined' &amp;&amp; S.cCam &amp;&amp; W>VW)? S.cCam.x : 0;
   var tx=Math.max(258, Math.min(400, campDeployX()-70-cam));
   var k=ease(Math.min(1,((performance.now()/1000)%1.9)/1.5));   // fingerDrag's cycle, self-clocked (coach.t is gone)
-  var t0=(typeof trayRects!=='undefined' &amp;&amp; trayRects[0])? trayRects[0] : null;   // the RIFLEMAN slot
+  var t0=(typeof trayRects!=='undefined' &amp;&amp; trayRects[si])? trayRects[si] : null;   // this loop's tray slot
   var x1=t0? t0[0]+t0[2]/2 : 236, y1=t0? t0[1]+8 : 540, x2=tx, y2=280, mx=(x1+x2)/2, my=Math.min(y1,y2)-70, u=1-k;
   var fx=u*u*x1+2*u*k*mx+k*k*x2, fy=u*u*y1+2*u*k*my+k*k*y2;
   PLF.on=true;
