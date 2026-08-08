@@ -25088,16 +25088,21 @@ function draw(){
   }
 }
 function drawFinger(x,y,press){
-  /* playable build (wave 3.4): Wyatt's glove art, tip pivoted under the nail */
+  /* playable build (wave 3.4): Wyatt's glove art, tip pivoted under the nail.
+     8/8: alpha rides PLF.fade — when the crate falls, every finger surface
+     fades out through this one seam instead of popping off. */
+  const F=(window.PLF &amp;&amp; PLF.fade!=null)? PLF.fade : 1;
+  if(F<=0) return;
   cx.save(); cx.translate(x,y);
-  if(press>0){ cx.globalAlpha=0.55*press; cx.strokeStyle='#fff'; cx.lineWidth=3.5;
+  if(press>0){ cx.globalAlpha=0.55*press*F; cx.strokeStyle='#fff'; cx.lineWidth=3.5;
     cx.beginPath(); cx.arc(0,0,15+12*(1-press),0,7); cx.stroke();
-    cx.globalAlpha=0.22*press; cx.fillStyle='#fff'; cx.beginPath(); cx.arc(0,0,13,0,7); cx.fill();
+    cx.globalAlpha=0.22*press*F; cx.fillStyle='#fff'; cx.beginPath(); cx.arc(0,0,13,0,7); cx.fill();
     cx.globalAlpha=1; }
   if(window.PLHAND &amp;&amp; PLHAND.ok){
     cx.rotate(-109*Math.PI/180);                     // Wyatt 8/7: &quot;-109 is perfect&quot; — dialed on the slider, now baked for keeps
     const fsq=(1-0.10*press)*1.35;                   // playable-ad presence; the press squeezes it into the tap
     cx.scale(fsq,fsq); cx.translate(0,3*press);
+    cx.globalAlpha=F;
     cx.shadowColor='rgba(0,0,0,0.35)'; cx.shadowBlur=7; cx.shadowOffsetX=3; cx.shadowOffsetY=4;
     cx.drawImage(PLHAND.cv, -34, -16, 96, 120);
   }
@@ -32044,7 +32049,7 @@ function plStart(){ if(PL.started) return; PL.started=true; PL.mark('boot');
    the game's own stage map, with the yeti walking on at 32s. ---- */
 function plSnowLevel(){
   try{ CAMP_STAGES[1]='snow'; }catch(e){}   // L1 fights on THE WINTER FIELD — the stage map is the dress
-  try{ YETI_LEVELS[1]=32; }catch(e){}       // his rung now — arrives at 32s (Wyatt: &quot;20 seconds later&quot;)
+  try{ YETI_LEVELS[1]=37; }catch(e){}       // his rung now — 37s (8/7: &quot;20 seconds later&quot; = 32 · 8/8: &quot;5 seconds later&quot; again)
   startCampaign(1);
   /* Wyatt 8/7 (3.5): &quot;the river and the bridge — it just makes it more
      exciting&quot; — the game's own terrain feature, fixed values (deterministic,
@@ -32104,36 +32109,68 @@ var PLHAND={ ok:false, cv:null };
 /*ENDHANDART*/
 /* ---- the guiding finger's second wind (wave 3, Wyatt 8/7): the coach's own
    drag demo returns whenever the player idles 3s WITH a man he could field.
-   Campaign creatives only (S.sq) — drawCoach's frame pass calls this. ---- */
+   Campaign creatives only (S.sq) — drawCoach's frame pass calls this.
+   8/8 (Wyatt): the hand always SETS OFF from a tray unit (its cycle clock
+   zeroes the moment it appears — never mid-path over the field), a standing
+   Sarge is never the suggestion (the tray's own second-Sarge drag refusal,
+   mirrored), and the instant the crate falls it fades out for good — the
+   ceremony gets the screen to itself. ---- */
 var PLF={ last:0 };
 document.addEventListener('pointerdown', function(){ PLF.last=performance.now(); }, true);
 function plIdleFinger(){ try{
-  PLF.on=false;                                                 // observable truth for the QA rig
+  var was=PLF.on;                                               // did it draw last frame? appear = the cycle clock's zero
+  PLF.on=false; PLF.fade=1;                                     // observable truth for the QA rig; drawFinger reads the fade
   if(!S.sq || S.bf) return;                                     // campaign battles only
   if(typeof COMM!=='undefined' &amp;&amp; COMM.brief) return;           // the briefing holds the war
   if(typeof coach!=='undefined' &amp;&amp; coach &amp;&amp; coach.step<3) return;  // the coach's own finger owns the screen
-  if(S.drag){ PLF.last=performance.now(); return; }             // mid-drag IS doing something
-  if(!PLF.last) PLF.last=performance.now();
-  if((performance.now()-PLF.last)/1000 < 3) return;
-  if(sqAtCap()) return;                                         // carpet full — nothing to demo
-  /* 3.6 (Wyatt): the demo ALTERNATES units — every 1.9s loop starts from the
-     next tray slot he could actually field (gun, bazooka, mortar, Sarge…) */
+  var now=performance.now();
+  if(S.vflag || (S.tanBase &amp;&amp; (S.tanBase.dead || S.tanBase.hp<=0))){
+    /* the crate is down (campCrateFall pins hp 0 on entry) — fade where it
+       stands, gone before the flag ceremony's 900ms fuse burns (8/8) */
+    if(!was) return;
+    if(!PLF.endT) PLF.endT=now;
+    PLF.fade=1-(now-PLF.endT)/600;
+    if(PLF.fade<=0){ PLF.fade=0; return; }
+  } else {
+    PLF.endT=0;
+    if(S.drag){ PLF.last=now; return; }                         // mid-drag IS doing something
+    if(!PLF.last) PLF.last=now;
+    if((now-PLF.last)/1000 < 3) return;
+    if(sqAtCap()) return;                                       // carpet full — nothing to demo
+  }
+  /* 3.6 (Wyatt): the demo ALTERNATES units — each 1.9s loop starts from the
+     next tray slot he could actually field. The Sarge counts only while the
+     tray itself would grant him: off cooldown AND no Sarge already standing
+     (8/8 — the game's own second-Sarge drag refusal, same clause). */
   var L=ownedUnits(), picks=[];
   for(var i=0;i<L.length;i++){ var c=COSTS[L[i]]||0;
-    if(c>0? S.plastic>=c : !(S.sargeCd>0)) picks.push(i); }
-  if(!picks.length) return;                                     // nothing he could field — no demo
-  var si=picks[Math.floor(performance.now()/1900)%picks.length];
-  PLF.slot=si;                                                  // observable for the QA rig
+    if(c>0? S.plastic>=c
+          : (!(S.sargeCd>0) &amp;&amp; !S.units.some(function(u){ return u.type==='sarge'&amp;&amp;!u.coopBy&amp;&amp;!u.dead; })))
+      picks.push(i); }
+  if(!picks.length &amp;&amp; PLF.fade>=1) return;                      // nothing he could field — no demo (a fading hand still finishes its bow)
+  /* 8/8: the cycle is clocked from the APPEAR — k=0 lands the hand ON a tray
+     unit every time it shows; a slot that stops being fieldable mid-path
+     restarts at the tray rather than teleporting over the field */
+  if(!was){ PLF.cyc0=now; PLF.rot=0; PLF.slot=null; }
+  var el=now-PLF.cyc0;
+  if(el<0){ PLF.cyc0=now; el=0; }                               // a rewound clock (QA spoofs) restarts at the tray too
+  if(PLF.fade>=1 &amp;&amp; el>=1900){ PLF.cyc0+=1900*Math.floor(el/1900); PLF.rot++; PLF.slot=null; el=now-PLF.cyc0; }
+  if(PLF.slot==null || (PLF.fade>=1 &amp;&amp; picks.indexOf(PLF.slot)<0)){
+    if(!picks.length) return;
+    PLF.slot=picks[PLF.rot%picks.length];
+    if(el>320){ PLF.cyc0=now; el=0; }
+  }
+  var si=PLF.slot;                                              // observable for the QA rig
   /* the demo must land a LEGAL drop wherever the camera sits — clamp the
      target against the deploy line (the coach's fixed 400 assumed cam home) */
   var cam=(typeof S.cCam!=='undefined' &amp;&amp; S.cCam &amp;&amp; W>VW)? S.cCam.x : 0;
   var tx=Math.max(258, Math.min(400, campDeployX()-70-cam));
-  var k=ease(Math.min(1,((performance.now()/1000)%1.9)/1.5));   // fingerDrag's cycle, self-clocked (coach.t is gone)
+  var k=ease(Math.min(1, el/1500));                             // fingerDrag's cycle shape, zeroed at the appear (fading: rests at the drop)
   var t0=(typeof trayRects!=='undefined' &amp;&amp; trayRects[si])? trayRects[si] : null;   // this loop's tray slot
   var x1=t0? t0[0]+t0[2]/2 : 236, y1=t0? t0[1]+8 : 540, x2=tx, y2=280, mx=(x1+x2)/2, my=Math.min(y1,y2)-70, u=1-k;
   var fx=u*u*x1+2*u*k*mx+k*k*x2, fy=u*u*y1+2*u*k*my+k*k*y2;
-  PLF.on=true;
-  cx.globalAlpha=0.35; cx.setLineDash([3,9]); cx.strokeStyle='#fff'; cx.lineWidth=2.5;
+  PLF.on=true; PLF.el=el;                                       // PLF.el: how far into its cycle (QA reads it at the appear)
+  cx.globalAlpha=0.35*PLF.fade; cx.setLineDash([3,9]); cx.strokeStyle='#fff'; cx.lineWidth=2.5;
   cx.beginPath(); cx.moveTo(x1,y1); cx.quadraticCurveTo(mx,my,x2,y2); cx.stroke(); cx.setLineDash([]); cx.globalAlpha=1;
   var press = k<0.08 ? 1-k/0.08 : (k>0.97 ? 1 : 0);
   drawFinger(fx,fy,press);
@@ -32161,11 +32198,12 @@ function plChipPlace(){
     PLCHIP.style.right=Math.max(8,(window.innerWidth - r.right))+8+'px';
   }catch(e){ PLCHIP.style.top='52px'; PLCHIP.style.right='10px'; }
 }
-/* ---- the goal cues. Wave 3 (Wyatt 8/7): the pointer says DESTROY THEIR TOY
-   BOX plainly — no emoji, no arrows — and gets out of the way after 7s. The
-   defend warning + hit banners are p2's alone now; p4 wears p1's text plus
-   the pointer and a plain yeti call. Slow-mo/camera beats stay on both, and
-   the glow rides the crate's HEALTH READOUT while it is being shot (3.3). ---- */
+/* ---- the goal cues. Wave 3 (Wyatt 8/7): the pointer says DESTROY THEIR
+   BASE plainly — no emoji, no arrows — and gets out of the way after 7s.
+   8/8: the pointer is p2's ALONE — on the snow it was clutter (Wyatt), so
+   p4 keeps only the shared beats: slow-mo/camera on the first crate hit and
+   the glow riding the crate's HEALTH READOUT while it is being shot (3.3).
+   Defend warning + hit banners were already p2-only. ---- */
 var PLC={ els:{}, hitFoe:false, hitYou:false, t0:0 };
 function plCueEl(id, css){ if(PLC.els[id]) return PLC.els[id];
   var d=document.createElement('div'); d.style.cssText=css; d.style.display='none';
@@ -32200,7 +32238,7 @@ function plCueTick(){ try{
     for(var k in PLC.els) if(k!=='bang') PLC.els[k].style.display='none'; return; }
   var c=plCrate(); if(!c) return;
   var briefed=('briefed' in PL.ev), bAt=briefed? PL.t0+PL.ev.briefed*1000 : 0;
-  var tGo=briefed &amp;&amp; !PLC.hitFoe &amp;&amp; (Date.now()-bAt)<7000;   /* say it plainly, then get out of the way */
+  var tGo=PL.mode==='p2' &amp;&amp; briefed &amp;&amp; !PLC.hitFoe &amp;&amp; (Date.now()-bAt)<7000;   /* say it plainly, then get out of the way — p2's alone (8/8) */
   var p=plScreen(c.x, c.y), r=p.r, g=PLC.els.goal;
   PLC.els.bang.style.top=(r.top+Math.max(46,60*scale))+'px';
   if(tGo){
