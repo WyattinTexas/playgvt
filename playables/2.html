@@ -31260,6 +31260,7 @@ document.getElementById('retryBtn').addEventListener('click', ()=>{
 });
 document.getElementById('againBtn').addEventListener('click', ()=>{
   audio();
+  if(window.PL){ plEnd(); ctaGo(); return; }   /* playable (Wyatt 8/8): Continue = the store, with the end screen set behind it */
   if(S.coop &amp;&amp; COOP){ if(META.pendingPicks>0) showPicker(); else { showMenu(); UI.coopOpen(); } return; }
   if(S.bf){ if(META.pendingPicks>0) showPicker(); else showMenu(); return; }   // battlefield XP can promote you
   if(META.pendingPicks>0) showPicker(); else showMenu();
@@ -32025,6 +32026,12 @@ function plSnowLevel(){
      exciting&quot; — the game's own terrain feature, fixed values (deterministic,
      east of every demo drop; the Tan funnel across the planks) */
   try{ S.cfg.terrain.river={x:500, w:56, bridgeY:284, bw:76}; }catch(e){}
+  /* Wyatt 8/8: &quot;a few little rocks&quot; on the winter field — the game's own
+     terrain.rocks (drawn, steered around, placement-banned r+14), all EAST of
+     the deploy line (480) and the river band, clear of the crate — no demo
+     drop, player spot or soak spot can ever land on one */
+  try{ S.cfg.terrain.rocks=(S.cfg.terrain.rocks||[]).concat(
+    [{x:680,y:150,r:13},{x:700,y:452,r:15},{x:836,y:210,r:11},{x:900,y:420,r:13}]); }catch(e){}
 }
 /* hand art: campaign creatives only */
 /* ---- the guiding finger's second wind (wave 3, Wyatt 8/7): the coach's own
