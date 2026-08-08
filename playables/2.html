@@ -32021,6 +32021,10 @@ function plSnowLevel(){
   try{ CAMP_STAGES[1]='snow'; }catch(e){}   // L1 fights on THE WINTER FIELD — the stage map is the dress
   try{ YETI_LEVELS[1]=32; }catch(e){}       // his rung now — arrives at 32s (Wyatt: &quot;20 seconds later&quot;)
   startCampaign(1);
+  /* Wyatt 8/7 (3.5): &quot;the river and the bridge — it just makes it more
+     exciting&quot; — the game's own terrain feature, fixed values (deterministic,
+     east of every demo drop; the Tan funnel across the planks) */
+  try{ S.cfg.terrain.river={x:500, w:56, bridgeY:284, bw:76}; }catch(e){}
 }
 /* hand art: campaign creatives only */
 /* ---- the guiding finger's second wind (wave 3, Wyatt 8/7): the coach's own
@@ -32082,7 +32086,7 @@ function plChipPlace(){
    defend warning + hit banners are p2's alone now; p4 wears p1's text plus
    the pointer and a plain yeti call. Slow-mo/camera beats stay on both, and
    the glow rides the crate's HEALTH READOUT while it is being shot (3.3). ---- */
-var PLC={ els:{}, hitFoe:false, hitYou:false, yeti:false, t0:0 };
+var PLC={ els:{}, hitFoe:false, hitYou:false, t0:0 };
 function plCueEl(id, css){ if(PLC.els[id]) return PLC.els[id];
   var d=document.createElement('div'); d.style.cssText=css; d.style.display='none';
   document.body.appendChild(d); PLC.els[id]=d; return d; }
@@ -32121,7 +32125,7 @@ function plCueTick(){ try{
   PLC.els.bang.style.top=(r.top+Math.max(46,60*scale))+'px';
   if(tGo){
     var on = p.x>r.left+30 &amp;&amp; p.x<r.right-30;
-    g.textContent='DESTROY THEIR TOY BOX';
+    g.textContent='DESTROY THEIR BASE';
     g.style.display='block';
     if(on){
       g.style.left=Math.min(r.right-170, Math.max(r.left+6, p.x-85))+'px';
@@ -32164,8 +32168,7 @@ function plCueTick(){ try{
   var youDmg = S.bf? S.bf.base.you.dmgTaken>0 : (S.lives<10);
   if(PL.mode==='p2' &amp;&amp; youDmg &amp;&amp; !PLC.hitYou){ PLC.hitYou=true;
     plBang('THEY\u2019RE HITTING YOUR TOY BOX!', 'Hold the line!', '#E8705A', 1.8); }
-  if(!PLC.yeti &amp;&amp; ('yeti' in PL.ev)){ PLC.yeti=true;
-    plBang('THE YETI IS LOOSE!', 'He eats BOTH armies \u2014 stay clear!', '#9ad7ff', 2.4); }
+  /* 3.5: no PL yeti bang — the game's own ABOMINABLE SNOWMAN announce carries it */
 }catch(e){} }
 /* The end screen IS the title screen — logo, marching armies, scanlines — with
    PRESS START swapped for PLAY NOW. cloneNode drops the title's own listener. */
@@ -32197,6 +32200,7 @@ function plEnd(){ PL.mark('end');
 (function(){
   function ap(){ document.documentElement.classList.toggle('rot', window.innerHeight > window.innerWidth); }
   window.addEventListener('resize', ap); window.addEventListener('orientationchange', ap); ap();
+  if(/[?&]hand=1/.test(location.search)){ var fw=function(){ try{ document.getElementById('g').contentWindow.PLHANDTUNE=1; }catch(e){} }; setInterval(fw, 700); fw(); }
 })();
 </script>
 </body>
