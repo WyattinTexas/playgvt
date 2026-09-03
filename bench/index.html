@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>GVT PLAYTEST BENCH</title>
-<script src="stamp.js?v=7365eba0dc"></script>
+<script src="stamp.js?v=8288119cdd"></script>
 <style>
   :root{color-scheme:dark}
   html,body{margin:0;background:#14110e;color:#F3EBD6;font:22px/1.35 'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
@@ -57,6 +57,12 @@
       <input type="text" id="t-word" maxlength="24" placeholder="or a word of your own" autocomplete="off" spellcheck="false">
       <button id="t-none">NO TAG</button>
     </div>
+    <div class="row" style="margin-top:12px">
+      <span class="muted" style="align-self:center">DIALS FOR THE NEXT RUN:</span>
+      <button id="d-seat">EVERY SEAT</button>
+      <button id="d-track">TRACK PRE-ANSWERED</button>
+    </div>
+    <p class="muted" style="margin:10px 0 6px">Both OFF = the phone's rhythm: six silent games and the cliff (no card until campaign 5 is beaten), the birthday gate at the first room visit, the first AD PLACEMENT card at the exit of game 8 or 9, then every two or three games. EVERY SEAT: a card at every exit where a phone could break (the cradle and the cliff lifted, the first game not free, the clock every game; the minute gap and the sitting cap stand). It switches TRACK PRE-ANSWERED on. TRACK PRE-ANSWERED: the birthday gate answered 13+ by the dial, so no gate asks and the ad provider is armed from boot. The switches stay where you leave them; the run header names them, so a note on such a run is never read as a fresh-run finding.</p>
     <p class="muted" style="margin:14px 0 6px">Or paste a save (the gvt_meta JSON from any copy of the game) and walk in with it. The run header reads SEEDED; the boot's own sweeps deal what that save is owed.</p>
     <textarea id="paste" placeholder='{"v":1,"name":"..."}'></textarea>
     <div class="row" style="margin-top:10px"><button id="b-paste">WALK IN WITH THE PASTED SAVE</button></div>
@@ -77,7 +83,10 @@
       <li class="warnline">Never play the real web game in this browser. The bench and the real web game at playgvt.net share one browser's save, and RESET wipes it. Play the real game on the phone apps.</li>
       <li><b>HQ never hears of the bench commander.</b> Every call to HQ is answered on this page, in the page's own bytes; nothing syncs. RANKINGS shows the real board with no YOU row (a real fresh player's row lands under the board's eight rows after the first sync).</li>
       <li><b>CHOOSE YOUR NAME</b> still lays over the board on the first RANKINGS visit, prefilled with the minted callsign, and SAVE keeps it locally with nobody at HQ to veto it. Sarge's one safety line fires at the first multiplayer door or the first RANKINGS visit, once ever per throwaway.</li>
-      <li>The multiplayer, rated, away, event and challenge doors are quiet or say HQ is unreachable. No Apple or Google link, no rename from HQ. The store is a page with no bridge (never faked, never priced). The TV pays as the web pays until CARD 2 lands (then through the AD PLACEMENT card, not a real video).</li>
+      <li>The multiplayer, rated, away, event and challenge doors are quiet or say HQ is unreachable. No Apple or Google link, no rename from HQ. The store is a page with no bridge (never faked, never priced); the run log records any store surface as a web fall-through.</li>
+      <li><b>AD PLACEMENT.</b> The bench stands in as the phone's ad provider: wherever a phone player would sit through a real ad, a full-screen card reading AD PLACEMENT with the seat's name under it (INTERSTITIAL · GAME 8 · the verdict exit, or REWARDED · THE TV); a tap anywhere goes on, the X from frame one. Nothing is served. The GAME decides when a break is due (the six-game cradle, the campaign-5 cliff, the two-to-three clock, the minute gap, the sitting cap); the bench only paints, and every exit gets a log row saying whether a card showed and, if not, why. On a true reset the first few levels never meet a card: that is the design. The TV asks first in the game's own words (ROLL IT!), then the card: a tap finishes it and the set pays +30 stars once a day; the X pays nothing and keeps the day.</li>
+      <li><b>The birthday gate</b> asks once per reset at the first room visit, as on a phone with the new shell; THAT'S ME with a 13+ date arms the provider, the X skips it (zero ads this sitting, it asks again next boot). The log records the track, never the date. After a card, the room shows the 3-second SEE A BAD AD? REPORT IT chip, a real link to the support page, left live.</li>
+      <li><b>EVERY SEAT and TRACK PRE-ANSWERED</b> are the two switches above and on the DIALS page in the game; the run header names them. <b>RETREAT</b> (the DIALS page) forfeits the running battle through the game's own loss door, so the weak player's branches (NOT THIS TIME, TRY AGAIN, quiet mercy after two straight losses) run for real without an hour of deliberate losing; on L1 it reads THE TAN RETREAT?! by the game's own rule.</li>
       <li><b>Notes and runs live in this browser only.</b> COPY RUN puts the whole run on the clipboard as plain text (the road to Claude: paste it into a chat or the phone pad). DOWNLOAD RUN lands a .md on a desk. Nothing leaves the phone on its own.</li>
       <li><b>Real dice, real pace.</b> The game rolls its own waves; the campaign's speed ladder is the rung's default and its ceiling. No shortcut on any player-facing button. A replayed rung pays a fifth; RESET for the real pay.</li>
       <li>Everything else in levels 1 to 10 is the phone's own experience. What a bench run cannot feel is listed above, never logged as a bug.</li>
@@ -87,7 +96,7 @@
 <script>
 (function(){
   var ST = window.__BENCH_STAMP || {};
-  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag' };
+  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag', dials:'bench_dials' };
   var $ = function(id){ return document.getElementById(id); };
   function rd(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function wr(k, v){ try{ localStorage.setItem(k, v); return true; }catch(e){ return false; } }
@@ -98,17 +107,19 @@
   function bid(){ var b = rd(K.bid); if(!b){ b = Math.random().toString(36).slice(2, 6); wr(K.bid, b); } return b; }
   function etDate(iso){ try{ return new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit' }).format(new Date(iso)) + ' ET'; }catch(e){ return String(iso || '').slice(0, 16); } }
   function etTime(iso){ try{ return new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', hour:'numeric', minute:'2-digit' }).format(new Date(iso)) + ' ET'; }catch(e){ return String(iso || '').slice(11, 16); } }
-  $('build').innerHTML = '<b>BUILD ' + (ST.cv || '?') + '</b> · deployed ' + (ST.at? etDate(ST.at) : '?') + ' · md5 ' + String(ST.md5 || '').slice(0, 8) + ' · HEAD ' + (ST.sha || '?') + ' · the bench regenerated with every ship';
+  $('build').innerHTML = '<b>BUILD ' + (ST.cv || '?') + '</b> · deployed ' + (ST.at? etDate(ST.at) : '?') + ' · md5 ' + String(ST.md5 || '').slice(0, 8) + ' · HEAD ' + (ST.sha || '?') + ' · bench card ' + (ST.bench || 1) + ' · the bench regenerated with every ship';
 
   // THE WIPE: every key with the gvt_ prefix (HEAD's seven and anything a future build adds) + the session store
   // collect the keys FIRST, then remove: Chrome reshuffles localStorage.key(i) after each removal, so an index walk skips keys
   function wipe(){ var gone = [], ks = []; try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf('gvt_') === 0) ks.push(k); } ks.sort().forEach(function(k){ gone.push(k); localStorage.removeItem(k); }); }catch(e){} try{ sessionStorage.clear(); }catch(e){} return gone; }
   function tag(){ return rd(K.tag) || ''; }
+  function dialsRead(){ var d = js(K.dials, null) || {}; var seat = d.seat? 1 : 0; return { seat:seat, track:(seat || d.track)? 1 : 0 }; }
+  function dialsText(d){ d = d || {}; var a = []; if(d.seat) a.push('EVERY SEAT'); if(d.track) a.push('TRACK PRE-ANSWERED'); return ' · dials: ' + (a.length? a.join(', ') : 'none'); }
   function mint(preset, gone, extra){
     var n = (parseInt(rd(K.runN) || '0', 10) || 0) + 1; wr(K.runN, String(n));
-    var cur = { n:n, t0:Date.now(), at:new Date().toISOString(), preset:preset, tag:tag(), dice:'REAL', screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:ST.cv, md5:ST.md5, sha:ST.sha, at:ST.at } };
+    var cur = { n:n, t0:Date.now(), at:new Date().toISOString(), preset:preset, tag:tag(), dials:dialsRead(), dice:'REAL', screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:ST.cv, md5:ST.md5, sha:ST.sha, at:ST.at } };
     wr(K.cur, JSON.stringify(cur));
-    var run = { n:n, hdr:cur, log:[{ t:0, c:new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit', second:'2-digit' }), lv:'', scr:'launcher', k:'RUN', x:'RUN ' + n + ' began · ' + preset + ' · wiped ' + (gone.length? gone.join(' ') : 'nothing (no gvt_ keys stood)') + (extra? ' · ' + extra : '') + ' · tag ' + (cur.tag || '(none)') + ' · ' + cur.screen }], notes:[] };
+    var run = { n:n, hdr:cur, log:[{ t:0, c:new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit', second:'2-digit' }), lv:'', scr:'launcher', k:'RUN', x:'RUN ' + n + ' began · ' + preset + ' · wiped ' + (gone.length? gone.join(' ') : 'nothing (no gvt_ keys stood)') + (extra? ' · ' + extra : '') + ' · tag ' + (cur.tag || '(none)') + dialsText(cur.dials) + ' · ' + cur.screen }], notes:[] };
     wr(K.run + n, JSON.stringify(run));
     return n;
   }
@@ -132,6 +143,10 @@
   $('t-none').onclick = function(){ rm(K.tag); $('t-word').value = ''; paintTag(); };
   $('t-word').onchange = function(){ var v = $('t-word').value.trim().slice(0, 24); if(v) wr(K.tag, v); else rm(K.tag); paintTag(); };
   paintTag();
+  function paintDials(){ var d = dialsRead(); $('d-seat').className = d.seat? 'on' : ''; $('d-track').className = d.track? 'on' : ''; $('d-seat').textContent = 'EVERY SEAT ' + (d.seat? 'ON' : 'OFF'); $('d-track').textContent = 'TRACK PRE-ANSWERED ' + (d.track? 'ON' : 'OFF'); }
+  $('d-seat').onclick = function(){ var d = dialsRead(); var seat = d.seat? 0 : 1; wr(K.dials, JSON.stringify({ seat:seat, track:(seat || d.track)? 1 : 0 })); paintDials(); msg(seat? 'EVERY SEAT is on for the next run (and TRACK PRE-ANSWERED with it). RESET to start it.' : 'EVERY SEAT is off for the next run: the phone\'s rhythm.'); };
+  $('d-track').onclick = function(){ var d = dialsRead(); if(d.seat){ msg('EVERY SEAT keeps the track pre-answered. Turn EVERY SEAT off first.'); return; } wr(K.dials, JSON.stringify({ seat:0, track:d.track? 0 : 1 })); paintDials(); msg(d.track? 'TRACK PRE-ANSWERED is off: the birthday gate asks at the first room visit.' : 'TRACK PRE-ANSWERED is on for the next run: no birthday gate, the provider armed from boot.'); };
+  paintDials();
 
   // RUNS in this browser
   function runList(){ var out = []; try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf(K.run) === 0){ var r = js(k, null); if(r && r.n) out.push(r); } } }catch(e){} return out.sort(function(a, b){ return b.n - a.n; }); }
@@ -142,7 +157,7 @@
     var paths = Object.keys(byPath).map(function(p){ return p + ' x' + byPath[p]; }).join(', ');
     L.push('GVT PLAYTEST BENCH · RUN ' + run.n);
     L.push('BUILD ' + (b.cv || '?') + ' · deployed ' + (b.at? etDate(b.at) : '?') + ' (md5 ' + String(b.md5 || '').slice(0, 8) + ', HEAD ' + (b.sha || '?') + ')');
-    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')');
+    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')' + dialsText(h.dials));
     L.push('wire: ' + wire.killed + ' answered in place' + (paths? ' (' + paths + ')' : '') + ' · ' + wire.passed + ' board GET passed through · ' + wire.errors + ' error rows');
     L.push(''); L.push('THE ROAD (CARD 3): not yet'); L.push(''); L.push('THE RUN LOG (oldest first)');
     (run.log || []).forEach(function(r){ L.push('[+' + mmss(r.t) + ' · ' + (r.lv || '-') + ' · ' + r.scr + '] ' + r.k + ' · ' + r.x + (r.e? '\n    ' + String(r.e).split('\n').join('\n    ') : '')); });

@@ -7,12 +7,16 @@
    (2) THE ERROR HOOKS: window 'error', 'unhandledrejection' and console.error land as ERROR rows (message + stack).
    (3) THE STORE: the bench's own localStorage keys (never gvt_*), the run header, the log writer. Slot 2 (bench.js)
        builds the face on this. This file never dials the ads and never writes gvt_coach. No em or en dashes in any
-       string a player reads. */
+       string a player reads.
+   (4) THE AD BRIDGE (CARD 2): the bench presents the shells' one ad handler (webkit.messageHandlers.gvtAds), so the
+       game's LIVE gate decides when a break is due and the bench only paints: init and load answered ready, a show
+       handed to slot 2's card painter (AD PLACEMENT), the result answered on the tap through the four GVTN doors.
+       Never gvtIAP (the store stays a page with no bridge), never gvtSign. Nothing here opens a wire. */
 (function(){
   'use strict';
   var W = window;
   var STAMP = W.__BENCH_STAMP || {};          // baked into game.html's head insertion by stage_bench.py
-  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag' };
+  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag', dials:'bench_dials' };
   var RUNS_KEEP = 40, LOG_CAP = 2000;         // the dials page: D6
   var B = W.__bench = { stamp:STAMP, K:K, wire:{ killed:0, passed:0, byPath:{} }, errors:[], listeners:[], state:null, held:false };
 
@@ -30,6 +34,10 @@
   function etDate(iso){ try{ return new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit' }).format(new Date(iso)) + ' ET'; }catch(e){ return String(iso || '').slice(0, 16); } }
   B.rd = rd; B.wr = wr; B.rm = rm; B.js = js; B.bid = bid; B.isPhone = isPhone; B.clock = clock; B.mmss = mmss; B.etTime = etTime; B.etDate = etDate;
   B.buildLine = function(){ return 'BUILD ' + (STAMP.cv || '?') + ' · deployed ' + (STAMP.at? etTime(STAMP.at) : '?'); };
+  // CARD 2 THE DIALS: EVERY SEAT (implies TRACK PRE-ANSWERED) · TRACK PRE-ANSWERED; a bench key, so RESET never touches it
+  function dialsRead(){ var d = js(K.dials, null) || {}; var seat = d.seat? 1 : 0; return { seat:seat, track:(seat || d.track)? 1 : 0 }; }
+  function dialsText(d){ d = d || {}; var a = []; if(d.seat) a.push('EVERY SEAT'); if(d.track) a.push('TRACK PRE-ANSWERED'); return ' · dials: ' + (a.length? a.join(', ') : 'none'); }
+  B.dialsRead = dialsRead; B.dialsText = dialsText;
 
   // THE DOORSTEP: the launcher's reset leaves a flag; here, BEFORE the game's script runs (no flush of this page can undo it), every
   // gvt_ key is wiped once more and the preset's seed re-applied. Collect the keys first (Chrome reshuffles key(i) on removal).
@@ -46,7 +54,7 @@
   B.cur = js(K.cur, null);
   if(!B.cur || !B.cur.n){
     var n0 = (parseInt(rd(K.runN) || '0', 10) || 0) + 1; wr(K.runN, String(n0));
-    B.cur = { n:n0, t0:Date.now(), at:new Date().toISOString(), preset:'NO RESET', tag:rd(K.tag) || '', dice:'REAL', screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:STAMP.cv, md5:STAMP.md5, sha:STAMP.sha, at:STAMP.at } };
+    B.cur = { n:n0, t0:Date.now(), at:new Date().toISOString(), preset:'NO RESET', tag:rd(K.tag) || '', dials:dialsRead(), dice:'REAL', screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:STAMP.cv, md5:STAMP.md5, sha:STAMP.sha, at:STAMP.at } };
     wr(K.cur, JSON.stringify(B.cur));
   }
   B.run = js(K.run + B.cur.n, null) || { n:B.cur.n, hdr:B.cur, log:[], notes:[] };
@@ -95,7 +103,7 @@
     var L = [];
     L.push('GVT PLAYTEST BENCH · RUN ' + run.n);
     L.push('BUILD ' + (b.cv || '?') + ' · deployed ' + (b.at? etDate(b.at) : '?') + ' (md5 ' + String(b.md5 || '').slice(0, 8) + ', HEAD ' + (b.sha || '?') + ')');
-    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')');
+    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')' + dialsText(h.dials));
     L.push('wire: ' + wire.killed + ' answered in place' + (paths? ' (' + paths + ')' : '') + ' · ' + wire.passed + ' board GET passed through · ' + wire.errors + ' error rows');
     L.push('');
     L.push('THE ROAD (CARD 3): not yet');
@@ -146,6 +154,36 @@
   var CE0 = console.error;
   console.error = function(){ try{ var a = Array.prototype.slice.call(arguments).map(function(x){ return (x && x.stack)? x.stack : String(x); }).join(' '); err('console.error', a.split('\n')[0], a); }catch(e){} return CE0.apply(console, arguments); };
   B.err = err;
+
+  // ---------- THE AD BRIDGE (CARD 2): the bench stands in as the shells' ad provider ----------
+  // The game's ADS_BRIDGE reads webkit.messageHandlers.gvtAds ONCE at boot; the bench presents that one handler (never gvtIAP, never
+  // gvtSign). The page posts init / show / load; the shell's answers are the four GVTN doors (_adsInit · _adsReady · _adsCreative ·
+  // _adsResult). The game's own gate (squadAdGate: the cradle, the cliff, the 2-3 clock, the minute gap, the sitting cap, the paid
+  // flags) decides WHEN a break is due; the bench only paints the AD PLACEMENT card (slot 2 owns the painter) and answers the tap.
+  var ADB = B.ads = { on:false, posts:[], pend:null, shows:0, inits:0, answered:0, painter:null };
+  function gvtn(fn, d){ try{ var G = W.GVTN; if(G && typeof G[fn] === 'function'){ G[fn](d); return true; } }catch(e){ err('bench', 'GVTN.' + fn + ': ' + (e && e.message), e && e.stack); } return false; }
+  function adsReady(){ gvtn('_adsReady', { int:true, rew:true }); }
+  B.gvtn = gvtn; B.adsReady = adsReady;
+  (function(){
+    var MH = null;
+    try{ W.webkit = W.webkit || {}; W.webkit.messageHandlers = W.webkit.messageHandlers || {}; MH = W.webkit.messageHandlers; }catch(e){ MH = null; }
+    if(!MH){ B.log('BENCH', 'window.webkit refused the bench\'s ad handler: the bench cannot stand in as the provider on this page'); return; }
+    if(MH.gvtAds){ B.log('BENCH', 'a real gvtAds handler already stands on this page: the bench does not stand in'); return; }
+    MH.gvtAds = { postMessage:function(m){
+      m = m || {}; var cmd = String(m.cmd || '');
+      ADB.posts.push(cmd + (m.kind? ':' + m.kind : '') + (m.id != null? '#' + m.id : '')); if(ADB.posts.length > 60) ADB.posts.shift();
+      if(cmd === 'init'){ ADB.inits++; setTimeout(function(){ gvtn('_adsInit', { ok:true }); adsReady(); ADB.answered++; B.log('AD', 'THE BENCH ANSWERS AS THE AD PROVIDER · init ok · fill: interstitial and rewarded (the shells\' bridge shape; nothing served, nothing on the wire)'); }, 0); return; }
+      if(cmd === 'load'){ setTimeout(adsReady, 0); return; }
+      if(cmd === 'show'){
+        ADB.shows++; var req = { kind:String(m.kind || 'int'), id:m.id, at:Date.now() }; ADB.pend = req;
+        if(typeof ADB.painter === 'function'){ try{ ADB.painter(req); return; }catch(e){ err('bench', 'the card painter: ' + (e && e.message), e && e.stack); } }
+        ADB.pend = null; B.log('BENCH', 'a show was asked with no card painter on this page (slot 2 missing): answered as ' + (req.kind === 'int'? 'complete' : 'not finished') + ' at once');
+        setTimeout(function(){ gvtn('_adsResult', { id:req.id, kind:req.kind, completed:req.kind === 'int' }); adsReady(); }, 0); return;
+      }
+      B.log('BENCH', 'the bridge received an unknown command: ' + cmd);
+    } };
+    ADB.on = true;
+  })();
 
   // the run's first rows on this page
   var nb = /[?&]nb=/.test(location.search);

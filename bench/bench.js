@@ -3,8 +3,15 @@
    function declarations rebind on window: the 0559 seam law). Jobs: the reserved device (9 x32, the box refuses it),
    the run log's hooks (verdicts, XP, launches, the picker, cards, landings, doors, the coach, the briefings, THE RULER's
    own events, every META ledger line that moves on a save), the strip in the game's chin (the phone folds to one chip),
-   the LOG, the NOTE pad (the sim holds while it is open), COPY RUN / DOWNLOAD RUN, the DIALS page. Never dials the ads,
-   never writes gvt_coach, never shortcuts a door. No em or en dashes in any string a player reads. */
+   the LOG, the NOTE pad (the sim holds while it is open), COPY RUN / DOWNLOAD RUN, the DIALS page. Never writes gvt_coach,
+   never shortcuts a player-facing door. No em or en dashes in any string a player reads.
+   CARD 2 (AD PLACEMENT and RETREAT): the AD PLACEMENT card (the painter behind slot 1's bridge: full screen, the game's own
+   display font, a tap anywhere to go on, the X from frame one; the card stamped as the creative so the 25 s belt stands
+   down), the seat named on every exit row whether or not a card showed (the gate's own inputs, read only), THE DIALS
+   (EVERY SEAT lifts the cradle through GVT.adCfg and the cliff through the staged copy's one named token; TRACK
+   PRE-ANSWERED answers the birthday gate 13+ through the game's own door), RETREAT (the running battle forfeited through
+   the game's own loss door: lives to zero, the tan flag, endBattle(false); L1 = THE TAN RETREAT?! by the game's own rule).
+   The bench never dials the ads outside EVERY SEAT and never adds a branch inside the game's gate. */
 (function(){
   'use strict';
   var W = window, D = document, B = W.__bench;
@@ -43,7 +50,16 @@
     + '#benchLogList .r.ERROR{color:#FF9A8C}#benchLogList .r.LEAK,#benchLogList .r.WIRE,#benchLogList .r.RULER{color:#8F866F;font-size:.85em}#benchLogList .r.PRIZE,#benchLogList .r.VERDICT{color:#FFF3C4}#benchLogList .r.NOTE{color:#A9D18E}'
     + '#benchToast{position:fixed;left:50%;bottom:calc(var(--bench-chin) + 14px);transform:translateX(-50%);background:#FFF3C4;color:#14110e;font-family:var(--ui,"Arial Narrow",Impact,sans-serif);font-weight:800;font-size:26px;padding:10px 18px;border-radius:10px;z-index:65;max-width:92vw;text-align:center;pointer-events:none}'
     + '#benchSheet .item{font-size:26px;padding:10px 0;color:#F3EBD6;border-bottom:1px solid #2a2620;line-height:1.3}'
-    + '@media (prefers-reduced-motion: reduce){#benchBar,.benchOv,#benchToast{transition:none;animation:none}}';
+    + '#benchAd{position:fixed;left:0;right:0;top:0;bottom:var(--bench-chin);z-index:46;background:#0d0b09;color:#F3EBD6;font-family:var(--uih,"Arial Narrow",Impact,"Helvetica Neue",Arial,sans-serif);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:16px 90px;box-sizing:border-box;user-select:none;-webkit-user-select:none;cursor:pointer;touch-action:manipulation}'
+    + '#benchAd .hd{font-size:120px;line-height:1;font-weight:800;letter-spacing:.06em;color:#FFF3C4;text-transform:uppercase}'
+    + '#benchAd .seat{font-size:30px;line-height:1.2;color:#F3EBD6;letter-spacing:.04em;text-transform:uppercase}'
+    + '#benchAd .foot{font-size:26px;line-height:1.25;color:#B8AE95;max-width:940px}'
+    + '#benchAd .held{font-size:26px;line-height:1.2;color:#8F866F}'
+    + '#benchAd .x{position:absolute;top:14px;right:14px;width:60px;height:60px;border-radius:12px;border:2px solid #7FA35C;background:#2a3a20;color:#F3EBD6;font:800 34px/56px var(--ui,"Arial Narrow",Impact,"Helvetica Neue",Arial,sans-serif);cursor:pointer;touch-action:manipulation;padding:0}'
+    + '#benchAd.phone{padding:6px 60px;gap:6px}#benchAd.phone .hd{font-size:84px}#benchAd.phone .seat{font-size:26px}#benchAd.phone .foot{font-size:26px;max-width:640px}#benchAd.phone .x{width:48px;height:48px;font-size:30px;line-height:44px;top:8px;right:8px}'
+    + '.bbtn.on{background:#FFF3C4;color:#14110e;border-color:#FFF3C4}'
+    + '#benchSheet .item .bbtn{vertical-align:middle;margin:0 10px 6px 0}'
+    + '@media (prefers-reduced-motion: reduce){#benchBar,.benchOv,#benchToast,#benchAd{transition:none;animation:none}}';
 
   function el(tag, attrs, kids){ var e = D.createElement(tag); if(attrs) for(var k in attrs){ if(k === 'text') e.textContent = attrs[k]; else if(k === 'html') e.innerHTML = attrs[k]; else if(k === 'on') for(var ev in attrs.on) e.addEventListener(ev, attrs.on[ev]); else e.setAttribute(k, attrs[k]); } (kids || []).forEach(function(c){ if(c) e.appendChild(c); }); return e; }
   function btn(label, cls, fn){ return el('button', { 'class':'bbtn' + (cls? ' ' + cls : ''), type:'button', text:label, on:{ click:function(ev){ ev.preventDefault(); ev.stopPropagation(); try{ fn(ev); }catch(e){ B.err('bench', 'button ' + label + ': ' + (e && e.message), e && e.stack); } } } }); }
@@ -55,7 +71,9 @@
   if(gameUp && !W.__BENCH_NODEV){ try{ if(META.deviceId !== RIG){ var was = String(META.deviceId || '').slice(0, 8); META.deviceId = RIG; saveMeta(); devNote = ' · device rewritten to the reserved shape (was ' + (was || 'none') + '...)'; } }catch(e){} }
 
   // ---------- the state the stamps read ----------
-  var last = { scr:'', card:'', verdict:'', firstRoom:false, replayNoted:false, verdictKey:'', pill:'' };
+  var last = { scr:'', card:'', verdict:'', firstRoom:false, replayNoted:false, verdictKey:'', pill:'', exit:'', retreat:null, ad:'' };
+  var adCard = null;   // CARD 2: the standing AD PLACEMENT card { m, seat, t0, el, iv }
+  var dials = (B.run.hdr && B.run.hdr.dials) || B.dialsRead();   // CARD 2: EVERY SEAT · TRACK PRE-ANSWERED (the run header's, else the browser's)
   function lvl(){ try{ return (S.mode === 'play' || S.mode === 'win' || S.mode === 'lose')? (S.bf? 'BF' : 'L' + (S.levelN | 0)) : ''; }catch(e){ return ''; } }
   function scr(){ try{ return telScreen(); }catch(e){ try{ return S.mode; }catch(e2){ return '?'; } } }
   function bar(){ try{ return 'LV ' + (META.lvl | 0) + ' ' + (META.xp | 0) + '/' + xpNeed() + ' XP · ' + (META.starBank | 0) + ' stars'; }catch(e){ return ''; } }
@@ -102,30 +120,74 @@
     wrap('saveMeta', null, function(){ ledgerDiff(); });
     wrap('tel', null, function(r, pre, a){ B.log('RULER', String(a[0]) + (a[1] !== undefined? ' ' + a[1] : '') + (a[2] !== undefined? ' ' + a[2] : '')); });
     wrap('xpAward', null, function(promos, pre, a){ var amt = a[0], o = a[1] || {}; B.log('XP', '+' + amt + ' XP (' + (o.src || '') + ') → ' + bar()); if(promos > 0) B.log('PRIZE', 'PROMOTED TO LEVEL ' + (META.lvl | 0) + (o.forcePromo? ' (forced first promotion)' : '') + ' · picks owed ' + (META.pendingPicks | 0)); });
-    wrap('endBattle', function(win){ return { win:!!win, n:S.levelN | 0, camp:META.campaign | 0, stars:META.starBank | 0, mercy:!win && S.levelN === 1 && !S.rival && (META.campaign | 0) === 0 && !S.coop, t:+(S.t || 0).toFixed(2) }; },
+    wrap('endBattle', function(win){ var t = +(S.t || 0).toFixed(2), m = !win && S.levelN === 1 && !S.rival && (META.campaign | 0) === 0 && !S.coop; if(m) last.mercyAt = t; return { win:!!win, n:S.levelN | 0, camp:META.campaign | 0, stars:META.starBank | 0, mercy:m || (last.mercyAt === t && (S.levelN | 0) === 1), t:t, retreat:!!(last.retreat && last.retreat.n === (S.levelN | 0) && Date.now() - last.retreat.t < 30000) }; },   // the first-battle mercy calls endBattle twice (the loss, then the game's own win): both calls read the same mark
       function(r, pre){ setTimeout(function(){ try{
         var mode = S.mode; if(mode !== 'win' && mode !== 'lose') return;
         var key = pre.n + ':' + pre.t + ':' + mode; if(key === last.verdictKey) return; last.verdictKey = key;
         var title = mode === 'win'? txt('winTitle') : txt('loseTitle'); var face = mode === 'win'? txt('win') : txt('lose');
-        var ls = (META.levelStars || {})['l' + pre.n]; var line = 'L' + pre.n + ' ' + (mode === 'win'? 'WIN' : 'LOSS') + (pre.mercy? ' · THE TAN RETREAT?! (the first-battle mercy)' : '') + ' · ' + title + (ls != null? ' · ' + ls + ' stars' : '') + ' · stars +' + ((META.starBank | 0) - pre.stars) + ' (in pocket ' + (META.starBank | 0) + ')' + ' · campaign ' + pre.camp + ' → ' + (META.campaign | 0);
-        last.verdict = 'L' + pre.n + ' ' + (mode === 'win'? 'WIN' : 'LOSS');
+        var ls = (META.levelStars || {})['l' + pre.n]; var line = (pre.retreat? 'RETREAT (forfeit) · ' : '') + 'L' + pre.n + ' ' + (mode === 'win'? 'WIN' : 'LOSS') + (pre.mercy? ' · THE TAN RETREAT?! (the first-battle mercy' + (pre.retreat? ': L1 has no loss face' : '') + ')' : '') + (pre.retreat && mode === 'lose'? ' · the game\'s own loss face (TRY AGAIN on the spot, Continue home, the tenth of XP)' : '') + ' · ' + title + (ls != null? ' · ' + ls + ' stars' : '') + ' · stars +' + ((META.starBank | 0) - pre.stars) + ' (in pocket ' + (META.starBank | 0) + ')' + ' · campaign ' + pre.camp + ' → ' + (META.campaign | 0);
+        last.verdict = 'L' + pre.n + ' ' + (mode === 'win'? 'WIN' : 'LOSS') + (pre.retreat? ' (retreat)' : ''); if(pre.retreat) last.retreat = null;
         B.log('VERDICT', line, 'the face: ' + face.slice(0, 400));
       }catch(e){} }, 60); });
-    wrap('startCampaign', null, function(r, pre, a){ var n = S.levelN | 0; var replay = n <= (META.campaign | 0); B.log('LAUNCH', 'LAUNCH L' + n + (replay? ' · REPLAY TAXED (pays a fifth for five replays, then nothing)' : '') + ' · ' + state()); if(replay && !last.replayNoted){ last.replayNoted = true; toast('REPLAY PAYS A FIFTH. RESET FOR THE REAL PAY.', 6000); } });
+    wrap('startCampaign', null, function(r, pre, a){ var n = S.levelN | 0; var replay = n <= (META.campaign | 0); B.log('LAUNCH', 'LAUNCH L' + n + (replay? ' · REPLAY TAXED (pays a fifth for five replays, then nothing)' : '') + ' · ' + state()); if(replay && !last.replayNoted){ last.replayNoted = true; toast('REPLAY PAYS A FIFTH. RESET FOR THE REAL PAY.', 6000); }
+      try{ var k = ((META.lossRun || {})['l' + n]) | 0, mr = (typeof mercyRelief === 'function')? mercyRelief(n) : 1;   // CARD 2: the weak hand's reading at the launch (the full hidden hand is CARD 3's)
+        if(mr < 1) B.log('LAUNCH', 'QUIET MERCY on L' + n + ': foe hp and the crate eased ' + Math.round((1 - mr) * 100) + '% (' + k + ' straight losses here; invisible by design; any win clears it)');
+        else if(k >= 1) B.log('LAUNCH', 'L' + n + ' after ' + k + ' straight loss' + (k > 1? 'es' : '') + ': no relief yet (quiet mercy begins on the attempt after the second)');
+        else if(n === 1 && last.retreatL1) B.log('LAUNCH', 'L1 again: never eased (the coach\'s level; the first battle is always a victory)');
+        if(S.sq && S.sq.bite) B.log('LAUNCH', 'THE PROVEN PLAYER on L' + n + ': the box alarm bites earlier (the prior rung at three stars, no loss here yet)'); }catch(e){} });
     wrap('startBattlefield', null, function(){ B.log('LAUNCH', 'LAUNCH battleground · ' + state()); });
     wrap('showPicker', null, function(){ B.log('PICKER', 'PICKER dealt · x' + (META.pendingPicks | 0) + ' owed'); });
     wrapUI('pick', function(t){ return (META.up || {})[t] | 0; }, function(r, r0, a){ B.log('PICK', 'PICK ' + a[0] + ' · rank ' + r0 + ' → ' + ((META.up || {})[a[0]] | 0) + ' · picks left ' + (META.pendingPicks | 0)); });
     wrapUI('pickW', function(w){ return (META.sargeUp || {})[w] | 0; }, function(r, r0, a){ B.log('PICK', 'PICK Sarge ' + a[0] + ' · rank ' + r0 + ' → ' + ((META.sargeUp || {})[a[0]] | 0) + ' · picks left ' + (META.pendingPicks | 0)); });
     wrap('showMenu', null, function(){ var rc = ''; try{ rc = roomCur(); }catch(e){} if(!last.firstRoom){ last.firstRoom = true; B.log('ROOM', 'FIRST ROOM LANDING · ' + rc + ' · ' + state()); } else B.log('ROOM', 'ROOM landing · ' + rc); });
-    wrap('openShop', null, function(r, pre, a){ B.log('DOOR', 'SHOP opened' + (a[0]? ' · ' + a[0] : '')); });
+    wrap('openShop', null, function(r, pre, a){ B.log('DOOR', 'SHOP opened' + (a[0]? ' · ' + a[0] : '') + ' · store: web fall-through (a page with no store bridge on the bench: nothing priced, nothing granted, no pitch)'); });
     wrap('startPark', null, function(r, pre, a){ B.log('LAUNCH', 'PARK ' + a[0] + ' rung ' + a[1] + ' launched'); });
     wrap('openWorldRank', null, function(){ B.log('DOOR', 'RANKINGS opened (the real board, no YOU row)'); });
     wrap('openWarTable', null, function(){ B.log('DOOR', 'WAR TABLE opened'); });
     wrap('openCampScene', null, function(){ B.log('DOOR', 'CAMPAIGN scene opened'); });
     wrap('hqOpen', null, function(){ B.log('DOOR', 'HQ sheet opened'); });
-    wrap('tvTap', null, function(){ B.log('DOOR', 'TV tapped'); });
-    wrap('tvGrant', null, function(){ B.log('PRIZE', 'TV paid (the web pays directly; CARD 2 adds AD PLACEMENT)'); });
-    wrap('adGate', null, function(r, pre, a){ B.log('AD', 'AD GATE ' + a[0] + ' (the web shows nothing at the break)'); });
+    wrap('tvTap', function(){ return { armed:(typeof tvArmed === 'function')? tvArmed() : null, prov:(typeof ADS !== 'undefined' && ADS.provider) || '?' }; }, function(r, pre){ B.log('DOOR', 'TV tapped · ' + (pre.armed === false? 'the set is spent or asleep (a blink, no card)' : pre.prov === 'placeholder'? 'no ad provider on this run: the set pays directly, as the web pays' : 'a real provider is armed: the game asks first (ROLL IT!), then the bench paints the card')); });
+    wrap('tvGrant', function(){ return { day:META.tvDay, stars:META.starBank | 0 }; }, function(r, pre){ if(META.tvDay !== pre.day) B.log('PRIZE', 'TV paid +' + ((META.starBank | 0) - pre.stars) + ' stars · the day burns (tvDay ' + META.tvDay + ')' + ((typeof ADS !== 'undefined' && ADS.provider !== 'placeholder')? ' · through the AD PLACEMENT card' : ' (the web pays directly)')); });
+    wrap('adGate', function(){ return { games:(META.adGames | 0), sess:(typeof ADQ !== 'undefined')? (ADQ.games | 0) : -1 }; }, function(r, pre, a){ B.log('AD', 'AD GATE ' + a[0] + ' · a door launch: counters only, never a break (lifetime game ' + (META.adGames | 0) + ', this sitting\'s game ' + ((typeof ADQ !== 'undefined')? ADQ.games : '?') + ')'); });
+    // CARD 2: the ad seats. squadAdGate is the ONE real seat (the verdict exits and the picker's exits reach it); the bench names the
+    // exit and reads the gate's own inputs BEFORE it runs (read only), then says whether a card showed and, if not, every reason why.
+    ['retryBtn', 'againBtn', 'pickOutBtn'].forEach(function(id){ var e = D.getElementById(id); if(e) e.addEventListener('click', function(){ last.exit = id === 'pickOutBtn'? 'THE ALL-MAXED DOOR (the picker\'s other exit)' : (String(e.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase() || id) + ' (the verdict exit)'; }, true); });
+    wrap('ppSettle', function(){ try{ var pk = D.getElementById('picker'); if((META.pendingPicks | 0) <= 0 && pk && !pk.classList.contains('hidden') && !PGFLOW && !BF_AGAIN && S.mode !== 'menu') last.exit = 'AFTER THE UPGRADE (the picker\'s drained exit, before the room)'; }catch(e){} }, null);
+    wrap('campFlowLaunch', function(){ last.exit = 'AFTER THE UPGRADE AND THE CARDS, BEFORE L' + ((META.campaign | 0) + 1) + ' (the flow)'; }, null);
+    wrap('bfAgainLaunch', function(){ last.exit = 'PLAY AGAIN (the battleground\'s exit)'; }, null);
+    function adWhy(){   // the gate's own inputs, in squadAdGate's own order, read before it runs; never a branch inside it
+      var o = { at:Date.now(), game:(META.adGames | 0), exit:last.exit || 'VERDICT EXIT', why:[], due:false, prov:'?' };
+      try{
+        var a = GVT.ads(); var games = o.game; o.prov = a.provider;
+        var sq = !!((S.bf && S.bf.sqAdT) || (S.sq && S.sq.sqAdT)); if(sq) o.why.push('a squad exit (never on the bench)');
+        var free = typeof adFree === 'function' && adFree();
+        var soloDue = !sq && a.solo === 1 && a.provider !== 'placeholder' && a.sess.games > a.free && a.soloMax > 0 && a.next != null && games >= a.next && a.sess.soloPaid !== a.sess.games;
+        if(a.steam) o.why.push('Steam: no ads');
+        if(free) o.why.push('paid: No Ads on this save');
+        if(a.cradle){ if(a.newbie > 0 && games <= a.newbie) o.why.push('cradle: game ' + games + ' of ' + a.newbie + ' (the six silent games)'); if(a.cliff) o.why.push('cliff: campaign ' + a.rung + ' (breaks begin after campaign ' + a.minCamp + ' is beaten)'); }
+        if(a.provider === 'placeholder') o.why.push(a.track === 'teen'? 'no fill yet: the provider has not answered' : a.track === 'child'? 'child track: zero ads' : 'the track is unanswered: the birthday gate asks at the first room visit');
+        if(a.sess.games <= a.free) o.why.push('the sitting\'s first game is free (AD_FREE_GAMES ' + a.free + ')');
+        if(a.next != null && games < a.next) o.why.push('not due: next at game ' + a.next + ' (every ' + a.soloMin + ' to ' + a.soloMax + ')');
+        if(a.sess.games > 0 && a.sess.soloPaid === a.sess.games) o.why.push('this verdict already paid its break');
+        var gapLeft = (MAXA.lastShow && a.mgap > 0)? Math.ceil((a.mgap * 60000 - (Date.now() - MAXA.lastShow)) / 1000) : 0;
+        if(META.paidEver) o.why.push('paid: a purchase on this save');
+        if(a.msess >= a.mcap) o.why.push('swallowed: the sitting cap (' + a.mcap + ')');
+        else if(gapLeft > 0) o.why.push('swallowed: gap, ' + gapLeft + ' s left of the phone\'s own minute');
+        if(a.live) o.why.push('a show is live');
+        o.due = soloDue && !a.cradle && !a.steam && !free;
+      }catch(e){ o.why.push('the gate could not be read: ' + (e && e.message)); }
+      return o;
+    }
+    wrap('squadAdGate', adWhy, function(r, pre){ var shown = !!(B.ads && B.ads.pend && B.ads.pend.at >= pre.at); last.exit = '';
+      B.log('AD', 'GAME ' + pre.game + ' · ' + pre.exit + ' · ' + (shown? 'AD PLACEMENT shown' : (pre.due? 'DUE, ' : 'NO BREAK (') + (pre.why.length? pre.why.join('; ') : 'no reason read: a bench finding') + (pre.due? '' : ')'))); });
+    wrap('hideAllOverlays', function(){ if(adCard) adFinish(adCard.m.kind === 'int', 'torn down by the game (an abort: the held launch still fires once)'); }, null);
+    // the birthday gate (the phone's true beat): the log records the TRACK, never the date
+    wrap('ageGateAnswer', null, function(t){ if(t) B.log('AD', 'BIRTHDAY GATE answered · track ' + t + (t === 'teen'? ' · the bench answers init: the provider arms' : ' · child track: zero ads on this throwaway, forever (an answer is sticky)')); else B.log('AD', 'BIRTHDAY GATE: an incomplete answer (the card stays)'); });
+    wrapUI('ageSkip', null, function(){ B.log('AD', 'BIRTHDAY GATE skipped (the X) · zero ads this sitting · it asks again next boot (HEAD\'s rule)'); });
+    wrapUI('adRoll', null, function(){ B.log('AD', 'ROLL IT! taken · the game asked in its own words first; the bench paints the TV card'); });
+    wrapUI('adAskX', null, function(){ B.log('AD', 'ROLL IT! declined (the X) · no card, the set stays armed, the day unburned'); });
+    wrap('adRepShow', null, function(){ var el = D.getElementById('adRep'); if(el) B.log('AD', 'REPORT CHIP dealt · ' + String(el.textContent || '').trim() + ' · 3 s at the foot of the room · a REAL link (' + String(el.getAttribute('href') || '').slice(0, 60) + ') left live: a public page; a tap leaves the bench, the run persists'); });
+    wrap('naOfferShow', null, function(){ B.log('AD', 'store: the daily pitch dealt (a store surface: web fall-through, nothing priced or granted)'); });
     wrap('namePromptShow', null, function(r, pre, a){ B.log('CARD', (a[0]? 'RENAME card dealt' : 'CHOOSE YOUR NAME dealt') + ' · prefill "' + (META.name || '') + '"'); });
     wrapUI('namePromptSave', null, function(){ B.log('EV', 'NAME saved "' + (META.name || '') + '" (kept locally; nobody at HQ to veto it)'); });
     wrapUI('namePromptKeep', null, function(){ B.log('EV', 'NAME kept "' + (META.name || '') + '"'); });
@@ -155,7 +217,7 @@
       }).observe(e, { attributes:true, attributeFilter:['class'] });
     }
     Object.keys(CARD_IDS).forEach(watch);
-    new MutationObserver(function(ms){ ms.forEach(function(m){ Array.prototype.forEach.call(m.addedNodes || [], function(n){ if(!n || n.nodeType !== 1) return; if(n.id === 'safechip') B.log('ONCE', 'SAFETY CHIP shown · ' + txt('safechip').slice(0, 120)); if(n.id === 'sqBack') B.log('CARD', 'PARTY card dealt'); if(n.id === 'unofficial') B.log('BENCH', 'UNOFFICIAL COPY banner (this host is not a HOME host)'); }); }); }).observe(D.body, { childList:true });
+    new MutationObserver(function(ms){ ms.forEach(function(m){ Array.prototype.forEach.call(m.addedNodes || [], function(n){ if(!n || n.nodeType !== 1) return; if(n.id === 'safechip') B.log('ONCE', 'SAFETY CHIP shown · ' + txt('safechip').slice(0, 120)); if(n.id === 'sqBack') B.log('CARD', 'PARTY card dealt'); if(n.id === 'unofficial') B.log('BENCH', 'UNOFFICIAL COPY banner (this host is not a HOME host)'); if(n.id === 'ageGate') B.log('AD', 'BIRTHDAY GATE asked (the first room visit in an ad-capable shell: the phone\'s true beat) · THAT\'S ME or the X'); if(n.id === 'adAsk') B.log('AD', 'ROLL IT! dealt · the TV\'s own disclosure: A REAL AD FROM OUR SPONSORS (the game\'s words) · ROLL IT! or the X'); if(n.id === 'naOffer' || n.id === 'naoffer') B.log('AD', 'store: a no-ads offer card (web fall-through)'); }); }); }).observe(D.body, { childList:true });
     // the screen under the player, HEAD's own namer, polled
     setInterval(function(){ try{ var s = scr(); if(s !== last.scr){ last.scr = s; B.log('SCREEN', s + (s === 'play:camp'? ' · L' + (S.levelN | 0) : '')); } }catch(e){} }, 250);
 
@@ -163,6 +225,101 @@
     if(typeof W.update === 'function'){ var U0 = W.update; W.update = function(dt){ if(B.held && !S.coop) return; return U0.apply(this, arguments); }; hooks.on.push('update(hold)'); } else hooks.missing.push('update');
   }
   B.hold = function(on){ B.held = !!on; };
+
+  // ---------- CARD 2: THE AD PLACEMENT CARD (the painter behind slot 1's bridge) ----------
+  // Full screen over the game (z 46: over every game overlay, under the veil and the bench's own pad), AD PLACEMENT in the game's
+  // display font as the biggest type on the bench, the seat's name under it, a tap anywhere to go on, the X from frame one. An
+  // interstitial counts as complete either way (the seam's law); the TV's card pays only when finished, its X pays nothing and
+  // leaves the day unburned. The card is stamped as the creative the moment it stands, so the 25 s belt stands down and a card
+  // held while he dictates still launches exactly once, on the tap. Nothing is served; no word enters the game's dictionaries.
+  function adSeat(m){ return m.kind === 'rew'? 'REWARDED · THE TV' : 'INTERSTITIAL · GAME ' + (gameUp? (META.adGames | 0) : '?') + ' · ' + (last.exit || 'VERDICT EXIT'); }
+  function adShow(m){
+    if(adCard){ B.log('AD', 'a second show asked while a card stands (id ' + m.id + ') · answered without a card, as a shell would'); B.ads.pend = null; setTimeout(function(){ B.gvtn('_adsResult', { id:m.id, kind:m.kind, completed:m.kind === 'int' }); B.adsReady(); }, 0); return; }
+    var seat = adSeat(m); var isTV = m.kind === 'rew';
+    var o = el('div', { id:'benchAd', 'class':phone? 'phone' : '' });
+    o.appendChild(el('div', { 'class':'hd', text:'AD PLACEMENT' }));
+    o.appendChild(el('div', { 'class':'seat', text:seat }));
+    o.appendChild(el('div', { 'class':'foot', text:isTV? 'TAP ANYWHERE TO FINISH THE AD: THE SET PAYS +30 STARS. THE X PAYS NOTHING AND KEEPS THE DAY.' : 'TAP ANYWHERE TO GO ON. THE GAME COUNTS THIS AD AS WATCHED EITHER WAY. NOTHING IS SERVED.' }));
+    var held = el('div', { 'class':'held', text:'held 0:00' }); o.appendChild(held);
+    var x = el('button', { 'class':'x', type:'button', text:'\u2715', 'aria-label':'close the ad placement' }); o.appendChild(x);
+    ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'keydown'].forEach(function(evn){ o.addEventListener(evn, stop); });   // the card never hands a tap to the canvas
+    x.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); adFinish(!isTV, 'closed by the X'); });
+    o.addEventListener('click', function(ev){ ev.stopPropagation(); adFinish(true, isTV? 'finished by a tap' : 'tapped'); });
+    D.body.appendChild(o);
+    adCard = { m:m, seat:seat, t0:Date.now(), el:o, iv:setInterval(function(){ held.textContent = 'held ' + B.mmss(Date.now() - adCard.t0); }, 1000) };
+    last.ad = seat;
+    B.log('AD', 'AD PLACEMENT shown · ' + seat + ' · show id ' + m.id + ' · a tap anywhere goes on, the X from frame one');
+    setTimeout(function(){ if(!adCard || adCard.m !== m) return; B.gvtn('_adsCreative', { kind:m.kind, network:'bench', creativeId:'AD PLACEMENT ' + m.id, adUnit:'bench-' + m.kind }); B.log('AD', 'the card stamped as the creative (the 25 s belt stands down: the card waits for the tap; the screen reads ad)'); }, 0);
+  }
+  function adFinish(completed, how){
+    var c = adCard; if(!c) return; adCard = null; clearInterval(c.iv); try{ c.el.remove(); }catch(e){}
+    var held = ((Date.now() - c.t0) / 1000).toFixed(1); var isTV = c.m.kind === 'rew';
+    B.log('AD', 'AD PLACEMENT · ' + c.seat + ' · ' + how + ' after ' + held + ' s · ' + (isTV? (completed? 'finished: the set pays +30 stars and the day burns' : 'not finished: pays nothing, the day stays unburned') : 'an interstitial counts as complete either way: the game goes on exactly once'));
+    if(B.ads) B.ads.pend = null;
+    B.gvtn('_adsResult', { id:c.m.id, kind:c.m.kind, completed:!!completed });
+    setTimeout(function(){ B.adsReady(); }, 50);   // the shell reloads and says ready again
+  }
+  if(B.ads) B.ads.painter = adShow;
+
+  // ---------- CARD 2: THE DIALS ----------
+  // EVERY SEAT: the cradle's games half through the game's own dials (GVT.adCfg: newbie 0 · free 0 · every game), the cliff through
+  // the staged copy's one named token (let AD_MIN_CAMP, 0 while the switch is on), the clock re-armed at the current game; the
+  // minute gap and the sitting cap stand (a phone could not break inside them). OFF restores the live defaults read at the flip.
+  // A run that never flips the switch never touches a dial (the live defaults stay the defaults).
+  var SEAT_DEF = null;
+  function seatApply(on){
+    if(!gameUp || !W.GVT || typeof GVT.adCfg !== 'function' || typeof GVT.ads !== 'function') return false;
+    if(!SEAT_DEF){ var a0 = GVT.ads(); SEAT_DEF = { newbie:a0.newbie, free:a0.free, soloMin:a0.soloMin, soloMax:a0.soloMax, minCamp:a0.minCamp }; }
+    if(on){ GVT.adCfg({ newbie:0, free:0, soloMin:1, soloMax:1, next:Math.max(1, META.adGames | 0) }); try{ AD_MIN_CAMP = 0; }catch(e){ B.log('BENCH', 'the cliff is a const on this copy (the staged token is missing): EVERY SEAT lifts the games half only'); } }
+    else { GVT.adCfg({ newbie:SEAT_DEF.newbie, free:SEAT_DEF.free, soloMin:SEAT_DEF.soloMin, soloMax:SEAT_DEF.soloMax, next:null }); try{ AD_MIN_CAMP = SEAT_DEF.minCamp; }catch(e){} }
+    return true;
+  }
+  function trackApply(){   // the birthday gate answered by the dial through the game's own door (13+); the DOB is never kept, only the track
+    if(!gameUp) return false;
+    if(META.adTrack === 'teen'){ try{ if(typeof maxInit === 'function') maxInit(); }catch(e){} return true; }
+    if(META.adTrack === 'child'){ B.log('DIAL', 'TRACK PRE-ANSWERED cannot lift a child track already answered on this throwaway (an answer is forever): RESET for a fresh gate'); return false; }
+    var t = null; try{ t = ageGateAnswer(1, 1, 2000); }catch(e){}
+    B.log('DIAL', t? 'TRACK PRE-ANSWERED · the birthday gate answered 13+ by the dial (track ' + t + ') · no gate asks this run · the bench answers init' : 'TRACK PRE-ANSWERED failed: ageGateAnswer is missing on this build');
+    return !!t;
+  }
+  function dialsLine(){ var a = {}; try{ a = GVT.ads(); }catch(e){} return 'the gate reads: cradle ' + a.newbie + ' games · cliff campaign ' + a.minCamp + ' · first free ' + a.free + ' · every ' + a.soloMin + ' to ' + a.soloMax + ' · next at game ' + a.next + ' · gap ' + a.mgap + ' min · cap ' + a.mcap + ' · provider ' + a.provider + ' · track ' + (a.track || 'unanswered'); }
+  function dialsSave(){ B.run.hdr.dials = { seat:dials.seat? 1 : 0, track:dials.track? 1 : 0 }; B.wr(B.K.dials, JSON.stringify(B.run.hdr.dials)); B.persist(true); }
+  function dialsBoot(){
+    if(!gameUp) return;
+    if(dials.seat) dials.track = 1;
+    if(dials.track) trackApply();
+    if(dials.seat) seatApply(true);
+    dialsSave();
+    setTimeout(function(){ B.log('DIAL', 'DIALS at boot · EVERY SEAT ' + (dials.seat? 'ON' : 'OFF') + ' · TRACK PRE-ANSWERED ' + (dials.track? 'ON' : 'OFF') + (dials.seat || dials.track? '' : ' (the phone\'s rhythm: the live defaults untouched)') + ' · ' + dialsLine()); }, 0);   // after the bridge's init answer lands (the same timer queue)
+  }
+  function flip(k){
+    if(!gameUp) return;
+    if(k === 'seat'){ dials.seat = dials.seat? 0 : 1; if(dials.seat){ dials.track = 1; trackApply(); } seatApply(!!dials.seat); }
+    else { if(dials.seat && dials.track){ toast('EVERY SEAT KEEPS THE TRACK PRE-ANSWERED', 3000); return; } dials.track = dials.track? 0 : 1; if(dials.track) trackApply(); else if(META.adTrack) toast('THE TRACK STAYS ANSWERED ON THIS THROWAWAY. RESET FOR A FRESH GATE.', 4000); }
+    dialsSave(); paintHdr();
+    B.log('DIAL', 'DIAL flipped · EVERY SEAT ' + (dials.seat? 'ON' : 'OFF') + ' · TRACK PRE-ANSWERED ' + (dials.track? 'ON' : 'OFF') + ' · ' + dialsLine());
+    if(ovs.benchSheet){ closeOv('benchSheet'); openSheet(); }
+  }
+
+  // ---------- CARD 2: RETREAT (the weak player's honest shortcut) ----------
+  // The running battle ends through the game's OWN loss door: the lives go to zero the way a leak takes them (the ouch, the red
+  // breach ring, Sarge's bark), then the tan flag rises over the box and its ceremony calls endBattle(false), exactly as the last
+  // leak does (the update loop's own lines). On L1 the game's own rule turns that loss into THE TAN RETREAT?! (there is no loss
+  // face on L1). Never a save edit, never a rig verdict: quiet mercy's count, the kindest defeat, TRY AGAIN's ad seat, the loss XP
+  // tenth and the ruler's loss ints all land as they land on a real loss. The row reads RETREAT (forfeit).
+  function retreat(){
+    if(!gameUp || S.mode !== 'play'){ toast('RETREAT: NO BATTLE IS RUNNING', 3000); return false; }
+    if(S.bf){ toast('RETREAT IS THE CAMPAIGN\'S DOOR. A BATTLEGROUND ENDS BY ITS OWN WHISTLE.', 4000); B.log('BENCH', 'RETREAT refused: a battleground'); return false; }
+    if(S.coop){ toast('RETREAT NEVER FOLDS A PARTY', 3000); B.log('BENCH', 'RETREAT refused: a party'); return false; }
+    if(S.momRaid || S.train){ toast('RETREAT IS FOR THE CAMPAIGN, THE PARKS AND THE RAIDS', 3000); B.log('BENCH', 'RETREAT refused: not a level'); return false; }
+    var n = S.levelN | 0, virgin = (n === 1 && !S.rival && (META.campaign | 0) === 0 && !S.coop);
+    last.retreat = { n:n, t:Date.now() }; if(virgin) last.retreatL1 = 1;
+    B.log('RETREAT', 'RETREAT (forfeit) · L' + n + ' at ' + (+S.t || 0).toFixed(1) + ' s · lives ' + (S.lives | 0) + ' to 0 · the line breaks and the tan walk into the box: the game\'s own loss door' + (virgin? ' · L1 has no loss face: THE TAN RETREAT?! by the game\'s own rule (the first battle is always a victory)' : ' · the tan flag rises, then the loss verdict (NOT THIS TIME)'));
+    try{ S.lives = 0; SFX.ouch(); S.shake = 0.5; S.fx.push({ k:'ring', x:T.x - 10, y:T.y - 10, r:10, R:60, t:0, dur:0.5, col:'rgba(166,59,42,0.8)' }); try{ commSay('leak'); }catch(e){} }catch(e){}
+    closeOv('benchSheet');
+    try{ if(virgin) endBattle(false); else startVictoryFlag(120, 1, null, campFoeHex(), function(){ if(S.mode === 'play') endBattle(false); }, true); }catch(e){ B.err('bench', 'RETREAT: ' + (e && e.message), e && e.stack); return false; }
+    return true;
+  }
 
   // ---------- the face ----------
   var style = el('style', { id:'benchCss', text:CSS }); D.head.appendChild(style);
@@ -173,10 +330,10 @@
   var row = el('div', { id:'benchRow' });
   function chinPx(){ return phone? 40 : 80; }   // the dials page D3: the desk band clears the picker's row (its bottom sits 81 px above a 800-tall floor); the phone chip's 26 px type needs 40
   function applyChin(){ D.documentElement.style.setProperty('--bench-chin', chinPx() + 'px'); try{ if(W.GVT && typeof GVT.chin === 'function') GVT.chin(chinPx()); }catch(e){} }
-  function hdrText(){ var h = B.run.hdr || {}; return 'RUN ' + B.run.n + ' · ' + B.buildLine() + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE' + (h.tag? ' · ' + h.tag : '') + ' · ' + (h.screen || '') + ' ' + (h.bid || ''); }
+  function hdrText(){ var h = B.run.hdr || {}; return 'RUN ' + B.run.n + ' · ' + B.buildLine() + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE' + (h.tag? ' · ' + h.tag : '') + (h.dials && h.dials.seat? ' · EVERY SEAT' : '') + (h.dials && h.dials.track? ' · TRACK PRE-ANSWERED' : '') + ' · ' + (h.screen || '') + ' ' + (h.bid || ''); }
   function paintHdr(){
     hdr.innerHTML = '';
-    if(phone){ hdr.appendChild(el('b', { text:'RUN ' + B.run.n })); hdr.appendChild(el('span', { text:(lvl() || '') + ' ' + (B.run.hdr.preset || '') })); }
+    if(phone){ hdr.appendChild(el('b', { text:'RUN ' + B.run.n })); hdr.appendChild(el('span', { text:(lvl() || '') + ' ' + (B.run.hdr.preset || '') + ((B.run.hdr.dials && B.run.hdr.dials.seat)? ' · SEAT' : '') })); }
     else { hdr.appendChild(el('b', { text:'RUN ' + B.run.n })); hdr.appendChild(el('span', { text:hdrText().replace(/^RUN \d+ · /, '') })); }
   }
   function paintLast(r){ if(!r) return; lastEl.textContent = '+' + B.mmss(r.t) + ' · ' + r.k + ' · ' + r.x; }
@@ -206,7 +363,7 @@
   function clearRuns(){ B.runList().forEach(function(r){ if(r.n !== B.run.n) B.rm(B.K.run + r.n); }); B.run.log = []; B.run.notes = []; B.persist(true); B.log('BENCH', 'LOG CLEARED (every run in this browser)'); toast('RUN LOGS CLEARED'); }
   function stampLine(){
     var h = B.run.hdr || {}, lc = last.card || 'none yet', lv = lvl(), vd = last.verdict || 'none yet';
-    return 'RUN ' + B.run.n + ' · ' + B.buildLine() + ' · ' + (lv? lv : 'last verdict ' + vd) + ' · ' + bar() + ' · ' + scr() + ' · last card: ' + lc + ' · +' + B.mmss(Date.now() - (h.t0 || 0)) + ' · ' + (h.tag || 'no tag') + ' · ' + (h.dice || 'REAL') + ' DICE · dials: none';
+    return 'RUN ' + B.run.n + ' · ' + B.buildLine() + ' · ' + (lv? lv : 'last verdict ' + vd) + ' · ' + bar() + ' · ' + scr() + ' · last card: ' + lc + ' · +' + B.mmss(Date.now() - (h.t0 || 0)) + ' · ' + (h.tag || 'no tag') + ' · ' + (h.dice || 'REAL') + ' DICE' + B.dialsText(h.dials) + (last.ad? ' · last ad seat: ' + last.ad : '');
   }
   function openPad(){
     if(padOpen) return;
@@ -253,9 +410,12 @@
       r.appendChild(btn('CLOSE', '', function(){ closeOv('benchSheet'); }));
       o.appendChild(r);
       var items = el('div', { id:'benchSheetItems' });
-      items.appendChild(el('div', { 'class':'item', text:'DIALS: none yet. EVERY SEAT, TRACK PRE-ANSWERED and RETREAT ride CARD 2; SAME DICE and the bookmarks ride CARD 3.' }));
+      items.appendChild(el('div', { 'class':'item' }, [btn('EVERY SEAT ' + (dials.seat? 'ON' : 'OFF'), dials.seat? 'on' : '', function(){ flip('seat'); }), D.createTextNode('An AD PLACEMENT card at every exit where a phone could break: the six-game cradle and the campaign-5 cliff lifted, the first game not free, the clock every game. The minute gap and the sitting cap stand (the phone\'s own law). Switches TRACK PRE-ANSWERED on. OFF = the phone\'s rhythm.')]));
+      items.appendChild(el('div', { 'class':'item' }, [btn('TRACK PRE-ANSWERED ' + (dials.track? 'ON' : 'OFF'), dials.track? 'on' : '', function(){ flip('track'); }), D.createTextNode('The birthday gate answered 13+ by the dial, so no gate asks and the ad provider is armed from boot. OFF: the gate asks once per reset at the first room visit, the phone\'s true beat; the log records the track, never the date. The header names either switch.')]));
+      items.appendChild(el('div', { 'class':'item' }, [btn('RETREAT', 'warn', retreat), D.createTextNode('Forfeit the running battle through the game\'s own loss door: the tan walk into the box, the tan flag, the loss face (TRY AGAIN, the tenth of XP, quiet mercy on the attempt after two straight losses). On L1 the game\'s own rule turns it into THE TAN RETREAT?! The row reads RETREAT (forfeit).')]));
+      items.appendChild(el('div', { 'class':'item', text:'SAME DICE and the bookmarks ride CARD 3.' }));
       items.appendChild(el('div', { 'class':'item', text:'ABOUT THIS BENCH: the launcher page has the whole list. Never play the real web game in this browser: it shares this save, and RESET wipes it. Notes and runs live in this browser only; COPY RUN is the road to Claude.' }));
-      items.appendChild(el('div', { 'class':'item', text:'HQ never hears of this commander. Every call to HQ is answered on this page; RANKINGS shows the real board with no YOU row.' }));
+      items.appendChild(el('div', { 'class':'item', text:'HQ never hears of this commander. Every call to HQ is answered on this page; RANKINGS shows the real board with no YOU row. The bench stands in as the phone\'s ad provider: where a phone would sit through a real ad, the AD PLACEMENT card; nothing is served; the game decides when.' }));
       items.appendChild(el('div', { 'class':'item', text:'The bench plays the DEPLOYED build. When a new build ships, the UPDATE NOW chip appears in a quiet room, as on the web.' }));
       o.appendChild(items);
       o.appendChild(btn('OPEN THE LAUNCHER (RUNS, ABOUT, PRESETS)', '', function(){ B.persist(true); location.href = './'; }));
@@ -284,11 +444,16 @@
   ['pointerdown', 'pointerup', 'click', 'touchstart', 'touchend'].forEach(function(evn){ bar_.addEventListener(evn, stop); });   // the strip never hands a tap to the canvas
   D.body.appendChild(bar_);
   build(); applyChin();
+  dialsBoot();   // CARD 2: the switches applied to the standing game (the header already names them)
   W.addEventListener('resize', function(){ var p = B.isPhone(); if(p !== phone){ phone = p; build(); applyChin(); } });
 
   // the rig's read-only door
   W.__benchUI = { hooks:hooks, chin:chinPx, phone:function(){ return phone; }, rects:function(){ var r = bar_.getBoundingClientRect(); return { bar:[r.left, r.top, r.width, r.height], btns:Array.prototype.map.call(bar_.querySelectorAll('.bbtn'), function(b){ var q = b.getBoundingClientRect(); return { t:b.textContent, r:[q.left, q.top, q.width, q.height], fs:parseFloat(getComputedStyle(b).fontSize) }; }), hdrFs:parseFloat(getComputedStyle(hdr).fontSize) }; },
     openPad:openPad, closePad:function(){ closeOv('benchPad'); }, padOpen:function(){ return padOpen; }, openLog:openLog, closeLog:function(){ closeOv('benchLog'); }, logOpen:function(){ return logOpen; }, sheet:openSheet, closeAll:function(){ Object.keys(ovs).forEach(closeOv); },
-    stamp:stampLine, text:function(){ return B.text(B.run); }, copy:function(){ return copyRun(B.run); }, held:function(){ return B.held; }, lastCard:function(){ return last.card; }, state:state, gameUp:gameUp, rig:RIG, textPageOpen:function(){ return !!ovs.benchText; } };
+    stamp:stampLine, text:function(){ return B.text(B.run); }, copy:function(){ return copyRun(B.run); }, held:function(){ return B.held; }, lastCard:function(){ return last.card; }, state:state, gameUp:gameUp, rig:RIG, textPageOpen:function(){ return !!ovs.benchText; },
+    // CARD 2 (read-only reads + the dials' own doors; the card's taps are the real buttons)
+    ad:function(){ if(!adCard) return null; var r = adCard.el.getBoundingClientRect(), f = function(sel){ var e = adCard.el.querySelector(sel); if(!e) return null; var q = e.getBoundingClientRect(); return { r:[q.left, q.top, q.width, q.height], fs:parseFloat(getComputedStyle(e).fontSize), t:String(e.textContent || '').trim() }; }; return { kind:adCard.m.kind, id:adCard.m.id, seat:adCard.seat, heldMs:Date.now() - adCard.t0, r:[r.left, r.top, r.width, r.height], z:+getComputedStyle(adCard.el).zIndex, hd:f('.hd'), seatEl:f('.seat'), foot:f('.foot'), x:f('.x') }; },
+    adTap:function(){ if(!adCard) return false; adCard.el.click(); return true; }, adX:function(){ if(!adCard) return false; adCard.el.querySelector('.x').click(); return true; },
+    dials:function(){ return { seat:dials.seat? 1 : 0, track:dials.track? 1 : 0, def:SEAT_DEF }; }, flip:flip, retreat:retreat, exit:function(){ return last.exit; }, lastAd:function(){ return last.ad; }, bridge:function(){ return B.ads? { on:B.ads.on, posts:B.ads.posts.slice(), shows:B.ads.shows, inits:B.ads.inits, answered:B.ads.answered, pend:B.ads.pend? Object.assign({}, B.ads.pend) : null } : null; } };
   B.log('BENCH', 'the strip is up · ' + (phone? 'the phone chip' : 'the desk band') + ' in the chin (' + chinPx() + ' px) · hooks ' + hooks.on.length + (hooks.missing.length? ' · missing ' + hooks.missing.length : ''));
 })();
