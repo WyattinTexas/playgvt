@@ -383,7 +383,8 @@
     });
     roadSnap(); paintRoad();
   }
-  function roadNext(n){ var lvl = META.lvl | 0, camp = META.campaign | 0; var open = []; ROAD.rows.forEach(function(r, i){ if(r.st !== 'TAKEN' && r.st !== 'OPEN') open.push({ r:r, i:i, d:r.rung - (r.lad === 'COMMANDER'? lvl : camp) }); }); open.sort(function(a, b){ return (a.d - b.d) || (a.i - b.i); }); return open.slice(0, n || 3).map(function(o){ return o.r; }); }
+  function roadDone(r){ return r.st === 'TAKEN' || r.st === 'OPEN' || (!r.carded && (r.st === 'GRANTED' || r.st === 'ANNOUNCED')); }   // a row leaves the strip's next three once taken (or, with no card to take: FIRST VICTORY, the medal, the paint choice, once granted or announced); a state rule once OPEN
+  function roadNext(n){ var lvl = META.lvl | 0, camp = META.campaign | 0; var open = []; ROAD.rows.forEach(function(r, i){ if(!roadDone(r)) open.push({ r:r, i:i, d:r.rung - (r.lad === 'COMMANDER'? lvl : camp) }); }); open.sort(function(a, b){ return (a.d - b.d) || (a.i - b.i); }); return open.slice(0, n || 3).map(function(o){ return o.r; }); }
   function shortName(s){ return String(s || '').replace(/\s*(\(| \+ ).*$/, '').replace(/^THE /, '').slice(0, 22); }
   function roadLine(){ if(!ROAD.built) return 'ROAD: not read'; return 'ROAD · ' + roadNext(3).map(function(r){ return (r.lad === 'COMMANDER'? 'LV' : 'L') + r.rung + ' ' + shortName(r.name) + (r.st? ': ' + r.st.toLowerCase() + (r.st === 'HELD' || r.st === 'MISSING'? ' (' + String(r.why).slice(0, 34) + ')' : '') : ''); }).join(' · '); }
   var roadT = 0;
