@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>GVT PLAYTEST BENCH</title>
-<script src="stamp.js?v=8288119cdd"></script>
+<script src="stamp.js?v=5d96842d5e"></script>
 <style>
   :root{color-scheme:dark}
   html,body{margin:0;background:#14110e;color:#F3EBD6;font:22px/1.35 'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
@@ -61,23 +61,32 @@
       <span class="muted" style="align-self:center">DIALS FOR THE NEXT RUN:</span>
       <button id="d-seat">EVERY SEAT</button>
       <button id="d-track">TRACK PRE-ANSWERED</button>
+      <button id="d-dice">SAME DICE</button>
+      <input type="text" id="d-seed" maxlength="6" inputmode="numeric" placeholder="seed" autocomplete="off" spellcheck="false" style="flex:0 1 140px;min-width:120px">
     </div>
+    <p class="muted" style="margin:10px 0 6px">SAME DICE (default OFF = REAL DICE, the law): the next run's dice are seeded before the game boots and re-seeded at every level start and wave push, so a run after a change meets the same waves as the run before, and a difference in feel is the change, not the luck. Honest about what it is: the same waves, not a frame-identical battle (your taps and the fight inside a wave spend the dice their own way). The header and every log row of a seeded run name the seed (SAME DICE 4211); a bookmark returned under SAME DICE re-seeds at the return and says so.</p>
     <p class="muted" style="margin:10px 0 6px">Both OFF = the phone's rhythm: six silent games and the cliff (no card until campaign 5 is beaten), the birthday gate at the first room visit, the first AD PLACEMENT card at the exit of game 8 or 9, then every two or three games. EVERY SEAT: a card at every exit where a phone could break (the cradle and the cliff lifted, the first game not free, the clock every game; the minute gap and the sitting cap stand). It switches TRACK PRE-ANSWERED on. TRACK PRE-ANSWERED: the birthday gate answered 13+ by the dial, so no gate asks and the ad provider is armed from boot. The switches stay where you leave them; the run header names them, so a note on such a run is never read as a fresh-run finding.</p>
-    <p class="muted" style="margin:14px 0 6px">Or paste a save (the gvt_meta JSON from any copy of the game) and walk in with it. The run header reads SEEDED; the boot's own sweeps deal what that save is owed.</p>
+    <p class="muted" style="margin:14px 0 6px">Or paste a save (the gvt_meta JSON from any copy of the game) or a bookmark copied as text, and walk in with it. The run header reads SEEDED (or RETURNED FROM for a pasted bookmark); the boot's own sweeps deal what that save is owed, and the ledger marks them boot-owed.</p>
     <textarea id="paste" placeholder='{"v":1,"name":"..."}'></textarea>
     <div class="row" style="margin-top:10px"><button id="b-paste">WALK IN WITH THE PASTED SAVE</button></div>
     <div id="msg"></div>
   </section>
 
+  <section id="bmSec">
+    <h2>2 · Bookmarks in this browser</h2>
+    <p class="muted">SAVE THIS MOMENT (the DIALS page in the game) cuts a bookmark: the save as the game last wrote it. RETURN TO resets and boots the game on it as a new run (the header reads RETURNED FROM), so a change to level 4 needs no replay of levels 1 to 3. Bookmarks live in this browser only; COPY puts one on the clipboard as text, and the paste box above walks in with a pasted one.</p>
+    <div id="bms"></div>
+  </section>
+
   <section id="runsSec">
-    <h2>2 · Runs in this browser</h2>
+    <h2>3 · Runs in this browser</h2>
     <p class="muted">Tap a run to copy it as text for Claude. Notes and runs live in this browser only. A run taken on the phone is copied from the phone; a run taken here is copied here.</p>
     <div id="runs"></div>
     <div class="row" style="margin-top:14px"><button class="warn" id="b-clear">CLEAR ALL RUNS</button></div>
   </section>
 
   <section id="about">
-    <h2>3 · About this bench</h2>
+    <h2>4 · About this bench</h2>
     <ul>
       <li><b>Public.</b> This page is playgvt.net/bench/. Open it on the Go Machine, on the phone, anywhere. It plays the DEPLOYED build, the same bytes the phones and the web play; when a new build ships, the UPDATE NOW chip appears in a quiet room, exactly as on the web. The loop: a card ships, the mirror updates, tap RESET, play.</li>
       <li class="warnline">Never play the real web game in this browser. The bench and the real web game at playgvt.net share one browser's save, and RESET wipes it. Play the real game on the phone apps.</li>
@@ -87,6 +96,10 @@
       <li><b>AD PLACEMENT.</b> The bench stands in as the phone's ad provider: wherever a phone player would sit through a real ad, a full-screen card reading AD PLACEMENT with the seat's name under it (INTERSTITIAL · GAME 8 · the verdict exit, or REWARDED · THE TV); a tap anywhere goes on, the X from frame one. Nothing is served. The GAME decides when a break is due (the six-game cradle, the campaign-5 cliff, the two-to-three clock, the minute gap, the sitting cap); the bench only paints, and every exit gets a log row saying whether a card showed and, if not, why. On a true reset the first few levels never meet a card: that is the design. The TV asks first in the game's own words (ROLL IT!), then the card: a tap finishes it and the set pays +30 stars once a day; the X pays nothing and keeps the day.</li>
       <li><b>The birthday gate</b> asks once per reset at the first room visit, as on a phone with the new shell; THAT'S ME with a 13+ date arms the provider, the X skips it (zero ads this sitting, it asks again next boot). The log records the track, never the date. After a card, the room shows the 3-second SEE A BAD AD? REPORT IT chip, a real link to the support page, left live.</li>
       <li><b>EVERY SEAT and TRACK PRE-ANSWERED</b> are the two switches above and on the DIALS page in the game; the run header names them. <b>RETREAT</b> (the DIALS page) forfeits the running battle through the game's own loss door, so the weak player's branches (NOT THIS TIME, TRY AGAIN, quiet mercy after two straight losses) run for real without an hour of deliberate losing; on L1 it reads THE TAN RETREAT?! by the game's own rule.</li>
+      <li><b>THE LEDGER</b> (the LEDGER button, the DIALS page, the strip's road line, COPY RUN's road table) reads the reward road off the game's own tables (never typed into the bench: TREASURE_ROAD, GIFT_ROAD, DECOR_EARN, the room gifts, the park gifts, the lens's two doors, the weapon rites, the pacing rules) and marks every prize OWED, HELD (the game's own pacing, with the reason: DINO PARK owns the moment, one paced beat a session, one card at a time), GRANTED, ANNOUNCED (the ticket on the win face, the card at home: two seats, both stamped) and TAKEN (your tap). MISSING fires only when a landing's line ended without a prize the road owed; EARLY when a prize arrived below its rung; TAXED on a replayed rung; boot-owed after a return. Beside every rung stands the DESIGN road the docs intend: a mismatch prints DRIFT, never MISSING.</li>
+      <li><b>THE HIDDEN HAND.</b> On every launch and verdict a HAND row says in plain words which hand the game played: the first battle always a victory, quiet mercy after two straight losses, the box alarm on rungs 1 to 5 and the proven player's earlier bite, the casualty refund and Sarge's ten seconds, the battleground's rookie games and the director, the whispers. The hard-bot gate, Nemesis and MOM at the door are out of the first levels' window by design and the boot row says so. A WEAK HAND preset is not shipped: RETREAT walks the real road to the same place.</li>
+      <li><b>Bookmarks live in this browser only,</b> like the notes and the runs; COPY turns one into text you can paste on another browser's launcher. A bookmark is the save as the game last wrote it, so a mid-level bookmark returns to the last verdict (the bench says which). A bookmark returned on a newer build meets that build's boot heals at the first landing: the header reads RETURNED FROM with the build it was cut on, and the ledger marks those prizes boot-owed, never EARLY.</li>
+      <li><b>SAME DICE</b> is a switch for the next run (REAL DICE stays the law): the same seed meets the same waves on every run, so a difference in feel after a change is the change. The same waves, not a frame-identical battle. The header reads SAME DICE 4211 and every row of that run carries the seed, so a seeded run is never mistaken for fresh luck.</li>
       <li><b>Notes and runs live in this browser only.</b> COPY RUN puts the whole run on the clipboard as plain text (the road to Claude: paste it into a chat or the phone pad). DOWNLOAD RUN lands a .md on a desk. Nothing leaves the phone on its own.</li>
       <li><b>Real dice, real pace.</b> The game rolls its own waves; the campaign's speed ladder is the rung's default and its ceiling. No shortcut on any player-facing button. A replayed rung pays a fifth; RESET for the real pay.</li>
       <li>Everything else in levels 1 to 10 is the phone's own experience. What a bench run cannot feel is listed above, never logged as a bug.</li>
@@ -96,7 +109,7 @@
 <script>
 (function(){
   var ST = window.__BENCH_STAMP || {};
-  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag', dials:'bench_dials' };
+  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag', dials:'bench_dials', bm:'bench_bm_' };
   var $ = function(id){ return document.getElementById(id); };
   function rd(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function wr(k, v){ try{ localStorage.setItem(k, v); return true; }catch(e){ return false; } }
@@ -107,31 +120,59 @@
   function bid(){ var b = rd(K.bid); if(!b){ b = Math.random().toString(36).slice(2, 6); wr(K.bid, b); } return b; }
   function etDate(iso){ try{ return new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit' }).format(new Date(iso)) + ' ET'; }catch(e){ return String(iso || '').slice(0, 16); } }
   function etTime(iso){ try{ return new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', hour:'numeric', minute:'2-digit' }).format(new Date(iso)) + ' ET'; }catch(e){ return String(iso || '').slice(11, 16); } }
-  $('build').innerHTML = '<b>BUILD ' + (ST.cv || '?') + '</b> · deployed ' + (ST.at? etDate(ST.at) : '?') + ' · md5 ' + String(ST.md5 || '').slice(0, 8) + ' · HEAD ' + (ST.sha || '?') + ' · bench card ' + (ST.bench || 1) + ' · the bench regenerated with every ship';
+  $('build').innerHTML = '<b>BUILD ' + (ST.cv || '?') + '</b> · deployed ' + (ST.at? etDate(ST.at) : '?') + ' · md5 ' + String(ST.md5 || '').slice(0, 8) + ' · HEAD ' + (ST.sha || '?') + ' · bench card ' + (ST.bench || 1) + ' of 3 · the bench regenerated with every ship';
 
   // THE WIPE: every key with the gvt_ prefix (HEAD's seven and anything a future build adds) + the session store
   // collect the keys FIRST, then remove: Chrome reshuffles localStorage.key(i) after each removal, so an index walk skips keys
   function wipe(){ var gone = [], ks = []; try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf('gvt_') === 0) ks.push(k); } ks.sort().forEach(function(k){ gone.push(k); localStorage.removeItem(k); }); }catch(e){} try{ sessionStorage.clear(); }catch(e){} return gone; }
   function tag(){ return rd(K.tag) || ''; }
-  function dialsRead(){ var d = js(K.dials, null) || {}; var seat = d.seat? 1 : 0; return { seat:seat, track:(seat || d.track)? 1 : 0 }; }
+  function dialsRead(){ var d = js(K.dials, null) || {}; var seat = d.seat? 1 : 0; return { seat:seat, track:(seat || d.track)? 1 : 0, dice:(d.dice | 0) > 0? (d.dice | 0) : 0 }; }
+  function diceText(h){ h = h || {}; return h.dice === 'SAME'? 'SAME DICE ' + (h.seed | 0) : 'REAL DICE'; }
   function dialsText(d){ d = d || {}; var a = []; if(d.seat) a.push('EVERY SEAT'); if(d.track) a.push('TRACK PRE-ANSWERED'); return ' · dials: ' + (a.length? a.join(', ') : 'none'); }
-  function mint(preset, gone, extra){
+  function mint(preset, gone, extra, ret){
     var n = (parseInt(rd(K.runN) || '0', 10) || 0) + 1; wr(K.runN, String(n));
-    var cur = { n:n, t0:Date.now(), at:new Date().toISOString(), preset:preset, tag:tag(), dials:dialsRead(), dice:'REAL', screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:ST.cv, md5:ST.md5, sha:ST.sha, at:ST.at } };
+    var dl = dialsRead();
+    var cur = { n:n, t0:Date.now(), at:new Date().toISOString(), preset:preset, tag:tag(), dials:dl, dice:dl.dice? 'SAME' : 'REAL', seed:dl.dice | 0, screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:ST.cv, md5:ST.md5, sha:ST.sha, at:ST.at } };
+    if(ret) cur.ret = ret;   // CARD 3: RETURNED FROM a bookmark (its name, the build it was cut on, the moment)
     wr(K.cur, JSON.stringify(cur));
-    var run = { n:n, hdr:cur, log:[{ t:0, c:new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit', second:'2-digit' }), lv:'', scr:'launcher', k:'RUN', x:'RUN ' + n + ' began · ' + preset + ' · wiped ' + (gone.length? gone.join(' ') : 'nothing (no gvt_ keys stood)') + (extra? ' · ' + extra : '') + ' · tag ' + (cur.tag || '(none)') + dialsText(cur.dials) + ' · ' + cur.screen }], notes:[] };
+    var run = { n:n, hdr:cur, log:[{ t:0, c:new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit', second:'2-digit' }), lv:'', scr:'launcher', k:'RUN', x:'RUN ' + n + ' began · ' + preset + ' · wiped ' + (gone.length? gone.join(' ') : 'nothing (no gvt_ keys stood)') + (extra? ' · ' + extra : '') + ' · tag ' + (cur.tag || '(none)') + ' · ' + diceText(cur) + (cur.dice === 'SAME'? ' (the seed rides the reset, never the save' + (ret? '; re-seeded at the return' : '') + ')' : '') + dialsText(cur.dials) + ' · ' + cur.screen }], notes:[] };
     wr(K.run + n, JSON.stringify(run));
     return n;
   }
-  function go(preset){
-    var gone = wipe(), extra = '';
+  function bmKeysOf(o){ var keys = {}; if(!o || typeof o !== 'object' || !o.keys || typeof o.keys !== 'object') return null; for(var k in o.keys) if(Object.prototype.hasOwnProperty.call(o.keys, k) && k.indexOf('gvt_') === 0 && typeof o.keys[k] === 'string') keys[k] = o.keys[k]; return keys.gvt_meta? keys : null; }
+  function go(preset, bm){
+    var gone = wipe(), extra = '', ret = null, keys = null;
     if(preset === 'USED PHONE'){ wr('gvt_coach', '1'); extra = 'gvt_coach=1 (the coach burned)'; }
-    if(preset === 'SEEDED'){ var s = $('paste').value.trim(); var o; try{ o = JSON.parse(s); }catch(e){ return msg('That is not JSON.'); } if(!o || typeof o !== 'object') return msg('That is not a save.'); if(o.v !== 1) return msg('That save has no v:1; the game would ignore it and boot a virgin.'); wr('gvt_meta', JSON.stringify(o)); extra = 'seeded gvt_meta (' + (o.name || '?') + ', campaign ' + (o.campaign || 0) + ')'; }
-    mint(preset, gone, extra);
-    // the doorstep flag: game.html's pre-boot script wipes gvt_ once more BEFORE the game boots (belt and braces against any late write), then re-applies the preset's seed
-    wr('bench_pend', JSON.stringify({ preset:preset, coach:preset === 'USED PHONE'? 1 : 0, meta:preset === 'SEEDED'? rd('gvt_meta') : null, at:Date.now() }));
+    if(preset === 'SEEDED'){ var s = $('paste').value.trim(); var o; try{ o = JSON.parse(s); }catch(e){ return msg('That is not JSON.'); } if(!o || typeof o !== 'object') return msg('That is not a save.');
+      if(o.bm === 1 && bmKeysOf(o)){ preset = 'RETURNED'; bm = o; }   // CARD 3: a bookmark pasted as text walks in like RETURN TO
+      else { if(o.v !== 1) return msg('That save has no v:1; the game would ignore it and boot a virgin.'); wr('gvt_meta', JSON.stringify(o)); extra = 'seeded gvt_meta (' + (o.name || '?') + ', campaign ' + (o.campaign || 0) + ')'; } }
+    if(preset === 'RETURNED'){ keys = bmKeysOf(bm); if(!keys){ return msg('That bookmark carries no save.'); } var cut = (bm.build && bm.build.cv) || '?'; ret = { id:bm.id || '', name:String(bm.name || '').slice(0, 80), cv:cut, moment:String(bm.moment || ''), lvl:bm.lvl | 0, camp:bm.camp | 0, pasted:!bm.id };
+      preset = 'RETURNED FROM "' + ret.name + '" (cut on build ' + cut + (ret.pasted? ', pasted' : '') + ')';
+      for(var k in keys) wr(k, keys[k]);
+      extra = 'the bookmark\'s keys restored: ' + Object.keys(keys).sort().join(' ') + ' · the save stands at ' + ret.moment + (cut !== String(ST.cv)? ' · cut on build ' + cut + ', returned on ' + ST.cv + ': this build\'s boot heals may hand a moved prize at the first landing (the ledger marks it boot-owed)' : ''); }
+    mint(preset, gone, extra, ret);
+    // the doorstep flag: game.html's pre-boot script wipes gvt_ once more BEFORE the game boots (belt and braces against any late write), then re-applies the preset's seed (or a bookmark's every key)
+    wr('bench_pend', JSON.stringify({ preset:preset, coach:preset === 'USED PHONE'? 1 : 0, meta:preset === 'SEEDED'? rd('gvt_meta') : null, keys:keys, at:Date.now() }));
     location.replace('game.html');
   }
+  // CARD 3: BOOKMARKS in this browser (bench_bm_<id>; RETURN TO · COPY · DELETE)
+  function bmList(){ var out = []; try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf(K.bm) === 0){ var b = js(k, null); if(b && b.id) out.push(b); } } }catch(e){} return out.sort(function(a, b){ return String(b.at).localeCompare(String(a.at)); }); }
+  function bmText(b){ return JSON.stringify({ bm:1, name:b.name, at:b.at, run:b.run, build:b.build, moment:b.moment, lvl:b.lvl, camp:b.camp, keys:b.keys }); }
+  function paintBms(){
+    var host = $('bms'); host.innerHTML = ''; var list = bmList();
+    if(!list.length){ host.innerHTML = '<p class="muted">No bookmarks yet. In the game, the DIALS page has SAVE THIS MOMENT.</p>'; return; }
+    list.forEach(function(b){
+      var d = document.createElement('div'); d.className = 'r';
+      var t = document.createElement('div'); t.className = 't';
+      t.innerHTML = '<b></b> · cut ' + etDate(b.at) + ' · ' + escT(b.moment || '') + ' · commander LV ' + (b.lvl | 0) + ' · campaign ' + (b.camp | 0) + ' · build ' + escT((b.build || {}).cv || '?') + (b.dice === 'SAME'? ' · SAME DICE ' + (b.seed | 0) : '');
+      t.querySelector('b').textContent = b.name;
+      var go9 = document.createElement('button'); go9.textContent = 'RETURN TO'; go9.onclick = function(){ go('RETURNED', b); };
+      var c = document.createElement('button'); c.textContent = 'COPY'; c.onclick = function(){ var tx = bmText(b); var p = null; try{ if(navigator.clipboard && window.isSecureContext) p = navigator.clipboard.writeText(tx); }catch(e){} if(!p){ $('paste').value = tx; msg('The clipboard door is shut on this address. The bookmark is in the box above.'); return; } p.then(function(){ msg('Bookmark "' + b.name + '" copied as text (' + tx.length + ' characters).'); }, function(){ $('paste').value = tx; msg('The clipboard refused. The bookmark is in the box above.'); }); };
+      var x = document.createElement('button'); x.textContent = 'DELETE'; x.className = 'warn'; x.onclick = function(){ rm(K.bm + b.id); paintBms(); msg('Bookmark "' + b.name + '" deleted.'); };
+      d.appendChild(t); d.appendChild(go9); d.appendChild(c); d.appendChild(x); host.appendChild(d);
+    });
+  }
+  function escT(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
   function playOn(){ var cur = js(K.cur, null); if(!cur){ mint('NO RESET', [], 'walked in without a reset'); } location.href = 'game.html'; }
   $('b-fresh').onclick = function(){ go('FRESH'); };
   $('b-used').onclick = function(){ go('USED PHONE'); };
@@ -143,24 +184,45 @@
   $('t-none').onclick = function(){ rm(K.tag); $('t-word').value = ''; paintTag(); };
   $('t-word').onchange = function(){ var v = $('t-word').value.trim().slice(0, 24); if(v) wr(K.tag, v); else rm(K.tag); paintTag(); };
   paintTag();
-  function paintDials(){ var d = dialsRead(); $('d-seat').className = d.seat? 'on' : ''; $('d-track').className = d.track? 'on' : ''; $('d-seat').textContent = 'EVERY SEAT ' + (d.seat? 'ON' : 'OFF'); $('d-track').textContent = 'TRACK PRE-ANSWERED ' + (d.track? 'ON' : 'OFF'); }
-  $('d-seat').onclick = function(){ var d = dialsRead(); var seat = d.seat? 0 : 1; wr(K.dials, JSON.stringify({ seat:seat, track:(seat || d.track)? 1 : 0 })); paintDials(); msg(seat? 'EVERY SEAT is on for the next run (and TRACK PRE-ANSWERED with it). RESET to start it.' : 'EVERY SEAT is off for the next run: the phone\'s rhythm.'); };
-  $('d-track').onclick = function(){ var d = dialsRead(); if(d.seat){ msg('EVERY SEAT keeps the track pre-answered. Turn EVERY SEAT off first.'); return; } wr(K.dials, JSON.stringify({ seat:0, track:d.track? 0 : 1 })); paintDials(); msg(d.track? 'TRACK PRE-ANSWERED is off: the birthday gate asks at the first room visit.' : 'TRACK PRE-ANSWERED is on for the next run: no birthday gate, the provider armed from boot.'); };
+  function paintDials(){ var d = dialsRead(); $('d-seat').className = d.seat? 'on' : ''; $('d-track').className = d.track? 'on' : ''; $('d-seat').textContent = 'EVERY SEAT ' + (d.seat? 'ON' : 'OFF'); $('d-track').textContent = 'TRACK PRE-ANSWERED ' + (d.track? 'ON' : 'OFF'); $('d-dice').className = d.dice? 'on' : ''; $('d-dice').textContent = 'SAME DICE ' + (d.dice? 'ON' : 'OFF'); $('d-seed').value = d.dice? String(d.dice) : ($('d-seed').value || '4211'); }
+  function dialsWrite(p){ var d = dialsRead(); var o = { seat:d.seat, track:d.track, dice:d.dice }; for(var k in p) o[k] = p[k]; if(o.seat) o.track = 1; wr(K.dials, JSON.stringify(o)); return o; }
+  $('d-seat').onclick = function(){ var d = dialsRead(); var seat = d.seat? 0 : 1; dialsWrite({ seat:seat, track:(seat || d.track)? 1 : 0 }); paintDials(); msg(seat? 'EVERY SEAT is on for the next run (and TRACK PRE-ANSWERED with it). RESET to start it.' : 'EVERY SEAT is off for the next run: the phone\'s rhythm.'); };
+  $('d-track').onclick = function(){ var d = dialsRead(); if(d.seat){ msg('EVERY SEAT keeps the track pre-answered. Turn EVERY SEAT off first.'); return; } dialsWrite({ seat:0, track:d.track? 0 : 1 }); paintDials(); msg(d.track? 'TRACK PRE-ANSWERED is off: the birthday gate asks at the first room visit.' : 'TRACK PRE-ANSWERED is on for the next run: no birthday gate, the provider armed from boot.'); };
+  function seedRead(){ var v = parseInt(String($('d-seed').value || '').replace(/[^0-9]/g, ''), 10); return (v > 0 && v < 1000000)? v : 4211; }
+  $('d-dice').onclick = function(){ var d = dialsRead(); var on = d.dice? 0 : seedRead(); dialsWrite({ dice:on }); paintDials(); msg(on? 'SAME DICE ' + on + ' is on for the next run: the same seed meets the same waves. RESET to start it. The header and every row will name the seed.' : 'SAME DICE is off for the next run: REAL DICE, the law.'); };
+  $('d-seed').onchange = function(){ var d = dialsRead(); var v = seedRead(); $('d-seed').value = String(v); if(d.dice){ dialsWrite({ dice:v }); paintDials(); msg('SAME DICE seed ' + v + ' for the next run.'); } };
   paintDials();
+  paintBms();
 
   // RUNS in this browser
   function runList(){ var out = []; try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k && k.indexOf(K.run) === 0){ var r = js(k, null); if(r && r.n) out.push(r); } } }catch(e){} return out.sort(function(a, b){ return b.n - a.n; }); }
   function mmss(ms){ var s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ':' + (s % 60 < 10? '0' : '') + (s % 60); }
+  // CARD 3 THE LEDGER: THE ROAD in the run text (the ledger's snapshot rides the run under run.road; the launcher's twin is byte-identical)
+  function roadRow(r){
+    var s = (r.lad === 'COMMANDER'? 'LV ' : 'L') + r.rung + ' · ' + r.name + ' · ' + (r.st || 'ahead') + (r.why? ' (' + r.why + ')' : '');
+    var seats = []; if(r.g) seats.push('granted ' + r.g); if(r.a) seats.push('ticket ' + r.a); if(r.c) seats.push('card ' + r.c); if(r.k) seats.push('taken ' + r.k);
+    if(seats.length) s += ' · ' + seats.join(' · ');
+    return s + ' · ' + r.head + ' · design ' + r.design + (r.drift? ' DRIFT' : '') + (r.tax? ' · TAXED' : '') + (r.boot? ' · boot-owed' : '');
+  }
+  function roadText(run){
+    var rd = run.road; if(!rd || !rd.rows || !rd.rows.length) return ['THE ROAD: not read on this page (the game did not boot here)'];
+    var L = ['THE ROAD (the ledger: ahead > OWED > HELD > GRANTED > ANNOUNCED > TAKEN, read from the game\'s own tables; DESIGN = the road the docs intend) · commander LV ' + rd.lvl + ' · campaign ' + rd.camp + (rd.drift? ' · DRIFT on ' + rd.drift + ' row' + (rd.drift > 1? 's' : '') : ' · no drift') + (rd.missing? ' · MISSING ' + rd.missing : '') + (rd.early? ' · EARLY ' + rd.early : '')];
+    ['COMMANDER', 'CAMPAIGN'].forEach(function(lad){
+      L.push(lad + ' LADDER' + (lad === 'COMMANDER'? ' (META.lvl: the XP promotions, every mode)' : ' (META.campaign: rungs beaten)'));
+      rd.rows.forEach(function(r){ if(r.lad === lad) L.push('  ' + roadRow(r)); });
+    });
+    return L;
+  }
   function text(run){
     var h = run.hdr || {}, b = h.build || {}, L = [], wire = { killed:0, passed:0, errors:0 }, byPath = {};
     (run.log || []).forEach(function(r){ if(r.k === 'LEAK'){ wire.killed++; var p = (r.x.match(/(GET|POST|BEACON|XHR|WS) ([^ ]+)/) || [])[2] || '?'; byPath[p] = (byPath[p] || 0) + 1; } else if(r.k === 'WIRE') wire.passed++; else if(r.k === 'ERROR') wire.errors++; });
     var paths = Object.keys(byPath).map(function(p){ return p + ' x' + byPath[p]; }).join(', ');
     L.push('GVT PLAYTEST BENCH · RUN ' + run.n);
     L.push('BUILD ' + (b.cv || '?') + ' · deployed ' + (b.at? etDate(b.at) : '?') + ' (md5 ' + String(b.md5 || '').slice(0, 8) + ', HEAD ' + (b.sha || '?') + ')');
-    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')' + dialsText(h.dials));
+    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + diceText(h) + ' · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')' + dialsText(h.dials));
     L.push('wire: ' + wire.killed + ' answered in place' + (paths? ' (' + paths + ')' : '') + ' · ' + wire.passed + ' board GET passed through · ' + wire.errors + ' error rows');
-    L.push(''); L.push('THE ROAD (CARD 3): not yet'); L.push(''); L.push('THE RUN LOG (oldest first)');
-    (run.log || []).forEach(function(r){ L.push('[+' + mmss(r.t) + ' · ' + (r.lv || '-') + ' · ' + r.scr + '] ' + r.k + ' · ' + r.x + (r.e? '\n    ' + String(r.e).split('\n').join('\n    ') : '')); });
+    L.push(''); roadText(run).forEach(function(x){ L.push(x); }); L.push(''); L.push('THE RUN LOG (oldest first)');
+    (run.log || []).forEach(function(r){ L.push('[+' + mmss(r.t) + ' · ' + (r.lv || '-') + ' · ' + r.scr + ((h && h.dice === 'SAME')? ' · SAME DICE ' + (h.seed | 0) : '') + '] ' + r.k + ' · ' + r.x + (r.e? '\n    ' + String(r.e).split('\n').join('\n    ') : '')); });
     L.push(''); L.push('NOTES (' + (run.notes || []).length + ')');
     (run.notes || []).forEach(function(r){ L.push('[+' + mmss(r.t) + ' · ' + (r.lv || '-') + ' · ' + r.scr + (r.s? ' · ' + r.s : '') + ']'); L.push('  ' + String(r.x).split('\n').join('\n  ')); });
     return L.join('\n') + '\n';
@@ -182,12 +244,14 @@
     });
   }
   var clearArm = 0;
-  $('b-clear').onclick = function(){ if(Date.now() - clearArm > 4000){ clearArm = Date.now(); msg('Tap CLEAR ALL RUNS again to wipe every run in this browser.'); return; } runList().forEach(function(r){ rm(K.run + r.n); }); rm(K.cur); paintRuns(); msg('Every run in this browser is cleared. The run counter keeps counting up.'); };
+  $('b-clear').onclick = function(){ if(Date.now() - clearArm > 4000){ clearArm = Date.now(); msg('Tap CLEAR ALL RUNS again to wipe every run in this browser.'); return; } runList().forEach(function(r){ rm(K.run + r.n); }); rm(K.cur); paintRuns(); msg('Every run in this browser is cleared (the bookmarks stay). The run counter keeps counting up.'); };
   paintRuns();
 
   // the strip's RESET lands here with a flag: the game page unloaded first (its flush landed), now the launcher clears and walks back in
   var m = location.search.match(/[?&]reset=(fresh|used)/);
   if(m){ history.replaceState(null, '', location.pathname); go(m[1] === 'used'? 'USED PHONE' : 'FRESH'); }
+  var mr = location.search.match(/[?&]ret=([A-Za-z0-9%._-]+)/);   // CARD 3: the strip's RETURN TO lands here with the bookmark's id (the game page unloaded first)
+  if(mr){ history.replaceState(null, '', location.pathname); var bm9 = js(K.bm + decodeURIComponent(mr[1]), null); if(bm9 && bm9.id) go('RETURNED', bm9); else msg('That bookmark is not in this browser.'); }
   if(location.hash === '#about'){ try{ $('about').scrollIntoView(); }catch(e){} }
 })();
 </script>

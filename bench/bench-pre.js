@@ -11,12 +11,17 @@
    (4) THE AD BRIDGE (CARD 2): the bench presents the shells' one ad handler (webkit.messageHandlers.gvtAds), so the
        game's LIVE gate decides when a break is due and the bench only paints: init and load answered ready, a show
        handed to slot 2's card painter (AD PLACEMENT), the result answered on the tap through the four GVTN doors.
-       Never gvtIAP (the store stays a page with no bridge), never gvtSign. Nothing here opens a wire. */
+       Never gvtIAP (the store stays a page with no bridge), never gvtSign. Nothing here opens a wire.
+   (5) THE DICE (CARD 3): REAL DICE by default; under SAME DICE the run header carries a seed and Math.random is replaced BEFORE the
+       game's script runs by one seeded generator, re-seeded from slot 2 at every level start and wave push. The same waves, not a
+       frame-identical battle. The seed rides the launcher's reset, never the game's save.
+   (6) THE DOORSTEP (CARD 3): a bookmark's RETURN TO hands the launcher every gvt_ key it kept; the doorstep re-applies them after the
+       wipe exactly as it re-applies a preset's seed. The bench never writes a gvt_ key anywhere else. */
 (function(){
   'use strict';
   var W = window;
   var STAMP = W.__BENCH_STAMP || {};          // baked into game.html's head insertion by stage_bench.py
-  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag', dials:'bench_dials' };
+  var K = { runN:'bench_runN', cur:'bench_cur', run:'bench_run_', bid:'bench_bid', tag:'bench_tag', dials:'bench_dials', bm:'bench_bm_' };   // CARD 3: bench_bm_<id> = a bookmark (this browser only)
   var RUNS_KEEP = 40, LOG_CAP = 2000;         // the dials page: D6
   var B = W.__bench = { stamp:STAMP, K:K, wire:{ killed:0, passed:0, byPath:{} }, errors:[], listeners:[], state:null, held:false };
 
@@ -35,7 +40,7 @@
   B.rd = rd; B.wr = wr; B.rm = rm; B.js = js; B.bid = bid; B.isPhone = isPhone; B.clock = clock; B.mmss = mmss; B.etTime = etTime; B.etDate = etDate;
   B.buildLine = function(){ return 'BUILD ' + (STAMP.cv || '?') + ' · deployed ' + (STAMP.at? etTime(STAMP.at) : '?'); };
   // CARD 2 THE DIALS: EVERY SEAT (implies TRACK PRE-ANSWERED) · TRACK PRE-ANSWERED; a bench key, so RESET never touches it
-  function dialsRead(){ var d = js(K.dials, null) || {}; var seat = d.seat? 1 : 0; return { seat:seat, track:(seat || d.track)? 1 : 0 }; }
+  function dialsRead(){ var d = js(K.dials, null) || {}; var seat = d.seat? 1 : 0; return { seat:seat, track:(seat || d.track)? 1 : 0, dice:(d.dice | 0) > 0? (d.dice | 0) : 0 }; }   // CARD 3: dice = the SAME DICE seed for the next run, 0 = REAL DICE
   function dialsText(d){ d = d || {}; var a = []; if(d.seat) a.push('EVERY SEAT'); if(d.track) a.push('TRACK PRE-ANSWERED'); return ' · dials: ' + (a.length? a.join(', ') : 'none'); }
   B.dialsRead = dialsRead; B.dialsText = dialsText;
 
@@ -47,14 +52,17 @@
     ks.sort().forEach(function(k){ rm(k); });
     if(pend.coach) wr('gvt_coach', '1');
     if(pend.meta) wr('gvt_meta', pend.meta);
+    var restored = [];
+    if(pend.keys) for(var pk in pend.keys) if(pk.indexOf('gvt_') === 0 && Object.prototype.hasOwnProperty.call(pend.keys, pk)){ wr(pk, pend.keys[pk]); restored.push(pk); }   // CARD 3 RETURN TO: a bookmark's every gvt_ key, the launcher's own map (the ONE generic gvt_ write in the bench, on the doorstep alone)
     rm('bench_pend');
-    doorstep = { preset:pend.preset, found:ks };
+    doorstep = { preset:pend.preset, found:ks, restored:restored.sort() };
   })();
   // the run: minted by the launcher at RESET (bench_cur); a page opened with no run gets one marked NO RESET
   B.cur = js(K.cur, null);
   if(!B.cur || !B.cur.n){
     var n0 = (parseInt(rd(K.runN) || '0', 10) || 0) + 1; wr(K.runN, String(n0));
-    B.cur = { n:n0, t0:Date.now(), at:new Date().toISOString(), preset:'NO RESET', tag:rd(K.tag) || '', dials:dialsRead(), dice:'REAL', screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:STAMP.cv, md5:STAMP.md5, sha:STAMP.sha, at:STAMP.at } };
+    var dl0 = dialsRead();
+    B.cur = { n:n0, t0:Date.now(), at:new Date().toISOString(), preset:'NO RESET', tag:rd(K.tag) || '', dials:dl0, dice:dl0.dice? 'SAME' : 'REAL', seed:dl0.dice | 0, screen:isPhone()? 'phone' : 'desk', bid:bid(), build:{ cv:STAMP.cv, md5:STAMP.md5, sha:STAMP.sha, at:STAMP.at } };
     wr(K.cur, JSON.stringify(B.cur));
   }
   B.run = js(K.run + B.cur.n, null) || { n:B.cur.n, hdr:B.cur, log:[], notes:[] };
@@ -77,6 +85,21 @@
     return out.sort(function(a, b){ return b.n - a.n; });
   };
 
+  // ---------- CARD 3: THE DICE (SAME DICE) ----------
+  // REAL DICE is the law by default (CARD 1). Under SAME DICE the run header carries a seed (minted by the launcher at RESET, never
+  // the game's save): Math.random is replaced HERE, before the game's script runs, by one seeded generator (the parity batteries' own
+  // idiom), so the callsign, the ad clock and the opening waves land the same on every run with this seed; slot 2 re-seeds it at every
+  // level start and every wave push (seed, level, wave), so the waves land the same however the fight between them went. What happens
+  // inside a wave (his taps, the crits, the hops) spends the dice its own way: the same waves, not a frame-identical battle.
+  var DICE = B.dice = { on:false, seed:0, state:0, draws:0, reseeds:0, last:'' };
+  (function(){
+    var seed = (B.cur.dice === 'SAME')? (B.cur.seed | 0) : 0;
+    if(!seed) return;
+    DICE.on = true; DICE.seed = seed; DICE.state = seed >>> 0;
+    Math.random = function(){ DICE.draws++; DICE.state = (DICE.state * 1664525 + 1013904223) >>> 0; return DICE.state / 4294967296; };
+    DICE.reseed = function(k, why){ DICE.state = (((seed | 0) ^ (k | 0)) >>> 0) || 1; DICE.reseeds++; DICE.last = String(why || ''); };
+  })();
+
   // ---------- the log ----------
   // a row: { t: ms since the run began, c: the clock, lv: 'L2' or '', scr: the screen, k: the kind, x: the text }
   B.stamp = function(){ var st = null; try{ st = B.state && B.state(); }catch(e){} return { lv:(st && st.lv) || '', scr:(st && st.scr) || 'boot' }; };
@@ -93,7 +116,25 @@
     B.log('NOTE', text.length > 120? text.slice(0, 117) + '...' : text);
     return row;
   };
-  B.rowText = function(r){ return '[+' + mmss(r.t) + ' · ' + (r.lv || '-') + ' · ' + r.scr + '] ' + r.k + ' · ' + r.x + (r.e? '\n    ' + r.e.split('\n').join('\n    ') : ''); };
+  B.diceText = function(h){ h = h || {}; return h.dice === 'SAME'? 'SAME DICE ' + (h.seed | 0) : 'REAL DICE'; };   // CARD 3: the header's dice, one grammar
+  B.rowText = function(r, h){ return '[+' + mmss(r.t) + ' · ' + (r.lv || '-') + ' · ' + r.scr + ((h && h.dice === 'SAME')? ' · SAME DICE ' + (h.seed | 0) : '') + '] ' + r.k + ' · ' + r.x + (r.e? '\n    ' + r.e.split('\n').join('\n    ') : ''); };   // CARD 3: every row of a seeded run carries the seed
+  // CARD 3 THE LEDGER: THE ROAD in the run text (the ledger's snapshot rides the run under run.road; the launcher's twin is byte-identical)
+  function roadRow(r){
+    var s = (r.lad === 'COMMANDER'? 'LV ' : 'L') + r.rung + ' · ' + r.name + ' · ' + (r.st || 'ahead') + (r.why? ' (' + r.why + ')' : '');
+    var seats = []; if(r.g) seats.push('granted ' + r.g); if(r.a) seats.push('ticket ' + r.a); if(r.c) seats.push('card ' + r.c); if(r.k) seats.push('taken ' + r.k);
+    if(seats.length) s += ' · ' + seats.join(' · ');
+    return s + ' · ' + r.head + ' · design ' + r.design + (r.drift? ' DRIFT' : '') + (r.tax? ' · TAXED' : '') + (r.boot? ' · boot-owed' : '');
+  }
+  function roadText(run){
+    var rd = run.road; if(!rd || !rd.rows || !rd.rows.length) return ['THE ROAD: not read on this page (the game did not boot here)'];
+    var L = ['THE ROAD (the ledger: ahead > OWED > HELD > GRANTED > ANNOUNCED > TAKEN, read from the game\'s own tables; DESIGN = the road the docs intend) · commander LV ' + rd.lvl + ' · campaign ' + rd.camp + (rd.drift? ' · DRIFT on ' + rd.drift + ' row' + (rd.drift > 1? 's' : '') : ' · no drift') + (rd.missing? ' · MISSING ' + rd.missing : '') + (rd.early? ' · EARLY ' + rd.early : '')];
+    ['COMMANDER', 'CAMPAIGN'].forEach(function(lad){
+      L.push(lad + ' LADDER' + (lad === 'COMMANDER'? ' (META.lvl: the XP promotions, every mode)' : ' (META.campaign: rungs beaten)'));
+      rd.rows.forEach(function(r){ if(r.lad === lad) L.push('  ' + roadRow(r)); });
+    });
+    return L;
+  }
+  B.roadText = roadText;
   // COPY RUN's one fixed grammar: the header · the road table (CARD 3) · the log oldest first · the notes with their stamps
   B.text = function(run){
     run = run || B.run; var h = run.hdr || {}, b = h.build || {};
@@ -103,13 +144,13 @@
     var L = [];
     L.push('GVT PLAYTEST BENCH · RUN ' + run.n);
     L.push('BUILD ' + (b.cv || '?') + ' · deployed ' + (b.at? etDate(b.at) : '?') + ' (md5 ' + String(b.md5 || '').slice(0, 8) + ', HEAD ' + (b.sha || '?') + ')');
-    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + (h.dice || 'REAL') + ' DICE · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')' + dialsText(h.dials));
+    L.push((h.at? etDate(h.at) : '') + ' · ' + (h.preset || '') + ' · ' + B.diceText(h) + ' · tag ' + (h.tag || '(none)') + ' · ' + (h.screen || '') + ' (browser ' + (h.bid || '') + ')' + dialsText(h.dials));
     L.push('wire: ' + wire.killed + ' answered in place' + (paths? ' (' + paths + ')' : '') + ' · ' + wire.passed + ' board GET passed through · ' + wire.errors + ' error rows');
     L.push('');
-    L.push('THE ROAD (CARD 3): not yet');
+    roadText(run).forEach(function(x){ L.push(x); });
     L.push('');
     L.push('THE RUN LOG (oldest first)');
-    run.log.forEach(function(r){ L.push(B.rowText(r)); });
+    run.log.forEach(function(r){ L.push(B.rowText(r, h)); });
     L.push('');
     L.push('NOTES (' + run.notes.length + ')');
     run.notes.forEach(function(r){ L.push('[+' + mmss(r.t) + ' · ' + (r.lv || '-') + ' · ' + r.scr + (r.s? ' · ' + r.s : '') + ']'); L.push('  ' + r.x.split('\n').join('\n  ')); });
@@ -188,7 +229,8 @@
   // the run's first rows on this page
   var nb = /[?&]nb=/.test(location.search);
   B.log('PAGE', (nb? 'NEW BUILD reload landed (?nb) · ' : 'the bench page opened · ') + B.buildLine() + ' · ' + (B.cur.preset || '') + ' · ' + (B.cur.screen || ''));
-  if(doorstep) B.log('RESET', 'the doorstep wipe before the game booted: ' + (doorstep.found.length? 'a gvt_ key still stood and was wiped again: ' + doorstep.found.join(' ') : 'clean, nothing stood') + ' · ' + doorstep.preset);
+  if(doorstep) B.log('RESET', 'the doorstep wipe before the game booted: ' + (doorstep.found.length? 'a gvt_ key still stood and was wiped again: ' + doorstep.found.join(' ') : 'clean, nothing stood') + ' · ' + doorstep.preset + (doorstep.restored.length? ' · the bookmark\'s keys restored on the doorstep: ' + doorstep.restored.join(' ') : ''));
+  if(DICE.on) B.log('DICE', 'SAME DICE ' + DICE.seed + ': the dice seeded before the game booted (the callsign, the ad clock and the opening waves land the same on every run with this seed); re-seeded at every level start and wave push; the same waves, not a frame-identical battle');
   W.addEventListener('pagehide', function(){ persist(true); });
   document.addEventListener('visibilitychange', function(){ if(document.hidden) persist(true); });
 })();
