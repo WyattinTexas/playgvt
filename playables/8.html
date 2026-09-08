@@ -275,7 +275,8 @@ console.log("[WPT]PluginVersion:1.22");
    thin attack lines are suppressed; their bazooka rocket and flame cone are kept. */
 (function(){
   var DIAL={ coinAddValue:8, enemySpawnInterval:2.0, unitSpeed:70, baseMaxHp:7000, floor:0.30, unitScale:1.15,
-             coinScale:0.85, coinDx:-6, coinDy:0 };   /* coinScale/Dx/Dy: the dog-tag plate's seat beside the tray (law 11) */
+             coinScale:0.85, coinDx:-6, coinDy:0,   /* coinScale/Dx/Dy: the dog-tag plate's seat beside the tray (law 11) */
+             fallDur:1.1, fallDeg:78, fallSink:4.5 };   /* THE FALL: the game's 1.1 s · −1.36 rad · 3 game px (≈ 4.5 units here) */
   var RIFLE='步枪兵', MG='机枪兵', BZ='火箭筒兵', FLAME='喷火兵';
   /* ---------- the effects canvas ---------- */
   var FX={ list:[], cv:null, ctx:null, game:null, cam:null, k:1, shakeT:0, sx:0, sy:0, ac:null };
@@ -327,7 +328,18 @@ console.log("[WPT]PluginVersion:1.22");
     fxSync(); var c=FX.ctx, cv=FX.cv; if(!c) return; c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,cv.width,cv.height);
     try{ var CS=FX.coinSeat; if(CS && CS.n && CS.n.isValid){ if(CS.w && CS.w.enabled) CS.w.enabled=false; var pp=CS.n.position; if(Math.abs(pp.x-CS.x)>0.5||Math.abs(pp.y-CS.y)>0.5) CS.n.setPosition(CS.x,CS.y,0); if(Math.abs(CS.n.scale.x-CS.s)>0.01) CS.n.setScale(CS.s,CS.s,1); } }catch(e){}
     try{ var G=window.__gvtG; if(G){ var UL=(G.playerUnits||[]).concat(G.enemyUnits||[]); for(var qi=0;qi<UL.length;qi++){ var uu=UL[qi]; if(!uu||!uu.node) continue;
-      if(uu.view && !window.__gvtTalkProto){ var pr=Object.getPrototypeOf(uu.view); if(pr){ window.__gvtTalkProto=1; ['showTalk','setTalkVisible','playTalk','showBubble'].forEach(function(m){ if(typeof pr[m]==='function') pr[m]=function(){}; }); } }
+      if(uu.view && !window.__gvtTalkProto){ var pr=Object.getPrototypeOf(uu.view); if(pr){ window.__gvtTalkProto=1; ['showTalk','setTalkVisible','playTalk','showBubble'].forEach(function(m){ if(typeof pr[m]==='function') pr[m]=function(){}; });
+        /* THE FALL — the real game's casualty beat (knock/foe die → {k:'fallen', dur 1.1, rot −1.36·min(1,k·2.6), y+3k, alpha 1−k²}): he tips over like a toy and melts away.
+           Theirs was the same idea at 0.27 s (±90° quadOut, the fade 0.05+0.22). Same door (view.playDeath(cb) — cb hands the node back to FirstGame), the game's clock. */
+        if(typeof pr.playDeath==='function'){ pr.__gvtPlayDeath0=pr.playDeath; pr.playDeath=function(cb){ try{ if(this.deathTween) return; var n=this.node; if(!n||!n.isValid) return pr.__gvtPlayDeath0.call(this,cb);
+            try{ this.stopMoveLoop(); }catch(e){} var op=n.getComponent('cc.UIOpacity')||n.addComponent('cc.UIOpacity'); op.opacity=255;
+            try{ n.children.forEach(function(c){ if(/^进度$/.test(c.name)) c.active=false; }); }catch(e){}   /* a fallen man carries no health bar */
+            var D=DIAL.fallDur, ang=DIAL.fallDeg*Math.PI/180, p0={ x:n.position.x, y:n.position.y, z:n.position.z }, C=window.cc, self=this;   /* the game: −1.36 rad on a y-down canvas = counter-clockwise = +78° here, for both armies */
+            var H=0; try{ var rn=this.roleNode||n.children[0], rut=rn&&rn._uiProps&&rn._uiProps.uiTransformComp; if(rut) H=rut.height*0.5*rn.scale.y*n.scale.y; }catch(e){}   /* the feet sit H below the origin — a toy tips about its BASE, so the origin swings round the feet */
+            var sink=DIAL.fallSink;
+            this.deathTween=C.tween(op).to(D,{ opacity:0 },{ easing:'quadIn', onUpdate:function(tg,k){ try{ var th=ang*Math.min(1,k*2.6); n.angle=th*180/Math.PI; n.setPosition(p0.x-H*Math.sin(th), p0.y-H+H*Math.cos(th)-sink*k, p0.z); }catch(e){} } })
+              .call(function(){ self.deathTween=null; if(cb) cb(); }).start();
+          }catch(e){ try{ return pr.__gvtPlayDeath0.call(this,cb); }catch(e2){} } }; } } }
       if(!uu.__tk){ uu.__tk=[]; uu.node.walk(function(n){ if(/^喊话$|BATTLE/i.test(n.name||'')) uu.__tk.push(n); }); }
       for(var ti=0;ti<uu.__tk.length;ti++){ if(uu.__tk[ti].active) uu.__tk[ti].active=false; } } } }catch(e){}
     var L=FX.list, keep=[]; c.lineCap='round';
@@ -397,7 +409,7 @@ console.log("[WPT]PluginVersion:1.22");
       try{ if(!u||!camp||u.type===BZ||u.type===FLAME) return; var A=muzzlePt(u), B=sp(camp); if(!A||!B) return;
         B.x+=(-10+(Math.random()-0.5)*30)*U*FX.k*(u.faction===2?-1:1); B.y-=(42+(Math.random()-0.5)*26)*U*FX.k*0.6;   /* campSmash: a spot on the boards, never the same twice */
         tracer(A,B,0.09, u.faction===2? '#EDD9A8':'#FFF3C4'); }catch(e){} };
-    var oDead=g.onUnitDead; g.onUnitDead=function(u,f){ return oDead.apply(this,arguments); };
+    var oDead=g.onUnitDead; g.onUnitDead=function(u,f){ try{ var P=hitPt(u); if(P) ring(P,6,26,0.35,'rgba(255,255,255,0.7)'); }catch(e){} return oDead.apply(this,arguments); };   /* the game's ring at the fall: r6→R26, 0.35 s, white .7 */
     /* NO DEFEAT: the player's box never empties */
     var php=g.playerBaseHp;
     Object.defineProperty(g,'playerBaseHp',{ configurable:true, enumerable:true, get:function(){ return Math.max(php, Math.round(g.baseMaxHp*DIAL.floor)); }, set:function(v){ php=v; } });
