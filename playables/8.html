@@ -361,7 +361,10 @@ console.log("[WPT]PluginVersion:1.22");
     g.baseMaxHp=DIAL.baseMaxHp; g.playerBaseHp=DIAL.baseMaxHp; g.enemyBaseHp=DIAL.baseMaxHp;
     /* SARGE, THE FIRST CARD — and every Sarge spawned is a sniper */
     window.__gvtG=g;
-    try{ if(typeof g.showTalk==='function') g.showTalk=function(){}; if(typeof g.setTalkVisible==='function') g.setTalkVisible=function(){}; }catch(e){}   /* the man never says BATTLE! in play */
+    /* the man never says BATTLE! in play: the talk overlay layer + the proxy bubble off, every talk door a no-op */
+    try{ ['showTalk','setTalkVisible','refreshPlayerTalkProxy','syncPlayerTalkUnit','updatePlayerTalkProxyPosition','bringTalkOverlayToFront','clearPlayerTalkProxy'].forEach(function(m){ if(typeof g[m]==='function') g[m]=function(){}; });
+      ['talkOverlayNode','playerTalkProxyNode','talkNode'].forEach(function(k){ try{ if(g[k] && g[k].active!==undefined) g[k].active=false; }catch(e){} });
+      sc.walk(function(n){ if(n && /^(喊话|喊话层)$/.test(n.name||'')) n.active=false; }); }catch(e){}
     var oSpawn=g.spawnUnit; g.spawnUnit=function(){ var r=oSpawn.apply(this,arguments);
       try{ var L=(this.playerUnits||[]).concat(this.enemyUnits||[]); for(var i=0;i<L.length;i++){ var u=L[i]; if(!u||!u.node) continue;
         if(!u.__big){ u.__big=1; try{ u.node.setScale(u.node.scale.x*DIAL.unitScale, u.node.scale.y*DIAL.unitScale, 1); }catch(e){} try{ var tk=childNamed(u.node,/^喊话$/); if(tk) tk.active=false; }catch(e){} }   /* +15 %: the men read bigger; no BATTLE! bubble in play */
