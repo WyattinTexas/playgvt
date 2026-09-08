@@ -275,7 +275,7 @@ console.log("[WPT]PluginVersion:1.22");
    thin attack lines are suppressed; their bazooka rocket and flame cone are kept. */
 (function(){
   var DIAL={ coinAddValue:8, enemySpawnInterval:2.0, unitSpeed:70, baseMaxHp:7000, floor:0.30, unitScale:1.15,
-             unitScaleNote:'+15 %' };
+             coinScale:0.85, coinDx:-6, coinDy:0 };   /* coinScale/Dx/Dy: the dog-tag plate's seat beside the tray (law 11) */
   var RIFLE='步枪兵', MG='机枪兵', BZ='火箭筒兵', FLAME='喷火兵';
   /* ---------- the effects canvas ---------- */
   var FX={ list:[], cv:null, ctx:null, game:null, cam:null, k:1, shakeT:0, sx:0, sy:0, ac:null };
@@ -325,6 +325,7 @@ console.log("[WPT]PluginVersion:1.22");
   var last=performance.now();
   function fxFrame(now){ requestAnimationFrame(fxFrame); var dt=Math.min(.05,(now-last)/1000); last=now;
     fxSync(); var c=FX.ctx, cv=FX.cv; if(!c) return; c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,cv.width,cv.height);
+    try{ var CS=FX.coinSeat; if(CS && CS.n && CS.n.isValid){ if(CS.w && CS.w.enabled) CS.w.enabled=false; var pp=CS.n.position; if(Math.abs(pp.x-CS.x)>0.5||Math.abs(pp.y-CS.y)>0.5) CS.n.setPosition(CS.x,CS.y,0); if(Math.abs(CS.n.scale.x-CS.s)>0.01) CS.n.setScale(CS.s,CS.s,1); } }catch(e){}
     try{ var G=window.__gvtG; if(G){ var UL=(G.playerUnits||[]).concat(G.enemyUnits||[]); for(var qi=0;qi<UL.length;qi++){ var uu=UL[qi]; if(!uu||!uu.node) continue;
       if(uu.view && !window.__gvtTalkProto){ var pr=Object.getPrototypeOf(uu.view); if(pr){ window.__gvtTalkProto=1; ['showTalk','setTalkVisible','playTalk','showBubble'].forEach(function(m){ if(typeof pr[m]==='function') pr[m]=function(){}; }); } }
       if(!uu.__tk){ uu.__tk=[]; uu.node.walk(function(n){ if(/^喊话$|BATTLE/i.test(n.name||'')) uu.__tk.push(n); }); }
@@ -379,6 +380,14 @@ console.log("[WPT]PluginVersion:1.22");
       document.addEventListener('pointerdown', function(e){ drag=cardAt(e.clientX,e.clientY); if(drag){ drag.x0=e.clientX; drag.y0=e.clientY; } }, true);
       document.addEventListener('pointerup', function(e){ if(!drag) return; var d=drag; drag=null; if(d.y0-e.clientY>70 && Math.hypot(e.clientX-d.x0,e.clientY-d.y0)>70){ try{ if(!d.card.isInteractableNow || d.card.isInteractableNow()) d.card.onTouchEnd(); }catch(err){} } }, true);
       document.addEventListener('pointercancel', function(){ drag=null; }, true); } }catch(e){}
+    /* LAW 11 (Wyatt 18:48): the dog-tag count lives RIGHT NEXT TO THE TROOPS — their 右上 plate (crate + count) moves to the 左下 seat beside the card tray;
+       the filling circle + the '+8' (左下) go. The plate keeps its Widget off (alignMode ALWAYS would drag it back) and is re-seated every frame if anything moves it. */
+    try{ if(!window.__gvtCoinSeat){ var rt=null, lb=null; sc.walk(function(n){ if(!rt&&n.name==='右上') rt=n; if(!lb&&n.name==='左下') lb=n; });
+      if(rt&&lb&&rt.parent===lb.parent){ window.__gvtCoinSeat=1; var seat=lb.getChildByName('底图')||lb.children[0]; var C={ x:seat.position.x+lb.position.x, y:seat.position.y+lb.position.y };
+        var w=rt.getComponent('cc.Widget'); if(w) w.enabled=false; var cs=DIAL.coinScale; rt.setScale(cs,cs,1);
+        var xs=[], ys=[]; rt.children.forEach(function(c){ if(!/^(长条|盒子)$/.test(c.name)) return; var ut=c._uiProps&&c._uiProps.uiTransformComp; if(!ut) return; var hw=ut.width*c.scale.x/2, hh=ut.height*c.scale.y/2; xs.push(c.position.x-hw,c.position.x+hw); ys.push(c.position.y-hh,c.position.y+hh); });
+        var vx=xs.length? (Math.min.apply(null,xs)+Math.max.apply(null,xs))/2 : 0, vy=ys.length? (Math.min.apply(null,ys)+Math.max.apply(null,ys))/2 : 0;
+        FX.coinSeat={ n:rt, x:C.x+DIAL.coinDx-vx*cs, y:C.y+DIAL.coinDy-vy*cs, s:cs, w:w }; rt.setPosition(FX.coinSeat.x, FX.coinSeat.y, 0); lb.active=false; } } }catch(e){}
     /* NO INTERRUPTION: the XP bar is retired, the buff window never opens */
     g.addXp=function(){}; g.openBuffWindow=function(){}; g.xpMax=1e9;
     try{ sc.walk(function(n){ if(n && /^(xp|XP|经验|xpBar|XPBar)/.test(n.name||'')) n.active=false; }); }catch(e){}
