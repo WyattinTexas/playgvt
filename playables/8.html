@@ -276,7 +276,8 @@ console.log("[WPT]PluginVersion:1.22");
 (function(){
   var DIAL={ coinAddValue:8, enemySpawnInterval:2.0, unitSpeed:70, baseMaxHp:7000, floor:0.30, unitScale:1.15,
              coinScale:0.85, coinDx:-6, coinDy:0,   /* coinScale/Dx/Dy: the dog-tag plate's seat beside the tray (law 11) */
-             fallDur:1.1, fallDeg:78, fallSink:4.5 };   /* THE FALL: the game's 1.1 s · −1.36 rad · 3 game px (≈ 4.5 units here) */
+             fallDur:1.1, fallDeg:78, fallSink:4.5,   /* THE FALL: the game's 1.1 s · −1.36 rad · 3 game px (≈ 4.5 units here) */
+             killTags:5 };   /* THE KILL PAYS: dog tags into the count when the star lands (their coin) */   /* THE FALL: the game's 1.1 s · −1.36 rad · 3 game px (≈ 4.5 units here) */
   var RIFLE='步枪兵', MG='机枪兵', BZ='火箭筒兵', FLAME='喷火兵';
   /* ---------- the effects canvas ---------- */
   var FX={ list:[], cv:null, ctx:null, game:null, cam:null, k:1, shakeT:0, sx:0, sy:0, ac:null };
@@ -327,6 +328,7 @@ console.log("[WPT]PluginVersion:1.22");
   function fxFrame(now){ requestAnimationFrame(fxFrame); var dt=Math.min(.05,(now-last)/1000); last=now;
     fxSync(); var c=FX.ctx, cv=FX.cv; if(!c) return; c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,cv.width,cv.height);
     try{ var G3=window.__gvtG; if(G3 && G3.state===3 && !FX.capsOff){ FX.capsOff=1; window.cc.director.getScene().walk(function(n){ if(/^(开始文本|后续文本)$/.test(n.name||'')) n.active=false; }); } }catch(e){}   /* their intro captions ('Show Your Power!' / 'Defeat the Enemy!') drew over the end card's wordmark — off once the game ends */
+    try{ var CS=FX.coinSeat, G4=window.__gvtG; if(CS && CS.n && CS.n.isValid && G4 && G4.xpCircleNode && G4.xpCircleNode.isValid){ var bx=CS.n.getChildByName('盒子')||CS.n; var wp=bx.worldPosition, xw=G4.xpCircleNode.worldPosition; if(Math.abs(wp.x-xw.x)>0.5||Math.abs(wp.y-xw.y)>0.5) G4.xpCircleNode.setWorldPosition(wp.x,wp.y,xw.z); } }catch(e){}
     try{ var CS=FX.coinSeat; if(CS && CS.n && CS.n.isValid){ if(CS.w && CS.w.enabled) CS.w.enabled=false; var pp=CS.n.position; if(Math.abs(pp.x-CS.x)>0.5||Math.abs(pp.y-CS.y)>0.5) CS.n.setPosition(CS.x,CS.y,0); if(Math.abs(CS.n.scale.x-CS.s)>0.01) CS.n.setScale(CS.s,CS.s,1); } }catch(e){}
     try{ var G=window.__gvtG; if(G){ var UL=(G.playerUnits||[]).concat(G.enemyUnits||[]); for(var qi=0;qi<UL.length;qi++){ var uu=UL[qi]; if(!uu||!uu.node) continue;
       if(uu.view && !window.__gvtTalkProto){ var pr=Object.getPrototypeOf(uu.view); if(pr){ window.__gvtTalkProto=1; ['showTalk','setTalkVisible','playTalk','showBubble'].forEach(function(m){ if(typeof pr[m]==='function') pr[m]=function(){}; });
@@ -401,6 +403,13 @@ console.log("[WPT]PluginVersion:1.22");
         var xs=[], ys=[]; rt.children.forEach(function(c){ if(!/^(长条|盒子)$/.test(c.name)) return; var ut=c._uiProps&&c._uiProps.uiTransformComp; if(!ut) return; var hw=ut.width*c.scale.x/2, hh=ut.height*c.scale.y/2; xs.push(c.position.x-hw,c.position.x+hw); ys.push(c.position.y-hh,c.position.y+hh); });
         var vx=xs.length? (Math.min.apply(null,xs)+Math.max.apply(null,xs))/2 : 0, vy=ys.length? (Math.min.apply(null,ys)+Math.max.apply(null,ys))/2 : 0;
         FX.coinSeat={ n:rt, x:C.x+DIAL.coinDx-vx*cs, y:C.y+DIAL.coinDy-vy*cs, s:cs, w:w }; rt.setPosition(FX.coinSeat.x, FX.coinSeat.y, 0); lb.active=false; } } }catch(e){}
+    /* LAW 10 · STICKINESS — THE KILL PAYS (the real game's dog tags): their XP ⭐ (playDeathXpEffect) flew off every kill to the retired XP bar's seat.
+       The xp circle node now sits ON the dog-tag plate, so the star flies from the fallen man INTO the count, and on arrival the count jumps +DIAL.killTags (their coin, their label, their refresh). */
+    try{ if(!window.__gvtKillPays && typeof g.playDeathXpEffect==='function'){ window.__gvtKillPays=1; var oXp=g.playDeathXpEffect;
+      g.playDeathXpEffect=function(u,cb){ var self=this, tan=!!(u&&u.faction===2);
+        var land=function(){ try{ if(tan && self.state===1){ self.coin=(self.coin|0)+DIAL.killTags; if(self.refreshCoinUI) self.refreshCoinUI();
+          var L=self.coinLabelNode; if(L && L.isValid){ L.setScale(1.35,1.35,1); window.cc.tween(L).to(0.14,{ scale:new window.cc.Vec3(1,1,1) }).start(); } } }catch(e){} if(cb) cb(); };
+        try{ return oXp.call(this,u,land); }catch(e){ land(); } }; } }catch(e){}
     /* NO INTERRUPTION: the XP bar is retired, the buff window never opens */
     g.addXp=function(){}; g.openBuffWindow=function(){}; g.xpMax=1e9;
     try{ sc.walk(function(n){ if(n && /^(xp|XP|经验|xpBar|XPBar)/.test(n.name||'')) n.active=false; }); }catch(e){}
