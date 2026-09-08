@@ -277,7 +277,8 @@ console.log("[WPT]PluginVersion:1.22");
   var DIAL={ coinAddValue:8, enemySpawnInterval:2.0, unitSpeed:70, baseMaxHp:7000, floor:0.30, unitScale:1.15,
              coinScale:0.85, coinDx:-6, coinDy:0,   /* coinScale/Dx/Dy: the dog-tag plate's seat beside the tray (law 11) */
              fallDur:1.1, fallDeg:78, fallSink:4.5,   /* THE FALL: the game's 1.1 s · −1.36 rad · 3 game px (≈ 4.5 units here) */
-             killTags:5 };   /* THE KILL PAYS: dog tags into the count when the star lands (their coin) */   /* THE FALL: the game's 1.1 s · −1.36 rad · 3 game px (≈ 4.5 units here) */
+             killTags:5,   /* THE KILL PAYS: dog tags into the count when the star lands (their coin) */
+             paraAt:0.50, paraN:4, paraTrackY:397, paraSeats:[[255,458],[292,506],[268,536],[300,474]] };   /* THE PARATROOPER FINISH: their box under 50 % → the bomber + N canopies onto these CSS seats behind their line */   /* THE FALL: the game's 1.1 s · −1.36 rad · 3 game px (≈ 4.5 units here) */
   var RIFLE='步枪兵', MG='机枪兵', BZ='火箭筒兵', FLAME='喷火兵';
   /* ---------- the effects canvas ---------- */
   var FX={ list:[], cv:null, ctx:null, game:null, cam:null, k:1, shakeT:0, sx:0, sy:0, ac:null };
@@ -323,6 +324,37 @@ console.log("[WPT]PluginVersion:1.22");
   function hitFn(t){ return function(){ return (t && t.node && t.node.isValid && !t.isDying)? hitPt(t) : null; }; }
   function ring(p,r0,r1,dur,col,lw){ add({ k:'ring', p:p, r0:r0*U*FX.k, r1:r1*U*FX.k, life:dur, col:col, lw:(lw||3)*U*FX.k }); }
   function punch(){ }
+  /* ---------- THE PARATROOPER FINISH (the brief's item 12, faked on the runtime with the game's own art) ----------
+     Once, when their box falls under DIAL.paraAt of its max in play: the game's BOMBER (SPRITES_SRC.bomber, box 0 0 170 100, 96 game px wide, BMB_SPD 185,
+     the shadow racing the rug, the bob) crosses the top of the field west → east; over the tan half it releases paraN canopies — drawChute verbatim: the dome
+     R 32 in the army's green, the shaded underside, the rim, the seam, four risers, the pendulum settling, the shadow rushing up, the game's own rifleman
+     under the silk; PARA_FALL 1.6 s from PARA_H 170 above the seat. Boots down → their spawnUnit door fields a REAL rifleman where he landed + the game's
+     blue ring (rgba(140,196,236,.9) r6→R34 .4 s). No words (law 7 · law 10). */
+  var GREEN='#55793E', BOMBER_SVG="<path d=\"M0 44 L26 46 L26 56 L0 52 z\" fill=\"currentColor\" opacity=\"0.85\"/><path d=\"M12 42 L6 10 Q5 5 11 8 L30 20 L36 42 z\" fill=\"currentColor\"/><path d=\"M8 12 q1 14 6 24\" stroke=\"#C05A4A\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M80 38 L60 12 L86 10 L104 38 z\" fill=\"currentColor\" opacity=\"0.72\"/><rect x=\"64\" y=\"12\" width=\"26\" height=\"13\" rx=\"6.5\" fill=\"#26261f\" opacity=\"0.8\"/><ellipse cx=\"92\" cy=\"18\" rx=\"2\" ry=\"9\" fill=\"#EDEADF\" opacity=\"0.4\"/><path d=\"M20 38 L118 36 Q140 36 156 44 Q166 49 166 52 Q166 58 152 62 Q132 66 112 66 L20 64 Q8 62 8 51 Q8 40 20 38 z\" fill=\"currentColor\"/><path d=\"M16 58 Q80 68 150 58 Q120 66 90 66 Q40 66 16 60 z\" fill=\"#000\" opacity=\"0.14\"/><path d=\"M100 36 Q102 24 114 24 Q126 24 128 36 z\" fill=\"#BFD4DE\" stroke=\"#3a2c1c\" stroke-width=\"2.5\"/><circle cx=\"52\" cy=\"51\" r=\"9\" fill=\"#F0E2C2\" stroke=\"#8A3A1E\" stroke-width=\"2\"/><path d=\"M52 44.4 L53.6 48.8 L58.3 49 L54.6 51.9 L55.9 56.3 L52 53.8 L48.1 56.3 L49.4 51.9 L45.7 49 L50.4 48.8 z\" fill=\"#8A3A1E\"/><rect x=\"52\" y=\"66\" width=\"14\" height=\"6\" rx=\"3\" fill=\"#26261f\"/><rect x=\"70\" y=\"68\" width=\"14\" height=\"6\" rx=\"3\" fill=\"#26261f\"/><path d=\"M86 60 L70 92 L100 94 L118 62 z\" fill=\"currentColor\"/><rect x=\"78\" y=\"74\" width=\"34\" height=\"16\" rx=\"8\" fill=\"#26261f\"/><circle cx=\"112\" cy=\"82\" r=\"8\" fill=\"#3a2c1c\"/><circle cx=\"114\" cy=\"82\" r=\"3\" fill=\"#8A8578\"/><ellipse cx=\"117\" cy=\"82\" rx=\"2.5\" ry=\"13\" fill=\"#EDEADF\" opacity=\"0.5\"/>", RIFLE_SVG="<ellipse cx=\"60\" cy=\"129\" rx=\"33\" ry=\"7.5\" fill=\"#000\" opacity=\"0.28\"/><ellipse cx=\"60\" cy=\"126\" rx=\"33\" ry=\"7.5\" fill=\"currentColor\"/><g stroke=\"currentColor\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M30 121 L46 109\" stroke-width=\"11\"/><path d=\"M46 111 L56 93\" stroke-width=\"11\"/><path d=\"M56 93 L72 101 L74 119\" stroke-width=\"11\"/><path d=\"M74 120 L84 122\" stroke-width=\"8\"/><path d=\"M54 95 L62 70\" stroke-width=\"16\"/><path d=\"M60 74 L80 70\" stroke-width=\"8\"/><path d=\"M63 79 L90 69\" stroke-width=\"8\"/><path d=\"M47 78 L106 63\" stroke-width=\"4.5\"/><path d=\"M49 78 L44 88\" stroke-width=\"7\"/></g><g transform=\"translate(70,57)\">'+HEAD+'</g>";
+  function svgImg(inner,vb){ var im=new Image(); im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb+'">'+inner.split('currentColor').join(GREEN)+'</svg>'); return im; }
+  FX.bomberImg=svgImg(BOMBER_SVG,'0 0 170 100'); FX.manImg=svgImg(RIFLE_SVG,'0 0 120 140');
+  var PARA_FALL=1.6, PARA_H=170, BMB_SPD=185, BMB_ALT=120;
+  function paraStart(){ var k=FX.k, cw=FX.cv.width/k; FX.para={ x:-70, y:DIAL.paraTrackY, dir:1, spd:BMB_SPD*U, t:0, di:0, seats:DIAL.paraSeats.slice(0,DIAL.paraN).map(function(q,i){ return { x:q[0], y:q[1], phase:i*1.7 }; }).sort(function(a,b){ return a.x-b.x; }), chutes:[], gone:false, W:cw }; }
+  function paraSpawn(cx,cy){ try{ var G=window.__gvtG, C=window.cc; if(!G||G.state!==1) return; var sc=C.director.getScene(); var mid=null; sc.walk(function(n){ if(!mid&&n.name==='中间') mid=n; }); if(!mid) return;
+      var gc=FX.game, k=FX.k; var w=FX.cam.screenToWorld(new C.Vec3(cx*k, gc.height-cy*k, 0)); var n=new C.Node('gvt-drop'); n.parent=mid; n.setWorldPosition(w.x,w.y,0);
+      var UT=C.js.getClassByName('cc.UITransform'); var ut=n.addComponent(UT); ut.setContentSize(10,10); ut.setAnchorPoint(0.5,0.5);
+      G.spawnGroup(1, RIFLE, 1, n, n); setTimeout(function(){ try{ n.destroy(); }catch(e){} }, 50);
+      ring({ x:cx*k, y:(cy-24*U)*k }, 6, 34, 0.4, 'rgba(140,196,236,0.9)'); }catch(e){} }
+  function paraTick(dt,c){ var P=FX.para; if(!P) return; var k=FX.k; P.t+=dt;
+    if(!P.gone){ P.x+=P.dir*P.spd*dt; while(P.di<P.seats.length && P.x>=P.seats[P.di].x){ var st=P.seats[P.di++]; P.chutes.push({ x:st.x, y:st.y, phase:st.phase, jetT:PARA_FALL, done:false }); } if(P.x>P.W+90) P.gone=true;
+      var bob=Math.sin(P.t*7)*2.5*U; c.globalAlpha=0.22; c.fillStyle='#000'; c.beginPath(); c.ellipse(P.x*k,(P.y+6*U)*k,44*U*k,9*U*k,0,0,7); c.fill(); c.globalAlpha=1;
+      var im=FX.bomberImg; if(im&&im.complete&&im.naturalWidth){ var bw=96*U*k, bh=bw*100/170; c.drawImage(im, P.x*k-bw/2, (P.y-BMB_ALT*U+bob)*k-bh/2, bw, bh); } }
+    for(var i=0;i<P.chutes.length;i++){ var u=P.chutes[i]; if(u.done) continue; u.jetT-=dt; var kk=Math.max(0,Math.min(1,1-u.jetT/PARA_FALL));
+      if(u.jetT<=0){ u.done=true; paraSpawn(u.x,u.y); continue; }
+      var h=(1-kk)*PARA_H*U, sway=Math.sin(u.phase+kk*5.0)*14*U*(1-kk)*(1-kk*0.4), fx=u.x+sway, fy=u.y-h;
+      c.globalAlpha=0.10+0.20*kk; c.fillStyle='#000'; c.beginPath(); c.ellipse(u.x*k,u.y*k,(9+15*kk)*U*k,(3+5*kk)*U*k,0,0,7); c.fill(); c.globalAlpha=1;
+      var cy=fy-72*U, R=32; c.strokeStyle='rgba(38,40,31,0.55)'; c.lineWidth=1.3*U*k; c.lineCap='round';
+      [-1,-0.4,0.4,1].forEach(function(sg){ c.beginPath(); c.moveTo((fx+sg*R*0.94*U)*k,(cy+Math.abs(sg)*7*U)*k); c.lineTo((fx+sg*7*U)*k,(fy-34*U)*k); c.stroke(); });
+      c.fillStyle=GREEN; c.globalAlpha=0.95; c.beginPath(); c.ellipse(fx*k,cy*k,R*U*k,R*0.66*U*k,0,Math.PI,0); c.fill();
+      c.globalAlpha=0.30; c.fillStyle='#000'; c.beginPath(); c.ellipse(fx*k,cy*k,R*U*k,R*0.20*U*k,0,0,Math.PI); c.fill(); c.globalAlpha=1;
+      c.strokeStyle='rgba(38,40,31,0.45)'; c.lineWidth=1.6*U*k; c.beginPath(); c.ellipse(fx*k,cy*k,R*U*k,R*0.66*U*k,0,Math.PI,0); c.stroke(); c.beginPath(); c.moveTo(fx*k,(cy-R*0.66*U)*k); c.lineTo(fx*k,cy*k); c.stroke(); c.lineCap='butt';
+      var mi=FX.manImg; if(mi&&mi.complete&&mi.naturalWidth){ var mw=54*U*k, mh=mw*140/120; c.save(); c.translate(fx*k,fy*k); c.transform(1,0,sway*0.008,1,0,0); c.drawImage(mi,-mw/2,-mh,mw,mh); c.restore(); } }
+    if(P.gone && P.chutes.length===P.seats.length && P.chutes.every(function(u){ return u.done; })) FX.para=null; }
   /* ---------- the frame ---------- */
   var last=performance.now();
   function fxFrame(now){ requestAnimationFrame(fxFrame); var dt=Math.min(.05,(now-last)/1000); last=now;
@@ -345,6 +377,7 @@ console.log("[WPT]PluginVersion:1.22");
           }catch(e){ try{ return pr.__gvtPlayDeath0.call(this,cb); }catch(e2){} } }; } } }
       if(!uu.__tk){ uu.__tk=[]; uu.node.walk(function(n){ if(/^喊话$|BATTLE/i.test(n.name||'')) uu.__tk.push(n); }); }
       for(var ti=0;ti<uu.__tk.length;ti++){ if(uu.__tk[ti].active) uu.__tk[ti].active=false; } } } }catch(e){}
+    try{ var G5=window.__gvtG; if(G5){ if(G5.state===1 && !FX.para && !FX.paraDone && G5.enemyBaseHp>0 && G5.enemyBaseHp<=G5.baseMaxHp*DIAL.paraAt){ FX.paraDone=1; paraStart(); window.__gvtFxPara=1; } if(G5.state===3) FX.para=null; } if(FX.para) paraTick(dt,c); }catch(e){}
     var L=FX.list, keep=[]; c.lineCap='round';
     for(var i=0;i<L.length;i++){ var e=L[i];
       if(e.delay>0){ e.delay-=dt; keep.push(e); continue; }
