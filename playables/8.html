@@ -318,6 +318,10 @@ console.log("[WPT]PluginVersion:1.22");
   var last=performance.now();
   function fxFrame(now){ requestAnimationFrame(fxFrame); var dt=Math.min(.05,(now-last)/1000); last=now;
     fxSync(); var c=FX.ctx, cv=FX.cv; if(!c) return; c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,cv.width,cv.height);
+    try{ var G=window.__gvtG; if(G){ var UL=(G.playerUnits||[]).concat(G.enemyUnits||[]); for(var qi=0;qi<UL.length;qi++){ var uu=UL[qi]; if(!uu||!uu.node) continue;
+      if(uu.view && !window.__gvtTalkProto){ var pr=Object.getPrototypeOf(uu.view); if(pr){ window.__gvtTalkProto=1; ['showTalk','setTalkVisible','playTalk','showBubble'].forEach(function(m){ if(typeof pr[m]==='function') pr[m]=function(){}; }); } }
+      if(!uu.__tk){ uu.__tk=[]; uu.node.walk(function(n){ if(/^喊话$|BATTLE/i.test(n.name||'')) uu.__tk.push(n); }); }
+      for(var ti=0;ti<uu.__tk.length;ti++){ if(uu.__tk[ti].active) uu.__tk[ti].active=false; } } } }catch(e){}
     var L=FX.list, keep=[]; c.lineCap='round';
     for(var i=0;i<L.length;i++){ var e=L[i];
       if(e.delay>0){ e.delay-=dt; keep.push(e); continue; }
