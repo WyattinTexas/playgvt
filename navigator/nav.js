@@ -314,6 +314,7 @@
     if (typeof AC === 'undefined' || !AC) return null;
     if (!AC.__stDest) AC.__stDest = AC.createMediaStreamDestination();
     if (!AC.__stBus) { AC.__stBus = AC.createGain(); AC.__stBus.connect(AC.__stDest); }
+    if (!AC.__stKeep) { try { const k = AC.createConstantSource(); k.offset.value = 0; k.connect(AC.__stDest); k.start(); AC.__stKeep = k; } catch (e) {} }   // digital silence, always on: the take's audio track never starves (an mp4 muxer waits on a silent-by-absence track until STOP)
     return AC.__stDest;
   }
   async function micOn() {
