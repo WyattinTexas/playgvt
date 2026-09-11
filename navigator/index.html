@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GVT NAVIGATOR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<script src="stamp.js?v=65fb7ee7d0"></script>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;background:#101114;color:#e8e6df;font:19px/1.55 -apple-system,'Helvetica Neue',Arial,sans-serif}
+  main{max-width:1080px;margin:0 auto;padding:28px 24px 60px}
+  h1{font:800 38px/1.1 'Arial Narrow',Impact,-apple-system,sans-serif;letter-spacing:.02em;margin:0 0 6px}
+  h1 span{color:#7fa35c}
+  .sub{color:#b8bbc4;margin:0 0 22px;font-size:20px}
+  section{background:#17181d;border:1px solid #2b2d33;border-radius:12px;padding:20px 22px;margin:0 0 18px}
+  h2{font-size:15px;letter-spacing:.12em;color:#9a9da6;text-transform:uppercase;margin:0 0 14px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  button,a.b{background:#262830;color:#e8e6df;border:1px solid #3a3d45;border-radius:8px;padding:12px 16px;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
+  button:hover,a.b:hover{background:#31343d}
+  button.on{background:#3d5a2e;border-color:#6d9a4a;font-weight:700}
+  button.big,a.big{background:#2e4a7a;border-color:#4a72b2;font-weight:700;font-size:21px;padding:14px 20px}
+  button.big:hover,a.big:hover{background:#3a5c94}
+  button.warn{background:#5a2e2e;border-color:#9a4a4a}
+  textarea{width:100%;min-height:70px;background:#0e0f12;color:#e8e6df;border:1px solid #3a3d45;border-radius:8px;padding:8px;font:14px/1.4 ui-monospace,Menlo,monospace;box-sizing:border-box}
+  select,input{background:#1b1c21;color:#e8e6df;border:1px solid #3a3d45;border-radius:6px;padding:9px 10px;font:inherit}
+  .muted{color:#9a9da6;font-size:17px}
+  code,kbd{font:16px ui-monospace,Menlo,monospace;background:#0e0f12;border:1px solid #3a3d45;border-radius:5px;padding:1px 7px}
+  ol{margin:0;padding-left:30px} ol li{margin:0 0 10px;font-size:21px}
+  ul{margin:0;padding-left:26px} ul li{margin:0 0 8px}
+  .warn-t{color:#ffb86b}
+  #sets a{margin:0 0 6px}
+  #msg{color:#ffb86b;min-height:24px}
+  .k{display:inline-block;margin:0 6px 6px 0}
+</style>
+</head>
+<body>
+<main>
+  <h1>GVT <span>NAVIGATOR</span> on the go</h1>
+  <p class="sub">Record zoomed 9:16 game footage from any desktop Chrome, with the UI on or off, straight to a file on this computer. <span id="staged" class="muted"></span></p>
+
+  <section>
+    <h2>1 · Which save walks in</h2>
+    <div class="row">
+      <button class="on" id="s-director" data-save="director">THE DIRECTOR: everything unlocked, rank 60, 9999 stars, the Commander</button>
+      <button id="s-rookie" data-save="rookie">THE ROOKIE at level <input id="rlvl" type="number" min="1" max="39" value="2" style="width:70px"></button>
+      <button id="s-keep" data-save="">KEEP THE SAVE THAT IS HERE</button>
+      <button id="s-fresh" data-save="fresh" class="warn">FRESH SAVE (level 1)</button>
+    </div>
+    <p class="muted" style="margin:14px 0 6px">Or paste a save (the <code>gvt_meta</code> JSON from any copy of the game) and walk in with it:</p>
+    <textarea id="paste" placeholder='{"v":1,"name":"..."}'></textarea>
+    <div class="row" style="margin-top:8px"><button id="b-import">USE THE PASTED SAVE</button><button id="b-copy">COPY THE SAVE THAT IS HERE</button><span id="have" class="muted"></span></div>
+    <div id="msg"></div>
+  </section>
+
+  <section>
+    <h2>2 · Which fight (an armed card waits for your click)</h2>
+    <div class="row" style="margin-bottom:12px">
+      <select id="kind"><option value="room">THE ROOM (no fight armed)</option><option value="bf">BATTLEGROUND</option><option value="camp" selected>CAMPAIGN LEVEL</option><option value="raid">RAID / HIDEOUT</option><option value="park">PARK</option><option value="mom">MOM ALERT</option></select>
+      <span class="door" data-kind="bf" hidden><select id="map"><option>random</option><option>open</option><option>spill</option><option>crossing</option><option>stone</option><option>winter</option><option>western</option><option>backyard</option><option>rooftop</option><option>lava</option></select><select id="size"><option>1</option><option>2</option><option selected>3</option><option>4</option></select><select id="diff"><option>easy</option><option selected>medium</option><option>hard</option></select><select id="enemy"><option>daily</option><option selected>tan</option><option>blue</option><option>red</option><option>gold</option><option>black</option><option>white</option><option>purple</option><option>green</option><option>orange</option><option>teal</option></select></span>
+      <span class="door" data-kind="camp">Level <input id="lvl" type="number" min="1" max="200" value="12" style="width:80px"></span>
+      <span class="door" data-kind="raid" hidden><select id="raid"><option>ice</option><option>bone</option><option>croak</option><option>fields</option></select><select id="tier"><option>e</option><option>m</option><option selected>h</option><option>g</option></select></span>
+      <span class="door" data-kind="park" hidden><select id="park"><option>yeti</option><option selected>dino</option><option>western</option><option>teddy</option></select> rung <input id="rung" type="number" min="1" max="60" value="20" style="width:70px"></span>
+      <span>stars <input id="cash" type="number" min="0" max="9999" value="0" style="width:90px" title="purse after the start (0 = the game's own)"></span>
+      <span>wave <input id="wave" type="text" value="" placeholder="N or last" style="width:90px" title="jump the ticker to this wave a moment in"></span>
+      <button class="big" id="b-go">GO</button>
+    </div>
+    <p class="muted" style="margin:0 0 8px">Or one of the staged fights (each line carries its own save; the rookie lines stand at their level):</p>
+    <div id="sets" class="row"></div>
+  </section>
+
+  <section>
+    <h2>3 · How to record</h2>
+    <ol>
+      <li>Pick a save above, then GO (or a staged fight). Click the ARMED card, or press Space.</li>
+      <li>Zoom is on: the MONITOR at the bottom shows the 9:16 take. <kbd>Z</kbd> tight or wide, <kbd>F</kbd> 16:9.</li>
+      <li>The UI is OFF in the take. <kbd>H</kbd> puts it back in. <kbd>D</kbd> hand, <kbd>C</kbd> cursor, <kbd>M</kbd> sound, <kbd>T</kbd> voice-over.</li>
+      <li>RECORD (<kbd>R</kbd>) asks where to save the take on this computer, then records what the monitor shows.</li>
+      <li>STOP (<kbd>R</kbd> again) closes the file. It is done when the status line says <b>saved</b>.</li>
+      <li>Takes live on your laptop, never on the big Mac. If QuickTime or Final Cut is picky: <code>ffmpeg -i take.mp4 -c copy -movflags +faststart take-qt.mp4</code></li>
+    </ol>
+    <p class="muted" style="margin:14px 0 0"><span class="k"><kbd>R</kbd> record / stop</span><span class="k"><kbd>H</kbd> UI in take</span><span class="k"><kbd>D</kbd> hand in take</span><span class="k"><kbd>C</kbd> cursor</span><span class="k"><kbd>M</kbd> sound</span><span class="k"><kbd>T</kbd> voice-over</span><span class="k"><kbd>A</kbd> camera auto</span><span class="k"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> pan</span><span class="k"><kbd>F</kbd> frame</span><span class="k"><kbd>Z</kbd> zoom</span><span class="k"><kbd>V</kbd> finder</span><span class="k"><kbd>P</kbd> strip</span><span class="k">HOME = this fight again</span></p>
+  </section>
+
+  <section>
+    <h2>4 · About this page</h2>
+    <ul>
+      <li><b>Takes live on your laptop, not on the big Mac.</b> Desktop Chrome asks where to save each take (a file dialog at RECORD, written as it records). A phone or a browser without that dialog downloads the take at STOP instead (<code>?dl=1</code> forces that road). A voice-over stem downloads beside the take.</li>
+      <li class="warn-t"><b>Never play the real web game in this browser.</b> This page and playgvt.net share one save; picking a seed above overwrites it. One save per browser: two armed tabs share it, but every armed link re-seeds itself on load.</li>
+      <li>HQ never hears of it: every call to the server is answered in this page's own bytes (the one read of the rankings board passes). The Director is a throwaway: no leaderboard rows, no rival rows, no telemetry, no ads.</li>
+      <li>Always the deployed build: this page is regenerated from the game's own bytes on every ship. <span id="staged2"></span></li>
+      <li>Off-camera law: place men outside the finder outline and let the battle walk into frame. Keep the window in front while recording (a hidden window stops drawing frames).</li>
+    </ul>
+  </section>
+</main>
+<script>
+(function(){
+  var ST = window.__NAV_STAMP || {};
+  var $ = function(id){ return document.getElementById(id); };
+  var msg = function(t){ $('msg').textContent = t; };
+  var sel = 'director';
+  function etTime(iso){ try{ return new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit' }).format(new Date(iso)) + ' ET'; }catch(e){ return String(iso || '').slice(0, 16); } }
+  if(ST.cv){ $('staged').textContent = 'Build ' + ST.cv + ', deployed ' + etTime(ST.at) + '.'; $('staged2').textContent = 'Now: build ' + ST.cv + ' (' + String(ST.md5 || '').slice(0, 8) + '), deployed ' + etTime(ST.at) + '.'; }
+  var saveBtns = ['s-director', 's-rookie', 's-keep', 's-fresh'];
+  saveBtns.forEach(function(id){ $(id).addEventListener('click', function(e){ if(e.target && e.target.id === 'rlvl') return; sel = $(id).dataset.save; saveBtns.forEach(function(j){ $(j).classList.toggle('on', j === id); }); msg(''); }); });
+  $('rlvl').addEventListener('click', function(e){ e.stopPropagation(); });
+  $('kind').addEventListener('change', function(){ var k = $('kind').value; document.querySelectorAll('.door').forEach(function(el){ el.hidden = el.dataset.kind !== k; }); });
+  function saveQ(campLvl){
+    var q = [];
+    if(sel === 'director' || sel === 'fresh') q.push('save=' + sel);
+    else if(sel === 'rookie'){ var lv = campLvl || Math.max(1, Math.min(39, parseInt($('rlvl').value, 10) || 2)); q.push('save=rookie'); if(!campLvl) q.push('lvl=' + lv); }
+    return q;
+  }
+  function go(){
+    var k = $('kind').value, q = [];
+    if(k === 'room'){ q = saveQ(0); }
+    else {
+      var campLvl = k === 'camp'? Math.max(1, Math.min(200, parseInt($('lvl').value, 10) || 1)) : 0;
+      q = saveQ(campLvl); q.push('scene=' + k);
+      if(k === 'camp') q.push('lvl=' + campLvl);
+      if(k === 'bf'){ q.push('map=' + $('map').value, 'size=' + $('size').value, 'diff=' + $('diff').value, 'enemy=' + $('enemy').value); }
+      if(k === 'raid'){ q.push('raid=' + $('raid').value, 'tier=' + $('tier').value); }
+      if(k === 'park'){ q.push('park=' + $('park').value, 'rung=' + (parseInt($('rung').value, 10) || 1)); }
+      var cash = parseInt($('cash').value, 10) || 0; if(cash > 0) q.push('cash=' + cash);
+      var wv = ($('wave').value || '').trim(); if(wv) q.push('wave=' + encodeURIComponent(wv));
+    }
+    if(sel === 'rookie' && k === 'camp' && (parseInt($('lvl').value, 10) || 1) > 39) return msg('the rookie stands at most at level 39; pick the Director for a later level');
+    location.href = 'game.html' + (q.length? '?' + q.join('&') : '');
+  }
+  $('b-go').addEventListener('click', go);
+  $('b-import').addEventListener('click', function(){ var o; try{ o = JSON.parse($('paste').value); }catch(e){ return msg('that is not JSON'); } if(!o || typeof o !== 'object') return msg('that is not a save'); try{ localStorage.setItem('gvt_meta', JSON.stringify(o)); }catch(e){ return msg('localStorage refused: ' + e); } sel = ''; saveBtns.forEach(function(j){ $(j).classList.toggle('on', j === 's-keep'); }); msg('the pasted save is here now (KEEP is selected): GO walks in with it'); showHave(); });
+  $('b-copy').addEventListener('click', function(){ var s = localStorage.getItem('gvt_meta'); if(!s) return msg('no save here yet'); navigator.clipboard.writeText(s).then(function(){ msg('copied ' + s.length + ' bytes'); }, function(){ $('paste').value = s; msg('clipboard refused: the save is in the box'); }); });
+  function showHave(){ try{ var s = localStorage.getItem('gvt_meta'), m = s && JSON.parse(s); $('have').textContent = m? ('here now: ' + (m.name || '?') + ', campaign ' + (m.campaign || 0) + ', ' + (m.starBank || 0) + ' stars') : 'no save here yet; THE DIRECTOR is a good first walk-in'; }catch(e){} }
+  showHave();
+  // the staged fights: sets.json beside the page (the studio's sets/*.txt, one query string per line)
+  fetch('sets.json', { cache:'no-store' }).then(function(r){ return r.json(); }).then(function(sets){
+    var host = $('sets'); host.innerHTML = '';
+    (sets || []).forEach(function(set){ (set.lines || []).forEach(function(l){ var a = document.createElement('a'); a.className = 'b'; a.href = 'game.html?' + l.q; a.textContent = l.label || l.q; a.title = l.q; host.appendChild(a); }); });
+    if(!host.children.length) host.innerHTML = '<span class="muted">no staged fights in sets.json</span>';
+  }).catch(function(){ $('sets').innerHTML = '<span class="muted">sets.json did not load</span>'; });
+})();
+</script>
+</body>
+</html>
