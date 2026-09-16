@@ -109,6 +109,7 @@
       handOverlay(stash); stash = null;
       if (ST.vf) viewfinder();
       camFrame();
+      apFrame();
     } catch (e) { ST.err++; }
   };
   const _resize0 = resize;
@@ -415,6 +416,313 @@
   }
   ST.sinkWhere = sinkWhere; ST.pickerHere = pickerHere;
 
+  // ================= THE CO-PILOT (FM-GVT-NAV-COPILOT-01) — AUTOPLAY: the computer fights for your side while you run the camera =================
+  // Wyatt 9/16: "have an auto-play, so it will just automatically play units and try to do its best to win the level… if I want to throw in
+  // a unit, I can still throw in a unit, even though the computer is fighting for us." The player-side driver of the footage rigs
+  // (marketing/portrait/driver.js 8/25 on marketing/autoplay/driver.js 8/8) as an in-page module: the lane read, the star waiting, the
+  // emergency drop, the KO push, the vehicles and the jet by skill, the jet guardian's rescues — through the game's OWN doors, never a new AI.
+  //   · the battleground: GVT.bfDrop(bfMySeat(), type, x, y) = applyDeploy — the purse, canPlace, my seat, the relay: the human's own pointerup door
+  //     (GVT.bfSpawn is placeUnit with no purse; GVT.place mints a side-less ghost — the 8/7 trap)
+  //   · the campaign family (a rung, a raid tier, a park, MOM ALERT, ULTRA): canPlace + S.plastic -= COSTS[t] + placeUnit + the engine line +
+  //     coopPlaced + the crown latch — the pointerup's own lines (no premiere card for a computer's drop)
+  //   · THE HAND IS HIS: never writes S.drag / S.sel / S.jetAim; a frame with his drag or his jet aim in progress places nothing; THE RESERVE
+  //     keeps the cheapest tray unit's cost for him for 10 s after his drop; his men and the co-pilot's are one army to the sim
+  //   · OFF CAMERA, NO HAND: every placement lands outside the take's window [cam.x, cam.x + cropW()] (auto or manual alike); instant drops,
+  //     no ghost, no ring (the FOOTAGE LAW, 8/26); a deploy zone entirely inside the window → the zone's edge farthest from the action, said so
+  //   · the tick rides the navigator's draw wrapper (the game's own rAF); decisions every ~100 ms, placements are discrete (the 8/8 law)
+  //   · the rig traps carried: S.units / S.foes are SPLICED on death (alive-id diffs, never a dead flag) · (def.moveSpd||36) is never pinned ·
+  //     campaign men die on grit pips, not hp (nothing here reads hp for them) · the ended battle posts its verdict into the dead wire
+  const AP_SKILLS = {
+    rookie:  { tempo: 3.0, jit: 0.8, vehicles: false, jet: false, push: false, heroes: false, abilities: false, saveP: 0.12, laneWildP: 0.30 },
+    captain: { tempo: 2.0, jit: 0.6, vehicles: true,  jet: true,  push: true,  heroes: false, abilities: false, saveP: 0.22, laneWildP: 0.20 },
+    general: { tempo: 1.2, jit: 0.4, vehicles: true,  jet: true,  push: true,  heroes: true,  abilities: true,  saveP: 0.30, laneWildP: 0.12 },
+  };
+  const AP_W = { rifleman: 1.0, mgunner: 0.8, bazooka: 0.7, mortar: 0.45, minesweeper: 0.35, flame: 0.6, radioman: 0.4, medic: 0.35, commando: 0.5, spy: 0.3, bfjeep: 0.35, bftank: 0.3, jeep2: 0.35, tank2: 0.3, kingyeti: 0.25, kingrex: 0.25, kingcroak: 0.25, jane: 0.25, kingbear: 0.25 };
+  const AP_DEEP = { mortar: 1 }, AP_MIDR = { mgunner: 1, radioman: 1, minesweeper: 1, bazooka: 1, medic: 1 };
+  const AP_RESERVE_S = 10, AP_CAM_MARGIN = 30, AP_LOG_MAX = 600;
+  const AP = ST.ap = {
+    mode: 'off', skill: 'captain', live: false, door: '', t0: 0, n: 0, ok: 0, log: [], last: '', lastT: 0, nextDecide: 0, sargeAt: 0, saving: null, saveUntil: 0,
+    humanDropAt: -99, humanDrops: 0, dragSeen: false, dragPurse: 0, dragMine: 0, jets: 0, abilities: 0, offcam: 0, edge: 0, moved: 0, err: 0, ticks: 0, ms: 0, msSum: 0, msN: 0, saidWait: false,
+  };
+  const SK = () => AP_SKILLS[AP.skill] || AP_SKILLS.captain;
+  const MAT = () => !!S.bf;
+  const apTeam = () => (typeof bfMyTeam === 'function' ? bfMyTeam() : 'you');
+  const apSeat = () => (typeof bfMySeat === 'function' ? bfMySeat() : 0);
+  const apFlip = () => MAT() && apTeam() === 'foe';                 // a seat on the east side reads the mat mirrored
+  const apX = (x) => (apFlip() ? WORLD_W - x : x);                  // a 'you'-side x → my side's x
+  const apMine = () => MAT() ? S.units.filter(u => !u.dead && u.side === apTeam()) : S.units.filter(u => !u.dead);
+  const apFoes = () => MAT() ? S.units.filter(u => !u.dead && u.side && u.side !== apTeam()) : (S.foes || []).filter(f => !f.dead);
+  const apSarge = () => MAT() ? S.units.find(u => !u.dead && u.type === 'sarge' && u.seat === apSeat()) : S.units.find(u => !u.dead && u.type === 'sarge' && !u.coopBy);
+  const apBaseMine = () => S.bf.base[apTeam() === 'you' ? 'you' : 'foe'], apBaseTheirs = () => S.bf.base[apTeam() === 'you' ? 'foe' : 'you'];
+  const apRnd = () => Math.random();
+  function apDoor() {
+    if (S.bf) return `battleground ${S.bf.mapId || ''} ${S.bf.team}v${S.bf.team}`.replace(/\s+/g, ' ');
+    if (S.momRaid) return 'mom alert';
+    if (S.raid && S.raid.k) return (S.raid.t === 'u' ? 'ultra ' : 'raid ') + S.raid.k + (S.raid.t && S.raid.t !== 'u' ? ' ' + S.raid.t : '');
+    if (S.park && S.park.id) return `${S.park.id} park rung ${S.park.n}`;
+    if (S.levelN) return 'campaign L' + S.levelN;
+    return 'fight';
+  }
+  function apSay(what) {   // the status line = the last action in words, so he knows it is alive
+    AP.last = what; AP.lastT = now();
+    status(`AUTOPLAY ${AP.mode.toUpperCase()} · ${AP.skill} · ${what}`);
+  }
+  function apCost(t) { return MAT() ? (typeof BF_COST !== 'undefined' ? BF_COST[t] : COSTS[t]) : COSTS[t]; }
+  function apTray() {   // the game's own shelf, narrowed by the skill (what the save owns is what bfTray/TRAY deal)
+    let L = [];
+    try { L = MAT() ? bfTray().slice() : TRAY().map(o => (typeof o === 'string' ? o : o.t)); } catch (e) { AP.err++; return []; }
+    const sk = SK(), hero = (t) => typeof HEROES !== 'undefined' && HEROES.indexOf(t) >= 0, veh = (t) => (typeof vehKind === 'function' ? vehKind(t) : /^(bf|.*2$)/.test(t));
+    return L.filter(t => t !== 'sarge' && apCost(t) != null && (sk.vehicles || !veh(t)) && (sk.heroes || !hero(t)) && !(hero(t) && typeof kingSpent === 'function' && kingSpent(t)));
+  }
+  function apReserve() {   // THE RESERVE: while he has placed anything in the last 10 s, the cheapest tray unit's cost stays his
+    if (now() - AP.humanDropAt > AP_RESERVE_S) return 0;
+    let m = 0; for (const t of apTray()) { const c = apCost(t) || 0; if (c > 0 && (!m || c < m)) m = c; }
+    return m;
+  }
+  // ---- the deploy zone (x), my side ----
+  function apZone() {
+    if (MAT()) { const mb = (typeof MID_BUFFER !== 'undefined' ? MID_BUFFER : 120); return apFlip() ? { x0: MID + mb + 4, x1: WORLD_W - 64 } : { x0: 64, x1: MID - mb - 4 }; }
+    const dx = campDeployX(); return { x0: 130, x1: Math.max(140, dx - 30) };
+  }
+  const apLaneY = (y) => Math.max(1, Math.min(5, Math.ceil(y / (WORLD_H / 5))));
+  // ---- OFF CAMERA: the take's window in world x (the navigator's own crop, auto or manual alike) ----
+  function apWindow() {
+    if (ST.frame === 'landscape' && ST.hud) return { x0: 0, x1: WW() };   // the whole frame is the take
+    const cw = cropW(), x0 = clamp(C.x, 0, Math.max(0, WW() - cw)); return { x0, x1: x0 + cw };
+  }
+  function apOffCam(x, y) {   // → {x, y, off, edge}: the spot moved outside the window; a zone swallowed by the window → the edge farthest from the action
+    const w = apWindow(), z = apZone(), inWin = (q) => q > w.x0 - AP_CAM_MARGIN && q < w.x1 + AP_CAM_MARGIN;
+    if (!inWin(x)) return { x, y, off: 1, edge: 0 };
+    const west = w.x0 - AP_CAM_MARGIN - 40 - apRnd() * 160, east = w.x1 + AP_CAM_MARGIN + 40 + apRnd() * 120;
+    const cands = [west, east].filter(q => q >= z.x0 && q <= z.x1 && !inWin(q));
+    if (cands.length) { const nx = apFlip() ? cands[cands.length - 1] : cands[0]; AP.moved++; return { x: nx, y, off: 1, edge: 0 }; }
+    // the zone lies inside the window: the zone edge farthest from the action
+    const foes = apFoes(); const ax = foes.length ? foes.reduce((a, f) => a + f.x, 0) / foes.length : (MAT() ? apBaseTheirs().x : W - 200);
+    const ex = Math.abs(z.x0 - ax) >= Math.abs(z.x1 - ax) ? z.x0 : z.x1;
+    AP.edge++; return { x: ex, y, off: 0, edge: 1 };
+  }
+  // ---- the drops, through the game's own doors ----
+  function apDropMat(type, x, y) {
+    if (!S.bf || S.bf.resolved || S.bf.ending) return null;
+    const c = apCost(type) || 0; if (type !== 'sarge' && S.plastic < c + apReserve()) return null;
+    const id = GVT.bfDrop(apSeat(), type, Math.round(x), Math.round(y));   // applyDeploy: the purse, canPlace, my seat, the relay
+    return id || null;
+  }
+  function apDropCamp(type, x, y) {
+    if (typeof canPlace !== 'function' || !canPlace(x, y, type)) return null;
+    if (type === 'sarge') { if ((S.sargeCd || 0) > 0 || S.tinGone || S.units.some(u => u.type === 'sarge' && !u.coopBy && !u.dead)) return null; }
+    else { const c = COSTS[type]; if (c == null || S.plastic < c + apReserve()) return null; if (typeof kingSpent === 'function' && kingSpent(type)) return null; S.plastic -= c; }
+    const nu = placeUnit(type, x, y); if (!nu) return null;
+    try { if (nu.def && nu.def.vehicle && typeof vehEng === 'function' && vehEng(type) && typeof ENG_MUL !== 'undefined') nu.def.moveSpd = Math.round(nu.def.moveSpd * ENG_MUL); } catch (e) { AP.err++; }
+    try { if (typeof coopPlaced === 'function') coopPlaced(nu); } catch (e) { AP.err++; }
+    if (typeof HEROES !== 'undefined' && HEROES.indexOf(type) >= 0) (S.kingSpent || (S.kingSpent = {}))[type] = 1;
+    return nu.id || true;
+  }
+  function apPlace(type, x, y, why) {
+    const z = apZone();
+    x = clamp(x, z.x0, z.x1); y = clamp(y, MAT() ? 92 : 100, WORLD_H - (MAT() ? 110 : 100));
+    const o = apOffCam(x, y); x = o.x; y = o.y;
+    let id = null, px = x, py = y, tries = 0;
+    while (tries < 4 && !id) {   // a refused spot (a rock, a river, a man underfoot): a person just drops it nearby — still on the zone, still off camera
+      id = MAT() ? apDropMat(type, px, py) : apDropCamp(type, px, py);
+      if (!id) { const o2 = apOffCam(clamp(px + (apFlip() ? 1 : -1) * (40 + apRnd() * 60), z.x0, z.x1), clamp(py + (apRnd() * 2 - 1) * 100, 92, WORLD_H - 110)); px = o2.x; py = o2.y; }
+      tries++;
+    }
+    const win = apWindow();
+    const row = { t: +(now() - AP.t0).toFixed(2), ut: type, x: Math.round(px), y: Math.round(py), ok: id ? 1 : 0, off: o.off, edge: o.edge, w0: Math.round(win.x0), w1: Math.round(win.x1), purse: Math.round(S.plastic), res: apReserve(), why: why || '', lane: apLaneY(py) };
+    AP.log.push(row); if (AP.log.length > AP_LOG_MAX) AP.log.splice(0, AP.log.length - AP_LOG_MAX);
+    AP.n++;
+    if (id) { AP.ok++; if (o.off) AP.offcam++; apSay(`placed ${type} lane ${row.lane}${why ? ' · ' + why : ''}${o.edge ? " · at the zone's edge (the take covers the whole zone)" : ''}`); }
+    return id;
+  }
+  // ---- the battleground brain (the 8/8 driver, the portrait dials) ----
+  function apLaneRead() {
+    const foes = apFoes().filter(u => (apFlip() ? u.x > MID - 500 : u.x < MID + 500));
+    if (!foes.length || apRnd() < SK().laneWildP) return 120 + apRnd() * (WORLD_H - 240);
+    const buckets = {};
+    for (const f of foes) { const b = Math.round(f.y / 110); buckets[b] = (buckets[b] || 0) + 1 + (apFlip() ? (f.x - (MID - 500)) : (MID + 500 - f.x)) / 900; }
+    const mine = apMine(); let best = null, bestScore = -1;
+    for (const [b, w] of Object.entries(buckets)) { const y = b * 110; const cover = mine.filter(u => Math.abs(u.y - y) < 130).length; const s = w - cover * 0.8; if (s > bestScore) { bestScore = s; best = y; } }
+    return clamp(best + (apRnd() * 2 - 1) * 55, 100, WORLD_H - 120);
+  }
+  function apSpotFor(type, laneY) {
+    const d = apRnd(); let x;
+    if (AP_DEEP[type]) x = MID - 420 - d * 140; else if (AP_MIDR[type]) x = MID - 250 - d * 170; else x = MID - 128 - d * 170;
+    return { x: apX(clamp(x, 64, MID - 124)), y: clamp(laneY + (apRnd() * 2 - 1) * 45, 92, WORLD_H - 110) };
+  }
+  function apChooseType(tray, costOf) {
+    const purse = S.plastic, res = apReserve(), foes = apFoes(), danger = foes.length > 0;
+    if (AP.saving) {
+      if (tray.indexOf(AP.saving) >= 0 && purse >= costOf(AP.saving) + res) { const t = AP.saving; AP.saving = null; return t; }
+      if (!danger && now() < AP.saveUntil) return null;   // still waiting on stars — only while nobody is on the rug (a wait under fire lost the ice raid's first wave)
+      AP.saving = null;                                     // they walked in, or the wait ran out: spend
+    }
+    const afford = tray.filter(t => purse >= costOf(t) + res);
+    if (!afford.length) return null;
+    if (!danger) {   // between waves he may bank for something big — briefly
+      const bigs = tray.filter(t => costOf(t) >= 175 && purse < costOf(t) + res);
+      if (bigs.length && apRnd() < SK().saveP) { AP.saving = bigs[Math.floor(apRnd() * bigs.length)]; AP.saveUntil = now() + 8; apSay('saving for a ' + AP.saving); return null; }
+    }
+    const boss = foes.some(f => f.boss);   // a boss on the rug wants the heavy hitters; a fat purse wants the big guns too
+    let sum = 0; const ws = afford.map(t => { let w = AP_W[t] || 0.5; if (boss) w *= /^(bazooka|mortar|flame|mgunner|bftank|tank2|commando)$/.test(t) ? 3 : (t === 'rifleman' ? 0.5 : 1); if (costOf(t) >= 100 && purse > 3 * costOf(t) + res) w *= 1.6; sum += w; return [t, w]; });
+    let x = apRnd() * sum; for (const [t, w] of ws) { x -= w; if (x <= 0) return t; }
+    return afford[0];
+  }
+  function apPush() {   // THE LATE PUSH — go for the crate, not the clock: the KO wins carry the fireworks
+    if (!MAT() || !SK().push) return false;
+    const bf = S.bf, ahead = apBaseTheirs().dmgTaken >= apBaseMine().dmgTaken;
+    return bf.timeLeft < 45 && (ahead || bf.timeLeft < 25);
+  }
+  function apMatTick(t) {
+    const sk = SK(), push = apPush();
+    const sCd = (typeof bfSargeCd === 'function') ? bfSargeCd(apSeat()) : 0;
+    if (!apSarge() && sCd <= 0 && !S.tinGone && t > AP.sargeAt) { apPlace('sarge', apX(clamp(MID - 150 - apRnd() * 120, 64, MID - 124)), apLaneRead(), 'Sarge to the line'); AP.sargeAt = t + 4; return; }
+    const tray = apTray(), costOf = (q) => apCost(q) || 0;
+    const threat = apFoes().find(u => (apFlip() ? u.x > WORLD_W - 620 : u.x < 620));
+    if (threat && !push && tray.length && S.plastic >= 40 + apReserve() && apRnd() < 0.6) {
+      const type = (S.plastic >= 100 + apReserve() && tray.indexOf('mgunner') >= 0) ? 'mgunner' : (tray.indexOf('rifleman') >= 0 ? 'rifleman' : tray[0]);
+      apPlace(type, clamp(threat.x + (apFlip() ? 1 : -1) * (40 + apRnd() * 80), 64, WORLD_W - 64), clamp(threat.y + (apRnd() * 2 - 1) * 60, 92, WORLD_H - 110), 'they are at the door');
+      AP.nextDecide = t + sk.tempo * 0.6; return;
+    }
+    if (t < AP.nextDecide) return;
+    AP.nextDecide = t + (push ? sk.tempo * 0.5 : sk.tempo) + apRnd() * sk.jit;
+    if (push) {
+      AP.saving = null;
+      const veh = ['bftank', 'tank2', 'bfjeep', 'jeep2'].find(v => tray.indexOf(v) >= 0 && S.plastic >= costOf(v) + apReserve());
+      const type = veh || tray.filter(k => S.plastic >= costOf(k) + apReserve()).sort((a, b) => costOf(b) - costOf(a))[0];
+      if (!type) return;
+      const foes = apFoes(); let lane = 120 + apRnd() * (WORLD_H - 240), bestCover = 1e9;
+      for (let y = 120; y < WORLD_H - 120; y += 90) { const cover = foes.filter(u => Math.abs(u.y - y) < 140 && (apFlip() ? u.x < MID : u.x > MID)).length; if (cover < bestCover) { bestCover = cover; lane = y + (apRnd() * 2 - 1) * 35; } }
+      apPlace(type, apX(MID - 126 - apRnd() * 40), clamp(lane, 92, WORLD_H - 110), 'the push'); return;
+    }
+    const type = apChooseType(tray, costOf); if (!type) return;
+    const s = apSpotFor(type, apLaneRead()); apPlace(type, s.x, s.y, '');
+    if (apRich(tray, costOf)) AP.nextDecide = t + sk.tempo * 0.5;
+  }
+  function apRich(tray, costOf) { let m = 0; for (const q of tray) { const c = costOf(q) || 0; if (c > 0 && (!m || c < m)) m = c; } return m > 0 && S.plastic >= 2 * m + apReserve(); }
+  // ---- the campaign family's brain (mode:'camp' of the portrait rig) ----
+  function apCampSpot(type) {
+    const foes = apFoes(), dx = campDeployX(); let y;
+    if (foes.length && apRnd() > SK().laneWildP) { const f = foes[Math.floor(apRnd() * foes.length)]; y = f.y + (apRnd() * 2 - 1) * 70; } else y = 110 + apRnd() * (WORLD_H - 220);
+    const deep = type === 'mortar' ? 0.55 : (type === 'mgunner' || type === 'bazooka' ? 0.3 : 0.12);
+    const x = dx - 36 - apRnd() * (dx - 160) * (0.35 + deep);
+    return { x: clamp(x, 130, dx - 30), y: clamp(y, 100, WORLD_H - 100) };
+  }
+  function apCampTick(t) {
+    const sk = SK();
+    if (!apSarge() && t > AP.sargeAt && !(S.sargeCd > 0) && !S.tinGone) { const s = apCampSpot('rifleman'); apPlace('sarge', s.x, s.y, 'Sarge to the line'); AP.sargeAt = t + 12; return; }
+    const tray = apTray(), costOf = (q) => COSTS[q] || 0;
+    const threat = apFoes().find(f => f.x < 330);   // at the door (the box stands at the west edge)
+    if (threat && tray.length && S.plastic >= 40 + apReserve() && apRnd() < 0.7) {
+      const type = (S.plastic >= 100 + apReserve() && tray.indexOf('mgunner') >= 0) ? 'mgunner' : (tray.indexOf('rifleman') >= 0 ? 'rifleman' : tray[0]);
+      apPlace(type, clamp(threat.x - 40 - apRnd() * 60, 130, campDeployX() - 30), clamp(threat.y + (apRnd() * 2 - 1) * 60, 100, WORLD_H - 100), 'they are at the door');
+      AP.nextDecide = t + sk.tempo * 0.6; return;
+    }
+    if (t < AP.nextDecide) return;
+    AP.nextDecide = t + sk.tempo + apRnd() * sk.jit;
+    const type = apChooseType(tray, costOf); if (!type) return;
+    const s = apCampSpot(type); apPlace(type, s.x, s.y, '');
+    if (apRich(tray, costOf)) AP.nextDecide = t + sk.tempo * 0.5;
+  }
+  // ---- the jet guardian (the 8/8 driver's rescues; the campaign's finisher on the crate) ----
+  function apFireJet(x, y, reason) {
+    let st = null; try { st = GVT.jetTo(x, y); } catch (e) { AP.err++; return false; }
+    if (st && st.air > 0) { AP.jets++; AP.log.push({ t: +(now() - AP.t0).toFixed(2), jet: reason, x: Math.round(x), y: Math.round(y) }); apSay('the jet: ' + reason); return true; }
+    return false;
+  }
+  function apRailDist(x, y) {
+    const rl = S.cfg && S.cfg.terrain && S.cfg.terrain.rail; if (!rl || !rl.pts) return 1e9;
+    let m = 1e9; for (let i = 1; i < rl.pts.length; i++) m = Math.min(m, segDist(x, y, rl.pts[i - 1][0], rl.pts[i - 1][1], rl.pts[i][0], rl.pts[i][1])); return m;
+  }
+  function apJetTick(t) {
+    const s = apSarge(); if (!s || s.jetT > 0) return;
+    let js = null; try { js = GVT.jet(); } catch (e) { return; }
+    if (!js || !js.owned) return;
+    const T = S.cfg && S.cfg.terrain || {};
+    if (s.falling) {   // THE RESCUE — he is plummeting; the jet cancels the fall
+      const g = (T.gaps || [])[0];
+      if (g && s.falling.kind === 'gap') { if (apFireJet(g.x + g.w / 2 + 95, s.y, 'rescue-gap')) return; }
+      apFireJet(s.x - 150, s.y, 'rescue'); return;
+    }
+    if (js.cd > 0) return;
+    if (!MAT()) { const tb = S.tanBase; if (tb && !tb.dead && tb.hp <= 24 && hyp(s.x, s.y, tb.x, tb.y) < (js.range || 300) * 0.95) apFireJet(tb.x - 14, tb.y, 'finisher'); return; }
+    const fb = apBaseTheirs(), tr = S.bf.train, fwd = apFlip() ? -1 : 1;
+    if (tr && tr.cars) {
+      for (const c of tr.cars) { if (c.off) continue; if (segDist(s.x, s.y, c.fx, c.fy, c.bx, c.by) < 125) { const ny = s.y < 514 ? 514 - 190 : 514 + 190; apFireJet(s.x + fwd * 110, clamp(ny, 92, WORLD_H - 110), 'train-save'); return; } }
+      if (tr.warn && apRailDist(s.x, s.y) < 55) { apFireJet(s.x + fwd * 120, clamp(s.y < 514 ? 514 + 170 : 514 - 170, 92, WORLD_H - 110), 'train-clear'); return; }
+    }
+    const sc = S.bf.soccer;
+    if (sc && !sc.gone && sc.clk >= sc.at && sc.x != null) {
+      const vx = sc.dir * 340, tt = (s.x - sc.x) / vx;
+      if (tt > 0 && tt < 0.95) { const laneY = sc.lane + Math.sin((sc.t + tt) * 0.9) * 30; if (Math.abs(s.y - laneY) < 88) { apFireJet(s.x + fwd * 60, clamp(s.y > laneY ? s.y + 175 : s.y - 175, 92, WORLD_H - 110), 'ball-dodge'); return; } }
+    }
+    for (const b of (T.balls || [])) if (Math.abs(s.x - b.x) < b.r + 34 && Math.abs(b.y - s.y) < b.r + 16 + b.spd * 0.95) { apFireJet(Math.max(s.x, b.x) + b.r + 90, s.y, 'wreckball-save'); return; }
+    for (const p of (T.pits || [])) if (hyp(s.x, s.y, p.x, p.y) < p.r + 36) { apFireJet(Math.max(s.x, p.x) + p.r + 85, s.y, 'pit-hop'); return; }
+    for (const g of (T.gaps || [])) if (s.x < g.x && g.x - s.x < g.w / 2 + 70 && s.y > g.y0 - 40 && s.y < g.y1 + 40) { apFireJet(g.x + g.w / 2 + 95, s.y, 'gap-vault'); return; }
+    if (fb.hp <= 18 && hyp(s.x, s.y, fb.x, fb.y) < (js.range || 300) * 0.95) { apFireJet(fb.x - fwd * 12, fb.y, 'finisher'); return; }
+    const push = apPush(), hotP = push ? 0.02 : 0.004;   // aggression hops — frequent in the late push (a Sarge deep = the leak)
+    if (t > 35 && (fb.hp > 60 || push) && (apFlip() ? s.x > 640 : s.x < WORLD_W - 640) && apRnd() < hotP * 6) apFireJet(s.x + fwd * (js.range || 300) * 0.8, clamp(s.y + (apRnd() * 2 - 1) * 90, 92, WORLD_H - 110), 'push');
+  }
+  // ---- the save's abilities (GENERAL only — ⚑ Q3): the saber's telekinesis on cooldown, the bomber on a crowd ----
+  function apAbilityTick(t) {
+    try {
+      const s = apSarge();
+      if (s && typeof tkOwned === 'function' && tkOwned() && !(S.tkCd > 0) && !(s.jetT > 0)) {
+        const near = apFoes().filter(f => hyp(f.x, f.y, s.x, s.y) < 150).length;
+        if (near >= 3 && GVT.tkGo()) { AP.abilities++; apSay('the saber\'s telekinesis'); return; }
+      }
+      if (typeof bmbReady === 'function' && bmbReady() && S.plastic >= (typeof BMB_COST !== 'undefined' ? BMB_COST : 350) + apReserve() + 40) {
+        const foes = apFoes(); let best = 0;
+        for (const f of foes) { const n = foes.filter(g => Math.abs(g.x - f.x) < 210 && Math.abs(g.y - f.y) < 160).length; if (n > best) best = n; }
+        if (best >= 6 && typeof bmbCall === 'function' && bmbCall()) { AP.abilities++; apSay('the bomber on ' + best + ' of them'); }
+      }
+    } catch (e) { AP.err++; }
+  }
+  // ---- THE HAND IS HIS: his drag is watched, never touched ----
+  function apHandWatch() {
+    const mine = apMine().length;
+    if (S.drag) { if (!AP.dragSeen) { AP.dragSeen = true; AP.dragPurse = S.plastic; AP.dragMine = mine; } return; }
+    if (AP.dragSeen) { AP.dragSeen = false; if (S.plastic < AP.dragPurse || mine > AP.dragMine) { AP.humanDropAt = now(); AP.humanDrops++; apSay('your drop — the reserve holds for ' + AP_RESERVE_S + ' s'); } }
+  }
+  // ---- the switch, the dial, the memory ----
+  function apReset() { AP.live = false; AP.n = 0; AP.ok = 0; AP.log.length = 0; AP.saving = null; AP.nextDecide = 0; AP.humanDropAt = -99; AP.dragSeen = false; AP.offcam = 0; AP.edge = 0; AP.moved = 0; AP.jets = 0; AP.abilities = 0; AP.humanDrops = 0; AP.msSum = 0; AP.msN = 0; }
+  function apArm() { AP.live = true; AP.t0 = now(); AP.door = apDoor(); AP.sargeAt = MAT() ? 3 + apRnd() * 5 : 2 + apRnd() * 4; AP.nextDecide = 1.5 + apRnd(); AP.saidWait = false; apSay('on the ' + AP.door); }
+  function apSet(mode, say) { AP.mode = mode; try { localStorage.setItem('st_auto', mode); } catch (e) {} if (mode !== 'on') AP.live = false; if (say !== false) apSay(mode === 'on' ? (live() ? 'on the ' + apDoor() : 'waiting for a fight — GO or the armed card') : mode === 'paused' ? 'paused — your hands only' : 'off'); ui(); }
+  function apCycle() { apSet(AP.mode === 'off' ? 'on' : AP.mode === 'on' ? 'paused' : 'off'); }
+  function apSkill(sk, say) { if (!AP_SKILLS[sk]) return; AP.skill = sk; try { localStorage.setItem('st_skill', sk); } catch (e) {} if (say !== false) apSay('skill ' + sk + (sk === 'rookie' ? ' — slow, plain men, no jet' : sk === 'general' ? ' — fast, everything the save owns, the abilities' : ' — vehicles and the jet, the push when ahead')); ui(); }
+  function apSkillCycle() { const ks = Object.keys(AP_SKILLS); apSkill(ks[(ks.indexOf(AP.skill) + 1) % ks.length]); }
+  function apUi() {
+    const b = $('st-ap'), d = $('st-skill'), l = $('st-apline'); if (!b) return;
+    b.classList.toggle('on', AP.mode === 'on'); b.classList.toggle('off', AP.mode === 'off'); b.firstChild.textContent = 'AUTOPLAY ' + AP.mode.toUpperCase() + ' ';
+    if (d && d.value !== AP.skill) d.value = AP.skill;
+    if (l) l.textContent = AP.mode === 'off' ? 'the computer fights for your side while you run the camera' : `${AP.skill} · ${AP.last || '—'}${AP.n ? ' · ' + AP.ok + '/' + AP.n + ' placed' : ''}${AP.jets ? ' · jet ' + AP.jets : ''}${AP.humanDrops ? ' · yours ' + AP.humanDrops : ''}`;
+  }
+  function apBoot() {
+    try { const m = localStorage.getItem('st_auto'); if (m === 'on' || m === 'paused' || m === 'off') AP.mode = m; const k = localStorage.getItem('st_skill'); if (k && AP_SKILLS[k]) AP.skill = k; } catch (e) {}
+    const b = $('st-ap'), d = $('st-skill');
+    if (b) b.addEventListener('click', (e) => { e.preventDefault(); apCycle(); b.blur(); });
+    if (d) d.addEventListener('change', () => apSkill(d.value));
+    apUi();
+  }
+  // ---- the tick, on the navigator's draw wrapper (the game's own rAF) ----
+  function apFrame() {
+    if (AP.mode !== 'on') { AP.live = false; return; }
+    const q0 = performance.now();
+    try {
+      if (!live()) { if (AP.live) { AP.live = false; apSay(S.mode === 'win' ? 'the fight is WON' : S.mode === 'lose' ? 'the fight is lost' : 'the fight ended'); } else if (!AP.saidWait && S.mode !== 'win' && S.mode !== 'lose') { AP.saidWait = true; } return; }
+      if (!AP.live) apArm();   // a fight walked in: the strip's GO, the armed card, or the game's own doors
+      apHandWatch();
+      if (S.drag || S.jetAim || S.jv2Hold) return;   // his hand is busy this frame: no purse spend, no placement, no jet
+      AP.ticks++; if (AP.ticks % 6) return;             // decisions every ~100 ms; placements are discrete (the 8/8 law: no 10 Hz MOTION, and none here)
+      const t = now() - AP.t0;
+      if (MAT()) apMatTick(t); else apCampTick(t);
+      if (SK().jet && !S.jetAim && !S.jv2Hold) apJetTick(t);
+      if (SK().abilities) apAbilityTick(t);
+    } catch (e) { AP.err++; }
+    finally { const ms = performance.now() - q0; AP.ms = Math.max(AP.ms * 0.97, ms); AP.msSum += ms; AP.msN++; }
+  }
+  ST.apCycle = apCycle; ST.apSkill = apSkill; ST.apSkillCycle = apSkillCycle; ST.apSet = apSet; ST.apReset = apReset; ST.apWindow = apWindow; ST.apZone = apZone; ST.apTray = apTray; ST.apReserve = apReserve;
+
   // ---------- HOW TO (the strip's button) ----------
   let aboutEl = null;
   function aboutToggle() {
@@ -426,7 +734,7 @@
       <li>The take is ready: SAVE puts it in Files › Downloads; SHARE hands it to AirDrop.</li>
       <li>AirDrop it to the Mac (the cutting room's drop folder when it exists). Keep the game in front while recording: a hidden page draws no frames.</li></ol>
       <div class="pk-s">${esc(pkWhere())}. This phone: ${esc(ST.mime || mimePick() || 'no MediaRecorder video codec')} · wake lock ${'wakeLock' in navigator ? 'yes' : 'no'} · share files ${navigator.canShare ? 'yes' : 'no'} · ${ST.fps} fps now · the take ${rc.width}×${rc.height}.</div>
-      <div class="pk-s">UI IN TAKE puts the game's UI back into the take. 9:16 is the tall band; 16:9 the wide frame. Two fingers pan the take's window; a two-finger tap hands the camera back. Keys still work: R H F Z P T.</div>
+      <div class="pk-s">AUTOPLAY lets the computer fight for your side and try to win while you record; the chip above it is its skill (rookie · captain · general); you can still drop units yourself. UI IN TAKE puts the game's UI back into the take. 9:16 is the tall band; 16:9 the wide frame. Two fingers pan the take's window; a two-finger tap hands the camera back. Keys still work: R H F Z P T.</div>
       <div class="pk-w">Privacy: nothing but a letter for any account — HQ never hears of this page. Never play the real web game in this browser: this page and playgvt.net share one save.</div>
       <button id="st-about-x" class="pk-b pk-go">CLOSE</button></div>`;
     document.body.appendChild(aboutEl);
@@ -580,6 +888,9 @@
       .pk-chip.on{background:#3d5a2e;border-color:#6d9a4a}
       #pk-frame{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
       #pk-hud{bottom:calc(122px + env(safe-area-inset-bottom,0px))}
+      #pk-ap{bottom:calc(160px + env(safe-area-inset-bottom,0px))}
+      #pk-skill{bottom:calc(198px + env(safe-area-inset-bottom,0px))}
+      #pk-skill[hidden]{display:none}
       #pk-home{right:auto;left:calc(12px + env(safe-area-inset-left,0px));top:calc(40px + env(safe-area-inset-top,0px))}
       #pk-mon{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(54px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:flex-start;gap:2px;pointer-events:none}
       #pk-mon canvas{display:block;height:64px;width:auto;background:#000;border:1px solid #6d9a4a;border-radius:3px;opacity:.92}
@@ -600,6 +911,8 @@
     pkEl.innerHTML = `<div id="pk-mon"></div>
       <button id="pk-home" class="pk-chip" title="back to the pocket launcher">HOME</button>
       <button id="pk-hud" class="pk-chip" title="the game's UI in the take (H)">UI IN TAKE: OFF</button>
+      <button id="pk-ap" class="pk-chip" title="AUTOPLAY: the computer fights for your side and tries to win while you record; you can still drop units (X). OFF → ON → PAUSED">AUTOPLAY: OFF</button>
+      <button id="pk-skill" class="pk-chip" title="the co-pilot's skill: ROOKIE slow, plain men, no jet · CAPTAIN vehicles + the jet, the push when ahead · GENERAL fast, everything the save owns, the abilities" hidden>CAPTAIN</button>
       <button id="pk-frame" class="pk-chip" title="the take's shape (F)">9:16</button>
       <span id="pk-clock">0:00</span>
       <button id="pk-rec" title="record / stop (R)"><i></i></button>
@@ -610,6 +923,8 @@
     const tap = (id, f) => { const el = pkEl.querySelector('#' + id); el.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); f(); ui(); try { el.blur(); } catch (x) {} }); };
     tap('pk-rec', toggleRec);
     tap('pk-hud', () => { ST.hud = !ST.hud; status('UI in take: ' + (ST.hud ? 'ON' : 'OFF')); });
+    tap('pk-ap', () => apCycle());
+    tap('pk-skill', () => apSkillCycle());
     tap('pk-frame', () => { if (ST.on || ST.rec) return status('stop the take first, then change the shape'); setFrame(ST.frame === 'portrait' ? 'landscape' : 'portrait'); status('take shape ' + (ST.frame === 'portrait' ? '9:16 (the band)' : '16:9')); });
     tap('pk-home', () => { if (ST.on || ST.rec) return status('stop the take first'); location.href = './'; });
     pkStatusEl.addEventListener('click', (e) => { e.preventDefault(); aboutToggle(); });
@@ -623,9 +938,10 @@
     const ck = q('pk-clock'); ck.classList.toggle('on', !!ST.on);
     if (ST.on) { const t = now() - ST.t0, left = ST.cap - t; ck.classList.toggle('last', left <= 10); ck.textContent = left <= 10 ? String(Math.max(0, Math.ceil(left))) : fmtT(t); }
     q('pk-hud').classList.toggle('on', !!ST.hud); q('pk-hud').textContent = 'UI IN TAKE: ' + (ST.hud ? 'ON' : 'OFF');
+    q('pk-ap').classList.toggle('on', ST.ap.mode === 'on'); q('pk-ap').textContent = 'AUTOPLAY: ' + ST.ap.mode.toUpperCase(); q('pk-skill').textContent = ST.ap.skill.toUpperCase(); q('pk-skill').hidden = ST.ap.mode === 'off';
     q('pk-frame').textContent = ST.frame === 'portrait' ? '9:16' : '16:9';
     const fresh = ST.status && now() - statusT < 7;
-    const meta = `take ${rc.width}×${rc.height}${ST.recFps < 30 ? ' @24' : ''} · K ${ST.K.toFixed(2)} · cam ${ST.auto ? 'auto' : 'hand'}${ST.mime ? ' · ' + ST.mime.replace('video/', '').split(';')[0] : ''}${ST.wakeState && ST.wakeState !== 'off' ? ' · wake ' + ST.wakeState : ''} · dpr ${window.devicePixelRatio} cap ${ST.dprCap} cv ${cv.width}×${cv.height}${ST.heals ? ' heals ' + ST.heals : ''}${ST.err ? ' · err ' + ST.err : ''}`;
+    const meta = `${ST.ap.mode !== 'off' ? 'AUTOPLAY ' + ST.ap.mode + ' · ' + ST.ap.skill + (ST.ap.last ? ' · ' + ST.ap.last : '') + ' · ' : ''}take ${rc.width}×${rc.height}${ST.recFps < 30 ? ' @24' : ''} · K ${ST.K.toFixed(2)} · cam ${ST.auto ? 'auto' : 'hand'}${ST.mime ? ' · ' + ST.mime.replace('video/', '').split(';')[0] : ''}${ST.wakeState && ST.wakeState !== 'off' ? ' · wake ' + ST.wakeState : ''} · dpr ${window.devicePixelRatio} cap ${ST.dprCap} cv ${cv.width}×${cv.height}${ST.heals ? ' heals ' + ST.heals : ''}${ST.err ? ' · err ' + ST.err : ''}`;
     pkStatusEl.textContent = `${ST.fps} fps · ` + (fresh ? ST.status : meta);
   }
   ST.pkUi = pkUi; ST.pkWhere = pkWhere; ST.pkSaveClose = pkSaveClose;
@@ -716,6 +1032,7 @@
           <button id="st-vf" class="st-b">FINDER<kbd>V</kbd></button>
           <button id="st-panel" class="st-b" title="hide this strip (P brings it back)">HIDE<kbd>P</kbd></button>
         </div>
+        <div class="st-row" id="st-ap-row"><button id="st-ap" class="st-b" title="AUTOPLAY: the computer fights for your side and tries to win while you run the camera; you can still throw in a unit any time. OFF → ON → PAUSED">AUTOPLAY OFF<kbd>X</kbd></button><select id="st-skill" title="the co-pilot's skill: ROOKIE slow, plain men, no jet · CAPTAIN vehicles + the jet, the push when ahead · GENERAL fast, everything the save owns, the abilities"><option value="rookie">ROOKIE</option><option value="captain" selected>CAPTAIN</option><option value="general">GENERAL</option></select><span id="st-apline" class="st-hint"></span></div>
         <div class="st-row">${doorHTML()}</div>
         <div class="st-row" id="st-sarge-row"><span class="st-lbl">SARGE</span><select id="st-wpn" title="what Sarge carries — switches live, even mid-fight"></select><select id="st-spec" title="the Commander's specialization"></select><select id="st-saber" title="saber colour"></select><span class="st-hint" id="st-sarge-note"></span></div>
         <div class="st-row">
@@ -766,6 +1083,7 @@
   function ui() {
     pkUi();
     if (!stripEl) return;
+    apUi();
     const set = (id, on, label) => { const el = $(id); if (!el) return; el.classList.toggle('on', !!on); el.classList.toggle('off', !on); if (label) el.firstChild.textContent = label; };
     set('st-hud', ST.hud); set('st-hand', ST.hand); set('st-cursor', ST.cursor); set('st-audio', ST.audio); set('st-voice', ST.voice && !!ST.mic); set('st-auto', ST.auto); set('st-vf', ST.vf);
     busGain();
@@ -834,7 +1152,7 @@
       else if (kind === 'park') startPark($('st-park').value, clamp(+$('st-rung').value || 1, 1, 60));
       else if (kind === 'mom') startMomRaid();
       C.x = 0; C.tx = null; C.src = ''; C.prio = 99; alive.clear(); RK.length = 0;
-      stResize(); sargeFill();
+      stResize(); sargeFill(); apReset();
       status('scene: ' + sceneName());
     } catch (e) { status('door failed: ' + String(e && e.message || e).slice(0, 120)); ST.err++; }
   }
@@ -865,7 +1183,7 @@
     else if (a.scene === 'park') startPark(a.park, clamp(a.rung, 1, 60));
     else if (a.scene === 'mom') startMomRaid();
     C.x = 0; C.tx = null; C.src = ''; C.prio = 99; alive.clear(); RK.length = 0;
-    stResize(); sargeFill();
+    stResize(); sargeFill(); apReset();
     if (a.cash > 0) S.plastic = Math.max(S.plastic || 0, a.cash);
     if (a.wave && a.scene !== 'bf') {   // the ticker jumps to the wave waveAt seconds in (time to set a line first)
       if (a.waveAt > 2) status('started: ' + armedLabel() + ' — the jump to wave ' + a.wave + ' comes at ' + a.waveAt + ' s');
@@ -912,6 +1230,7 @@
     else if (K === 'z') setZoom(ZOOMS[(ZOOMS.indexOf(ST.zoom) + 1) % ZOOMS.length]);
     else if (K === 'v') ST.vf = !ST.vf;
     else if (K === 'p') setPanel(!ST.panel);
+    else if (K === 'x') apCycle();
     else return;
     e.preventDefault(); ui();
   }, { capture: true });
@@ -923,6 +1242,7 @@
   try { if (typeof META !== 'undefined' && META) META.deviceId = '9'.repeat(32); } catch (e) {}   // the reserved device: no leaderboard, rival or telemetry row can ever name this commander
   setK(); sizeRc(); buildPanel(); if (stripEl) stripEl.hidden = !ST.panel; stResize(); pkChips();
   try { $('st-sink').textContent = sinkWhere() + '. Takes live on this computer, never on the big Mac.'; } catch (e) {}
+  apBoot();
   ST.setBand = (y0, y1) => { BANDS.custom = [y0, y1]; ST.zoom = 'custom'; if (!ZOOMS.includes('custom')) ZOOMS.push('custom'); setK(); stResize(); return { K: ST.K, w: cropW() }; };
   ST.recStart = recStart; ST.recStop = recStop; ST.go = go; ST.rc = rc; ST.cropRect = cropRect; ST.status = 'ready';
   status('ready — ' + pkWhere() + '; REC records the take');
