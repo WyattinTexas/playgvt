@@ -495,16 +495,17 @@
     if (ST.frame === 'landscape' && ST.hud) return { x0: 0, x1: WW() };   // the whole frame is the take
     const cw = cropW(), x0 = clamp(C.x, 0, Math.max(0, WW() - cw)); return { x0, x1: x0 + cw };
   }
-  function apOffCam(x, y) {   // → {x, y, off, edge}: the spot moved outside the window; a zone swallowed by the window → the edge farthest from the action
-    const w = apWindow(), z = apZone(), inWin = (q) => q > w.x0 - AP_CAM_MARGIN && q < w.x1 + AP_CAM_MARGIN;
-    if (!inWin(x)) return { x, y, off: 1, edge: 0 };
-    const west = w.x0 - AP_CAM_MARGIN - 40 - apRnd() * 160, east = w.x1 + AP_CAM_MARGIN + 40 + apRnd() * 120;
+  function apHalfW(type) { let w = 54; try { if (typeof unitW === 'function') w = unitW(type) || 54; } catch (e) {} return w / 2 + 6; }   // the sprite's half width + a hair: the WHOLE man stays out of the frame
+  function apOffCam(x, y, type) {   // → {x, y, off, edge, hw}: the spot moved outside the window; a zone swallowed by the window → the edge farthest from the action
+    const w = apWindow(), z = apZone(), hw = apHalfW(type), m = AP_CAM_MARGIN + hw, inWin = (q) => q > w.x0 - m && q < w.x1 + m;
+    if (!inWin(x)) return { x, y, off: 1, edge: 0, hw };
+    const west = w.x0 - m - 40 - apRnd() * 160, east = w.x1 + m + 40 + apRnd() * 120;
     const cands = [west, east].filter(q => q >= z.x0 && q <= z.x1 && !inWin(q));
-    if (cands.length) { const nx = apFlip() ? cands[cands.length - 1] : cands[0]; AP.moved++; return { x: nx, y, off: 1, edge: 0 }; }
+    if (cands.length) { const nx = apFlip() ? cands[cands.length - 1] : cands[0]; AP.moved++; return { x: nx, y, off: 1, edge: 0, hw }; }
     // the zone lies inside the window: the zone edge farthest from the action
     const foes = apFoes(); const ax = foes.length ? foes.reduce((a, f) => a + f.x, 0) / foes.length : (MAT() ? apBaseTheirs().x : W - 200);
     const ex = Math.abs(z.x0 - ax) >= Math.abs(z.x1 - ax) ? z.x0 : z.x1;
-    AP.edge++; return { x: ex, y, off: 0, edge: 1 };
+    AP.edge++; return { x: ex, y, off: 0, edge: 1, hw };
   }
   // ---- the drops, through the game's own doors ----
   function apDropMat(type, x, y) {
@@ -526,15 +527,15 @@
   function apPlace(type, x, y, why) {
     const z = apZone();
     x = clamp(x, z.x0, z.x1); y = clamp(y, MAT() ? 92 : 100, WORLD_H - (MAT() ? 110 : 100));
-    const o = apOffCam(x, y); x = o.x; y = o.y;
+    const o = apOffCam(x, y, type); x = o.x; y = o.y;
     let id = null, px = x, py = y, tries = 0;
     while (tries < 4 && !id) {   // a refused spot (a rock, a river, a man underfoot): a person just drops it nearby — still on the zone, still off camera
       id = MAT() ? apDropMat(type, px, py) : apDropCamp(type, px, py);
-      if (!id) { const o2 = apOffCam(clamp(px + (apFlip() ? 1 : -1) * (40 + apRnd() * 60), z.x0, z.x1), clamp(py + (apRnd() * 2 - 1) * 100, 92, WORLD_H - 110)); px = o2.x; py = o2.y; }
+      if (!id) { const o2 = apOffCam(clamp(px + (apFlip() ? 1 : -1) * (40 + apRnd() * 60), z.x0, z.x1), clamp(py + (apRnd() * 2 - 1) * 100, 92, WORLD_H - 110), type); px = o2.x; py = o2.y; }
       tries++;
     }
     const win = apWindow();
-    const row = { t: +(now() - AP.t0).toFixed(2), ut: type, x: Math.round(px), y: Math.round(py), ok: id ? 1 : 0, off: o.off, edge: o.edge, w0: Math.round(win.x0), w1: Math.round(win.x1), purse: Math.round(S.plastic), res: apReserve(), why: why || '', lane: apLaneY(py) };
+    const row = { t: +(now() - AP.t0).toFixed(2), ut: type, x: Math.round(px), y: Math.round(py), ok: id ? 1 : 0, off: o.off, edge: o.edge, hw: Math.round(o.hw), w0: Math.round(win.x0), w1: Math.round(win.x1), purse: Math.round(S.plastic), res: apReserve(), why: why || '', lane: apLaneY(py) };
     AP.log.push(row); if (AP.log.length > AP_LOG_MAX) AP.log.splice(0, AP.log.length - AP_LOG_MAX);
     AP.n++;
     if (id) { AP.ok++; if (o.off) AP.offcam++; apSay(`placed ${type} lane ${row.lane}${why ? ' · ' + why : ''}${o.edge ? " · at the zone's edge (the take covers the whole zone)" : ''}`); }
