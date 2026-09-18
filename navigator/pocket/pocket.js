@@ -23,7 +23,7 @@
   if (window.__ST) return;
   const ST = window.__ST = {
     on: false, hud: false, hand: false, cursor: true, audio: true, voice: false, auto: true, panel: false, vf: true,
-    pocket: 1, mime: '', recFps: 30, dprCap: 3, budget: { low: 0, step: 0, log: [] }, wake: null, wakeState: 'off', cap: 60, fpsLog: [], lastBlit: 0,
+    pocket: 1, portrait: false, mime: '', recFps: 30, dprCap: 3, budget: { low: 0, step: 0, log: [] }, wake: null, wakeState: 'off', cap: 60, fpsLog: [], lastBlit: 0,
     mic: null, micSrc: null, micGain: null, micAn: null, voiceDest: null, vrec: null, vq: null, micDev: '', micLabel: '',
     frame: 'portrait', zoom: 'normal', K: 3.5556, strip: 0,
     cam: { x: 0, y: 0, tx: null, ty: null, prio: 99, holdUntil: 0, src: '', heat: 0, lastF: 0 },
@@ -58,7 +58,8 @@
   // transform; the css size, VW, scale and the camera are the game's. The budget can step the cap down (2, then 1) while a take runs.
   function stResize() {
     try {
-      const want = Math.min(ST.dprCap, window.devicePixelRatio || 1), have = cv.width / (VW * scale);
+      pkOrient();   // 9/17 THE PORTRAIT POCKET: the class + the strip's height, before the backing
+      const want = pkWant(), have = cv.width / (VW * scale);
       if (want > 0 && Math.abs(want - have) > 0.01) { cv.width = Math.round(VW * scale * want); cv.height = Math.round(H * scale * want); cx.setTransform(scale * want, 0, 0, scale * want, 0, 0); }
     } catch (e) { ST.err++; }
     setK(); sizeRc();
@@ -816,7 +817,24 @@
   function pkWhere() { return pickerHere() ? 'RECORD asks where to save the take' : (TOUCH ? 'STOP shows SAVE (to Files) and SHARE (AirDrop)' : 'STOP downloads the take to this browser\'s downloads'); }
   // ---- the backing, healed every frame: a resize the game runs by a captured reference (a deferred call, the visual viewport) puts the
   // canvas back at the game's own cap of 2; the next frame re-applies the pocket's cap before the world is painted ----
-  function pkBackingCheck() { try { const want = Math.min(ST.dprCap, window.devicePixelRatio || 1); if (want > 0 && Math.abs(cv.width - VW * scale * want) > 1.5) { stResize(); ST.heals = (ST.heals | 0) + 1; } } catch (e) {} }
+  function pkBackingCheck() { try { const want = pkWant(); if (want > 0 && Math.abs(cv.width - VW * scale * want) > 1.5) { stResize(); ST.heals = (ST.heals | 0) + 1; } } catch (e) {} }
+  // ---- THE PORTRAIT POCKET (9/17): the phone held upright. The game's own CSS wall ("Turn your phone sideways", #rotate under
+  // @media portrait) is off in this edition alone; the game's resize lays its whole view out at the width (VW = wcap, a strip) and the
+  // pocket seats it at the top under the notch (html.pk-portrait), the MONITOR big beneath it, the chips below. The take stays the
+  // 9:16 band of that view at the landscape's own density: pkWant() boosts the backing by the scale the same screen gives sideways. ----
+  function pkOrient() {
+    try {
+      const p = window.innerHeight > window.innerWidth;
+      if (ST.portrait !== p) { ST.portrait = p; document.documentElement.classList.toggle('pk-portrait', p); }
+      document.documentElement.style.setProperty('--pk-strip', Math.round(H * scale) + 'px');   // the strip's css height: the MONITOR starts under it
+    } catch (e) {}
+  }
+  function pkWant() {   // backing px per css px: the pocket's cap at the phone's dpr; upright, × (the sideways scale / this scale) — the same take size, the same pixel bill either way
+    const d = Math.min(ST.dprCap, window.devicePixelRatio || 1);
+    if (!ST.portrait || !(scale > 0) || !(VW > 0)) return d;
+    const sL = Math.min(window.innerHeight / VW, window.innerWidth / H);
+    return d * Math.max(1, sL / scale);
+  }
   // ---- the wake lock: the screen stays on while a take runs (Safari 16.4+); re-asked when the page comes back ----
   async function pkWake(on) {
     try {
@@ -877,6 +895,11 @@
     css.textContent = `
       #pk{position:fixed;inset:0;z-index:125;pointer-events:none;font:13px/1.2 -apple-system,'Helvetica Neue',Arial,sans-serif;color:#e8e6df}
       #pk>*{pointer-events:auto}
+      #rotate{display:none!important}
+      html.pk-portrait #wrap{align-items:flex-start;padding-top:env(safe-area-inset-top,0px)}
+      html.pk-portrait #pk-home{left:auto;top:auto;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(236px + env(safe-area-inset-bottom,0px))}
+      html.pk-portrait #pk-mon{top:calc(env(safe-area-inset-top,0px) + var(--pk-strip,240px) + 10px);bottom:auto}
+      html.pk-portrait #pk-mon canvas{width:auto;height:auto;max-height:calc(100vh - env(safe-area-inset-top,0px) - var(--pk-strip,240px) - env(safe-area-inset-bottom,0px) - 100px);max-width:calc(100vw - 166px)}
       #pk-rec{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:#15161a;border:3px solid #e8e6df;box-shadow:0 4px 14px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;padding:0;margin:0}
       #pk-rec i{display:block;width:22px;height:22px;border-radius:50%;background:#d33;transition:border-radius .15s,width .15s,height .15s}
       #pk-rec.on{border-color:#ff5a5a;animation:pk-pulse 1.2s ease-in-out infinite}
