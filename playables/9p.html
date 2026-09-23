@@ -15379,7 +15379,7 @@ function commSay(ev){
   const r=cv.getBoundingClientRect();
   h.win.style.position='absolute';
   h.win.style.left=Math.round(r.left+10*scale)+'px';
-  h.win.style.top=Math.round(r.top+((window.PL9? PL9.oy+PL9.barH+58 : 88))*scale)+'px';   /* playable p9: under the bar's plate, inside the band */
+  h.win.style.top=Math.round(r.top+((window.PL9? PL9.oy+(PL9.port? PL9.barH+96 : PL9.barH+58) : 88))*scale)+'px';   /* playable p9: under the bar's plate (and under the PLAY NOW chip in portrait), inside the band */
   h.win.style.width=Math.round(window.PL9? Math.min(330*scale, window.innerWidth-20-10*scale) : 330*scale)+'px';
   h.win.style.fontSize=Math.max(10,Math.round(20*scale))+'px';
   COMM.say=h;
@@ -25205,6 +25205,7 @@ function draw(){
 
   // formation announce card (boss waves flash a red warning banner)
   if(S.ann){
+    if(window.PL9){ cx.save(); cx.translate(0, PL9.oy+pl9AnnSeat()-168); }   /* playable p9: the card is drawn in canvas space — seat it under the bar (and under the chip where the window is narrow); saved BEFORE the fade's alpha */
     const dur=S.ann.warn?3.2:2.6;
     const k=Math.min(1,(dur-S.ann.t)*4), out=Math.min(1,S.ann.t*2.5);
     cx.globalAlpha=Math.min(k,out);
@@ -25222,7 +25223,6 @@ function draw(){
     if(sub){ fitFont(cx, sub, VW-90, 'bold', 20, 12); sFont=cx.font;
       w2=Math.max(w2, cx.measureText(sub).width/2+34); cx.font=tFont; }
     const hh=sub? 92 : 64;
-    if(window.PL9){ cx.save(); cx.translate(0, PL9.oy+pl9AnnSeat()-168); }   /* playable p9: the card is drawn in canvas space — seat it under the bar (and under the chip where the window is narrow) */
     if(S.ann.warn){
       cx.fillStyle='rgba(140,40,32,0.94)'; rr(VW/2-w2,168,w2*2,hh,10); cx.fill();
       cx.strokeStyle='#FFD24A'; cx.lineWidth=3; rr(VW/2-w2,168,w2*2,hh,10); cx.stroke();
