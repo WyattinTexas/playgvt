@@ -25210,7 +25210,7 @@ function draw(){
     if(sub){ fitFont(cx, sub, VW-90, 'bold', 20, 12); sFont=cx.font;
       w2=Math.max(w2, cx.measureText(sub).width/2+34); cx.font=tFont; }
     const hh=sub? 92 : 64;
-    if(window.PL9){ cx.save(); cx.translate(0, PL9.port? 40 : 0); }   /* playable p9 portrait: the card clear of the chip */
+    if(window.PL9){ cx.save(); cx.translate(0, PL9.oy+pl9AnnSeat()-168); }   /* playable p9: the card is drawn in canvas space — seat it under the bar (and under the chip where the window is narrow) */
     if(S.ann.warn){
       cx.fillStyle='rgba(140,40,32,0.94)'; rr(VW/2-w2,168,w2*2,hh,10); cx.fill();
       cx.strokeStyle='#FFD24A'; cx.lineWidth=3; rr(VW/2-w2,168,w2*2,hh,10); cx.stroke();
@@ -32507,6 +32507,7 @@ function pl9Fly(dt){ try{ var d=S.drag; if(!d||!d.fly) return; var f=d.fly; f.t+
   if(f.t>=f.dur){ S.drag=null;
     if(!canPlace(f.x1,f.y1,d.type,'you')){ var sp=pl9Spot(d.type, f.y1); if(sp){ f.x1=sp[0]; f.y1=sp[1]; } }   /* a man marched onto the spot during the flight — land beside him */
     if(applyDeploy(bfMySeat(), d.type, f.x1, f.y1)) roomPlaced(bfMySeat(), d.type, Math.round(f.x1), Math.round(f.y1)); else SFX.clack(); } }catch(e){ S.drag=null; } }
+function pl9AnnSeat(){ return (PL9.port || VW<720)? 132 : 96; }   /* the announce plate's seat in the band: under the bar; under the chip too where the plate would reach it */
 function pl9Pill(txt){ var d=document.createElement('div'); d.textContent=txt;
   d.style.cssText='position:fixed;left:50%;transform:translateX(-50%);z-index:25;background:rgba(32,36,24,.93);color:#FFF4C8;border:2px solid #78BE5A;border-radius:12px;padding:9px 18px;font:800 15px/1.1 system-ui;letter-spacing:.02em;white-space:nowrap;pointer-events:none;max-width:92vw;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box';
   document.body.appendChild(d); PL9.pill=d; pl9PillPlace(); window.addEventListener('resize', pl9PillPlace); setInterval(pl9PillPlace, 900); }
