@@ -15,7 +15,7 @@
   var W = window;
   var N = W.__NAV = { stamp: W.__NAV_STAMP || {}, wire: { killed: 0, passed: 0, byPath: {} }, errors: [], seed: null };
   // ---------- (1) the dead wire ----------
-  var HOST = /^https?:\/\/(www\.)?nationgame\.live(\/|$)/i;   // the one NET host: every /gvt/ call builds off the one NET constant (asserted at stage time)
+  var HOST = /^(?:https?|wss?):\/\/(www\.)?nationgame\.live(\/|$)/i;   /* CARD-NET-LW (10/9): the game's one socket to HQ (wss, v18.65) is the wire too */   // the one NET host: every /gvt/ call builds off the one NET constant (asserted at stage time)
   var BOARD = /\/gvt\/board(\?|$)/;
   function isWire(u){ try{ return HOST.test(String(u)); }catch(e){ return false; } }
   function pathOf(u){ try{ return String(u).replace(/^https?:\/\/[^\/]+/, '').split('?')[0]; }catch(e){ return '?'; } }
