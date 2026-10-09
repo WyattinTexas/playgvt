@@ -15,7 +15,7 @@
   try{ sessionStorage.clear(); }catch(e){}
   var FR = W.__fresh = { wiped:wiped, at:Date.now(), wire:{ killed:0, passed:0, byPath:{} } };
   // ---------- THE DEAD WIRE ----------
-  var HOST = /^https?:\/\/(www\.)?nationgame\.live(\/|$)/i;   // the one NET host: every /gvt/ call builds off the one NET constant (asserted at stage time)
+  var HOST = /^(?:https?|wss?):\/\/(www\.)?nationgame\.live(\/|$)/i;   // the one NET host: every /gvt/ call builds off the one NET constant (asserted at stage time)
   var BOARD = /\/gvt\/board(\?|$)/;
   function isWire(u){ return HOST.test(String(u || '')); }
   function pathOf(u){ try{ var a = new URL(String(u), location.href); return a.pathname; }catch(e){ return String(u).replace(/^https?:\/\/[^\/]+/, '').split('?')[0]; } }
