@@ -68947,11 +68947,11 @@ function ccnB2Probe(v){ v=v||{}; const sg=S.units.find(u=>u.type==='sarge' && u.
 // ═══ CARD-CCN-B3 THE CRYSTAL CINEMA: RED + THE FIRE TRAIL (sec:CARD-CCN-B3; design/crystal-cinema-1009/00-DESIGN-CCN.md §4 RED, RED A, RED B + §5.2, the record 03-BUILD-CCN-B3.md) ═══ Wyatt 10/10/2026 ~00:20 EDT on Maker 1, verbatim: "Looking amazing. Let's set these live.Add to the jumpr queue." (build 3 of 8; B1's const CCN carries the grammar)
 // RED A, DRAWN: THE FIRE TRAIL (Wyatt 10/9: "a hold where you draw the line of where you want him to path, and he will path that line, burning fire behind him."; ruled 10/10 with CCN-Q6..Q10 as written):
 //   THE HOLD: with red A in the pressed socket, the crystal button's press starts a hold (ftPress) instead of the cast. A red lightning line follows the finger out from Sarge, drawn DRAG_OFF (56 px) above the finger (the jet pack's and
-//     the energy shot's drag law, CARD-ESH's eshPress / eshMove / eshUp grammar), at most RFT.len long (the ground today's Z covers: 15 m, 432 px); past that it stops growing and its tip blinks. Solo, the battle runs at 0.3x while the finger
+//     the energy shot's drag law, CARD-ESH's eshPress / eshMove / eshUp grammar), at most RFT.len long (the ground today's Z covers x1.1: 17 m, 475 px, CARD-FTF); past that it stops growing and its tip blinks. Solo, the battle runs at 0.3x while the finger
 //     is down (CCN's own slow-down knob, always handed back), at most 2 s; then he goes on his own along what is drawn. In co-op there is no slow-down. That slow-down IS red A's moment: the run plays at full speed.
 //   THE RUN (ftRun, rfRedCast's door): on the lift he runs the line (smoothed to at most 12 points, snapped to walkable ground: a pit or water stops him at its edge) at the Z's pace, the whole 15 m in at most 0.6 s; every foe within
 //     RFC.zz.hitR of the blade takes TK_RED_DMG once a cast (rfZzHit's own ledger); the line ends in the base slam (10 in TK_RED_R). BLAZE! lands at the lift.
-//   THE FIRE (ftFire in rfZzHit): a patch every 1.5 m along the run (fsIgnite: radius 28 px, life 4 s, FS_DPS on the FS_TICK drum), enemies only (CCN-Q6: p.ftEn skips fsTick's FS_FF lane, never his own men).
+//   THE FIRE (ftFire in rfZzHit): a patch every 1.5 m along the run (fsIgnite: radius 28 px, life 8 s (CARD-FTF, was 4), FS_DPS on the FS_TICK drum), enemies only (CCN-Q6: p.ftEn skips fsTick's FS_FF lane, never his own men).
 //   A TAP (no drawing: under 12 px of drag) = the old Z through rfRedCast's path, with the same fire (CCN-Q9). A key, a gamepad, a rig's door = the tap (every door but the canvas button calls tkFire straight).
 //   THE WIRE (CCN-F1): the path crosses on the tk word as ONE string, cm.pth = "x,y;x,y;..." (at most 12 points, whole pixels, at most 120 characters; the start is his own spot on every screen). The server's CMD_KEYS carries
 //     'pth' from v116 (clamped to 120); an older server drops the key and the partner's sim runs the auto Z from the word's x,y (the aim it always carried). The cooldown stays 8 s; the AI, Nemesis and the King Yeti never refine.
@@ -68960,24 +68960,23 @@ function ccnB2Probe(v){ v=v||{}; const sg=S.units.find(u=>u.type==='sarge' && u.
 //     0.25 s, red-hot cracks 2 m out cooling to black over 2 s, embers drifting up; hit-stop 0.12 s, the grammar's cap (was 0.16); MY first cast: 0.3x for 0.3 s as the men fly).
 //   RED B: a white-hot flash, the 3 m fireball (orange core, red edge) with a smoke ring rising, heat shimmer, debris; shake 0.8, hit-stop 0.12 s (mine); MY first cast: 0.3x for 0.3 s; the shipped scorch with embers + a smoke column.
 //   RED A: the drawing line (red lightning, a tip that blinks at the cap, a gauge ring), the crackle while drawing, the line fading as he runs it, the roar of flame, the fire in his footsteps; the end slam as the base.
-const RFT={ get len(){ const a=TK_RED_DASH/RFC.zz.legs, z=RFC.zz.side; return Math.round(2*Math.hypot(a,z)+Math.hypot(a,2*z)); },   // the Z's own ground: 3 legs of a 9 m lunge, 86 px aside = 432 px (15 m; read at use: RFC is defined further down the page)
-  step:Math.round(1.5*TK_M), reach:Math.round(4*TK_M) /* CARD-FTD: the line starts when the finger's tip comes within 4 m (112 px) of him */, fr:28, life:4, slowT:2, tap:12, pts:12, wire:120, runT:0.6, minT:0.12, minSeg:8, walk:6, crackle:150 };   // fire every 1.5 m (42 px) · a patch 1 m across, 4 s · the hold 2 s · a tap < 12 px · 12 points, 120 chars · 15 m in 0.6 s
+const RFT={ get len(){ const a=TK_RED_DASH/RFC.zz.legs, z=RFC.zz.side; return Math.round(RFT.far*(2*Math.hypot(a,z)+Math.hypot(a,2*z))); },   // the Z's own ground (3 legs of a 9 m lunge, 86 px aside = 432 px) x1.1 = 475 px, 17 m (CARD-FTF: "about 10% farther"; read at use: RFC is defined further down the page)
+  step:Math.round(1.5*TK_M), far:1.1, fr:28, life:8, slowT:2, tap:12, pts:12, wire:120, runT:0.66, minT:0.12, minSeg:8, walk:6, crackle:150 };   // fire every 1.5 m (42 px) · a patch 1 m across, 8 s (CARD-FTF: "at least 2 times longer", was 4) · the hold 2 s · a tap < 12 px · 12 points, 120 chars · 17 m in 0.66 s (the Z's pace)
 // ---- THE HOLD
 function ftArmed(slot2){ const r=rfPick('red'); return !!(r && r.col==='red' && r.pick==='a') && (slot2? tkMyCol2() : tkMyCol())==='red'; }   // red A in THIS socket
 function ftCan(u,slot2){ return !!u && u.type==='sarge' && !u.dead && !(u.jetT>0 || u.tkLg || u.falling || u.shv || u.dropT>0 || u.cloakT>0 || u.tkChanT>0 || (u.ultChT||0)>0) && tkOwned() && S.mode==='play' && !(slot2? (S.tkCd2||0)>0 : S.tkCd>0) && !(S.drag && S.drag.unit===u) && (!slot2 || tkTwoOn()); }   // tkFire's own gates, read at the press
 function ftPress(p,w,slot2){ const u=jetSarge(); if(!ftArmed(!!slot2) || !ftCan(u,!!slot2)) return false; ccnBat();   // (the moment ledger on this battle first: a new battle hands back any slow-down)   // the canvas button's press (tk / tk2): true = THE HOLD began (the cast waits for the lift)
-  const a=S.ftAim={ u, slot2:!!slot2, sx:p.x, sy:p.y, ox:u.x, oy:u.y, fx:w.x, fy:w.y-DRAG_OFF, pts:[], L:0, cap:0, moved:false, t0:ccnNow(), snd:0, sl:null, on:0, d0:0, dmin:0 };   /* CARD-FTD: on = the tip reached him (at d0; dmin = its nearest since) */
+  const a=S.ftAim={ u, slot2:!!slot2, sx:p.x, sy:p.y, ox:u.x, oy:u.y, fx:u.x, fy:u.y, gx:w.x, gy:w.y, pts:[], L:0, cap:0, moved:false, t0:ccnNow(), snd:0, sl:null, on:0, d0:0 };   /* CARD-FTF: gx,gy = where the finger pressed (world): the drag's anchor; on = the line began (at d0) */
   a.sl=ftSlow(u); u.ccnFl={ t:ccnNow(), col:tkHexOf('red') }; bfSfx(CCN.snd.zap,u.x,u.y); ccnLog(['ft-press',a.sl? 1 : 0]); ftArm(a); return true; }
 function ftSlow(u){ if(ccnRm() || S.coop || S.slowmo!==1 || S.mode!=='play'){ ccnLog(['slow-skip']); return null; }   // CCN-Q7: solo 0.3x while drawing, at most 2 s (CCN's own knob + watch: always handed back)
   S.slowmo=CCN.slow; const L=CCN_SL={ v:CCN.slow, bat:S.units, end:ccnNow()+RFT.slowT*1000, u }; ccnLog(['slow-draw',RFT.slowT]); ccnSlowArm(L); return L; }
-function ftArm(a){ setTimeout(()=>{ if(S.ftAim!==a) return; const n=ccnNow(); if(n-(a.on? a.d0 : a.t0)>=RFT.slowT*1000){ ftGo('time'); return; }   /* CARD-FTD: the hold's 2 s count from the first drawn point (2 s to reach him first) */   // the hold's own wall clock (the page's clock: a rig's virtual clock in the films)
+function ftArm(a){ setTimeout(()=>{ if(S.ftAim!==a) return; const n=ccnNow(); if(n-(a.on? a.d0 : a.t0)>=RFT.slowT*1000){ ftGo('time'); return; }   /* CARD-FTD: the hold's 2 s count from the first drawn point (CARD-FTF: the first move; 2 s to start) */   // the hold's own wall clock (the page's clock: a rig's virtual clock in the films)
   if(a.on && !a.cap && n-a.snd>=RFT.crackle){ a.snd=n; bfSfx(CCN.snd.zap,a.u.x,a.u.y); } ftArm(a); }, CCN.poll); }   // the crackle while drawing
-function ftMove(p,w){ const a=S.ftAim; if(!a) return false; const x=w.x, y=w.y-DRAG_OFF; a.fx=x; a.fy=y;   // the finger travels: the line grows behind the spot DRAG_OFF above it
+function ftMove(p,w){ const a=S.ftAim; if(!a) return false;   // CARD-FTF THE DRAG (Wyatt 10/10 18:21 UTC: "you should just be able to drag it immediately. You shouldn't have to hold it within the range of that dotted-line circle around Sarge.")
   if(!a.moved && Math.hypot(p.x-a.sx,p.y-a.sy)>RFT.tap) a.moved=true;
   if(!a.moved || a.cap) return true;
-  if(!a.on){ const u=a.u; if(Math.hypot(x-u.x,y-u.y)>RFT.reach) return true;   // CARD-FTD THE REACH (Wyatt 10/10: "It needs to let the player hold the button and draw the path."): the finger starts on the button, far from him; the line waits until the tip comes to him
-    a.on=1; a.d0=ccnNow(); a.dmin=RFT.reach; if(a.sl && CCN_SL===a.sl) a.sl.end=a.d0+RFT.slowT*1000; ccnLog(['ft-on']); }   // he is reached: the solo 0.3x and the hold's 2 s run from here
-  if(!a.pts.length){ const u=a.u, d=Math.hypot(x-u.x,y-u.y); if(d<a.dmin) a.dmin=d; if(d<a.dmin+RFT.minSeg) return true; a.ox=u.x; a.oy=u.y; }   // the line leaves from his feet: a tip still closing on him draws nothing (coming in from the button's side never spends the 15 m twice); the first point when it turns away
+  if(!a.on){ a.on=1; a.d0=ccnNow(); a.ox=a.u.x; a.oy=a.u.y; if(a.sl && CCN_SL===a.sl) a.sl.end=a.d0+RFT.slowT*1000; ccnLog(['ft-on']); }   // the first move: the line leaves his feet; the solo 0.3x and the hold's 2 s run from here
+  const x=a.ox+(w.x-a.gx), y=a.oy+(w.y-a.gy); a.fx=x; a.fy=y;   // the tip = his feet + the finger's own travel since the press (the shape drawn from the button is the shape he runs)
   const q=a.pts.length? a.pts[a.pts.length-1] : { x:a.ox, y:a.oy }, d=Math.hypot(x-q.x,y-q.y); if(d<RFT.minSeg) return true;
   if(a.L+d>=RFT.len){ const k=(RFT.len-a.L)/d; a.pts.push({ x:q.x+(x-q.x)*k, y:q.y+(y-q.y)*k }); a.L=RFT.len; a.cap=1; ccnLog(['ft-cap']); return true; }   // 15 m: it stops growing, the tip blinks
   a.pts.push({ x, y }); a.L+=d; return true; }
@@ -69057,12 +69056,8 @@ function ccnB3Under(RM){ const Q=S.rfFx, R=CCN.red; if(!Q) return;
 function ccnB3Bolt(pts,al,w,seed){ if(pts.length<2 || al<=0) return; cx.save(); cx.lineJoin='round'; cx.lineCap='round'; cx.beginPath();
   for(let i=1;i<pts.length;i++){ const a=pts[i-1], b=pts[i], seg=Math.max(2,Math.min(6,Math.round(Math.hypot(b.x-a.x,b.y-a.y)/20))); ccnBolt(a.x,a.y-10,b.x,b.y-10,seg,7,seed+i*13); }
   cx.globalAlpha=al*0.45; cx.strokeStyle=CCN.red.hex; cx.lineWidth=w*2.8; cx.stroke(); cx.globalAlpha=al; cx.strokeStyle='#FFE3DC'; cx.lineWidth=w; cx.stroke(); cx.restore(); }
-function ftReachDraw(a,u,RM){ const R=CCN.red, k=RM? 1 : 0.6+0.4*Math.abs(Math.sin(ccnNow()/180)); cx.save(); cx.lineCap='round';   // CARD-FTD THE REACH: a dashed red ring RFT.reach round him (bring the finger here), a dashed guide from the finger's tip to him
-  cx.setLineDash([9,7]); cx.globalAlpha=0.65*k; cx.lineWidth=5; cx.strokeStyle='rgba(0,0,0,0.35)'; cx.beginPath(); cx.arc(u.x,u.y-10,RFT.reach,0,7); cx.stroke(); cx.lineWidth=2.6; cx.strokeStyle=R.hex; cx.stroke();
-  if(a.moved){ cx.globalAlpha=0.75; cx.lineWidth=2; cx.beginPath(); cx.moveTo(a.fx,a.fy-10); cx.lineTo(u.x,u.y-10); cx.stroke(); cx.setLineDash([]); cx.fillStyle=R.hex; cx.beginPath(); cx.arc(a.fx,a.fy-10,6,0,7); cx.fill(); cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(a.fx,a.fy-10,2.6,0,7); cx.fill(); }
-  cx.restore(); }
 function ccnB3Over(RM){ const Q=S.rfFx, R=CCN.red, a0=S.ftAim;
-  if(a0 && a0.u && !a0.u.dead){ const u=a0.u, pts=[{ x:u.x, y:u.y }].concat(a0.pts); if(a0.on && !a0.cap) pts.push({ x:a0.fx, y:a0.fy }); if(!a0.on) ftReachDraw(a0,u,RM);   /* CARD-FTD: before the tip reaches him, the ring round him + the dashed guide */ const fl=Math.floor(ccnNow()/50);   // THE HOLD: the red lightning line from him to the finger's spot
+  if(a0 && a0.u && !a0.u.dead){ const u=a0.u, pts=[{ x:u.x, y:u.y }].concat(a0.pts); if(a0.on && !a0.cap) pts.push({ x:a0.fx, y:a0.fy });   /* CARD-FTF: no ring round him: the line from the first move */ const fl=Math.floor(ccnNow()/50);   // THE HOLD: the red lightning line from him to the finger's spot
     if(pts.length>1) ccnB3Bolt(pts,0.95,2.2,RM? 7 : fl*3);
     const tp=pts[pts.length-1], blink=a0.cap? (Math.floor(ccnNow()/110)%2) : 1; cx.save();
     if(blink){ cx.globalAlpha=0.9; cx.fillStyle=R.hex; cx.beginPath(); cx.arc(tp.x,tp.y-10,a0.cap? 9 : 6,0,7); cx.fill(); cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(tp.x,tp.y-10,2.6,0,7); cx.fill(); }
@@ -77688,7 +77683,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='19.80';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='19.81';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
