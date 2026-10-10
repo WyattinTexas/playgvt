@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"19.82","md5":"6162ed3ca68dd9e10aa8011308c9976f","sha":"c925b49f2","at":"2026-10-10T19:18:23Z","src":"playgvt-staged","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"19.83","md5":"916ebc701a0a73038090f1f98f11c673","sha":"9cc267915","at":"2026-10-10T19:21:18Z","src":"playgvt-staged","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -77715,7 +77715,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='19.82';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='19.83';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -82838,7 +82838,7 @@ const GDR_URL='https://playgvt.net/gdoor.html?door=1';   // ?door: playgvt.net's
 const GDR_MS=600000, GDR_EVERY=2500, GDR_K='gvt_gdr';   // the wait (HQ parks a token 600 s) · the ask · the save key
 const GDR={ k:'', t:0, tm:0, busy:0 };   // k = the key of this wait ('' = none) · t = its start · tm = the ask's timer · busy = an ask in flight
 const GDR_G='<svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
-function gdrOn(){ return !window.__GVTSHELL && /GVTShell-Android/.test(navigator.userAgent||''); }   // the Android app (its UA; it injects no __GVTSHELL)
+function gdrOn(){ return !window.__GVTSHELL && (typeof window.GVTShellAndroid==='object' || /GVTShell-Android/.test(navigator.userAgent||'')); }   // the Android app: its JS bridge (every build has it; a real device's navigator.userAgent does NOT show the shell's UA mark, the emulator proved it), it injects no __GVTSHELL
 function gdrKey(){ try{ const a=new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a, b=>(b+256).toString(16).slice(1)).join(''); }catch(e){ return accDev(); } }
 function gdrLive(){ return !!GDR.k && Date.now()-GDR.t<GDR_MS; }
 function gdrStore(){ try{ if(GDR.k) localStorage.setItem(GDR_K, JSON.stringify({k:GDR.k, t:GDR.t})); else localStorage.removeItem(GDR_K); }catch(e){} }
