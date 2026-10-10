@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"19.84","md5":"f8c3e679128de57460837cdaaf02141d","sha":"9d40f578d","at":"2026-10-10T19:30:45Z","src":"playgvt-staged","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"19.85","md5":"8e58c2d64b5da075527bdd35f11eba23","sha":"87a04701b","at":"2026-10-10T19:34:24Z","src":"playgvt-staged","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -77715,7 +77715,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='19.84';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='19.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -113017,7 +113017,18 @@ function drawMomToysAir(){
     momToyPaint(t, t.x, t.y-14-z, a.spin, false);
   }
 }
-function pathStroke(){ const k=S.gk||1; cx.beginPath(); cx.moveTo(PATH_PTS[0].x*k,PATH_PTS[0].y); for(let i=1;i<PATH_PTS.length;i+=3) cx.lineTo(PATH_PTS[i].x*k,PATH_PTS[i].y); cx.stroke(); }   // v1.98: the rug runner stretches with the grand rug (identity at gk 1; y and stroke width untouched)
+// ═══ CARD-CPS THE LEVEL-1 ROAD (from DYLAN, co-designer, guest link, 2026-10-10 18:35:34 UTC, verbatim: "Run a design pass for the campaign level one map to have the pathway lead from one toy box to the other in a clean manner.
+// Let's also add northern and southern sand bag barriers on each side of the path."; design/campaign-path-sandbags-1010/00-BUILD-CPS.md). The runner every rung shares (PATH_PTS) starts in mid-carpet at (990,210) and swoops
+// to your box: on level 1 it never reached THEIR box. Level 1 (and every rung whose base field is 1 — the dress row's own seat, campBaseRung) now draws ONE straight groove at the boxes' waist from their box to yours, both
+// round ends tucked under the boxes; the same three readers (pathStroke + the plate's two cuts) take cpsPath(). The runner is paint only (nobody walks PATH_PTS). THE WALLS: CAMP_DRESS[1] = two rows of the house's sandbags
+// (art 'bags', r 16, centres 26 apart — the 0129 barricade), ten each (x 503..737, centred on the field's middle 620), north (y 226) and south (y 374) of the runner: the lane between them 116 wide past the bags' bodies (every pinch past 2×ROCK_PAD_FORM), the west shoulder 487 clear of the 480 deploy line.
+// Every other rung, the battleground, the parks and the raids draw what they drew.
+const CPS={ rung:1, y:300, x0:1110, x1:120, n:240 }, CPS_PTS=[];
+for(let i=0;i<=CPS.n;i++) CPS_PTS.push({ x:CPS.x0+(CPS.x1-CPS.x0)*i/CPS.n, y:CPS.y });
+CAMP_DRESS[CPS.rung]={ rocks:[226,374].flatMap(y=>[0,1,2,3,4,5,6,7,8,9].map(i=>i*26+503).map(x=>({ x, y, r:16, art:'bags', row:y<CPS.y? 'n' : 's' }))) };
+function cpsOn(){ return !!(!S.bf && !S.park && !S.raid && !S.momRaid && S.cfg && (S.levelN|0)>0 && (S.cfg.n|0)===(S.levelN|0) && campBaseRung(S.levelN|0)===CPS.rung); }   // the rung actually dealt (S.cfg.n): a leftover levelN behind a face-off or the range (levelN 0) never takes it
+function cpsPath(){ return cpsOn()? CPS_PTS : PATH_PTS; }
+function pathStroke(){ const k=S.gk||1, P=cpsPath(); cx.beginPath(); cx.moveTo(P[0].x*k,P[0].y); for(let i=1;i<P.length;i+=3) cx.lineTo(P[i].x*k,P[i].y); cx.stroke(); }   // v1.98: the rug runner stretches with the grand rug (identity at gk 1; y and stroke width untouched)
 // Each army's toy box, flying its own colours. The enemy's is the same box
 // mirrored, so the two halves read as one carpet folded down the middle.
 function drawBase(side){
@@ -113418,7 +113429,7 @@ function rugPlatePools(g,WD,HT,band,night,ch){ if(band!=='plain') return;   /* C
   g.save(); g.beginPath(); g.rect(FI,FI,fw,fh); g.clip();
   for(const [x,y,r] of [[WD*0.3,HT*0.4,380],[WD*0.7,HT*0.6,420],[WD*0.5,HT*0.2,300]]){ const R=g.createRadialGradient(x,y,0,x,y,r); R.addColorStop(0,c4(P[0],P[0][3])); R.addColorStop(1,c4(P[0],0)); g.fillStyle=R; g.fillRect(FI,FI,fw,fh); }   // three warm pools
   const E=g.createRadialGradient(WD/2,HT/2,HT*0.35,WD/2,HT/2,Math.max(WD,HT)*0.62); E.addColorStop(0,c4(P[1],0)); E.addColorStop(1,c4(P[1],P[1][3])); g.fillStyle=E; g.fillRect(FI,FI,fw,fh);   // plum toward the frame
-  if(!roofField() && !ch){ const k=S.gk||1; g.save(); g.translate(0,(WORLD_H-H)/2); g.lineCap='round'; g.lineJoin='round'; g.lineWidth=92; g.globalCompositeOperation='destination-out'; g.beginPath(); g.moveTo(PATH_PTS[0].x*k,PATH_PTS[0].y); for(let i=1;i<PATH_PTS.length;i+=3) g.lineTo(PATH_PTS[i].x*k,PATH_PTS[i].y); g.stroke(); g.restore(); }   // the dye never tints the groove (its halo's 92): CARD I's runner keeps its own composite — the deep groove's black-army numbers and the route's read stand
+  if(!roofField() && !ch){ const k=S.gk||1, P=cpsPath(); g.save(); g.translate(0,(WORLD_H-H)/2); g.lineCap='round'; g.lineJoin='round'; g.lineWidth=92; g.globalCompositeOperation='destination-out'; g.beginPath(); g.moveTo(P[0].x*k,P[0].y); for(let i=1;i<P.length;i+=3) g.lineTo(P[i].x*k,P[i].y); g.stroke(); g.restore(); }   // the dye never tints the groove (its halo's 92): CARD I's runner keeps its own composite — the deep groove's black-army numbers and the route's read stand
   g.restore();
   if(!ch){ for(const RV of rvList()){ /* CARD-OVF-B18: every channel */ g.save(); g.beginPath(); g.rect(RV.x,FI,RV.w,fh); g.clip(); g.clearRect(RV.x-2,FI-2,RV.w+4,fh+4); rugPlatePools(g,WD,HT,band,night,1); g.restore(); } } }   // CARD-RVF: over the river's channel the dye is laid again WITHOUT the groove's cut, so it lies evenly over the water (the pale band where the runner crossed it is gone); every pixel outside the channel is the served plate's
 function rugPlateLamp(g,WD,HT,band){ const L=RUG_PLATE_LAMP[band]; if(!L) return; const sh=L[0], a=L[1], rr=L[2]||0, es=L[3]||1, e1=120*es, e2=150*es, fx=56, fy=56, fw=WD-112, fh=HT-112, rgba=al=>'rgba('+sh+','+Math.max(0,al).toFixed(3)+')';
@@ -113538,7 +113549,7 @@ function rugPlateLobes(WD,HT){ const n=Math.max(3,Math.round(3.2*(WD/1240)*(HT/6
 function rugPlateLobeStroke(g,lb,off,w,ink){ const dx=Math.cos(lb.ang)*lb.len/2, dy=Math.sin(lb.ang)*lb.len/2, nx=-Math.sin(lb.ang), ny=Math.cos(lb.ang); g.strokeStyle=ink; g.lineWidth=w; g.beginPath(); g.moveTo(lb.x-dx+nx*off,lb.y-dy+ny*off); g.lineTo(lb.x+dx+nx*off,lb.y+dy+ny*off); g.stroke(); }   // one round-capped stroke of THE BAY's recipe, off along the normal (+ SE, − NW)
 function rugPlateBandErase(g,WD,HT){ const t=S.cfg.terrain; g.save(); g.globalCompositeOperation='destination-out'; g.fillStyle='#000'; g.strokeStyle='#000'; g.lineCap='round'; g.lineJoin='round';   // the furniture cut out of the band's paint: nothing lines a hole, a stack, a heap or the water
   for(const RV of rvList()) g.fillRect(RV.x-4,56,RV.w+8,HT-112);   /* CARD-OVF-B18: every channel */
-  if(!roofField()){ const k=S.gk||1; g.save(); g.translate(0,(WORLD_H-H)/2); g.lineWidth=92; g.beginPath(); g.moveTo(PATH_PTS[0].x*k,PATH_PTS[0].y); for(let i=1;i<PATH_PTS.length;i+=3) g.lineTo(PATH_PTS[i].x*k,PATH_PTS[i].y); g.stroke(); g.restore(); }   // the runner's footprint (the groove's 92-wide halo): CARD I's groove keeps its own composite, as under CARD II's pools
+  if(!roofField()){ const k=S.gk||1, P=cpsPath(); g.save(); g.translate(0,(WORLD_H-H)/2); g.lineWidth=92; g.beginPath(); g.moveTo(P[0].x*k,P[0].y); for(let i=1;i<P.length;i+=3) g.lineTo(P[i].x*k,P[i].y); g.stroke(); g.restore(); }   // the runner's footprint (the groove's 92-wide halo): CARD I's groove keeps its own composite, as under CARD II's pools
   for(const rk of (t.rocks||[])){ if(rk.art==='drift'||rk.art==='clod'){ g.beginPath(); g.arc(rk.x,rk.y,rk.r+8,0,7); g.fill(); } else if(rk.art==='vent'){ const s=rk.r; g.fillRect(rk.x-s-3,rk.y-s*1.34,2*s+6,s*1.94); } }
   for(const pr of (t.props||[])){ if(pr.x>WD-70) continue; if(pr.art==='clod'){ g.beginPath(); g.arc(pr.x,pr.y,pr.r+8,0,7); g.fill(); } else if(pr.art==='chimney'){ const s=pr.r; g.fillRect(pr.x-s*0.98-1.5,pr.y-s*1.36-1.5,s*1.96+3,s*1.98+3); } }
   for(const p of (t.pits||[])){ g.beginPath(); g.ellipse(p.x,p.y,p.r+2.5,p.r*0.72+2.5,0,0,7); g.fill(); }
