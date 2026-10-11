@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.27","md5":"09774b2f93a2ac2bcf193ea9afd08cb4","sha":"9772c9b99","at":"2026-10-11T05:30:20Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.28","md5":"bec1a405bd4dbeae644ac80bb3b6ad1e","sha":"076f5e295","at":"2026-10-11T05:38:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -63168,7 +63168,7 @@ function hrtS4Rig(){ const R=skyOn() && S.raid.sky, A=R && R.air; return { on:!!
 // Measured before it (CARD-HRT-S4, the AA buyer at rung 100, 55 fights a cell, the dial turned on the rig): HARD 14 → 46 won, MEGA 15 → 44, every MAYDAY ended with her stopped: the answer to MAYDAY (men beside her line) works the same at every rung.
 // HRT_S5 0 = CARD-HRT-S3's bar (× the price). Zero dice, and the price itself is never read here: the tier's cell is the same on every sim (the twin law), and a party whose ally leaves mid-fight keeps the wreck its bomber was built for.
 const HRT_S5=1;
-function hrtS5Own(f){ const T9=SKY_T[skyTier()]||SKY_T.e; return HRT_S5? Math.min(f.hpMax,T9.hp) : f.hpMax; }   // her bar at the kid's own price: the tier's cell, never more than the bar she flew with
+function hrtS5Own(f){ const T9=SKY_T[skyTier()]||SKY_T.e; return HRT_S5? Math.min(f.hpMax,T9.hp*bhpNow()) : f.hpMax; }   /* CARD-BHP: the tier's cell × the party's factor (her bar flew with it) */   // her bar at the kid's own price: the tier's cell, never more than the bar she flew with
 function hrtS5Bar(f){ return Math.max(1,Math.round(hrtS5Own(f)*hrtS3Dial().bar)); }   // THE WRECK's bar at the cry: that bar × the tier's MAYDAY cell
 function hrtS5Rig(){ const B=S.foes.find(f=>f.type==='skyfort'), M=B && B.sky && B.sky.s3, fly=B? (M? M.hp0 : B.hpMax) : null, T9=SKY_T[skyTier()]||SKY_T.e, c=hrtS3Dial().bar; return { on:!!HRT_S5, tier:skyTier(), price:skyPrice(skyTier()), cell:c, hp:T9.hp, fly, wreck:(B && M)? B.hpMax : null, own:Math.max(1,Math.round(T9.hp*c)), rode:(fly!=null)? Math.max(1,Math.round(fly*c)) : null }; }
 // ═══ CARD-HRT-S6 THE SKY FORTRESS: THE AA GUN'S ROUND HITS THE WRECK AT THE KID'S OWN SIZE (board J4; the record design/fight-heart-1002/09-BUILD-HRT-S6.md; CARD-HRT-S5's flag HRT-S5-Q1 built at its REC (b), under Wyatt's standing word 10/2/2026 09:54 EDT, verbatim: "Go with recommended for the new tasks that are awaiting commands; if they are simply finished please close them") ═══
@@ -63510,7 +63510,7 @@ function cavesCfg(tier){ const C9=cavesCount(cavesN());   // 1164 THE COUNT LAW:
     { f:'spout', t:'lyeti', n:Math.min(2,SY_LIVE[tier]||1), pts:[H9[1],H9[4]].slice(0,Math.min(2,SY_LIVE[tier]||1)), at:SY_AT, quiet:1, pin:1 },   // CARD-YB THE SPEARMEN's premiere at SY_AT out of the middle holes — a pair (one at EASY: the cap); pin:1 = the count law is the only scaling
     { f:'spout', t:'hyeti', n:Math.min(2,HY_LIVE[tier]||1), pts:[H9[0],H9[2]].slice(0,Math.min(2,HY_LIVE[tier]||1)), at:HY_AT, quiet:1, pin:1 },   // CARD-YB THE FISHERS' premiere at HY_AT out of the top holes (one at EASY/MEDIUM, two at HARD/MEGA: the cap)
     { f:'spout', t:'dyeti', n:Math.min(2,DY_PREMIERE[tier]||1), pts:[H9[1],H9[4]].slice(0,Math.min(2,DY_PREMIERE[tier]||1)), at:DY_AT, quiet:1, pin:1 },   // 1187 THE PREMIERE: the swordsmen show themselves at DY_AT out of the middle holes, between the third and fourth bursts and before the boss (the wave law — a threat premieres alone); pin:1 = the count law is the only scaling
-    { f:'spout', t:'fyeti', n:1, pts:[CAVE_MOUTH], at:FY_ARRIVE, hpX:+((CAVES_HPX[tier]||1)*C9.hpX).toFixed(3), pin:1 } ] });   // 1164 THE COUNT LAW: his bar × (1 + 0.55·(n−1)) through the spout's hpX; pin:1 = ONE FEROCIOUS YETI at every seat count (sqScaleCfg would have rowed two out of the mouth for a party of two)
+    { f:'spout', t:'fyeti', n:1, pts:[CAVE_MOUTH], at:FY_ARRIVE, hpX:+(CAVES_HPX[tier]||1).toFixed(3), pin:1 } ] });   /* CARD-BHP: his bar's party term is the one law's now (spawnFoe × (1 + 0.9·(n − 1))); was × C9.hpX (1 + 0.4·(n − 1)) here — the two would stack (⚑ BHP-F5) */   // 1164 THE COUNT LAW: his bar × (1 + 0.55·(n−1)) through the spout's hpX; pin:1 = ONE FEROCIOUS YETI at every seat count (sqScaleCfg would have rowed two out of the mouth for a party of two)
   return cfg; }
 function cyRnd(f,k){ const s=(((f.id|0)*9301+(f.cyTrips|0)*49297+(k|0)*7919+(S.wave|0)*233)%233280+233280)%233280; return s/233280; }   // a hash, never a die (the twin law)
 function cyHoleNear(x,y){ let b=CAVE_HOLES[0], bd=1e9; for(const h of CAVE_HOLES){ const d=Math.hypot(h[0]-x,h[1]-y); if(d<bd){ bd=d; b=h; } } return b; }
@@ -80310,7 +80310,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.28';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -82351,8 +82351,9 @@ function coopStartBattle(){
     // the bell (a reconnect, rung already 1) skips it and arms at once.
     const evb=!!(COOP.ev && (pp.id==='ice'||pp.id==='bone') && (pp.n|0)===EV_BAND && S.raid.t==='u');   // 0905 THE TALL LAIR: the event room is the 'u' tier of EITHER king
     const preal=evb? EV_PIN_P : Math.max(1,Math.min(SQ_MAX,COOP.pc|0));
-    sqScaleCfg(S.cfg, preal, evb);   /* CARD-CTM: the event's ten-wide pin is no party of real commanders — the shipped call alone; a raid party (evb false) gets the ten percent a commander like a level */
-    S.sq={ p:preal, t:0, nextT:sqGrace() };
+    const bpq=Math.max(1,Math.min(SQ_MAX,COOP.pc|0));   /* CARD-BHP: the BOSS reads the real people (the event room's ten-wide pin is the swarm's; ⚑ BHP-F2); a raid party's = preal */
+    sqScaleCfg(S.cfg, preal, evb, bpq);   /* CARD-CTM: the event's ten-wide pin is no party of real commanders — the shipped call alone; a raid party (evb false) gets the ten percent a commander like a level */
+    S.sq={ p:preal, bp:bpq, t:0, nextT:sqGrace() };   /* CARD-BHP: bp = the boss's count (bhpNow) */
     if(evb){ S.sq.ev={ bell:COOP.ev.bell, ring:evRingOf(COOP.ev), wk:COOP.ev.wk, rk:COOP.ev.rk||'ice' }; S.evHold=(!COOP.ev.rung && evNow()<evRingOf(COOP.ev))? { bell:COOP.ev.bell, ring:evRingOf(COOP.ev) } : null;   // CARD-NE 1221: the hold runs to the RING (the join reply's; the bell on an older HQ)
       if(S.evHold && (COOP.members||[]).length>1) coopSend({k:'wava'}); }   // 0484 ⚑ THE LATE JOINER'S MEN: ask the room to re-speak its standing men (the wava door above) — a replay from 0 is NOT the whole log once the pitcher has re-hydrated the room
     coopSeatColours();
@@ -82618,28 +82619,35 @@ function noteCoopLevel(n){
 // Same waves, same formations — just more of them in each. Pure arithmetic over
 // the already-seeded cfg, so every sim in the lobby builds the identical army
 // without another roll of the level's RNG.
-function sqScaleCfg(cfg,p,pin){   /* CARD-CTM: + pin (THE EVENT ROOM's ten-wide pin rides the shipped call alone; every other caller unchanged) */
-  const s=sqTroopMul(p,pin), bs=Math.max(1,Math.round(Math.pow(Math.max(1,p),SQ_BOSS_EXP)));   /* CARD-CTM: the troops ride sqTroopMul (+10 % a commander past the first, stacking); the bosses' bs as shipped */
+function sqScaleCfg(cfg,p,pin,bp){   /* CARD-CTM: + pin (THE EVENT ROOM's ten-wide pin rides the shipped call alone; every other caller unchanged) */   /* CARD-BHP: + bp = the count the BOSS reads (the event room's real people; every other caller = p) */
+  const s=sqTroopMul(p,pin), bk=bhpX(bp!=null? bp : p);   /* CARD-CTM: the troops ride sqTroopMul (+10 % a commander past the first, stacking) */   /* CARD-BHP ONE BOSS, MORE HEALTH: the bosses' copies are retired (bs = round(p^SQ_BOSS_EXP): 2 of him at 3-6 seats, 3 at 7-10; the 1135 branch's ×min(bs,2) bar; 0617's flat raid bar) — bk = his health, × (1 + BHP_K·(p − 1)) */
   for(const w of cfg.waves){
-    // v1.46: a finale that already fields SEVERAL monsters (the L60+ boss
-    // pairs, THE LAST STAND's four) caps each authored boss group at x2 in a
-    // lobby — ten seats multiplying four authored bosses would row twelve.
-    // Identity at one commander holds: bs=1 → min(1,2)=1, byte-for-byte.
-    let bossGroups=0; for(const g of w.groups) if(g.f==='boss') bossGroups++;
     for(const g of w.groups){
+      if(bhpIs(g)){ bhpRow(g,bk); if(g.tease) g.n=1; if(!g.pin && g.f!=='boss' && g.escort) g.escort=Math.max(1,Math.round(g.escort*s)); continue; }   // CARD-BHP ONE BOSS, MORE HEALTH (Wyatt 10/10: "the more people should add to the bosses health instead of multiplying the bosses"): EVERY boss row — f:'boss' (the campaign's, the parks', the raids', the showdown's, the third hundred's), a boss TYPE on any formation (a column of snowmen, the cavalry's line), a bossBar row, a spout boss (pinned or not: the next one can never double, PC2-Q2) — fields its AUTHORED count at every seat count (solo's number; the v1.81 tease stays one), and the party goes into his bar (bhpRow: hpAdd × bk; a row whose type is no boss row folds bk into its hpX; a boss type's bar takes it at spawnFoe's one seat); the escort riding a boss-typed line is troops and scales as troops
       // v1.81: a lobby fields ONE tease — g.n=bs would row 2-3 monsters into
       // wave 1 at ten seats. Solo identity holds either way (bs=1).
       if(g.pin) continue;   // 0905 THE TALL LAIR: a PINNED group's authored count IS the body count at every seat count (the 'u' lair's clutches, pours and stegos — eighty eggs are eighty in a party of ten); no shipped group carries the stamp
       if(g.f==='spout' && g.pts){ g.per=Math.max(1,Math.round((g.per||1)*s)); continue; }   // 0305 BF-01 (D11): authored-point groups scale their PER-POINT count — one fight at every seat count (solo p=1 ⇒ per 1, byte-identical)
       if(g.tease){ g.n=1; continue; }
-      if(g.f==='boss' && (cfg.sd200 || cfg.l201 || cfg.r205 || cfg.claw || cfg.oneB9)){   /* OC-9: …nor two GENERALS, nor two FLYING GIANTS */   /* OC-6: …nor two CLAWS — ONE machine, its bar on the ladder's boss multiple */   /* OC-4: …nor two ROBO-SARGEs — ONE robot built from YOURS, his bar on the ladder's boss multiple */ const k9=Math.min(bs,2); if(k9>1){ g.hpX=+((g.hpX||1)*k9).toFixed(3); if(g.hpAdd) g.hpAdd=Math.round(g.hpAdd*k9); } g.n=1; continue; }   // 1135 THE LEVEL 200 SHOWDOWN: a party never rows two Moms or two of THE MAN HIMSELF (Wyatt 8/29: "There are 2 copies of all the bosses for some reason") — the ladder's boss multiple for a piece (min(bs,2): ×1 at one and two commanders, ×2 from three) folds into the ONE body's bar through the group's hpX/hpAdd seat; identity at p ≤ 2; every other cfg never reads this line
-      if(g.f==='boss'){ g.n=cfg.oneBoss? (g.n||1) : ((w.piece||bossGroups>1)? Math.min(bs,2) : bs); continue; }   // 0617 ONE KING PER FIGHT (Wyatt 8/29: "There are 2 copies of all the bosses for some reason"): a raid's AUTHORED boss count stands at every seat count — the horde still scales, and the nightly event (pinned to ten) stops rowing two of everything; campaign lobbies keep their law
       g.n=Math.max(1,Math.round((g.n||1)*s));
       if(g.escort) g.escort=Math.max(1,Math.round(g.escort*s));
     }
   }
   return cfg;
 }
+// ═══ CARD-BHP ONE BOSS, MORE HEALTH (design/boss-health-party-1010/00-CARD-BHP.md; board J42; Wyatt 10/10/2026 ~20:30 EDT on Maker 1, verbatim: "Yea the more people should add to the bosses health instead of multiplying the bosses"; his pick ~20:43: "ajudt to 90% instead").
+// THE LAW, every mode (the campaign, the parks, the raids, the library, the chess duel, the events): a boss is NEVER copied for a party — sqScaleCfg leaves every boss row its authored count — and the party goes into his HEALTH:
+// × (1 + BHP_K·(p − 1)): 1 ×1 · 2 ×1.9 · 3 ×2.8 · 4 ×3.7 · 7 ×6.4 · 10 ×9.1. ONE seat for the bar: spawnFoe's boss curve (every boss birth — a row's, a director's: the library's stages and its Horseman, a raid king's p3, the copier's print of a boss),
+// so every bar, plate, floor and gate (all fractions of hpMax) reads the bigger number; a f:'boss' / bossBar row whose type is no boss row folds bk into its hpX; every boss row's hpAdd × bk (the sum stays his solo bar × bk).
+// p = S.sq's count (the troops' own: the computer buddies count, ⚑ BHP-F2); the event room reads its real people (S.sq.bp = COOP.pc, never the ten-wide pin). The Ice Caves' own count term on his bar (×1.4 at two) gives way to this one (⚑ BHP-F5).
+// One boss pays one bounty (⚑ BHP-F3) and hits as one boss (⚑ BHP-F4). Solo ×1 exactly (p 1: every cfg and every bar byte-what-it-was). Zero wire (p is frozen at HQ: every sim computes the same bar), zero server, zero save, zero words.
+const BHP_K=0.9;   // ⚑ BHP-F1 his pick: +90 % health a player past the first (he first chose +100 %, the REC of +50 / +100 / +150 %)
+let BHP_BARE=0;    // a boss-typed body born as no boss (the library's helper Frankenstein, gmyFrankHelp): spawnFoe leaves the party's health off while it is set (bhpBare)
+function bhpX(p){ p=Math.max(1,Math.min(SQ_MAX,(p|0)||1)); return p>1? +(1+BHP_K*(p-1)).toFixed(3) : 1; }   // the party's factor on a boss's bar (solo 1 exactly)
+function bhpNow(){ const q=S.sq; return (q && !S.bf)? bhpX(q.bp||q.p) : 1; }   // this battle's factor (S.sq is the battle's: reset() clears it, every door re-arms it; a battleground keeps its own law)
+function bhpIs(g){ return g.f==='boss' || !!g.bossBar || !!(FDEF[g.t] && FDEF[g.t].boss); }   // a boss row: the boss former, a bossBar stamp, or a boss TYPE on any formation
+function bhpRow(g,bk){ if(g.f==='boss') g.n=g.n||1; if(bk>1){ if(!(FDEF[g.t] && FDEF[g.t].boss)) g.hpX=+((g.hpX||1)*bk).toFixed(3); if(g.hpAdd) g.hpAdd=Math.round(g.hpAdd*bk); } return g; }   // his authored count; his bar × bk (spawnFoe gives a boss type's; the row's hpX carries a non-boss type's); hpAdd × bk
+function bhpBare(fn){ BHP_BARE=1; try{ return fn(); } finally{ BHP_BARE=0; } }
 // how many of the men out there are MINE — an ally's, a paratrooper's drop and
 // the loaner never count (the v1.45/v1.62 flags, kept as the count's honest
 // shape). 0501 NO CAP: the count gates NOTHING now — it is the rig's probe
@@ -106098,7 +106106,7 @@ function spawnFoe(type,x,y,form,gu){
   // enough to be a wall, not a slog. (Half the hpMul growth early — v1.46:
   // climbing to FULL growth across L30-L50 via cfg.bossF, doc LAW A2; battle
   // cfgs with no bossF — the battleground shell, rival raids — keep 0.5.)
-  const hpm = (d.boss ? (1+(S.cfg.hpMul-1)*(S.cfg.bossF!=null?S.cfg.bossF:0.5)) : S.cfg.hpMul)*(S.cfg.hpX||1);   // 0520 THE MUSCLE (ELITE_STRENGTH.hpX, the elite ladder alone — "Elite forces need to have 2x hp"): the rung's whole army ×2 AFTER the boss curve, so a boss doubles exactly like his escort; every cfg without the seat is ×1 — byte-what-it-was
+  const hpm = (d.boss ? (1+(S.cfg.hpMul-1)*(S.cfg.bossF!=null?S.cfg.bossF:0.5)) : S.cfg.hpMul)*(S.cfg.hpX||1)*((d.boss && !BHP_BARE)? bhpNow() : 1);   /* CARD-BHP ONE BOSS, MORE HEALTH: a boss's bar × (1 + 0.9·(p − 1)) in a party — every boss birth passes here (a row's, a director's); solo ×1 */   // 0520 THE MUSCLE (ELITE_STRENGTH.hpX, the elite ladder alone — "Elite forces need to have 2x hp"): the rung's whole army ×2 AFTER the boss curve, so a boss doubles exactly like his escort; every cfg without the seat is ×1 — byte-what-it-was
   const hpq=d.hp*hpm*(m.hp||1)*((type==='tanrifle' && S.cfg.rifleHpX>0)? S.cfg.rifleHpX : 1);   // 0903 CAMPAIGN BITES: the tan rifleman's band factor (levelCfg's CAMP_BITE pass, rungs 5-20) rides his row BEFORE the rounding - "hp increased by 20%" on his 2 (x hpMul), never on a rounded 2 or 3; every other type and every cfg without the seat: the identical product
   const f={ id:idc++, type, def:d, hp:Math.round(hpq), hpMax:Math.round(hpq),
     x, y, vx:0, vy:0, wob:Math.random()*6.28,
@@ -169398,7 +169406,7 @@ function gmxBlast(x,y,R,men,foe){ let n=0;   // everyone inside R: a pip on your
   for(const u of S.units.slice()){ if(u.dead || u.jetT>0 || u.dropT>0 || u.gmyAir) continue; if(Math.hypot(u.x-x,u.y-y)>R) continue; gmxPip(u,x,y,men); n++; }
   for(const f of S.foes.slice()){ if(f.dead || !(f.hp>0) || (f.def && (f.def.boss || f.def.gmyB==='bathit'))) continue; if(Math.hypot(f.x-x,f.y-y)>R) continue; hurt(f,foe,null,0); n++; }
   return n; }
-function gmxBoost(G){ const b=G && G.boss, R=b && !b.gmxBoost && !b.dead && !b.gmyHelp && GMX.boost[b.type], n=R && (R[gmyTier()]||R.e); if(!n) return;   /* CARD-HL6B r4: the tier's row */ b.gmxBoost=n; b.hpMax=(b.hpMax>0? b.hpMax : b.hp)+n; b.hp+=n; gmyLog(G,b.type+' +'+n+' hp'); }   // CARD-HL6B: the stage boss once (the stage-3 helper Frankenstein keeps his own)
+function gmxBoost(G){ const b=G && G.boss, R=b && !b.gmxBoost && !b.dead && !b.gmyHelp && GMX.boost[b.type], n=R && (R[gmyTier()]||R.e); if(!n) return;   /* CARD-HL6B r4: the tier's row */ const n9=Math.round(n*bhpNow()); b.gmxBoost=n9; b.hpMax=(b.hpMax>0? b.hpMax : b.hp)+n9; b.hp+=n9; gmyLog(G,b.type+' +'+n9+' hp'); }   /* CARD-BHP: the boost is part of his SOLO bar — × the party's factor like the rest of it (P47's note); n9 = n × bk */   // CARD-HL6B: the stage boss once (the stage-3 helper Frankenstein keeps his own)
 function gmxFire(x,y,r,l,dps){ (S.fires||(S.fires=[])).push({ x:x, y:y, r:r, t:0, life:l, dps:dps, acc:0, tk:0, src:null, side:null, foe:true, hit:new Set() }); }   // the house's fire, lit by nobody on HIS side: it burns your men (tanHit) and, FS_FF, his own (hurt) — fsTick owns it
 // ---- THE DIRECTOR (gmyTick's door, every frame of the fight) ----
 function gmxTick(G,dt){ const rd=S.raid, tr=gmyTier(); gmxBoost(G); if(!gmxOnTier()) return; const X=G.X||(G.X=gmxNew()); if(!X.t) gmxMint(); X.t+=dt;
@@ -169499,7 +169507,7 @@ function gmxPumpRoll(G,X,dt){ const D=GMX.pk;
   X.pks=X.pks.filter(p=>!p.done); }
 // ---- THE HEADLESS HORSEMAN (MEGA): the true boss ----
 function gmxHhIn(G,X,why){ if(X.hhIn) return; X.hhIn=1; const D=GMX.hh, f=spawnFoe('gmyhh', W+90, Math.max(FOE_TOP+D.yMin,foeBandY(WORLD_H/2+60)), null, false); if(!f) return;
-  f.hp=f.hpMax=D.hp; f.barOff=1; f.gmyFace=-1; X.hh=f; f.gmx={ st:'enter', T:0, leg:0, next:2, way:null, h:Math.PI, mv:1, lob:D.lob0, ram:{}, pr:0, rest:0, oa:0 };
+  f.hp=f.hpMax=Math.max(1,Math.round(D.hp*bhpNow())); f.barOff=1; f.gmyFace=-1; X.hh=f;   /* CARD-BHP: THE HEADLESS HORSEMAN's bar × the party's factor */ f.gmx={ st:'enter', T:0, leg:0, next:2, way:null, h:Math.PI, mv:1, lob:D.lob0, ram:{}, pr:0, rest:0, oa:0 };
   SFX.horn(); bfSfx(SFX.gmxNeigh,W-60,f.y); setTimeout(()=>{ try{ SFX.gmxLaugh(); }catch(e){} }, 700); gmyLog(G,'horseman in ('+why+')'); }
 function gmxHhPick(f,m){ const D=GMX.hh; m.leg++; m.legT=0;
   if(m.leg>=m.next){ const men=gmyMen().filter(u=>!(u.def && u.def.vehicle)).sort((a,b)=>a.x-b.x).slice(0,D.back);   // THE BACK LINE FIRST: one of your three men nearest your toy box
@@ -169760,7 +169768,7 @@ function gmyWaveTick(G,dt){ const D=GMY.wave3; G.waveT-=dt; if(G.waveT>0) return
   if(S.foes.filter(f=>f.type==='mumrifle' && !f.dead).length+n>n*D.full){ G.waveT=D.retry; return; }
   G.waveT=D.every; G.waveN=(G.waveN|0)+1; spawnGroup({ f:'solo', t:'mumrifle', n:n, e:'right' }); gmyLog(G,'wave '+G.waveN+' x'+n);
   if(G.waveN===D.frankAt) gmyFrankHelp(G); }
-function gmyFrankHelp(G){ const f=spawnFoe('frank', W+10, foeBandY(WORLD_H/2), null, false); if(!f) return; f.boss=false; f.barOff=1; f.gmyHelp=1; gmyLog(G,'frank helps'); gmySay(G,'frank'); }
+function gmyFrankHelp(G){ const f=bhpBare(()=>spawnFoe('frank', W+10, foeBandY(WORLD_H/2), null, false)); if(!f) return;   /* CARD-BHP: the helper is no boss (f.boss=false): his solo bar */ f.boss=false; f.barOff=1; f.gmyHelp=1; gmyLog(G,'frank helps'); gmySay(G,'frank'); }
 function gmyBatRule(G){ return (G && G.st===2 && gmyTier()==='g')? GMY.bat3g : GMY.bat; }   // MEGA's stage 3 flies more bats, for the mummy
 // ---- THE CAST'S BRAINS (the foes loop's branch: gmyFoeStep owns the feet of every gmyB row) ----
 function gmyDir(f,gx,gy){ const dx=gx-f.x, dy=gy-f.y, d=Math.hypot(dx,dy)||1, st=rockSteer(f.x,f.y,gx,gy,ROCK_PAD_FOE+f.def.w*0.2,null,1); return st? { x:st.x, y:st.y } : { x:dx/d, y:dy/d }; }   // toward his goal, round a fallen book (the march's own steer)
