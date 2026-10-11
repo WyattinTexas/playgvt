@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.88","md5":"9894715e09b7fa884e4b138f5f80e53f","sha":"3076b7d74","at":"2026-10-11T16:57:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.89","md5":"1dcd68fed8d61a9d7ffe4cd99bd97ca0","sha":"25410e689","at":"2026-10-11T16:59:35Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -3520,6 +3520,11 @@
     font-size:clamp(12px,2.3vh,17px); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; }
   .cs-chip .st { font-size:0.68em; color:#FFD24A; letter-spacing:0.08em; }
   .cs-chip:active { transform:scale(0.93); }
+  /* ---- CARD-RPD REPLAY: PICK THE LEVEL, THEN DEPLOY (Dylan 10/11/2026; design/replay-pick-1011) ---- the picked chip lit in the chips' own green
+     (the raid tier's .on grammar), its stars warmer; the door's line in cream with a green glow while a pick stands (gold = the next rung, as shipped) */
+  .cs-chip.rpd-on { border-color:#BFE39A; background:linear-gradient(180deg,rgba(84,118,60,0.96),rgba(44,66,32,0.96)); box-shadow:0 0 14px rgba(191,227,154,0.5); color:#FFFFFF; }
+  .cs-chip.rpd-on .st { color:#FFE38A; }
+  .cs-lvl.rpd-pick { color:#F5F0DC; text-shadow:0 2px 0 rgba(0,0,0,0.55), 0 0 22px rgba(191,227,154,0.45); }
   /* ---- WORLD RANKINGS: the leaderboard as a scene ----
      Same recipe as the War Table: the battle photo IS the page, one plate of
      big rows, ONE thing to do. z20 keeps it under the queue UI (chip z45, ring
@@ -82160,7 +82165,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.88';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.89';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -157925,14 +157930,31 @@ function parkSceneLayout(){
   if(ph){ const pw=56*s2, box=Math.max(pw+16, 60), pad=(box-pw)/2; ph.style.top=((594-oy)*s2-pad)+'px'; ph.style.width=box+'px'; ph.style.height=box+'px'; ph.style.marginLeft=(-pad)+'px'; }
 }
 window.addEventListener('resize', function(){ if(parkSceneOpen()){ parkSceneLayout(); if(PARK_CUR==='teddy') teddyBitmaps(document.getElementById('parkBg')); } });   // 0554d: the planes follow the device size
+// ═══ CARD-RPD REPLAY: PICK THE LEVEL, THEN DEPLOY (sec:CARD-RPD; design/replay-pick-1011/00-CARD-RPD.md, board J108; FROM DYLAN, co-designer, the jumpr guest link 2026-10-11 16:13:58 UTC, verbatim: ═══
+// "Let's run a design pass so that when you replay a completed level, you have to choose deploy after selecting said level. Currently if you click the level it automatically sends you into it. Thank you!"; Dylan's live switch, Wyatt 10/8 18:30).
+// THE PICK: a replay chip on THE CAMPAIGN's door (renderCampScene) or a park's door (renderParkScene) no longer launches the level; it PICKS it (RPD.c / RPD.p, this session only, never saved): the chip
+// lights (.cs-chip.rpd-on), the line over the button reads REPLAY · LEVEL n OF m · ITS NAME (rpdLine: the two shipped keys, zero new words), and ⚔ DEPLOY! launches THAT level (UI.campGo / UI.parkGo
+// hand the pick to the shipped UI.campPlay(n) / UI.parkPlay(n): the party boom, the leader lock, the ad gate and the ladder's own refusals all as they were). The lit chip tapped again lets the pick go
+// (the line reads the next rung again); two taps inside RPD_DBL ms count as one, so a double tap never un-picks. Every door entry (openCampScene / openParkScene) starts with no pick. The leader lock
+// grays the chips as before (.ptylock: a seated member picks nothing). The party sheet's own level chips and its DEPLOY (ptyGo) are untouched. GVT.rpd({ c, p }) reads or sets the picks (the rig).
+const RPD={ c:0, p:0, t:0 }, RPD_DBL=350;   // c = THE CAMPAIGN's pick, p = the park door's pick (0 = none: the next rung), t = the last pick tap's clock · the double-tap window in ms
+function rpdLvl(k){ return RPD[k]|0; }
+function rpdShow(k, max){ const n=RPD[k]|0; return (n>=1 && n<=(max|0))? n : 0; }   // the pick while it names a beaten rung (a chip that stands), else 0
+function rpdPick(k, n){ n=n|0; const now=Date.now(); if(RPD[k]===n && now-(RPD.t||0)<RPD_DBL){ RPD.t=now; return n; } RPD[k]=(RPD[k]===n)? 0 : n; RPD.t=now; return RPD[k]; }   // a chip: pick it; the lit chip again: let it go; a double tap = one tap
+function rpdClear(k){ RPD[k]=0; RPD.t=0; }
+function rpdLine(k, n, of, name){ return (rpdLvl(k)===n? t('REPLAY')+' · ' : '')+tf('LEVEL %1 OF %2', n, of)+' · '+t(name||''); }   // the door's line: REPLAY · LEVEL n OF m · NAME on a pick, the shipped LEVEL n OF m · NAME otherwise (composed by hand, data-notr at the seat)
+function rpdSeat(id){ try{ const rrow=document.querySelector('#'+id+' .cs-replay'), on=rrow && rrow.querySelector('.cs-chip.rpd-on'); if(!on) return; const a=rrow.getBoundingClientRect(), b=on.getBoundingClientRect(); rrow.scrollLeft+=(b.left+b.width/2)-(a.left+a.width/2); }catch(e){} }   // the lit chip stays in view (the row parks on the newest chips at every paint)
+function rpdRig(o){ o=o||{}; if('c' in o) RPD.c=o.c|0; if('p' in o) RPD.p=o.p|0; if('t' in o) RPD.t=o.t|0; return { c:RPD.c, p:RPD.p, t:RPD.t, dbl:RPD_DBL }; }
+// ═══ end of sec:CARD-RPD ═══
 function renderParkScene(){
   const pk=parkLedger(PARK_CUR), dpk=PARK_CUR==='dino', wpk=PARK_CUR==='western', tpk=PARK_CUR==='teddy', mpk=PARK_CUR==='moon';   // 0947a: five   // v3.35 TP-03: one scene, two parks (0339: three; 0524: four)
   const PL=parkCap(PARK_CUR);   // 0327: the EFFECTIVE top — 20 until any Ice Castle clear opens the deep ladder (D1), then 50; a pre-castle save renders EXACTLY the shipped scene plus one locked line
   const done=pk.lv>=PL;
   const nextL=Math.min(pk.lv+1, PL);
+  const rpdP=rpdShow('p', Math.min(pk.lv|0, parkLevels(PARK_CUR)));   // CARD-RPD (Dylan 10/11): the picked replay rung (a chip that stands), else 0: the line and DEPLOY! read it
   const dye=dyeHex()||undefined;
   const chips = pk.lv>0 ? Array.from({length:Math.min(pk.lv,parkLevels(PARK_CUR))},(_,i)=>
-    '<button type="button" class="cs-chip" onclick="UI.parkPlay('+(i+1)+')"><span data-notr>'+(i+1)+'</span>'
+    '<button type="button" class="cs-chip'+(rpdP===i+1? ' rpd-on' : '')+'" onclick="UI.parkPick('+(i+1)+')"><span data-notr>'+(i+1)+'</span>'
     +'<span class="st" data-notr>'+(pbkChip(PARK_CUR,i+1) /* CARD-PBK: the level's own stars once recorded */ || ((((i<30? (pk.pd>>i) : (pk.pd2>>(i-30))))&1)?'★':'—'))+'</span></button>').join('') : '';
   const pLock=partyLocked('camp'), pLead=partyLeader('camp');
   document.getElementById('parkscene').innerHTML =
@@ -157940,7 +157962,7 @@ function renderParkScene(){
     +'<div class="wt-top"><div class="wt-wordmark" data-notr>'+t(mpk?'GNOME PARK':dpk?'DINO PARK':wpk?'OUTLAW TOWN':tpk?'BEAR PARK':'YETI PARK')+'</div><div class="wt-spacer"></div>'
       +'<button type="button" class="wt-x" onclick="UI.parkClose()">✕</button></div>'
     +'<div class="wt-mid">'
-      +'<div class="cs-lvl" data-notr>'+(done? t(mpk?'GNOME PARK IS YOURS':dpk?'HIS MAJESTY, KING REX':wpk?'THE TOWN IS YOURS':tpk?(pk.lv>=parkLevels('teddy')?'HIS IMPERIAL MAJESTY, EMPEROR BEAR':'HIS HIGHNESS, PRINCE BEAR'):(pk.lv>=parkLevels('yeti')?'HIS MAJESTY, KING YETI':'HIS HIGHNESS, PRINCE YETI'))+' · ✓' : tf('LEVEL %1 OF %2', nextL, PL)+' · '+t(parkNames(PARK_CUR)[nextL-1]||''))+'</div>'
+      +'<div class="cs-lvl'+(rpdP? ' rpd-pick' : '')+'" data-notr>'+(rpdP? rpdLine('p', rpdP, PL, parkNames(PARK_CUR)[rpdP-1]||'') /* CARD-RPD: REPLAY · LEVEL n OF m · NAME on a pick */ : done? t(mpk?'GNOME PARK IS YOURS':dpk?'HIS MAJESTY, KING REX':wpk?'THE TOWN IS YOURS':tpk?(pk.lv>=parkLevels('teddy')?'HIS IMPERIAL MAJESTY, EMPEROR BEAR':'HIS HIGHNESS, PRINCE BEAR'):(pk.lv>=parkLevels('yeti')?'HIS MAJESTY, KING YETI':'HIS HIGHNESS, PRINCE YETI'))+' · ✓' : tf('LEVEL %1 OF %2', nextL, PL)+' · '+t(parkNames(PARK_CUR)[nextL-1]||''))+'</div>'
       +'<div class="cs-ladder"><div style="width:'+Math.max(2,Math.min(100,Math.round(pk.lv*100/PL)))+'%"></div></div>'
       +(PARK_CUR==='yeti' && done && !yeti50Open()? '<div class="cs-lvl cs-lock" data-notr>'+gly('lock')+' '+t('30 MORE LEVELS! CLEAR THE ICE CASTLE TO OPEN THEM')+'</div>' : '')   // 0339: regated by NAME — the old !dpk would have leaked the yeti lock line onto a finished OUTLAW TOWN
       +(PARK_CUR==='dino' && done && !dino50Open()? '<div class="cs-lvl cs-lock" data-notr>'+gly('lock')+' '+t('30 MORE LEVELS! DEFEAT KING REX IN HIS LAIR TO OPEN THEM')+'</div>' : '')   // 0357: the dino gate line (the 0327 lock-line grammar, regated by NAME — the lair is the key)
@@ -157951,7 +157973,7 @@ function renderParkScene(){
       +(wpk? '<span class="wt-flank" id="obL"><svg viewBox="0 0 120 140">'+MIRROR(SPRITES_SRC.wbandit).split('currentColor').join(TAN)
         +'<g class="wmz"><path d="M108 60 l12 -5 M108 63 l13 0 M108 66 l12 5" stroke="#FFD24A" stroke-width="3" stroke-linecap="round"/><circle cx="119" cy="63" r="3" fill="#ffe9a8"/></g></svg></span>'
         : '<img class="wt-flank" src="'+(capStandURI()||sargeWepURI(sargeArtW(META.sargeWeapon||'pistol'),dye))+'" alt="">'+petFlankHTML())   // 0353: OUTLAW TOWN's door is flanked by outlaws firing away (round 4 — no Sarge, no Croak on the street)
-      +'<button type="button" class="wt-play" onclick="UI.parkPlay()"><span class="big">⚔ DEPLOY!</span></button>'
+      +'<button type="button" class="wt-play" onclick="UI.parkGo()"><span class="big">⚔ DEPLOY!</span></button>'   /* CARD-RPD: the pick, else the next rung */
       +(dpk? '<span class="wt-flank r" id="dfk">'+dfkSVG()+'</span>' : wpk? '<span class="wt-flank r" id="obR"><svg viewBox="0 56 132 84">'+WSNIPER_PRONE.split('currentColor').join(TAN)
         +'<g class="wmz m2"><path d="M128 86 l12 -5 M128 89 l13 0 M128 92 l12 5" stroke="#FFD24A" stroke-width="3" stroke-linecap="round"/><circle cx="139" cy="89" r="3" fill="#ffe9a8"/></g></svg></span>' : mpk? '<img class="wt-flank r" src="'+sprURI('gnome')+'" alt="">' : tpk? '<img class="wt-flank r" src="'+sprURI('bearnaparte')+'" alt="">' : '<img class="wt-flank r" src="'+sprURI('yeti')+'" alt="">')   // 0339->0353: the PRONE sniper takes the right flank
       +'</div>'
@@ -157990,6 +158012,7 @@ function renderParkScene(){
   ptyRender();   // 0387: the glass sheet rides every park repaint · 0561b: + the GROUP button re-seats after the wipe
   const rrow=document.querySelector('#parkscene .cs-replay');
   if(rrow) rrow.scrollLeft=rrow.scrollWidth;
+  rpdSeat('parkscene');   // CARD-RPD: a picked chip stays in view
 }
 function openParkScene(id){
   PARK_CUR=(id==='dino')?'dino':(id==='western')?'western':(id==='teddy')?'teddy':(id==='moon')?'moon':'yeti';   // 0947a: + the moon door   // v3.35 TP-03: the door names the park; no arg = the yeti door (0339: + the outlaw door; 0524: + the pillow door)
@@ -157998,7 +158021,7 @@ function openParkScene(id){
   safeOnce();   // v3.60 (0297): a park door is a campaign-family multiplayer door
   PK_RPL=0;   // 0278l: the replay panel opens CLOSED at every door entry (0387: the 0278k group panel retired with the rails — the party sheet keeps its own open state)
   document.getElementById('parkscene').classList.remove('hidden');   // unhide FIRST — partyLive counts me while open (the v3.10 law)
-  renderParkScene(); msPauseSync();   // 1021 THE MOON GARDEN AND THE PALACE AT FULL SPEED, ROUND TWO (THE PAUSE LAW): the room's loops stop under the park NOW — a fresh mount reads the cover here, not at the half-second tick
+  rpdClear('p');   /* CARD-RPD: a door entry starts with no pick */ renderParkScene(); msPauseSync();   // 1021 THE MOON GARDEN AND THE PALACE AT FULL SPEED, ROUND TWO (THE PAUSE LAW): the room's loops stop under the park NOW — a fresh mount reads the cover here, not at the half-second tick
   clearTimeout(CREW.pollT); crewTick();
   locSync();   // 0444: the park's bed fades in over the room's (the tap is the gesture; the autoplay law holds)
   if(PARK_CUR==='moon') mgEntryChord();   // 0997: THE MOON GARDEN's entry takes the hedge door's chord — one chord per arrival (the four-right's own chord counts; the code's fanfare has its say first)
@@ -158016,11 +158039,12 @@ function closeParkScene(){ document.getElementById('parkscene').classList.add('h
 function renderCampScene(){
   const elite=(META.campaign|0)>=100, third=thirdOn(), top=third? campTop() : elite? ELITE_TOP : 100;   // OC-1 THE ROAD: past the SECOND summit, once the third hundred is LIVE (thirdOn — false for every save while THIRD_TOP sleeps at 200), the scene wears OVERCHARGED: the next rung, the chips and the ladder run to campTop(), the line reads OF 300 (⚑ OC1-Q2), the night diorama stands under a storm-green wash   // 0497 D2: past the first summit the scene wears ELITE FORCES — the next rung, the chips and the ladder count to 200; the names + costumes are the base rung's (D7)
   const nextL=Math.min(META.campaign+1,top);
+  const rpdC=rpdShow('c', Math.min(META.campaign|0, top)), showL=rpdC||nextL;   // CARD-RPD (Dylan 10/11): the picked replay rung (a chip that stands), else the next rung: the line and DEPLOY! read it
   const dye=dyeHex()||undefined;
   // v2.48 (Wyatt 8/5): EVERY beaten level replays, not just the first five —
   // the row scrolls and opens parked on the newest chips.
   const chips = META.campaign>0 ? Array.from({length:Math.min(META.campaign,top)},(_,i)=>
-    '<button type="button" class="cs-chip" onclick="UI.campPlay('+(i+1)+')"><span data-notr>'+(i+1)+'</span>'
+    '<button type="button" class="cs-chip'+(rpdC===i+1? ' rpd-on' : '')+'" onclick="UI.campPick('+(i+1)+')"><span data-notr>'+(i+1)+'</span>'
     +'<span class="st" data-notr>'+('★'.repeat(META.levelStars['l'+(i+1)]||0)||'—')+'</span></button>').join('') : '';
   // v1.80: the next unclaimed co-op milestone, teased under the buddies
   // button. It names only the LEVEL — safe even while a reserved slot's link
@@ -158036,14 +158060,14 @@ function renderCampScene(){
       // v2.48: the terrain tag is out ("ROCKS" told nobody anything) — the
       // authored title rides in. data-notr: composed with tf/t by hand, the
       // wt-door crate's own law.
-      +'<div class="cs-lvl" data-notr>'+tf('LEVEL %1 OF %2', nextL, third? THIRD_OF : top)+' · '+t(campLevelName(nextL))   /* CARD-FF2 AW-17 (seated by CARD-BH-A): one reader with the fight's card */+'</div>'
+      +'<div class="cs-lvl'+(rpdC? ' rpd-pick' : '')+'" data-notr>'+rpdLine('c', showL, third? THIRD_OF : top, campLevelName(showL))   /* CARD-RPD: REPLAY · LEVEL n OF m · NAME on a pick, the shipped line otherwise */   /* CARD-FF2 AW-17 (seated by CARD-BH-A): one reader with the fight's card */+'</div>'
       +'<div class="cs-ladder"><div style="width:'+Math.max(2,Math.min(100,third? META.campaign-ELITE_TOP : elite? META.campaign-100 : META.campaign))+'%"></div></div>'
       +'<div class="wt-playwrap">'
       // Sarge himself on the left flank, holding whatever the academy fitted
       +'<img class="wt-flank" src="'+(capStandURI()||sargeWepURI(sargeArtW(META.sargeWeapon||'pistol'),dye))+'" alt="">'+petFlankHTML()   // 1037 THE PET AT SARGE'S SIDE: his pet at his heel
       // v2.33 (Wyatt 8/4): "we don't need to say smash their toy box" — the
       // subtitle came off and DEPLOY! stands alone
-      +'<button type="button" class="wt-play" onclick="UI.campPlay()"><span class="big">⚔ DEPLOY!</span></button>'
+      +'<button type="button" class="wt-play" onclick="UI.campGo()"><span class="big">⚔ DEPLOY!</span></button>'   /* CARD-RPD: the pick, else the next rung */
       +'<img class="wt-flank r" src="'+sprURI('tanrifle','#C09E6C')+'" alt="">'
       +'</div>'
       // v3.10 (card 08): the party's law, said where the grayed DEPLOY is —
@@ -158079,6 +158103,7 @@ function renderCampScene(){
   // player just fought are the ones worth replaying
   const rrow=document.querySelector('#campscene .cs-replay');
   if(rrow) rrow.scrollLeft=rrow.scrollWidth;
+  rpdSeat('campscene');   // CARD-RPD: a picked chip stays in view
 }
 // 0608 THE MOON PAYS — ONE mapping for the camp scene's DOM furniture: scene units → px under #campBg's cover
 // crop (parkSceneLayout's own math — ⚠ with the ONE difference: #campBg's background-position is 'center 46%'
@@ -158098,7 +158123,7 @@ function openCampScene(){ wrPreload(); safeOnce();   // v3.60 (0297): first mult
   // campSceneOpen(), and the first paint must already count me (same
   // synchronous task, nothing ever flashes)
   document.getElementById('campscene').classList.remove('hidden');
-  renderCampScene(); msPauseSync();   // 1021 THE MOON GARDEN AND THE PALACE AT FULL SPEED, ROUND TWO (THE PAUSE LAW): the room's loops — and a park's or a lobby's movers under this scene — stop NOW
+  rpdClear('c');   /* CARD-RPD: a door entry starts with no pick */ renderCampScene(); msPauseSync();   // 1021 THE MOON GARDEN AND THE PALACE AT FULL SPEED, ROUND TWO (THE PAUSE LAW): the room's loops — and a park's or a lobby's movers under this scene — stop NOW
   // the door announces itself NOW (the openWarTable kick, unconditional —
   // the rail needs the squadless too)
   clearTimeout(CREW.pollT); crewTick();
@@ -168980,6 +169005,10 @@ window.UI = {
   // party sheet's HAVE A CODE? and the invite card's THEIR CODE lane — both
   // close the scene first (ptyEnterCode / the partyPop over everything).
   campClose(){ SFX.clack(); closeCampScene(); },
+  campPick(n){ audio(); SFX.blip(); if(partyLocked('camp')){ wtLockSpeak('camp'); return; } rpdPick('c', n); if(campSceneOpen()) renderCampScene(); },   // CARD-RPD (Dylan 10/11): a replay chip PICKS the level; ⚔ DEPLOY! launches it (the lit chip again lets it go; the leader lock as DEPLOY's)
+  campGo(){ UI.campPlay(rpdShow('c', Math.min(META.campaign|0, campTop()))||undefined); },   // CARD-RPD: ⚔ DEPLOY! = the picked rung, else the next (the shipped UI.campPlay: its party boom, lock and ad gate as they were)
+  parkPick(n){ audio(); SFX.blip(); if(partyLocked('camp')){ wtLockSpeak('camp'); return; } rpdPick('p', n); if(parkSceneOpen()) renderParkScene(); },   // CARD-RPD: a park door's chip picks the same way
+  parkGo(){ const pk9=parkLedger(PARK_CUR); UI.parkPlay(rpdShow('p', Math.min(pk9.lv|0, parkLevels(PARK_CUR)))||undefined); },   // CARD-RPD: the park's ⚔ DEPLOY! = the pick, else the next rung (the shipped UI.parkPlay)
   // ---- THE YETI PARK scene (v3.33 TP-02) ----
   parkPlay(n){ audio(); SFX.blip();
     if(partyLocked('camp')){ wtLockSpeak('camp'); return; }   // leader-only start — one party, either door
@@ -175750,6 +175779,7 @@ window.GVT = {
   cvn(o){ return cvnRig(o); },   // CARD-CVN: the hunt and the hide ({ arm · show · tap · hide · reset })
   hun(o){ return hunRig(o); },   // CARD-HUN: HUNTER ({ grant · take · heard · play · tap · reset } + the read)
   huv(o){ return huvRig(o); },   // CARD-HUV: HUNTER'S VISIT ({ on · odds · wait · stay · roll · show · bye } + the read)
+  rpd(o){ return rpdRig(o); },   // CARD-RPD: the replay pick ({ c · p · t } + the read)
   // ===== 0605 THE RANK-50 ULTIMATES rig doors — the door, the clocks, the rect, the consts
   ult(){ const js=jetSarge(), u9=ultMyU();
     return { on:ultOn(), wk:ultWk(), lvl:WPN_MILE.ultLvl, rank:ultRank(ultWk()), live:Object.keys(ULT_LIVE),
