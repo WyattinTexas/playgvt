@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.54","md5":"5e279abc875fbe22076fa975490db67a","sha":"0d41651ad","at":"2026-10-11T11:58:48Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.55","md5":"769bd4caf3d7ba2cf78fe0e289038530","sha":"b55c11383","at":"2026-10-11T12:01:15Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -81365,7 +81365,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.54';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.55';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -133617,6 +133617,23 @@ function patrolSVG(){
   }
   return s+'</g></g>';
 }
+// ═══ CARD-P76 THE PARACHUTE PASSES OVER THE NAME PILL (PND-76; Wyatt 10/10/2026 21:02 EDT by Discord: "Go with recommendations for all here" = REC fix (one layer); design/chute-over-pill-p76-1011/00-BUILD-P76.md):
+// the shelf's pills are HTML (.roomtag, z 4) over the room's ONE svg, so the fort's pill (FORT GREEN (n) ⚔NEW, right under the gate) covered a passing canopy. The LIVE
+// bedroom's three drop twins (.ptdrop: the canopy and its man; the sheet's keyframes are global, the governor's life list and the room's clock reach #dogTop as they reach
+// the room) go up into #dogTop (the dogs' top layer: z 6, the same 960 x 600 frame, no finger) as its FIRST child, so a dog, the cat or the witch lifted later still
+// paints over them. Called by renderMenu right after the paint, before any measure: the drops start on the same frame as their walkers. roomSVG()'s string is
+// untouched (the glass, the face-off wall, the Toy Express's HQ land and the map copy it as ever). The bedroom alone: elsewhere the drop opens in the sky over the
+// stage's top, which #dogTop does not clip (the head bar), and no shelf pill stands under it.
+// THE ONE CLOCK: a drop and its walker are ONE man's lap (the canopy vanishes at touchdown, the walker steps off there); a move of the walkers (the still room lays
+// .patrol in its top layer a frame after the paint, and back at its drop) restarts their clocks and not the lifted drops', so the drop is seated on its walker's
+// clock at every walker's (re)start: patrolSync, one listener for the page (armed at the first lift).
+let PT_SYNC=0;
+function patrolLift(){ if(roomCur()!=='bedroom') return; const top=dogTopEl(), d=document.querySelectorAll('#roomStage > svg:not(.dogtop) .patrol > .ptdrop'); if(!top || !d.length) return;
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g'); g.setAttribute('class','patrol ptup'); d.forEach(n=>g.appendChild(n)); top.insertBefore(g, top.firstChild);
+  if(!PT_SYNC){ PT_SYNC=1; document.addEventListener('animationstart', patrolSync, { passive:true }); } }
+function patrolSync(e){ if(!e || e.animationName!=='ptwalk' || !e.target || !e.target.closest) return; const w=e.target, i=[...document.querySelectorAll('#roomStage > svg:not(.dogtop) .ptwalkers > .ptfig')].indexOf(w), d=document.querySelectorAll('#dogTop > .ptup > .ptdrop')[i]; if(i<0 || !d) return;
+  try{ const a=w.getAnimations().find(q=>q.animationName==='ptwalk'), ct=a? +a.currentTime : NaN; if(!isFinite(ct)) return; const held=MFP.A.has(a), T=MFP.tm.get(a);
+    for(const b of d.getAnimations({ subtree:true })){ if(held){ b.pause(); b.currentTime=ct; MFP.A.add(b); if(T) MFP.tm.set(b, T); } else { b.currentTime=ct; if(MFP.A.has(b)){ MFP.A.delete(b); b.play(); } } } }catch(err){} }   // the drop's every loop (its fall, its swing) = its walker's lap time (the same --d, the same --dl), held by the room's clock exactly when the walker is (CARD-MFP: a held loop steps on the beat, a free one on the frame)
 // ═══ 0904 THE LOOP ROW (FM-GVT-LOOP-ROW-01; design/room-menu-0904/01-LOOP-ROW.md; jumpr plan 20260904-145122 = card 0756x; Wyatt 9/4:
 // "We need a redesign of the room menu … not overwhelm players and add a more ergonomic experience … The Campgin, the daily raider,
 // and battlefields are the general loop of the game; with the occasional visit to the shop & Fort" · "I'm going to go with layout 1,
@@ -146306,6 +146323,7 @@ function renderMenu(){
     // (0485 THE INVASION DOOR's band under the header left the stage for the head's slot above — 0904 THE BAND MOVES INTO THE HEAD)
     + '<div class="roomcr" data-notr>© 2026 Corkscrew Games</div>'
     + '</div>';
+  patrolLift();   // CARD-P76 THE PARACHUTE PASSES OVER THE NAME PILL: the bedroom's drops up into #dogTop, over the pills (before any measure: on their walkers' frame)
   roomWingsPaint();   // 1158 THE FULL WIDTH: the wings for this paint — the floor just painted, cloned into the bands (before evPillFit: the pill fits the head that spans the screen)
   // v2.12: the +4 pills' escape valve — a pill that outgrows its lane steps
   // back to its shipped 14px, so no lane survey in any language reads worse
