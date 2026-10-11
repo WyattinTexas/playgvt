@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.23","md5":"3b1388b482235200651ce9b0dca5cd0c","sha":"7a9946afe","at":"2026-10-11T04:51:42Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.24","md5":"23207d4682fb606e932a8d15c5781d63","sha":"daea244b4","at":"2026-10-11T05:00:44Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80262,7 +80262,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.23';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.24';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -155916,6 +155916,15 @@ function labParked(id){ const P=META.lab && META.lab.park; return !!P && P.some(
 function labParkPct(id){ const P=(META.lab && META.lab.park)||[], q=P.find(r=>r[0]===id); return q? Math.max(0, Math.min(100, Math.floor(+q[1]||0))) : 0; }   // 1214 CARD-WW-BENCH: the sheet's kept fraction — the parked tile's risen art and its frozen cap read THIS, never the dept's --fl-pct (the job's)
 function labParkSpan(id){ const P=(META.lab && META.lab.park)||[], q=P.find(r=>r[0]===id); return (q && +q[2]>0)? +q[2] : labTutSpan(); }   // 1214 CARD-WW-BENCH: the sheet's span in hours (fixed at the pay); a legacy 2-row reads the ladder's step — what labSeat will give it
 function labParkDigits(id){ return evDur(Math.round(labParkSpan(id)*3600*(1-labParkPct(id)/100))); }   // 1214 CARD-WW-BENCH ⚑ BENCH-Q2 REC: the parked cap's digits = the time left AT THAT FRACTION, frozen (no clock runs on a parked part; the tick writes the job's cap alone)
+// ═══ CARD-LRS THE PAUSED RESEARCH RESUMES (board J41, lane gvt-p2; design/lab-resume-1011/00-BUILD-LRS.md). Wyatt 10/11/2026 00:37 EDT from his phone, verbatim: "In Floop's lab, when you are researching more than one thing at a time, the first thing you're researching should stop, and that's fine. Upon the second one being done, it should resume any other ones that were already started. We should never start researching something and then pause it indefinitely."
+// THE RULE: the bench never stands empty while a PAID part waits on the park. The moment a job lands (labDueTake's landing) the NEWEST parked sheet (the one the last start pushed off the bench) seats again through labSeat, at its own kept fraction and its own span (1214's sheet law: never dearer, never the clock); its clock counts from the moment the bench came free (the old due), so a part that finished while he was away hands straight on, and the whole chain catches up in ONE tick (LRS_MAX guards the loop). His switch (a tap on a parked tile) and a new start still push the running job onto the park exactly as before; the boom held on the bench (CARD-FL) keeps it: nothing resumes under the fire. A save already stuck (an empty bench, a park waiting) heals at its next labSync, the clock from now.
+const LRS_MAX=32;   // the most landings one tick hands on (a save away for days with a long park)
+function labResume(t0){ const L=META.lab, P=L && L.park; if(!L || L.job || !P || !P.length || labBoomArmed()) return null; const id=P[P.length-1][0]; labSeat(id); const now=Date.now(), k=Math.min(now, +t0>0? +t0 : now); L.due-=now-k; return id; }   // the newest sheet seats (labSeat: its fraction, its span); the due pulled back by the time the bench already stood free
+function lrsSync(L){ let ch=false;   // labSync's due door (the shipped line, as was) + THE RESUME after every landing
+  for(let n=0; n<LRS_MAX; n++){ let t0=Date.now();
+    if(L.job){ if(Date.now()<L.due) break; const b0=L.boom; t0=L.due; labDueTake(); if(!L.job || L.boom!==b0) ch=true; if(L.job) break; }   // CARD-FL's ONE door: the landing, or the boom armed (the job held on the bench: no resume)
+    if(!labResume(t0)) break; ch=true; }
+  return ch; }
 // ===== CARD-FL (jumpr 1230z, was 1233) FLOOP'S LAB — THE SCENE, THE FAILURE, THE PACE (FM-GVT-LAB-SCENE-01; 12-DESIGN-BORDERS.md §7–§9, the mock mock/mockFL.mjs + mock/scene.css = the approved look).
 // Wyatt 9/24 19:02: "the first thing we should see is the big mama: 'Whoa, what's going on? Whoa, they're working on the big one.' Then maybe you see another one that's on fire and didn't work … we have to loosen up and have some fun with it."
 // ~19:40, on the stills: "For Floop, maybe have him not blow up the experiment on the first one, but he does on the second. He gives you 200 stars instead for the failure. I love the choices on top, and that's how you can choose what you want to upgrade or turn on/off."
@@ -155987,7 +155996,7 @@ function labSync(){ const L=META.lab; if(!L) return false; let ch=false;
   const d9=L.done.filter(id=>!enhOwns(id)); if(d9.length!==L.done.length){ L.done=d9; ch=true; }
   if(L.park){ const p9=L.park.filter(q=>labSold(q[0]) && !enhOwns(q[0]) && L.done.indexOf(q[0])<0 && q[0]!==L.job); if(p9.length!==L.park.length){ if(p9.length) L.park=p9; else delete L.park; ch=true; } }   // 1214 CARD-WW-BENCH: an owned / built / running id is never parked — the park's trim, as done's (an empty park loses its key)
   if(L.job && (!labSold(L.job) || enhOwns(L.job))){ L.job=null; L.due=0; L.span=0; ch=true; }
-  if(L.job && Date.now()>=L.due){ const b0=L.boom; labDueTake(); if(!L.job || L.boom!==b0) ch=true; }   // CARD-FL: ONE door for a due job — the landing, or ONCE per save THE FAILURE (labDueTake arms boom=2 and holds the job for the bench; an armed job changes nothing more here)   // 1204 CARD-WW-LAB-3: the landing makes the part HIS (labLand: owned + fitted; the gold ring until viewed); the park's trim and the automatic start (1184z S6 "he never idles") retired — NOTHING runs until he pays (PAY TO START)
+  if(lrsSync(L)) ch=true;   // CARD-LRS: CARD-FL's due door (its shipped line, moved whole into lrsSync), then THE RESUME: a parked part seats the moment the bench frees   // CARD-FL: ONE door for a due job — the landing, or ONCE per save THE FAILURE (labDueTake arms boom=2 and holds the job for the bench; an armed job changes nothing more here)   // 1204 CARD-WW-LAB-3: the landing makes the part HIS (labLand: owned + fitted; the gold ring until viewed); the park's trim and the automatic start (1184z S6 "he never idles") retired — NOTHING runs until he pays (PAY TO START)
   if(ch) saveMeta(); return ch; }
 function labPct(){ const L=META.lab; if(!L.job) return 0; const t=(L.span>0? L.span : labHours(L.job))*3600000; return Math.max(0, Math.min(100, Math.round(100*(1-(L.due-Date.now())/t)))); }
 function labClockDigits(){ const L=META.lab; return L.job? evDur(Math.ceil((L.due-Date.now())/1000)) : ''; }   // CARD-FF FF-28: the time left rounded UP (8 s reads 0:08 at the start, never 0:00 before the landing)   // 1143 CARD-LB ⚑ LB-Q8 (THE WORDS LAW): the DIGITS alone beside the stopwatch — the time left pays the player; "DONE IN" is what a stopwatch means; FLOOP IS BUILDING / THINKING / EVERY PART IS BUILT / N READY AT THE COUNTER / NOTHING WAITING became pictures (the rack's state, the cloud's count)
