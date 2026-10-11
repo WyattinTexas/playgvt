@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.19","md5":"d566951a28a38c5b882f500f441770f8","sha":"e19eea63b","at":"2026-10-11T03:49:45Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.20","md5":"6afaf3b949e3c0fee4f6591bc3b97fe0","sha":"f0a521fdc","at":"2026-10-11T04:24:21Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -15130,6 +15130,79 @@ function odvTierDoor(v){
   if(v==='auto'){ try{ localStorage.removeItem(ODV_T.key); }catch(e){} window.GVT_AUTO=true; ODV_T.fs=[0]; ODV_T.slowS=0; ODV_T.need=true; ODV_T.quietAt=0; odvTierSet(odvMemFloor(), 'auto'); }
   else if(v===0 || v===1 || v===2){ window.GVT_AUTO=false; ODV_T.need=false; odvTierSet(v, 'door'); }
   return { tier:window.GVT_TIER|0, auto:!!window.GVT_AUTO, src:ODV_T.src, need:ODV_T.need, running:ODV_T.running, bench:ODV_T.bench, ratio:ODV_T.ratio, slowS:ODV_T.slowS, fs:ODV_T.fs, stored:odvTierLoad(), mem:navigator.deviceMemory||null, jsc:odvJsc(), mfpHalf:(typeof MFP!=='undefined')? MFP.half : null }; }
+
+// ═══ CARD-ODV-FIELD THE SPEED COUNTS (sec:CARD-ODV-FIELD; design/old-devices-1010/BUILD-ODV-FIELD.md; board J38). His go 10/10/2026 19:00 EDT, verbatim: "Do it. Plan it out. Execute to the best of your ability." on point 6: "Add anonymous speed counts to the game's sync (device type, OS version, start time, slow frames per screen), so we fix what players actually hit."
+// ONE small anonymous POST to HQ a launch (NET+'/odf', server v122): after the first fight ends or 3 minutes in, whichever comes first; else at the page's last edge (pagehide, or hidden after 30 s) by sendBeacon. Never twice a launch, never offline, never on an unknown host (netAllowed), never under automation unless a rig turns it on (odfDoor), never while ODV_FIELD_ON is false.
+// THE BODY, nothing else: v · sh the shell (ios/android/amazon/steam/web) · os the OS major (ios15, android9; mac/win/linux/cros/other on the web) · eng the engine major (iOS: the iOS version; else c<Chrome>, s<Safari>, f<Firefox>) · mem navigator.deviceMemory (Android only) · scr the screen class (CSS short x long side to 50 @ the dpr to 0.5) · cv GVT_CV · t GVT_TIER · ts ODV_T.src · tr the speed ratio to 0.5 · rd page ready, ms to 250 (the first frame drawn after the boot) · rl a reload · k per screen kind (title · bed · floor · park · fight · cine): f frames counted, s20/s50 the share (%) of gaps over 20 / 50 ms, p95 the bucket (17/20/25/33/50/100 ms, 101 = over), mfp the seconds CARD-MFP's floor was on. NO player id, no name, no save, no device id, no free text.
+// The frames: frame()'s own gap (the one gvTick reads), only while the page shows; a gap over 2 s is a suspended app, never a frame. A fight at tier 1+ draws 30 a second by design (CARD-ODV-B), so its gaps read ~33 ms.
+// THE RELOAD: until a shell build passes its own flag (window.GVT_RELAUNCH, the iOS shell's webViewWebContentProcessDidTerminate), the navigation entry's type 'reload' (performance.navigation.type 1) stands in: a pull-down reload counts too.
+// THE SWITCH: OFF until the App Store's privacy label says Diagnostics > Performance Data (⚑ ODV-FIELD-Q1). Rigs: odfDoor() reads · odfDoor(true|false) turns it on/off this launch (and lets a rig under automation send) · odfDoor('body') adds the body now · odfDoor({wait:ms}) the clock's mark (ms since the page began).
+let ODV_FIELD_ON=false;
+const ODF={ v:1, sent:false, why:'', how:'', rig:false, wait:180000, hideMs:30000, maxGap:2000, kinds:{}, kind:'', kindAt:-1e9, rd:-1, fought:false, wasPlay:false, edges:[17.5,20,25,33.5,50,100], lab:[17,20,25,33,50,100,101], scenes:['campscene','parkscene','raidscene'] };
+function odfKindNow(){ try{
+  if(S.mode==='title') return 'title';
+  if(S.mode==='play' || S.mode==='lose'){ let c=!!S.camCine; try{ if(!c && COMM && COMM.brief) c=true; }catch(e){} try{ if(!c && CFC_CAM && CFC_CAM.on) c=true; }catch(e){} try{ if(!c && CHS10 && CHS10.on) c=true; }catch(e){} return c? 'cine' : 'fight'; }
+  for(const id of ODF.scenes){ const e=document.getElementById(id); if(e && !e.classList.contains('hidden')) return 'park'; }
+  return roomCur()==='bedroom'? 'bed' : 'floor';
+}catch(e){ return 'floor'; } }
+function odfFrame(ts, gap){ if(ODF.sent) return; try{
+  if(ODF.rd<0) ODF.rd=performance.now();   // page ready: the first frame drawn after the boot (performance.now() counts from the navigation's start)
+  if(S.mode==='play') ODF.wasPlay=true; else if(ODF.wasPlay){ ODF.wasPlay=false; ODF.fought=true; }
+  const ms=gap*1000; if(!(ms>0) || ms>ODF.maxGap || document.hidden) return;
+  if(ts-ODF.kindAt>=250){ ODF.kindAt=ts; ODF.kind=odfKindNow(); }
+  let r=ODF.kinds[ODF.kind]; if(!r) r=ODF.kinds[ODF.kind]={ f:0, o20:0, o50:0, h:[0,0,0,0,0,0,0], mfp:0 };
+  r.f++; if(ms>20) r.o20++; if(ms>50) r.o50++;
+  const E=ODF.edges; let i=0; while(i<E.length && ms>E[i]) i++; r.h[i]++;
+  if(S.mode==='menu' && typeof MFP!=='undefined' && MFP.half===1) r.mfp+=ms/1000;
+}catch(e){} }
+function odfShell(){ try{ const u=navigator.userAgent||'';
+  if(/GVTShell-Steam/.test(u)) return 'steam';
+  if(window.GVTBillingAmazon) return 'amazon';
+  if(typeof window.GVTShellAndroid==='object' || /GVTShell-Android/.test(u)) return 'android';
+  if(window.__GVTSHELL || (window.webkit && window.webkit.messageHandlers)) return 'ios';
+  return 'web'; }catch(e){ return 'web'; } }
+function odfOs(){ const u=navigator.userAgent||''; let m;
+  if((m=/(?:iPhone|iPad|iPod|CPU) OS (\d+)_/.exec(u))) return 'ios'+m[1];
+  if((m=/Android (\d+)/.exec(u))) return 'android'+m[1];
+  if(window.__GVTSHELL || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1)){ m=/Version\/(\d+)/.exec(u); return 'ios'+(m? m[1] : ''); }   // an iPad asks for the desktop page: its Safari version is its iOS version
+  if(/CrOS/.test(u)) return 'cros'; if(/Mac OS X/.test(u)) return 'mac'; if(/Windows/.test(u)) return 'win'; if(/Linux/.test(u)) return 'linux'; return 'other'; }
+function odfEng(os){ const u=navigator.userAgent||''; let m;
+  if(os.indexOf('ios')===0) return os;   // every engine on an iPhone is the iOS WebKit
+  if((m=/(?:Chrome|Chromium)\/(\d+)/.exec(u))) return 'c'+m[1];
+  if((m=/Firefox\/(\d+)/.exec(u))) return 'f'+m[1];
+  if((m=/Version\/(\d+)[.\d]* (?:Mobile\/\w+ )?Safari/.exec(u))) return 's'+m[1];
+  return 'o'; }
+function odfScr(){ const W=(screen && screen.width) || innerWidth, H=(screen && screen.height) || innerHeight, r=x=>Math.max(50, Math.min(5000, Math.round(x/50)*50)), d=Math.max(0.5, Math.min(5, Math.round((window.devicePixelRatio||1)*2)/2));
+  return r(Math.min(W,H))+'x'+r(Math.max(W,H))+'@'+d; }   // short side x long side: a phone turned on its side is the same phone
+function odfReload(){ try{ if(window.GVT_RELAUNCH===true) return 1; const n=performance.getEntriesByType && performance.getEntriesByType('navigation')[0]; if(n) return n.type==='reload'? 1 : 0; return (performance.navigation && performance.navigation.type===1)? 1 : 0; }catch(e){ return 0; } }
+function odfBody(){ try{
+  const os=odfOs(), sh=odfShell(), b={ v:ODF.v, sh, os, eng:odfEng(os), scr:odfScr(), cv:String(GVT_CV), t:Math.max(0, Math.min(2, window.GVT_TIER|0)), ts:ODV_T.src||'error', tr:0, rd:0, rl:odfReload(), k:{} };
+  let ra=+ODV_T.ratio||0; if(!ra){ const st=odvTierLoad(); ra=(st && +st.r)||0; } b.tr=Math.max(0, Math.min(100, Math.round(ra*2)/2));
+  b.rd=Math.max(0, Math.min(120000, Math.round((ODF.rd<0? performance.now() : ODF.rd)/250)*250));
+  const dm=+navigator.deviceMemory||0; if(os.indexOf('android')===0 && dm>0) b.mem=dm;
+  for(const k in ODF.kinds){ const r=ODF.kinds[k]; if(!(r.f>0)) continue; const f=Math.min(1e6, r.f); let c=0, p=ODF.lab[ODF.lab.length-1];
+    for(let i=0;i<r.h.length;i++){ c+=r.h[i]; if(c>=r.f*0.95){ p=ODF.lab[i]; break; } }
+    b.k[k]={ f, s20:Math.round(100*r.o20/r.f), s50:Math.round(100*r.o50/r.f), p95:p, mfp:Math.min(86400, Math.round(r.mfp)) }; }
+  return b;
+}catch(e){ return null; } }
+function odfCan(){ if(!ODV_FIELD_ON) return 'off'; if(!netAllowed()) return 'host'; if(navigator.onLine===false) return 'offline'; if(navigator.webdriver && !ODF.rig) return 'rig'; return ''; }
+function odfSend(beacon, how){ if(ODF.sent) return false; const why=odfCan(); if(why){ ODF.why=why; return false; }
+  const b=odfBody(); if(!b) return false; ODF.sent=true; ODF.why='sent'; ODF.how=how||''; const s=JSON.stringify(b);
+  if(beacon){ try{ if(navigator.sendBeacon && navigator.sendBeacon(NET+'/odf', s)){ ODF.how+=':beacon'; return true; } }catch(e){} }
+  try{ netFetch(NET+'/odf', { method:'POST', headers:{ 'Content-Type':'text/plain;charset=UTF-8' }, body:s, keepalive:true }).catch(()=>{}); ODF.how+=':fetch'; }catch(e){}
+  return true; }   // one try, never a retry: a lost body is a lost count
+function odfTick(){ try{ if(ODF.sent || typeof ready==='undefined' || !ready) return; if(ODF.fought) odfSend(false, 'fight'); else if(performance.now()>=ODF.wait) odfSend(false, 'clock'); }catch(e){} }
+try{
+  setInterval(odfTick, 1000);
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden && performance.now()>=ODF.hideMs) odfSend(true, 'hidden'); });
+  window.addEventListener('pagehide', ()=>odfSend(true, 'pagehide'));
+}catch(e){}
+function odfDoor(v){
+  if(v===true || v===false){ ODV_FIELD_ON=v; ODF.rig=v; }
+  else if(v && typeof v==='object'){ if(v.wait>=0) ODF.wait=+v.wait; if(v.hideMs>=0) ODF.hideMs=+v.hideMs; }
+  const o={ on:ODV_FIELD_ON, sent:ODF.sent, why:ODF.why, how:ODF.how, rig:ODF.rig, wait:ODF.wait, fought:ODF.fought, rd:ODF.rd, kind:ODF.kind, can:odfCan(), kinds:JSON.parse(JSON.stringify(ODF.kinds)) };
+  if(v==='body') o.body=odfBody(); return o; }
+// ═══ end of sec:CARD-ODV-FIELD ═══
 
 // ==================== LOCALIZATION (v1.29) ====================
 // THE WHOLE GAME, IN SEVEN LANGUAGES.
@@ -80129,7 +80202,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -168309,6 +168382,7 @@ function frame(ts){
   if(QT.skip){ QT.skip=0; last=ts; return; }        // ...and the first frame back reads the hidden span as NO gap: every clock resumes from the moment it left. A battlefield, a raid, a party fight and the room run as today — one capped catch-up frame (0559 C)
   if(S.mode==='play' && odvTier()>=1 && odvHalfSkip(ts)) return;   // CARD-ODV-B: 30 drawn frames a second in a fight at tier >= 1 — this rAF stands aside WITHOUT touching last, so the next frame's gap covers both and 0559 C takes it (SIM_STEP_S 0.05: one step of ~33 ms)
   const gap=(ts-last)/1000||0.016; last=ts; gvTick(ts, gap);   // 1162z THE FRAME RATE: the menus' sampler (the governor + the meter) reads the gap the loop already has
+  odfFrame(ts, gap);   // CARD-ODV-FIELD: the speed counts read the same gap (per screen kind; nothing is sent from here)
   if(S.mode==='play') odvDynTick(ts, gap);   // CARD-ODV-B: the dynamic notch's vote (moves only with window.GVT_AUTO or ?odvdyn=1)
   const dt=Math.min(SIM_STEP_S,gap);   // the per-frame wall-clock tick every clock below reads — byte-what-it-was
   if(S.hitStop>0) S.hitStop=Math.max(0,S.hitStop-dt);   // drains on the WALL clock, so it always lets go
