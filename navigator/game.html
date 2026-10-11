@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.07","md5":"220e8f70c80fae6b7b8ecfe52da4a2dc","sha":"0d0d56bda","at":"2026-10-11T18:59:32Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.08","md5":"773863e2b081575736c3c105d411616a","sha":"41f12914c","at":"2026-10-11T19:01:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80609,9 +80609,8 @@ function campGrandArm(){
   // arithmetic (trigger and blast both). Zero RNG, fixed authored coords:
   // both crate doors run this pass from the same levelN, so an allied lobby's
   // sims bury identical jacks (the relPos law's spirit).
-  for(const j of (t.jax||[])){
+  for(const j of (t.jax||[]))
     S.mines.push({ owner:null, side:'jax', seat:null, x:j.x, y:j.y, armT:0, big:!!j.big, sl:false, jx:true });
-    if(j.lm) S.mines[S.mines.length-1].lm=1; }   // CARD-CMX: L10's mines are jacks in law, landmines to the eye (drawJack's first line)
   // 0475 WESTERN ROAD 4/8: the dustballs arm LAST — their lanes steer round
   // every rock the merge above just landed (sand rungs only; zero RNG; a
   // COPY per battle on t — CAMP_DRESS is never written).
@@ -82743,7 +82742,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -94672,10 +94671,10 @@ CAMP_DRESS[PBM5.rung]={ rocks:pbm5Rows(), props:[{ x:PBM5.siege, y:300, art:'pbl
 //   L8 THE CROSSING on the dino parks' lawn (ground grass = the Dino Park battle floor): the channel in the middle with two bridges on THE CROSSING's rows 172 / 428 (level 30's channel), THE CROSSING's two stones each side (330 of its 1920 = 213 of the 1240 rug) and its rubber duck.
 //   L9 the bridge lies ON the runner: the seed's channel (473, 56 wide) with its one bridge at the runner's own y over the channel's middle (CMX.l9Y, read off PATH_PTS at boot; was 406, 6 px under it).
 //   L10 GNOME PARK's ground (the night lawn + the moon dressing: terrain.night + terrain.moon, parkCfgMoon's own two cells) and FOUR MINES, two on each half of the rug, each pair straddling the middle row (y 250 / 350) at x 430 and 810 (190 either side of the 620 middle;
-//      every one clear of the three stones by 100+). A mine is a campaign jack in law (jx: nobody's, live from the whistle, trips for both armies, once; a sweeper snips it) drawn as a landmine (lm: drawJack's first line hands it to cmxMineDraw).
+//      every one clear of the three stones by 100+). A mine is a campaign jack in law (jx: nobody's, live from the whistle, trips for both armies, once; a sweeper snips it) drawn as the toy jack it is (R2, his Discord reply 14:51: "10. Use the jacks instead of the mines.").
 // The record: design/campaign-maps-5-10-1011/00-BUILD-CMX.md (CMX-Q1..Q6 at REC). UNDO = revert this card's hunks.
 const CMX={ l6:{ x:502, w:56, bridgeY:278, bw:76 }, cross:{ x:598, w:56, bridgeY:172, bridgeY2:428, bw:78 }, crossRocks:[[213,150],[213,452],[1027,150],[1027,452]], crossR:30, l9:{ x:473, w:56, bw:76 }, l9Y:0,
-  mines:[[430,250],[430,350],[810,250],[810,350]], name:{ 5:'THE HILL VILLAGE', 8:'THE CROSSING', 10:'GNOME PARK' }, stats:{ foe:0 } };   // L6's channel (old L5's seed, measured) · L8's channel + stones · L9's seed channel · the four mines · the door card's sub-line per rung · the rig's counter
+  mines:[[430,250],[430,350],[810,250],[810,350]], name:{ 5:'THE HILL VILLAGE', 8:'THE CROSSING', 10:'GNOME PARK' }, noRun:{ 8:1 }, stats:{ foe:0 } };   // L6's channel (old L5's seed, measured) · L8's channel + stones · L9's seed channel · the four mines · the door card's sub-line per rung · the rig's counter
 CMX.l9Y=(function(){ const cx9=CMX.l9.x+CMX.l9.w/2; for(let i=1;i<PATH_PTS.length;i++){ const a=PATH_PTS[i-1], b=PATH_PTS[i]; if((a.x-cx9)*(b.x-cx9)<=0 && a.x!==b.x) return Math.round(a.y+(b.y-a.y)*(cx9-a.x)/(b.x-a.x)); } return 400; })();   // the runner's y over the channel's middle (the runner runs one way in x, so it crosses once)
 function cmxVillage(t){   // L5's crate door: the rung's span is 1920 (CAMP_GRAND 2); the battleground's helpers read WORLD_W, so it takes the rung's own (the boot value) before the pieces and the street graph are built
   WORLD_W=W; MID=W/2;
@@ -94684,19 +94683,8 @@ function cmxVillage(t){   // L5's crate door: the rung's span is 1920 (CAMP_GRAN
 function cmxGnome(t){ t.night=1; t.moon=1; }   // L10: GNOME PARK's lawn (parkCfgMoon's own cells: the night lawn under the moon dressing)
 function cmxRung(){ return (!S.bf && !S.park && !S.raid && !S.momRaid && S.cfg && (S.levelN|0)>0 && (S.cfg.n|0)===(S.levelN|0))? campBaseRung(S.levelN|0) : 0; }   // the campaign rung actually dealt (the cpsOn idiom), or 0
 function cmxName(){ return CMX.name[cmxRung()] || null; }   // campStageName's first read
-function cmxNoRun(){ return !!(!S.bf && S.cfg && S.cfg.terrain && S.cfg.terrain.cmx); }   // pathStroke: no dirt runner across his village
+function cmxNoRun(){ return !!(!S.bf && S.cfg && S.cfg.terrain && (S.cfg.terrain.cmx || CMX.noRun[cmxRung()])); }   // pathStroke: no dirt runner across his village (5), nor on THE CROSSING's lawn (8; R2, his Discord reply 14:51: "For 8, remove the faded-looking red path."); CARD-PTH's road stands down on both through pthOn's !cmxNoRun()
 function cmxFoeAim(f,dt){ const G=S.cfg.terrain.streets; if(!G || !HVIL.guide || S.bf) return null; CMX.stats.foe++; return hvilPlan(f,G,T.x,T.y,dt); }   // the tan walk on the toy box through his streets (THE STREET GUIDE's planner, the toy box as the goal)
-function cmxMineDraw(mn){   // a landmine on the lawn: the shadow, the olive-grey case with a pale rim (it reads on the night lawn), the pressure plate, the red eye, always lit
-  const x=mn.x, y=mn.y;
-  cx.fillStyle='rgba(0,0,0,0.32)'; cx.beginPath(); cx.ellipse(x+2,y+6,16,5.5,0,0,7); cx.fill();
-  cx.fillStyle='#3F4235'; cx.beginPath(); cx.ellipse(x,y,15,10,0,0,7); cx.fill();
-  cx.strokeStyle='#E4E8D2'; cx.lineWidth=2.4; cx.beginPath(); cx.ellipse(x,y,15,10,0,0,7); cx.stroke();
-  cx.fillStyle='#727860'; cx.beginPath(); cx.ellipse(x,y-2,8,5,0,0,7); cx.fill();
-  cx.strokeStyle='#23251D'; cx.lineWidth=1.4; cx.beginPath(); cx.ellipse(x,y-2,8,5,0,0,7); cx.stroke();
-  const p9=reducedMotion()? 0.5 : 0.5+0.5*Math.sin(S.t*5+x*0.07);   // the red eye always lit; a soft halo breathes round it (steady under reduced motion)
-  cx.fillStyle='rgba(226,54,79,'+(0.18+0.3*p9).toFixed(3)+')'; cx.beginPath(); cx.arc(x,y-3,6,0,7); cx.fill();
-  cx.fillStyle='#FF4A5E'; cx.beginPath(); cx.arc(x,y-3,3,0,7); cx.fill();
-}
 CAMP_GRAND[5]=2; CAMP_STAGES[5]='grass';
 CAMP_EDITS.levels[5]={ terrain:{ river:null, rocks:[] } };
 CAMP_DRESS[5]={ make:cmxVillage };
@@ -94707,9 +94695,9 @@ CAMP_EDITS.levels[8]={ terrain:{ river:CMX.cross, rocks:CMX.crossRocks.map(q=>({
 CAMP_DRESS[8]={ duck:1 };
 CAMP_EDITS.levels[9]={ terrain:{ river:{ x:CMX.l9.x, w:CMX.l9.w, bridgeY:CMX.l9Y, bw:CMX.l9.bw } } };
 CAMP_STAGES[10]='grass';
-CAMP_DRESS[10]={ jax:CMX.mines.map(q=>({ x:q[0], y:q[1], lm:1 })), make:cmxGnome };
+CAMP_DRESS[10]={ jax:CMX.mines.map(q=>({ x:q[0], y:q[1] })), make:cmxGnome };   // R2 (his Discord reply 14:51: "10. Use the jacks instead of the mines."): four plain toy jacks
 function cmxRig(o){ o=o||{}; const t=S.cfg&&S.cfg.terrain;
-  return { rung:cmxRung(), name:cmxName(), l9Y:CMX.l9Y, foe:CMX.stats.foe, hv:Object.assign({}, HVIL.stats), cmx:!!(t&&t.cmx), streets:!!(t&&t.streets), mines:S.mines.filter(m=>m.lm).map(m=>[m.x,m.y]), ground:t&&t.ground, night:t&&t.night, moon:t&&t.moon,
+  return { rung:cmxRung(), name:cmxName(), l9Y:CMX.l9Y, foe:CMX.stats.foe, hv:Object.assign({}, HVIL.stats), cmx:!!(t&&t.cmx), streets:!!(t&&t.streets), jax:S.mines.filter(m=>m.jx).map(m=>[m.x,m.y]), noRun:cmxNoRun(), ground:t&&t.ground, night:t&&t.night, moon:t&&t.moon,
     W:W, WH:WORLD_H, WW:WORLD_W, river:t&&t.river, duck:!!(t&&t.riverDuck), rocks:t? t.rocks.length : 0 }; }
 // ═══ CARD-CMX ends ═══
 // ===== WESTERN LAND: THE TRENCH SIGHT LAW (v1.57) =====
@@ -119231,7 +119219,6 @@ function drawCactus(rk){
 // hub over the (implied) sixth prong it stands on — ball tips like the real
 // die-cast toy. No red arm-eye: a jack is armed by BEING a jack.
 function drawJack(mn){
-  if(mn.lm){ cmxMineDraw(mn); return; }   // CARD-CMX: level 10's four mines (jacks in law)
   const x=mn.x, y=mn.y;
   cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(x+2,y+5,13,4.5,0,0,7); cx.fill();
   cx.lineCap='round';
