@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.67","md5":"2f66d89e663de2db03eabb17d97ad31a","sha":"388638411","at":"2026-10-11T14:43:21Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.68","md5":"7fa3911af5d1d43d2dc25adc88203e44","sha":"fc873ce8a","at":"2026-10-11T14:49:47Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -81610,7 +81610,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -171389,9 +171389,21 @@ function dlgFill(){ const [cn, cl]=dlgCaps(); let n=DLGP.budget.reduce((s, u)=>s
 function dlgTrim(){ const [cn, cl]=dlgCaps(); let n=DLGP.budget.reduce((s, u)=>s+dlgNl(u), 0); while(DLGP.budget.length && (DLGP.budget.length>cn || (n>cl && DLGP.budget.length>1))){ const u=DLGP.budget.pop(); n-=dlgNl(u); DLGP.queue.unshift(u); } }   // a smaller budget (the tier stepped down): the newest in it go back to the head of the queue, and park
 function dlgAwake(){ const aw=new Set(); for(const u of DLGP.units) if(u.__life || DLGP.held.has(u) || DLGP.parking.has(u) || (!DLGP.dozing && DLGP.budget.includes(u))) aw.add(u); return aw; }   // CARD-DLG-B: + the parking (live until its own loops stand on their time 0)   // THE AWAKE: the life list + the held + the budget
 // DLG-F1 THE MEMORY: pictures at 3 dots a point; at 2 while the governor has stepped down or the device tier says an older phone (window.GVT_TIER, CARD-ODV-T: unset reads 0). Read at each lay: a step of the governor never re-pictures the room by itself (measured: a forced re-lay at a step cost a slow phone 3.6 s of main thread, and a governor that steps back and forth would pay it again and again); the room's next repaint takes the new density
+// ═══ CARD-MGL THE STILL ROOM ON THE iPHONE (Wyatt 10/11/2026 by phone, verbatim: "On Laura's iPhone 17, she loaded the main menu, and it was very glitchy. It looked like this. Please investigate. High priority"):
+// iOS 26 WebKit's svg.getScreenCTM() leaves out an html ancestor's css scale (the simulated iPhone 17: #roomStage at scale(0.444), the svg 874 px on the glass, getScreenCTM [1,0,0,1,224,0]); desktop WebKit and Chrome
+// return the true matrix, so every rig was green. Off it the still room drew its canvases 1/s too big (her shot: the wall 1.6x over the room) and culled the toys past x 650 as off the glass (her shot: holes where
+// the window and the bed stand). THE MATRIX NOW: the svg's own box on the glass (getBoundingClientRect / its css size = every ancestor's scale), its viewBox and its preserveAspectRatio, never getScreenCTM. ═══
+function dlgScrM(svg){ const r=svg.getBoundingClientRect(), cs=getComputedStyle(svg), W=parseFloat(cs.width), H=parseFloat(cs.height);
+  if(!(W>0) || !(H>0) || !r.width || !r.height) return svg.getScreenCTM();   // no box to read: the engine's own word
+  const kx=r.width/W, ky=r.height/H, v=svg.viewBox && svg.viewBox.baseVal; let sx=1, sy=1, tx=0, ty=0;
+  if(v && v.width>0 && v.height>0){ const p=(svg.getAttribute('preserveAspectRatio')||'xMidYMid meet').trim().split(/\s+/), al=p[0]||'xMidYMid';
+    sx=W/v.width; sy=H/v.height; if(al!=='none'){ sx=sy=(p[1]==='slice')? Math.max(sx, sy) : Math.min(sx, sy); }
+    const fx=al.indexOf('xMin')>=0? 0 : al.indexOf('xMax')>=0? 1 : 0.5, fy=al.indexOf('YMin')>=0? 0 : al.indexOf('YMax')>=0? 1 : 0.5;
+    tx=(al==='none'? 0 : (W-v.width*sx)*fx)-v.x*sx; ty=(al==='none'? 0 : (H-v.height*sy)*fy)-v.y*sy; }
+  return { a:kx*sx, b:0, c:0, d:ky*sy, e:r.left+kx*tx, f:r.top+ky*ty }; }
 function dlgDots(){ const dpr=window.devicePixelRatio||1; return Math.min(dpr, (GV.tier>=1 || (window.GVT_TIER|0)>=1)? 2 : 3); }
 // ONE PICTURE: the unit (its paint inlined, its loops at time 0) cropped to what the svg's own box can show, at dlgDots, its box's corner on a whole dot of the glass; THE PICTURE CACHE keyed by the inlined paint + the box (a repaint reuses every unchanged toy's picture: no walk, no decode)
-function dlgPicture(u){ const svg=DLGP.svg, m=svg.getScreenCTM(); if(!m) return Promise.resolve(null); const dpr=window.devicePixelRatio||1, sc=Math.abs(m.a)*DLGP.dd;
+function dlgPicture(u){ const svg=DLGP.svg, m=dlgScrM(svg); if(!m) return Promise.resolve(null); const dpr=window.devicePixelRatio||1, sc=Math.abs(m.a)*DLGP.dd;
   let bx=u.__box; const V=DLGP.vis; if(bx && V){ bx=[Math.max(bx[0], V[0]), Math.max(bx[1], V[1]), Math.min(bx[2], V[2]), Math.min(bx[3], V[3])]; if(bx[2]<=bx[0] || bx[3]<=bx[1]) bx=null; }   // THE CULL: a unit off the glass is never pictured (and asleep it costs nothing)
   if(!bx) return Promise.resolve(null); const whole=!V || dlgIn(u.__box, V);   // CARD-DLG-C: whole = nothing of it cropped (the glass's copy may show past the room's edge: a cropped picture stays out of it)
   let [x0, y0, x1, y1]=bx; { const dx=(m.a*x0+m.e)*dpr, dy=(m.d*y0+m.f)*dpr; x0=(Math.floor(dx)/dpr-m.e)/m.a; y0=(Math.floor(dy)/dpr-m.f)/m.d; }   // on a fractional dot every outline is drawn a shade off (WebKit 2.4 % → 1.25 %)
@@ -171447,7 +171459,7 @@ function dlgSvg(id, after){ const svg=DLGP.svg; let t=document.getElementById(id
   for(const a of ['viewBox', 'preserveAspectRatio', 'class', 'data-rn']){ const v=svg.getAttribute(a); if(v!=null) t.setAttribute(a, v); else t.removeAttribute(a); } dlgLike(svg, t, 1); svg.parentNode.insertBefore(t, after.nextSibling); return t; }   // after the room's svg: '#roomStage > svg' still finds the room first
 function dlgDrawTo(cv, list){ if(!list.length){ if(cv.style.display!=='none') cv.style.display='none'; return 0; } if(cv.style.display==='none') cv.style.display='';   // an empty layer leaves the glass (measured: every glass-sized canvas is composited every frame, the GPU's extra on Chrome)
   const r=DLGP.svg.getBoundingClientRect(), dpr=window.devicePixelRatio||1, W=Math.round(r.width*dpr), H=Math.round(r.height*dpr); if(cv.width!==W) cv.width=W; if(cv.height!==H) cv.height=H;
-  const g=cv.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); const m=DLGP.svg.getScreenCTM(); if(!m || !r.width) return 0; const sx=cv.width/r.width, sy=cv.height/r.height;
+  const g=cv.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); const m=dlgScrM(DLGP.svg); if(!m || !r.width) return 0; const sx=cv.width/r.width, sy=cv.height/r.height;
   let n=0; for(const u of list){ const P=u.__p; if(!P) continue; g.drawImage(P.rec.cv, (m.a*P.x+m.e-r.left)*sx, (m.d*P.y+m.f-r.top)*sy, m.a*P.w*sx, m.d*P.h*sy); n++; } return n; }   // a blit from the decoded bitmap, never a decode
 // once per paint the belt and the TOP get their own svgs and the canvases their seats; then (on every wake, sleep or cut, in the same task) the canvases drawn and the in-svg pictures shown only for the squeezed
 function dlgLayers(aw, only){ const svg=DLGP.svg; if(!svg || !svg.isConnected) return; const t0=performance.now();
@@ -171508,7 +171520,7 @@ function dlgHold(id, ms, drag){ dlgRouse(); if(!DLGP.svg || !DLGP.svg.isConnecte
 // CARD-DLG-B: a touch (a finger down anywhere, a toy's own tap or drag) restarts the doze's clock; the first touch of a dozing room wakes its budget on the next frame (the toy under the finger in this one)
 function dlgRouse(){ DLGP.touchT=performance.now(); if(DLGP.dozing){ DLGP.dozing=0; DLGP.rotT=0; DLGP.pend=1; } }
 function dlgBeat(){ try{ return !!(DLGP.on && DLGP.svg && DLGP.svg.isConnected); }catch(e){ return false; } }   // CARD-DLG-B ⚑ Q4: the still room stands = its loops on the 30-a-second beat (dchHz; a call before this sec stands reads false)
-function dlgFinger(e){ dlgRouse(); const svg=DLGP.svg; if(!svg || !svg.isConnected || !DLGP.sleep.size) return; const m=svg.getScreenCTM(); if(!m) return; const x=(e.clientX-m.e)/m.a, y=(e.clientY-m.f)/m.d, p=[x, y, x, y]; let n=0;
+function dlgFinger(e){ dlgRouse(); const svg=DLGP.svg; if(!svg || !svg.isConnected || !DLGP.sleep.size) return; const m=dlgScrM(svg); if(!m) return; const x=(e.clientX-m.e)/m.a, y=(e.clientY-m.f)/m.d, p=[x, y, x, y]; let n=0;
   for(const u of DLGP.sleep) if(dlgIn(p, u.__box) && /^(ro-|dec[A-Z])/.test(u.id||'')){ dlgHoldU(u, DLG_HOLD_MS+300); n++; } if(n) dlgLayers(dlgAwake()); }
 // THE PARK: a unit going to sleep stops each loop on its own time-0 phase (the current time a whole number of periods, two for an alternating loop: so negative delays come out right); it sleeps once every loop is parked
 function dlgLoopsOf(u){ let A; try{ A=u.getAnimations({ subtree:true }); }catch(e){ return []; } const L=[];
@@ -171523,7 +171535,7 @@ function dlgTick(ts){ DLGP.raf=requestAnimationFrame(dlgTick); if(!DLGP.on || S.
   { const ck=dlgCaps().join(); if(ck!==DLGP.capK){ DLGP.capK=ck; dlgTrim(); dlgFill(); DLGP.pend=1; } }   // CARD-DLG-B practice 7: the tier stepped (down: the newest park; up: the next in line wake)
   if(!DLGP.touchT) DLGP.touchT=ts; { const dz=DLG_DOZE_MS>0 && ts-DLGP.touchT>DLG_DOZE_MS; if(dz!==!!DLGP.dozing){ DLGP.dozing=dz? 1 : 0; if(dz) DLGP.dozeN++; DLGP.rotT=ts; DLGP.pend=1; } }   // CARD-DLG-B THE DOZE (⚑ Q3): 45 s with no touch, the budget's toys park and go to their pictures; the life list, the held and the stirred move on (dlgAwake)
   { const f=++DLGP.fr; if((f % 120)===60) dlgChaosSoon();   /* CARD-DLG-D (B): the count looked at again while the room shows */ if((f % 120)===0 || (DLGP.moved.size && (f % 3)===0)) setTimeout(dlgRoam, 0, (f % 120)===0); }   // read just after this frame's paint (the style is clean: no second recalc in the frame)
-  if(ts-DLGP.scT>500){ DLGP.scT=ts; const m=DLGP.svg.getScreenCTM(), sc=m? +Math.abs(m.a).toFixed(3) : 0; if(sc && DLGP.sc && sc!==DLGP.sc){ if(DLGP.scW===sc){ DLGP.scW=0; dlgRelay(); return; } DLGP.scW=sc; } else DLGP.scW=0; }   // the room zoomed (the hand's pinch, a new fit) and held there: pictures at the new scale
+  if(ts-DLGP.scT>500){ DLGP.scT=ts; const m=dlgScrM(DLGP.svg), sc=m? +Math.abs(m.a).toFixed(3) : 0; if(sc && DLGP.sc && sc!==DLGP.sc){ if(DLGP.scW===sc){ DLGP.scW=0; dlgRelay(); return; } DLGP.scW=sc; } else DLGP.scW=0; }   // the room zoomed (the hand's pinch, a new fit) and held there: pictures at the new scale
   if(DLG_ROT_MS>0 && !DLGP.dozing && DLGP.queue.length && dlgCaps()[0]>0 && ts-DLGP.rotT>DLG_ROT_MS){ DLGP.rotT=ts; const out=DLGP.budget.shift(); if(out){ DLGP.queue.push(out); if(dlgNl(out)>DLG_LOOPS) DLGP.budget.length=0; } for(const u of DLGP.budget){ const i=DLGP.queue.indexOf(u); if(i>=0) DLGP.queue.splice(i, 1); } const was0=new Set(DLGP.budget); dlgFill(); DLGP.pend=1; dlgPlayTurn(DLGP.budget.filter(u=>!was0.has(u))); }   // ⚑ DLG-Q5 a fair round in paint order · CARD-DLG-D (A) THE ROOM PLAYS BY ITSELF: the toys this turn woke, the 6th wake answers unprompted
   if(DLGP.pend){ DLGP.pend=0; DLGP.parking.clear(); const aw=dlgAwake(); const L=[]; for(const u of DLGP.units) if(!aw.has(u) && !u.__life && !DLGP.sleep.has(u)) L.push({ u, L:dlgLoopsOf(u) }); if(!DLGP.park) DLGP.parkT=ts; DLGP.park=L; for(const e of L) DLGP.parking.add(e.u); DLGP.layDue=1; }   // CARD-DLG-B: a new park keeps the old one's clock (the 12 s cap is honest); the awake set changed = a lay is due (a toy joining the round shows within 250 ms, never waiting for the one leaving to park)
   if(!DLGP.park) return; { const over=ts-DLGP.parkT>=DLG_PARK_MAX; DLGP.park=DLGP.park.filter(e=>{ if(over || dlgParkStep(e.L)){ DLGP.parking.delete(e.u); DLGP.layDue=1; return false; } return true; }); }   // CARD-DLG-B: EACH TOY SLEEPS the moment its own loops are parked (DLG-A waited for the slowest loop in the room: one 9 s loop held the whole doze, and the round's next wake, measured on WebKit) · (a loop that never comes round is set to its time 0 by the lay)
@@ -171538,10 +171550,10 @@ function dlgAfterPaint(){ const tok=++DLGP.tok; dlgDrop(); dlgChaosSoon();   /* 
   if(!DLGP.wired){ DLGP.wired=1; document.addEventListener('pointerdown', dlgFinger, { capture:true, passive:true }); if(typeof ResizeObserver==='function') DLGP.ro=new ResizeObserver(()=>{ const s=DLGP.svg; if(s && s.isConnected && DLGP.top && dlgSz(s)!==DLGP.sz) dlgRelay(); }); }   // a new size (a turn of the phone, the true-edge fit) = a new lay
   requestAnimationFrame(()=>{ if(tok===DLGP.tok) dlgSettle(tok).catch(e=>{ DLGP.log.push(['settle-error', String(e).slice(0, 120)]); }); }); }
 async function dlgSettle(tok){ if(!dlgRoomOk()) return; const svg=document.querySelector('#roomStage > svg'); if(!svg) return; const t0=performance.now(); DLGP.encMs=0; DLGP.px=0; DLGP.made=0; DLGP.hits=0; DLGP.makeMs=0;
-  DLGP.svg=svg; DLGP.room=roomCur(); DLGP.belt=svg.querySelector(':scope > #ychars'); DLGP.dd=dlgDots(); const mn=document.getElementById('menu'); { const m=svg.getScreenCTM(); DLGP.sc=m? +Math.abs(m.a).toFixed(3) : 0; DLGP.sz=dlgSz(svg); }
+  DLGP.svg=svg; DLGP.room=roomCur(); DLGP.belt=svg.querySelector(':scope > #ychars'); DLGP.dd=dlgDots(); const mn=document.getElementById('menu'); { const m=dlgScrM(svg); DLGP.sc=m? +Math.abs(m.a).toFixed(3) : 0; DLGP.sz=dlgSz(svg); }
   DLGP.ctx=DLGP.dd+'|'+(svg.getAttribute('data-rn')||'')+'|'+(svg.getAttribute('class')||'')+'|'+document.body.className+'|'+(mn? mn.className : '');   // the night, the field's class, the page's state: a picture is of its paint in this context
   DLGP.units=dlgCollect(svg); DLGP.defs=[...svg.querySelectorAll(':scope > defs')].map(d=>new XMLSerializer().serializeToString(d)).join('');
-  { const m=svg.getScreenCTM(), r=svg.getBoundingClientRect(); DLGP.vis=m? [(r.left-m.e)/m.a, (r.top-m.f)/m.d, (r.right-m.e)/m.a, (r.bottom-m.f)/m.d] : null; }
+  { const m=dlgScrM(svg), r=svg.getBoundingClientRect(); DLGP.vis=m? [(r.left-m.e)/m.a, (r.top-m.f)/m.d, (r.right-m.e)/m.a, (r.bottom-m.f)/m.d] : null; }
   const life=dlgLifeSel(), fl=DLG_LIFE_FLOOR[DLGP.room]||'', now=performance.now(); for(const u of DLGP.units){ u.__dlgU=1; u.__fix=(fl && dlgIs(u, fl))? 1 : 0; u.__life=dlgIs(u, life) || dlgCant(u) || u.__fix;   /* CARD-DLG-C: __fix = the floor's own mover (live; the attic's clock writes into it: unwatched) */ u.__loop=dlgHasLoop(u); u.__box=dlgBox(u); u.__nl=u.__loop? dlgLoopsOf(u).length : 0;
     const t=u.id? DLGP.until.get(u.id) : 0, rem=dlgIntro(u); if(t>now || (rem>0 && !u.__life)) dlgHoldU(u, Math.max(t-now, rem+100)); }   // held across the repaint (mid-answer, mid-flight, mid-drag), or its one-shots still playing: live until they end   // a toy held across the repaint (mid-answer, mid-flight, mid-drag) stays awake
   for(const [k, t] of DLGP.until) if(!(t>now)) DLGP.until.delete(k);
