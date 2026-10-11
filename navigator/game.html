@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.38","md5":"95e4df5f5f4441945ccd5bbf353e8a9f","sha":"1577a6411","at":"2026-10-11T08:29:32Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.39","md5":"24c0d3ad1c063f3427d3e895357c5771","sha":"17be803e3","at":"2026-10-11T08:55:37Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80696,7 +80696,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.38';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -109908,7 +109908,213 @@ function updateMom(f,dt){
   }
 }
 // ================= UPDATE =================
+// ═══ CARD-TRN-B1 THE TOY EXPRESS 1 of 3: THE SET (design/train-level-1009/BUILD-TRN-B1.md; the pass 00-DESIGN-TRN.md; PND-03). Wyatt by phone 10/9/2026 02:23 EDT, verbatim: "We would like to have a train level in which Sarge
+// leads a small team that has to make it from the caboose of the train up to the engine room while fighting through Tan forces. ... In the backdrop, you will see all of the different landscapes of the current realms that we've
+// established, which the train is presently traveling around in a circular motion. As your troops are moving, you see all the different lands as the train rides around. This can really be a beautiful moment in the game." His go,
+// Discord Sat 10/10/2026 21:02 EDT: "Go with recommendations for all here" (TRN-Q1..Q7 at REC; Q5 the camera follows Sarge HERE ONLY, CAM_AUTO=false stands everywhere else).
+// THE SET = a NEW MODE (S.tex, S.mode 'play'; three door lines: update's head, draw's head, the canvas pointerdown after the HQ sheet's guard; nothing of the campaign's sim, HUD, trays, pans or camera runs under it). The toy
+// train, eight cars caboose to engine (TEX_CARS: the caboose with its cupola, the crate flatcar, the boxcar, the snow hopper, the tanker, the jeep flatcar, the coal tender, the engine) in trainCarArt's colours with the wheel
+// grammar of the battleground's train (a cream disc, a dark cross that turns), on a track that rings every land: ONE CAR, ONE LAND, through a TUNNEL (TEX_LANDS, one lap = one day: HQ's morning, the backyard, Western Land,
+// the winter field, Dino Park's sunset, Gnome Park's night, Yeti Park's aurora, the Sky Fortress at dawn). Behind the train each land's OWN painting, by the painter the room or the park paints itself with (roomSVG under the map's
+// pin and without the shelf's six plaques, yardFloorSVG, roomFloorSVG pinned west, wfPaperSVG, parkHeroSVG, skyHallSVG), baked ONCE per land into a band (an svg image, re-serialized through the DOM so the HTML-grown markup
+// parses as XML, drawn into a canvas at the glass's own pixels; never per frame; the next land's band bakes while this one rides, the tunnel's dark waits for it) and crawling slowly (the far parallax); a near ground strip in the
+// land's tone races past at the train's speed. SARGE ALONE (B2 brings the squad and the Tan, B3 the drop, the engine, the pay and the pin): his own figure through placeUnit and drawUnit (his iron, his outfits, his pack); tap
+// the roof ahead and he walks there along his car (the walk-flip law faces him); a tap on the next car walks him to the coupling, he hops it, and the train enters the tunnel (the mouth sweeps in from the right, the dark with the
+// cars' windows lit, the far mouth sweeps off, the next land outside); the land's name shows ONE beat at each tunnel's exit (the rooms' and the parks' own words, x7): the only text the set paints (CARD-HLB3's law). The camera
+// follows Sarge (Q5: this mode only). Reduced motion: no bob, no puffs, a still ground, the mouths cut. Zero server, wire, save, word bytes. The `trn` prefix is THE TREASURE RUN's (the Ice Caves), so every name here is tex*; the
+// rig door is GVT.trn (go · end · tap · the read). TEX.on=0: the door refuses, HEAD's paths to the byte. ═══
+const TEX={ on:1,
+  K:600/402,                 // the mockup's unit (his glass 874x402) in world units (the view is 600 tall): the car painter, the ground and every seat keep the look page's numbers
+  carL:300, gap:28, x0:150, seat:70,   // a car's length, the coupling gap, the caboose's seat from the world's edge, Sarge's seat on it: mockup units (x K = 448 / 42 / 224 / 104 world px)
+  rail:352, wheel:336,       // the rail line, the axles: mockup units
+  ins:14,                    // a man keeps this far inside a car's ends (mockup units)
+  walk:150,                  // Sarge's walk along the roof, world px/s
+  hop:0.5, hopH:26,          // the coupling jump: seconds, the lift (world px)
+  tun:1.3, tunIn:0.42, tunOut:0.58,   // the tunnel: its length, the phase the dark is whole by, the phase the far mouth starts off
+  spd:520,                   // the ground's pace past the train (mockup px/s)
+  far:0.02, camFar:0.08,     // the band's crawl: the share of its spare width a second (50 s to its end, then it stands); and the share of the camera's travel it rides
+  camK:0.34, camEase:4.0,    // the camera (Q5): Sarge this share in from the left; the follow's ease (s^-1)
+  bandW:1.28, bandY:-18,     // the band: this x the view wide (its height by the painting's own 960x330 strip); its top (mockup units)
+  name:[0.5,2.6],            // the land's name: from .. to seconds after a tunnel's exit (the door's first beat too)
+  fade:0.5,                  // the fade in at the door
+  bakeMax:2800               // a band's pixels across, capped (a 3x glass would ask 3300)
+};
+const TEX_CARS=[ { k:'boose', top:258 }, { k:'crates', top:300 }, { k:'box', top:250 }, { k:'hopper', top:262 }, { k:'tanker', top:256 }, { k:'jeep', top:300 }, { k:'tender', top:272 }, { k:'loco', top:236 } ];   // caboose to engine; top = the roof or deck line a man stands on (mockup units)
+const TEX_LANDS=[   // the lap, one car one land: the painter's id, the game's own word for the place (x7), the strip's top inside the 960x600 painting, the near ground's three tones, the night wash over the band
+  { id:'hq',       name:'HQ',               sy:0,   ground:'#B98A5E', g2:'#9C6F47', post:'#7A5638' },
+  { id:'backyard', name:'THE BACKYARD',     sy:20,  ground:'#3E6B2E', g2:'#4E7F3A', post:'#E8E2CC' },
+  { id:'western',  name:'WESTERN LAND',     sy:170, ground:'#8B3E1E', g2:'#A04A24', post:'#5B3A22' },
+  { id:'winter',   name:'THE WINTER FIELD', sy:40,  ground:'#E9EEF4', g2:'#D7E1EC', post:'#6B7A8C' },
+  { id:'dino',     name:'DINO PARK',        sy:120, ground:'#2F4A22', g2:'#3E5A2A', post:'#2A1E14', night:0.12 },
+  { id:'moon',     name:'GNOME PARK',       sy:0,   ground:'#1E3320', g2:'#264028', post:'#C9B98A', night:0.22 },
+  { id:'yeti',     name:'YETI PARK',        sy:90,  ground:'#C9D6E6', g2:'#B4C4D8', post:'#3B4A63', night:0.16 },
+  { id:'sky',      name:'THE SKY FORTRESS', sy:40,  ground:'#5E4136', g2:'#6E4E40', post:'#2A1E18' }
+];
+function texCarL(){ return TEX.carL*TEX.K; }
+function texCarX(i){ return (TEX.x0+i*(TEX.carL+TEX.gap))*TEX.K; }   // car i's left end, world px (0 = the caboose)
+function texTop(i){ return TEX_CARS[i].top*TEX.K; }                  // the line a man's feet ride on car i, world px
+function texBob(i){ return reducedMotion()? 0 : Math.sin(S.t*9+i*1.7)*0.8*TEX.K; }   // the car's bob on the rail: pure f(S.t), zero dice
+function texWorldW(){ return (2*TEX.x0+TEX_CARS.length*TEX.carL+(TEX_CARS.length-1)*TEX.gap)*TEX.K; }
+function texCarAt(wx){ for(let i=TEX_CARS.length-1;i>=0;i--) if(wx>=texCarX(i)-TEX.gap*TEX.K/2) return i; return 0; }   // the car under a world x (the coupling gap counts to the car behind it)
+function texCamGoal(){ const X=S.tex; return Math.max(0, Math.min(texWorldW()-VW, X.sarge.x-VW*TEX.camK)); }   // Q5: Sarge a third in from the left, the view inside the train
+function texStripGroup(s,mark){   // every <g ...MARK...>...</g> out of a painting's markup, its nested groups counted
+  let i=0; for(;;){ const a=s.indexOf(mark, i); if(a<0) return s; const g=s.lastIndexOf('<g ', a); if(g<0) return s;
+    let d=0, p=g; for(;;){ const o1=s.indexOf('<g ', p), o2=s.indexOf('<g>', p), o=(o1<0)? o2 : (o2<0? o1 : Math.min(o1,o2)), c=s.indexOf('</g>', p); if(c<0) return s; if(o>=0 && o<c){ d++; p=o+2; } else { d--; p=c+4; if(d===0) break; } }
+    s=s.slice(0,g)+s.slice(p); i=g; } }
+function texStripSigns(s){ for(const m of ['class="shsign"', 'id="ro-shopnew"', 'id="ro-chestnew"']) s=texStripGroup(s,m); return s; }   // TRN-F1: the shelf's six brass plaques (the menu's words) and the two NEW ribbons out of the HQ band (bfrStill's own wordless law)
+function texPaint(li){   // the land's OWN painting as inner svg markup for the 960x600 box, under the map's pin (MAPPIN) and the day (NW_PIN 0), both restored in a finally (tmapPaint's grammar); the parks carry their own hour (dino's sunset, moon's night, yeti's aurora)
+  const L=TEX_LANDS[li], wasPin=MAPPIN, wasNW=NW_PIN; NW_PIN=0;
+  try{
+    if(L.id==='hq'){ MAPPIN={ room:'bedroom' }; return texStripSigns(roomSVG().replace(/^<svg[^>]*>/,'').replace(/<\/svg>\s*$/,'')); }
+    if(L.id==='backyard') return yardFloorSVG(false);
+    if(L.id==='western'){ MAPPIN={ room:'western' }; return roomFloorSVG(); }
+    if(L.id==='winter') return wfPaperSVG(false);
+    if(L.id==='sky') return skyHallSVG();
+    return parkHeroSVG(L.id);
+  } finally { MAPPIN=wasPin; NW_PIN=wasNW; } }
+function texFit(){   // the band's world size and pixel density for THIS glass (VW x the canvas's own scale; the tier's half at tier >= 1); a change of key = every band bakes again
+  const X=S.tex; const q=Math.min(TEX.bakeMax/(VW*TEX.bandW), scale*(CV_DPR||1)*(odvTier()>=1? 0.5 : 1)), key=VW+':'+q.toFixed(3);
+  if(key===X.key) return; X.key=key; X.q=q; X.bw=VW*TEX.bandW; X.bh=X.bw*330/960; X.bands={}; texBand(X.land); if(X.land+1<TEX_LANDS.length) texBand(X.land+1); }
+function texBandPlain(li,w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); g.fillStyle=TEX_LANDS[li].ground; g.fillRect(0,0,w,h); return c; }   // a painting that will not load: the land's own tone, never a hole
+function texBand(li){   // the land's band: the baked canvas, or null while the bake runs (started here, once per key): the painting as an svg data: URI, viewBoxed to its 960x330 strip, re-serialized through the DOM (the room's and the parks' HTML-grown markup is not XML as it stands), decoded by the browser off the frame, then drawn ONCE into a canvas of the glass's own pixels
+  const X=S.tex; if(!X) return null; const key=li+':'+X.key, b=X.bands[key]; if(b) return b===1? null : b;
+  X.bands[key]=1;
+  const W9=Math.round(X.bw*X.q), H9=Math.round(X.bh*X.q);
+  let svg=''; try{ svg=texPaint(li); }catch(e){ try{ console.error('texPaint '+li, e); }catch(e2){} }
+  let ser=''; try{ const dv=document.createElement('div'); dv.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 '+TEX_LANDS[li].sy+' 960 330" width="'+W9+'" height="'+H9+'">'+svg+'</svg>'; ser=new XMLSerializer().serializeToString(dv.firstElementChild); }catch(e){ ser=''; }
+  if(!ser){ X.bands[key]=texBandPlain(li,W9,H9); return null; }
+  const im=new Image();
+  im.onload=()=>{ if(S.tex!==X || X.bands[key]!==1) return; const c=document.createElement('canvas'); c.width=W9; c.height=H9; const g=c.getContext('2d'); g.fillStyle=TEX_LANDS[li].ground; g.fillRect(0,0,W9,H9); try{ g.drawImage(im,0,0,W9,H9); }catch(e){} X.bands[key]=c; };
+  im.onerror=()=>{ if(S.tex!==X || X.bands[key]!==1) return; X.bands[key]=texBandPlain(li,W9,H9); };
+  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ser);
+  return null; }
+function texStart(o){   // THE DOOR (the rig's today; B3 hangs the map pin on it): the battle doors' own grammar (startBattle), then the set's state, the whole glass (W = the train's length: resize fits the view to the glass, as the long front does), Sarge on the caboose
+  if(!TEX.on) return false; o=o||{};
+  if(typeof bfQueueTeardown==='function') bfQueueTeardown();
+  themeKill(); reset();
+  S.levelN=0; S.rival=null; S.cfg=levelCfg(1); S.cfg.terrain={ rocks:[], river:null, rivers:[], pits:[], gaps:[], walls:[] }; S.cfg.waves=[];   // a bare carpet: nothing of the campaign's sim runs under S.tex; the painters read the ground law off S.cfg (lightField)
+  const X=S.tex={ t:0, car:0, land:0, landT:0, tun:null, hop:null, goal:null, next:null, lift:0, cam:{ x:0, x0:0 }, bands:{}, key:'', q:1, bw:0, bh:0, name:0, nameT:0, lands:[0], taps:0, hops:0, tuns:0, sarge:null };
+  W=texWorldW(); hideAllOverlays(); S.mode='play'; rugRoom(true); resize();
+  const u=placeUnit('sarge', texCarX(0)+TEX.seat*TEX.K, texTop(0)); u.sprue=0; u.dropT=0; u.marching=false; X.sarge=u;
+  X.cam.x=texCamGoal(); X.cam.x0=X.cam.x; texFit();
+  return true; }
+function texEnd(){ if(!S.tex) return false; S.tex=null; showMenu(); return true; }   // the way home (the rig's; B3's ends ride endBattle's grammar)
+function texTapAt(p){   // a tap in field units (the view's own x, 0..VW): his own car = walk there; the NEXT car = walk to the coupling, hop it, walk on (Q2); behind him or further ahead = nothing
+  const X=S.tex; if(!X || X.hop) return false; const wx=p.x+X.cam.x, ci=texCarAt(wx), L=texCarL(), ins=TEX.ins*TEX.K;
+  if(ci===X.car){ X.goal=Math.max(texCarX(ci)+ins, Math.min(texCarX(ci)+L-ins, wx)); X.next=null; X.taps++; return true; }
+  if(ci===X.car+1 && !X.tun){ X.goal=texCarX(X.car)+L-ins; X.next=Math.max(texCarX(ci)+ins, Math.min(texCarX(ci)+L-ins, wx)); X.taps++; return true; }
+  return false; }
+function texTap(e){ const p=evPos(e); if(chinBand(p)) return; audio(); texTapAt(p); }   // the canvas door: the home bar's band starts nothing (CARD-NFF); the audio unlock as every field tap does
+function texHop(){ const X=S.tex, u=X.sarge, nc=X.car+1; X.hop={ t:0, from:u.x, to:texCarX(nc)+TEX.ins*TEX.K, car:nc }; u.marching=false; u.wkX=1; u.wkT=S.t; }
+function texTunnel(){ const X=S.tex; X.tun={ t:0, to:X.car, dark:0 }; X.name=-1; try{ SFX.whistle(); }catch(e){} }   // the mouth ahead: the whistle (the game's own), the dark, the next land
+function texTick(dt){
+  const X=S.tex, u=X.sarge; X.t+=dt; X.landT+=dt;
+  if(X.hop){ const h=X.hop; h.t+=dt; const k=Math.min(1,h.t/TEX.hop), s=k*k*(3-2*k); u.x=h.from+(h.to-h.from)*s; X.lift=Math.sin(k*Math.PI)*TEX.hopH; u.wkX=1; u.wkT=S.t;
+    if(k>=1){ X.hop=null; X.lift=0; X.car=h.car; X.hops++; if(X.next!=null){ X.goal=X.next; X.next=null; } if(h.car!==X.land && !X.tun) texTunnel(); } }
+  else if(X.goal!=null){ const d=X.goal-u.x, st=TEX.walk*dt;
+    if(Math.abs(d)<=st){ u.x=X.goal; X.goal=null; u.marching=false; if(X.next!=null) texHop(); }
+    else { u.x+=(d>0? 1 : -1)*st; u.marching=true; u.wkX=(d>0)? 1 : -1; u.wkT=S.t; } }
+  u.y=texTop(X.car)+texBob(X.car)-X.lift; u.laneY=u.y; if(u.home){ u.home.x=u.x; u.home.y=u.y; }
+  if(X.tun){ const T=X.tun; T.t+=dt;
+    if(!T.dark && T.t>=TEX.tunIn*TEX.tun){ if(texBand(T.to)){ T.dark=1; X.land=T.to; X.landT=0; X.cam.x0=X.cam.x; X.lands.push(T.to); if(T.to+1<TEX_LANDS.length) texBand(T.to+1); } else T.t=TEX.tunIn*TEX.tun; }   // the dark holds until the next band is baked (a beat at most)
+    if(T.t>=TEX.tun){ X.tun=null; X.name=X.land; X.nameT=0; X.tuns++; } }
+  if(X.name>=0) X.nameT+=dt;
+  const tx=texCamGoal(); X.cam.x+=(tx-X.cam.x)*Math.min(1,dt*TEX.camEase); if(Math.abs(tx-X.cam.x)<0.5) X.cam.x=tx;
+}
+function texWheel(x,y,r,a){ cx.save(); cx.translate(x,y); cx.fillStyle='#E0CFA4'; cx.strokeStyle='#3A2C1C'; cx.lineWidth=2.6; cx.beginPath(); cx.arc(0,0,r,0,7); cx.fill(); cx.stroke(); cx.rotate(a); cx.lineWidth=2;
+  cx.beginPath(); cx.moveTo(-r+3,0); cx.lineTo(r-3,0); cx.moveTo(0,-r+3); cx.lineTo(0,r-3); cx.stroke(); cx.fillStyle='#7A5A22'; cx.beginPath(); cx.arc(0,0,3,0,7); cx.fill(); cx.restore(); }   // the toy train's wheel (trainCarArt's cream disc, dark cross and hub) turning as the battleground's do
+function texRnd(i){ const s=Math.sin(i*127.1+311.7)*43758.5453; return s-Math.floor(s); }   // the coal heap's fixed lumps: zero dice
+function texCar(i,sx,lit){   // one car in the look page's own numbers (mockup units under K), its wheels turning, its windows lit inside a tunnel
+  const k=TEX_CARS[i].k, CL=TEX.carL, GAP=TEX.gap, K=TEX.K, t=S.t, wa=reducedMotion()? 0 : t*18, WHEEL=TEX.wheel;
+  cx.save(); cx.translate(sx, texBob(i)); cx.scale(K,K);
+  cx.fillStyle='#22262B'; cx.fillRect(0,318,CL,12);
+  if(i<TEX_CARS.length-1){ cx.fillStyle='#3A2C1C'; cx.fillRect(CL,320,GAP,5); }
+  if(k==='boose'){
+    rr(6,268,CL-12,52,6); cx.fillStyle='#C1533E'; cx.fill(); cx.fillStyle='#D9A544'; cx.fillRect(6,305,CL-12,4);
+    rr(96,228,110,42,5); cx.fillStyle='#C1533E'; cx.fill();
+    cx.fillStyle='#7E2A1E'; rr(86,222,130,9,4); cx.fill(); rr(0,262,CL,9,4); cx.fill();
+    cx.fillStyle=lit? '#FFD98A' : '#BFD4DE'; for(const wx of [30,80,214,250]){ rr(wx,278,30,20,3); cx.fill(); } rr(118,238,28,18,3); cx.fill(); rr(158,238,28,18,3); cx.fill();
+    cx.fillStyle='#FF5A3C'; cx.beginPath(); cx.arc(4,290,6,0,7); cx.fill();
+  } else if(k==='crates' || k==='jeep'){
+    cx.fillStyle='#5A4632'; cx.fillRect(4,304,CL-8,14); cx.fillStyle='#7A6448'; for(let x=8;x<CL-8;x+=22) cx.fillRect(x,306,14,10);
+    if(k==='crates'){ for(const c of [[40,46,40],[92,34,30],[200,52,46],[256,30,26]]){ cx.fillStyle='#B98A4E'; cx.fillRect(c[0],304-c[2],c[1],c[2]); cx.strokeStyle='#7A5530'; cx.lineWidth=2; cx.strokeRect(c[0],304-c[2],c[1],c[2]); cx.beginPath(); cx.moveTo(c[0],304-c[2]); cx.lineTo(c[0]+c[1],304); cx.stroke(); } }
+    else { cx.strokeStyle='#6B7078'; cx.lineWidth=3; cx.setLineDash([5,4]); cx.beginPath(); cx.moveTo(60,304); cx.lineTo(140,282); cx.moveTo(280,304); cx.lineTo(205,282); cx.stroke(); cx.setLineDash([]); }
+  } else if(k==='box'){
+    rr(6,256,CL-12,64,5); cx.fillStyle='#A0522D'; cx.fill();
+    cx.strokeStyle='rgba(0,0,0,.18)'; cx.lineWidth=2; for(let x=26;x<CL-12;x+=24){ cx.beginPath(); cx.moveTo(x,260); cx.lineTo(x,318); cx.stroke(); }
+    cx.fillStyle='#7E3A1E'; rr(0,250,CL,8,4); cx.fill();
+    cx.fillStyle='#8B4422'; cx.fillRect(118,266,64,50); cx.strokeStyle='#D9A544'; cx.lineWidth=2; cx.strokeRect(118,266,64,50);
+  } else if(k==='hopper'){
+    cx.fillStyle='#4F6F8C'; cx.beginPath(); cx.moveTo(10,268); cx.lineTo(CL-10,268); cx.lineTo(CL-40,318); cx.lineTo(40,318); cx.closePath(); cx.fill();
+    cx.fillStyle='#F4F7FB'; rr(8,258,CL-16,14,7); cx.fill(); cx.fillStyle='#D9A544'; cx.fillRect(30,290,CL-60,3);
+  } else if(k==='tanker'){
+    cx.fillStyle='#2F3A44'; rr(10,262,CL-20,54,27); cx.fill(); cx.fillStyle='#D9A544'; cx.fillRect(10,286,CL-20,4); cx.fillStyle='#22262B'; rr(136,250,30,14,4); cx.fill();
+  } else if(k==='tender'){
+    cx.fillStyle='#2D3640'; rr(8,280,CL-16,40,4); cx.fill(); cx.fillStyle='#D9A544'; cx.fillRect(8,304,CL-16,3);
+    cx.fillStyle='#14161A'; cx.beginPath(); cx.moveTo(14,282); for(let x=14;x<=CL-14;x+=18) cx.lineTo(x, 270-8*texRnd(x)); cx.lineTo(CL-14,282); cx.closePath(); cx.fill();
+  } else if(k==='loco'){
+    cx.fillStyle='#A63B2A'; rr(6,236,96,84,5); cx.fill(); cx.fillStyle='#7E2A1E'; rr(0,228,110,10,4); cx.fill();
+    cx.fillStyle=lit? '#FFD98A' : '#BFD4DE'; rr(24,250,56,30,4); cx.fill();
+    cx.fillStyle='#2D3A47'; rr(100,262,170,56,26); cx.fill();
+    cx.fillStyle='#D9A544'; for(const x of [130,180,230]) cx.fillRect(x,262,8,56);
+    cx.fillStyle='#22262B'; cx.fillRect(220,210,26,54); rr(212,204,42,12,4); cx.fill();
+    cx.fillStyle='#D9A544'; cx.beginPath(); cx.arc(170,262,15,Math.PI,0); cx.fill();
+    cx.fillStyle='#E7C36A'; cx.beginPath(); cx.arc(278,290,11,0,7); cx.fill();
+    cx.fillStyle='#A63B2A'; cx.beginPath(); cx.moveTo(270,318); cx.lineTo(306,330); cx.lineTo(270,330); cx.closePath(); cx.fill();
+  }
+  const ws=(k==='loco')? [[40,14],[150,20],[205,20],[258,14]] : [[38,14],[76,14],[CL-76,14],[CL-38,14]];
+  for(const w of ws) texWheel(w[0], WHEEL, w[1], wa*(14/w[1]));
+  if(k==='loco'){ cx.strokeStyle='#C9CED6'; cx.lineWidth=5; cx.lineCap='round'; const a=wa*(14/20); cx.beginPath(); cx.moveTo(150+Math.cos(a)*10, WHEEL+Math.sin(a)*10); cx.lineTo(205+Math.cos(a)*10, WHEEL+Math.sin(a)*10); cx.stroke(); cx.lineCap='butt'; }
+  cx.restore(); }
+function texSmoke(sx){   // the stack's puffs streaming back as the train runs: pure f(S.t), zero dice; none under reduced motion
+  if(reducedMotion()) return; const t=S.t, K=TEX.K; cx.save(); cx.translate(sx,0); cx.scale(K,K);
+  for(let j=0;j<9;j++){ const age=((t*1.6+j/9)%1), x=233-age*260, y=196-age*70-Math.sin(age*5+j)*6; cx.fillStyle='rgba(235,232,222,'+(0.75*(1-age)).toFixed(3)+')'; cx.beginPath(); cx.arc(x,y,9+age*26,0,7); cx.fill(); }
+  cx.restore(); }
+function texGround(L){   // the near ground in the land's tone: the embankment's rows racing past, the fence posts nearer and faster, the ballast, the sleepers, the rails (screen space; still under reduced motion)
+  const K=TEX.K, t=reducedMotion()? 0 : S.tex.t, rail=TEX.rail*K;
+  cx.fillStyle=L.ground; cx.fillRect(0, rail-10*K, VW, H-rail+10*K);
+  const sp=TEX.spd*K, off=(t*sp)%(60*K); cx.fillStyle=L.g2; for(let x=-off; x<VW+60*K; x+=60*K) cx.fillRect(x, rail+20*K, 34*K, 6*K);
+  const sp2=700*K, off2=(t*sp2)%(230*K); cx.strokeStyle=L.post; cx.lineWidth=4*K; cx.lineCap='round'; for(let x=-off2; x<VW+230*K; x+=230*K){ cx.beginPath(); cx.moveTo(x, rail+60*K); cx.lineTo(x, rail+28*K); cx.stroke(); } cx.lineCap='butt';
+  cx.fillStyle='rgba(60,45,30,.55)'; cx.fillRect(0, rail-4*K, VW, 14*K);
+  const so=(t*sp)%(22*K); cx.fillStyle='#6B5640'; for(let x=-so; x<VW+22*K; x+=22*K) cx.fillRect(x, rail-2*K, 12*K, 9*K);
+  cx.fillStyle='#9AA2AE'; cx.fillRect(0, rail-3*K, VW, 3*K); }
+function texArch(x){ const K=TEX.K; cx.fillStyle='#6E5A44'; cx.fillRect(x-26*K, 0, 30*K, H); cx.fillStyle='#8A7458'; for(let y=0; y<H; y+=26*K){ cx.fillRect(x-24*K+((Math.round(y/(26*K))%2)*6*K), y+2*K, 22*K, 22*K); } }   // the tunnel's stone mouth
+function texDarkTrain(){   // inside the hill: the cars faint in the dark, their windows lit (the caboose's six, the cab's one)
+  const X=S.tex, K=TEX.K, cl=texCarL(); cx.save(); cx.translate(-X.cam.x, 0);
+  cx.globalAlpha=0.14; for(let i=0;i<TEX_CARS.length;i++){ const sx=texCarX(i); if(sx>X.cam.x-cl-60*K && sx<X.cam.x+VW+60*K) texCar(i, sx, true); }
+  cx.globalAlpha=0.9; for(let i=0;i<TEX_CARS.length;i++){ const sx=texCarX(i), k=TEX_CARS[i].k; if(!(k==='boose' || k==='loco') || sx<X.cam.x-cl-60*K || sx>X.cam.x+VW+60*K) continue;
+    cx.save(); cx.translate(sx, texBob(i)); cx.scale(K,K); cx.fillStyle='#FFD98A';
+    if(k==='boose'){ for(const wx of [30,80,214,250]){ rr(wx,278,30,20,3); cx.fill(); } rr(118,238,28,18,3); cx.fill(); rr(158,238,28,18,3); cx.fill(); } else { rr(24,250,56,30,4); cx.fill(); cx.beginPath(); cx.arc(278,290,11,0,7); cx.fill(); }
+    cx.restore(); }
+  cx.restore(); }
+function texTunnelDraw(ph){   // the mouth sweeps in from the right (the train runs east: the hill comes at it), the dark, the far mouth sweeps off to the left; reduced motion = the cuts
+  const K=TEX.K, rm=reducedMotion(); cx.save();
+  if(ph<TEX.tunIn){ const k=ph/TEX.tunIn, cover=rm? (k<0.5? VW+120*K : -60*K) : (VW+120*K)+(-60*K-(VW+120*K))*k; cx.fillStyle='#0B0A08'; cx.fillRect(cover, 0, VW-cover+200*K, H); texArch(cover); }
+  else if(ph<TEX.tunOut){ cx.fillStyle='#0B0A08'; cx.fillRect(0,0,VW,H); texDarkTrain(); }
+  else { const k=(ph-TEX.tunOut)/(1-TEX.tunOut), cover=rm? (k<0.5? VW+60*K : -120*K) : (VW+60*K)+(-120*K-(VW+60*K))*k; cx.fillStyle='#0B0A08'; cx.fillRect(-10, 0, cover+10, H); texArch(cover); }
+  cx.restore(); }
+function texName(){   // the land's name, ONE beat at each tunnel's exit (and at the door): top right, the only words the set paints
+  const X=S.tex; if(X.name<0 || X.tun) return; const s=X.nameT, a0=TEX.name[0], a1=TEX.name[1]; if(s<a0 || s>a1) return;
+  const a=Math.min(1,(s-a0)/0.3,(a1-s)/0.4), K=TEX.K, w=t(TEX_LANDS[X.name].name);
+  cx.save(); cx.globalAlpha=Math.max(0,a); cx.font='bold '+Math.round(22*K)+'px sans-serif'; cx.textAlign='right'; cx.textBaseline='alphabetic'; cx.lineWidth=5*K; cx.lineJoin='round'; cx.strokeStyle='rgba(0,0,0,.55)'; cx.strokeText(w, VW-18*K, 36*K); cx.fillStyle='#FFF6DA'; cx.fillText(w, VW-18*K, 36*K); cx.restore(); }
+function texDraw(){   // the whole canvas, every frame: the band (far), the ground (near), the world (the cars, the smoke, Sarge) through the set's own camera, the tunnel over all, the name, the fade
+  const X=S.tex, L=TEX_LANDS[X.land], K=TEX.K; texFit();
+  cx.fillStyle='#000'; cx.fillRect(0,0,VW,H);
+  const b=texBand(X.land);
+  if(b){ const sp=Math.max(0,X.bw-VW), k=Math.min(1, X.landT*TEX.far), x=Math.max(VW-X.bw, Math.min(0, -k*sp-(X.cam.x-X.cam.x0)*TEX.camFar)); cx.drawImage(b, x, TEX.bandY*K, X.bw, X.bh); if(L.night){ cx.fillStyle='rgba(10,14,40,'+L.night+')'; cx.fillRect(0,0,VW,H); } }
+  texGround(L);
+  cx.save(); cx.translate(-X.cam.x, 0);
+  const lit=!!(X.tun && X.tun.t/TEX.tun>0.3 && X.tun.t/TEX.tun<0.7), cl=texCarL();
+  for(let i=0;i<TEX_CARS.length;i++){ const sx=texCarX(i); if(sx>X.cam.x-cl-60*K && sx<X.cam.x+VW+60*K) texCar(i, sx, lit); }
+  texSmoke(texCarX(TEX_CARS.length-1));
+  if(X.sarge && !X.sarge.dead) drawUnit(X.sarge);
+  cx.restore();
+  if(X.tun) texTunnelDraw(X.tun.t/TEX.tun);
+  texName();
+  if(X.t<TEX.fade){ cx.fillStyle='rgba(0,0,0,'+(1-X.t/TEX.fade).toFixed(3)+')'; cx.fillRect(0,0,VW,H); } }
+// ═══ CARD-TRN-B1 ends ═══
 function update(dt){
+  if(S.tex){ S.t+=dt; texTick(dt); return; }   // CARD-TRN-B1 THE TOY EXPRESS: the set's own tick; nothing of the campaign's sim runs under it (the clock advances for the figures' own sway)
   S.t+=dt; S.hintT+=dt;
   dtpTick(dt);   // CARD-DTP DOUBLE TAP: the queued second rounds fire on SIM time (ONE line at the head; a briefing holds them; a fight that ended empties the queue)
   if(S.shake>0) S.shake=Math.max(0,S.shake-dt*3);
@@ -117440,6 +117646,7 @@ function rugShadow(camv){
   cx.beginPath(); cx.rect(-F,-F,WD+2*F,HT+F+Math.max(F,panS()+8)); cx.clip(); cx.beginPath();   // THE EDGE: nothing world-side paints past the carpet (the south margin stays the hand's, rugSouth's boards inside it); the path cleared behind the clip
 }
 function draw(){
+  if(S.tex){ texDraw(); return; }   // CARD-TRN-B1 THE TOY EXPRESS: the set paints the whole canvas itself (no HUD, no trays; its own camera follows Sarge, Q5)
   drawFloor();   // THE FLOOR BESIDE THE CARPET: the whole canvas, screen space, every frame — no pixel outside the world can carry a stale draw
   cx.save();
   if(S.shake>0) cx.translate((Math.random()-0.5)*8*S.shake,(Math.random()-0.5)*8*S.shake);
@@ -123081,6 +123288,7 @@ cv.addEventListener('pointerdown', e=>{
   // so no pointer path can place a unit or press a button under the window.
   if(COMM.brief) return;
   if(HQS.on) return;   // the HQ sheet owns taps the same way (v1.44)
+  if(S.tex){ texTap(e); return; }   // CARD-TRN-B1 THE TOY EXPRESS: tap the roof ahead (Q2); none of the field's buttons, trays, drags or pans under the set
   if(chinBand(evPos(e))){ S.sel=null; return; }   // CARD-NFF THE FIGHTS TAKE THE WHOLE GLASS (10/6): a finger that lands in the home bar's band under the lifted tray starts NOTHING here (no pan, no drag, no placement, no landing of a flying man): iOS takes a swipe that starts there, a tap there is the system's; the deselect as 0395's strip did it; never true where the chin is 0
   if(S.drag && S.drag.fly) tapLand();   // CARD-TP: a new finger lands the flying man first — keep tapping, every tap is a man
   if(S.evHold) S.evTouched=1;   // 0485 D13: any canvas tap in the hold = "I'm here" (the you-there card never deals to a hand that moved)
@@ -171506,6 +171714,10 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
+  trn(v){ v=v||{}; if(v.dials) Object.assign(TEX, v.dials); if(v.go) texStart(v.go===true? {} : v.go); if(v.end) texEnd(); if(v.tap && S.tex) texTapAt({ x:+v.tap[0]-S.tex.cam.x, y:+v.tap[1] });   // CARD-TRN-B1 THE TOY EXPRESS's rig door: go (the set) · end (home) · tap [world x, y] · dials · the read
+    const X=S.tex; return { cv:GVT_CV, on:!!X, dials:Object.assign({},TEX), cars:TEX_CARS.map((c,i)=>({ k:c.k, x:Math.round(texCarX(i)), top:Math.round(texTop(i)) })), lands:TEX_LANDS.map(l=>({ id:l.id, name:l.name, word:t(l.name) })), worldW:Math.round(texWorldW()), VW, W, mode:S.mode,
+      st:X? { t:+X.t.toFixed(2), car:X.car, land:X.land, landT:+X.landT.toFixed(2), tun:X.tun? { t:+X.tun.t.toFixed(2), ph:+(X.tun.t/TEX.tun).toFixed(3), to:X.tun.to, dark:X.tun.dark|0 } : null, hop:!!X.hop, goal:X.goal==null? null : Math.round(X.goal), next:X.next==null? null : Math.round(X.next), cam:Math.round(X.cam.x), name:X.name, nameT:+X.nameT.toFixed(2), lands:X.lands.slice(), key:X.key, bw:Math.round(X.bw), bh:Math.round(X.bh), q:+X.q.toFixed(3),
+        bands:Object.keys(X.bands).map(k=>k+'='+(X.bands[k]===1? 'baking' : X.bands[k].width+'x'+X.bands[k].height)), taps:X.taps, hops:X.hops, tuns:X.tuns, sarge:X.sarge? { x:Math.round(X.sarge.x), y:Math.round(X.sarge.y), marching:!!X.sarge.marching, wkX:X.sarge.wkX|0, lift:+(X.lift||0).toFixed(1), hp:X.sarge.hp, w:unitW('sarge') } : null } : null }; },
   rg(v){ v=v||{}; for(const k of ['spd','hp','depth','past','out','veer','ahead']) if(v[k]!=null) RG[k]=+v[k]; if(v.reset) rgReset();   // CARD-RG's door (the rig): the dials, a reset, the read (the part's seats, this fight's counts, every rifleman on the rug)
     return { cv:GVT_CV, dials:Object.assign({},RG), at:ENH_ORDER.indexOf('runninggun'), n:ENH_ORDER.length, cost:ENH_COST.runninggun, trophy:!!TROPHY_IDS.runninggun, own:enhOwns('runninggun'), on:enhOn('runninggun'), locked:enhLocked('runninggun'), rival:ENH_RIVAL.runninggun||null, unit:ENH_INFO.runninggun.unit, goo:LAB_GOO.runninggun||null, curve:LAB_CURVE.length, counts:Object.assign({},S.rgN||{}),
       men:S.units.filter(u=>!u.dead && u.type==='rifleman').map(u=>({ id:u.id, x:+u.x.toFixed(1), y:+u.y.toFixed(1), side:u.side||null, on:rgOn(u), lat:!!u.rgL, run:!!u.rgRun, behind:!!u.rgM, inReach:!!u.rgIn, fy:u.rgFy==null? null : u.rgFy, spd:u.def.moveSpd, hp:u.hp, hpMax:u.hpMax, grit:S.bf? null : gritCap(u), para:!!u.para, skin:unitSkin('rifleman',u), line:rgLine(u) })) }; },
