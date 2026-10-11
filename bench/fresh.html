@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.20","md5":"6afaf3b949e3c0fee4f6591bc3b97fe0","sha":"f0a521fdc","at":"2026-10-11T04:24:21Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.21","md5":"491510012f333aafb0d9604bf9d54830","sha":"6c2ee0ee5","at":"2026-10-11T04:33:49Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -45938,7 +45938,8 @@ function crossDuck(t){
 // FIRST entry point (for the tracer to die on) or null. The block circle sits
 // a little above the waterline (d.y-12) because that is where the body is —
 // shots fly at chest height and the maths should agree with the picture.
-function duckBlock(x1,y1,x2,y2){
+function duckBlock(x1,y1,x2,y2){ return pbmDuckCover(x1,y1,x2,y2, duckBlockDuck(x1,y1,x2,y2)); }   // CARD-PBM THE COVER RULE: the first of the duck's block and a cover piece's entry on the shot's line (on every map without a cov row pbmDuckCover hands the duck's own answer back untouched)
+function duckBlockDuck(x1,y1,x2,y2){   // the duck's own block: duckBlock's body before CARD-PBM, byte-still
   const d=S.bf? S.bf.duck : S.cduck; if(!d) return null;   // v2.28: one answer for both carpets — the campaign caches his own duck
 
   const ex=d.x, ey=d.y-12, dx=x2-x1, dy=y2-y1, fx=x1-ex, fy=y1-ey;
@@ -45955,6 +45956,7 @@ function duckBlock(x1,y1,x2,y2){
 // ONE indignant squeak instead of a rattle. Throttled on S.t (the sim's own
 // clock) through bf state — cosmetics only, the block above never throttles.
 function duckBlockFx(p){
+  if(p.pbCover){ pbmDuckFx(p); return; }   // CARD-PBM: a round dying on a cover piece puffs and marks the piece, never the duck's squeak
   const st=S.bf||S;   // v2.28: the campaign's duck throttles on S itself — same clock, same 90ms
   S.fx.push({k:'puff',x:p.x,y:p.y+4,t:0,dur:0.3,R:9});
   if(S.t-(st.duckFxT||-9)<0.09) return;
@@ -78037,7 +78039,7 @@ function campGrandArm(){
   const D=CAMP_DRESS[campBaseRung(S.levelN)];   // 0497 D7: …and its dress row (the costume the first ladder authored for that field)
   if(D){
     if(D.rocks)  t.rocks=t.rocks.concat(D.rocks.map(r=>Object.assign({},r)));
-    if(D.trench) t.trench={ w:D.trench.w, pts:D.trench.pts };
+    if(D.trench){ t.trench={ w:D.trench.w, pts:D.trench.pts }; if(D.trench.multi) t.trench.multi=D.trench.multi; if(D.trench.crawl) t.trench.crawl=1; }   // CARD-PBM: a dressed trench carries its cuts (multi) and its crawl too; no dress row today has either
     if(D.balls)  t.balls=D.balls.map(b=>Object.assign({},b,{y:b.y0,dir:1,roll:0}));
     if(D.props)  t.props=(t.props||[]).concat(D.props.map(p=>Object.assign({},p)));
     // 0194 THE TOY CHEST: jax spots land VERBATIM (no mirror flatMap — a rug
@@ -80202,7 +80204,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -91535,6 +91537,69 @@ function bfNearestEnemy(u,range){
 function TGT(u){ return S.bf ? bfEnemies(u.side) : S.foes; }
 function TGTC(u){ return S.bf ? bfEnemies(u.side) : S.foes.slice(); }   // CARD-F6 (LCA-F6; Wyatt 10/1 "fix item 11"): THE SAME LIST, SAFE TO WALK WHILE A MAN FALLS OUT OF IT — on the rug foeFell splices S.foes at once, so a forward walk that kills inside its body skipped the man listed after the one who fell (the greens are flagged and swept, and bfEnemies hands a fresh array, so the mat needs no copy); every area hit, cleave, slam, tongue and drum that walks the enemy list reads this door now; TGT itself stays for the scans that pick first and hit after
 function PRIO(u,f){ return S.bf ? Math.hypot(u.x-f.x,u.y-f.y) : Math.hypot(T.x-f.x,T.y-f.y); }
+// ═══ CARD-PBM THE PAINTBALL MAPS: THE RULES (CARD-PBM-0, 10/10/2026; Wyatt on Maker 1: "Let's design 5 maps: 2 battlefield ones and the rest some campaign ones. If we like any of them, we'll put them in the game." · his go 20:27: "Regarding your rules, let's go with your recommendations.") ═══
+// Four rules the new maps carry in their rows, DORMANT until a row carries the cell (no map today does, so every field plays byte-the-same):
+//   THE COVER RULE: a rock row with cov:1 is cover: a man cannot be engaged through it (bfCanTarget, beside the trench law); a round in flight dies on it with a puff (duckBlock's own door).
+//   THE CRAWL: a trench with crawl:1 slows a man inside it to PBM.crawl (bfGround).
+//   MANY TRENCHES: a trench with multi:[{w,pts}...] is several cuts (trailDist, drawTrenchCut; the dress copies them); pts = the first cut for the readers that know one.
+//   THE LOOKOUT TOWER: a prop art:'pblook' with r: a man standing in it aims past the trench law and the cover rule; never an obstacle (a prop has no hitbox).
+// The spec: design/paintball-maps-1010/kit/proto/pbm.js (the run-time prototype filmed in v19.93); the record 00-DESIGN-PBM.md §2; the build 00-BUILD-PBM0.md. The map cards (PBM-1 THE DOOR SNAKE, PBM-5 BLOCK CASTLE) add their rows and their painters' rows below.
+const PBM={ hug:34, crawl:0.55, foot:0.94, feet:18, look:34, dirty:0, stats:{ blocked:0, eaten:0, tower:0, crawl:0 } };   // the dials: a man pressed within r+hug px of a SMALL piece leans out past it · the crawl's pace · a piece's footprint = r x foot · a shot's line flies feet px above the floor · a tower's reach when its row names none · dirty=1 after a row's cov or a prop's art is changed IN PLACE (the lists below re-read the rows; a new rug or a new row count re-reads them by itself) · the rig's counters
+const PBM_ART=Object.create(null);    // a cover piece's painter by its art name, { art:fn(rk) }: the map cards append their rows (drawRug's rock dispatch asks this table first; a name not here paints as a plain stone; no prototype, so no art name ever finds an inherited key)
+const PBM_PROP=Object.assign(Object.create(null), { pblook:pbmDrawLookout });   // a decor prop's painter by its art name, { art:fn(pr) }: the lookout tower here, the map cards append (drawRug's props loop asks this table first)
+function pbmSegCircle(x1,y1,x2,y2,ex,ey,r){   // the segment against a circle: the first entry point { x,y,t } or null (duckBlock's own maths; a muzzle inside the piece never blocks its own man)
+  const dx=x2-x1, dy=y2-y1, fx=x1-ex, fy=y1-ey, a=dx*dx+dy*dy; if(a<1e-9) return null;
+  const c=fx*fx+fy*fy-r*r; if(c<0) return null;
+  const b=2*(fx*dx+fy*dy); let q=b*b-4*a*c; if(q<0) return null;
+  q=Math.sqrt(q); const t=(-b-q)/(2*a); if(t<0||t>1) return null;
+  return { x:x1+dx*t, y:y1+dy*t, t:t };
+}
+let pbmCovT=null, pbmCovN=-1, pbmCovL=[];   // the cover list, kept per terrain and rock count (one filter when the rug or its rocks change; empty on every map without a cov row, so the rules below cost a few compares)
+function pbmCovers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.rocks){ pbmCovL=[]; return pbmCovL; } if(T!==pbmCovT || T.rocks.length!==pbmCovN || PBM.dirty){ pbmCovT=T; pbmCovN=T.rocks.length; pbmCovL=T.rocks.filter(rk=>rk.cov); pbmTwT=null; PBM.dirty=0; } return pbmCovL; }
+let pbmTwT=null, pbmTwN=-1, pbmTwL=[];   // the towers, the same way (the props with art 'pblook')
+function pbmTowers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.props){ pbmTwL=[]; return pbmTwL; } if(T!==pbmTwT || T.props.length!==pbmTwN || PBM.dirty){ pbmTwT=T; pbmTwN=T.props.length; pbmTwL=T.props.filter(p=>p.art==='pblook'); pbmCovT=null; PBM.dirty=0; } return pbmTwL; }
+function pbmTowerAt(x,y){ const L=pbmTowers(); for(let i=0;i<L.length;i++){ const p=L[i]; if(Math.hypot(x-p.x,y-p.y)<(p.r||PBM.look)) return p; } return null; }
+function pbmTall(o){ return !!(o && (o.boss || (o.def && (o.def.boss || o.def.vehicle || o.def.fly)) || o.skyDrop)); }   // too tall to hide behind a toy, too tall to hide: a tank, a boss, a body in the air
+function pbmBetween(x1,y1,x2,y2,hx,hy){   // the first cover piece between two points on the floor, or null. A man (hx,hy) pressed to a SMALL piece (one circle, no grp) leans out past it, never through it at a man pressed to its far side; a grp piece (a house, a wall, the book spine) is never fired through by anyone
+  const L=pbmCovers(); let best=null;
+  for(let i=0;i<L.length;i++){ const rk=L[i];
+    if(hx!=null && !rk.grp && Math.hypot(hx-rk.x,hy-rk.y)<rk.r+PBM.hug && Math.hypot(x2-rk.x,y2-rk.y)>=rk.r+PBM.hug) continue;
+    const h=pbmSegCircle(x1,y1,x2,y2,rk.x,rk.y,rk.r*PBM.foot);
+    if(h && (!best || h.t<best.t)){ h.rk=rk; best=h; }
+  }
+  return best;
+}
+function pbmCovered(u,o){   // THE COVER RULE's answer for bfCanTarget: true when a cover piece stands between the shooter's feet and the target's (false on every map without a cov row)
+  if(!pbmCovers().length || TRENCH_EXEMPT[u.type] || pbmTall(o) || pbmTall(u)) return false;
+  const c=pbmBetween(u.x,u.y,o.x,o.y,u.x,u.y); if(c) PBM.stats.blocked++;
+  return !!c;
+}
+function pbmDuckCover(x1,y1,x2,y2,d){   // duckBlock's door: the duck's answer d stands unless a cover piece's entry on the shot's line (read at the feet, PBM.feet below the line) comes first; a cover hit is flagged pbCover for duckBlockFx
+  if(!pbmCovers().length) return d;
+  const c=pbmBetween(x1,y1+PBM.feet,x2,y2+PBM.feet,x1,y1+PBM.feet); if(!c) return d;
+  if(d && Math.hypot(d.x-x1,d.y-y1)<=Math.hypot(c.x-x1,c.y-PBM.feet-y1)) return d;
+  return { x:c.x, y:c.y-PBM.feet, pbCover:1, rk:c.rk, dx:x2-x1 };
+}
+function pbmDuckFx(p){   // the round dies on the piece: a puff, never the squeak; the splat kept on the piece for its painter (pbPaint: the angle on the footprint, the shooter's side by the shot's heading, a size from the spot; no die)
+  PBM.stats.eaten++;
+  S.fx.push({k:'puff',x:p.x,y:p.y+4,t:0,dur:0.28,R:7});
+  const rk=p.rk; if(rk){ if(!rk.pbPaint) rk.pbPaint=[]; rk.pbPaint.push({ a:Math.atan2(p.y+PBM.feet-rk.y,p.x-rk.x), g:p.dx>0?1:0, s:0.7+(((p.x*7+p.y*13)|0)&15)/25 }); if(rk.pbPaint.length>9) rk.pbPaint.shift(); }
+}
+function pbmMultiDist(x,y,t){ let d=1e9; for(let i=0;i<t.multi.length;i++) d=Math.min(d, trailDist(x,y,t.multi[i])); return d; }   // MANY TRENCHES: the nearest of every cut (a cut is { w,pts }, never multi itself)
+function pbmDrawLookout(p){   // THE LOOKOUT TOWER (the prototype's lookout()): a square plank deck with its planks, four corner posts, the siege tower's wheels, a bordered edge, the side's flag waving on a pole; a zone you stand in, never an obstacle
+  const x=p.x, y=p.y, r=p.r||PBM.look, s=r*1.15, col=p.side==='t'? TAN : GREEN;
+  cx.save();
+  cx.fillStyle='rgba(0,0,0,0.25)'; cx.fillRect(x-s+10,y-s+12,s*2,s*2);
+  cx.fillStyle=p.siege? '#8C6A43' : '#9B7A50'; cx.fillRect(x-s,y-s,s*2,s*2);
+  cx.strokeStyle='rgba(60,40,20,0.55)'; cx.lineWidth=2; for(let yy=y-s+9;yy<y+s;yy+=9){ cx.beginPath(); cx.moveTo(x-s+2,yy); cx.lineTo(x+s-2,yy); cx.stroke(); }
+  cx.fillStyle='#5A3F25'; for(const q of [[-1,-1],[1,-1],[-1,1],[1,1]]) cx.fillRect(x+q[0]*(s-5)-5,y+q[1]*(s-5)-5,10,10);
+  if(p.siege){ cx.fillStyle='#5A3F25'; for(const dy of [-1,1]){ cx.beginPath(); cx.arc(x-s*0.6,y+dy*(s+6),8,0,7); cx.arc(x+s*0.6,y+dy*(s+6),8,0,7); cx.fill(); } }
+  cx.strokeStyle='#3E2B18'; cx.lineWidth=3; cx.strokeRect(x-s,y-s,s*2,s*2);
+  cx.strokeStyle='#2E2216'; cx.lineWidth=3; const fx=x+s-6, fy=y-s+6; cx.beginPath(); cx.moveTo(fx,fy); cx.lineTo(fx,fy-38); cx.stroke();
+  const wv=Math.sin((S.t||0)*5+x)*4; cx.fillStyle=col; cx.beginPath(); cx.moveTo(fx,fy-38); cx.quadraticCurveTo(fx+15,fy-34+wv,fx+28,fy-28); cx.lineTo(fx,fy-20); cx.closePath(); cx.fill();
+  cx.restore();
+}
+// ═══ CARD-PBM ends ═══
 // ===== WESTERN LAND: THE TRENCH SIGHT LAW (v1.57) =====
 // Wyatt, verbatim: "units that are not in the trench can't fire at the units
 // that are in the trench. Of course, the mortar and the bazooka are exceptions
@@ -91611,6 +91676,8 @@ function bfCanTarget(u,o){
       if(!cv) return false;
     }
   }
+  if(u && o && pbmTowerAt(u.x,u.y)){ PBM.stats.tower++; return true; }   // CARD-PBM THE LOOKOUT TOWER: a man standing in a tower (a prop art:'pblook') sees over cover and down into trenches: the trench law and the cover rule fall away for HIM (every clause above still holds); nothing on a map without a tower
+  if(u && o && pbmCovered(u,o)) return false;   // CARD-PBM THE COVER RULE: a cover piece (a rock row with cov:1) between the shooter's feet and the target's blinds the aim (the lobbers see over; a tank, a boss, a body in the air is too tall to hide; a man pressed to a small piece leans out past it; a grp piece is never fired through); nothing on a map without a cov row (every field today)
   if(!S.cfg.terrain.trench) return true;            // identity everywhere the ground carries no cut — every narrow rug, every undressed grand rug, every other BF map (0129: was a mode test; the trench itself is the licence)
   if(!inTrench(o)) return true;                     // target in the open: anyone may engage
   if(TRENCH_EXEMPT[u.type]) return true;   // 1078: the fitted tube lobs again — the lobbers' exemption stands for it (0542's clause retired)            // the lobbers see over the lip (0542: a cannon ball is no lob — the modded tube waits like the line)
@@ -92744,6 +92811,7 @@ function segDist(px,py,ax,ay,bx,by){
   return Math.hypot(px-(ax+t*vx), py-(ay+t*vy));
 }
 function trailDist(x,y,t){
+  if(t.multi) return pbmMultiDist(x,y,t);   // CARD-PBM MANY TRENCHES: a trench with multi:[{w,pts}...] answers the nearest of its cuts
   let d=1e9;
   for(let i=0;i<t.pts.length-1;i++)
     d=Math.min(d, segDist(x,y,t.pts[i][0],t.pts[i][1],t.pts[i+1][0],t.pts[i+1][1]));
@@ -92786,6 +92854,7 @@ function bfGround(u){
         break; }
     }
   }
+  const tr9=T.trench; if(tr9 && tr9.crawl && fx && trenchAt(u.x,u.y)){ m*=PBM.crawl; PBM.stats.crawl++; }   // CARD-PBM THE CRAWL: a man inside a trench whose row carries crawl:1 goes on his belly (the snake's price for its safety); a probe asks the open ground; no trench today carries it
   u.wet=wet; u.onIce=onIce;
   return m;
 }
@@ -114627,6 +114696,7 @@ function drawRug(){
     if(rk.art==='pillow'){ drawPillowRock(rk); continue; }  // 0524: TEDDY PARK's soft anchors (D10)
     if(rk.art==='plush'){ drawPlushRock(rk); continue; }   // CARD-BED THE BED (from DYLAN): the stuffed animals on the sheets
     if(rk.art==='book') continue;                        // CARD-HLB: a fallen book's two circles are its hitbox; the book paints itself (hlbDrawUnder)
+    if(PBM_ART[rk.art]){ PBM_ART[rk.art](rk); continue; }   // CARD-PBM: a paintball piece paints by its own art name (the map cards' rows; a stone otherwise)
     cx.fillStyle='rgba(0,0,0,0.25)'; cx.beginPath(); cx.ellipse(rk.x+4,rk.y+rk.r*0.55,rk.r*1.05,rk.r*0.4,0,0,7); cx.fill();
     cx.fillStyle='#8B8578'; cx.beginPath();
     cx.ellipse(rk.x,rk.y,rk.r,rk.r*0.8,0.2,0,7); cx.fill();
@@ -114638,6 +114708,7 @@ function drawRug(){
   // so a narrower door (the 960 sortie) can never hang one off the east edge.
   for(const pr of (S.cfg.terrain.props||[])){
     if(pr.x>WD-70) continue;
+    if(PBM_PROP[pr.art]){ PBM_PROP[pr.art](pr); continue; }   // CARD-PBM: the lookout tower and the map cards' decor paint by their own art names (zero hitbox, as every prop)
     if(pr.art==='cactus') drawCactus(pr);
     else if(pr.art==='clod') drawSnowClod(pr);
     else if(pr.art==='chimney') drawChimney(pr,true);   // 1000 THE CAMPAIGN RUG III (CELL B · c20 · PICK 10): the roof rungs' CREAM chimney stacks — decor, zero hitbox (CAMP_PROPS)
@@ -114796,6 +114867,7 @@ const TRENCH_PAL={
 };
 function trenchPal(){ return TRENCH_PAL[S.cfg.terrain.ground]||TRENCH_PAL.carpet; }
 function drawTrenchCut(tr,pal){
+  if(tr.multi){ for(let i=0;i<tr.multi.length;i++) drawTrenchCut(tr.multi[i],pal); return; }   // CARD-PBM MANY TRENCHES: every cut painted, each with its own lip, floor, rim, duckboards and ladders
   const P=tr.pts;
   cx.lineJoin='round'; cx.lineCap='round';
   cx.strokeStyle=pal.lip; cx.lineWidth=TRENCH_W+8; pathPts(P); cx.stroke();   // the spoil lip
