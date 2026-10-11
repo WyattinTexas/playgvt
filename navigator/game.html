@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.03","md5":"8fea5ef4b175c56e7f518434a91164bb","sha":"8dd04f278","at":"2026-10-11T18:31:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.04","md5":"216b2a69872485b723330109b2ea1d7d","sha":"506b25670","at":"2026-10-11T18:42:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -56950,7 +56950,7 @@ const CAMP_PROPS={
 // already ship in all six languages (v1.27/v1.57 map names + the OPEN CARPET
 // blister), so the announce owes zero strings. v1.98: a PLAIN grand rug is
 // the OPEN CARPET — that map's whole identity is "the big cleared span".
-function campStageName(){ const g=S.cfg&&S.cfg.terrain&&S.cfg.terrain.ground;
+function campStageName(){ const g=S.cfg&&S.cfg.terrain&&S.cfg.terrain.ground; const cm9=(typeof cmxName==='function')? cmxName() : null; if(cm9) return cm9;   // CARD-CMX: THE HILL VILLAGE (5) · THE CROSSING (8) · GNOME PARK (10)
   return g==='snow'?'THE WINTER FIELD' : g==='sand'?'WESTERN LAND'
        : g==='grass'?'THE BACKYARD' : g==='roof'?'THE ROOFTOP'
        : (S.gk>1)?'OPEN FIELD' : null; }
@@ -80598,6 +80598,7 @@ function campGrandArm(){
       if(D.train.preset==='ring'){ t.cring=campRing(); t.cring.kill=(D.train.kill!==false); }
       else t.ctrain=Object.assign({},D.train);
     }
+    if(D.make) D.make(t);   // CARD-CMX: a row that builds its pieces on the live span (L5 THE HILL VILLAGE: his houses + the street graph; L10 GNOME PARK's lawn)
   }
   // ===== 0194 JAX, campaign edition: the little toy jacks go down BEFORE the
   // first boot — the battleground's own idiom (v2.15, startBattlefield). They
@@ -80608,8 +80609,9 @@ function campGrandArm(){
   // arithmetic (trigger and blast both). Zero RNG, fixed authored coords:
   // both crate doors run this pass from the same levelN, so an allied lobby's
   // sims bury identical jacks (the relPos law's spirit).
-  for(const j of (t.jax||[]))
+  for(const j of (t.jax||[])){
     S.mines.push({ owner:null, side:'jax', seat:null, x:j.x, y:j.y, armT:0, big:!!j.big, sl:false, jx:true });
+    if(j.lm) S.mines[S.mines.length-1].lm=1; }   // CARD-CMX: L10's mines are jacks in law, landmines to the eye (drawJack's first line)
   // 0475 WESTERN ROAD 4/8: the dustballs arm LAST — their lanes steer round
   // every rock the merge above just landed (sand rungs only; zero RNG; a
   // COPY per battle on t — CAMP_DRESS is never written).
@@ -82741,7 +82743,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -94512,12 +94514,15 @@ function hvilHome(G,gx,gy){   // the streets' distance home from every node to o
 }
 function hvilOff(u){ if(u.hvilO==null){ const h=((((u.id|0)+7)*2654435761)>>>0)%1000; u.hvilO=(h/1000-0.5)*2*HVIL.off; } return u.hvilO; }   // a man's own place across the street (up to 18 px either way of an 80 street), off his own number: a squad walks abreast, not single file; the same on every screen in a room
 function hvilAim(u,goal,gx,gy,dt){   // THE STREET GUIDE's goal for this step on a map with a streets cell, or null = today's walk. Only the march on the enemy box is guided (the zig's sub-goal u.wp stands for the box); any other goal (an intel mark, a trail, an owner's spot) walks as it does today
-  const G=S.cfg.terrain.streets, eb=S.bf.base[enemySide(u)]; if(!G || !HVIL.guide || !eb || (goal!==u.wp && goal!==eb)) return null;
+  const G=S.cfg.terrain.streets, eb=S.bf? S.bf.base[enemySide(u)] : S.tanBase; if(!G || !HVIL.guide || !eb || (goal!==u.wp && goal!==eb)) return null;   // CARD-CMX: on the campaign's HILL VILLAGE (level 5) green marches on the crate
+  return hvilPlan(u,G,eb.x,eb.y,dt);
+}
+function hvilPlan(u,G,ex,ey,dt){   // THE STREET GUIDE's planner (CARD-CMX split it out of hvilAim, byte-what-it-did): the point to aim at this step toward (ex,ey), or null = the straight walk
   u.hvilT=(u.hvilT||0)-(dt||0);
   if(u.hvilT>0 && u.hvilA!==undefined && (u.hvilA===null || Math.hypot(u.hvilA.x-u.x,u.hvilA.y-u.y)>HVIL.arrive)) return u.hvilA;   // the last plan stands for replan s, or until he arrives on it
   u.hvilT=HVIL.replan; HVIL.stats.plans++;
-  if(hvilClear(G,u.x,u.y,eb.x,eb.y)){ HVIL.stats.free++; return (u.hvilA=null); }   // open ground: the engine's own walk
-  const D=hvilHome(G,eb.x,eb.y); let best=null, bc=Infinity, bd=-1;
+  if(hvilClear(G,u.x,u.y,ex,ey)){ HVIL.stats.free++; return (u.hvilA=null); }   // open ground: the engine's own walk
+  const D=hvilHome(G,ex,ey); let best=null, bc=Infinity, bd=-1;
   for(let i=0;i<G.nodes.length;i++){ const n=G.nodes[i], h=D[i]; if(h===Infinity) continue;
     const d=Math.hypot(n.x-u.x,n.y-u.y), c=d+h;
     if(!(c<bc-0.5 || (c<=bc+0.5 && d>bd))) continue;   // the shortest way home; of equals, the farthest point he can see (one smooth line)
@@ -94656,6 +94661,57 @@ function pbm5Rows(){   // the castle + the approach, in the stretched span (the 
 CAMP_EDITS.levels[PBM5.rung]={ terrain:{ river:{ x:859, w:60, bridgeY:PBM5.gates[0], bridgeY2:PBM5.gates[1], bw:80 }, rocks:[] } };   // THE MOAT (the CAMP_EDITS wrapper copies it per battle; campGrandArm stretches x to 1330)
 CAMP_DRESS[PBM5.rung]={ rocks:pbm5Rows(), props:[{ x:PBM5.siege, y:300, art:'pblook', r:40, side:'g', siege:1 }] };   // THE CASTLE + green's SIEGE TOWER (CARD-PBM-0's lookout: a zone, never an obstacle)
 // ═══ CARD-PBM5 ends ═══
+// ═══ CARD-CMX CAMPAIGN MAPS 5 TO 10 (Wyatt by voice from his phone 10/11/2026 18:19, jumpr remote, verbatim: "Create a campaign version of the Hill Village Battlegrounds level, and that will take over what level 5's battle map will be For the regular campaign · Make level 5's map now level 6's map, and we'll remove level 6's map. · For level 7, we'll keep it, except change the rug to just be snow. For level 8 change it to the dinosaur grass background we use for those levels with the layout of the crossing, which has the two bridges. For level 9, the line up the bridge should be perfectly in line with the path on the water. For level 10, add in 4 mines. We'll put 2 on both sides. We'll have them centered towards the middle path vertically, and let's use the background from Gnome Park for this level. · Go with recs, push to live") ═══
+// MAPS ONLY (the 0757b / PBM5 precedent): every rung keeps its waves, its name and its hp / count / boss rows; the elite twins (105-110, and the third hundred's rungs that wear these fields) take the new maps through campBaseRung as ever.
+// Set from here (a sec writes its rungs' rows: CAMP_EDITS.levels, CAMP_DRESS, CAMP_STAGES, CAMP_GRAND); zero RNG, zero save key, zero wire byte, zero new words (THE HILL VILLAGE, THE CROSSING, GNOME PARK ship x7 already).
+//   L5 THE HILL VILLAGE, campaign edition: the tall mat (CAMP_GRAND 2 = the battleground's own 1920 x 1200; the camera walks y), the lawn, the seed's river and stones cleared. At the crate door (CAMP_DRESS[5].make, after the grand block) his seven houses, the well,
+//      the playground, the hill and the three streets land on the live span exactly where the battleground row has them (hvilRocks + hvilGraph; WORLD_W / MID set to the rung's own 1920 / 960 first, the boot values, so hvilK is 1 on this rung whatever room the last battleground was).
+//      The door card's sub-line reads THE HILL VILLAGE; no dirt runner (his streets are the road). THE STREET GUIDE walks both armies: green's march on the crate (hvilAim, S.tanBase standing in for the battleground's base) and the tan walk on the toy box (cmxFoeAim in update's walk branch; bosses and swoopers walk as ever).
+//   L6 = old L5's map verbatim (the seed's channel at 502, one bridge at 278, no stones); old L6's three stones are gone.
+//   L7 keeps its sandbags and its six jacks; the rug is THE WINTER FIELD (CAMP_STAGES 7 snow, no props: "just be snow").
+//   L8 THE CROSSING on the dino parks' lawn (ground grass = the Dino Park battle floor): the channel in the middle with two bridges on THE CROSSING's rows 172 / 428 (level 30's channel), THE CROSSING's two stones each side (330 of its 1920 = 213 of the 1240 rug) and its rubber duck.
+//   L9 the bridge lies ON the runner: the seed's channel (473, 56 wide) with its one bridge at the runner's own y over the channel's middle (CMX.l9Y, read off PATH_PTS at boot; was 406, 6 px under it).
+//   L10 GNOME PARK's ground (the night lawn + the moon dressing: terrain.night + terrain.moon, parkCfgMoon's own two cells) and FOUR MINES, two on each half of the rug, each pair straddling the middle row (y 250 / 350) at x 430 and 810 (190 either side of the 620 middle;
+//      every one clear of the three stones by 100+). A mine is a campaign jack in law (jx: nobody's, live from the whistle, trips for both armies, once; a sweeper snips it) drawn as a landmine (lm: drawJack's first line hands it to cmxMineDraw).
+// The record: design/campaign-maps-5-10-1011/00-BUILD-CMX.md (CMX-Q1..Q6 at REC). UNDO = revert this card's hunks.
+const CMX={ l6:{ x:502, w:56, bridgeY:278, bw:76 }, cross:{ x:598, w:56, bridgeY:172, bridgeY2:428, bw:78 }, crossRocks:[[213,150],[213,452],[1027,150],[1027,452]], crossR:30, l9:{ x:473, w:56, bw:76 }, l9Y:0,
+  mines:[[430,250],[430,350],[810,250],[810,350]], name:{ 5:'THE HILL VILLAGE', 8:'THE CROSSING', 10:'GNOME PARK' }, stats:{ foe:0 } };   // L6's channel (old L5's seed, measured) · L8's channel + stones · L9's seed channel · the four mines · the door card's sub-line per rung · the rig's counter
+CMX.l9Y=(function(){ const cx9=CMX.l9.x+CMX.l9.w/2; for(let i=1;i<PATH_PTS.length;i++){ const a=PATH_PTS[i-1], b=PATH_PTS[i]; if((a.x-cx9)*(b.x-cx9)<=0 && a.x!==b.x) return Math.round(a.y+(b.y-a.y)*(cx9-a.x)/(b.x-a.x)); } return 400; })();   // the runner's y over the channel's middle (the runner runs one way in x, so it crosses once)
+function cmxVillage(t){   // L5's crate door: the rung's span is 1920 (CAMP_GRAND 2); the battleground's helpers read WORLD_W, so it takes the rung's own (the boot value) before the pieces and the street graph are built
+  WORLD_W=W; MID=W/2;
+  t.rocks=t.rocks.concat(hvilRocks()); t.streets=hvilGraph(t.rocks); t.cmx=1;
+}
+function cmxGnome(t){ t.night=1; t.moon=1; }   // L10: GNOME PARK's lawn (parkCfgMoon's own cells: the night lawn under the moon dressing)
+function cmxRung(){ return (!S.bf && !S.park && !S.raid && !S.momRaid && S.cfg && (S.levelN|0)>0 && (S.cfg.n|0)===(S.levelN|0))? campBaseRung(S.levelN|0) : 0; }   // the campaign rung actually dealt (the cpsOn idiom), or 0
+function cmxName(){ return CMX.name[cmxRung()] || null; }   // campStageName's first read
+function cmxNoRun(){ return !!(!S.bf && S.cfg && S.cfg.terrain && S.cfg.terrain.cmx); }   // pathStroke: no dirt runner across his village
+function cmxFoeAim(f,dt){ const G=S.cfg.terrain.streets; if(!G || !HVIL.guide || S.bf) return null; CMX.stats.foe++; return hvilPlan(f,G,T.x,T.y,dt); }   // the tan walk on the toy box through his streets (THE STREET GUIDE's planner, the toy box as the goal)
+function cmxMineDraw(mn){   // a landmine on the lawn: the shadow, the olive-grey case with a pale rim (it reads on the night lawn), the pressure plate, the red eye, always lit
+  const x=mn.x, y=mn.y;
+  cx.fillStyle='rgba(0,0,0,0.32)'; cx.beginPath(); cx.ellipse(x+2,y+6,16,5.5,0,0,7); cx.fill();
+  cx.fillStyle='#3F4235'; cx.beginPath(); cx.ellipse(x,y,15,10,0,0,7); cx.fill();
+  cx.strokeStyle='#E4E8D2'; cx.lineWidth=2.4; cx.beginPath(); cx.ellipse(x,y,15,10,0,0,7); cx.stroke();
+  cx.fillStyle='#727860'; cx.beginPath(); cx.ellipse(x,y-2,8,5,0,0,7); cx.fill();
+  cx.strokeStyle='#23251D'; cx.lineWidth=1.4; cx.beginPath(); cx.ellipse(x,y-2,8,5,0,0,7); cx.stroke();
+  const p9=reducedMotion()? 0.5 : 0.5+0.5*Math.sin(S.t*5+x*0.07);   // the red eye always lit; a soft halo breathes round it (steady under reduced motion)
+  cx.fillStyle='rgba(226,54,79,'+(0.18+0.3*p9).toFixed(3)+')'; cx.beginPath(); cx.arc(x,y-3,6,0,7); cx.fill();
+  cx.fillStyle='#FF4A5E'; cx.beginPath(); cx.arc(x,y-3,3,0,7); cx.fill();
+}
+CAMP_GRAND[5]=2; CAMP_STAGES[5]='grass';
+CAMP_EDITS.levels[5]={ terrain:{ river:null, rocks:[] } };
+CAMP_DRESS[5]={ make:cmxVillage };
+CAMP_EDITS.levels[6]={ terrain:{ river:CMX.l6, rocks:[] } };
+CAMP_STAGES[7]='snow';
+CAMP_STAGES[8]='grass';
+CAMP_EDITS.levels[8]={ terrain:{ river:CMX.cross, rocks:CMX.crossRocks.map(q=>({ x:q[0], y:q[1], r:CMX.crossR })) } };
+CAMP_DRESS[8]={ duck:1 };
+CAMP_EDITS.levels[9]={ terrain:{ river:{ x:CMX.l9.x, w:CMX.l9.w, bridgeY:CMX.l9Y, bw:CMX.l9.bw } } };
+CAMP_STAGES[10]='grass';
+CAMP_DRESS[10]={ jax:CMX.mines.map(q=>({ x:q[0], y:q[1], lm:1 })), make:cmxGnome };
+function cmxRig(o){ o=o||{}; const t=S.cfg&&S.cfg.terrain;
+  return { rung:cmxRung(), name:cmxName(), l9Y:CMX.l9Y, foe:CMX.stats.foe, hv:Object.assign({}, HVIL.stats), cmx:!!(t&&t.cmx), streets:!!(t&&t.streets), mines:S.mines.filter(m=>m.lm).map(m=>[m.x,m.y]), ground:t&&t.ground, night:t&&t.night, moon:t&&t.moon,
+    W:W, WH:WORLD_H, WW:WORLD_W, river:t&&t.river, duck:!!(t&&t.riverDuck), rocks:t? t.rocks.length : 0 }; }
+// ═══ CARD-CMX ends ═══
 // ===== WESTERN LAND: THE TRENCH SIGHT LAW (v1.57) =====
 // Wyatt, verbatim: "units that are not in the trench can't fire at the units
 // that are in the trench. Of course, the mortar and the bazooka are exceptions
@@ -95980,7 +96036,7 @@ function bfMarch(u,dt,goal){
   }
   else if(false && !S.bf && skyOn() && !(u.jetT>0) && S.cfg.terrain.pits && S.cfg.terrain.pits.length){ const d9=aiPitGoal(u.x,u.y,gx,gy,null); if(d9){ gx=d9.x; gy=d9.y; }   // CARD-SKC THE HOLES TAKE A MARCHER: RETIRED (false &&) on Wyatt's word 9/30 ("make sure that players can fall through them like they do on the roof, so they can fall off the map"): a man's walk may aim into a hole now, like a Tan's. Was CARD-SF2-B THE BOMBED ROOF: a man's own walk never aims INTO a hole (the smart march's fold: a goal ON a pit disengages rockSteer, which for a pit means walking in) — the holes are the player's to place around, never his men's to find with their feet; the sky raid alone
   }
-  if(S.bf && S.cfg.terrain.streets && u.side && !(u.jetT>0)){ const g3=hvilAim(u,goal,gx,gy,dt); if(g3){ gx=g3.x; gy=g3.y; } }   // CARD-PBM2H THE STREET GUIDE (THE HILL VILLAGE only: the terrain's streets cell; every other map reads null here and walks byte-what-it-was): a man marching on the enemy box with a building in his straight line aims at the street point he can walk STRAIGHT to that leaves him the shortest way home along the streets; an open line walks exactly as today; a man in the air is never guided
+  if(S.cfg.terrain.streets && (S.bf? u.side : S.cfg.terrain.cmx) && !(u.jetT>0)){ const g3=hvilAim(u,goal,gx,gy,dt);   /* CARD-CMX: + the campaign's HILL VILLAGE (terrain.cmx, level 5 alone) */ if(g3){ gx=g3.x; gy=g3.y; } }   // CARD-PBM2H THE STREET GUIDE (THE HILL VILLAGE only: the terrain's streets cell; every other map reads null here and walks byte-what-it-was): a man marching on the enemy box with a building in his straight line aims at the street point he can walk STRAIGHT to that leaves him the shortest way home along the streets; an open line walks exactly as today; a man in the air is never guided
   // DOUBLE TIME (v1.62) rides the stride itself — one factor here covers both
   // carpets, because the campaign march is this same function (v1.30)
   const dx=gx-u.x, dy=gy-u.y, d=Math.hypot(dx,dy)||1, sp=(u.def.moveSpd||36)*(u.gait||1)*bfGround(u)*emgMoveMul(u)*inspMoveMul(u)*inspCsMoveMul(u)*gearMoveMul(u)*fzWalk(u)*gnToadWalk(u)*petChillX(u)*petPoisonX(u);   // 0806r THE COLD on the battleground (a man the other commander's Slush chilled)   // 0735 THE FREEZE BEAM: the frozen feet, both carpets · v2.36: the green beam (and Sarge's belt/boots/vest off the bag) ride the stride itself — one factor, both carpets · 0606: an INSPIRED man strides x2 (the same one-factor law)
@@ -113280,6 +113336,7 @@ function update(dt){
       if(S.cfg.terrain.gaps && !f.boss && !f.def.swoop){
         const d6=aiGapGoal(f.x,f.y,g6.x,g6.y); if(d6) g6=d6;
       }
+      if(g6===T && S.cfg.terrain.cmx && !f.boss && !f.def.swoop){ const d7=cmxFoeAim(f,dt); if(d7) g6=d7; }   // CARD-CMX: on the campaign's HILL VILLAGE the tan walk the streets to the toy box (THE STREET GUIDE; every other rug reads no cmx)
       const d=Math.hypot(g6.x-f.x, g6.y-f.y);
       if(d>1){ const sp=f.def.spd*aura*(f.def.rush? teddyRushX(f) : 1)*teddyGunRoll(f)*clawPaceX(f) /* CARD-CW: THE CLAW creeps at CLAW.creep px/s while it fishes or holds — ×1 for every other foe on every rug */, st=rockSteer(f.x,f.y,g6.x,g6.y,f.squeeze?3:ROCK_PAD_FOE,null,1);   // 0554c THE RUSH, the walk's seat (a `rush` row alone; every other foe reads ×1) · 0586 THE ROLL: a bear cannon east of THE GUN LINE hauls on at ×TEDDY_GUN_ROLL (×1 for every other foe)
         f.x+=(st?st.x:(g6.x-f.x)/d)*sp*amv; f.y+=(st?st.y:(g6.y-f.y)/d)*sp*amv; }   // 0278a: amv — the air-step gate (=== dt for every non-gait foe)
@@ -119174,6 +119231,7 @@ function drawCactus(rk){
 // hub over the (implied) sixth prong it stands on — ball tips like the real
 // die-cast toy. No red arm-eye: a jack is armed by BEING a jack.
 function drawJack(mn){
+  if(mn.lm){ cmxMineDraw(mn); return; }   // CARD-CMX: level 10's four mines (jacks in law)
   const x=mn.x, y=mn.y;
   cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(x+2,y+5,13,4.5,0,0,7); cx.fill();
   cx.lineCap='round';
@@ -119567,7 +119625,7 @@ for(let i=0;i<=CPS.n;i++) CPS_PTS.push({ x:CPS.x0+(CPS.x1-CPS.x0)*i/CPS.n, y:CPS
 CAMP_DRESS[CPS.rung]={ rocks:[226,374].flatMap(y=>[0,1,2,3,4,5,6,7,8,9].map(i=>i*26+503).map(x=>({ x, y, r:16, art:'bags', row:y<CPS.y? 'n' : 's' }))) };
 function cpsOn(){ return !!(!S.bf && !S.park && !S.raid && !S.momRaid && S.cfg && (S.levelN|0)>0 && (S.cfg.n|0)===(S.levelN|0) && campBaseRung(S.levelN|0)===CPS.rung); }   // the rung actually dealt (S.cfg.n): a leftover levelN behind a face-off or the range (levelN 0) never takes it
 function cpsPath(){ return cpsOn()? CPS_PTS : PATH_PTS; }
-function pathStroke(){ const k=S.gk||1, P=cpsPath(); cx.beginPath(); cx.moveTo(P[0].x*k,P[0].y); for(let i=1;i<P.length;i+=3) cx.lineTo(P[i].x*k,P[i].y); cx.stroke(); }   // v1.98: the rug runner stretches with the grand rug (identity at gk 1; y and stroke width untouched)
+function pathStroke(){ if(cmxNoRun()) return; const k=S.gk||1, P=cpsPath();   /* CARD-CMX: no dirt runner on the campaign's HILL VILLAGE (his streets are the road) */ cx.beginPath(); cx.moveTo(P[0].x*k,P[0].y); for(let i=1;i<P.length;i+=3) cx.lineTo(P[i].x*k,P[i].y); cx.stroke(); }   // v1.98: the rug runner stretches with the grand rug (identity at gk 1; y and stroke width untouched)
 // Each army's toy box, flying its own colours. The enemy's is the same box
 // mirrored, so the two halves read as one carpet folded down the middle.
 function drawBase(side){
@@ -176634,7 +176692,8 @@ window.GVT = {
   huv(o){ return huvRig(o); },   // CARD-HUV: HUNTER'S VISIT ({ on · odds · wait · stay · roll · show · bye } + the read)
   rpd(o){ return rpdRig(o); },
   ypv(o){ return ypvRig(o); },
-  dpv(o){ return dpvRig(o); },   // CARD-DPV: Dino Park's new pieces ({ on } + the read)   // CARD-YPV: Yeti Park's new painting ({ on } + the read)   // CARD-RPD: the replay pick ({ c · p · t } + the read)
+  dpv(o){ return dpvRig(o); },
+  cmx(o){ return cmxRig(o); },   // CARD-CMX: the campaign maps 5 to 10 (the dealt rung's read: name, mines, the village's guide counters, L9's bridge row)   // CARD-DPV: Dino Park's new pieces ({ on } + the read)   // CARD-YPV: Yeti Park's new painting ({ on } + the read)   // CARD-RPD: the replay pick ({ c · p · t } + the read)
   // ===== 0605 THE RANK-50 ULTIMATES rig doors — the door, the clocks, the rect, the consts
   ult(){ const js=jetSarge(), u9=ultMyU();
     return { on:ultOn(), wk:ultWk(), lvl:WPN_MILE.ultLvl, rank:ultRank(ultWk()), live:Object.keys(ULT_LIVE),
