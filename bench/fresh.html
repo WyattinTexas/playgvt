@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.22","md5":"dc8bbfbb564a2dcb579e5ed68191441b","sha":"17187d5bf","at":"2026-10-11T04:38:24Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.23","md5":"3b1388b482235200651ce9b0dca5cd0c","sha":"7a9946afe","at":"2026-10-11T04:51:42Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -74276,7 +74276,8 @@ function themeDecode(){ try{
 // 0444: so does a save that wakes in a room with a bed of its own (roomCur is
 // the boot's one honest reader — no scene can be open yet); sailing home
 // revives the theme and decodes then, on demand (themeRevive)
-if(META.themeOn && roomCur()==='bedroom' && !rcpOn()) themeDecode();   // 1080 THE RECORD PLAYER: a record on the player owns the bedroom's speaker (locNow's room clause) — the theme's decode waits for THE ROOM'S OWN SONG (themeRevive decodes on demand, the 🔊 chip's own road)
+// CARD-ODV-THEME: NO decode here now. The boot knocks odvThemeBoot after CARD-TRS's dials (below), with these same three guards
+/* if(META.themeOn && roomCur()==='bedroom' && !rcpOn()) themeDecode(); */   // 1080 THE RECORD PLAYER: a record on the player owns the bedroom's speaker (locNow's room clause) — the theme's decode waits for THE ROOM'S OWN SONG (themeRevive decodes on demand, the 🔊 chip's own road)
 // ═══ CARD-TRS · THE ROOM'S SONG AT THE TITLE (design/rooms-song-title-1007/00-BUILD-TRS.md; DYLAN, co-designer of GVT, his phone through the jumpr guest link, sent 10/7/2026 15:44:15 UTC = 11:44 EDT, verbatim: "Play "The Rooms Song" at initial load up screen."; not Wyatt's word: a concrete placement of an existing track, built and pushed by the guest-note rule):
 // THE ROOM'S OWN SONG (the record player's top row = THE MENU THEME above, Wyatt's own 74 s track, the bedroom's own bed since 0444) now plays on the TITLE SCREEN too, before PRESS START, and the one pass carries on into the room with no restart.
 // THE ROAD IS THE THEME'S OWN (v2.27's autoplay law, untouched): the boot's decode (the line above: the music chip ON, a save standing in the bedroom, no record on the player) is WANTED at the title, so its landing knocks themeTry; with no gesture yet the 60 ms silent probe asks whether un-gestured audio may play. The store apps say yes (the iOS shell's mediaTypesRequiringUserActionForPlayback = [], the Android and Amazon shells' setMediaPlaybackRequiresUserGesture(false)) and the pass starts on a context born running; a no arms the one first-gesture click as before (Safari and a Chrome with no play history keep today's road: the title silent, the theme at the room's own knock). No AudioContext is ever created on the blocked road.
@@ -74287,13 +74288,31 @@ const TRS={ on:1, watch:48, n:0, iv:0 };   // CARD-TRS: the dials: on 1 = the ti
 function trsSeat(){ return S.mode==='menu' || (!!TRS.on && S.mode==='title'); }   // CARD-TRS: the theme's seats (themeTry and themeStart read it in place of S.mode==='menu')
 function trsDoor(){ try{ if(!TRS.on) return; if(THEME.armed && !THEME.started && !THEME.dead){ themeDisarm(); THEME.probed=false; } else if(THEME.dead && !THEME.src && !THEME.armed) themeHome(); }catch(e){} }   // CARD-TRS THE DOOR'S HAND (above): knocked on the title's own pointerdown, beside the door, never inside it (THE OPEN DOOR's road is byte-what-it-was). An ARMED theme (the title's probe spent, the pass never started) is handed back to the base's own PRESS START road: the arm dropped, the probe given back, so the room's knock starts it (a running context) or probes afresh after the tap's resume (a context born suspended); THE LONG IDLE's dead pass gets themeHome (themeRevive's guards decide a tick later)
 function trsTick(){ try{ if(!TRS.on || S.mode!=='title' || THEME.started || THEME.dead || ++TRS.n>TRS.watch){ clearInterval(TRS.iv); TRS.iv=0; return; } if(THEME.armed && THEMEB.buf && AC && AC.state==='running') themeTry(); }catch(e){} }   // CARD-TRS THE LATE RUNNING (above): the watch's tick; it stops itself at the room, at a start, at a game door or at its cap
-if(TRS.on && THEMEB.busy){ THEME.want=true; TRS.n=0; TRS.iv=setInterval(trsTick, 250); }   // CARD-TRS: the boot's decode is WANTED at the title: its landing knocks themeTry (the probe, then the pass, or the armed tap); the late-running watch starts with it
+// ═══ CARD-ODV-THEME · THE THEME AT THE DOOR (design/old-devices-1010/BUILD-ODV-THEME.md; Wyatt 10/10/2026 19:00 EDT on Maker 1, verbatim: "Do it. Plan it out. Execute to the best of your ability."; Maker 1's finding ODV-M-F1):
+// The menu theme (74 s stereo, about 26 MB of PCM) no longer decodes at boot for a title that cannot play it. A LIGHT device (GVT_TIER >= ODVT.light: a measured old phone or tablet) keeps the title quiet and
+// decodes at the menu's door (themeTry: a knock with no buffer decodes it, its landing knocks again). A FULL device asks the 60 ms silent probe first, before a byte is decoded: the store apps say yes, and the
+// title decodes and plays THE ROOM'S OWN SONG exactly as CARD-TRS built it (Dylan's 10/7 note); a no (Safari, a cold Chrome: the title was silent there anyway) holds nothing at the title and the menu's door decodes.
+// The buffer still goes at the end of its pass, at a game door and at a place's handoff (onended, themeKill, themeHand: unchanged). The gain, the once-a-session latch and the no-loop law are unchanged.
+const ODVT={ on:1, light:1 };   // CARD-ODV-THEME: the dials: on 1 = the theme at the door (0 = the boot's decode as before this card) · light = the lowest GVT_TIER whose title stays quiet (1 = light and lightest; 0 = every device; 3 = none)
+function odvThemeBoot(){ try{
+  if(!ODVT.on){ themeDecode(); if(TRS.on && THEMEB.busy){ THEME.want=true; TRS.n=0; TRS.iv=setInterval(trsTick, 250); } return; }   // the dial off: the base's two boot lines, verbatim
+  if(!TRS.on || (window.GVT_TIER|0)>=ODVT.light) return;   // no song at the title, or a light device: nothing decodes until the menu's door
+  const a=new Audio(THEME_PROBE), p=a.play();   // the title's own question, asked before a byte is decoded: may un-gestured audio play here?
+  if(p && p.then) p.then(()=>{ try{ a.pause(); }catch(e){} odvThemeTitle(); }, ()=>{});
+}catch(e){} }
+function odvThemeTitle(){ try{
+  if(S.mode!=='title' || THEME.started || THEME.dead || !META.themeOn || locNow() || (window.GVT_TIER|0)>=ODVT.light) return;   // the kid already left the title (the menu's door decodes there), the theme is done, or the title's speed check found a light device meanwhile
+  THEME.want=true; themeDecode();   // the base's boot road from here: the decode is WANTED at the title, its landing knocks themeTry (the probe, then the pass)
+  if(THEMEB.busy && !TRS.iv){ TRS.n=0; TRS.iv=setInterval(trsTick, 250); }   // CARD-TRS: the late-running watch starts with it
+}catch(e){} }
+if(META.themeOn && roomCur()==='bedroom' && !rcpOn()) odvThemeBoot();   // CARD-ODV-THEME: the boot's knock (the three guards of the old decode line above, unchanged; no scene can be open yet)
+// ═══ end CARD-ODV-THEME ═══
 try{ document.getElementById('title').addEventListener('pointerdown', trsDoor); }catch(e){}   // CARD-TRS: the long idle's knock (trsDoor), its own listener
 // one knock at every showMenu — the guards make it once per session
 function themeTry(){
   if(THEME.started||THEME.dead||!trsSeat()||!META.themeOn||locNow()) return;   // 0444: a place with a bed of its own owns the speaker — the theme is the BEDROOM's   // CARD-TRS THE ROOM'S SONG AT THE TITLE (DYLAN's note, the jumpr guest link, 10/7/2026): trsSeat = the bedroom's menu, or the title screen (this guard read S.mode!=='menu' till this card)
   if(qtWait()){ THEME.want=true; return; }                   // 0719: put away (or its resume in flight) — wanted, knocked at the release (qtKnock); never armed to a tap by a put-away
-  if(!THEMEB.buf){ THEME.want=true; return; }               // decode in flight — its callback re-knocks
+  if(!THEMEB.buf){ THEME.want=true; themeDecode(); return; }   // decode in flight: its callback re-knocks. CARD-ODV-THEME: none yet (the menu's door, a light device's first menu): decode it now (one at a time: themeDecode's own guard); its landing re-knocks
   if(AC && AC.state==='running'){ themeStart(); return; }   // the title tap's own context
   if(!THEME.probed){ THEME.probed=true; themeProbe(); return; }
   themeArm();
@@ -80243,7 +80262,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.23';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
