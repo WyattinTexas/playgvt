@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.53","md5":"74c1d5300f45a1558eb7a436f1bfa2c7","sha":"7c4142e94","at":"2026-10-11T11:45:18Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.54","md5":"5e279abc875fbe22076fa975490db67a","sha":"0d41651ad","at":"2026-10-11T11:58:52Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -46137,42 +46137,8 @@ function roomGrant(id){
   if(S.mode==='menu') renderMenu();
   return true;
 }
-// 0363 THE FREE BACKYARD (Wyatt 8/16, verbatim: "On the player's FIRST defeat
-// of Nemesis, if they have not purchased a room, grant them the Backyard Room
-// for free … Getting the Backyard Room also means they get the Ship" + his
-// second note: "or … if you play a battlefield game on the soccer field. You
-// get the soccer field room and the ship"). TWO DOORS, ONE GIFT, ONE LAW:
-// endBattlefield calls this at the verdict for (a) a Nemesis defeat — any of
-// his three fights — and (b) any COMPLETED battlegrounds battle on THE
-// BACKYARD map, win or lose. The gate: the gift is unclaimed, the backyard
-// unowned, and NO ROOM BOUGHT — rooms.own holds exactly the priced rooms
-// (the bedroom is everyone's and never stored; WESTERN LAND rides META.wmap),
-// so an empty list IS "has not purchased a room" (ownership isn't split
-// purchased-vs-granted — nothing but roomBuy and this gift ever writes the
-// list, flagged). Flag FIRST (the comet law), then the same door roomBuy
-// walks. THE SHIP comes by construction: DECOR_EARN.ship due() is the second
-// room, and the caller sits ABOVE the verdict's earn walk so the ship's own
-// line lands on the same screen. Every seat of a party ambush pays its own
-// save (the 0305 nemPark law); zero wire. 0494c adds a THIRD door, inside.
-function backyardGift(door){
-  if(META.byGift) return false;                                          // once ever
-  // 0494c THE BACKYARD + THE SHIP AT SEVEN (Wyatt 8/22, verbatim: "Give the
-  // player the Pirate Ship & The Soccer Field Map at Level 7 if they don't
-  // already have them unlocked" + "The ship is what brings people to
-  // different rooms"): the campaign door — level BY_FREE_LVL beaten (the
-  // callers gate on the rung: endBattle's composer above its earn walk, and
-  // bySweep at the room). "If they don't already have them" = the backyard
-  // if unowned, bought OR gifted — so this door carries NO no-room-bought
-  // gate (⚑ #3; the two 8/16 doors below keep theirs byte-still). THE SHIP
-  // follows by construction (DECOR_EARN.ship = two rooms): a fresh save gets
-  // both lines on one verdict, a winter owner already holds the ship and
-  // gets the backyard alone — and with 2+ rooms the ship's tap IS the ferry
-  // to it (shipTravelDue), so the gift is the room AND the way there.
-  if(door==='campaign'){ if(roomOwns('backyard')) return false; META.byGift=1; return roomGrant('backyard'); }   // flag FIRST, then THE ONE DOOR
-  if(roomOwns('backyard') || (META.rooms.own||[]).length) return false;   // already yours, or a room was bought
-  META.byGift=1;                                                        // flag FIRST
-  return roomGrant('backyard');
-}
+// THE FREE BACKYARD's grant door (backyardGift) left with no caller at CARD-ATL-Q5: the backyard is owned from the first boot (0904);
+// META.byGift stays as the old ledger (dinoMoment and GVT.roomsState read it).
 // THE ROOFTOP'S SESSION LEDGER: what has fallen off the roof stays fallen
 // until the app is closed and reopened — Wyatt's own rule ("You don't get it
 // until you close the app and open the app"), so this set is deliberately
@@ -49676,20 +49642,8 @@ const LZ_SLUG_ROW={ id:'slug', hex:'#C9A227', name:'OUTLAW SLUGS' };
 const LENS_COST=150;   // v2.53: +50 with the rest of the decor shelf
 function lensPct(x){ return Math.round(x*100); }
 function lensOwned(){ return !!META.lens; }
-// 0363 THE MAGIC LENS FOR FREE AT FIFTEEN (Wyatt 8/16, verbatim: "Automatically
-// unlock the Magnify Glass when the player reaches Level 15 or Campaign Level
-// 15 — whichever they complete first. The unlock must fire once, be idempotent,
-// and persist"): Commander LEVEL 15 (META.lvl) OR the REGULAR campaign's level
-// 15 beaten (META.campaign — the park ladders are their own wings, flagged).
-// 0494c THE SPYGLASS AT FIVE (Wyatt 8/22, verbatim: "at level five we'll give
-// the Spyglass to the player … incentivized more to open up the campaign") —
-// the Spyglass read as THE MAGIC LENS (the one optic the game hands over; no
-// string in the build says spyglass — ⚑ if he meant LONG EYE or a new toy):
-// the CAMPAIGN door moves to LENS_FREE_CAMP=5, the commander-level door keeps
-// LENS_FREE_LVL=15 (⚑). lensFreeDoor() = the door that opened, for the
-// announce line and the sweep card's band (the digit is tokenised — zero
-// l10n rows move). lensGift's flag-first write, the aisle's OWNED read,
-// lensBuy never re-charging, lensSweep's once-ever card: byte-still.
+// THE MAGIC LENS FOR FREE: beating campaign level LENS_FREE_CAMP (30) pays it; the commander-level door LENS_FREE_LVL is
+// retired (0). lensFreeDoor() = the door that opened (the announce line and the card's band).
 // The gearDue two-door law: the verdict that crosses the rung hands it over on
 // ITS OWN screen (lensGift right after each xpAward — a promotion can cross
 // on any verdict, win or loss, campaign or battleground), and the room sweep
@@ -49700,7 +49654,7 @@ function lensOwned(){ return !!META.lens; }
 // (a BOUGHT lens never cards); lensAnn = the room card dealt, once ever.
 const LENS_FREE_LVL=0;     // 0905 THE REWARD ROAD RE-CUT (cell 6, ⚑ Q4): RETIRED — 0 = no commander-level door (lensOwed / lensDue guard on >0; lensFreeDoor is the rig's alone); was 15 since 0363 (unchanged by 0494c — ⚑ #2)
 const LENS_FREE_CAMP=30;   // 0905 THE REWARD ROAD RE-CUT (cell 6; Wyatt 9/5: "remove the magic lens from level 3. Move the magic lens to the level 30 campaign reward"): 3 → 30 (the room card + the verdict ticket as today, the band = the live level); a save holding the free lens keeps it — was 3 at 0617 ("Get them the magnify glass and the ship by lvl 3"), 5 at 0494c, 15 before that
-const BY_FREE_LVL=3;       // 0617 THE BACKYARD + THE SHIP AT THREE (Wyatt 8/29; was 7 at 0494c; 0663: the rung reads META.lvl now — his 8/29 "by lvl 3" meant the players level) — backyardGift('campaign')'s rung (the verdict + bySweep gate on it); the ship still springs off ownedRooms()>=2, its own 0335 law, the moment the backyard lands · 0905 THE REWARD ROAD RE-CUT: THE SHIP LEFT THIS RUNG — it lands after the kid walks OUT of Dino Park (DECOR_EARN.ship reads META.parkDinoOut); the backyard itself has been standard issue since 0904
+const BY_FREE_LVL=3;       // THE BACKYARD's old gift rung (META.lvl): the backyard is owned from the first boot (0904) and its grant door left (CARD-ATL-Q5); dinoMoment's dormant clause and GVT.roomsState still read it (⚑ ATL-Q5-1). The ship lands after the kid walks OUT of Dino Park (DECOR_EARN.ship, 0905)
 // ═══ 0626 DINO PARK AT THREE (FM-GVT-JUICE-01 §6 P2 — design/juice-reach-0830/00-DESIGN.md; Wyatt 8/30 13:39 by phone, verbatim:
 // "Around level three to four, surface an 'unlocked Dino Park' prompt and take the player directly there, bypassing the magnifying
 // glass. Backing out returns them to the soccer field. Dino Park is the region that eventually leads to the King Rex fight, so this
@@ -49721,7 +49675,7 @@ const BY_FREE_LVL=3;       // 0617 THE BACKYARD + THE SHIP AT THREE (Wyatt 8/29;
 // DAY's own sail to the winter field stands byte-still (rooms.cur is not moved — the ship's press is the lesson). Zero new l10n
 // rows: the gift road's band is the gear card's own LEVEL {0}! key (byCard's idiom); the glass road keeps IN THE TALL GRASS! and
 // ON THE FROZEN POND!.
-const DINO_GIFT_LVL=5;     // 0905 THE REWARD ROAD RE-CUT (cell 2; Wyatt 9/5: "Please move Dino Park opening to level 5"): 3 → 5 — the rumor, the LEVEL band, the shelf and the atlas census follow; a save past 3 with the park open keeps it (parkDino is the ledger) · ⚑ Q1 THE ONE CONST — the Dino Park gift rung, on META.lvl since 0663
+const DINO_GIFT_LVL=5;     // the Dino Park gift rung (META.lvl; 0905: 3 → 5). The parks are open from the first boot (0904), so dinoGift finds parkDino set and this rung opens nothing today; dinoGift, dinoMoment and GVT.dp still read it (⚑ ATL-Q5-1)
 // ═══ 0665 UNLOCK POPUP PACING (FM-GVT-PACING-0831 design/popup-pacing-0831/00-DESIGN.md; Wyatt 8/31 21:58, verbatim: "We dont want
 // to overwhelm them with popups; its almost like we need to delay the magnify glass & the teddy bear if theyre already getting dino
 // Park. Like Dino Park is enough, let alone the pirate ship; which we should give them once they leave dino park.") — THE DINO MOMENT:
@@ -49763,44 +49717,10 @@ function paceBusy(k){   // may the paced beat k (ship · lens · teddy) NOT be h
   return false;
 }
 function paceTake(k){ if(META.paceAt!==paceStamp()){ META.paceAt=paceStamp(); META.paceK=k; } }   // the LANDING's one paced beat (0903; the caller saves — every seat already does)
-// ===== 0528 THE ROOM GIFTS (FM-GVT-NEWBIE-01 §2; Wyatt 8/24, verbatim: "I want
-// to give the player the rooftop room at level 18. … I want to give them the
-// winter room at … either level 8 or level 12. The reasons for these are that I
-// want the players to discover the additional parts of the game in case they
-// don't open up the store and browse to the rooms tab. Now, if someone already
-// owns it, like they buy the room and then they hit these levels, nothing
-// happens, but for players who don't, I'd like them to have the rooms."): THE
-// WINTER FIELD when rung WIN_GIFT_LVL is beaten, THE ROOFTOP when ROOF_GIFT_LVL
-// is — the 0494c campaign door above copied exactly: the gate reads META only
-// (the ducky's own law — no door cares which mode moved the number) at
-// endBattle's composer ABOVE the earn walk, plus roomGiftSweep at the room for a
-// save that crossed anywhere else; roomGrant = THE ONE DOOR. No once-ever flag:
-// roomOwns IS the latch, so an owner (bought OR gifted) feels nothing and a
-// hand-rolled save is handed the room at its next door. Winter at 8 = the quiet
-// rung once the whole road is on the table (5 is the shotgun's and the lens's,
-// 10 the sniper's, 12 the first cycle boss, 20 the saber's night — §9 ⚑); the
-// rooftop at 18 sits ON a cycle-boss rung, read as the trophy (⚑ 17 or 19 is one
-// word). The announce lines never say FREE (the road's law — message two).
-// MOVING DAY rides the grant: META.mvDay latches the gifted room (the LOWER
-// rung's if both land on one verdict — a hand-rolled save) and mvDayTry, LAST
-// in showMenu, presses the ship for the player on the first quiet landing.
-const WIN_GIFT_LVL=8;      // ⚑ THE WINTER FIELD's rung (Wyatt: "either level 8 or level 12"; 0663: winter + the yeti park read it off META.lvl — the rooftop below stays campaign)
-const ROOF_GIFT_LVL=18;    // ⚑ THE ROOFTOP's rung (Wyatt: "at level 18")
-const ROOM_GIFT={ winter:WIN_GIFT_LVL, rooftop:ROOF_GIFT_LVL };   // room → rung
-const ROOM_GIFT_ORDER=['winter','rooftop'];                        // the LOWER rung first — the verdict's order, the sweep's order, the moving-day latch's pick
-// 0663 (Wyatt 8/31: "its the players level that we care about ... giving them the ship so they can travel and see the soccer
-// field, Winter map & western map"): THE WINTER FIELD reads the COMMANDER level now (META.lvl — the XP promotions on EVERY
-// mode, the treasure road's own source @0589) at the SAME rung 8; THE ROOFTOP keeps the campaign rung — Wyatt named the parks,
-// the ship and the ship's three destinations, never the roof (⚑ 0663 Q3: one term below joins it to the commander ladder).
-function roomGiftLvl(id){ return id==='winter'? (META.lvl|0) : (META.campaign|0); }   // the door's own source, per room (0663)
-function roomGiftDue(id){ return !!ROOM_GIFT[id] && roomGiftLvl(id)>=ROOM_GIFT[id] && !roomOwns(id); }
-function roomGift(id){
-  if(!roomGiftDue(id)) return false;   // below the rung, or already theirs (bought or gifted) — nothing happens
-  if(!META.mvDay) META.mvDay=id;       // MOVING DAY latched FIRST (the comet law) — roomGrant's own save carries it; a latch already held (the lower rung's) stands
-  return roomGrant(id);                // THE ONE DOOR (push · save · repaint)
-}
-// digit-free on purpose (the v1.29.2 law), no FREE (the road's law) — the EN string is the key ×7
-function roomGiftLine(id){ return id==='rooftop'? 'THE ROOFTOP IS YOURS. A whole new room! Your ship sails you there.' : 'THE WINTER FIELD IS YOURS. A whole new room! Your ship sails you there.'; }
+// THE ROOM GIFTS (0528: THE WINTER FIELD at 8, THE ROOFTOP at 18) left with no caller at CARD-ATL-Q5: every room is owned from the
+// first boot (0904). WIN_GIFT_LVL stays: yetiGift and GVT.dp still read it (⚑ ATL-Q5-1).
+const WIN_GIFT_LVL=8;      // THE WINTER FIELD's old gift rung, on META.lvl
+const MVDAY_ROOMS=['winter','rooftop'];   // the rooms a MOVING DAY latch may name (an old save's latch: the room gifts that set it are gone)
 // ═══ 0531 THE ROAD SIGNS (FM-GVT-NEWBIE-01 §5; Wyatt 8/24: "just dont say 'Free'") — THE GIFT ROAD: one row per
 // present the CAMPAIGN pays, in rung order. CARD-ATL-Q4 (Wyatt 10/10 21:02 PND-09 Q4, "Go with recommendations for all here":
 // the NEXT UP sign for the whole road, the lens kept secret) re-cut this table to: PAINT DAY at PAINT_GIFT_LVL, THE JET PACK at
@@ -49834,7 +49754,7 @@ function giftRoadSign(nx){
   return best;
 }
 function lensDue(){ return ((LENS_FREE_LVL>0 && (META.lvl|0)>=LENS_FREE_LVL) || (META.campaign|0)>=LENS_FREE_CAMP) && !paceBusy('lens'); }   // 0905: a retired commander door (0) never opens   // 0665: the glass waits out DINO PARK's moment, then takes a session of its own
-function lensFreeDoor(){ return (META.campaign|0)>=LENS_FREE_CAMP? LENS_FREE_CAMP : LENS_FREE_LVL; }   // 0494c: the door that opened — the campaign's 5 first, else the commander's 15
+function lensFreeDoor(){ return (META.campaign|0)>=LENS_FREE_CAMP? LENS_FREE_CAMP : LENS_FREE_LVL; }   // the door that opened: campaign LENS_FREE_CAMP (30), else the retired commander door LENS_FREE_LVL (0)
 function lensFreeLine(){ return 'THE MAGIC LENS IS YOURS. Level '+(lensFreeDoor()||(META.lvl|0))+' earned it! Pick it up at SARGE\'S SURPLUS and go snooping.'; }   // CARD-ATL-Q3 (Wyatt 10/10 PND-09: "Go with recommendations for all here"): the campaign rung that paid it, never META.lvl (0903 FIX 5 superseded for this card)   // 0906 (FM-GVT-SURPLUS-GEAR-01 cell E; R1): the seat the sentence names — the TREASURES aisle is gone, the lens waits at the tail of GEAR SHOP (the same {0} shape, the key ×7)   // 0903 (FIX 5): the live commander level (the {0} row ×7 stands)   // 0582 D1/D3: the 🔍 and the dash left (the lens card carries the lens art); the verdict faces deal the TICKET instead (D6) — this line is the room card's alone now   // digits ride the {0}-form key (trLookup tokenises them — the SHIELD +{0}! precedent); 0538 THE SWEEPS: the road never says FREE (Wyatt 8/24: "just dont say 'Free'") — the word came off, the {0} door (5 / 15 off lensFreeDoor) stays
 function lensGift(){
   if(lensOwned() || !lensDue()) return false;
@@ -56564,7 +56484,7 @@ const SET_PIECES={
 // stages visit the campaign's significant rungs. DRESSING ONLY — the seeded
 // rocks keep their exact x/y/r in costume, so the sim on these rungs is
 // byte-identical (L50's HIGH NOON finale is the one authored exception).
-// Snow rungs 20/74/100, desert 44/50/88; 58 deliberately stays home (HE
+// Snow rungs 4, 11-20, 74, 89 (CAMP_STAGES below); desert 44/50/88; 58 deliberately stays home (HE
 // STUDIED YOUR PLAYBOOK — the playbook IS your own rug); 14/26 keep the
 // young ladder pure (0098's law). =====
 // v2.51 (Wyatt 8/5: "add in The Winter Background for Levels 11 through 20"):
@@ -66284,10 +66204,7 @@ function levelCfg(n){
                              {f:'boss',t:'rollpig',n:1,e:'right',at:4.2});
   }
   // ===== 8/10 LEVEL PASS 17-30 (design/campaign/LEVEL-PASS-17-30.md is the
-  // contract; supersedes the 8/8 "gpig at 26 wave 1" note — GIANT PIGGY
-  // debuts at the L25 finale now, by the band's own first-meetings law; the
-  // one-line fallback if Wyatt wants him back at 26 w1 is tease:true on the
-  // old group). House rules: literal integers only, never c(); fresh objects
+  // contract; GIANT PIGGY's first fight is L55 THE HOG RETURNS). House rules: literal integers only, never c(); fresh objects
   // every build; zero R() consumed; tease waves carry the flag at BOTH
   // levels (wave = the gold card, group = the 0.30 hp); mid-wave pigs are
   // f:'boss' n:1 groups on unflagged waves (the L15 idiom — f:'solo' pigs
@@ -66491,7 +66408,7 @@ function levelCfg(n){
         {f:'redcoat',t:'tanrifle',n:16,e:'right',at:6.0,officer:true}] }
   ];
   // --- L55 THE HOG RETURNS — showcase-breather (audit F4): GIANT PIGGY's
-  // second-ever rung, thirty levels after his L25 debut — and this time he
+  // first rung (his L25 debut left that rung) — and this time he
   // brought a guard. The shotgun broom and the double-pistol ace return
   // from the young band (F1), two rollpig riders tumble the middles. ---
   if(n===55) cfg.waves=[
@@ -81448,7 +81365,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.53';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.54';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -92415,7 +92332,7 @@ function endBattlefield(reason, fromRelay){
   // walk on purpose: the gift makes this the SECOND room, so DECOR_EARN.ship
   // falls due right here and the ship's own line lands on this very verdict,
   // right behind the room's — win and loss screens alike (bfEarnT feeds both since 0582).
-  // 0904 THE NEW SAVE'S DEFAULTS: the two backyard doors above (the Nemesis defeat, a battle on THE BACKYARD map) are unseated - the backyard is everyone's from the first boot (backyardGift stands inert)
+  // 0904 THE NEW SAVE'S DEFAULTS: the two backyard doors above (the Nemesis defeat, a battle on THE BACKYARD map) are unseated - the backyard is everyone's from the first boot (backyardGift left at CARD-ATL-Q5)
   for(const dk of DECOR_EARN_ORDER)
     if(DECOR_EARN[dk].due() && !decOwns(dk)){ META.decor.own.push(dk); bfEarnT.push({ o:6, t:DECOR_INFO[dk].name, f:'room', a:decShopArt(dk) }); }   // 0826: the win face's ticket wears the prize's own box art (decorSweep cards it at home)
   const vBody=bfVerdictParts(reason);   // 0552b COLOUR WINS: the two HP rows (+ the KO's line) — every branch below wears them; no margin row, no flavour line
@@ -110289,25 +110206,8 @@ function endBattle(win){
     // tally: BROTHERS IN ARMS asks how big the biggest line you ever won on was.
     if(coopHumans() > (META.stats.coopMost||0)) META.stats.coopMost = coopHumans();
   }
-  // …and the EARNED DECORATIONS (v1.71) — the same two-door idiom as the gear:
-  // beating level 3 (0494c; 5 until then) hands the ducky over on ITS OWN win screen, and a save
-  // already past any rung banks its prize here on its next win OR at the room
-  // sweep (decorSweep), whichever comes first. Predicates read META only, so
-  // this door doesn't care which mode moved the number.
-  // 0494c THE BACKYARD + THE SHIP AT SEVEN: the third door of the 0363 gift
-  // — campaign level BY_FREE_LVL beaten (the number moved above, host and
-  // guest alike). The call sits ABOVE the earn walk on purpose (endBattlefield's
-  // own order law): the grant makes this the SECOND room, so DECOR_EARN.ship
-  // falls due in the walk right below and the ship's line lands on this very
-  // screen, right behind the room's. backyardGift reads META only (the ducky's
-  // own law), so a save already past the rung collects on its next win here
-  // or at the room sweep (bySweep), whichever door opens first.
-  // 0528 THE ROOM GIFTS: the same door, two rungs deeper — THE WINTER FIELD at
-  // WIN_GIFT_LVL, THE ROOFTOP at ROOF_GIFT_LVL (roomGiftDue reads META only;
-  // roomOwns is the latch — an owner feels nothing). ABOVE the earn walk like
-  // the backyard's: for a save with one room this makes the SECOND, so the ship
-  // falls due right below and its line lands behind the room's. The lower rung
-  // first — MOVING DAY latches inside roomGift on the first grant.
+  // …and the EARNED DECORATIONS (v1.71): a rung crossed banks its prize here on its next win OR at the room sweep
+  // (decorSweep), whichever comes first; the predicates read META only, so no door cares which mode moved the number.
   let decorNew=[];
   for(const dk of DECOR_EARN_ORDER)
     if(DECOR_EARN[dk].due() && !decOwns(dk)){ META.decor.own.push(dk); decorNew.push(dk); }
@@ -110420,7 +110320,7 @@ function endBattle(win){
     if((DECOR_EARN[dk].cmd || dk==='bluedragon') && DECOR_EARN[dk].due() && !decOwns(dk)){ META.decor.own.push(dk); prizes.push({ o:6, t:DECOR_INFO[dk].name, f:'room', a:decShopArt(dk) }); }
   for(const r of TREASURE_ROAD)
     if(r.kind==='stock' && (META.lvl|0)>=r.lvl && !stockSeen(r.id) && !trOwned(r)) prizes.push({ o:6, t:trName(r.id), notr:1, f:(r.fam==='laser'? 'surplus' : 'room'), a:trArt(r.id) });   // CARD-BH-A (BH-ROOKIE-04): a treasure rung's ticket reads WAITING IN YOUR ROOM (the chest stands there; a shipped key ×7); a laser's keeps the Surplus, where it is sold
-  if(lensGift()) prizes.push({ o:8, t:'THE MAGIC LENS', f:'room', a:'<svg viewBox="0 0 120 168">'+lensArt()+'</svg>' });   // 0363: campaign 15 beaten above OR the promotion just paid — either crossing hands the lens over on this very screen (the gearDue two-door law); 0552c: the GRANT stays, the line becomes the ticket (lensSweep deals the card at home)
+  if(lensGift()) prizes.push({ o:8, t:'THE MAGIC LENS', f:'room', a:'<svg viewBox="0 0 120 168">'+lensArt()+'</svg>' });   // campaign LENS_FREE_CAMP (30) beaten above hands the lens over on this very screen (the commander door is retired); 0552c: the GRANT stays, the line becomes the ticket (lensSweep deals the card at home)
   if(paintDue) prizes.push({ o:9, t:'PAINT DAY', f:'room', a:jarSVG(GREEN,'sealed') });   // 0552c: the paint ticket (the jar), last by WIN_HEAD_ORDER; openPaintRite is the ceremony at home
   if(S.rodLine) say('w', S.rodLine);   // CARD-ROD: Sarge's ONE true line about a deed just done (the whisper's own row); silence when nothing worth keeping happened
   if(!S.rodLine && plain && !prizes.length && S.levelN>=VD_WHISPER_FROM){   // 0552c D6 (0534/0535's whispers): ONE whisper, only on a ticket-less win at rung ≥ VD_WHISPER_FROM, once per session (the flag flips only when it speaks), Rex first; the emoji prefix stays in the key and leaves the screen
@@ -140894,53 +140794,8 @@ function travelPick(dest){
       wpFlyEnd(); PLANE_LAND=0; TMAP.kind=null; SHIPTRV=0; shipCineSweep(); }, T0+2700);   // THE PIVOT done — the latch drops at the END of the landing (never at the wipe)
   }
 }
-// ===== 0494c THE BACKYARD AT SEVEN — the room door (the lensSweep law: a save
-// past the rung that never saw the verdict — a guest whose campaign moved by
-// wire, a migrated save already at 9 — collects the room on its next landing
-// and the card deals here, one per visit). The stage is checked FIRST so the
-// grant and its card always land together (the room has no announce ledger
-// but the grant itself); then backyardGift → roomGrant = THE ONE DOOR (push ·
-// save · repaint — the room already stands behind its own card, the v1.70
-// law). The ship's own BED ARRIVAL follows: shipCineSweep sits right behind
-// this in the chain, so it deals on the next landing (one card per visit).
-// ZERO new strings: the gear card's LEVEL {0}! band, ROOM_INFO's name, the
-// realtor's window (roomCardArt, the shop's own poster idiom), the 0363 line,
-// IT'S MINE! — every key already carries its seven rows.
-// 0906 SARGE'S SURPLUS · TWO PLAQUES LEAVE (FM-GVT-SURPLUS-GEAR-01 cell H): bySweep + byCard RETIRED — the pair had ZERO callers (the ceremony
-// chain lists dinoSweep · shipCineSweep · castleSweep · lensSweep · … and never this one; the backyard rides the verdict's own ticket), and
-// byCard's line named the ADVENTURES aisle, which left the store. backyardGift (the grant door above) stands.
-// ===== 0528 THE ROOM GIFTS' room door (the bySweep law verbatim: a save past
-// the rung that never saw the verdict — a guest whose campaign moved by wire, a
-// migrated save already past 8 or 18 — collects the room on its next landing
-// and the card deals here, one per visit, THE WINTER FIELD before THE ROOFTOP).
-// The stage is checked FIRST so the grant and its card always land together
-// (there is no announce ledger but the grant itself — roomOwns is the latch);
-// then roomGift → roomGrant = THE ONE DOOR (push · save · repaint — the room
-// already stands behind its own card, the v1.70 law). The ship, when this made
-// the second room, follows on the next landing through shipCineSweep, right
-// behind in the chain; MOVING DAY (below) waits for that arrival card and sails
-// on the first quiet landing after it. ZERO new strings beyond the two lines:
-// the gear card's LEVEL {0}! band, ROOM_INFO's name, the realtor's window
-// (roomCardArt), IT'S MINE! — every key already carries its seven rows.
-function roomGiftSweep(){
-  const id=ROOM_GIFT_ORDER.find(roomGiftDue); if(!id) return false;   // nothing owed
-  const p=document.getElementById('milePop');
-  if(!p || !p.classList.contains('hidden')) return false;   // one card at a time (the chain's law) — the grant waits for its card
-  if(!roomGift(id)) return false;
-  roomGiftCard(id); return true;
-}
-function roomGiftCard(id){
-  const p=document.getElementById('milePop'); if(!p) return;
-  p.innerHTML='<div class="mb-card">'
-    +'<span class="mb-band">LEVEL '+(META.lvl|0)+'!</span>'   // the gear card's own LEVEL {0}! key — 0903 (FIX 5): the commander level at the deal (the winter field's gate IS that ladder; the rooftop's gate stays campaign 18, its band is a receipt of the level the kid stands at — the road showed LEVEL 18! at commander 10)
-    +utBrow('place')+'<h2 class="mb-h">'+ROOM_INFO[id].name+'</h2>'
-    +'<span class="mb-win">'+MB_RAYS+'<svg viewBox="0 0 150 220" preserveAspectRatio="xMidYMid slice">'+roomCardArt(id)+'</svg></span>'   // the realtor's window (byCard's own idiom)
-    +'<span class="mb-line">'+roomGiftLine(id)+'</span>'
-    +'<button type="button" class="mb-take gold" onclick="UI.mileTake()">OKAY</button>'
-    +'</div>';
-  p.classList.remove('hidden');
-  SFX.fanfare();
-}
+// THE ROOM GIFTS' room door (roomGiftSweep, roomGiftCard) left with no caller at CARD-ATL-Q5 (bySweep + byCard at 0906): every room
+// is owned from the first boot (0904).
 // ===== 0528 MOVING DAY (Wyatt 8/24, verbatim: "it should auto click the ship
 // and move the character there, visibly showing that the ship is how you move
 // around without having to tell them"). On the first arrival home after a room
@@ -141070,7 +140925,7 @@ function gfWatch(){ if(GFH.raf) return; const step=()=>{ GFH.raf=0; if(!GFH.hand
 let SHIP_DEST=null;        // the ferry's port, pinned for ONE sail (shipNextRoom reads it once and clears it)
 function mvDayDue(){
   const id=META.mvDay;
-  return (id && ROOM_GIFT[id] && roomOwns(id))? id : null;   // junk-proof by the read: an alien or unowned latch is no latch
+  return (id && MVDAY_ROOMS.indexOf(id)>=0 && roomOwns(id))? id : null;   // junk-proof by the read: an alien or unowned latch is no latch
 }
 function mvDayQuiet(){
   if(S.mode!=='menu' || SHIPTRV || shopIsOpen()) return false;   // a comm window (the dino rumor, the shop invite — pointer-events:none, bottom-centre, self-clearing) never holds the demonstration: a longer wait only invites the stray tap that cancels it for good
@@ -165486,7 +165341,7 @@ function gearOpen(gk){
 // ===== THE UNLOCK CEREMONY (v2.34, Wyatt 8/4, verbatim: "When I unlocked the
 // shotgun, there was no announcement for it, so I never saw it happen... It
 // needs to be a big moment: 'Whoa, nice, you beat level five. Now Sarge can
-// use a shotgun.'") — every weapon/class unlock on the campaign ladder deals
+// use a shotgun.'") — every weapon/class unlock deals (Sarge's guns read the COMMANDER level: SARGE_WEAPONS[].unlock, the shotgun 3)
 // a full-screen card BEFORE it ever sits in a promotion picker. The grant law
 // is untouched (v1.25: the unlock lands in the save at endBattle, before a
 // pixel moves) — this is the ANNOUNCE, in the milestone card's own language
@@ -170855,7 +170710,7 @@ function bfAgainOn(){ if(BF_AGAIN && BF_AGAIN_BF!==S.bf){ BF_AGAIN=0; BF_AGAIN_B
 let ROOF_SAY=0;            // the landing's word is owed (the stamp's clock, ms) — spoken on the first quiet second on the roof, dropped on any other floor
 function raidLandDue(){ return S.mode==='win' && !!S.raid && S.raid.cfg===S.cfg && !pgOrigin() && !S.coop && (S.raid.k==='bone' || S.raid.k==='ice') && S.raid.t!=='u' && decOwns('hook') && !META.hookAttic; }   /* CARD-ATH: until the first ride, by the ride's own flag (the deed reads the toy now; the old read would have spent the landing the moment the toy was won) */   /* CARD-HKS: until the first ride (was: until the delivery) */   // the SOLO king-slayer whose hookshot waits: King Rex (the Easy prize landed this very verdict) or King Yeti after him (⚑ Q10) — the party (0619's throne), the event room, the hideout, the fields and a delivered hookshot keep their doors
 function raidLandRoof(){   // THE STAMP (dinoGift's grammar — flag first, one save): the roof owned (⚑ Q11: granted, never sold to a king-slayer), the roof current, the word armed; the caller's own exit paints it
-  if(!roomOwns('rooftop')) roomGrant('rooftop');   // THE ONE DOOR (push · save · no repaint off 'menu') — roomGiftSweep later finds it owned and deals nothing; a bought roof refunds nothing
+  if(!roomOwns('rooftop')) roomGrant('rooftop');   // THE ONE DOOR (push · save · no repaint off 'menu'); a bought roof refunds nothing
   META.rooms.cur='rooftop'; ROOF_SAY=Date.now(); saveMeta();
 }
 function hookNudgeOn(){ return S.mode==='menu' && roomCur()==='rooftop' && decOwns('hook') && !META.hookAttic; }   /* CARD-ATH: until the first ride, by the ride's own flag (the deed reads the toy now) */   /* CARD-HKS: the rig pulses until the first ride */   // the pulse: on the roof with the hookshot owned and undelivered — every landing until the drop (the ship's nudge law: re-applied every second, a repaint bakes nothing; the rule's reduced-motion kill stands)
@@ -173544,7 +173399,7 @@ window.GVT = {
   campCam(x,hold){ if(S.cCam && !S.bf){ S.cCam.x=clampCam(x); S.cCam.vx=0; S.cCam.vy=0; if(hold) S.camHold=9999; } return S.cCam&&S.cCam.x; },
   camOwn(v){ if(v!==undefined) S.camOwn=!!v; return !!S.camOwn; },   // v2.09: the pan claim — read or set it from the rig
   roomPos(){ return JSON.parse(JSON.stringify(META.roomPos||{})); },   // v2.12: the room arrangement, for the battery's eyes
-  roomsState(){ return { cur:roomCur(), own:(META.rooms&&META.rooms.own||[]).slice(), gone:Array.from(ROOF_GONE), byGift:!!META.byGift, byLvl:BY_FREE_LVL, ship:decOwns('ship'), shipSeen:META.decorSeen.indexOf('ship')>=0, mvDay:META.mvDay||0, winLvl:WIN_GIFT_LVL, roofLvl:ROOF_GIFT_LVL }; },   // 0528: + the room gifts' rungs and the moving-day latch   // 0363: + the free-backyard gift ledger and the ship, for the battery's eyes   // v3.06: the rooms aisle, for the battery's eyes
+  roomsState(){ return { cur:roomCur(), own:(META.rooms&&META.rooms.own||[]).slice(), gone:Array.from(ROOF_GONE), byGift:!!META.byGift, byLvl:BY_FREE_LVL, ship:decOwns('ship'), shipSeen:META.decorSeen.indexOf('ship')>=0, mvDay:META.mvDay||0, winLvl:WIN_GIFT_LVL, roofLvl:0 /* CARD-ATL-Q5: the rooftop gift retired */ }; },   // 0528: + the room gifts' rungs and the moving-day latch   // 0363: + the free-backyard gift ledger and the ship, for the battery's eyes   // v3.06: the rooms aisle, for the battery's eyes
   mvDayState(){ return { latch:META.mvDay||0, due:mvDayDue(), quiet:mvDayQuiet(), staged:!!MVDAY.tid, armed:MVDAY.armed|0, hand:MVDAY.hand? (MVDAY.geo||true) : false, glove:FHAND.ok, handEl:!!document.getElementById('mvHand'), dest:SHIP_DEST, trv:SHIPTRV, cur:roomCur(), ride:mvDayRide() }; },   // 0568: + ride = the ride the hand would press · 0528: the moving-day stager, for the battery's eyes · 0566: glove = the FHAND bake landed; hand = the standing glove's {w,h,k,tip:[x,y]} (true when it stands bare — the !FHAND.ok ring)
   paintState(){ return { owed:paintRiteOwed(), open:paintRiteIsOpen(), lvl:PAINT_GIFT_LVL, dyes:(META.dyes||[]).slice(), on:META.dyeOn||null, gift:META.dyeGift||null, price:dyePrice(), paid:dyePaid(), base:DYE_BASE, step:PAINT_ESCALATOR, sel:PAINTRITE.sel===undefined? null : PAINTRITE.sel }; },   // 0529: the paint ceremony + the escalator's paid read, for the battery's eyes
   rdecState(){ return JSON.parse(JSON.stringify({ cur:roomCur(), rooms:ownedRooms(), rdec:META.rdec, pos:META.roomPosR, seen:META.rdecSeen, ship:META.rdecShip, v:META.rdecV||0, trv:SHIPTRV })); },   // 0330a: the room-linked floor, for the battery's eyes
@@ -175189,7 +175044,7 @@ window.GVT = {
   pace(){ return { cv:GVT_CV, boot:PACE_BOOT, moment:dinoMoment(), out:!!META.parkDinoOut, at:META.parkDinoAt||0, paceAt:META.paceAt||0, paceK:META.paceK||null, busy:{ ship:!DECOR_EARN.ship.due(), lens:paceBusy('lens'), teddy:paceBusy('teddy') }, shipDue:DECOR_EARN.ship.due(), lensDue:lensDue(), teddyDue:DECOR_EARN.teddy.due(), lens:!!META.lens, lensAnn:!!META.lensAnn, teddy:decOwns('teddy'), teddySeen:META.decorSeen.indexOf('teddy')>=0, ship:decOwns('ship'), shipSeen:META.decorSeen.indexOf('ship')>=0, dino:!!META.parkDino, dinoBy:META.parkDinoBy||null, cur:roomCur(), scene:parkSceneOpen(), park:PARK_CUR, mode:S.mode, card:milePopUp(), head:(document.querySelector('#milePop .mb-h')||{}).textContent||'', band:(document.querySelector('#milePop .mb-band')||{}).textContent||'' }; },   // 0665 UNLOCK POPUP PACING — the rig's one read (read-only)
   dp(){ return { cv:GVT_CV, lvl:DINO_GIFT_LVL, winGift:WIN_GIFT_LVL, dino:!!META.parkDino, dinoSeen:!!META.parkDinoSeen, dinoBy:META.parkDinoBy||null, yeti:!!META.parkYeti, yetiSeen:!!META.parkYetiSeen, yetiBy:META.parkYetiBy||null, by:dinoBy()||null, cur:roomCur(), rawCur:(META.rooms&&META.rooms.cur)||null, own:(META.rooms&&META.rooms.own||[]).slice(), byGift:META.byGift|0, door:!!MB_TAKE, scene:parkSceneOpen(), park:PARK_CUR, mode:S.mode, flow:PGFLOW, card:milePopUp(), head:(document.querySelector('#milePop .mb-h')||{}).textContent||'', band:(document.querySelector('#milePop .mb-band')||{}).textContent||'', rumor:dinoRumorDue(), nudge:shipNudgeOn(), nudgeDue:shipNudgeDue(), glass:glassDue(), mvDay:META.mvDay||0, lens:!!META.lens }; },   // 0626 DINO PARK AT THREE — the rig's one read (read-only)
   flow(){ const g=id=>document.getElementById(id), vis=id=>{ const e=g(id); return !!e && !e.classList.contains('hidden'); }; const hb=g('winHqBtn'); return { cv:GVT_CV, top:CAMP_FLOW_TOP, home:CAMP_FLOW_HOME, on:PGFLOW, due:campFlowDue(), hq:!!hb && !hb.classList.contains('off'), hqRect:hb? (r=>[Math.round(r.left),Math.round(r.top),Math.round(r.right),Math.round(r.bottom)])(hb.getBoundingClientRect()) : null, hqText:hb? hb.textContent : null, mode:S.mode, levelN:S.levelN, camp:META.campaign|0, pend:META.pendingPicks|0, menu:vis('menu'), scene:vis('campscene'), picker:vis('picker'), win:vis('win'), lose:vis('lose'), card:milePopUp(), box:mboxUp(), dealt:MB_DEALT, end:MB_END, head:(document.querySelector('#milePop .mb-h')||{}).textContent||'' }; },   // 0625 THE CONTINUOUS CAMPAIGN — the rig's one read (read-only)
-  winVerdict(){ const g=id=>document.getElementById(id), win=g('win'), mr=g('medalRow'), mt=g('medalText'); return { cv:GVT_CV, starGap:VD_STAR_GAP, artPx:VD_ART_PX, whisperFrom:VD_WHISPER_FROM, beats:[VD_MEDAL_AT,VD_MEDAL_STAG,VD_TILE_AT,VD_TILE_MS,VD_ROW_AT], sfx:VD_MEDAL_SFX, swords:VD_BOSS_SWORDS, foot:Object.assign({},VD_FOOT), camp:win.classList.contains('camp'), done:win.classList.contains('vdone'), running:!!VD, stars:mr.dataset.stars||null, v:mt.dataset.v||null, parts:[...mt.children].map(e=>({ k:e.className, t:e.innerText.replace(/\s+/g,' ').trim(), op:getComputedStyle(e).opacity })), medals:[...mr.querySelectorAll('.vm')].map(e=>({ g:e.textContent, on:e.classList.contains('on'), off:e.classList.contains('off'), op:getComputedStyle(e).opacity })), title:g('winTitle').innerText.replace(/\s+/g,' ').trim(), btn:g('againBtn').getBoundingClientRect().bottom, due:{ by:(META.lvl|0)>=BY_FREE_LVL && !META.byGift && !roomOwns('backyard'), winter:roomGiftDue('winter'), rooftop:roomGiftDue('rooftop'), bomber:bmbOwned() && !META.bomberSeen, cmd:cmdOwned() && !META.cmdSeen, blade:bladeOwned() && !META.bladeSeen, cmdo:cmdoOwned() && !META.cmdoSeen, soul:soulOwned() && !META.soulSeen, paint:paintRiteOwed(), lens:lensDue() && !lensOwned() }, whispered:[REX_WHISPERED, RANK_WHISPERED], mode:S.mode }; },   // 0552c STARS · PAY · ONE TICKET — the rig's one read (read-only)
+  winVerdict(){ const g=id=>document.getElementById(id), win=g('win'), mr=g('medalRow'), mt=g('medalText'); return { cv:GVT_CV, starGap:VD_STAR_GAP, artPx:VD_ART_PX, whisperFrom:VD_WHISPER_FROM, beats:[VD_MEDAL_AT,VD_MEDAL_STAG,VD_TILE_AT,VD_TILE_MS,VD_ROW_AT], sfx:VD_MEDAL_SFX, swords:VD_BOSS_SWORDS, foot:Object.assign({},VD_FOOT), camp:win.classList.contains('camp'), done:win.classList.contains('vdone'), running:!!VD, stars:mr.dataset.stars||null, v:mt.dataset.v||null, parts:[...mt.children].map(e=>({ k:e.className, t:e.innerText.replace(/\s+/g,' ').trim(), op:getComputedStyle(e).opacity })), medals:[...mr.querySelectorAll('.vm')].map(e=>({ g:e.textContent, on:e.classList.contains('on'), off:e.classList.contains('off'), op:getComputedStyle(e).opacity })), title:g('winTitle').innerText.replace(/\s+/g,' ').trim(), btn:g('againBtn').getBoundingClientRect().bottom, due:{ by:(META.lvl|0)>=BY_FREE_LVL && !META.byGift && !roomOwns('backyard'), winter:false, rooftop:false /* CARD-ATL-Q5: the room gifts retired */, bomber:bmbOwned() && !META.bomberSeen, cmd:cmdOwned() && !META.cmdSeen, blade:bladeOwned() && !META.bladeSeen, cmdo:cmdoOwned() && !META.cmdoSeen, soul:soulOwned() && !META.soulSeen, paint:paintRiteOwed(), lens:lensDue() && !lensOwned() }, whispered:[REX_WHISPERED, RANK_WHISPERED], mode:S.mode }; },   // 0552c STARS · PAY · ONE TICKET — the rig's one read (read-only)
   // ---- 0559 THE NEW BUILD rig: nb (the state + every dial) · nbForce (as if a check returned this stamp) · nbCheck (one check now) ----
   nb(){ return { cv:GVT_CV, base:NB.base||null, stamp:NB.stamp||null, newer:NB.newer?1:0, checks:NB.checks, fails:NB.fails, last:NB.last, beats:NB.beats, busy:!!NB.busy, chip:NB.chip?1:0, card:!!document.getElementById('nbCard'), snoozeT:NB.snoozeT, went:NB.went, auto:nbAutoOK()?1:0, quiet:nbQuiet()?1:0, idle:+idleQuiet().toFixed(1), bellFar:nbBellFar()?1:0, every:NB_EVERY, snoozeMs:NB_SNOOZE_MS, autoS:NB_AUTO_S, guardS:NB_BELL_GUARD_S, path:location.pathname, proto:location.protocol }; },
   nbForce(stamp){ stamp=String(stamp||'forced'); if(!NB.base) NB.base='(rig)'; NB.stamp=stamp; NB.newer=(stamp!==NB.base); NB.last=Date.now(); nbTick(); return GVT.nb(); },
