@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.78","md5":"469387e4d9d62bfc339e15a543527407","sha":"b48b7b7b5","at":"2026-10-11T16:01:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.79","md5":"cfd5acb11b7e42148711020e9da20a24","sha":"f094d4e14","at":"2026-10-11T16:03:24Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -53470,7 +53470,8 @@ const CMDO_DEF_CAP=5;     // 0242: the 5th pip is the RANK-100 CAPSTONE — floo
 // ladder at 100 (x3.472), never below his 8/10 number, so equal ranks trade the same hits at 100 as at 1 (+-1 of rounding;
 // design/class-hp-ladder-1007/00-DESIGN-HPL.md). It supersedes the two lines above: the MORTAR scales (10, HPL-Q3) and the COMMANDO
 // has a row (24, HPL-Q4): his battleground pips retire into it (placeUnit), his campaign grit pips (gritCap, cmdoGB) stand.
-const HP_RANK100={ rifleman:45, mgunner:55, bazooka:42, flame:50, minesweeper:42, radioman:42, spy:40, sarge:40, medic:40, grenadier:44, mortar:40, commando:52 };   /* CARD-UHB THE BOOK (UHB-Q1, Wyatt 10/10: "aim around 40 to 55 health for each of the units"): each man's battleground pool at level 100; CARD-HPL's summits (rifleman 11 ... M. GUNNER 28) live on as UHB_HPL (sec CARD-UHB below): the 0-9 curve and the never-below floor */   // 1189 CARD-GR: the grenadier's summit 9 (between the bazooka's 7 and the M. GUNNER's 10)   // 0365: the medic's summit = the spy's own 7 (2→7 along the house taper, capstone by construction — Wyatt: "each level up improves … the medics health amount"); the row also seats him on v3.01's mr-token send, so a relayed ally's medic heals at HIS rank on my screen
+const HP_RANK100={ rifleman:45, mgunner:55, bazooka:42, flame:50, minesweeper:42, radioman:42, spy:40, sarge:40, medic:40, grenadier:44, mortar:40, commando:52,
+  kingbear:270, kingrex:260, kingyeti:250, jane:150, kingcroak:140, princess:130 /* CARD-HHB THE HEROES' ROWS OF THE BOOK (Wyatt 10/11 by phone: "Heres should be around this health amount at level 100 ... Emperor bear 270 / King rex 260 / King yeti 250 / Jane 150 / King croak 140 / Princess croak 130"): the HP his card shows at rank 100 for a hero whose owner chose nothing; bfHpAt's hero branch summits his rank row at this minus the words he carries already (hhbWords), the soul / THE PERFECT BOOK / REUNITED / MORE STUFFING land above; the rows used to be derived at load ((grit + HERO_GRIT_CAP) x HERO_BF_HP_X: yeti 52, rex 46, croak 22, jane 17, bear 43, princess 22, in the BF_MOVE hero loop) */ };   /* CARD-UHB THE BOOK (UHB-Q1, Wyatt 10/10: "aim around 40 to 55 health for each of the units"): each man's battleground pool at level 100; CARD-HPL's summits (rifleman 11 ... M. GUNNER 28) live on as UHB_HPL (sec CARD-UHB below): the 0-9 curve and the never-below floor */   // 1189 CARD-GR: the grenadier's summit 9 (between the bazooka's 7 and the M. GUNNER's 10)   // 0365: the medic's summit = the spy's own 7 (2→7 along the house taper, capstone by construction — Wyatt: "each level up improves … the medics health amount"); the row also seats him on v3.01's mr-token send, so a relayed ally's medic heals at HIS rank on my screen
 // ...and Sarge's rig pays a FLAT plate on top (Wyatt 8/10, numbers verbatim).
 // The old saber ×2 / commander ×CMD.hpMul multipliers RETIRE — the man's own
 // rank row above owns his growth now and a multiplier on top would compound
@@ -53482,7 +53483,7 @@ const RANK_U_SUMMIT=rankUnits(RANK_MAX);   // ≈24.722 — the normaliser that 
 // the whole-book reader: a class's battleground plastic at a rank. Pure — the
 // GVT.rank rig door quotes it; placeUnit adds the DELTA (bfHpRk below) so the
 // jump tank's +2, the Soul's ×1.05 and the rookie halving stack unchanged.
-function bfHpAt(t,r){ const top=HP_RANK100[t], base=(BF_MOVE[t]&&BF_MOVE[t].hp)||3;
+function bfHpAt(t,r){ const base=(BF_MOVE[t]&&BF_MOVE[t].hp)||3, top=(HP_RANK100[t] && HEROES.indexOf(t)>=0)? Math.max(base, HP_RANK100[t]-hhbWords(t)) : HP_RANK100[t];   /* CARD-HHB: a hero's summit = THE BOOK minus the words a bare rank-100 hero carries already (hhbWords), never below his base; a man's row as it was */
   if(!top) return base; const o=UHB_HPL[t];   /* CARD-UHB THE RUNGS: a book row reads CARD-HPL's curve (UHB_HPL) at levels 0-9 and, from level 10, max(that curve, the rung); a hero's row (no UHB_HPL row) reads his own taper, byte what it was */
   const cur=base+Math.round(((o!=null)? o-base : top-base)*rankUnits(r)/RANK_U_SUMMIT);
   return (o==null || !(r>=UHB.rungFrom))? cur : Math.max(cur, uhbRung(uhbHplAt(t,UHB.rungFrom-1), top, r)); }
@@ -67489,7 +67490,7 @@ const UDEF = {
 // Retune a hero's grit / price / pace and the mat follows. The reach stays the campaign's (no rng
 // override — ⚑ the mat's own reach ladder is a ruling of its own). =====
 const HERO_BF_HP_X=0.6;   // ⚑ Q2 the mat HP dial on the grit-ratio row (1.0 = the campaign's grit as plastic; 0.3 = the card's "eight riflemen" for the yeti)
-for(const k of HEROES){ BF_MOVE[k]={ moveSpd:Math.round((CAMP_SPD[k]||26)*BF_PACE), hp:Math.round(UDEF[k].grit*HERO_BF_HP_X) }; HP_RANK100[k]=Math.round((UDEF[k].grit+HERO_GRIT_CAP)*HERO_BF_HP_X); BF_BOUNTY[k]=Math.ceil(COSTS[k]/2); }
+for(const k of HEROES){ BF_MOVE[k]={ moveSpd:Math.round((CAMP_SPD[k]||26)*BF_PACE), hp:Math.round(UDEF[k].grit*HERO_BF_HP_X) }; BF_BOUNTY[k]=Math.ceil(COSTS[k]/2); }   /* CARD-HHB: a hero's HP_RANK100 row is THE BOOK's own cell now (Wyatt's numbers at the table), no longer derived here */
 for(const k of ['kingcroaklil','wlady','cksnake']) BF_MOVE[k]={ moveSpd:Math.round((CAMP_SPD[k]||26)*BF_PACE), hp:Math.round(UDEF[k].grit*HERO_BF_HP_X) };   // HS THE CROAK FAMILY ON EVERY FIELD (⚑ HS-Q1): King Croak's family on the mat through the heroes' own mold (1001's court line below, word for word) — the son 5 hp · a lady 2 · the Rattler 12; the march the family's own 26 / 26 / 22 × BF_PACE; never a cost, never a bounty row, never in BF_TYPES
 for(const k of ['kbguard','kbcannon','kbcavalry']) BF_MOVE[k]={ moveSpd:Math.round((CAMP_SPD[k]||26)*BF_PACE), hp:Math.round(UDEF[k].grit*HERO_BF_HP_X) };   // 1001 THE COURT ON EVERY FIELD (⚑ CF-Q1): the court's three ALLY rows on the mat through the heroes' own mold — the guard 109 px/s · 7 hp, the cannon 31 · 9, the cavalry 41 · 14 (the reach stays the campaign's — the heroes' own ⚑); never a cost, never a bounty row (bfBounty's fallback — ⚑ CF-Q2), never in BF_TYPES (never placeable, never in the census, never in the tray) — the ALLY editions' law stands   // 0877 HEROES ON THE BATTLEGROUND: the five rows, derived (one line — the mold is the comment above)
 for(const k of ['pfrogally','fairyally','gknightally','frogpally']) BF_MOVE[k]={ moveSpd:Math.round((CAMP_SPD[k]||26)*BF_PACE), hp:Math.round(UDEF[k].grit*HERO_BF_HP_X) };   // 1027 CARD-ML-A3 HER COURT on every field through the heroes' own mold (HS C3's law: the frog 44 px/s · 2 hp, the fairy 102 · 2)
@@ -81742,7 +81743,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.78';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.79';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -99134,6 +99135,18 @@ function rxHeroStomp(u){   // THE LANDING: the yeti hero's royal landing dress i
   }
   u.rxLastHit=n; u.rxLastLand=S.t; u.rxHops=(u.rxHops|0)+1;
 }
+// ═══ CARD-HHB THE HEROES' HP BOOK + KING CROAK'S STORM +10 (design/hero-hp-book-1011/00-BUILD-HHB.md; board J100; Wyatt 10/11/2026 04:30 EDT from his phone, verbatim: "Heres should be around this
+// health amount at level 100 should be around / Emperor bear 270 / King rex 260 / King yeti 250 / Jane 150 / King croak 140; +10 aoe damage / Princess croak 130"). "Heres" = HEROES; "health at level 100"
+// = the HP his card shows (heroHP = the battleground pool, CARD-USH round 2) at the hero's OWN rank 100 (the 0463 law). The six rows live in THE BOOK, HP_RANK100 (CARD-UHB's table of each unit's pool
+// at level 100): bfHpAt's hero branch summits his rank row at the book MINUS the words every rank-100 hero carries on the mat already (heroBfPool's own pure words: his +HP milestones and CARD-HHP's
+// rungs through HERO_BF_HP_X, CARD-HLV's rungs flat), read off THE BARE HERO (hhbBare: a rank-100 mirror stub whose owner chose nothing, the relayed chair's exact reading). So an owner who picked
+// nothing lands on the book exactly at 100; the soul, THE PERFECT BOOK, REUNITED and MORE STUFFING land above it as they did; rank 0 and the campaign rug's grit (gritCap, hits) are byte what they
+// were; the men's rows read as before. KING CROAK'S STORM: +HHB.ck flat after every multiplier on the whole storm (update()'s fire loop stamps u.rpDmg; the eight waves split it), the father alone,
+// every rug; his card's HITS FOR (hitDmgNowAt) moves by exactly HHB.ck. HHB.ck 0 = the storm as it was; a hero row out of HP_RANK100 = bfHpAt's base alone. ═══
+const HHB={ ck:10 };   // ⚑ HHB-Q3/Q4 the storm's flat plus (the father's, every rug)
+function hhbBare(k){ const st=heroStub(k,RANK_MAX,1); st.coopHM={ pk:[] }; return st; }   // the bare hero at the cap: a mirror stub (nrk, never my save) with an empty ledger token, so the milestone seats answer the exact banked pips (the bear's hpX: +5 at 40, no decree) and no pick counts
+function hhbWords(k){ if(HEROES.indexOf(k)<0) return 0; const st=hhbBare(k); return Math.round((heroMileHP(st)+hhpHp(st))*HERO_BF_HP_X)+hlvHp(st); }   // heroBfPool's pure words at rank 100 (the milestones + the HHP rungs x the dial, the HLV rungs flat); never the soul, REUNITED, THE PERFECT BOOK or a pick
+function hhbCkDmg(u){ return (u && u.type==='kingcroak' && HHB.ck)? HHB.ck : 0; }   // the storm's flat plus: the fire loop's u.rpDmg and the card's hitDmgNowAt read this one cell
 // ═══ CARD-HLV EVERY HERO +6 HP EVERY 10 RANKS (design/hero-level-hp-1010/00-BUILD-HLV.md; board J62; Wyatt 10/10/2026 from his phone, verbatim: "Add for each hero,every 10 levels they gain
 // an additional 6hp."). Every hero of HEROES (King Yeti, King Rex, King Croak, Jane, King Bear, Princess Croak) takes HLV.hp more HP at each HLV.every of his OWN rank (the 0463 law: "level" = the
 // hero's rank; 10, 20 … 100: +60 at the cap). "HP" = the number his card shows (heroHP = the battleground pool since CARD-USH round 2): the rungs land FLAT on the pool after THE SOUL, beside THE
@@ -113157,7 +113170,7 @@ function update(dt){
       const ckM=ckStormMul(u);   // 0465 KING CROAK'S CHOICES: the BIGGER STORM picks grow the wedge — its reach (rpR) AND its half-angle (rpHalf) together, region = picture (brgWave draws and deals the one wedge); ⚑ CK_STORM_REACH (0): the trigger reach stands
       const kcAim=rpScan(u, rng*rngMul);   // 0575: `rng` carries ckM when CK_STORM_REACH is on (the seat above — the shared scan and this one now read the SAME reach; at 0 both read the row's 240)
       if(!kcAim){ u.cd=0.25; continue; }   // the commando's own hold-fire retry — never drain the drum on a storm that hits nobody
-      u.rpT=RP_PLANT+BRG_WAVES*BRG_GAP; u.rpSt=0; u.rpAim=kcAim.ang; u.rpDmg=dmg; u.rpR=def.rng*rngMul*ckM; u.rpHalf=CROAK_FAN_HALF*ckM; u.rpKC=1;   // 0410: the king keeps the SHARED clocks (RP_BURST is the renegade's own now) — his 2.15s trajectory byte-what-it-was
+      u.rpT=RP_PLANT+BRG_WAVES*BRG_GAP; u.rpSt=0; u.rpAim=kcAim.ang; u.rpDmg=dmg+hhbCkDmg(u) /* CARD-HHB: + the storm's flat +10, after every multiplier (the father alone; the eight waves split it) */; u.rpR=def.rng*rngMul*ckM; u.rpHalf=CROAK_FAN_HALF*ckM; u.rpKC=1;   // 0410: the king keeps the SHARED clocks (RP_BURST is the renegade's own now) — his 2.15s trajectory byte-what-it-was
       bfSfx(SFX.thock, u.x, u.y);
       continue;
     }
@@ -170801,7 +170814,7 @@ function hitWhole(v){ return String(Math.round(v)); }   // the card's law: a who
 function heroStub(k,r,mir){ const u={ type:k, def:UDEF[k] }; const r0=(META.up[k]||0)|0; if(mir || (r!=null && (r|0)!==r0)) u.nrk=Math.max(0,Math.min(RANK_MAX,(r==null? r0 : r)|0)); return u; }   // the figure the readers read: MY persisted ledger at his own rank (heroMine); the sim's own mirror reader (perkRank's nrk) at any other rank
 function hitDmgNowAt(k,r){ const st=heroStub(k,r), v=rsaBaseHit(k,r,st); if(v==null) return null;   /* CARD-RSA: the medic's rifle is his round (was null: 0 DAMAGE on the sheet) */ let m=(k!=='sarge' && soulIs('u',k))? SOUL_MUL : 1; if(k==='kingbear') m*=kbSwordMul(st);
   const fav=(k==='kingyeti' || k==='kingbear')? 0 : (pickDmg(st)+toothDmg(st))*hitMul(k,r);   /* CARD-RSA: + THE FROZEN TOOTH (the fire loop's base cell carries it beside the favor; no sheet printed it) */   // THE FAVOR rides the round lane's product ((def.dmg + pickDmg) × the curve — the fire loop's own sum); the two swords (kySwordDmg · kbHeroDmg) never add it
-  return (v+fav)*m*(k==='kingrex'? KRS_FIRE_X : 1)+mstGiftDmg(st,1); }   // CARD-MST: + the continents' gifts, flat after every multiplier (the card moves by exactly 1)   // CARD-KRS: King Rex's hit IS a beat of his fire, and a beat lands x KRS_FIRE_X now: his card (HITS FOR), the plate and his sheet (DAMAGE) print what his tongue lands (update's kb.dmg); his stomp is not this number, and every other figure reads x1
+  return (v+fav)*m*(k==='kingrex'? KRS_FIRE_X : 1)+mstGiftDmg(st,1)+hhbCkDmg(st); }   // CARD-HHB: + King Croak's storm plus, flat last (his card moves by exactly 10)   // CARD-MST: + the continents' gifts, flat after every multiplier (the card moves by exactly 1)   // CARD-KRS: King Rex's hit IS a beat of his fire, and a beat lands x KRS_FIRE_X now: his card (HITS FOR), the plate and his sheet (DAMAGE) print what his tongue lands (update's kb.dmg); his stomp is not this number, and every other figure reads x1
 // ═══ CARD-USH ROUND 2 THE HEROES' HP IS THE FIGHT'S TOO (board card J10; design/unit-sheet-hp-1008/00-BUILD-USH.md §ROUND 2; Wyatt by Discord 10/9/2026 15:01, "10b Yes", to: "The heroes' sheets still show campaign HP. The same fix for them?") ═══
 // heroHP printed ⌈gritCap⌉, the campaign rug's hits. It now prints the pool MY hero lands with on the battleground, placeUnit's own steps for my chair in its order: the merged row's hp (UDEF + BF_MOVE) + the rank row (bfHpRk)
 // + (the milestones' HP + REUNITED + the HP rungs) x HERO_BF_HP_X, rounded · x THE SOUL. Left out, like the men's war bond (USH-Q4, his "Yes"): the squad's +5/+7 beside a squadmate (sqlHpMat) and the war bond's +2.
@@ -173879,6 +173892,7 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
+  hhb(){ const o={ cv:GVT_CV, ck:HHB.ck, book:{}, words:{}, base:{}, top:{}, card:{} }; for(const k of HEROES){ o.book[k]=HP_RANK100[k]; o.words[k]=hhbWords(k); o.base[k]=(BF_MOVE[k]&&BF_MOVE[k].hp)||3; o.top[k]=bfHpAt(k,RANK_MAX); o.card[k]=heroHP(k); } return o; },   // CARD-HHB: the book, the bare words, each hero's base and summit, his card today
   trn(v){ v=v||{}; if(v.dials) Object.assign(TEX, v.dials); if(v.fg) Object.assign(TEX_FG, v.fg); /* CARD-TRN-B2 */ if(v.b3) Object.assign(TEX_END, v.b3); /* CARD-TRN-B3 */ if(v.go) texStart(v.go===true? {} : v.go); if(v.end) texEnd(); if(v.tap && S.tex) texTapAt({ x:+v.tap[0]-S.tex.cam.x, y:+v.tap[1] });   // CARD-TRN-B1 THE TOY EXPRESS's rig door: go (the set) · end (home) · tap [world x, y] · dials · the read
     const X=S.tex; return { cv:GVT_CV, on:!!X, dials:Object.assign({},TEX), cars:TEX_CARS.map((c,i)=>({ k:c.k, x:Math.round(texCarX(i)), top:Math.round(texTop(i)) })), lands:TEX_LANDS.map(l=>({ id:l.id, name:l.name, word:t(l.name) })), worldW:Math.round(texWorldW()), VW, W, mode:S.mode,
       st:X? { t:+X.t.toFixed(2), car:X.car, land:X.land, landT:+X.landT.toFixed(2), tun:X.tun? { t:+X.tun.t.toFixed(2), ph:+(X.tun.t/TEX.tun).toFixed(3), to:X.tun.to, dark:X.tun.dark|0 } : null, hop:!!X.hop, goal:X.goal==null? null : Math.round(X.goal), next:X.next==null? null : Math.round(X.next), cam:Math.round(X.cam.x), name:X.name, nameT:+X.nameT.toFixed(2), lands:X.lands.slice(), key:X.key, bw:Math.round(X.bw), bh:Math.round(X.bh), q:+X.q.toFixed(3),
