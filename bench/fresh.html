@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.84","md5":"f9fa3b7d0d6043ae06ae0bd0850e8526","sha":"ae1aa3f7d","at":"2026-10-11T16:25:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.85","md5":"6b98308539ef1f2a6d124cfd7895bf0a","sha":"5dd2f2267","at":"2026-10-11T16:51:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -14818,6 +14818,14 @@
   #ro-campaign.beacon { filter:none; animation-name:none; }
   #ro-campaign.beacon > g:first-child:not(.patrol) { filter:url(#bcnCS); animation:bcnhaloC 1.7s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce){ #ro-campaign.beacon > g:first-child:not(.patrol) { animation:none; } }
+  /* ═══ CARD-DLG-E THE QUIET LOOPS (design/decor-load-1009/BUILD-DLG-E.md): a lit tile resting as a picture wears its halo as two still bitmaps (the breath's trough and peak) in ONE html box over its layer, crossfading by opacity (the compositor's: no repaint, no filter a frame). The element's own duration, delay and ease; reduced motion: one still bitmap. ═══ */
+  .dlge-halo { pointer-events:none; }
+  .dlge-halo > .dlge-cv { position:absolute; pointer-events:none; }
+  @keyframes dlgeTr { 0%,100% { opacity:1; } 50% { opacity:0; } }
+  @keyframes dlgePk { 0%,100% { opacity:0; } 50% { opacity:1; } }
+  @keyframes dlgeDn { from { opacity:1; } to { opacity:0; } }
+  @keyframes dlgeUp { from { opacity:0; } to { opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .dlge-halo > .dlge-cv { animation:none !important; } }
 </style>
 <style id="glcss">
   /* ═══ THE GLOBE (FM-GVT-GLOBE-01): the square on the battlefield's LEFT (0897's box, a sea rim) · the round globe · the cards ═══ */
@@ -82158,7 +82166,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.84';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -172307,6 +172315,7 @@ function dlgLayers(aw, only){ const svg=DLGP.svg; if(!svg || !svg.isConnected) r
   dlgDrawTo(DLGP.back, on(0)); dlgDrawTo(DLGP.mid, on(2)); dlgDrawTo(DLGP.front, on(4));
   let sq=0; for(const u of asleep){ if(u.__p && (!u.__pe || u.__pe.nextElementSibling!==u)) dlgPicEl(u); const v=u.__top? 5 : lay.get(u); const inSvg=(v===1 || v===3 || v===5); dlgPicShow(u, inSvg); if(inSvg && !u.__top) sq++; }
   DLGP.layMs=performance.now()-t0; DLGP.layN={ back:on(0).length, mid:on(2).length, front:on(4).length, squeezed:sq, top:DLGP.topN };
+  try{ dlgeSync(); }catch(e){}   // CARD-DLG-E THE QUIET LOOPS: a lit tile resting as a picture wears its halo box (two still bitmaps crossfading), in this same task as the swap
   if(DLGP.glass || document.getElementById('roomGlassFly')) dlgGlass(); }   // CARD-DLG-C: the glass's copy swaps with the room (DLG-F4)
 // ═══ CARD-DLG-C · DLG-F4 THE MAGNIFYING GLASS (BUILD-DLG-C.md): the porthole's copy of the room (glassSpawnFly: .rg-zoom, roomSVG() a second time, every loop in it running as the room's) wears THE SAME PICTURES. Each sleeper's twin in the copy is that sleeper's picture from THE ONE CACHE,
 //   drawn from the picture's own vector source (sharp under the glass's 2.1x; no picture is made for the glass); each awake unit's twin stays live as today. The twins = the copy's units in paint order (dlgCollect), matched to the room's by tag and id: any mismatch = the copy exactly as today.
@@ -172398,7 +172407,7 @@ async function dlgSettle(tok){ if(!dlgRoomOk()) return; const svg=document.query
   await dlgLay(tok); if(tok!==DLGP.tok) return;
   DLGP.settleMs=performance.now()-t0; DLGP.log.push(['settle', +DLGP.settleMs.toFixed(1), 'make', +DLGP.makeMs.toFixed(1), 'enc', +DLGP.encMs.toFixed(1), 'made', DLGP.made, 'hits', DLGP.hits, 'Mpx', +(DLGP.px/1e6).toFixed(2), 'asleep', DLGP.sleep.size, 'units', DLGP.units.length]); if(DLGP.log.length>40) DLGP.log.splice(0, 20); }
 // OFF (the rig's undo, in place; and a new size's first step): every unit shown, every picture and layer gone, the belt and the TOP back in the room's svg in their order
-function dlgOff(){ const svg=DLGP.svg; DLGP.tok++; dlgGlassOff(); if(DLGP.mo) DLGP.mo.disconnect(); if(svg && svg.isConnected){ for(const u of DLGP.units){ u.style.display=''; clearTimeout(u.__hold); } for(const p of [...document.querySelectorAll('#roomStage image.dlg-pic')]) p.remove(); for(const u of DLGP.units) u.__pe=null;
+function dlgOff(){ try{ dlgeOff(); }catch(e){}   /* CARD-DLG-E: the halo boxes leave with the pictures */ const svg=DLGP.svg; DLGP.tok++; dlgGlassOff(); if(DLGP.mo) DLGP.mo.disconnect(); if(svg && svg.isConnected){ for(const u of DLGP.units){ u.style.display=''; clearTimeout(u.__hold); } for(const p of [...document.querySelectorAll('#roomStage image.dlg-pic')]) p.remove(); for(const u of DLGP.units) u.__pe=null;
     if(DLGP.belt && DLGP.top){ const tops=[...DLGP.top.children]; svg.appendChild(DLGP.belt); for(const e of tops){ if(e.id==='ro-rave') svg.insertBefore(e, DLGP.belt); else svg.appendChild(e); } } }   // (the rave lights sat before the belt)
   for(const id of ['dlgBack', 'dlgMid', 'dlgFront', 'dlgBelt', 'dlgTop']){ const e=document.getElementById(id); if(e) e.remove(); } dlgDrop(); }
 function dlgRelay(){ if(!DLGP.on) return; dlgOff(); dlgAfterPaint(); }
@@ -172567,6 +172576,71 @@ function dlgfProbe(){ const c=[...DLGF.cards], n=s=>c.filter(r=>r.st===s).length
 function dlgfCard(id){ const b=document.getElementById('shdcc-'+id), r=b && b.__dlgf; return r? { st:r.st, near:r.near, held:r.held, frz:r.frz, cant:r.cant, kids:r.svg.childNodes.length, pic:!!(r.im && r.im.parentNode) } : null; }
 setTimeout(()=>{ try{ if(window.GVT && !GVT.dlgBox) GVT.dlgBox={ st:dlgfProbe, card:dlgfCard, on:v=>{ DLGF.on=v? 1 : 0; if(v) dlgfDeal(); else dlgfOff(); try{ msPauseSync(); }catch(e){} return DLGF.on; } }; }catch(e){} }, 0);
 // ═══ CARD-DLG-F ends ═══
+// ═══ CARD-DLG-E THE CLUTTERED ROOM COSTS NOTHING · THE QUIET LOOPS (sec:CARD-DLG-E; design/decor-load-1009/BUILD-DLG-E.md; the pass 00-DESIGN-DLG.md §4 practice 4, §8.6; six of six). His go 10/10/2026 19:00 EDT on Maker 1, verbatim: "Do it. Plan it out. Execute to the best of your ability." (the card: measured first, only what pays)
+// THE MEASURE FOUND: since DLG-A a lit tile that rests as a picture (the campaign crate's idle beacon, the battlefield's, the cup's, the hedge door's, the shop's beckon, the plane's nudge) shows NO gold halo: its halo is a filter url(#bcn*) defined in #bcnDefs at the foot of <body>,
+//   outside the unit, and a picture cannot reach it (CARD-BCN's halo, the light that tells a kid which tile to tap next, dark on every phone since v20.26). Holding the lit tile live brings the breath back AND its cost: the stepping url() filter repaints the room
+//   every step (measured alone under the timing lock, the empty bedroom, the crate lit, 30 s untouched, alternating x3: WebKit's painter 1.39 G/s dark -> 3.46 live; Chrome 4x main 31 -> 36 %). This breath costs what the dark room did (BUILD-DLG-E.md §1).
+// THE QUIET LOOP (the pass's practice 4: "opacity / transform on a still, pre-filtered layer"): a lit SLEEPER's halo is drawn ONCE into two bitmaps, the breath's trough and its peak (the same #bcnDefs filters, the same engine, in the element's own user space), each knocked out
+//   where the unit's own art paints over it, held in ONE html box seated right after the layer that carries the unit's picture; the breath = the two crossfading by css opacity on the element's own clock (duration, delay, ease, direction): the compositor's work, no repaint, no filter a frame.
+//   Reduced motion: one bitmap of the static halo (bcnS / bcnCS / bcnT), still, as the live tile under reduced motion. A live (awake, held, life-list) tile keeps its own css breath, untouched: the halo box exists only while the tile is a picture (THE ONE LAW: never both).
+const DLGE_LIT='.beacon, .beckon, .nudge, .evlive, .tcover';
+const DLGE_BREATH={ beaconhalo:['bcnH0', 'bcnH20', 0], bcnhaloW:['bcnW0', 'bcnW20', 0], bcnhaloC:['bcnC0', 'bcnC20', 0], shopbeck:['bcnB0', 'bcnB24', 1] };   // the breath's [trough, peak, 1 = from→to alternate (shopbeck) | 0 = 0%,100% trough · 50% peak]
+const DLGE={ on:1, halos:new Map(), made:0, ms:0, err:0, tok:0 };   // halos: unit → { el, key, cvs, box } · made / ms: bitmaps made and their main-thread ms
+function dlgeHaloEl(u){ const L=[u, ...u.querySelectorAll('*')]; for(const e of L){ try{ if(/#bcn/.test(getComputedStyle(e).filter)) return e; }catch(err){} } return null; }   // the element wearing the halo: the tile's own group, or the crate's first child (CARD-BCN's campaign rule)
+function dlgeSpec(h){ const cs=getComputedStyle(h), nm=String(cs.animationName).split(',')[0].trim(), B=DLGE_BREATH[nm];
+  if(B && !reducedMotion()) return { ids:[B[0], B[1]], alt:B[2], dur:String(cs.animationDuration).split(',')[0].trim(), delay:String(cs.animationDelay).split(',')[0].trim(), ease:String(cs.animationTimingFunction).split(',')[0].trim() };
+  const m=/#(bcn\w+)/.exec(cs.filter); return m? { ids:[m[1]], alt:0 } : null; }   // a breath it knows = two bitmaps; anything else (reduced motion: the static 9 px) = one, still
+function dlgePath(u, h){ const p=[]; for(let n=h; n && n!==u; n=n.parentNode) p.unshift([...n.parentNode.children].indexOf(n)); return p; }
+// the svg box's own map, room units → its css px (viewBox + preserveAspectRatio; never the screen's CTM: the box lives in the svg's own css box, as the canvases do)
+function dlgeMap(svg){ const cs=getComputedStyle(svg), W=parseFloat(cs.width), H=parseFloat(cs.height), vb=svg.viewBox && svg.viewBox.baseVal; if(!(W>0) || !(H>0)) return null; if(!vb || !vb.width || !vb.height) return { sx:1, sy:1, tx:0, ty:0, W, H };
+  const pa=svg.preserveAspectRatio.baseVal, al=pa.align; if(al===1) return { sx:W/vb.width, sy:H/vb.height, tx:-vb.x*W/vb.width, ty:-vb.y*H/vb.height, W, H };
+  const s=(pa.meetOrSlice===2)? Math.max(W/vb.width, H/vb.height) : Math.min(W/vb.width, H/vb.height), xp=(al-2)%3, yp=Math.floor((al-2)/3);
+  return { sx:s, sy:s, tx:-vb.x*s+(W-vb.width*s)*xp/2, ty:-vb.y*s+(H-vb.height*s)*yp/2, W, H }; }
+function dlgeAnchor(u){ if(u.__top) return DLGP.top; const v=DLGP.lay && DLGP.lay.get(u); return ({ 0:DLGP.back, 1:DLGP.svg, 2:DLGP.mid, 3:DLGP.beltSvg, 4:DLGP.front })[v] || null; }   // the layer that carries the unit's picture: the halo box sits right after it (over the unit, under all painted later)
+function dlgeDecode(doc){ return new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(doc); }); }
+// THE BITMAPS: the unit read where it stands (shown for this same task only: no frame sees it), its markup = the still room's own (dlgSer0: the computed paint inlined); per halo id ONE glow-only bitmap (the filter's flood in the blur of the element's own alpha,
+//   in its own user space: the same numbers as the live filter) of the element alone, minus the art painted over it (the element itself and everything after it in the unit): THE ORDER inside the unit kept; THE ORDER outside it = the box's seat
+async function dlgeMake(u, h, sp, box, sc){ const t0=performance.now(); const hid=DLGP.sleep.has(u); if(hid) u.style.display=''; let part=null; try{ part=dlgSer0(u); }catch(e){} if(hid) u.style.display='none'; if(!part) return null;
+  const path=dlgePath(u, h), defs=document.getElementById('bcnDefs'), [x0, y0, x1, y1]=box, W=Math.max(1, Math.ceil((x1-x0)*sc)), H=Math.max(1, Math.ceil((y1-y0)*sc));
+  const root=s=>'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+W+'" height="'+H+'" viewBox="'+x0+' '+y0+' '+((x1-x0))+' '+((y1-y0))+'">'+DLGP.defs+s+'</svg>';
+  const P=new DOMParser(), ser=new XMLSerializer();
+  const trim=(alone, filt)=>{ const d=P.parseFromString(part, 'image/svg+xml'), r=d.documentElement; if(r.nodeName==='parsererror' || r.querySelector('parsererror')) return null; let n=r;
+    for(const i of path){ const kids=[...n.children], k=kids[i]; if(!k) return null; kids.forEach((s, j)=>{ if(j!==i && (alone || j<i)) s.remove(); }); n=k; }   // the halo pass: the element alone · the art pass: the element and all painted after it
+    for(const e of [r, ...r.querySelectorAll('*')]){ const st=e.getAttribute('style'); if(st && /#bcn/.test(st)) e.setAttribute('style', st.replace(/filter:\s*url\([^)]*#bcn\w+[^)]*\)\s*;?/g, '')); }
+    if(filt) n.setAttribute('style', (n.getAttribute('style')||'')+';filter:url(#dlgeG)');
+    return ser.serializeToString(r); };
+  const ap=trim(0, 0); const art=ap? await dlgeDecode(root(ap)) : null;
+  const out=[];
+  for(const id of sp.ids){ const f=defs && defs.querySelector('filter[id="'+id+'"]'); if(!f){ DLGE.err++; return null; }
+    let g=''; for(const ds of f.querySelectorAll('feDropShadow')) { const k='b'+g.length; g+='<feGaussianBlur in="SourceAlpha" stdDeviation="'+ds.getAttribute('stdDeviation')+'" result="'+k+'"/><feFlood flood-color="'+ds.getAttribute('flood-color')+'" flood-opacity="'+ds.getAttribute('flood-opacity')+'"/><feComposite in2="'+k+'" operator="in" result="'+k+'c"/>'; }
+    const ks=[...g.matchAll(/result="(b\d+c)"/g)].map(m=>m[1]); g+='<feMerge>'+ks.map(k=>'<feMergeNode in="'+k+'"/>').join('')+'</feMerge>';   // the drop-shadows' glows WITHOUT their source (bcnT wears two: both kept, in its order)
+    const fl='<filter id="dlgeG" x="'+f.getAttribute('x')+'" y="'+f.getAttribute('y')+'" width="'+f.getAttribute('width')+'" height="'+f.getAttribute('height')+'" color-interpolation-filters="sRGB">'+g+'</filter>';
+    const hp=trim(1, 1); if(!hp){ DLGE.err++; return null; } const im=await dlgeDecode(root('<defs>'+fl+'</defs>'+hp)); if(!im){ DLGE.err++; return null; }
+    const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const c=cv.getContext('2d'); c.drawImage(im, 0, 0, W, H); if(art){ c.globalCompositeOperation='destination-out'; c.drawImage(art, 0, 0, W, H); } out.push(cv); }
+  DLGE.made+=out.length; DLGE.ms+=performance.now()-t0; return out; }
+function dlgeDrop(u){ const H=DLGE.halos.get(u); if(!H) return; DLGE.halos.delete(u); if(H.el) H.el.remove(); }
+function dlgeSeat(H, box, M){ const k=(v, a, t)=>(a*v+t); const L=k(box[0], M.sx, M.tx), T=k(box[1], M.sy, M.ty), Wd=(box[2]-box[0])*M.sx, Ht=(box[3]-box[1])*M.sy;
+  for(const cv of H.cvs){ const s=cv.style; s.left=L+'px'; s.top=T+'px'; s.width=Wd+'px'; s.height=Ht+'px'; } }
+// THE SYNC (rides every lay of the still room, the same task as its swap): each lit SLEEPER wears its halo box, every other unit none
+function dlgeSync(){ const svg=DLGP.svg; const ok=DLGE.on && DLGP.on && svg && svg.isConnected;
+  for(const [u, H] of [...DLGE.halos]){ let lit=false; try{ lit=u.matches(DLGE_LIT); }catch(e){} if(!ok || !u.isConnected || !DLGP.sleep.has(u) || !lit || !H.el.isConnected) dlgeDrop(u); }   // a tile woken (a tap, a stir, the round), put out, or repainted away: its box leaves in this same task
+  if(!ok) return; let M=null;
+  for(const u of DLGP.units){ if(!DLGP.sleep.has(u) || !u.__p) continue; let lit=false; try{ lit=u.matches(DLGE_LIT); }catch(e){} if(!lit) continue;
+    const an=dlgeAnchor(u); if(!an || !an.isConnected) continue; const h=dlgeHaloEl(u); if(!h){ dlgeDrop(u); continue; } const sp=dlgeSpec(h); if(!sp){ dlgeDrop(u); continue; }
+    M=M||dlgeMap(svg); if(!M) return; const f=document.querySelector('#bcnDefs filter[id="'+sp.ids[sp.ids.length-1]+'"]'); const fr=v=>Math.abs(parseFloat(v)||0)/100;
+    const b=u.__box, bw=b[2]-b[0], bh=b[3]-b[1], gx=f? fr(f.getAttribute('x'))*bw : 0, gy=f? fr(f.getAttribute('y'))*bh : 0; let box=[b[0]-gx, b[1]-gy, b[2]+gx, b[3]+gy];
+    const V=DLGP.vis; if(V){ box=[Math.max(box[0], V[0]), Math.max(box[1], V[1]), Math.min(box[2], V[2]), Math.min(box[3], V[3])]; if(box[2]<=box[0] || box[3]<=box[1]){ dlgeDrop(u); continue; } }   // the cull: what the glass cannot show is never drawn
+    const key=sp.ids.join('/')+'|'+(sp.dur||'')+'|'+(sp.delay||'')+'|'+box.map(v=>v.toFixed(1)).join(',')+'|'+u.getAttribute('class')+'|'+u.__p.rec.vurl.length;
+    let H=DLGE.halos.get(u); if(H && H.key===key){ if(H.el.previousSibling!==an) an.parentNode.insertBefore(H.el, an.nextSibling); if(H.cvs) dlgeSeat(H, box, M); continue; }
+    dlgeDrop(u); const el=document.createElement('div'); el.className='dlge-halo'; if(u.id) el.setAttribute('data-gid', u.id); dlgLike(svg, el, 0); el.style.overflow='hidden';
+    H={ el, key, cvs:null, box }; DLGE.halos.set(u, H); an.parentNode.insertBefore(el, an.nextSibling);
+    const r=svg.getBoundingClientRect(), sc=M.sx*(r.width>0? r.width/M.W : 1)*(DLGP.dd||dlgDots()); const tok=DLGE.tok;
+    dlgeMake(u, h, sp, box, sc).then(cvs=>{ if(DLGE.halos.get(u)!==H || tok!==DLGE.tok || !cvs){ if(!cvs && DLGE.halos.get(u)===H) DLGE.err++; return; }
+      cvs.forEach((cv, i)=>{ cv.className='dlge-cv'; if(sp.ids.length>1){ const nm=sp.alt? (i? 'dlgeUp' : 'dlgeDn') : (i? 'dlgePk' : 'dlgeTr'); cv.style.animation=nm+' '+sp.dur+' '+sp.ease+' '+sp.delay+' infinite '+(sp.alt? 'alternate' : 'normal'); } H.el.appendChild(cv); });
+      H.cvs=cvs; dlgeSeat(H, box, M); }); } }
+function dlgeOff(){ DLGE.tok++; for(const u of [...DLGE.halos.keys()]) dlgeDrop(u); }
+setTimeout(()=>{ try{ if(window.GVT && !GVT.dlgHalo) GVT.dlgHalo={ st:()=>({ on:DLGE.on, n:DLGE.halos.size, made:DLGE.made, ms:+DLGE.ms.toFixed(1), err:DLGE.err, halos:[...DLGE.halos].map(([u, H])=>({ id:u.id, cvs:H.cvs? H.cvs.length : 0, anim:H.cvs? H.cvs.map(c=>c.style.animationName) : [], seat:H.el.previousElementSibling? (H.el.previousElementSibling.id||H.el.previousElementSibling.tagName) : null })) }), on:v=>{ DLGE.on=v? 1 : 0; if(v) dlgeSync(); else dlgeOff(); return DLGE.on; } }; }catch(e){} }, 0);   // the rig's door
+// ═══ CARD-DLG-E ends ═══
 function frame(ts){
   requestAnimationFrame(frame);
   if(!ready) return;
