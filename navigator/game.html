@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.85","md5":"6b98308539ef1f2a6d124cfd7895bf0a","sha":"5dd2f2267","at":"2026-10-11T16:52:00Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.86","md5":"0996fcdd7eab811292794731ba37f556","sha":"f130701f0","at":"2026-10-11T16:53:56Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -82166,7 +82166,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -96037,6 +96037,7 @@ const SGA={ on:1, live:0.2, windT:0.16, snapT:0.05, hitT:0.11, backT:0.26, windX
 function sgaKind(u,d){   // what his body does at the box: null (his own picture already) · 'sab' the saber's cut · 'ua' the unarmed strike · 'cmd' the Commander's sword · 'gun' a shot's recoil · 'thr' the grenadier's throw · 'jab' the lunge at arm's length
   const t=u.type; if(t==='jane' || t==='aagun' || t==='dogfighter') return null;
   if(hbsOwn(u)) return null;   // CARD-HBS: the bears' picture is their own (hbsSmash: the cuts, the rearing charger)
+  if(rbaOwn(u)) return null;   // CARD-RBA: the heroes' picture is their own (rbaSmash: the fire, the volley, the note, the hurl)
   if(t==='sarge'){ const sw=unitSargeStats(u), w=sw.w; if(w==='lightsaber') return unarmedU(u,sw)? 'ua' : 'sab'; if(w==='commander') return 'cmd'; }
   if((d||0)>LEAK_R+10) return t==='grenadier'? 'thr' : 'gun';   // campSmash's own line between a shot and a thock
   return 'jab'; }
@@ -96093,6 +96094,35 @@ function sgaPose(u){ const K=u.sgaK; if(!SGA.on || !K || S.bf) return null;   //
 function sgaIn(u){ const P=sgaPose(u); if(!P || (!P.dx && !P.lean)) return false; const fs=u.sgaFs||1;   // drawUnit's wrapper (cmdLeanIn's grammar): ONE transform about his boots around the figure, his outfit and his weapon; closed beside the sarge line
   cx.save(); cx.translate(u.x+fs*P.dx,u.y); cx.rotate(fs*P.lean); cx.translate(-u.x,-u.y); return true; }
 function sgaRig(){ return { cv:GVT_CV, dials:Object.assign({},SGA), men:S.units.filter(u=>!u.dead && u.sgaT!=null).map(u=>({ id:u.id, t:u.type, k:u.sgaK||null, n:u.sgaN|0, at:(u.sgaAt==null? null : +u.sgaAt.toFixed(3)), live:+(S.t-u.sgaT).toFixed(3), since:+sgaSince(u).toFixed(3), pre:+Math.min(99,sgaPre(u)).toFixed(3), fs:u.sgaFs||0, pose:sgaPose(u) })) }; }   // the rig's read (no game caller)
+// ═══ CARD-RBA THE HEROES' OWN ATTACKS AT THE TOY BOX (design/rex-box-attack-1011/00-CARD-RBA.md; Wyatt's phone 10/11/2026 16:15 UTC, verbatim: "King Rex is missing his attack animation against the
+// enemy toybox in campaign. Add it and make sure each of the other heroes are attacking the toybox correctly"). Until this card four heroes besieged the crate with the generic +16,-26 pistol tracer and
+// CARD-SGA's small 'gun' recoil: King Rex never breathed, King Croak never fired his irons, the princess never plucked, King Yeti never threw. Now each whack wears the attack he fights men with:
+// KING REX breathes his fire at the boards (the fire loop's own jet off his jaw, at his size picks; he turns to it and his jaw opens: u.brFc/u.brTo, the draw's own stamps) · KING CROAK (and the little
+// king) fires a short volley from one of his two irons, the hands taking turns (the storm's own bolts, his recoil rock and his fire mold: u.rcAt/u.rcH) · PRINCESS CROAK plucks the golden note (her pluck
+// pose and her harp's next string) · KING YETI hurls (his stock round's hurl stamp u.kyThAt on the shipped tracer). Jane (0585) and the Emperor (CARD-HBS) keep their own.
+// PRESENTATION ONLY (the SGA law): every field written here is one only the draw reads; nothing here draws from Math.random, hurts a man, shakes the camera or pushes a burn region (S.breaths), so the
+// box's hp curve is the base's on a seeded fight. The battleground (S.bf) never comes here (campSmash is the campaign crate's).
+const RBA={ on:1, rexT:0.65, ckN:4, ckFan:0.06, ckStag:0.05 };   // rexT s the fire stands (the fire loop's kDur) · the volley: ckN bolts, ckFan rad between them, ckStag s apart
+function rbaOwn(u){ return !!(RBA.on && u && !S.bf && (u.type==='kingrex' || u.type==='kingyeti' || u.type==='princess' || isCroakU(u))); }   // the heroes whose whack picture is drawn here (sgaKind: null)
+function rbaSmash(u,b,tx,ty){ if(!rbaOwn(u)) return false;   // campSmash's picture for the four heroes: true = drawn here (the shipped tracer below skipped); King Yeti answers false (his hurl rides the shipped tracer)
+  const t=u.type;
+  if(t==='kingyeti'){ u.kyThAt=S.t; return false; }
+  if(t==='kingrex'){ bfSfx(SFX.jet, u.x, u.y);
+    u.brFc=(b.x>u.x)? 1 : -1; u.brTo=S.t+RBA.rexT;   // he turns to the boards and holds it for the fire's life (unitFaceW; the jaw opens: krgFire)
+    const fl=u.brFc, kx=u.x+34*fl, ky=u.y+rexHeroFireY(), rxM=rxFireMul(u);   // the fire loop's own jaw seat and size picks
+    S.fx.push({k:'breath',x:kx,y:ky,ang:Math.atan2(ty-ky,tx-kx),rng:UDEF.kingrex.rng*rxM,sc:1.2*rxM,sp:0.26*rxM,t:0,dur:RBA.rexT,krg:1});   // krg:1 = his own flowing fire (krgBreathDraw; no burn region stands behind it)
+    return true; }
+  if(t==='princess'){ const m=phNext(u), hx=u.x+26*unitFaceX(u), hy=u.y-60;   // pchShot's own harp hand
+    u.pcPluck=PCH_PLUCK; bfSfx(()=>PCV.shot(m), u.x, u.y); pcpShotFx(hx,hy,tx,ty,false); return true; }
+  if(isCroakU(u)){ const h=u.rbaH=u.rbaH? 0 : 1, hz=croakMz(u.x,u.y,unitW(u.type))[h], ang=Math.atan2(ty-hz.y,tx-hz.x), L=Math.hypot(tx-hz.x,ty-hz.y), N=RBA.ckN;   // this whack's iron (the storm's right-left)
+    const lzc=lzVisOf(u), lz=lzc? (lzc==='silver'? LZ_SILVER_ROW : lzc==='slug'? LZ_SLUG_ROW : ARMIES.find(ar=>ar.id===lzc)) : null;   // his storm wears his racked laser (rpStep's own paint law)
+    for(let i=0;i<N;i++){ const a=ang+(i-(N-1)/2)*RBA.ckFan, x2=hz.x+Math.cos(a)*L, y2=hz.y+Math.sin(a)*L, st=reducedMotion()? 0 : -i*RBA.ckStag;
+      if(lz && lzc==='slug') S.fx.push({k:'slugtr',x1:hz.x,y1:hz.y,x2,y2,t:st,dur:BRG_DUR});
+      else S.fx.push({k:'bolt',x1:hz.x,y1:hz.y,x2,y2,t:st,dur:BRG_DUR,col:lz? lz.hex : '#FFF3C4'}); }
+    S.fx.push({k:'flash',x:hz.x,y:hz.y,ang,R:reducedMotion()? 8 : 12,lw:2.6,t:0,dur:0.1});
+    u.rcAt=S.t; u.rcH=h; bfSfx(SFX.wshot, hz.x, hz.y); return true; }
+  return false; }
+function rbaRig(){ return { cv:GVT_CV, dials:Object.assign({},RBA), men:S.units.filter(u=>!u.dead && rbaOwn(u)).map(u=>({ id:u.id, t:u.type, x:+u.x.toFixed(1), y:+u.y.toFixed(1), sga:u.sgaK||null, brTo:u.brTo==null? null : +(u.brTo-S.t).toFixed(3), brFc:u.brFc||0, rc:u.rcAt==null? null : +(S.t-u.rcAt).toFixed(3), rcH:u.rcH==null? null : u.rcH, pluck:+(u.pcPluck||0).toFixed(3), th:u.kyThAt==null? null : +(S.t-u.kyThAt).toFixed(3) })) }; }   // the rig's read (no game caller)
 function campSmash(u,dist){
   const b=S.tanBase; if(!b||b.dead) return;
   // the hit rides the SAME rank law as every other hit — vet ×1.5, promotion
@@ -96123,7 +96153,7 @@ function campSmash(u,dist){
   if(u.type==='jane' && !(u.jInT!=null && S.t-u.jInT<JZ_ZIP+JZ_LAND)){ u.jkAt=S.t; u.jkH=u.jkH?0:1; }   // 0585 F1 THE GUNS COME UP AT THE BOX: the same two presentation fields the weapon loop writes (drawJane's burst opens for JANE_ARM_HOLD after every whack — the guns up through the whole siege, the recoil on alternating irons; nothing in the sim reads them — the 0537 law). The one guard: a whack inside her zip entrance (jkAt ≥ jInT snaps her to the ground — the 0434 mid-zip law) leaves the landing alone; the second whack, 2 s on, raises the guns
   if(u.type==='mgunner') u.mgRootT=MG_ROOT;   // v2.44: a siege volley is a trigger pull too — a sieging man never marches mid-pour today (the halt and TB.dead both park him), so this line is the invariant made airtight, not a behavior
   const tx=b.x-10+(Math.random()-0.5)*30, ty=b.y-42+(Math.random()-0.5)*26;
-  if(hbsSmash(u,dist,b)){   // CARD-HBS: the bears' own picture (the Emperor's cuts, the charger's hooves); every arm below as shipped
+  if(hbsSmash(u,dist,b) || rbaSmash(u,b,tx,ty)){   // CARD-HBS: the bears' own picture (the Emperor's cuts, the charger's hooves); CARD-RBA: King Rex's fire, King Croak's volley, the princess's note; every arm below as shipped
   } else if(arm==='lightsaber'){
     S.fx.push({k:'ring',x:tx,y:ty,r:5,R:42,t:0,dur:0.24,col:saberHexU(u)});
     bfSfx(SFX.laser, u.x, u.y);
