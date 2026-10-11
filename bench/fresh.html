@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.61","md5":"5fb227c7515c97c5721c721590cab7b6","sha":"5489096f6","at":"2026-10-11T13:35:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.62","md5":"382765eef121f4a5223fe73d16f62040","sha":"d94f42441","at":"2026-10-11T13:42:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -9007,6 +9007,9 @@
   .tc-tab.hw { color:#FFA83C; background:#17120E; border-color:#B85E14; }
   .tc-tab.on { color:#EDEADF; background:none; border-color:transparent; border-bottom:3px solid #FFD24A; border-radius:0; box-shadow:none; padding:6px 4px 5px; cursor:default; }
   .tc-tab.hw.on { color:#FFB457; }
+  .tc-tab.xm { color:#FF8F80; background:#0F1B12; border-color:#B8322C; }   /* CARD-P70 THE CHEST'S CHRISTMAS TAB: holly red on pine */
+  .tc-tab.xm.on { color:#FF9E91; background:none; border-color:transparent; border-bottom-color:#FFD24A; }   /* the shown tab = the gold underline (.on's own look: this rule stands after it) */
+  .tc-tabs { flex-wrap:wrap; row-gap:8px; }   /* CARD-P70: a row that cannot fit (three tabs on a narrow glass: the code XMAS in October) wraps under, never under the X */
   .tc-tab:not(.on):active { transform:translateY(2px); box-shadow:none; }
   .tc-tabjk { width:1.6em; height:1.3em; flex:0 0 auto; overflow:visible; }
   .mb-win svg.wpap-sw { border-radius:8px; outline:3px solid #F4EBD3; }   /* the announce card's window: the swatch framed in cream */
@@ -81447,7 +81450,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.61';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.62';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -138087,11 +138090,11 @@ function chestSells(id){ return !decOwns(id) && (!decEarned(id) || decSold(id)) 
 function chestSaleN(){ return CHEST_GALLERY().filter(chestShows).filter(chestSells).length; }
 function chestHeadHTML(){ const rm=roomCur(), n=chestOutN(rm);   // 0905 (⚑ Q6): the head — the name, THIS floor's counter, and one line under it: what there is to buy + the piggy (a store shows its till); the digits are the holes ({0} FOR SALE ×7, {0} / {1} OUT ×7)
   return chtTabsHTML()+'<h3>THE TREASURE CHEST</h3><span class="tc-count" id="tcCount">'+n+' / '+CHEST_CAP+' OUT</span>'   /* CARD-CHT: in season the tabs row stands first (ALL · HALLOWEEN); '' out of season */
-    +'<div class="tc-line">'+(chtHw()? chtLineHTML() : '<span id="tcSale">'+chestSaleN()+' FOR SALE</span>')+'<b id="tcStars">'+META.starBank+'★</b></div>'; }   /* CARD-CHT: the HALLOWEEN view's line reads {0} / {1} FOUND where n FOR SALE sits; the stars stay */
+    +'<div class="tc-line">'+((chtHw() || chtXm())? chtLineHTML() : '<span id="tcSale">'+chestSaleN()+' FOR SALE</span>')+'<b id="tcStars">'+META.starBank+'★</b></div>'; }   /* CARD-CHT: the HALLOWEEN view's line reads {0} / {1} FOUND where n FOR SALE sits; the stars stay */
 function chestHeadSync(){ const h=document.getElementById('tcHead'); if(h) h.innerHTML=chestHeadHTML(); }   // 0905: the head re-dealt in place after a buy (the hooked setter localises; the grid stands)
 function chestHTML(){
   return '<div class="tc-head" id="tcHead">'+chestHeadHTML()+'</div>'
-    +'<div class="tc-grid">'+(chtHw()? chtGridHTML() : vtcCardsHTML()+CHEST_GALLERY().filter(chestShows).map(id=>shopDecHTML(id,'c')).join(''))+'</div>'   /* CARD-CHT: the HALLOWEEN view deals the set alone (chtGridHTML); ALL = the shipped grid byte for byte */   // CARD-TCS: the men in this floor's chest stand first (none = the shipped grid byte for byte)
+    +'<div class="tc-grid">'+((chtHw() || chtXm())? chtGridHTML() : vtcCardsHTML()+CHEST_GALLERY().filter(chestShows).map(id=>shopDecHTML(id,'c')).join(''))+'</div>'   /* CARD-CHT: the HALLOWEEN view deals the set alone (chtGridHTML); ALL = the shipped grid byte for byte */   // CARD-TCS: the men in this floor's chest stand first (none = the shipped grid byte for byte)
     +'<div class="tc-foot"><button type="button" class="mbtn alt" onclick="UI.chestClear()">PUT EVERYTHING AWAY</button>'
     +'<button type="button" class="mbtn" id="tcWpap" onclick="UI.wpapOpen()">WALLPAPERS</button></div>';   // 1035 THE BEDROOM'S WALLPAPERS (⚑ WP-A): the second door — the chest is where a kid decorates; the picker works the BEDROOM's wall wherever he stands (the rugs' 0905 idiom)
 }
@@ -138126,16 +138129,34 @@ let CHT_VIEW='all';   // 'all' | 'hw': the page the open panel shows; never save
 const CHT_HW_MORE=['gmyfig','gmypumpkin','witch','zombie'];
 function chtSet(){ return DECOR_HALLOW.concat(CHT_HW_MORE); }   // CARD-CHH: every Halloween treasure, in the order the tab deals them
 function chtHw(){ return CHT_VIEW==='hw' && halloweenOn(); }   // the HALLOWEEN view stands only in season
-function chtSil(id){ return chtHw() && chtSet().indexOf(id)>=0 && DECOR_ORDER.indexOf(id)<0 && !decOwns(id); }   /* CARD-CHH: the whole set; a SOLD piece (the witch, the zombie) not yet bought keeps its sale card */   // in the HALLOWEEN view a piece not yet got is the chest's own silhouette (shopDecHTML's mystery law reads it)
+function chtSil(id){ return ((chtHw() && chtSet().indexOf(id)>=0) || (chtXm() && chxSet().indexOf(id)>=0)) && DECOR_ORDER.indexOf(id)<0 && !decOwns(id); }   /* CARD-CHH: the whole set; a SOLD piece (the witch, the zombie) not yet bought keeps its sale card */   // in the HALLOWEEN view a piece not yet got is the chest's own silhouette (shopDecHTML's mystery law reads it)
 function chtN(){ return chtSet().filter(decOwns).length; }   // the pieces the kid has found (CARD-CHH: of the whole set)
-function chtLand(){ const c=chestNew().filter(chestShows)[0]; CHT_VIEW=(halloweenOn() && c && chtSet().indexOf(c)>=0)? 'hw' : 'all'; }   /* CARD-CHH: any Halloween treasure waiting NEW! */   // where the panel opens: ALL, or HALLOWEEN for a Halloween piece waiting NEW!
-function chtTabsHTML(){ if(!halloweenOn()) return '';
+function chtLand(){ const c=chestNew().filter(chestShows)[0]; CHT_VIEW=(halloweenOn() && c && chtSet().indexOf(c)>=0)? 'hw' : (chxOn() && c && chxSet().indexOf(c)>=0)? 'xm' : 'all'; }   /* CARD-CHH: any Halloween treasure waiting NEW! */   // where the panel opens: ALL, or HALLOWEEN for a Halloween piece waiting NEW!
+function chtTabsHTML(){ if(!halloweenOn() && !chxOn()) return '';   /* CARD-P70: the row stands in either season */
   const hw=chtHw();
-  return '<div class="tc-tabs" id="tcTabs"><button type="button" class="tc-tab'+(hw? '' : ' on')+'" id="tcTabAll" onclick="chtTab(\'all\')">ALL</button>'
-    +'<button type="button" class="tc-tab hw'+(hw? ' on' : '')+'" id="tcTabHw" onclick="chtTab(\'hw\')"><svg class="tc-tabjk" viewBox="-10 -13 20 16" aria-hidden="true" data-notr>'+pumpkinLampSVG(1)+'</svg><span>HALLOWEEN</span></button></div>'; }
-function chtLineHTML(){ return '<span id="tcSale">'+chtN()+' / '+chtSet().length+' FOUND</span>'; }   /* CARD-CHH: of the whole set */   // the digits are the holes ({0} / {1} FOUND ×7)
-function chtGridHTML(){ return chtSet().map(id=>shopDecHTML(id,'c')).join(''); }   /* CARD-CHH: the whole set */   // the set alone, in its grant order; owned as ever, not yet got as silhouettes (chtSil)
-function chtTab(v){ if(!chestStands() || !halloweenOn()) return; v=(v==='hw')? 'hw' : 'all'; if(v===CHT_VIEW) return; CHT_VIEW=v; SFX.blip(); roomModal(chestHTML(), 'medalhall tccard'); }   // the tab's tap: the panel re-dealt from its top (a fresh .rmback)
+  return '<div class="tc-tabs" id="tcTabs"><button type="button" class="tc-tab'+((hw || chtXm())? '' : ' on')+'" id="tcTabAll" onclick="chtTab(\'all\')">ALL</button>'
+    +(halloweenOn()? '<button type="button" class="tc-tab hw'+(hw? ' on' : '')+'" id="tcTabHw" onclick="chtTab(\'hw\')"><svg class="tc-tabjk" viewBox="-10 -13 20 16" aria-hidden="true" data-notr>'+pumpkinLampSVG(1)+'</svg><span>HALLOWEEN</span></button>' : '')+chxTabHTML()+'</div>'; }
+function chtLineHTML(){ const L=chtSetIn(); return '<span id="tcSale">'+L.filter(decOwns).length+' / '+L.length+' FOUND</span>'; }   /* CARD-P70: the view's set */   /* CARD-CHH: of the whole set */   // the digits are the holes ({0} / {1} FOUND ×7)
+function chtGridHTML(){ return chtSetIn().map(id=>shopDecHTML(id,'c')).join(''); }   /* CARD-P70: the view's set */   /* CARD-CHH: the whole set */   // the set alone, in its grant order; owned as ever, not yet got as silhouettes (chtSil)
+function chtTab(v){ if(!chestStands() || (!halloweenOn() && !chxOn())) return; v=(v==='hw' && halloweenOn())? 'hw' : (v==='xm' && chxOn())? 'xm' : 'all'; if(v===CHT_VIEW) return; CHT_VIEW=v; SFX.blip(); roomModal(chestHTML(), 'medalhall tccard'); }   /* CARD-P70: + 'xm' in its season */
+// ═══ CARD-P70 THE CHEST'S CHRISTMAS TAB, BEHIND A DATE (PND-70 = CHH-Q2; Wyatt 10/10/2026 21:02 EDT by Discord: "Go with recommendations for all here" = REC "yes, a later card";
+// design/chest-christmas-p70-1011/00-CARD-P70.md): the HALLOWEEN tab's twin for the second season. While the Christmas season is live (chxOn = xmasLive: XMAS_WIN [12/01, 01/07) on
+// the device's date, the pin ?xmas=1|0, or the code XMAS: the one clock the Christmas box and the Christmas wallpapers already read) the chest's tab row carries CHRISTMAS after
+// HALLOWEEN (the two seasons never meet on the calendar; with the code in October the row is ALL · HALLOWEEN · CHRISTMAS). The CHRISTMAS view ('xm') deals THE SET = every Christmas
+// treasure (DECOR_XMAS: the doors' order, THE WALNUT last) + CHT_XM_MORE (a Christmas chest piece that lives in another list joins here); owned = the chest's own card, not yet got = the
+// chest's black silhouette (chtSil), the line {0} / {1} FOUND; a Christmas treasure waiting NEW! opens the chest on it (chtLand). The Christmas wallpapers keep their own CHRISTMAS tab
+// in THE WALLPAPERS (the chest's foot door). Out of season every line above yields the base's bytes. ZERO save field, zero server, zero wire; the words: CHRISTMAS stood x7. The rig door: GVT.chx(v). ═══
+const CHT_XM_MORE=[];   // the strays: a Christmas chest piece outside XM_SET (none today: the snowfields' snowmen are winter's, Santa's hat is a coat on the rack)
+function chxSet(){ return DECOR_XMAS.concat(CHT_XM_MORE); }   // every Christmas treasure, in the order the tab deals them
+function chxOn(){ return xmasLive(); }   // the CHRISTMAS tab's season: the Christmas box's own clock
+function chtXm(){ return CHT_VIEW==='xm' && chxOn(); }   // the CHRISTMAS view stands only in season
+function chtSetIn(){ return chtXm()? chxSet() : chtSet(); }   // the standing view's set (the HALLOWEEN view's = chtSet, as before)
+function chxTreeSVG(){ return '<circle cx="0" cy="-5" r="11" fill="#FFD27A" opacity="0.22"/>'
+    +'<path d="M0 -10.4 L5 -4.4 H2.6 L7.4 0.8 H-7.4 L-2.6 -4.4 H-5 Z" fill="#3E9B4A" stroke="#1F5E2A" stroke-width="1" stroke-linejoin="round"/>'
+    +'<rect x="-1.3" y="0.8" width="2.6" height="2.2" fill="#7A4B22"/>'
+    +'<circle cx="-2.7" cy="-1.3" r="1" fill="#E8402F"/><circle cx="2.6" cy="-1.9" r="0.9" fill="#FFD24A"/><circle cx="0.5" cy="-6.1" r="0.85" fill="#E8402F"/><circle cx="4.3" cy="-0.2" r="0.75" fill="#9ED0FF"/>'
+    +'<path d="M0 -13.6 L0.95 -11.6 L3 -11.4 L1.45 -10.05 L1.9 -8 L0 -9.05 L-1.9 -8 L-1.45 -10.05 L-3 -11.4 L-0.95 -11.6 Z" fill="#FFD24A" stroke="#C9A227" stroke-width="0.4"/>'; }   // the tab's little tree (the HALLOWEEN tab's lamp's frame)
+function chxTabHTML(){ return chxOn()? '<button type="button" class="tc-tab xm'+(chtXm()? ' on' : '')+'" id="tcTabXm" onclick="chtTab(\'xm\')"><svg class="tc-tabjk" viewBox="-10 -13 20 16" aria-hidden="true" data-notr>'+chxTreeSVG()+'</svg><span>CHRISTMAS</span></button>' : ''; }   // the tab's tap: the panel re-dealt from its top (a fresh .rmback)
 function chestDeny(dn9){   // a ninth OUT on a full floor (0836: eight per floor; a fifth till then): the clack, the card's stamp shakes (the deny class, the shop's own), the counter reads THE FLOOR IS FULL for a beat — nothing moves, nothing saves
   SFX.clack();
   const el=document.getElementById(dn9); if(el){ el.classList.remove('deny'); void el.offsetWidth; el.classList.add('deny'); setTimeout(()=>{ try{ el.classList.remove('deny'); }catch(e){} }, 500); }
@@ -173156,6 +173177,9 @@ window.GVT = {
   cht(v){ v=v||{}; if(v.view!==undefined) CHT_VIEW=v.view; if(v.tab) chtTab(v.tab); const m=document.getElementById('roomModal'), q=s=>m? m.querySelector(s) : null, R=el=>{ if(!el) return null; const r=el.getBoundingClientRect(); return [Math.round(r.left*10)/10,Math.round(r.top*10)/10,Math.round(r.width*10)/10,Math.round(r.height*10)/10]; };   // CARD-CHT THE HALLOWEEN TAB's rig door: v.tab = a tab's tap (the real road, chtTab), v.view = the raw pin; then the read
     return { cv:GVT_CV, on:halloweenOn(), view:CHT_VIEW, hw:chtHw(), set:chtSet(), own:chtSet().filter(decOwns), n:chtN(), stands:chestStands(), tabs:!!q('#tcTabs'), tabOn:(q('.tc-tab.on')||{}).id||null, tabAll:R(q('#tcTabAll')), tabHw:R(q('#tcTabHw')), tabAllTx:(q('#tcTabAll')||{}).textContent||null, tabHwTx:(q('#tcTabHw')||{}).textContent||null, x:R(q('.rmx')), head:R(q('#tcHead')), h3:R(q('#tcHead h3')), line:(q('#tcSale')||{}).textContent||null, stars:(q('#tcStars')||{}).textContent||null, count:(q('#tcCount')||{}).textContent||null, scroll:(q('.rmback')||{}).scrollTop, grid:(q('.tc-grid')||{}).innerHTML||null,
       cards:[...(m? m.querySelectorAll('.tccard .sh-dec') : [])].map(b=>({ id:b.id.slice(6), own:b.classList.contains('own'), off:b.classList.contains('off'), sil:b.classList.contains('sil'), mys:b.classList.contains('mys'), nw:!!b.querySelector('.sh-new'), fresh:b.classList.contains('fresh'), price:(b.querySelector('.sh-dprice')||{}).textContent||null, name:(b.querySelector('.sh-dn')||{}).textContent||null, stamp:(b.querySelector('.sh-dstamp')||{}).textContent||null })) }; },
+  chx(v){ v=v||{}; if(v.tab) chtTab(v.tab); const m=document.getElementById('roomModal'), q=s=>m? m.querySelector(s) : null, R=el=>{ if(!el) return null; const r=el.getBoundingClientRect(); return [Math.round(r.left*10)/10,Math.round(r.top*10)/10,Math.round(r.width*10)/10,Math.round(r.height*10)/10]; };   // CARD-P70 THE CHEST'S CHRISTMAS TAB's rig door: v.tab = a tab's tap (chtTab); then the read
+    return { cv:GVT_CV, today:todayStr(), on:chxOn(), hwOn:halloweenOn(), view:CHT_VIEW, xm:chtXm(), set:chxSet(), own:chxSet().filter(decOwns), stands:chestStands(), tabs:!!q('#tcTabs'), tabIds:[...(m? m.querySelectorAll('.tc-tab') : [])].map(b=>b.id), tabOn:(q('.tc-tab.on')||{}).id||null, tabXm:R(q('#tcTabXm')), tabXmTx:(q('#tcTabXm')||{}).textContent||null, tabsBox:R(q('#tcTabs')), head:R(q('#tcHead')), line:(q('#tcSale')||{}).textContent||null,
+      cards:[...(m? m.querySelectorAll('.tccard .sh-dec') : [])].map(b=>({ id:b.id.slice(6), own:b.classList.contains('own'), sil:b.classList.contains('sil'), mys:b.classList.contains('mys'), nw:!!b.querySelector('.sh-new'), name:(b.querySelector('.sh-dn')||{}).textContent||null })) }; },
   wbn(v){ v=v||{}; if(v.take){ for(const k of (v.take===true? ['bunbun','erniedog'] : [v.take])){ if(!decOwns(k)) META.decor.own.push(k); if(META.decorSeen.indexOf(k)<0) META.decorSeen.push(k); } saveMeta(); }   // AIR WILLOW'S TOYS: the rig's door (v.take = own outright) + the read
     return { cv:GVT_CV, own:{ bunbun:decOwns('bunbun'), erniedog:decOwns('erniedog') }, nw:['bunbun','erniedog'].filter(k=>chestNew().indexOf(k)>=0), home:{ bunbun:decorHome('bunbun'), erniedog:decorHome('erniedog') }, atc:{ bun:!!document.getElementById('wbAtcBun'), ern:!!document.getElementById('wbAtcErnie') }, rows:ROOM_SPOTS.filter(r=>/^wb/.test(r.id) && r.due()).map(r=>r.id), order:['bunbun','erniedog'].map(k=>DECOR_EARN_ORDER.indexOf(k)), allN:DECOR_ALL_N, drag:['bunbun','erniedog'].map(k=>RDRAG_DECOR.indexOf(k)), seat:{ bunbun:Object.assign({},DECOR_SPOTS.bunbun), erniedog:Object.assign({},DECOR_SPOTS.erniedog) } }; },
   fztk(){ return { pair:fztPairLine(), knockBd:evKnockName('bd'), knockEv:evKnockName('ev'), kind:bdKind(), bdBell:BD.bell, evBell:EV.bell, evKing:evKing(), bdDay:evTZDay(BD.bell||0), evDay:evTZDay(EV.bell||0) }; },   // CARD-FZT-K: the rig's read
