@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.90","md5":"1853b4625824f057cf5cff968c808e4e","sha":"b93c7d38a","at":"2026-10-11T17:04:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.91","md5":"b0f153799de71a7926c16d6451737e79","sha":"ff70fd5af","at":"2026-10-11T17:13:14Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -2051,6 +2051,11 @@
   .fh-stage.eq-stage > .fh-wcap.eq-cap:has(.fh-philbtn) b { font-size:13px; letter-spacing:.04em; }
   .fh-stage.eq-stage > .fh-wcap.eq-cap .acinfo { flex:0 0 auto; width:38px; height:38px; margin:-7px -8px; transform:scale(.86); }   /* the ⓘ as it looks today, a finger's seat around it */
   .fh-stage.eq-stage > .fh-wcap.eq-cap .mbtn.fh-philbtn { position:relative; display:block; flex:0 0 auto; width:auto; min-width:0; min-height:0; margin:0; padding:3px 9px 4px; font-size:11.5px; line-height:1.15; letter-spacing:.05em; white-space:nowrap; border-radius:8px; box-shadow:0 2px 0 rgba(0,0,0,.4); }
+  .fh-stage.eq-stage > .dsf-sp { position:absolute; left:50%; bottom:var(--eq-fb); height:var(--eq-fh); aspect-ratio:120 / 140; transform:translateX(-50%); pointer-events:none; z-index:2; }   /* CARD-DSF THE DISCO JUMPSUIT'S SPARKLES round the figure */
+  .dsf-sp > i { position:absolute; width:calc(var(--eq-fh) * .075 * var(--dsf-s,1)); aspect-ratio:1; translate:-50% -50%; filter:drop-shadow(0 0 3px var(--dsf-c,#FFE24F)) drop-shadow(0 0 1px #fff); opacity:0; animation:dsfTw 1.9s ease-in-out var(--dsf-d,0s) infinite; }
+  .dsf-sp > i::before { content:''; position:absolute; inset:0; background:#fff; clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%); }
+  @keyframes dsfTw { 0%,100% { opacity:0; transform:scale(.2) rotate(0deg); } 40% { opacity:1; transform:scale(1) rotate(40deg); } 70% { opacity:.5; transform:scale(.55) rotate(70deg); } }
+  @media (prefers-reduced-motion: reduce) { .dsf-sp > i { animation:none; opacity:.85; } }
   .fh-stage.eq-stage > .fh-wcap.eq-cap .mbtn.fh-philbtn::after { content:''; position:absolute; left:-6px; right:-6px; top:-9px; bottom:-9px; }   /* a small button, a finger's seat */
   /* ═══ css:gst CARD-GST SARGE'S GEAR SETS A · B · C (Wyatt 10/9/2026: "go with recs"): three plates under the head on the stage; the plate looks = EMPTY (dashed, SAVE) · SAVED (the rails' cream) · ON (IN HAND's green) · CHANGED (dashed green + the gold SAVE tab) */
   .fh-stage.eq-stage > .gst-row { position:absolute; left:50%; top:44px; transform:translateX(-50%); z-index:3; display:flex; gap:9px; }
@@ -74901,6 +74906,61 @@ function djsLens(id){ const p=lensPct;
 // the rig's door
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.djs={ D:DJS, st:DJS_D, song:DJS_SONG, main:djsMain, shade:djsShadeHex, art:DJS_ART, pass:djsPass, refl:djsRefl }; }catch(e){} },0);   // GVT stands later in the page
 // ═══ CARD-DJS ends ═══
+// ═══ CARD-DSF THE DISCO JUMPSUIT'S SPARKLES + THE DISCO FINGER (board J112, lane gvt-p4; Wyatt by phone 10/11/2026 16:33 UTC, jumpr remote) ═══
+// His words, verbatim: "The disco jumpsuit needs sparkles always glistening around him and while waiting for the battle to start, does the disco finger classic disco move"
+// THE SPARKLES: a Sarge wearing THE DISCO JUMPSUIT (CARD-DJS) glistens the whole battle: four-point stars pop, grow and fade round him, each on its own clock and seat (a hash of the man and the cycle:
+// no dice, the sim's Math.random untouched), on both carpets (dsfSpark, at the end of his kit), and round his figure on SARGE'S EQUIPMENT (dsfStageHTML: css stars over the picture).
+// THE DISCO FINGER: before the fight starts (the campaign before wave 1's horn; a battleground until the first enemy figure stands on the rug), a suited Sarge standing still points up and out to the sky,
+// then down across his body to the floor, one beat each (DSF.beat s), his other hand on his hip, his hips swaying with it. His gun is away while he dances (drawSargeWeapon) and the hand pieces rest
+// (dsfHands: the gloves, the musketeer's pads). The two frames are HIS OWN picture (any army colour, the snow rim, the ink) with the two arm strokes and their ink line swapped (dsfArms, built once a picture).
+// PICTURE ONLY: no sim field, no wire word, no save key. A picture whose arms are not the stock pair (the kung fu molds, the dog glasses, the toad) keeps its own pose.
+const DSF={ beat:0.5, sway:0.05, n:7, rx:22, ry:31, hide:['pilotgloves','acegloves','duelglove','muskpads'] };
+const DSF_FR=[ { pt:'M59 74 L77 47', fg:'M77 47 L80.1 42.5' },     // UP: the near arm points up and out to the sky, the index finger past the fist
+               { pt:'M58 75 L40 101', fg:'M40 101 L36.9 105.5' } ];   // DOWN: across his body to the floor on the other side
+const DSF_HIP='M57 73 L45 81 L52 90';   // the far arm: the elbow out behind him, the hand on his hip (under the torso)
+const DSF_IMG=new Map();   // a base picture -> [up, down] (an entry is null while it decodes; the map holds null when the arms are not the stock pair)
+function dsfWears(u){ if(!u || u.type!=='sarge' || u.dead) return false;   // drawSargeOutfit's own gates: his rack, a computer's dress, my own rack
+  const a=sargeWearU(u) || bfDressU(u); if(a) return a.indexOf('discosuit')>=0;
+  if(u.coopSW || u.coopMods) return false; if(S.bf && !bfHumanU(u)) return false; return outfitOn('discosuit'); }
+function dsfPre(u){ if(S.mode!=='play') return false;   // the fight has not started
+  if(S.bf){ if(S.bf.resolved || S.bf.ending) return false; for(const o of S.units) if(!o.dead && o.side!==u.side && o.side!=='nem' && !(o.dropT>0) && !o.hlbAir) return false; return true; }
+  if((S.wave|0)!==0 || S.waveActive) return false; return !(S.foes && S.foes.some(f=>f && !f.dead)); }
+function dsfDance(u){ return !!(dsfWears(u) && !(u.toadT>0) && !(u.cloakT>0) && !(u.duckT>0) && !u.falling && !(u.jetT>0) && !u.marching && !(u.wkT && S.t-u.wkT<0.3)
+  && !(S.drag && S.drag.unit===u) && !aimLive(u) && unitSkin('sarge',u)==='sarge' && dsfPre(u)); }
+function dsfFr(){ return reducedMotion()? 0 : (Math.floor(S.t/DSF.beat)&1); }
+function dsfIn(u){ if(!dsfDance(u) || reducedMotion()) return false; const a=Math.sin(S.t*Math.PI/DSF.beat)*DSF.sway*(unitFl(u)? -1 : 1);   // the hips: one sway a point, about his feet
+  cx.save(); cx.translate(u.x,u.y); cx.rotate(a); cx.translate(-u.x,-u.y); return true; }
+function dsfArms(s,fr){ const F=DSF_FR[fr], A1='<path d="M60 72 L76 48" stroke-width="8"/>', A2='<path d="M58 76 L81 72" stroke-width="8"/>', T='<path d="M56 96 L58 68" stroke-width="16"/>',
+    INK='<path d="M60 72 L76 48 M58 76 L81 72" stroke-width="10.6"/>', BAND='(<path d="[^"]*" fill="#(?:000|fff)" fill-opacity="[^"]*" stroke="none"/>)?', esc=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  if(s.split(A1).length!==2 || s.split(A2).length!==2 || s.split(T).length!==2 || s.split(INK).length>2) return null;
+  s=s.replace(INK, '<path d="'+DSF_HIP+' '+F.pt+'" stroke-width="10.6"/><path d="'+F.fg+'" stroke-width="5.4"/>');   // the ink line under both arms and the finger (absent when the ink is off)
+  s=s.replace(new RegExp(esc(A1)+BAND), '');   // the raised (far) arm and its shade band
+  s=s.replace(new RegExp(esc(A2)+BAND), '<path d="'+F.pt+'" stroke-width="8"/><path d="'+F.fg+'" stroke-width="2.8"/>');   // the pointing arm and its finger where the near arm was
+  return s.replace(T, '<path d="'+DSF_HIP+'" stroke-width="8"/><path d="'+DSF_HIP+'" stroke="#000" stroke-opacity=".22" stroke-width="8"/>'+T); }   // the hip arm under the torso, in the far side's shade
+function dsfPics(im){ if(DSF_IMG.has(im)) return DSF_IMG.get(im); let P=null;
+  try{ const src=im.src||'', i=src.indexOf('utf8,'); if(src.indexOf('data:image/svg+xml')===0 && i>0){ const s0=decodeURIComponent(src.slice(i+5)), a=dsfArms(s0,0), b=dsfArms(s0,1);
+    if(a && b){ P=[null,null]; [a,b].forEach((x,k)=>{ const m=new Image(); m.onload=()=>{ P[k]=m; }; m.src=src.slice(0,i+5)+encodeURIComponent(x); }); } } }catch(e){ P=null; }
+  DSF_IMG.set(im,P); return P; }
+function dsfPose(u,im){ if(!im || !dsfDance(u)) return im; const P=dsfPics(im); return (P && P[dsfFr()]) || im; }
+function dsfHands(u,on){ return dsfDance(u)? (id=>DSF.hide.indexOf(id)<0 && on(id)) : on; }
+function dsfR(h,i,c){ let x=(h ^ Math.imul(i+1,0x9E3779B1) ^ Math.imul(c+7,0x85EBCA77))>>>0; x^=x>>>15; x=Math.imul(x,0x2C1B3C6D)>>>0; x^=x>>>12; x=Math.imul(x,0x297A2D39)>>>0; x^=x>>>15; return (x>>>0)/4294967296; }
+function dsfH(u){ const id=u.id; if(typeof id==='number') return Math.imul(id|0,0x9E3779B1)>>>0; let h=2166136261; const t=String(id==null? u.seat|0 : id); for(let i=0;i<t.length;i++) h=Math.imul(h^t.charCodeAt(i),16777619); return h>>>0; }
+function dsfSpark(u){ if(!dsfWears(u) || u.toadT>0) return; const rm=reducedMotion(), T=rm? 0 : S.t, h=dsfH(u), x0=u.x, y0=u.y-30, a0=cx.globalAlpha;
+  cx.save();
+  for(let i=0;i<DSF.n;i++){ const per=1.2+dsfR(h,i,-1)*0.9, ph=T/per+dsfR(h,i,-2), cy=Math.floor(ph), f=ph-cy;   // each star its own clock; each cycle a new seat
+    const k= rm? 0.75 : Math.sin(Math.min(1,f*1.35)*Math.PI); if(k<0.06) continue;
+    const an=dsfR(h,i,cy)*6.2832, rr=0.62+0.38*dsfR(h,i+11,cy), sx=x0+Math.cos(an)*DSF.rx*rr, sy=y0+Math.sin(an)*DSF.ry*rr, z=(2.3+2.4*dsfR(h,i+23,cy))*k, col=DJS_COL[(i+cy)%6];
+    cx.globalAlpha=a0*0.35*k; cx.fillStyle=col; cx.beginPath(); cx.arc(sx,sy,z*1.05,0,7); cx.fill();   // the coloured glow under it
+    cx.globalAlpha=a0*Math.min(1,k*1.3); cx.fillStyle='#FFFFFF'; cx.save(); cx.translate(sx,sy); cx.rotate(rm? 0 : f*0.9);
+    cx.beginPath(); cx.moveTo(0,-z*1.6); cx.quadraticCurveTo(0,0,z*1.6,0); cx.quadraticCurveTo(0,0,0,z*1.6); cx.quadraticCurveTo(0,0,-z*1.6,0); cx.quadraticCurveTo(0,0,0,-z*1.6); cx.fill();   // the four-point star
+    cx.restore(); }
+  cx.restore(); }
+// SARGE'S EQUIPMENT: the same glitter round his figure (css: .dsf-sp over img.eq-fig; each star its own delay, a colour of the disco's six)
+const DSF_STAGE=[[16,28,1,0],[82,20,.8,.5],[88,52,1.1,.95],[10,60,.9,1.35],[68,6,.7,1.75],[30,9,.85,.25],[64,80,.75,1.15],[20,86,.9,.65],[90,84,.7,1.55]];
+function dsfStageHTML(wear){ const on=Array.isArray(wear)? wear.indexOf('discosuit')>=0 : outfitOn('discosuit'); if(!on) return '';
+  return '<div class="dsf-sp" aria-hidden="true">'+DSF_STAGE.map((p,i)=>'<i style="left:'+p[0]+'%;top:'+p[1]+'%;--dsf-s:'+p[2]+';--dsf-d:'+p[3]+'s;--dsf-c:'+DJS_COL[i%6]+'"></i>').join('')+'</div>'; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.dsf={ D:DSF, fr:DSF_FR, img:DSF_IMG, wears:dsfWears, pre:dsfPre, dance:dsfDance, pics:dsfPics, arms:dsfArms }; }catch(e){} },0);   // GVT stands later in the page
+// ═══ CARD-DSF ends ═══
 function sargeWepURI(wk, bodyHex, bladeHex, vb, wear){   // 0577: + the optional wear pass-through (the fitting room's try — every shipped caller passes nothing, byte-identical URIs)
   // SARGE'S OUTFITS (v2.16): every owned-by-YOU portrait dresses through this
   // one door — the room, the academy, the picker, the case, the reveal cards,
@@ -82143,7 +82203,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -121043,7 +121103,7 @@ function drawSargeOutfit(u){
     if(S.bf && !bfHumanU(u)) return;               // every other seat: stock
     if(!(META.outfit && META.outfit.wear && META.outfit.wear.length)) return;
   }
-  const on = djsCvOn(alyOf? (id=>alyOf.indexOf(id)>=0) : outfitOn, u, alyOf);   // one predicate, two wardrobes   /* CARD-DJS THE SHADES: the predicate stamps the piece painting (only while a shaded piece is worn) */
+  const on = dsfHands(u, djsCvOn(alyOf? (id=>alyOf.indexOf(id)>=0) : outfitOn, u, alyOf));   /* CARD-DSF: while he dances the gloves and the pads rest (his hands are not where they sit) */   // one predicate, two wardrobes   /* CARD-DJS THE SHADES: the predicate stamps the piece painting (only while a shaded piece is worn) */
   const fl=unitFl(u);                 // my seat can hold the right-hand team (v1.24) — mirror like the weapon does; v3.61: the walk-flip rides the same seat
   if(fl){ cx.save(); cx.translate(u.x*2,0); cx.scale(-1,1); }
   const X=u.x, Y=u.y, hx=X-1.4, hy=Y-35.5; gmyWrapCanvas(u,on);   /* CARD-HL4: the mummy wraps on the carpet man, first of his pieces */         // the head's seat on the in-game figure
@@ -122670,7 +122730,8 @@ function drawUnit(u){
   const sl=scSlipIn(u);   // 0724 THE SLIP: the side-step (a draw offset — sprite + outfit + weapon ride it, closed beside the lean's wrapper)
   const cl=cmdLeanIn(u);   // 0508 THE CRESCENT CUT: the body lean + the hip step — ONE transform around sprite + outfit + weapon (drawSargeOutfit paints at u.x/u.y in world coords; a rot on the sprite alone leaves the helmet off the head); closed on the sarge line below, before the pips. Every other figure: false, zero bytes
   const ul=uaLeanIn(u);   // 0487b THE LIFT + THE LEAN: the kung fu wrapper (the flight's rise + tip-back, the punch's hip step) — closed first on the sarge line below
-  const sg=sgaIn(u);   // CARD-SGA EVERY MAN ATTACKS THE BOX WITH HIS BODY: the siege pose (a shot's recoil, the lunge, the cut's lean) as ONE transform around figure + outfit + weapon; false off the box, zero bytes
+  const sg=sgaIn(u);
+  const dsf=dsfIn(u);   // CARD-DSF THE DISCO FINGER: the hips' sway about his feet (figure + outfit), only while a suited Sarge dances before the fight; closed on the sarge line below   // CARD-SGA EVERY MAN ATTACKS THE BOX WITH HIS BODY: the siege pose (a shot's recoil, the lunge, the cut's lean) as ONE transform around figure + outfit + weapon; false off the box, zero bytes
   if(u.type==='jane') drawJane(u,kyl);   // 0434 THE SHAPE-STORE JANE → 0537 THE PART RIG: her own draw (six parts on a joint rig + the entrance rig above; every other figure keeps the shared line below byte-what-it-was)
   else if(u.type==='kingyeti') drawKing(u,u.x,u.y-kyl,w,unitWob(u),false,unitFl(u));   // 0494 THE WOBBLE: unitWob, the integrated phase (one helper, four seats) — 0435 THE SHAPE-STORE KING, playable seat — the same pose reader as the boss (his wave arcs + seize lift keep their shipped seats around this fork)
   else if(isCroakU(u) && (crFire(u)||crFlinch(u))) drawSprite(u.type,u.x,u.y-kyl,w,cmdoRecoil(u)+croakRc(u),(u.kySwing>0? -0.14 : unitWob(u)),crFire(u)||crFlinch(u),unitFl(u));   // 8/25 THE FIRING FACE: the storm stance outranks the flinch + the volley rock (croakRc) in the rot slot — 0494 THE WOBBLE: unitWob, the integrated phase — 0454: the playable outlaw king — ONLY the flinch forks (the hurt mold on the shared transform); every other frame falls to the generic line below, the old waddle byte-what-it-was
@@ -122682,10 +122743,10 @@ function drawUnit(u){
   else if(u.type==='aagun') aaDraw(u,w,im);   // CARD-SF3-B THE AA GUN: its own picture (no sway, the muzzles' flash, its bar)
   else if(u.type==='kingbear' && KBH_ON) drawKbHero(u,w,im,kyl);   // 0877 HEROES ON THE BATTLEGROUND: his picture on the mat too   // 0876 THE EMPEROR BEAR cell D: his own picture — the wind's steel ring + the sabre back over the shoulder, the flight's lean + speed lines, the cut's nod (drawKbHero; every other figure keeps the shared line below byte-what-it-was)
   else { if(u.rxHopT>0 && !(u.type==='kingrex' && kraRig(im))){ cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(u.x,u.y+3,w*0.16,w*0.045,0,0,7); cx.fill(); }   // 0706 KING REX HOPS: the ground shadow under the flight (the jump-in's own) — the body lifts on u.rxHopZ, the feet stay the truth
-    if(!(u.type==='kingrex' && kraPaint(u,u.x,u.y-kyl,w,unitDrawFl(u),(u.rxHopZ||0),(u.rxHopT>0? -0.2 : u.rxHopW>0? 0.12 : unitWob(u)),im,kraKindU(u),1))) drawSprite(u.type,u.x,u.y-kyl-(u.rxHopZ||0),w,cmdoRecoil(u),(u.rxHopT>0? -0.2 : u.rxHopW>0? 0.12 : u.kySwing>0? -0.14 : unitWob(u)),krgPose(u,im),unitDrawFl(u));   /* CARD-KRG2: your King Rex's pose (the fire's open mouth, the jump, the walk); every other figure reads one compare */ }   /* CARD-KRA-B: YOUR King Rex goes through THE SHOWMAN's painter first (kingrex alone; every other figure reads one false compare) */   // 0706: + the lift, the flight's head-down lean, the tell's crouch (zero for everyone else)   // 0494 THE WOBBLE: unitWob, the integrated phase (one helper, four seats) — v2.78: the recoil, campaign edition — v3.61: + the walk-flip seat — 0424: the king's swing lean (the boss's own -0.14) — 0462b: the facing XOR the mold's authored face (UNIT_WEST) + the breather's turn
+    if(!(u.type==='kingrex' && kraPaint(u,u.x,u.y-kyl,w,unitDrawFl(u),(u.rxHopZ||0),(u.rxHopT>0? -0.2 : u.rxHopW>0? 0.12 : unitWob(u)),im,kraKindU(u),1))) drawSprite(u.type,u.x,u.y-kyl-(u.rxHopZ||0),w,cmdoRecoil(u),(u.rxHopT>0? -0.2 : u.rxHopW>0? 0.12 : u.kySwing>0? -0.14 : unitWob(u)),dsfPose(u,krgPose(u,im)),unitDrawFl(u));   /* CARD-DSF: the disco finger's two frames */   /* CARD-KRG2: your King Rex's pose (the fire's open mouth, the jump, the walk); every other figure reads one compare */ }   /* CARD-KRA-B: YOUR King Rex goes through THE SHOWMAN's painter first (kingrex alone; every other figure reads one false compare) */   // 0706: + the lift, the flight's head-down lean, the tell's crouch (zero for everyone else)   // 0494 THE WOBBLE: unitWob, the integrated phase (one helper, four seats) — v2.78: the recoil, campaign edition — v3.61: + the walk-flip seat — 0424: the king's swing lean (the boss's own -0.14) — 0462b: the facing XOR the mold's authored face (UNIT_WEST) + the breather's turn
   if(u.type==='radioman') drawRadioCall(u);
   if(S.capGone===1 && !u.kbMount && capActU(u) && !(u.type==='kingrex' && kraHelm(u))) capHelmDraw(u.type, u.x, u.y-kyl-(u.rxHopZ||0), w, unitDrawFl(u), 0);   /* CARD-KRA-B: on King Rex the helmet rides his head's own frame (kraHelm) */   // OC-3 CAPTURE: THE ACTING SARGE wears the fallen helmet — CAP_HELM's one geometry through drawSprite's own arithmetic (every hero's draw fork above has painted him)
-  if(u.type==='sarge'){ drawSargeOutfit(u); drawSargeWeapon(u); if(sg) cx.restore(); /* CARD-SGA: the siege pose closes first */ if(ul) cx.restore(); if(cl) cx.restore(); if(sl) cx.restore(); if(hv9) cx.restore(); drawAbsorbPips(u); drawCmdBlkPips(u); }   // 0487b: the kung fu wrapper closes first   // 0724: THE SLIP's wrapper closes with the lean's, before the pips   // v3.11: a vanished Sarge's kit ghosts WITH him — the alpha holds through the extras · 0508: the lean wrapper closes before the pips (they ride the helmet, never the lean)
+  if(u.type==='sarge'){ drawSargeOutfit(u); drawSargeWeapon(u); dsfSpark(u); if(dsf) cx.restore(); /* CARD-DSF: the sparkles, the sway closes */ if(sg) cx.restore(); /* CARD-SGA: the siege pose closes first */ if(ul) cx.restore(); if(cl) cx.restore(); if(sl) cx.restore(); if(hv9) cx.restore(); drawAbsorbPips(u); drawCmdBlkPips(u); }   // 0487b: the kung fu wrapper closes first   // 0724: THE SLIP's wrapper closes with the lean's, before the pips   // v3.11: a vanished Sarge's kit ghosts WITH him — the alpha holds through the extras · 0508: the lean wrapper closes before the pips (they ride the helmet, never the lean)
   if(sg && u.type!=='sarge') cx.restore();   // CARD-SGA: the siege pose closes for every other figure (his radio ring and the acting Sarge's helmet rode it)
   drawFz(u,u.x,u.y,w,im,kyl+(u.rxHopZ||0));   // 0735 THE RIME (the campaign carpet: my own men in my arc, a thrown-back beam's victims)
   if(u.type==='commando') drawCmdoPip(u);
@@ -122797,13 +122858,14 @@ function drawBFUnit(u,w,im){
   const hv9=hvbLiftIn(u);   // CARD-GGB HOVER BOOTS: the lift on the battleground too (closed beside the slip's)
   const sl=scSlipIn(u);   // 0724 THE SLIP: the side-step (a draw offset only — closed beside the lean's wrapper)
   const cl=cmdLeanIn(u);   // 0508: the crescent cut's lean wrapper — sprite + outfit + weapon, closed before the bar and the pips
+  const dsf=dsfIn(u);   // CARD-DSF THE DISCO FINGER: the hips' sway (closed first on the sarge line below; never while cloaked, so the cloak's early return never holds it)
   const ul=uaLeanIn(u);   // 0487b THE LIFT + THE LEAN on the battleground (mirrored on the foe side by the flip) — closed first
-  if(!hppRide(u,w)){ const hb9=hauBfPose(u,krgPose(u,pchImg(u,im)),flip); kbSwingSprite(u,u.x,u.y-pchLift(u),w,cmdoRecoil(u)+hauBfRc(u), eas2Wob(u,wob,flip), hb9.im, hb9.fl); }   /* CARD-HAU-C: the yeti's kyPoseK mold + the croak kings' firing face on a battleground (hauBfPose), the volley's kick (hauBfRc) */   /* CARD-KRH (Wyatt 10/8/2026 20:27 from his phone: "King Rex the hero needs to animate when he walks and breathes fire"): YOUR King Rex on a battleground reads his pose here, as drawUnit's campaign line does (krgPose: the fire's open mouth, the walk's four frames; every other figure reads one compare and keeps its picture) */   // CARD-EAS2 (Wyatt's go 10/2/2026 on EAS-F1: the Emperor leans into each cut on a battleground): eas2Wob = the lean while he fights, else the wobble   // CARD-HPP (Wyatt 10/2/2026, dictated from his phone): a RIDER on the mat is painted on his horse (hppRide: the mounted Emperor → drawKbSteed, his horseman → drawKbCav, the campaign's own picture); every other figure keeps the line it had   // CARD-ES2 round 2: drawSprite(u.type, …) for every figure; the Emperor mid-slash swings his own sword   // 1027 CARD-ML-A3: her hop · the fairy's hover · the frog's hop and the pose molds on the mat (pchLift 0 / pchImg im for everyone else — byte-what-it-was)   // v2.78: the cannon's recoil rides the whole figure
+  if(!hppRide(u,w)){ const hb9=hauBfPose(u,dsfPose(u,krgPose(u,pchImg(u,im))),flip); kbSwingSprite(u,u.x,u.y-pchLift(u),w,cmdoRecoil(u)+hauBfRc(u), eas2Wob(u,wob,flip), hb9.im, hb9.fl); }   /* CARD-HAU-C: the yeti's kyPoseK mold + the croak kings' firing face on a battleground (hauBfPose), the volley's kick (hauBfRc) */   /* CARD-KRH (Wyatt 10/8/2026 20:27 from his phone: "King Rex the hero needs to animate when he walks and breathes fire"): YOUR King Rex on a battleground reads his pose here, as drawUnit's campaign line does (krgPose: the fire's open mouth, the walk's four frames; every other figure reads one compare and keeps its picture) */   // CARD-EAS2 (Wyatt's go 10/2/2026 on EAS-F1: the Emperor leans into each cut on a battleground): eas2Wob = the lean while he fights, else the wobble   // CARD-HPP (Wyatt 10/2/2026, dictated from his phone): a RIDER on the mat is painted on his horse (hppRide: the mounted Emperor → drawKbSteed, his horseman → drawKbCav, the campaign's own picture); every other figure keeps the line it had   // CARD-ES2 round 2: drawSprite(u.type, …) for every figure; the Emperor mid-slash swings his own sword   // 1027 CARD-ML-A3: her hop · the fairy's hover · the frog's hop and the pose molds on the mat (pchLift 0 / pchImg im for everyone else — byte-what-it-was)   // v2.78: the cannon's recoil rides the whole figure
   drawFz(u,u.x,u.y,w,im,0);   // 0735 THE RIME (the battlefield, either side)
   if(u.fsq && u.fsq.length) fsqDraw(u,w);   // CARD-FSQ: the riders in the jeep
   if(ck){ if(ul) cx.restore(); if(cl) cx.restore(); if(sl) cx.restore(); if(hv9) cx.restore(); cx.globalAlpha=1; return; }
   if(u.type==='radioman') drawRadioCall(u);
-  if(u.type==='sarge'){ drawSargeOutfit(u); drawSargeWeapon(u); if(ul) cx.restore(); if(cl) cx.restore(); if(sl) cx.restore(); if(hv9) cx.restore(); }   // 0487b: the kung fu wrapper closes first   // 0724: THE SLIP's wrapper closes with the lean's
+  if(u.type==='sarge'){ drawSargeOutfit(u); drawSargeWeapon(u); dsfSpark(u); if(dsf) cx.restore(); /* CARD-DSF */ if(ul) cx.restore(); if(cl) cx.restore(); if(sl) cx.restore(); if(hv9) cx.restore(); }   // 0487b: the kung fu wrapper closes first   // 0724: THE SLIP's wrapper closes with the lean's
   drawTkFx(u);   // v3.11: overdrive / wall / channel tells (0462c: the orange per-man ring rides u.tkOrIn)
   if(u.hp<u.hpMax){
     const k=Math.max(0,u.hp/u.hpMax);
@@ -122931,7 +122993,8 @@ function cmdLeanIn(u){
 }
 // show what Sarge is packing, right on the figure
 function drawSargeWeapon(u){
-  if(unitJet(u)) drawSargePack(u, null, unitFl(u));   // the pack rides on his back with EVERY weapon (v1.39) — v3.61: on the walk-flip seat
+  if(unitJet(u)) drawSargePack(u, null, unitFl(u));
+  if(dsfDance(u)) return;   // CARD-DSF THE DISCO FINGER: his hands are dancing, the gun is away (the pack stays on his back)   // the pack rides on his back with EVERY weapon (v1.39) — v3.61: on the walk-flip seat
   const usw=unitSargeStats(u);   // yours = what you equipped; theirs = what they drew from the crate
   const w=usw.w;
   // v1.50: a foe-side commander's figure is drawn MIRRORED (drawBFUnit's flip) —
@@ -165576,7 +165639,7 @@ function outfitterHTML(){
   // the Surplus's own line). The piggy's balance chip over the rails (digits, no key). BUY MORE AT SARGE'S SURPLUS is retired — there is nothing more to buy there.
   const dye=dyeHex()||undefined, bank=META.starBank|0;
   const card=id=>{ const h9=shopOutfitHTML(id,'UI.fortOutfit'); return (h9 && !outfitOwns(id) && !OUTFIT_EARN[id] && (OUTFIT_COST[id]|0)>bank)? h9.replace('class="sh-oprice">','class="sh-oprice shpoor">') : h9; };
-  let h='<div class="fh-fit eq-fit"><div class="fh-stage eq-stage"><h3 class="fharea eq-head">'+FORT_TABS.find(t9=>t9[0]==='outfitter')[1]+'</h3>'+gstRowHTML()+'<img class="eq-fig" src="'+ftxStageURI(dye, shopTryLive()? wearWith(SHOP_TRY) : undefined)+'" alt=""><div class="eq-stand"></div>'+eqCapHTML(META.sargeWeapon||'pistol')+'</div><div class="fh-rails eq-rails"><span class="rf-bank fh-bank" data-notr>'+bank+'★</span><div class="acsub">WEAPONS</div>'+eqIronsHTML();   // CARD-EQF SARGE'S EQUIPMENT TAKES THE WHOLE SCREEN: the stage holds the card's head (the FORT_TABS word, one line), the figure at its own size (STILL the stage's first img: the try-on's reader #roomModal .fh-stage img is byte-still), its stand and one line under him (eqCapHTML); the irons are the shelves' first rule, WEAPONS (eqIronsHTML: a card each, the iron alone); the old rack (fhWrackHTML) is not dealt here any more   // CARD-FTX THE FORT'S MEN WEAR THE HAND: the figure on the stand = the Surplus mirror's own shaded picture (ftxStageURI: CARD-FF2's hand + finish + the fist on the grip) wearing the standing tries; it was menuSargeURI's flat one; the hand OFF = that flat picture byte for byte
+  let h='<div class="fh-fit eq-fit"><div class="fh-stage eq-stage"><h3 class="fharea eq-head">'+FORT_TABS.find(t9=>t9[0]==='outfitter')[1]+'</h3>'+gstRowHTML()+'<img class="eq-fig" src="'+ftxStageURI(dye, shopTryLive()? wearWith(SHOP_TRY) : undefined)+'" alt="">'+dsfStageHTML(shopTryLive()? wearWith(SHOP_TRY) : undefined)+'<div class="eq-stand"></div>'+eqCapHTML(META.sargeWeapon||'pistol')+'</div><div class="fh-rails eq-rails"><span class="rf-bank fh-bank" data-notr>'+bank+'★</span><div class="acsub">WEAPONS</div>'+eqIronsHTML();   // CARD-EQF SARGE'S EQUIPMENT TAKES THE WHOLE SCREEN: the stage holds the card's head (the FORT_TABS word, one line), the figure at its own size (STILL the stage's first img: the try-on's reader #roomModal .fh-stage img is byte-still), its stand and one line under him (eqCapHTML); the irons are the shelves' first rule, WEAPONS (eqIronsHTML: a card each, the iron alone); the old rack (fhWrackHTML) is not dealt here any more   // CARD-FTX THE FORT'S MEN WEAR THE HAND: the figure on the stand = the Surplus mirror's own shaded picture (ftxStageURI: CARD-FF2's hand + finish + the fist on the grip) wearing the standing tries; it was menuSargeURI's flat one; the hand OFF = that flat picture byte for byte
   OUTFIT_SLOTS.forEach(g=>{ const cards=OUTFIT_ORDER.filter(id=>g.ids.indexOf(id)>=0).map(card).join(''); if(cards) h+='<div class="acsub">'+g.rule+'</div><div class="sh-ogrp fh-ogrp">'+cards+'</div>'+djsRailHTML(g); });   /* CARD-DJS THE SHADES: the worn pieces' swatches under their rail */
   const loose=OUTFIT_ORDER.filter(id=>!outfitSlot(id)).map(card).join(''); if(loose) h+='<div class="sh-ogrp fh-ogrp">'+loose+'</div>';
   h+='</div></div>';
