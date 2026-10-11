@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.31","md5":"30758f64b7119f91f667288eff2a3258","sha":"83da7ca42","at":"2026-10-11T06:00:22Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.32","md5":"cc06ca4046326f82a4705f57649dc74d","sha":"7428f1910","at":"2026-10-11T06:32:48Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80335,7 +80335,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -133532,7 +133532,7 @@ function gravSweep(){   // §4 NOTHING FLOATS AT A PAINT: every draggable on THI
 // the v3.06 session law verbatim). Reduced motion parks him at home —
 // inside the gap — and the same tick takes him there too.
 function robRoofCheck(){
-  if(S.mode!=='menu' || roomCur()!=='rooftop' || !decorHome('robot') || msRoomHid()) return;   // 1162z THE FRAME RATE: nothing to read under a cover
+  if(document.hidden || S.mode!=='menu' || roomCur()!=='rooftop' || !decorHome('robot') || msRoomHid()) return;   // 1162z THE FRAME RATE: nothing to read under a cover
   const el=document.getElementById('decRobot'); if(!el) return;
   const wk=el.querySelector('.robwalk'); if(!wk) return;
   let tx=0, ty=0;
@@ -133544,7 +133544,7 @@ function robRoofCheck(){
     roofFall('robot', {x:cx-26, y:cy-44, w:52, h:82}, 0, 0, 'gap',
       '<g transform="translate('+cx.toFixed(1)+','+cy.toFixed(1)+')">'+roboArt()+'</g>');
 }
-setInterval(robRoofCheck, 300);
+setInterval(robRoofCheck, 300);   // CARD-DLG-B DLG-F5: robRoofCheck and robZTick read document.hidden (a hidden page's timers still tick; nothing to read there)
 // 0335 PART E: the wanderer's LIVE depth — the same sampled transform as
 // robRoofCheck, re-seated among #ychars' feet-sorted children. Reinsertion
 // restarts CSS animations, so the 19s walk/lean pair resumes phase through
@@ -133553,7 +133553,7 @@ setInterval(robRoofCheck, 300);
 // animation is touched. Reduced motion parks him at home (delta 0), where
 // the built order is already true.
 function robZTick(){
-  if(S.mode!=='menu' || !decorHome('robot') || msRoomHid()) return;   // 1162z THE FRAME RATE: nothing to read under a cover
+  if(document.hidden || S.mode!=='menu' || !decorHome('robot') || msRoomHid()) return;   // 1162z THE FRAME RATE: nothing to read under a cover
   const belt=document.getElementById('ychars'); if(!belt) return;
   const el=document.getElementById('decRobot'); if(!el || el.parentNode!==belt) return;
   const wk=el.querySelector('.robwalk'); if(!wk) return;
@@ -169145,7 +169145,7 @@ function yafTick(){ if(S.mode!=='menu' || ((MFP.pin<0? MFP.half : MFP.pin)!==1 &
 const DCH_BEAT=[[12,30],[24,20],[45,15],[80,12]], DCH_COUNT_MS=500, DCH_SWEEP_MS=100;   // [more than N toys out on the floor, the room's beats a second], the last row that holds wins · how often the count is read again · how often the clock looks for new loops while the beat is on
 const DCH={ pin:-1, hz:0, n:0, at:-1e9 };   // pin = the rig's (-1 by the count · 0 never · N a second) · the beat now · the toys out when it was read · the read's clock
 function dchN(){ try{ return chestOutN(roomCur()); }catch(e){ return 0; } }   // the floor's toys OUT, the chest's own count (the rides and the rugs never count)
-function dchHz(ts){ if(reducedMotion()) return 0; if(DCH.pin>=0) return DCH.pin; if(MFP.pin>=0) return 0;   // the room's beat now, 0 = none (every loop on the engine's own frame). Reduced motion holds nothing; a rig that pins the room's clock keeps what it pinned
+function dchHz(ts){ if(reducedMotion()) return 0; if(DCH.pin>=0) return DCH.pin; if(MFP.pin>=0) return 0; if(dlgBeat()) return DLG_HZ;   /* CARD-DLG-B ⚑ DLG-Q4: the still room's loops step 30 a second whatever the count (CARD-DCH's table by count below for every other floor) */   // the room's beat now, 0 = none (every loop on the engine's own frame). Reduced motion holds nothing; a rig that pins the room's clock keeps what it pinned
   if(!(ts-DCH.at<DCH_COUNT_MS)){ DCH.at=ts; const n=DCH.n=dchN(); let hz=0; for(const r of DCH_BEAT) if(n>r[0]) hz=r[1]; DCH.hz=hz; } return DCH.hz; }
 function dchFresh(ts){ DCH.at=-1e9; return dchHz(ts)>0; }   // mfpFrame's seat, before the clock adopts for the beat's sake: the toys counted afresh, so a floor just emptied (a repaint deals new loops) is never adopted on the old count
 function mfpStart(){ if(MFP.raf || typeof requestAnimationFrame!=='function') return; MFP.prev=0; MFP.last=performance.now(); MFP.raf=requestAnimationFrame(mfpFrame); }
@@ -169159,10 +169159,11 @@ mfpStart();
 // THE ONE LAW (CARD-TINK-B → CARD-TRV): a toy's picture and its live art are never on the glass together. A wake and a sleep are a swap in ONE frame; a toy sleeps only once each of its loops is parked on its own time-0 phase (its pose == its picture's).
 // CARD-DLG-B builds on these seams: DLGP.queue / DLGP.budget + dlgFill (the awake queue), dlgLoopsOf / dlgParkStep in dlgTick (the park), dlgDots (the governor's hook), DLGP.dozing (read by dlgAwake). The doze, the beat and the tier's halving are DLG-B's; the other floors and the copies DLG-C's.
 const DLG_N=(typeof window.__DLG_N==='number')? window.__DLG_N : 6, DLG_LOOPS=(typeof window.__DLG_LOOPS==='number')? window.__DLG_LOOPS : 24, DLG_ROT_MS=(typeof window.__DLG_ROT==='number')? window.__DLG_ROT : 6000;   // ⚑ DLG-Q2 (REC): at most 6 toys awake beside the life list, at most 24 loops among them (a heavier toy, the space rug's 68 stars, takes its turn ALONE), every 6 s the longest-awake parks and the next in paint order wakes (⚑ Q5) · window.__DLG_* = a rig's pin before the boot
+const DLG_DOZE_MS=(typeof window.__DLG_DOZE==='number')? window.__DLG_DOZE : 45000, DLG_HZ=30;   // CARD-DLG-B (BUILD-DLG-B.md) ⚑ DLG-Q3 THE DOZE: no touch for 45 s and the toys rest in their pictures, the life list moves on, the first touch wakes them (never a deep doze: his 9/23 freezes) · ⚑ DLG-Q4 THE BEAT: the still room's loops step 30 a second whatever the count (dchHz; under the pictures a full floor runs no more loops than an empty one) · window.__DLG_DOZE = a rig's pin before the boot
 const DLG_FEW=8, DLG_SLICE_MS=8, DLG_HOLD_MS=1500, DLG_STIR_MS=1200, DLG_DRAG_MS=2500, DLG_PARK_MAX=12000, DLG_ROAM=40;   // DLG-F2 the first lay in slices of ≤ 8 ms between frames (a full floor's first open was ~0.9 s of a slow phone's main thread) · a tap's answer with no ms of its own · a toy the game's own code changed sleeps this long after its last change · a dragged toy 2.5 s after the last move · a loop that never comes round is set to its time 0 · how far a walker may roam (room units) before the layers are cut again
 const DLG_LIFE_MORE='#ro-zombie, #ro-witch, #ro-witch-sh, .ro-wch, #ro-ship, #ro-glass, #ro-raid, #ro-rave, #ro-chest';   // beside the governor's two lists: what moves on a JS clock or is light, not a toy (the witch's frame, the flying glass, the raid tower's squad, the rave lights: WebKit sweeps their fill-box beams differently inside a picture, TINK-5) and the chest's NEW call
 function dlgLifeSel(){ return GV_WALK_SEL+', '+GV_LIFE_SEL+', '+DLG_LIFE_MORE; }
-const DLGP={ on:1, moved:new Set(), snapMax:0, svg:null, belt:null, units:[], sleep:new Set(), held:new Set(), until:new Map(), budget:[], queue:[], pics:new Map(), serCache:new Map(), park:null, parkT:0, pend:0, busy:0, rotT:0, raf:0, tok:0, mo:null, ro:null, vis:null, defs:'', ctx:'', dd:3, sc:0, scT:0, fr:0,
+const DLGP={ on:1, moved:new Set(), snapMax:0, svg:null, belt:null, units:[], sleep:new Set(), held:new Set(), until:new Map(), budget:[], queue:[], pics:new Map(), serCache:new Map(), park:null, parkT:0, pend:0, busy:0, rotT:0, touchT:0, dozeN:0, capK:'', parking:new Set(), layDue:0, layT:0, raf:0, tok:0, mo:null, ro:null, vis:null, defs:'', ctx:'', dd:3, sc:0, scT:0, fr:0,
   back:null, mid:null, front:null, beltSvg:null, top:null, topN:0, lay:null, layN:null, layMs:0, cuts:0, settleMs:0, makeMs:0, encMs:0, made:0, hits:0, px:0, stirs:0, stirBy:{}, dozing:0, fmt:'png', log:[] };   // until: a toy's id → the moment it may sleep (a tap, a drag, a stir: it outlives a repaint) · dozing: CARD-DLG-B's (0 here) · stirBy: which units the game's own code woke (one that keeps stirring belongs on the life list)
 // the inherited paint properties (written only where they differ from the parent) and the rest (written only where they differ from the initial value)
 const DLG_INH=['fill', 'fill-opacity', 'fill-rule', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-miterlimit', 'visibility', 'font-family', 'font-size', 'font-weight', 'font-style', 'letter-spacing', 'text-anchor', 'dominant-baseline', 'paint-order', 'color', 'clip-rule', 'shape-rendering'];
@@ -169202,9 +169203,12 @@ const dlgIn=(a, b)=>!!(a && b && a[0]>=b[0] && a[1]>=b[1] && a[2]<=b[2] && a[3]<
 const dlgGrow=(b, d)=>b? [b[0]-d, b[1]-d, b[2]+d, b[3]+d] : null;
 // THE AWAKE QUEUE (CARD-DLG-B's seam): the queue's head joins while the budget stays under DLG_N units and DLG_LOOPS loops; a unit heavier than the cap waits for an empty budget and runs alone
 function dlgNl(u){ return u? (u.__nl||1) : 1; }
-function dlgFill(){ let n=DLGP.budget.reduce((s, u)=>s+dlgNl(u), 0);
-  while(DLGP.queue.length && DLGP.budget.length<DLG_N){ const u=DLGP.queue[0], k=dlgNl(u); if(DLGP.budget.length && n+k>DLG_LOOPS) break; DLGP.budget.push(DLGP.queue.shift()); n+=k; if(k>DLG_LOOPS) break; } }
-function dlgAwake(){ const aw=new Set(); for(const u of DLGP.units) if(u.__life || DLGP.held.has(u) || (!DLGP.dozing && DLGP.budget.includes(u))) aw.add(u); return aw; }   // THE AWAKE: the life list + the held + the budget
+// CARD-DLG-B practice 7: the governor's own tier (GV.tier) or the device's (window.GVT_TIER, CARD-ODV-T: an older phone or tablet starts light instead of lagging first) halves the budget, 6 → 3 toys, 24 → 12 loops · reduced motion: nothing loops, so nothing is awake but a tap
+function dlgCaps(){ try{ if(reducedMotion()) return [0, 0]; }catch(e){} return (GV.tier>=1 || (window.GVT_TIER|0)>=1)? [Math.ceil(DLG_N/2), Math.ceil(DLG_LOOPS/2)] : [DLG_N, DLG_LOOPS]; }
+function dlgFill(){ const [cn, cl]=dlgCaps(); let n=DLGP.budget.reduce((s, u)=>s+dlgNl(u), 0);
+  while(DLGP.queue.length && DLGP.budget.length<cn){ const u=DLGP.queue[0], k=dlgNl(u); if(DLGP.budget.length && n+k>cl) break; DLGP.budget.push(DLGP.queue.shift()); n+=k; if(k>cl) break; } }
+function dlgTrim(){ const [cn, cl]=dlgCaps(); let n=DLGP.budget.reduce((s, u)=>s+dlgNl(u), 0); while(DLGP.budget.length && (DLGP.budget.length>cn || (n>cl && DLGP.budget.length>1))){ const u=DLGP.budget.pop(); n-=dlgNl(u); DLGP.queue.unshift(u); } }   // a smaller budget (the tier stepped down): the newest in it go back to the head of the queue, and park
+function dlgAwake(){ const aw=new Set(); for(const u of DLGP.units) if(u.__life || DLGP.held.has(u) || DLGP.parking.has(u) || (!DLGP.dozing && DLGP.budget.includes(u))) aw.add(u); return aw; }   // CARD-DLG-B: + the parking (live until its own loops stand on their time 0)   // THE AWAKE: the life list + the held + the budget
 // DLG-F1 THE MEMORY: pictures at 3 dots a point; at 2 while the governor has stepped down or the device tier says an older phone (window.GVT_TIER, CARD-ODV-T: unset reads 0). Read at each lay: a step of the governor never re-pictures the room by itself (measured: a forced re-lay at a step cost a slow phone 3.6 s of main thread, and a governor that steps back and forth would pay it again and again); the room's next repaint takes the new density
 function dlgDots(){ const dpr=window.devicePixelRatio||1; return Math.min(dpr, (GV.tier>=1 || (window.GVT_TIER|0)>=1)? 2 : 3); }
 // ONE PICTURE: the unit (its paint inlined, its loops at time 0) cropped to what the svg's own box can show, at dlgDots, its box's corner on a whole dot of the glass; THE PICTURE CACHE keyed by the inlined paint + the box (a repaint reuses every unchanged toy's picture: no walk, no decode)
@@ -169298,12 +169302,15 @@ function dlgWatch(){ if(typeof MutationObserver!=='function') return; if(!DLGP.m
   DLGP.mo.observe(DLGP.svg, o); if(DLGP.beltSvg) DLGP.mo.observe(DLGP.beltSvg, o); if(DLGP.top) DLGP.mo.observe(DLGP.top, o); }
 // HOLD a unit awake (a tap, a drag, a finger, a stir): the wake is the swap in this same frame; it may sleep again ms + its park later (the deadline outlives a repaint: a ball mid-flight is never pictured at home). Returns 1 when it was asleep.
 function dlgHoldU(u, ms, drag){ DLGP.held.add(u); const was=dlgShow(u); if(drag || was) u.__dirty=1; if(u.id){ const t=performance.now()+ms; if(!(DLGP.until.get(u.id)>t)) DLGP.until.set(u.id, t); }
-  if(DLGP.park) DLGP.park=DLGP.park.filter(L=>{ try{ return !u.contains(L.a.effect.target); }catch(e){ return true; } });
+  if(DLGP.park) DLGP.park=DLGP.park.filter(e=>e.u!==u && !u.contains(e.u)); DLGP.parking.delete(u);   // CARD-DLG-B: the park is a list of toys now
   clearTimeout(u.__hold); u.__hold=setTimeout(()=>{ DLGP.held.delete(u); DLGP.pend=1; }, ms); return was; }
 function dlgFind(id){ const k=String(id); return DLGP.units.find(x=>x.id==='ro-'+k || x.id===k || (k==='robot' && x.id==='decRobot')); }
-function dlgHold(id, ms, drag){ if(!DLGP.svg || !DLGP.svg.isConnected) return; const u=dlgFind(id); if(!u || u.__life) return; if(dlgHoldU(u, (ms||DLG_HOLD_MS)+300, drag)) dlgLayers(dlgAwake()); }   // THE WAKE: before its answer plays (decorReact) or it moves (rdragApply)
+function dlgHold(id, ms, drag){ dlgRouse(); if(!DLGP.svg || !DLGP.svg.isConnected) return; const u=dlgFind(id); if(!u || u.__life) return; if(dlgHoldU(u, (ms||DLG_HOLD_MS)+300, drag)) dlgLayers(dlgAwake()); }   // THE WAKE: before its answer plays (decorReact) or it moves (rdragApply)
 // a finger down on the room wakes every toy under it first (in the capture pass, before the drag's pick reads the page: CARD-XM17's treasure-in-front test reads what is drawn there)
-function dlgFinger(e){ DLGP.touchT=performance.now(); const svg=DLGP.svg; if(!svg || !svg.isConnected || !DLGP.sleep.size) return; const m=svg.getScreenCTM(); if(!m) return; const x=(e.clientX-m.e)/m.a, y=(e.clientY-m.f)/m.d, p=[x, y, x, y]; let n=0;
+// CARD-DLG-B: a touch (a finger down anywhere, a toy's own tap or drag) restarts the doze's clock; the first touch of a dozing room wakes its budget on the next frame (the toy under the finger in this one)
+function dlgRouse(){ DLGP.touchT=performance.now(); if(DLGP.dozing){ DLGP.dozing=0; DLGP.rotT=0; DLGP.pend=1; } }
+function dlgBeat(){ try{ return !!(DLGP.on && DLGP.svg && DLGP.svg.isConnected); }catch(e){ return false; } }   // CARD-DLG-B ⚑ Q4: the still room stands = its loops on the 30-a-second beat (dchHz; a call before this sec stands reads false)
+function dlgFinger(e){ dlgRouse(); const svg=DLGP.svg; if(!svg || !svg.isConnected || !DLGP.sleep.size) return; const m=svg.getScreenCTM(); if(!m) return; const x=(e.clientX-m.e)/m.a, y=(e.clientY-m.f)/m.d, p=[x, y, x, y]; let n=0;
   for(const u of DLGP.sleep) if(dlgIn(p, u.__box) && /^(ro-|dec[A-Z])/.test(u.id||'')){ dlgHoldU(u, DLG_HOLD_MS+300); n++; } if(n) dlgLayers(dlgAwake()); }
 // THE PARK: a unit going to sleep stops each loop on its own time-0 phase (the current time a whole number of periods, two for an alternating loop: so negative delays come out right); it sleeps once every loop is parked
 function dlgLoopsOf(u){ let A; try{ A=u.getAnimations({ subtree:true }); }catch(e){ return []; } const L=[];
@@ -169315,15 +169322,17 @@ function dlgParkStep(list){ let all=true; for(const L of list){ const a=L.a, mf=
 // the room's small clock: the rotation, the roam, the zoom, and the sleepers put down on their boundary (cheap reads a frame while nothing is pending)
 function dlgTick(ts){ DLGP.raf=requestAnimationFrame(dlgTick); if(!DLGP.on || S.mode!=='menu' || !DLGP.svg || !DLGP.svg.isConnected || DLGP.busy || msRoomHid()) return;
   if(!DLGP.rotT) DLGP.rotT=ts;
+  { const ck=dlgCaps().join(); if(ck!==DLGP.capK){ DLGP.capK=ck; dlgTrim(); dlgFill(); DLGP.pend=1; } }   // CARD-DLG-B practice 7: the tier stepped (down: the newest park; up: the next in line wake)
+  if(!DLGP.touchT) DLGP.touchT=ts; { const dz=DLG_DOZE_MS>0 && ts-DLGP.touchT>DLG_DOZE_MS; if(dz!==!!DLGP.dozing){ DLGP.dozing=dz? 1 : 0; if(dz) DLGP.dozeN++; DLGP.rotT=ts; DLGP.pend=1; } }   // CARD-DLG-B THE DOZE (⚑ Q3): 45 s with no touch, the budget's toys park and go to their pictures; the life list, the held and the stirred move on (dlgAwake)
   { const f=++DLGP.fr; if((f % 120)===0 || (DLGP.moved.size && (f % 3)===0)) setTimeout(dlgRoam, 0, (f % 120)===0); }   // read just after this frame's paint (the style is clean: no second recalc in the frame)
   if(ts-DLGP.scT>500){ DLGP.scT=ts; const m=DLGP.svg.getScreenCTM(), sc=m? +Math.abs(m.a).toFixed(3) : 0; if(sc && DLGP.sc && sc!==DLGP.sc){ if(DLGP.scW===sc){ DLGP.scW=0; dlgRelay(); return; } DLGP.scW=sc; } else DLGP.scW=0; }   // the room zoomed (the hand's pinch, a new fit) and held there: pictures at the new scale
-  if(DLG_ROT_MS>0 && DLGP.queue.length && ts-DLGP.rotT>DLG_ROT_MS){ DLGP.rotT=ts; const out=DLGP.budget.shift(); if(out){ DLGP.queue.push(out); if(dlgNl(out)>DLG_LOOPS) DLGP.budget.length=0; } for(const u of DLGP.budget){ const i=DLGP.queue.indexOf(u); if(i>=0) DLGP.queue.splice(i, 1); } dlgFill(); DLGP.pend=1; }   // ⚑ DLG-Q5 a fair round in paint order
-  if(DLGP.pend){ DLGP.pend=0; const aw=dlgAwake(); const L=[]; for(const u of DLGP.units) if(!aw.has(u) && !u.__life && !DLGP.sleep.has(u)) L.push(...dlgLoopsOf(u)); DLGP.park=L; DLGP.parkT=ts; }
-  if(!DLGP.park) return; if(!dlgParkStep(DLGP.park) && ts-DLGP.parkT<DLG_PARK_MAX) return;   // (a loop that never comes round is set to its time 0 by the lay)
-  DLGP.park=null; DLGP.busy=1; const tok=DLGP.tok; dlgLay(tok).then(()=>{ DLGP.busy=0; }, e=>{ DLGP.busy=0; DLGP.log.push(['lay-error', String(e).slice(0, 120)]); }); }
+  if(DLG_ROT_MS>0 && !DLGP.dozing && DLGP.queue.length && dlgCaps()[0]>0 && ts-DLGP.rotT>DLG_ROT_MS){ DLGP.rotT=ts; const out=DLGP.budget.shift(); if(out){ DLGP.queue.push(out); if(dlgNl(out)>DLG_LOOPS) DLGP.budget.length=0; } for(const u of DLGP.budget){ const i=DLGP.queue.indexOf(u); if(i>=0) DLGP.queue.splice(i, 1); } dlgFill(); DLGP.pend=1; }   // ⚑ DLG-Q5 a fair round in paint order
+  if(DLGP.pend){ DLGP.pend=0; DLGP.parking.clear(); const aw=dlgAwake(); const L=[]; for(const u of DLGP.units) if(!aw.has(u) && !u.__life && !DLGP.sleep.has(u)) L.push({ u, L:dlgLoopsOf(u) }); if(!DLGP.park) DLGP.parkT=ts; DLGP.park=L; for(const e of L) DLGP.parking.add(e.u); DLGP.layDue=1; }   // CARD-DLG-B: a new park keeps the old one's clock (the 12 s cap is honest); the awake set changed = a lay is due (a toy joining the round shows within 250 ms, never waiting for the one leaving to park)
+  if(!DLGP.park) return; { const over=ts-DLGP.parkT>=DLG_PARK_MAX; DLGP.park=DLGP.park.filter(e=>{ if(over || dlgParkStep(e.L)){ DLGP.parking.delete(e.u); DLGP.layDue=1; return false; } return true; }); }   // CARD-DLG-B: EACH TOY SLEEPS the moment its own loops are parked (DLG-A waited for the slowest loop in the room: one 9 s loop held the whole doze, and the round's next wake, measured on WebKit) · (a loop that never comes round is set to its time 0 by the lay)
+  if(!DLGP.layDue || (DLGP.park.length && ts-DLGP.layT<250)) return; DLGP.layDue=0; DLGP.layT=ts; if(!DLGP.park.length) DLGP.park=null; DLGP.busy=1;   /* the canvases drawn again at most 4 times a second while toys go to sleep one by one */ const tok=DLGP.tok; dlgLay(tok).then(()=>{ DLGP.busy=0; }, e=>{ DLGP.busy=0; DLGP.log.push(['lay-error', String(e).slice(0, 120)]); }); }
 // the room to lay: the bedroom (the other floors and the copies are CARD-DLG-C's), the menu shown, never the map's pin
 function dlgRoomOk(){ try{ return !!DLGP.on && S.mode==='menu' && !MAPPIN && roomCur()==='bedroom'; }catch(e){ return false; } }
-function dlgDrop(){ if(DLGP.mo) DLGP.mo.disconnect(); for(const u of DLGP.units) clearTimeout(u.__hold); DLGP.svg=null; DLGP.belt=null; DLGP.beltSvg=null; DLGP.units=[]; DLGP.sleep=new Set(); DLGP.held=new Set(); DLGP.park=null; DLGP.pend=0; DLGP.top=null; DLGP.lay=null; DLGP.layN=null; DLGP.busy=0;
+function dlgDrop(){ if(DLGP.mo) DLGP.mo.disconnect(); for(const u of DLGP.units) clearTimeout(u.__hold); DLGP.svg=null; DLGP.belt=null; DLGP.beltSvg=null; DLGP.units=[]; DLGP.sleep=new Set(); DLGP.held=new Set(); DLGP.park=null; DLGP.parking=new Set(); DLGP.layDue=0; DLGP.pend=0; DLGP.top=null; DLGP.lay=null; DLGP.layN=null; DLGP.busy=0;
   for(const id of ['dlgBack', 'dlgMid', 'dlgFront', 'dlgBelt', 'dlgTop']){ const e=document.getElementById(id); if(e && !e.closest('#roomStage')) e.remove(); } }   // a repaint replaced #roomStage whole: the old layers left with it
 // THE DOOR: renderMenu's tail. The room is laid a frame after its paint (the first open's live room shows meanwhile; nothing changes on the glass until the swap)
 const dlgSz=s=>{ const r=s.getBoundingClientRect(); return Math.round(r.width)+'x'+Math.round(r.height); };
@@ -169352,12 +169361,12 @@ function dlgOff(){ const svg=DLGP.svg; DLGP.tok++; if(DLGP.mo) DLGP.mo.disconnec
 function dlgRelay(){ if(!DLGP.on) return; dlgOff(); dlgAfterPaint(); }
 // THE RIG'S DOOR: GVT.dlg.st() the state · .wake(id) a force-wake · .settle(all) a force-settle (every loop to its time 0 and the lay now; all = the budget and the held emptied too) · .on(v) the switch (0 = the room as before, in place)
 function dlgProbe(){ const aw=DLGP.svg? dlgAwake() : new Set(); return { on:DLGP.on, room:DLGP.svg? 'bedroom' : null, units:DLGP.units.length, asleep:DLGP.sleep.size, awake:[...aw].map(u=>u.id||u.getAttribute('class')), budget:DLGP.budget.map(u=>u.id), queue:DLGP.queue.length, held:[...DLGP.held].map(u=>u.id),
-  cache:DLGP.pics.size, dots:DLGP.dd, layN:DLGP.layN, layMs:+DLGP.layMs.toFixed(1), cuts:DLGP.cuts, settleMs:+DLGP.settleMs.toFixed(1), snapMax:+DLGP.snapMax.toFixed(1), stirs:DLGP.stirs, stirBy:Object.assign({}, DLGP.stirBy), log:DLGP.log.slice(-6) }; }
+  cache:DLGP.pics.size, dots:DLGP.dd, dozing:DLGP.dozing, dozeN:DLGP.dozeN, touchAgo:Math.round(performance.now()-(DLGP.touchT||0)), caps:dlgCaps(), loops:DLGP.budget.reduce((s, u)=>s+dlgNl(u), 0), beat:dchHz(performance.now()), layN:DLGP.layN, layMs:+DLGP.layMs.toFixed(1), cuts:DLGP.cuts, settleMs:+DLGP.settleMs.toFixed(1), snapMax:+DLGP.snapMax.toFixed(1), stirs:DLGP.stirs, stirBy:Object.assign({}, DLGP.stirBy), log:DLGP.log.slice(-6) }; }
 async function dlgSettleNow(all){ if(!DLGP.svg) return dlgProbe(); if(all){ DLGP.queue=DLGP.budget.concat(DLGP.queue); DLGP.budget=[]; for(const u of DLGP.held) clearTimeout(u.__hold); DLGP.held.clear(); DLGP.until.clear(); }
   const aw=dlgAwake(); for(const u of DLGP.units) if(!aw.has(u) && !u.__life && !DLGP.sleep.has(u)){ dlgSpend(u); dlgLoops0(u); }
-  DLGP.park=null; DLGP.busy=1; try{ await dlgLay(DLGP.tok); } finally{ DLGP.busy=0; } return dlgProbe(); }
+  DLGP.park=null; DLGP.parking.clear(); DLGP.layDue=0; DLGP.busy=1; try{ await dlgLay(DLGP.tok); } finally{ DLGP.busy=0; } return dlgProbe(); }
 try{ if(S.mode==='menu' && document.querySelector('#roomStage > svg')) dlgAfterPaint(); }catch(e){}   // a room painted before this sec stood (the boot's first paint) is laid now
-setTimeout(()=>{ try{ if(window.GVT && !GVT.dlg) GVT.dlg={ st:dlgProbe, wake:id=>{ dlgHold(id, 600000); return dlgProbe(); }, settle:all=>dlgSettleNow(all), on:v=>{ DLGP.on=v? 1 : 0; if(v) dlgAfterPaint(); else dlgOff(); return DLGP.on; } }; }catch(e){} }, 0);   // the rig's door, hung once the GVT object stands
+setTimeout(()=>{ try{ if(window.GVT && !GVT.dlg) GVT.dlg={ st:dlgProbe, wake:id=>{ dlgHold(id, 600000); return dlgProbe(); }, settle:all=>dlgSettleNow(all), rouse:()=>{ dlgRouse(); return dlgProbe(); }, on:v=>{ DLGP.on=v? 1 : 0; if(v) dlgAfterPaint(); else dlgOff(); return DLGP.on; } }; }catch(e){} }, 0);   // the rig's door, hung once the GVT object stands
 // ═══ CARD-DLG ends ═══
 function frame(ts){
   requestAnimationFrame(frame);
