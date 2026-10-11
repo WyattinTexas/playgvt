@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.48","md5":"4c2432f8bd52549b9b67f34945e2b417","sha":"43eb8925b","at":"2026-10-11T10:59:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.49","md5":"5c28c65b760eb83a3f9d2a6c4e3df032","sha":"e5c75842a","at":"2026-10-11T11:05:40Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49972,7 +49972,7 @@ function wkKey(){ if(WK_FORCE!=null) return WK_FORCE? (evTZDay(evNow())||'forced
 function starX(n){ return isWeekend()? Math.round(n*STAR_WK_X) : n; }   // THE ONE PIPE — every earned grant walks it; the number handed back is the number banked AND spoken
 function wkGlyph(){ return isWeekend()? '<i class="wkx" data-notr>×2</i>' : ''; }   // THE WEEKEND IS SEEN (a)(b): the small gold ×2 beside the verdict's star tile, the register and the pop-up bank — a symbol, no key (⚑ Q9)
 function wkBandHTML(){ return isWeekend()? '<span class="mb-band wk">DOUBLE STAR WEEKEND</span><span class="mb-line wksub">EVERY STAR YOU EARN COUNTS TWICE UNTIL MONDAY</span>' : ''; }   // (c): the band + the sub-line on the STAR SHIPMENTS face alone (never the sale face — packs do not double); bare literals, the innerHTML hook translates them (2 keys ×7, no digits)
-function wkAnnDue(){ return STAR_WK_X!==1 && isWeekend() && String(META.wkSeen||'')!==wkKey(); }   // (d): the once-a-weekend announce is owed — META.wkSeen = the weekend's Saturday date on HQ's clock
+function wkAnnDue(){ return STAR_WK_X!==1 && isWeekend() && String(META.wkSeen||'')!==wkKey() && !spcOn(); }   // CARD-P79: never while watching (it would be spent on a fight that pays nothing)   // (d): the once-a-weekend announce is owed — META.wkSeen = the weekend's Saturday date on HQ's clock
 function wkAnnDeal(){ META.wkSeen=wkKey(); saveMeta(); S.ann={ txt:'DOUBLE STAR WEEKEND', t:2.6, sub:'EVERY STAR YOU EARN COUNTS TWICE UNTIL MONDAY', wk:true }; }   // the canvas announce in the level banner's own grammar (raw keys — the drawer TXTs them), dealt in update() the first time no announce stands in a battle of the weekend
 // 0723 THE TUXEDO's flat stars: +N★ on every WIN verdict that banks stars, whatever the mode (the plain campaign, the parks, the thrones,
 // MOM, the battleground, each seat of a party — every seat reads its own wardrobe), landed beside gearStarX AFTER the percent seat, never
@@ -81354,7 +81354,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.49';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -90542,6 +90542,7 @@ const SPC={ max:6, endHold:3500 };   // the server's ROOM_WATCH_MAX twin (a word
 function spcOn(){ return !!(S.bf && S.bf.watch && COOP && COOP.watch); }
 function spcMate(m){ return (m && m.bf && m.bf.room && m.uid!==CREW.me)? m.bf : null; }   // a squadmate in a live room battle: HQ's word off the room table (crew_members' bf), never a presence stamp
 function spcMateName(){ return (COOP && COOP.spcName) || 'YOUR SQUADMATE'; }
+function spcCapWord(){ return spcOn()? spcMateName().toUpperCase() : TXT('YOU'); }   // CARD-P79 (Wyatt 10/10 PND-79: "Go with recommendations for all here" = SPW-F1 fix): the gold word under the viewer's own cap (drawBFBars): a watcher's reads his squadmate's name (the roster's), a player's YOU
 function spcToast(msg){ try{ const card=SQC.open && SQC.el && SQC.el.querySelector('.sqc-card:not(.hidden)'); if(card){ let p=card.querySelector('.spc-note'); if(!p){ p=document.createElement('div'); p.className='spc-note'; card.appendChild(p); } p.textContent=msg; return; } if(document.getElementById('crewPanelBody')) crewNote(msg); }catch(e){} }
 function spcWatch(uid){
   const m=(CREW.members||[]).find(x=>x.uid===uid), bf=spcMate(m); if(!bf){ spcToast(t('THE FIGHT IS OVER')); return false; }
@@ -119356,7 +119357,7 @@ function draw(){
   // wrong enemy (yetis come, not tan). NO hint of either kind in a park; the
   // mom raid keeps v2.49's deliberate call (flagged — one !S.momRaid away),
   // the training range never gets here (trainPlace sets placedAny itself).
-  if(!coach && !S.placedAny && !S.sideHand && S.mode==='play' && !hlbHush() /* CARD-HLB3 */ && !S.park && !S.raid && !S.momRaid && (S.bf || (S.levelN|0)<3)){   /* CARD-MW3 (⚑ MW-Q6, his ruling 9/27): never in HER fight — the Tan do not come from the right there, she does */   // 0871 THE WRONG SIDE OF THE LINE: the hint yields to the wrong-side pill while the glove is up (both sit at H-158..H-134; two instructions at once read as noise) — it comes back after, until the first placement
+  if(!coach && !S.placedAny && !S.sideHand && S.mode==='play' && !hlbHush() /* CARD-HLB3 */ && !spcOn() /* CARD-P79: never on a watcher's screen */ && !S.park && !S.raid && !S.momRaid && (S.bf || (S.levelN|0)<3)){   /* CARD-MW3 (⚑ MW-Q6, his ruling 9/27): never in HER fight — the Tan do not come from the right there, she does */   // 0871 THE WRONG SIDE OF THE LINE: the hint yields to the wrong-side pill while the glove is up (both sit at H-158..H-134; two instructions at once read as noise) — it comes back after, until the first placement
     cx.globalAlpha=0.925+0.075*Math.sin(S.t*4);   // CARD-FF FF-30: on its plate the line breathes 0.85 to 1, never down to half; the pill's cream ink (a dark plate never goes slate on the snow)
     cx.font=cf('bold 48px'); cx.fillStyle='#FFF3C4'; cx.textAlign='center';   // CARD-X2: the drop caption 24 → 48 (its floor 13 → 26)
     hudCaption(TXT(S.bf? 'DRAG TROOPS ON YOUR SIDE OF THE FIELD'   // CARD-OP N2 (Wyatt 9/22: "Change the text to 'drag troops on your side of the field'") — the battleground's drop caption; the campaign's own line below untouched
@@ -119747,7 +119748,7 @@ function drawBFBars(){
   }
   // 1191 CARD-HB the gold YOU under the viewer's own cap — the only word on the plate (TXT, as before; fitted so a long tongue never runs past the cap)
   const mx=mineL? lx : rx2; cx.fillStyle='#FFE878'; cx.textAlign='center'; cx.textBaseline='top';
-  if(!COMM.brief) fitText(cx, TXT('YOU'), mx, cy+cap/2+rim+thh*0.05, cap*1.5, 'bold', Math.round(thh*0.46), 9);   // CARD-FF FF-12: not while Sarge's briefing box is up (its top edge sliced the word in half on the phone)
+  if(!COMM.brief) fitText(cx, spcCapWord(), mx, cy+cap/2+rim+thh*0.05, cap*(spcOn()? 2.4 : 1.5), 'bold', Math.round(thh*0.46), 9);   /* CARD-P79: a watcher's tag names his squadmate */   // CARD-FF FF-12: not while Sarge's briefing box is up (its top edge sliced the word in half on the phone)
   cx.restore();
   cx.font=cf('bold 13px'); cx.textAlign='center'; cx.textBaseline='middle'; cx.strokeStyle='#FFD24A'; cx.lineWidth=2.5;   // 1191 CARD-HB: the state the old strip left behind, byte-what-it-was for whatever the HUD draws next
 }
