@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.76","md5":"f42baaa3e91a92300c2122ba971ac2c2","sha":"972425b96","at":"2026-10-11T15:38:36Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.77","md5":"ef64c513081661a573468bb6f3a2f432","sha":"d24b62ec6","at":"2026-10-11T15:59:18Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -9947,6 +9947,9 @@
   #roomStage .wr-rider.wlhit { animation:wlhit 0.9s ease-out forwards; }
   @keyframes wlhit { from{transform:translate(0px,0px) rotate(0deg) scale(1); opacity:1} to{transform:translate(-40px,-60px) rotate(-540deg) scale(.6); opacity:0} }
   #roomStage .wlburst-in { animation:wlburst 0.5s ease-out forwards; }
+  #roomStage #wrd-want .wrd-wants { animation:wrdwant 0.5s ease-in-out infinite alternate; }   /* CARD-WRD: the want's dashed ring breathes */
+  @keyframes wrdwant { from{opacity:.5} to{opacity:1} }
+  @media (prefers-reduced-motion:reduce){ #roomStage #wrd-want .wrd-wants { animation:none; } }
   #roomStage .wr-dust.wlgone { opacity:0; }
   @keyframes wlburst { from{transform:scale(1); opacity:.7} to{transform:scale(1.8); opacity:0} }
   #roomStage .wr-walkE { animation:wrwalkE 34s linear infinite; }
@@ -50692,7 +50695,7 @@ const META_DEFAULT = {
   // shooting meteor caught mid-flight (100★ once). The comet law both:
   // Object.assign migrates older saves to 0 free; truthy blocks the grant
   // forever, so garbage can only ever under-grant. BANK ONLY.
-  wstar:0, dmeteor:0, moonStar:0, fmeteor:0, skyEgg:0, elderSab:0, pigStar:0, rabbitStar:0, wfSled:0, roofFed:0, floopTap:0, wxTap:0, cvnGot:0, hunHug:'',   // 0611: + elderSab — BEAR PARK's relic taken once ever (the comet law; the mod itself rides META.enh through trophyGrant)   // 0608: + the elite moon's first-ever tap and the fields' shooting star's first-ever catch (the same law)
+  wstar:0, dmeteor:0, moonStar:0, fmeteor:0, skyEgg:0, elderSab:0, pigStar:0, rabbitStar:0, wfSled:0, wrdTrain:0, wrdHorse:0, roofFed:0, floopTap:0, wxTap:0, cvnGot:0, hunHug:'',   // 0611: + elderSab — BEAR PARK's relic taken once ever (the comet law; the mod itself rides META.enh through trophyGrant)   // 0608: + the elite moon's first-ever tap and the fields' shooting star's first-ever catch (the same law)
   // 0363 THE FREE UNLOCKS (Wyatt 8/16): byGift = THE BACKYARD handed over
   // FREE (the first Nemesis defeat, or a battlegrounds battle played on THE
   // BACKYARD map — or, 0494c, campaign level BY_FREE_LVL beaten; one gift,
@@ -81739,7 +81742,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.76';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.77';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -127505,7 +127508,7 @@ function wrPosseWatch(ph){
     if(t>=WR_POSSE_GALLOP[0]){ const sr=st2.getBoundingClientRect(), k=960/(sr.width||960);
       const cars=[...svg.querySelectorAll('#wl-train .wl-car')].map(c=>{ const b=c.getBoundingClientRect(); const x=(b.left+b.width/2-sr.left)*k, y=(b.top+b.height/2-sr.top)*k; let op=1; try{ op=+getComputedStyle(c).opacity; }catch(e){} return [x, y, x>0 && x<960 && y>0 && y<600 && op>0.5 && !wrInShell(x,y)]; }).filter(c=>c[2]);   // REV 3 (Wyatt: "the train was actually in a tunnel, so they didn't really collide"): only a car ON the stage, OUTSIDE both shells' mountains and VISIBLE counts — the hidden return leg's cars ride at opacity 0 (its first segment runs straight up x ≈ 1010 through the riders' parked seat off the east edge), a car under a shell is in the tunnel
       if(cars.length) for(const r of pg2.querySelectorAll('.wr-rider:not(.wlhit)')){ const b=r.getBoundingClientRect(); const x=(b.left+b.width/2-sr.left)*k, y=(b.bottom-sr.top)*k-24; if(x<0 || x>960) continue;   // REV 3: only a rider ON the stage can be bowled over (a tumble nobody sees is a rider gone for no reason)
-        if(cars.some(c=>Math.hypot(c[0]-x,c[1]-y)<WR_HIT_R)){ W.hits++; wrRiderHit(svg, r, x, y); } } }
+        if(cars.some(c=>Math.hypot(c[0]-x,c[1]-y)<WR_HIT_R)){ if(wrdJump(r)) continue; W.hits++; wrRiderHit(svg, r, x, y); }   /* CARD-WRD (Q4): the kid's man's horse jumps the cars */ } }
     requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
 }
@@ -127517,6 +127520,133 @@ function wrRiderHit(svg, r, x, y){
   b.innerHTML='<g class="wlburst-in">'+dustPuff(-18,0,1.5,.7)+dustPuff(14,-8,1.3,.6)+dustPuff(0,-22,1.1,.5)+'</g>'; pg.appendChild(b);
   setTimeout(()=>{ try{ b.remove(); }catch(e){} }, 600);
 }
+// ═══ CARD-WRD THE TRAIN AND THE POSSE TAKE A MAN (design/western-ride-1011/00-DESIGN-WRD.md). ISAAC's note, 10/11/2026 02:41 by the guest link, verbatim: "take one of the toy soldiers and put it on the train or on the
+// little horses that ride by … The train one's simple: it just goes on the train and then rides the train. For the horses one, when you put the guy on the horse, I want it to kick one of the cowboys off the horse, and then the
+// guy will ride it into the sunset wherever the horses are going." Wyatt 10/11/2026 11:14 EDT on Discord: "Approved- design and ship to live" (every REC of the pass's §5).
+// THE SLED RIDE's two siblings on the range (1036's grammar: rdragEnd's verdict, a want under a held man, the man's own picture riding, TRUTH FIRST: his seat is the save's, the ride is theater that dies with its nodes).
+//   THE TRAIN: one of the four men let go over a car (its box + 24) boards the coal car; let go ON THE TRACK (±22 of the visible U, outside the shells) he parks there and the coal car picks him up as it passes. He rides
+//   upright (0.78) one lap (26 s: through the east shell, the hidden leg, out of the west one) between the cars and the shells (the shells cover him), then hops off to his own seat. SFX.whistle at the boarding.
+//   THE HORSE: let go over a posse rider (its box + 20) he mounts THAT horse; let go on the posse's lane (feet y 446..498) he parks there and the LAST rider's horse takes him as it passes. THE KICK: the outlaw (the sprite's
+//   own .rman group + its mask, hidden on the horse) is flung up and back in a burst with his hat flying, sits in the dust shaking his fist, then walks back east into town. The man rides west seated (his legs behind the
+//   horse's body), a warm glow lights the west edge as the posse rides out (Q5), and THE POSSE RETURNS him (Q3): on its next pass he hops off at his own seat; the cowboy is back in the saddle the pass after. At the crossing
+//   his horse JUMPS the cars (Q4: never bowled over). THE STARS (Q1): 100★ the first ride ever on each (META.wrdTrain / META.wrdHorse, the comet law: the flag first, the bank second, ONE save, THE ONE PIPE), the float
+//   at the hop off. Wordless; zero server bytes; one rAF only while a ride or a wait stands (never an interval timer: the lands' law); under reduced motion both rest (the train parked, the posse never exists). ═══
+const WRD={ pad:24, rpad:20, track:22, lane:[446,498], lapMs:26000, hopMs:450, offMs:550, stars:100, dx:[0,54,112,168], px0:1010, py:472, glowX:200, jumpMs:600 };
+let WRD_RIDE=null, WRD_WAIT=null, WRD_RAF=0, WRD_TRK=null, WRD_LW=0;
+const WRD_NS='http://www.w3.org/2000/svg';
+function wrdOn(){ return S.mode==='menu' && roomCur()==='western' && !reducedMotion(); }
+function wrdSvg(){ return document.querySelector('#roomStage > svg'); }
+function wrdPg(){ const s9=wrdSvg(); return s9 && s9.querySelector('#wr-posse'); }   // the posse's STATIC outer group: the kick, the cowboy, the glow, the want, the puffs live here (stage units)
+function wrdXY(el){ const st=document.getElementById('roomStage'); if(!st || !el) return null; const sr=st.getBoundingClientRect(), b=el.getBoundingClientRect(); if(!sr.width || !b.width) return null; const k=960/sr.width; return [(b.left+b.width/2-sr.left)*k, (b.top+b.height/2-sr.top)*k, b.width*k, b.height*k]; }   // a node's box centre + size in stage units (wrPosseWatch's reading: the box, never getScreenCTM)
+function wrdCarOk(c, p){ let op=1; try{ op=+getComputedStyle(c).opacity; }catch(e){} return !!p && op>0.5 && p[0]>0 && p[0]<960 && p[1]>0 && p[1]<600 && !wrInShell(p[0], p[1]); }   // on the stage, outside both shells, not on the hidden leg
+function wrdCars(){ const s9=wrdSvg(); if(!s9) return []; return [...s9.querySelectorAll('#wl-train > .wl-car')].map(c=>{ const p=wrdXY(c); return wrdCarOk(c, p)? p : null; }).filter(Boolean); }
+function wrdCoal(){ const s9=wrdSvg(), c=s9 && s9.querySelectorAll('#wl-train > .wl-car')[1]; if(!c) return null; const p=wrdXY(c); if(!p) return null; p.push(wrdCarOk(c, p)); return p; }   // the coal car (the middle car): [x, y, w, h, on view]
+function wrdTx(){ const pg=wrdPg(), g=pg && pg.querySelector('.wr-posse'); if(!g) return null; try{ const t=getComputedStyle(g).transform; if(!t || t==='none') return 0; return new DOMMatrixReadOnly(t).e; }catch(e){ return null; } }   // the posse's ride now (its css clock)
+function wrdRiders(){ const pg=wrdPg(), tx=wrdTx(); if(!pg || tx===null) return []; return [...pg.querySelectorAll('.wr-rider')].map((r, i)=>({ r:r, i:i, x:WRD.px0+WRD.dx[i]+tx, y:WRD.py })); }   // each rider's feet in stage units (wrPosseSVG's seats + the ride)
+function wrdFree(q){ return !q.r.classList.contains('wlhit') && !q.r.classList.contains('wrd-mine') && q.x>20 && q.x<940; }
+function wrdTrackD(x, y){ if(!WRD_TRK) WRD_TRK=wlSample(WL_TRACK, 6); let m=1e9; for(const p of WRD_TRK){ const d=Math.hypot(p[0]-x, p[1]-y); if(d<m) m=d; } return m; }
+function wrdFeet(k){ const tb=VTROOPS.find(r9=>r9.k===k); if(!tb) return null; const d=rpXY(k); return [tb.x+tb.w/2+d[0], tb.y+tb.h+d[1]]; }   // his feet at his saved seat (sledFeet's grammar)
+function wrdAway(k){ return !!(WRD_RIDE && WRD_RIDE.k===k && WRD_RIDE.ph!=='after'); }   // a man on a ride is not at his seat to grab (rdragPick's skip, the sled's twin)
+// THE VERDICT (rdragEnd, after the sled's): the car or the rider under him first, then the track / the lane at his FEET; null = an ordinary park
+function wrdDropAt(d){
+  if(!d || d.dx===undefined || !d.base || !/^vt[1-4]$/.test(d.k) || WRD_RIDE || !wrdOn()) return null;
+  const b=d.base, cx=b.x+b.w/2+d.dx, P=[[cx, b.y+b.h+d.dy], [cx, b.y+b.h/2+d.dy]]; if(d.mx!==undefined) P.push([d.mx, d.my]);
+  for(const c of wrdCars()){ const hx=c[2]/2+WRD.pad, hy=c[3]/2+WRD.pad; if(P.some(p=>Math.abs(p[0]-c[0])<=hx && Math.abs(p[1]-c[1])<=hy)) return { kind:'train', how:'now', at:c, from:P[0] }; }
+  for(const q of wrdRiders()){ if(!wrdFree(q)) continue; if(P.some(p=>p[0]>=q.x-24-WRD.rpad && p[0]<=q.x+24+WRD.rpad && p[1]>=q.y-58-WRD.rpad && p[1]<=q.y+4+WRD.rpad)) return { kind:'horse', how:'now', r:q.r, i:q.i, x:q.x }; }
+  for(const f of P) if(f[0]>70 && f[0]<940 && !wrInShell(f[0], f[1]) && wrdTrackD(f[0], f[1])<=WRD.track) return { kind:'train', how:'wait', at:P[0] };   // the feet, the box centre or the finger ON the track
+  for(const f of P) if(f[0]>30 && f[0]<930 && f[1]>=WRD.lane[0] && f[1]<=WRD.lane[1]) return { kind:'horse', how:'wait', at:P[0] };   // … on the posse's lane
+  return null;
+}
+// rdragEnd's one line: true = the man rode (the release ends here); a wait parks him as ever (false) and the clock watches for the train / the last horse
+function wrdDrop(d){ if(WRD_WAIT && WRD_WAIT.k===d.k) WRD_WAIT=null; const v=wrdDropAt(d); if(!v) return false;
+  if(v.how==='wait'){ WRD_WAIT={ kind:v.kind, k:d.k }; wrdGo(); return false; }
+  return v.kind==='train'? wrdTrainMount(d.k, v.from) : wrdHorseMount(d.k, v); }
+// THE WANT: a gold ring under the car / the rider a held man would take, a small one at his feet where he would wait (the sled's .sledwant grammar)
+function wrdWantSet(v){ const pg=wrdPg(); let e=pg && pg.querySelector('#wrd-want'); if(!v){ if(e) e.remove(); return; } if(!pg) return;
+  let x, y, rx, ry; if(v.kind==='train' && v.how==='now'){ x=v.at[0]; y=v.at[1]+4; rx=v.at[2]/2+10; ry=Math.max(10, v.at[3]/3); } else if(v.how==='now'){ x=v.x; y=WRD.py-2; rx=34; ry=10; } else { x=v.at[0]; y=v.at[1]; rx=26; ry=8; }
+  if(!e){ e=document.createElementNS(WRD_NS, 'g'); e.id='wrd-want'; e.setAttribute('pointer-events', 'none'); e.innerHTML='<ellipse class="wrd-wantf" fill="#FFE9A8" opacity="0.28"/><ellipse class="wrd-wants" fill="none" stroke="#FFD24A" stroke-width="2.5" stroke-dasharray="6 5"/>'; pg.appendChild(e); }
+  for(const q of e.children){ q.setAttribute('cx', x.toFixed(1)); q.setAttribute('cy', y.toFixed(1)); q.setAttribute('rx', rx.toFixed(1)); q.setAttribute('ry', ry.toFixed(1)); }
+  e.setAttribute('data-k', v.kind+':'+v.how); }
+function wrdPic(k){ const w=document.getElementById('ro-'+k), im=w && w.querySelector('image'); if(k==='vt3' || !im) return [sprURI('rifleman', dyeHex() || '#4A6B35'), 54]; return [im.getAttribute('href'), +im.getAttribute('width') || 54]; }   // his own picture; the prone machine-gunner rides as a standing rifleman
+function wrdManG(k, s, flip){ const P=wrdPic(k), w=P[1]*s, h=w*7/6, g=document.createElementNS(WRD_NS, 'g'); g.setAttribute('pointer-events', 'none');
+  const im=document.createElementNS(WRD_NS, 'image'); im.setAttribute('href', P[0]); im.setAttribute('x', (-w/2).toFixed(1)); im.setAttribute('y', (-h).toFixed(1)); im.setAttribute('width', w.toFixed(1)); im.setAttribute('height', h.toFixed(1));
+  if(flip){ const f=document.createElementNS(WRD_NS, 'g'); f.setAttribute('transform', 'scale(-1,1)'); f.appendChild(im); g.appendChild(f); } else g.appendChild(im); return g; }
+function wrdPose(g, x, y, op, sc){ g.setAttribute('transform', 'translate('+x.toFixed(1)+','+y.toFixed(1)+')'+(sc && sc!==1? ' scale('+sc.toFixed(3)+')' : '')); g.style.visibility=op? '' : 'hidden'; }
+function wrdHome(k, ms){ const s0=rpXY(k); rdragApply(k, s0[0], s0[1]); dlgHold(k, ms, 1); const w=document.getElementById('ro-'+k); if(w) w.style.visibility='hidden'; }   // TRUTH FIRST: his wrapper back at his saved seat, held awake (never pictured) and unseen while his picture rides
+function wrdShow(k){ const w=document.getElementById('ro-'+k); if(w) w.style.visibility=''; dlgHold(k, DLG_HOLD_MS, 1); }   // he stands at his seat again; the still room pictures him afresh
+function wrdStars(key){ if(META[key]) return 0; META[key]=1; const w9=starX(WRD.stars); META.starBank+=w9; checkAch(); saveMeta(); return w9; }   // the comet law: the flag FIRST, the bank second, ONE save (THE ONE PIPE, bank only)
+function wrdPuff(x, y, s){ const pg=wrdPg(); if(!pg) return; const b=document.createElementNS(WRD_NS, 'g'); b.setAttribute('class', 'wlburst'); b.setAttribute('pointer-events', 'none'); b.setAttribute('transform', 'translate('+x.toFixed(1)+','+y.toFixed(1)+') scale('+s+')');
+  b.innerHTML='<g class="wlburst-in">'+dustPuff(-18, 0, 1.5, .7)+dustPuff(14, -8, 1.3, .6)+dustPuff(0, -22, 1.1, .5)+'</g>'; pg.appendChild(b); setTimeout(()=>{ try{ b.remove(); }catch(e){} }, 600); }
+function wrdPurse(w9, p){ try{ SFX.twink(); }catch(e){} const st=document.getElementById('roomStage');
+  if(st && p){ const f=document.createElement('div'); f.className='starfloat big'; f.textContent='+'+w9+'★'; f.style.left=Math.round(p[0]-34)+'px'; f.style.top=Math.round(p[1]-96)+'px'; st.appendChild(f); setTimeout(()=>{ try{ f.remove(); }catch(e){} }, 1120); }
+  setTimeout(()=>{ if(S.mode==='menu') wfBankChip(); }, 1200); }
+// ── THE TRAIN ──
+function wrdTrainMount(k, from){ const s9=wrdSvg(), tun=s9 && s9.querySelector('#wl-tunnels'); if(!tun || !from) return false;
+  wrdHome(k, WRD.lapMs+8000);
+  const g=wrdManG(k, 0.78, false); g.id='wrd-rider'; tun.parentNode.insertBefore(g, tun);   // between the cars and the shells: the shells cover him in the tunnels
+  WRD_RIDE={ kind:'train', k:k, g:g, t0:performance.now(), from:from.slice(), last:null, ph:'on', w9:wrdStars('wrdTrain') };
+  wrdPose(g, from[0], from[1], 1); try{ SFX.whistle(); }catch(e){} wrdGo(); return true; }
+function wrdTrainStep(R, t){ const c=wrdCoal(); if(c) R.last=[c[0], c[1]+6, c[4]]; const T=R.last || [R.from[0], R.from[1], 1];
+  if(R.ph==='on'){ const u=Math.min(1, t/WRD.hopMs), a=R.from; wrdPose(R.g, a[0]+(T[0]-a[0])*u, a[1]+(T[1]-a[1])*u-34*Math.sin(Math.PI*u), 1); if(u>=1) R.ph='ride'; return; }
+  if(R.ph==='ride'){ wrdPose(R.g, T[0], T[1], T[2]); if(t>=WRD.lapMs && T[2]){ R.ph='off'; R.t1=t; R.a=[T[0], T[1]]; R.b=wrdFeet(R.k) || R.a; } return; }
+  if(R.ph==='off'){ const u=Math.min(1, (t-R.t1)/WRD.offMs), a=R.a, b=R.b; wrdPose(R.g, a[0]+(b[0]-a[0])*u, a[1]+(b[1]-a[1])*u-40*Math.sin(Math.PI*u), 1, 0.78+0.22*u); if(u>=1){ try{ R.g.remove(); }catch(e){} wrdLand(R, b); WRD_RIDE=null; } } }
+function wrdLand(R, p){ wrdShow(R.k); wrdPuff(p[0], p[1]+2, 0.55); try{ SFX.thock(); }catch(e){} if(R.w9) wrdPurse(R.w9, p); }
+// ── THE HORSE ──
+function wrdHorseMount(k, v){ const r=v.r, sp=r && r.firstElementChild, rm=sp && sp.querySelector('.rman'), A=rm && rm.parentNode, B0=A && A.nextElementSibling, B=(B0 && B0.getAttribute('transform')==='translate(75,36)')? B0 : null;   // the bandit's mask rides after him when the mold carries one
+  const body=sp && [...sp.children].find(e=>e.tagName==='path' && /^M40 100/.test(e.getAttribute('d') || '')); if(!A || !body) return false;
+  wrdHome(k, 90000);
+  const cow=A.outerHTML+(B? B.outerHTML : ''); A.style.display='none'; if(B) B.style.display='none'; r.classList.add('wrd-mine');
+  const man=wrdManG(k, 1.8, true); man.setAttribute('transform', 'translate(76,100)'); sp.insertBefore(man, body);   // seated: his legs behind the horse's body, facing west with it (sprite units, the saddle at ~(76,70))
+  const x=WRD.px0+WRD.dx[v.i]+(wrdTx()||0), P0=[x+0.84, 453.5];   // the outlaw's pivot (sprite 72,88) in stage units
+  const pg=wrdPg(), cg=document.createElementNS(WRD_NS, 'g'); cg.setAttribute('class', 'wrd-cow'); cg.setAttribute('pointer-events', 'none'); cg.innerHTML='<g transform="scale(0.42) translate(-72,-88)">'+cow+'</g>'; pg.appendChild(cg);
+  const st=document.createElementNS(WRD_NS, 'path'); st.setAttribute('d', 'M0 -12 L3 -3 L12 0 L3 3 L0 12 L-3 3 L-12 0 L-3 -3 Z'); st.setAttribute('fill', '#FFE07A'); st.setAttribute('stroke', '#B07A10'); st.setAttribute('stroke-width', '1.5'); st.setAttribute('transform', 'translate('+(x+22).toFixed(1)+','+(WRD.py-26)+') scale(1.1)'); pg.appendChild(st); setTimeout(()=>{ try{ st.remove(); }catch(e){} }, 320);
+  wrdPuff(x+28, WRD.py, 0.7); try{ SFX.thock(); }catch(e){}
+  WRD_RIDE={ kind:'horse', k:k, r:r, i:v.i, sp:sp, spT:sp.getAttribute('transform'), man:man, hid:B? [A, B] : [A], ph:'ride', t0:performance.now(), px:x, armed:0, jump:0, glow:null,
+    cow:{ g:cg, t0:0, P0:P0, hat:cg.querySelector('.rhat') }, w9:wrdStars('wrdHorse') };
+  wrdCowStep(WRD_RIDE, 0); wrdGo(); return true; }
+function wrdCowStep(R, t){ const C=R.cow; if(!C) return; const a=t-C.t0, P=C.P0; let x, y, rot, op=1;
+  if(a<700){ const u=a/700; x=P[0]+60*u; y=P[1]-58*Math.sin(Math.PI*u)+14*u; rot=-360*u; if(C.hat) C.hat.setAttribute('transform', 'translate('+(30*u).toFixed(1)+','+(-70*Math.sin(Math.PI*u)+60*u).toFixed(1)+') rotate('+(240*u).toFixed(0)+')'); }   // THE KICK: up and back, a whole turn, his hat on its own
+  else if(a<1700){ x=P[0]+60; y=P[1]+14; rot=14+6*Math.sin((a-700)/1000*Math.PI*8); if(!C.sat){ C.sat=1; wrdPuff(x, P[1]+22, 0.5); } }   // in the dust, the fist shaken at the posse
+  else if(a<5200){ const u=(a-1700)/3500; if(C.hat && !C.on){ C.on=1; C.hat.removeAttribute('transform'); } x=P[0]+60+130*u; y=P[1]+8-2*Math.abs(Math.sin(u*Math.PI*10)); rot=0; op=u<0.75? 1 : Math.max(0, (1-u)/0.25); }   // the hat back on, the walk east into town
+  else { try{ C.g.remove(); }catch(e){} R.cow=null; return; }
+  C.g.setAttribute('transform', 'translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+rot.toFixed(1)+')'); C.g.setAttribute('opacity', op.toFixed(2)); }
+function wrdGlowStep(R, t){ if(!R.glow) return; const a=t-R.glow.t0, op=a<500? a/500 : a<1700? 1 : Math.max(0, 1-(a-1700)/600); R.glow.g.setAttribute('opacity', (0.9*op).toFixed(3)); if(a>=2300){ try{ R.glow.g.remove(); }catch(e){} R.glow=null; } }
+function wrdGlowOn(R, t){ const pg=wrdPg(); if(!pg) return; const g=document.createElementNS(WRD_NS, 'g'); g.id='wrd-glow'; g.setAttribute('opacity', '0'); g.setAttribute('pointer-events', 'none');
+  g.innerHTML='<defs><radialGradient id="wrd-sun" cx="0.1" cy="0.62" r="0.7"><stop offset="0" stop-color="#FFD27A" stop-opacity="0.9"/><stop offset="0.5" stop-color="#FF8A4C" stop-opacity="0.38"/><stop offset="1" stop-color="#FF8A4C" stop-opacity="0"/></radialGradient></defs><rect x="-40" y="250" width="440" height="350" fill="url(#wrd-sun)"/>';
+  pg.insertBefore(g, pg.firstChild); R.glow={ g:g, t0:t }; }   // INTO THE SUNSET (Q5): behind the riders, ~2.3 s
+function wrdJump(r){ const R=WRD_RIDE; if(!R || R.kind!=='horse' || R.r!==r || !R.man.isConnected) return false; if(!R.jump) R.jump=performance.now()-R.t0; return true; }   // wrPosseWatch: his horse at the crossing JUMPS the cars (Q4) — never bowled over
+function wrdHorseStep(R, t){ const tx=wrdTx(); if(tx===null) return wrdEnd(R); const x=WRD.px0+WRD.dx[R.i]+tx;
+  wrdCowStep(R, t); wrdGlowStep(R, t);
+  if(R.jump){ const u=(t-R.jump)/WRD.jumpMs; if(u>=1){ R.sp.setAttribute('transform', R.spT); R.jump=0; } else R.sp.setAttribute('transform', 'translate(0,'+(-36*Math.sin(Math.PI*u)).toFixed(1)+') '+R.spT); }
+  if(R.ph==='ride'){ if(x<WRD.glowX && !R.glow && !R.glowed){ R.glowed=1; wrdGlowOn(R, t); } if(x<-150 || x>R.px+40) R.ph='away'; }   // off the west edge (or the loop wrapped under a repaint)
+  else if(R.ph==='away'){ const f=wrdFeet(R.k); if(!f) return wrdEnd(R); if(x>980) R.armed=1;
+    if(R.armed && x<=f[0] && x<940){ R.ph='off'; R.t1=t; try{ R.man.remove(); }catch(e){} R.a=[x+2.5, WRD.py-22]; R.b=f; R.hop=wrdManG(R.k, 0.6, false); wrdPg().appendChild(R.hop); } }   // THE POSSE RETURNS (Q3): the next pass brings him home
+  else if(R.ph==='off'){ const u=Math.min(1, (t-R.t1)/WRD.offMs), a=R.a, b=R.b; wrdPose(R.hop, a[0]+(b[0]-a[0])*u, a[1]+(b[1]-a[1])*u-46*Math.sin(Math.PI*u), 1, 0.6+0.4*u); if(u>=1){ try{ R.hop.remove(); }catch(e){} wrdLand(R, b); R.ph='after'; R.t2=t; } }
+  else if(R.ph==='after'){ if((x>980 && t-R.t2>1500) || t-R.t2>40000){ wrdRestore(R); WRD_RIDE=null; return; } }   // the horse runs on riderless; the cowboy is back at the next loop
+  R.px=x; }
+function wrdRestore(R){ if(R.kind!=='horse') return; for(const e of R.hid) e.style.display=''; try{ R.man.remove(); }catch(e){} if(R.hop) try{ R.hop.remove(); }catch(e){} R.r.classList.remove('wrd-mine'); if(R.spT) R.sp.setAttribute('transform', R.spT);
+  if(R.cow) try{ R.cow.g.remove(); }catch(e){} if(R.glow) try{ R.glow.g.remove(); }catch(e){} }
+function wrdEnd(R){ if(R.kind==='train'){ try{ R.g.remove(); }catch(e){} } else wrdRestore(R); if(R.ph!=='after') wrdShow(R.k); WRD_RIDE=null; }   // a ride cut short (a repaint, the room left): he simply stands at his seat
+// ── THE WAIT: a man parked on the track / the lane, the coal car or the last horse takes him as it passes ──
+function wrdWaitStep(){ const W=WRD_WAIT; if(!W || WRD_RIDE) return; if(RDRAG && RDRAG.k===W.k) return; const f=wrdFeet(W.k); if(!f || !document.getElementById('ro-'+W.k)){ WRD_WAIT=null; return; }
+  if(W.kind==='train'){ if(wrdTrackD(f[0], f[1])>WRD.track+44){ WRD_WAIT=null; return; } const c=wrdCoal(); if(c && c[4] && Math.hypot(c[0]-f[0], c[1]-f[1])<50){ WRD_WAIT=null; wrdTrainMount(W.k, f); } return; }   // moved off the track by a later drag: the wait is over
+  if(f[1]<WRD.lane[0]-44 || f[1]>WRD.lane[1]+44){ WRD_WAIT=null; return; }
+  const Q=wrdRiders().filter(wrdFree); if(!Q.length) return; const q=Q[Q.length-1];
+  if(Math.abs(q.x-f[0])<16){ WRD_WAIT=null; wrdHorseMount(W.k, q); } }
+function wrdGo(){ if(!WRD_RAF) WRD_RAF=requestAnimationFrame(wrdTick); }
+function wrdTick(){ WRD_RAF=0;
+  if(!wrdOn()){ if(WRD_RIDE) wrdEnd(WRD_RIDE); WRD_WAIT=null; return; }
+  const R=WRD_RIDE, now=performance.now();
+  if(R){ if(!(R.kind==='train'? R.g.isConnected : R.r.isConnected)) wrdEnd(R); else if(R.kind==='train') wrdTrainStep(R, now-R.t0); else wrdHorseStep(R, now-R.t0); }
+  else if(WRD_WAIT && now-WRD_LW>80){ WRD_LW=now; wrdWaitStep(); }
+  if(WRD_RIDE || WRD_WAIT) WRD_RAF=requestAnimationFrame(wrdTick); }
+// THE RIG: GVT.wrd() — the state; { at:{k,dx,dy,mx,my,base} } reads the verdict for a hand-made release (read-only)
+function wrdRig(o){ o=o||{}; const R=WRD_RIDE, pg=wrdPg(), w=pg && pg.querySelector('#wrd-want');
+  return { cv:GVT_CV, on:wrdOn(), ride:R? { kind:R.kind, k:R.k, ph:R.ph, t:Math.round(performance.now()-R.t0), i:R.kind==='horse'? R.i : null, cow:!!R.cow, glow:!!R.glow, jump:!!R.jump, seat:R.kind==='train'? (R.g.getAttribute('transform')||'') : null } : null,
+    wait:WRD_WAIT? Object.assign({}, WRD_WAIT) : null, flags:{ train:META.wrdTrain|0, horse:META.wrdHorse|0 }, coal:wrdCoal(), riders:wrdRiders().map(q=>[q.i, Math.round(q.x), q.r.classList.contains('wlhit')? 'hit' : q.r.classList.contains('wrd-mine')? 'mine' : '']),
+    want:w? w.getAttribute('data-k') : null, verdict:o.at? (v=>v? { kind:v.kind, how:v.how } : null)(wrdDropAt(o.at)) : undefined, T:Object.assign({}, WRD) }; }
+setTimeout(()=>{ try{ if(window.GVT && !GVT.wrd) GVT.wrd=wrdRig; }catch(e){} }, 0);
+// ═══ CARD-WRD ends ═══
 // THE RIG: GVT.range() — the addresses, the classes, the rows, the pills, the seats, the plane's seat, the town / the shells / the posse's clock, the animation / SMIL / clip census (read-only)
 function wlRig(){
   const g=id=>!!document.getElementById(id), svg=document.querySelector('#roomStage > svg'), st=document.getElementById('roomStage'), q=s=>svg? svg.querySelector(s) : null;
@@ -135246,7 +135376,7 @@ function rdragPick(p){
   // off the roof (the porthole clone dupes ids but this is existence-only)
   if(document.querySelector('[id^="ro-vt"]'))
     for(let i=VTROOPS.length-1;i>=0;i--){ const tb=VTROOPS[i], d=rpXY(tb.k);
-      if(roofGone(tb.k) || vtcIn(tb.k) || BALL_DOWN.has(tb.k) || GRAV_FALLING.has(tb.k) || (SLED_RIDE && SLED_RIDE.k===tb.k)) continue;   // CARD-TCS: nor a man in the chest   // v3.16: a man the ball put down is not draggable while down · 0905 THE FLOOR LAW: nor a man mid-fall
+      if(roofGone(tb.k) || vtcIn(tb.k) || BALL_DOWN.has(tb.k) || GRAV_FALLING.has(tb.k) || (SLED_RIDE && SLED_RIDE.k===tb.k) || wrdAway(tb.k)) continue;   /* CARD-WRD: nor a man on the train or the posse */   // CARD-TCS: nor a man in the chest   // v3.16: a man the ball put down is not draggable while down · 0905 THE FLOOR LAW: nor a man mid-fall
       if(p.x>=tb.x+d[0] && p.x<=tb.x+tb.w+d[0] && p.y>=tb.y+d[1] && p.y<=tb.y+tb.h+d[1])
         return { k:tb.k, base:tb }; }
   // the named toys — after the troops (a man on the rug outranks the toy
@@ -136864,7 +136994,7 @@ function rdragEnd(e){
   // finger's lift must neither drop a live drag nor mint a phantom tap
   if(e && e.pointerId!==undefined && d.pid!==undefined && e.pointerId!==d.pid) return;
   RDRAG=null;
-  chestHoverSet(false); dogHoverSet(false); if(wfLive()) sledHoverSet(false);   // 0931: the dog's want dies with every release too · 0907 THE CHEST TAKES A DROP: the glow dies with every release (a tap, a park, a drop)
+  chestHoverSet(false); dogHoverSet(false); if(wfLive()) sledHoverSet(false); wrdWantSet(null);   /* CARD-WRD: the want dies with every release */   // 0931: the dog's want dies with every release too · 0907 THE CHEST TAKES A DROP: the glow dies with every release (a tap, a park, a drop)
   if(!d.moved){
     if(d.menu) return;   // v11.10 CARD-MM THE MENU MOVES: a sub-slop release on a shelf item claims nothing — the tap falls through to the door's own onclick (zero dispatch changes)
     // ===== v2.85 THE SYNTHESIZED TAP (Wyatt 8/9, the iPad night: "the race
@@ -136923,7 +137053,8 @@ function rdragEnd(e){
     if(xh2Drop(d)) return;   // CARD-XH2: THE WALNUT let go on the nutcracker is cracked (200 stars, once) · a Christmas treasure let go on the little tree hangs there. FIRST of the drop's verdicts: the nutcracker stands at the chest's side, inside the chest's own catch pad, and he is the point (the dog's law)
     if(dogDropHit(d)){ dogFeed(d); return; }   // 0931 THE MAGIC BONE: the dog's verdict FIRST — his box before the chest's corner (he is the point); the bone snaps home, nothing written
     if(chestDropHit(d)){ chestSwallow(d); return; }   // 0907 THE CHEST TAKES A DROP: a treasure let go over the treasure chest goes IN THE CHEST — before the push, the cast and the fall (on the roof the west corner's edge yields to the chest where it stands); nothing else written
-    if(sledDropHit(d)){ sledMount(d.k, [d.dx, d.dy]); return; }   // 1036 THE SLED RIDE: one of the four men let go over the Winter Field's sled RIDES — the sled takes him on one lap (the truth first: his dismount seat + the first ride's purse are written at the mount, ONE save); never a park, never the floor law's fall
+    if(sledDropHit(d)){ sledMount(d.k, [d.dx, d.dy]); return; }
+    if(wrdDrop(d)) return;   // CARD-WRD THE TRAIN AND THE POSSE TAKE A MAN (ISAAC, Wyatt 10/11 "Approved"): one of the four men let go over a car boards the coal car, over a posse rider kicks the cowboy off; on the track / the lane he parks and waits (false)   // 1036 THE SLED RIDE: one of the four men let go over the Winter Field's sled RIDES — the sled takes him on one lap (the truth first: his dismount seat + the first ride's purse are written at the mount, ONE save); never a park, never the floor law's fall
     // v3.16 (Wyatt 8/11, card 0257): a soccer ball LET GO at real pace is
     // his PUSH — the flight takes over from exactly where the ball shows
     // (ghost = placement, the deploy drag's own contract) and the SETTLE
@@ -137003,6 +137134,7 @@ document.addEventListener('pointermove', e=>{
   }
   RDRAG.mx=p.x; RDRAG.my=p.y; RDRAG.mt=nw;
   chestHoverSet(!dogDropHit(RDRAG) && chestDropHit(RDRAG)); dogHoverSet(dogDropAt(RDRAG));   // 1074: the want on the dog UNDER the bone (the walker or a home dog)   // 0931 THE MAGIC BONE: the dog wins the hover (his box before the chest's corner)   // 0907 THE CHEST TAKES A DROP: the chest glows under a held treasure (the finger's point above is the hit's second read)
+  if(/^vt[1-4]$/.test(RDRAG.k) && roomCur()==='western') wrdWantSet(wrdDropAt(RDRAG));   // CARD-WRD: the gold ring under the car / the rider he would take, a small one where he would wait
   if(sledRiderOk(RDRAG.k) && wfLive()) sledHoverSet(sledDropHit(RDRAG));   // CARD-NP: the sled rocks under the held dragon too   // 1036 THE SLED RIDE: the sled rocks under a held man
 }, {passive:false});
 document.addEventListener('pointerup', rdragEnd);
