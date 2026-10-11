@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.35","md5":"0142a20cf15bd7e6c9fce50fe46d6077","sha":"1f54b18a3","at":"2026-10-11T06:57:14Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.36","md5":"6bff9c3f19a8ff99187824a63a48b239","sha":"763e658c9","at":"2026-10-11T07:23:50Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -79672,6 +79672,7 @@ function cqPickEdge(u,fromId){ const edges=S.cfg.terrain.cq.E[fromId]||[];
   const hungry = !!(S.bf && S.bf.cqHolder!==u.side);
   const wt = e => e[1] + (hungry? (e[2]||0) : 0);
   let tot=0; for(const e of edges) tot+=wt(e);
+  { const e9=dfmDoor(u,fromId,edges,wt); if(e9) return e9; }   // CARD-DFM (Q4): the door nearest his drop height (ties: the hash below)
   // the fork is HIS: a hash of his own unit id x the node name — deterministic
   // (a room's twenty sims agree), varied (ten men take six ways)
   const h=(((u.id*2654435761)>>>0) ^ ((fromId.charCodeAt(0)*2246822519 + fromId.length*97)>>>0))>>>0;
@@ -80531,7 +80532,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -94005,6 +94006,45 @@ function zigRoll(u){
   for(let i=0;i<5;i++){ s=(s+0x6D2B79F5)>>>0; let z=Math.imul(s^(s>>>15), 1|s); z=(z+Math.imul(z^(z>>>7), 61|z))^z; out.push(((z^(z>>>14))>>>0)/4294967296); }
   return out;
 }
+// ═══ CARD-DFM THE DROP FORMATION HOLDS (board card J48, lane gvt-p3; design/drop-formation-1010/00-DESIGN-DFM.md + CARD-DFM-BUILD.md). Wyatt 10/10/2026 03:03 UTC by phone, verbatim: "For wherever you drop
+// your units, even if you just do random tap, wherever they enter the field, if they cross through to a choke point as they get to the other enemy's toy box parallel line, we want that to spread out in that
+// same formation of how they were initially dropped. To continue with the strategy-based portion of the game." His go 10/10 21:02 EDT (Discord 1558645955761405953): "Go with recommendations for all here" ═══
+// WHO (Q5): the eleven men + Sarge (DFM_MEN; never a machine, a hero or a summons), BOTH armies (Q2: the computer's drops stamp laneY through placeUnit like mine), the campaign too (Q3).
+// WHERE (Q6): u.laneY = the height he LANDED at (placeUnit stamps it; a re-drop or a relay re-stamps it). Not his place in the squad.
+// THE SNAP-BACK: once he is past the far bank (+bank) of every river that lay between where his lane was set (fmX0) and their box, his zig's new waypoint aims at laneY + his own wobble (+-wob, off his
+//   placement stamp zigS, else his id: no new dice) instead of 60 % of laneY +-50 (a winter gate is a rock chain, not a river: rockSteer walks him round it as before).
+// THE LINE (Q1): inside the 280 band he no longer aims at the box's centre: he walks his own height (dfmY) to the box's line (box x - turn), and inside `near` turns along it to his seat on the box's
+//   ring (ring px out, the bearing his drop height gives him, +-72 deg). The seat is inside LEAK_R, so the box is still hurt only by walking into it (bfLeak / the campaign's siege, untouched).
+// F4 THE CAP: dfmY keeps him within cap of the box's middle; cap = the flat maps' widest drop (the band 74..WORLD_H-96 on a 600 mat: 300-74 = 226), so a flat map never meets it; a tall map's (WESTERN LAND,
+//   THE BANK HEIST, THE HILL VILLAGE, the tall campaign mat) end men keep their order but come in no more than cap from the middle.
+// THE STARSHIP (Q4, benched since 9/25): at a fork (cqPickEdge) the door whose node height is nearest his laneY, ties broken by the old id hash; the drop's own cqPow / cqSup intents still come first.
+// Fights unchanged: the in-reach halt, the aim and the retarget come before every door here; after a fight the zig takes him back to his own height. Q7: nothing on screen, no words.
+// DFM.on=0 = the paths byte what they were (no door consumes a die).
+const DFM={ on:1, ring:44, turn:70, near:80, wob:10, cap:226, bank:30, tie:1 };
+const DFM_MEN={ rifleman:1, mgunner:1, bazooka:1, mortar:1, grenadier:1, minesweeper:1, flame:1, radioman:1, medic:1, commando:1, spy:1, sarge:1 };   // Q5: the eleven men + Sarge (a hero's row in HP_RANK100 is not one)
+function dfmWho(u){ return !!(DFM.on && u && u.laneY!=null && DFM_MEN[u.type] && !(u.def && u.def.vehicle)); }
+function dfmStamp(u){ if(u.fmLY!==u.laneY){ u.fmLY=u.laneY; u.fmX0=u.x; } }   // where his lane was set (his drop, a re-drop, an ally's word): the rivers behind that never count
+function dfmWob(u){ const h=((u.zigS!=null)? u.zigS : u.id)>>>0; return ((h*37)%21-10)/10*DFM.wob; }
+function dfmPast(u,dir){ dfmStamp(u);
+  for(const rv of (S.cfg.terrain.rivers||[])){ const far=(dir>0)? rv.x+rv.w+DFM.bank : rv.x-DFM.bank, near=(dir>0)? rv.x : rv.x+rv.w;
+    if((u.fmX0-near)*dir<0 && (u.x-far)*dir<0) return false; }
+  return true; }
+function dfmZigY(u,y,dir){ return (dfmWho(u) && dfmPast(u,dir))? Math.max(84,Math.min(WORLD_H-104,u.laneY+dfmWob(u))) : y; }   // THE SNAP-BACK (the zig's new waypoint)
+function dfmY(u,b){ return b.y+Math.max(-DFM.cap,Math.min(DFM.cap,u.laneY-b.y)); }
+function dfmGoal(u,b,dir,fb){ if(!b || !dfmWho(u)) return fb; dfmStamp(u);   // THE LINE: fb = the goal it replaces (the box itself on the battleground, the crate's point on the campaign)
+  if(Math.abs(b.x-u.x)>DFM.near) return { x:b.x-dir*DFM.turn, y:dfmY(u,b) };
+  const k=Math.max(-1,Math.min(1,(u.laneY-104)/(WORLD_H-230)*2-1)), th=k*1.25;   // -1 the top of the drop band ... +1 the bottom
+  return { x:b.x-dir*Math.cos(th)*DFM.ring, y:b.y+Math.sin(th)*DFM.ring }; }
+function dfmDoor(u,fromId,edges,wt){ if(!dfmWho(u)) return null;   // THE STARSHIP's fork: the door nearest his drop height
+  let best=1e9, tie=[];
+  for(const e of edges){ if(!(wt(e)>0)) continue; const d=Math.abs(cqNodePos(u,e[0]).y-u.laneY);
+    if(d<best-DFM.tie){ best=d; tie=[e]; } else if(d<=best+DFM.tie) tie.push(e); }
+  if(tie.length<2) return tie.length? tie[0][0] : null;
+  let tot=0; for(const e of tie) tot+=wt(e);
+  const h=(((u.id*2654435761)>>>0) ^ ((fromId.charCodeAt(0)*2246822519 + fromId.length*97)>>>0))>>>0;   // the tie: cqPickEdge's own hash
+  let r=h%tot; for(const e of tie){ r-=wt(e); if(r<0) return e[0]; }
+  return tie[0][0]; }
+// ═══ END CARD-DFM ═══
 function bfUnitStep(u,dt){
   if(u.dead) return false;
   if(u.side==='nem') return false;   // 0386: the unit machinery never steps a hatchling (the fire loop's head already skips him — this is the belt)
@@ -94086,7 +94126,7 @@ function bfUnitStep(u,dt){
     // zig — a fresh sub-goal every second or so, a rare hitch in his step — and
     // only funnels straight onto the box over the last stretch
     if(u.pauseT>0){ u.pauseT-=dt; return false; }        // picking his footing (idle sway, no waddle)
-    if(Math.abs(b.x-u.x)<280){ u.wp=null; bfMarch(u,dt,b); }
+    if(Math.abs(b.x-u.x)<280){ u.wp=null; bfMarch(u,dt,dfmGoal(u,b,(u.side==='you')?1:-1,b)); }   // CARD-DFM THE LINE: his own height to the box's line, then his seat on its ring (b itself when DFM is off / not a man)
     else {
       u.wpT=(u.wpT||0)-dt;
       if(!u.wp || u.wpT<=0 || (Math.abs(u.wp.x-u.x)<14 && Math.abs(u.wp.y-u.y)<14)){
@@ -94094,6 +94134,7 @@ function bfUnitStep(u,dt){
         const zr=(S.coop && S.bf)? zigRoll(u) : null, R9=k=>(zr? zr[k] : Math.random());   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-5 THE SEEDED WALK, ⚑ Q6): in a co-op battle the five dice come off the man's own hash stream (seat · type · placement spot · the 64-px cell he stands in) so his twin on every screen walks the SAME zig; SOLO draws Math.random call for call as before
         u.wp={ x:u.x+dir*(90+R9(0)*110),
                y:Math.max(84,Math.min(WORLD_H-104,(lane+(R9(1)-0.5)*100)*0.6+u.y*0.4)) };
+        u.wp.y=dfmZigY(u,u.wp.y,dir);   // CARD-DFM THE SNAP-BACK: past the choke he aims at his own drop height (+-10, his own) instead of 60 % of it +-50 (the dice above drawn as before)
         u.wpT=1.0+R9(2)*1.3;
         if(R9(3)<0.10) u.pauseT=0.15+R9(4)*0.3;
       }
@@ -94897,13 +94938,14 @@ function campUnitStep(u,dt){
   let goal;
   const lane=(RP? RP.y : NF? NF.y : (u.laneY!=null?u.laneY:u.y));   // v1.48: the zig drifts to the FOE's lane while one stands (0318: or to his turret's)
   const gx=RP? RP.x : NF? NF.x : (TB? TB.x : ((u.tkGhost&&u.cloakT>0)? W-30 : (HD? HD[0] : HM? CAVE_HOME_X : (JD? W+120 : campFrontX())))), gy=RP? RP.y : NF? NF.y : (TB? TB.y : lane);   // 0347: no crate = the ghost strides for the east edge, straight through everybody (0410: the jeep family drives PAST it — clean off the rug)
-  if(gx-u.x<200){ u.wp=null; goal={x:gx, y:gy}; }
+  if(gx-u.x<200){ u.wp=null; goal={x:gx, y:gy}; if(TB && !RP && !NF && !TG) goal=dfmGoal(u,TB,1,goal); }   // CARD-DFM THE LINE (Q3): at the crate his own height to its line, then his seat on its ring
   else {
     u.wpT=(u.wpT||0)-dt;
     if(!u.wp || u.wpT<=0 || (Math.abs(u.wp.x-u.x)<14 && Math.abs(u.wp.y-u.y)<14)){
       const zr=(RBN_ZIG && rbnParty())? rbnZig(u) : null, R9=k=>(zr? zr[k] : Math.random());   // CARD-RB (4) THE TWIN WALKS ITS OWNER'S WALK: in a party the five dice are the man's own (every screen rolls the same zig); alone, Math.random call for call as shipped
       u.wp={ x:u.x+90+R9(0)*110,
              y:Math.max(84,Math.min(WORLD_H-104,(lane+(R9(1)-0.5)*100)*0.6+u.y*0.4)) };   // 0197: the live height (===H flat)
+      if(!RP && !NF && !TG) u.wp.y=dfmZigY(u,u.wp.y,1);   // CARD-DFM THE SNAP-BACK (Q3): a quiet carpet = his own drop height past the choke; a standing foe keeps the zig on HIS lane (fights win)
       u.wpT=1.0+R9(2)*1.3;
       if(R9(3)<0.10) u.pauseT=0.15+R9(4)*0.3;
     }
