@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.47","md5":"3eb5ff18c32875ef512f63f6f41eaf59","sha":"205b6a0b9","at":"2026-10-11T10:51:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.48","md5":"4c2432f8bd52549b9b67f34945e2b417","sha":"43eb8925b","at":"2026-10-11T11:00:01Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49711,24 +49711,30 @@ function roomGift(id){
 // digit-free on purpose (the v1.29.2 law), no FREE (the road's law) — the EN string is the key ×7
 function roomGiftLine(id){ return id==='rooftop'? 'THE ROOFTOP IS YOURS. A whole new room! Your ship sails you there.' : 'THE WINTER FIELD IS YOURS. A whole new room! Your ship sails you there.'; }
 // ═══ 0531 THE ROAD SIGNS (FM-GVT-NEWBIE-01 §5; Wyatt 8/24: "just dont say 'Free'") — THE GIFT ROAD: one row per
-// present the campaign hands out, in rung order. Every rung is READ OFF ITS OWN CONST at walk time (never a literal,
-// never a comment — the two fossils §1 found: "free at fifteen", "save-up at L12"), the sign's label is a short key
-// ×7 (the rooms wear their shipped names, the ducky its shelf name, the paint day 0529's own key), and each row
-// carries its OWN owned() read so a present already held — bought, gifted or hand-rolled — is skipped to the next.
-// The campaign door's NEXT UP corner (ptyPickerHTML 'c') reads giftRoadSign(nx): the first row at or past the pick
-// — NEXT UP · LEVEL 8 · THE WINTER FIELD — and past the last row the plain LEVEL %1 · rung name returns, as today.
-// The launch button still names the RUNG (ptyGoBtnHTML untouched): the sign is the road, the button is the battle.
-// ⚠ THE LENS STAYS OFF THE ROAD (LENS_FREE_CAMP): hidden means hidden (v2.42) — Wyatt's own little secret; a secret
-// advertised in advance is no secret. It still announces on arrival exactly as today (lensGift + the verdict line).
-// 0903 NEW COMMANDER FIXES: the three weapon rows LEFT this road (Sarge's guns read the COMMANDER level now; a campaign sign that
-// promised the shotgun at campaign 5 would lie — the academy's REACH COMMANDER LEVEL line is their sign). 0905: THE NIGHT BELLS' row left
-// the same way (Wyatt 9/5 9:24 pm: the night war opens at COMMANDER level 9 — the treasure road's level-bar sign is its sign). THE WORD FREE NEVER APPEARS
-// ON THE ROAD, neither do prices — in any of the seven tongues (the announce lines' law, message two). A future
-// gift = one row. ⚑ a dial on any const moves its sign with it (the walk takes the LOWEST unowned rung ≥ the pick).
+// present the CAMPAIGN pays, in rung order. CARD-ATL-Q4 (Wyatt 10/10 21:02 PND-09 Q4, "Go with recommendations for all here":
+// the NEXT UP sign for the whole road, the lens kept secret) re-cut this table to: PAINT DAY at PAINT_GIFT_LVL, THE JET PACK at
+// JET_UNLOCK-1, THE CARGO PANTS at OUTFIT_EARN_SOLO.cargopants, THE COMMANDO at CMDO_LVL, THE DOG HOUSE at DOGHOUSE_LVL,
+// THE V2 TANK at T2_LVL, THE BAKER RIFLE at BAK_LVL. A row's lvl is the level whose WIN pays it (the jet pack's 39: gearDue's
+// "reached 40"), read off its own const at walk time (never a literal); its key is the prize card's own title (x7); its owned()
+// is the game's own ownership read, so a prize already held is skipped to the next.
+// The campaign door's NEXT UP corner (ptyPickerHTML 'c') reads giftRoadSign(nx): the lowest unowned row at or past the pick
+// (NEXT UP · LEVEL 39 · THE JET PACK); past the last row the plain LEVEL %1 · rung name returns. The launch button still names
+// the RUNG (ptyGoBtnHTML untouched): the sign is the road, the button is the battle.
+// ⚠ OFF THE ROAD ON PURPOSE: THE MAGIC LENS (LENS_FREE_CAMP: hidden means hidden, v2.42, Wyatt's own little secret; it announces
+// on arrival as always); the conditional gifts (the dragon's TRIPLE CROWN, MEN WITHOUT FEAR); the medals; the summit's surprises
+// (ON THE HOUSE, ELITE FORCES; ⚑ ATL-Q4-1); Sarge's guns and THE NIGHT BELLS (they read the COMMANDER level: 0903 / 0905, the
+// academy's line and the treasure road's level-bar sign are theirs); anything sold (0905: THE RUBBER DUCKY left, he is merchandise).
+// THE WORD FREE NEVER APPEARS ON THE ROAD, neither do prices, in any of the seven tongues. A future campaign gift = one row.
 const GIFT_ROAD=[
   // 0905 THE REWARD ROAD RE-CUT (cell 5): THE RUBBER DUCKY's row LEFT this road — he is sold at the counter now (15★, from day one); a sign must never promise a gift that is merchandise
   { lvl:()=>PAINT_GIFT_LVL,                   key:'PAINT DAY',                 owned:()=>(Array.isArray(META.dyes)&&META.dyes.some(id=>!dyeIsPrize(id)))||!!META.dyeGift },   // the CHOICE (0539: a prize jar is not the choice) — a jar ever in the ledger, or the 0529 stamp (KEEP MY GREEN is a choice made); never !paintRiteOwed(): its rung clause reads false on every rung still ahead
   // 0905 THE NIGHT BELLS RING AT COMMANDER LEVEL 9 (Wyatt 9/5 9:24 pm: "When your commander level is level 9, that's when you can do any of the night events"): THE NIGHT BELLS' row LEFT this road — the night gate reads the COMMANDER level now, and the treasure road's sign in the level bar (NEXT UP AT LEVEL 9: THE NIGHT BELLS) is its sign, the guns' own precedent (0903)
+  { lvl:()=>JET_UNLOCK-1,                    key:'THE JET PACK',              owned:()=>jetOwned() },   // CARD-ATL-Q4 (PND-09 Q4): the win that REACHES JET_UNLOCK (gearDue), the band CARD-ATL-Q3 prints
+  { lvl:()=>OUTFIT_EARN_SOLO.cargopants,     key:'THE CARGO PANTS',           owned:()=>outfitOwns('cargopants') },
+  { lvl:()=>CMDO_LVL,                        key:'THE COMMANDO',              owned:()=>cmdoOwned() },
+  { lvl:()=>DOGHOUSE_LVL,                    key:'THE DOG HOUSE',             owned:()=>decOwns('doghouse') },
+  { lvl:()=>T2_LVL,                          key:'THE V2 TANK',               owned:()=>vehOwns('tank2') },
+  { lvl:()=>BAK_LVL,                         key:'THE BAKER RIFLE',           owned:()=>enhOwns('bakerrifle') },
 ];
 // the sign for a pick: the LOWEST unowned rung at or past nx (nx = the next rung to play), or null = the plain corner
 function giftRoadSign(nx){
@@ -81348,7 +81354,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }

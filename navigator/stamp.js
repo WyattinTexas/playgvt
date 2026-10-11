@@ -1,1 +1,1 @@
-window.__NAV_STAMP={"cv":"20.47","md5":"3eb5ff18c32875ef512f63f6f41eaf59","sha":"205b6a0b9","at":"2026-10-11T10:51:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};
+window.__NAV_STAMP={"cv":"20.48","md5":"4c2432f8bd52549b9b67f34945e2b417","sha":"43eb8925b","at":"2026-10-11T11:00:01Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};
