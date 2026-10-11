@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.11","md5":"f2e249ca26081967d2e38b1197be36d5","sha":"4460b03de","at":"2026-10-11T19:13:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.12","md5":"c0d303a7f275d3fda4fa2dfd79a8b14e","sha":"e96c917ee","at":"2026-10-11T19:17:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -82924,7 +82924,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -134329,7 +134329,7 @@ const fgJudge=(tee,m,p)=>fgSim(tee,m,p).verdict;
 function fgWindows(tee){ let win=0, need=1; for(let m=0;m<=1.0001;m+=0.005){ if(fgJudge(tee,m,1).good) win=m; else break; } for(let p=0;p<=1.0001;p+=0.005){ if(fgJudge(tee,0,p).good){ need=p; break; } } return { win:+win.toFixed(3), need:+need.toFixed(3) }; }   // the greens = the judge scanned (200 steps each way), never a second formula
 // THE MACHINE
 function fgOrg(){ if(BRW && BRW.kind==='yeti') return [BRW.tee[0], BRW.tee[1]-21.5]; const d=rpXY('football'); return [272+d[0], 486+d[1]]; }   // CARD-BRW THE BORROWED BALL: the ball's own origin (its centre at rest) — the toy's seat, or the borrowed football's tee
-function fgBallEls(){ if(BRW && BRW.kind==='yeti'){ const s9=brwSvg(), n9=(s9&&s9.querySelector('#brw-ball'))||null, g9=(n9&&n9.querySelector('.brw-ftb'))||null; return { w:n9, g:g9, b:g9&&g9.querySelector('.ftbw'), sh:g9&&g9.querySelector('ellipse') }; }   // CARD-BRW: while their football is borrowed the machine paints ITS node
+function fgBallEls(){ if(BRW && BRW.kind==='yeti'){ const n9=brwNode(), g9=(n9&&n9.querySelector('.brw-ftb'))||null;   /* CARD-BBT: the node where it lives */ return { w:n9, g:g9, b:g9&&g9.querySelector('.ftbw'), sh:g9&&g9.querySelector('ellipse') }; }   // CARD-BRW: while their football is borrowed the machine paints ITS node
   const w=document.getElementById('ro-football'), g=document.getElementById('decFtb'); return { w, g, b:g&&g.querySelector('.ftbw'), sh:g&&g.querySelector('ellipse') }; }   // the wrapper (the delta), the id-carrier, the ball, its floor shadow (the art's first child)
 function fgStart(b){   // CARD-BRW THE BORROWED BALL: b = the borrowed football's one kick (brwStep's door); the player's own ball starts nothing while a ball is borrowed
   if(FGK || S.mode!=='menu' || (b? !(BRW && BRW.kind==='yeti' && BRW.ph==='kick') : (!!BRW || !fgTeed()))) return;
@@ -134471,9 +134471,10 @@ function brwTap(){ const B=BRW;
   const c=brwLive(kind); if(!c) return;
   audio(); if(kind==='dino') brwJuggle(c); else brwTake(c); }
 function brwHold(on){ const B=BRW, h=B? brwHost(B.kind) : null; if(h) h.classList.toggle('brw-hold', !!on); }
+function brwNode(){ const n=document.getElementById('brw-ball'), st=document.getElementById('roomStage'); return (n && st && st.contains(n))? n : null; }   // CARD-BBT (Wyatt 10/11, his iPhone 17: "Both interactive balls are currently multiplying and lagging the game severely when they're clicked on"): THE BORROWED BALL IS FOUND WHERE IT LIVES. The still room (CARD-DLG, dlgMut) moves a node appended at the room svg's end into its TOP svg; a read scoped to the room's svg then found nothing and brwBall made a new ball EVERY FRAME, each left standing where it was painted (the trail), hundreds of them (the lag). Document-wide by id, inside the standing stage alone (a repaint's detached svg never answers).
 function brwBall(){   // the borrowed ball's own node at the svg's end, over everything (the soccer flight's law); re-made when a repaint took it (the repaint self-heal law: every frame asks)
   const B=BRW, svg=brwSvg(); if(!B || !svg) return null;
-  let n=svg.querySelector('#brw-ball'); if(n) return n;
+  let n=brwNode(); if(n) return n;   // CARD-BBT: where it lives (the still room's TOP svg after the first frame), never a query scoped to the room's svg
   n=document.createElementNS('http://www.w3.org/2000/svg','g'); n.id='brw-ball'; n.setAttribute('pointer-events','none'); n.setAttribute('data-kind',B.kind);
   if(B.kind==='dino') n.innerHTML='<ellipse class="brw-sh" cx="0" cy="0" rx="23.8" ry="6.2" fill="#000" opacity="0"/><g class="brw-b"><g class="brw-r"><g transform="scale('+BRW_K.dino+')">'+soccerArt().replace(/<ellipse class="socsh"[^>]*\/>/,'')+'</g></g></g>';
   else n.innerHTML='<g id="brw-tee" pointer-events="none"></g><g class="brw-ftb" transform="translate('+fg1(B.tee[0])+','+fg1(B.tee[1]-21.5)+')">'+footballArt()+'</g>';
@@ -134482,7 +134483,7 @@ function brwBall(){   // the borrowed ball's own node at the svg's end, over eve
   return n; }
 function brwEnd(){   // THE BALL IS THEIRS AGAIN: the borrowed node and its tee mark leave, their own ball shows, every clock of their game runs on from the held frame; a paying turn re-writes the header's ★ in place
   const B=BRW; BRW=null; if(!B) return; if(B.raf) cancelAnimationFrame(B.raf);
-  const svg=brwSvg(), n=svg&&svg.querySelector('#brw-ball'); if(n) n.remove();
+  const svg=brwSvg(); for(let n9=brwNode(); n9; n9=brwNode()) n9.remove();   // CARD-BBT: the node where it lives, and any straggler with it
   const h=brwHost(B.kind); if(h) h.classList.remove('brw-hold');
   if(B.paid){ try{ wfBankChip(); }catch(e){} }
   if(B.kind==='yeti'){ try{ const s9=wfLive()? wfGoalSVG(roomNight()) : '', cv=svg&&svg.querySelector('#wf-cover'); if(s9 && cv && !svg.querySelector('#fg-goal')) cv.insertAdjacentHTML('afterend', s9); }catch(e){} } }   // MADE TODAY, shown not told: the day's gold star hangs on the gate's bar (fgSettle's repaint hangs it for the player's own ball)
