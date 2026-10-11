@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.49","md5":"5c28c65b760eb83a3f9d2a6c4e3df032","sha":"e5c75842a","at":"2026-10-11T11:05:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"20.50","md5":"1bea42f42743aee1f8805d96cdcccecc","sha":"a43b8f95a","at":"2026-10-11T11:08:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -81354,7 +81354,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.49';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.50';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -91070,7 +91070,7 @@ function cenBeat(){
 // THE WIRE (zero server bytes: clamp_cmd passes k, id, n, t, b and mo rows of 16 chars): 'ow' the hello · 'oc' { n, t, mo:[ "rid,type,x,y,hp35,flags" ], x, y my marching Sarge's sub-goal } · 'od' { id, b } ·
 // 'ox' { n the owner's chair, id } · 'ol' { id } · the place word + id + r (my clock at the drop). An older phone falls off roomApply's chain at every one of them and reads the place word as before.
 const OW_ON=true,
-      OW_CPU_EV=false,  // CARD-NET-F6's event hold: true = the computers' men carry numbers in an EVENT room too (the desert, the tundra)
+      OW_CPU_EV=true,   // CARD-NET-F6's event hold, LIFTED by CARD-NET-EV (10/11, PND-01): the computers' men carry numbers in an EVENT room too (the desert, the tundra); false = CARD-NET-F1's bytes for the computers on event nights
       OW_CPU=true,     // CARD-NET-F6: the computers' men carry numbers too (the referee is their owner); false = CARD-NET-F1's bytes for every computer's chair
       OW_CPU_WORDS=2,   // CARD-NET-F6: the referee's census of the computers' men is at most this many words a beat (60 rows each, whole chairs in turn)
       OW_ROWS=60,       // my men a word (clamp_cmd's mo lid is 64 rows)
@@ -91096,7 +91096,7 @@ function owLive(seat){ const st=OW_ON && S.bf && S.bf.seats[seat]; return !!(st 
 // in turn when they outgrow the word) · owHearOg = a screen that is not the referee reads it through owAdopt, chair by chair.
 function owCpuOn(){ return OW_CPU && !(COOP && COOP.bd && !OW_CPU_EV); }   // CARD-NET-F6's event hold: an event room (COOP.bd) = the switch off until OW_CPU_EV
 function owCpuMine(seat){ const st=owCpuOn() && S.bf && S.bf.seats[seat]; return !!(st && !st.human && !st.empty && COOP && COOP.host && (seat|0)!==bfMySeat()); }
-function owCpuSpeak(){ if(!owCpuOn() || !owSpeak()) return false; const me=bfMySeat(), ss=S.bf.seats; for(let i=0;i<ss.length;i++) if(i!==me && ss[i].human && !ss[i].away && !ss[i].owC) return false; return true; }
+function owCpuSpeak(){ if(!owCpuOn() || !owSpeak() || S.bf.owOld) return false; const me=bfMySeat(), ss=S.bf.seats;   /* CARD-NET-EV THE OLD-PHONE LATCH: a hello n:1 heard = this fight keeps CARD-NET-F1's bytes for the computers, that phone away or back */ for(let i=0;i<ss.length;i++) if(i!==me && ss[i].human && !ss[i].away && !ss[i].owC) return false; return true; }
 function owNum(u){ if((u.seat|0)===bfMySeat()) return owRid(u); if(u.owId!=null) return u.owId; const bf=S.bf, st=bf.seats[u.seat]; if(!st) return 0; if(!st.owCn) st.owCn=(1+((Math.random()*34)|0))*1296;
   for(let k=0;k<3000;k++){ st.owCn++; if(st.owCn>=46600) st.owCn=1297; if(!owTombed(u.seat,st.owCn) && !(bf.owM && bf.owM.has(owKey(u.seat,st.owCn)))) break; } owStamp(u,u.seat,st.owCn); return u.owId; }
 function owCpuSay(){ const bf=S.bf; if(!bf || !coopIsHost() || !owCpuSpeak()) return; const cs=[], by={}; for(let i=0;i<bf.seats.length;i++) if(owCpuMine(i)){ cs.push(i); by[i]=[]; } if(!cs.length) return;
@@ -91125,7 +91125,7 @@ function owDash(u){ return !!((u.saberState && u.saberState!=='idle') || u.sgDas
 function owOwnBrain(u){ return HEROES.indexOf(u.type)>=0 || /^king/.test(u.type) || u.type==='spy' || !!(u.def && (u.def.vehicle || u.def.ram || u.def.mine)); }   // a hero, a machine, the spy, the sweeper: their feet stay their own brains' (their rows still pull them, by number)
 function owPuppet(u){ return u.owId!=null && u.owAt!=null && S.t-u.owAt<OW_FRESH && owLive(u.seat) && !owOwnBrain(u); }
 function owHello(){ const bf=S.bf; if(!bf || bf.owHi || !owRoom()) return; bf.owHi=1; coopSend({ k:'ow', n:(owCpuOn()? 2 : 1) }); }   /* CARD-NET-F6: n 2 = this phone speaks the computers' law too */
-function owHearHello(cm){ const bf=S.bf; if(!OW_ON || !bf) return; const s9=parseInt(cm.p,10); if(!(s9>=0 && bf.seats[s9] && s9!==bfMySeat())) return; if(bf.seats[s9].owS && bf.owD) delete bf.owD[s9]; bf.seats[s9].owS=1; bf.seats[s9].owC=((cm.n|0)>=2)? 1 : 0; }   /* CARD-NET-F6 */   // a second hello = that phone re-launched into the room: its numbers start over, so the tombs I kept for it are void (1 block in 34 would have buried its new men)
+function owHearHello(cm){ const bf=S.bf; if(!OW_ON || !bf) return; const s9=parseInt(cm.p,10); if(!(s9>=0 && bf.seats[s9] && s9!==bfMySeat())) return; if(bf.seats[s9].owS && bf.owD) delete bf.owD[s9]; bf.seats[s9].owS=1; bf.seats[s9].owC=((cm.n|0)>=2)? 1 : 0; if((cm.n|0)<2) bf.owOld=1; }   /* CARD-NET-F6 · CARD-NET-EV THE OLD-PHONE LATCH: one old phone's hello holds the computers' law off for the whole fight (a put-away chair is skipped by owCpuSpeak; without the latch its return replayed the referee's od words as tombs under the referee's own seat) */   // a second hello = that phone re-launched into the room: its numbers start over, so the tombs I kept for it are void (1 block in 34 would have buried its new men)
 function owPlaceId(cm,seat,type){   // the place word carries my man's number (the newest of that class I have not yet named)
   if(!(seat===bfMySeat() || owCpuMine(seat)) || !owRoom()) return;   /* CARD-NET-F6: the referee names the computers' men */
   for(let i=S.units.length-1;i>=0;i--){ const u=S.units[i]; if(u.dead || u.seat!==seat || u.type!==type || u.owSaid) continue; u.owSaid=1; cm.id=owNum(u); cm.r=+S.t.toFixed(2); return; } }   // + r: my clock at the drop (the copy's own drop is cut by the word's flight time)
