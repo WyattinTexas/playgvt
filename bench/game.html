@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.29","md5":"d1c430da0417f92963acaa11d8facd6c","sha":"2d89c5aec","at":"2026-10-11T05:41:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.30","md5":"5dbe05af60f7de7d8ed4d74cd33d4eeb","sha":"6711b7a1b","at":"2026-10-11T05:46:08Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -52526,23 +52526,30 @@ const CMDO_DEF_CAP=5;     // 0242: the 5th pip is the RANK-100 CAPSTONE — floo
 // ladder at 100 (x3.472), never below his 8/10 number, so equal ranks trade the same hits at 100 as at 1 (+-1 of rounding;
 // design/class-hp-ladder-1007/00-DESIGN-HPL.md). It supersedes the two lines above: the MORTAR scales (10, HPL-Q3) and the COMMANDO
 // has a row (24, HPL-Q4): his battleground pips retire into it (placeUnit), his campaign grit pips (gritCap, cmdoGB) stand.
-const HP_RANK100={ rifleman:11, mgunner:28, bazooka:10, flame:21, minesweeper:10, radioman:10, spy:7, sarge:21, medic:7, grenadier:10, mortar:10, commando:24 };   // 1189 CARD-GR: the grenadier's summit 9 (between the bazooka's 7 and the M. GUNNER's 10)   // 0365: the medic's summit = the spy's own 7 (2→7 along the house taper, capstone by construction — Wyatt: "each level up improves … the medics health amount"); the row also seats him on v3.01's mr-token send, so a relayed ally's medic heals at HIS rank on my screen
+const HP_RANK100={ rifleman:45, mgunner:55, bazooka:42, flame:50, minesweeper:42, radioman:42, spy:40, sarge:40, medic:40, grenadier:44, mortar:40, commando:52 };   /* CARD-UHB THE BOOK (UHB-Q1, Wyatt 10/10: "aim around 40 to 55 health for each of the units"): each man's battleground pool at level 100; CARD-HPL's summits (rifleman 11 ... M. GUNNER 28) live on as UHB_HPL (sec CARD-UHB below): the 0-9 curve and the never-below floor */   // 1189 CARD-GR: the grenadier's summit 9 (between the bazooka's 7 and the M. GUNNER's 10)   // 0365: the medic's summit = the spy's own 7 (2→7 along the house taper, capstone by construction — Wyatt: "each level up improves … the medics health amount"); the row also seats him on v3.01's mr-token send, so a relayed ally's medic heals at HIS rank on my screen
 // ...and Sarge's rig pays a FLAT plate on top (Wyatt 8/10, numbers verbatim).
 // The old saber ×2 / commander ×CMD.hpMul multipliers RETIRE — the man's own
 // rank row above owns his growth now and a multiplier on top would compound
 // it. The commander's 10+8 lands the same 18 the ×3 used to buy; the sniper's
 // 0 is deliberate — the long gun buys reach, never plate.
 const SARGE_WPN_HP={ pistol:2, shotgun:3, lightsaber:3, sniper:0, commander:8 };
-const SARGE_WPN_HP100={ pistol:7, shotgun:10, lightsaber:10, sniper:0, commander:28 };   // CARD-HPL (HPL-Q6): the plate at the IRON's rank 100 (x3.47 the rank-0 plate; the sniper's 0 stands: the long gun buys reach, never plate); wpnPlateAt walks it
+const SARGE_WPN_HP100={ pistol:7, shotgun:10, lightsaber:10, sniper:0, commander:10 };   /* CARD-UHB (UHB-Q6): the commander's plate at 100 28 -> 10, so (40 + 10) x CMD.hpMul = 78 (76 on CARD-HPL); levels 0-9 read UHB_PLATE_HPL's 28 curve; the other plates as they are */   // CARD-HPL (HPL-Q6): the plate at the IRON's rank 100 (x3.47 the rank-0 plate; the sniper's 0 stands: the long gun buys reach, never plate); wpnPlateAt walks it
 const RANK_U_SUMMIT=rankUnits(RANK_MAX);   // ≈24.722 — the normaliser that makes rank 100 land exact
 // the whole-book reader: a class's battleground plastic at a rank. Pure — the
 // GVT.rank rig door quotes it; placeUnit adds the DELTA (bfHpRk below) so the
 // jump tank's +2, the Soul's ×1.05 and the rookie halving stack unchanged.
 function bfHpAt(t,r){ const top=HP_RANK100[t], base=(BF_MOVE[t]&&BF_MOVE[t].hp)||3;
-  return top? base+Math.round((top-base)*rankUnits(r)/RANK_U_SUMMIT) : base; }
+  if(!top) return base; const o=UHB_HPL[t];   /* CARD-UHB THE RUNGS: a book row reads CARD-HPL's curve (UHB_HPL) at levels 0-9 and, from level 10, max(that curve, the rung); a hero's row (no UHB_HPL row) reads his own taper, byte what it was */
+  const cur=base+Math.round(((o!=null)? o-base : top-base)*rankUnits(r)/RANK_U_SUMMIT);
+  return (o==null || !(r>=UHB.rungFrom))? cur : Math.max(cur, uhbRung(uhbHplAt(t,UHB.rungFrom-1), top, r)); }
 // CARD-HPL (HPL-Q6): Sarge's plate at the IRON's own rank, bfHpAt's curve exactly (rank 0 = SARGE_WPN_HP, the summit lands on SARGE_WPN_HP100).
 // Every AI kit carries r 0 (bfSargeKit, BF_AI_SARGE), so a computer's plate is byte what it was; the away captain reads THEIR iron's rank.
-function wpnPlateAt(w,r){ const b=SARGE_WPN_HP[w]||0, top=SARGE_WPN_HP100[w]; return top==null? b : b+Math.round((top-b)*rankUnits(Math.max(0,Math.min(RANK_MAX,r|0)))/RANK_U_SUMMIT); }
+function wpnPlateAt(w,r,rs){ const b=SARGE_WPN_HP[w]||0, top=SARGE_WPN_HP100[w]; if(top==null) return b;   /* CARD-UHB: + rs = the MAN's rank (placeUnit's perkRank, the sheet's rank); only the commander's plate reads it */
+  const rr=Math.max(0,Math.min(RANK_MAX,r|0)), o=UHB_PLATE_HPL[w], cur=b+Math.round(((o!=null)? o-b : top-b)*rankUnits(rr)/RANK_U_SUMMIT);
+  if(o==null || rr<UHB.rungFrom) return cur;   /* every other iron's plate as it is; the commander's levels 0-9 on CARD-HPL's 28 curve */
+  let p=uhbRung(b+Math.round((o-b)*rankUnits(UHB.rungFrom-1)/RANK_U_SUMMIT), top, rr);   /* from 10: ten equal rungs from his level-9 plate (15) down to 10 */
+  if(rs!=null){ const s9=Math.max(0,Math.min(RANK_MAX,rs|0)); p=Math.max(p, cur-(bfHpAt('sarge',s9)-uhbHplAt('sarge',s9))); }   /* NEVER BELOW TODAY: the plate gives back at most what his row gained, so a rank-100 commander on a rank-30 Sarge stands where he stood */
+  return p; }
 // ...and the per-figure delta by OWNERSHIP (the cmdoGB/perkRank law): my chair
 // reads the record live, a relayed ally's rank rode the wire's mr token and
 // lands at the room apply door, every other seat — AI fills included — is
@@ -52550,6 +52557,24 @@ function wpnPlateAt(w,r){ const b=SARGE_WPN_HP[w]||0, top=SARGE_WPN_HP100[w]; re
 // and reads stock on MY screen only (R6, the v2.91 divergence class).
 function bfHpRk(u){ if(!HP_RANK100[u.type]) return 0;
   return bfHpAt(u.type, perkRank(u)) - ((BF_MOVE[u.type]&&BF_MOVE[u.type].hp)||3); }
+// ═══ CARD-UHB THE UNIT HP BENCHMARKS (board card J46, lane gvt-p3; design/unit-hp-benchmark-1010/00-DESIGN-UHB.md + 00-BUILD-UHB.md). Wyatt 10/10/2026 10:35 EDT by phone, verbatim: "Every unit is going to get HP every
+// 10 levels to 100. Our goal is that units won't be one-shot when everyone's at 100 against each other. Instead, things are more like 2 to 3 shots to defeat other players, right? [...] If we can aim around 40 to 55 health
+// for each of the units, I think we'll be in good standing."; 10/10 ~21:10 EDT on Maker 1: "We wanted the health ranges to wind up between 40 and 60, remember, at level 100." and his pick "Go with recs" (UHB-Q1..Q7) ═══
+// THE BOOK (Q1) is HP_RANK100 above: medic, spy, mortar 40 · radio man, sweeper, bazooka 42 · grenadier 44 · rifleman 45 · flame 50 · commando 52 · M. GUNNER 55 · Sarge's row 40 (+ his iron's plate).
+// THE RUNGS (Q2): levels 0-9 read CARD-HPL's curve exactly (UHB_HPL keeps its summits); from level 10 the pool climbs one rung every 10th level, ten equal rungs from the level-9 pool to the book,
+// never below CARD-HPL's curve at that level (the M. GUNNER's 17-19 hold it). THE COMMANDER'S PLATE (Q6): wpnPlateAt above. The heroes' rows have no UHB_HPL row: their taper is byte what it was.
+// THE LAST STAND (Q3 + Q4): on the battleground, a man with a book row (the eleven men + Sarge; no hero, no machine) at FULL health whose own rank is 10+ keeps 1 HP from a hit that would fell him; the next hit
+// fells him. Seated in hurt() right above f.hp-=dmg (below every save, soak, crit and the stumble's double), so splash, the commando's sweep, the irons and the heroes' blows all meet it; the rank is perkRank's
+// (mine live, a relayed ally's off the mr token, a mirror's off nrk; a computer's stock man reads 0 = UHB-F1). THE JEEP LAW (jlHit sets hp=0) and the campaign's direct doors never pass here: above it by construction.
+// Wire: no new byte. A seat's pool is worked out on each screen from the class + the mr token's rank (UHB-F2: an old client shows the old pool until both players update).
+const UHB={ rungFrom:10, standRk:10, n:0 };   // n: every last stand taken (the rig's counter, never read by the sim)
+const UHB_HPL={ rifleman:11, mgunner:28, bazooka:10, flame:21, minesweeper:10, radioman:10, spy:7, sarge:21, medic:7, grenadier:10, mortar:10, commando:24 };   // CARD-HPL's summits (v17.70 .. v20.25): the 0-9 curve + the floor
+const UHB_PLATE_HPL={ commander:28 };   // CARD-HPL's commander plate at 100: his 0-9 plate curve + the floor
+function uhbHplAt(t,r){ const base=(BF_MOVE[t]&&BF_MOVE[t].hp)||3, o=UHB_HPL[t]; return (o==null)? base : base+Math.round((o-base)*rankUnits(r)/RANK_U_SUMMIT); }   // CARD-HPL's pool at a rank (the floor)
+function uhbRung(h9,top,r){ return Math.round(h9+(top-h9)*Math.floor(Math.max(0,Math.min(RANK_MAX,r|0))/10)/10); }   // the rung at a level: ten equal steps from the level-9 pool to the book
+function uhbStand(f,dmg){ if(!S.bf || !f || !f.side || !(dmg>=f.hp) || !(f.hp>1) || UHB_HPL[f.type]==null || !(f.hpMax>0) || f.hp<f.hpMax-1e-6 || perkRank(f)<UHB.standRk) return dmg;
+  UHB.n++; return f.hp-1; }   // THE LAST STAND: the killing blow on a full man leaves him 1
+// ═══ END CARD-UHB ═══
 const CMDO={
   beamW:26,     // the beam's thickness — Wyatt: "almost like a bigger rectangle that hits"
   sweepT:0.5,   // how long the wipe takes to cross the arc — long enough to SEE, short enough to feel like one trigger pull
@@ -80310,7 +80335,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.29';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -92742,6 +92767,7 @@ function hurt(f,dmg,src,fire9){ if(f.trk && trkTurn(f)) return; dmg*=sqlArmX(f);
   if(!S.bf && (f.def.deck || f.hatch>0) && src && S.units.indexOf(src)>=0) dmg*=backX(f,src);   // OC-4 THE BACK SEAT (one seat, two rows — backX): THE BATTERY HATCH, open — a hit whose attacker stands BEHIND him (EAST of him) removes ×hatchX ·   // OC-2 THE ENGINE DECK: a bullet from BEHIND the hull (the shooter EAST of it, past its centre by deckDx) removes ×deckX — get men across the river and around it
   if(!S.bf && fire9 && f.cpGen>0){ f.cpBurn=1; if(dmg<f.hp) dmg=f.hp; }   // OC-10 THE COPIER: FLAME KILLS A COPY AT A TOUCH — a fire beat on a paper man takes his whole bar (the lick, the patch, the combustion alike: every fire caller passes fire9); a bullet, a shell and a blade land as they do on any man
   dmg*=aglX(f,src);   // CARD-GGB ACE GLOVES: a round of MY Dogfighter marks him (1 % a round, to the cap) and every hit on a marked enemy lands that much harder: below every save and every armour door, on the round that lands
+  dmg=uhbStand(f,dmg);   /* CARD-UHB THE LAST STAND (UHB-Q3/Q4): a full man of rank 10+ on the battleground keeps 1 HP from the blow that would fell him */
   f.hp-=dmg;
   if(f.hp<=0 && S.bf && f.side && chSpare(f)) f.hp=1;   // CARD-NP THE CHAMPION'S GRACE: an ally inside 8 m of a living Sarge wearing THE GRAND CHAMPION'S PATCH survives the killing blow at 1 hp, once a life (Wyatt: "if their hp drops to 0, put it to 1hp once per life")
   if(f.type==='kingyeti') f.kyHitAt=S.t;   // 0435: the boss flinch stamp — presentation only, nothing in the sim reads it
@@ -95680,7 +95706,7 @@ function placeUnit(type,x,y,side,seat){
     // kit / a relayed ally's coopSW — and a relayed Sarge still reads the
     // AI default at placement (his own sim carries his true rig; the
     // referee's verdict is the truth — R5/D8, inherited).
-    if(type==='sarge'){ const usw9=unitSargeStats(u), wf=wpnPlateAt(usw9.w, usw9.r|0)+(usw9.w==='pistol'? pistolMileHp(usw9.r|0) : 0); if(wf){ u.hpMax+=wf; u.hp=u.hpMax; } }   // 0746 THE SERVICE PISTOL'S TEN MILESTONES: +3 plastic from pistol rank 50 beside the pistol's own plate (my seat off my rank, the away captain off THEIR kit, every r:0 kit +0; a relayed Sarge's own sim carries his)
+    if(type==='sarge'){ const usw9=unitSargeStats(u), wf=wpnPlateAt(usw9.w, usw9.r|0, perkRank(u))+(usw9.w==='pistol'? pistolMileHp(usw9.r|0) : 0); if(wf){ u.hpMax+=wf; u.hp=u.hpMax; } }   // 0746 THE SERVICE PISTOL'S TEN MILESTONES: +3 plastic from pistol rank 50 beside the pistol's own plate (my seat off my rank, the away captain off THEIR kit, every r:0 kit +0; a relayed Sarge's own sim carries his)
     if(type==='sarge' && CMD.hpMul && unitSargeStats(u).w==='commander'){ u.hpMax=Math.round(u.hpMax*CMD.hpMul); u.hp=u.hpMax; }   // 0736 THE COMMANDER BUFF (Wyatt 9/3: "increase his health x1.55"): the class multiplier on his WHOLE pool (the rank row + the plate above), rounded to a whole plastic — HERE beside the plate: above the soul/outfit/rookie/hard multipliers (a rookie carpet still halves it, the v2.43 law), below the rank delta; the same unitSargeStats reading as the plate (MY loadout / the away captain's snapshot / an AI seat's kit, never a commander), so the other four bags never enter and read byte-equal hp
     // 0093 THE SOUL: my souled type's men land with the gift on their plate.
     // (An ally's man collects his at the relay-apply door; machines never —
@@ -168456,7 +168482,7 @@ function hauRig(){ const m=document.querySelector('#roomModal .rmcard.hau'), cv=
 // Nothing on the page is a sentence but a lock line. The heroes' trailers and Sarge's sheet keep their grammar (classInfo reads on past the branch, byte-what-it-was). Zero server bytes, zero save keys; every number through tf on a data-notr node, the words keys ×7.
 let US_BACK_K=null;   // CARD-US2: the man whose sheet stands (the ✕ scrolls the roster to his card)
 const US_MEN=['rifleman','mgunner','bazooka','mortar','minesweeper','flame','radioman','commando','spy','medic','grenadier'];
-const UNIT_SHEET_BANDS={ hp:[4,7,11,18] /* CARD-USH: the battleground pool (2 to 28 on the men, Sarge past it): HP 2-3 · 4-6 · 7-10 · 11-17 · 18+; was 3,4,5,7 on the campaign grit */, dmg:[0.5,1,2,4], rate:[15,30,90,300], move:[15,25,38,50], crit:[0.05,0.10,0.15,0.20] };   // THE DIALS (C3): pips 1..5 — HP 2 · 3 · 4 · 5–6 · 7+ (at-or-above the band) · DAMAGE ≤ 0.5 · ≤ 1 · ≤ 2 · ≤ 4 · more · ATTACK SPEED /min < 15 · < 30 · < 90 · < 300 · 300+ · MOVEMENT px/s < 15 · < 25 · < 38 · < 50 · 50+ · CRIT < 5% · < 10% · < 15% · < 20% · the cap; a true zero = 0 pips (the vertex collapsed). The roster's spread fills the scale (rank 0: rifleman 2·2·3·4·0 · m. gunner 2·2·4·2·0 · bazooka 2·4·2·2·0 · mortar 2·3·1·0·0 · grenadier 2·4·2·3·0 · flame 2·1·5·4·0 · commando 3·2·2·3·0 · spy 1·1·4·5·0; rank 100: the trigger-men CRIT 5 and DAMAGE 4, the bazooka DAMAGE 5, the commando HP 5). Move a band, never a reader.
+const UNIT_SHEET_BANDS={ hp:[4,10,30,48] /* CARD-UHB (UHB-F3): HP 2-3 · 4-9 · 10-29 · 30-47 · 48+ (level 1: the light men 1 pip, the flame and the commando 2; level 100: medic/spy/mortar/the sniper's Sarge 4 at 40-45 with the line, the flame, the commando, the M. GUNNER and Sarge's 50 5) */ /* CARD-USH: the battleground pool (2 to 28 on the men, Sarge past it): HP 2-3 · 4-6 · 7-10 · 11-17 · 18+; was 3,4,5,7 on the campaign grit */, dmg:[0.5,1,2,4], rate:[15,30,90,300], move:[15,25,38,50], crit:[0.05,0.10,0.15,0.20] };   // THE DIALS (C3): pips 1..5 — HP 2 · 3 · 4 · 5–6 · 7+ (at-or-above the band) · DAMAGE ≤ 0.5 · ≤ 1 · ≤ 2 · ≤ 4 · more · ATTACK SPEED /min < 15 · < 30 · < 90 · < 300 · 300+ · MOVEMENT px/s < 15 · < 25 · < 38 · < 50 · 50+ · CRIT < 5% · < 10% · < 15% · < 20% · the cap; a true zero = 0 pips (the vertex collapsed). The roster's spread fills the scale (rank 0: rifleman 2·2·3·4·0 · m. gunner 2·2·4·2·0 · bazooka 2·4·2·2·0 · mortar 2·3·1·0·0 · grenadier 2·4·2·3·0 · flame 2·1·5·4·0 · commando 3·2·2·3·0 · spy 1·1·4·5·0; rank 100: the trigger-men CRIT 5 and DAMAGE 4, the bazooka DAMAGE 5, the commando HP 5). Move a band, never a reader.
 function usPip(v,b,over){ if(!(v>0)) return 0; let p=1; for(const x of b){ if(over? v>x : v>=x) p++; else break; } return Math.min(5,p); }   // over: DAMAGE's bands are at-or-under (≤ 0.5 = one pip), the others at-or-above
 function usRate(k){ const q=rsaRate(k); return (q>0)? Math.round(q*60) : 0; }   /* CARD-RSA: the fire loop's def.rate||medrRate (the medic's rifle) */   // ATTACK SPEED per minute (Q5) off the fire loop's own rate cell — 0 for the radio man and the medic (no gun); the sweeper's is his charge cadence
 function usPerSec(k){ const q=rsaRate(k); return (q>0)? Math.round(q*10+1e-9)/10 : 0; }   /* CARD-RSA: the same cell as usRate */   // CARD-US2 (N5) ATTACK SPEED PER SECOND (Wyatt: "Per minute means nothing to people here"): the rate cell itself at one decimal, half up (the float guard; the flame prints 8/s, the rifleman 1.2/s, the bazooka 0.3/s) — the pips keep usRate's per-minute bands (the shape does not move)
@@ -168476,7 +168502,7 @@ function usBfHP(k,r){ const rr=(r==null)? ((META.up[k]||0)|0) : Math.max(0,Math.
   hp+=pbkN(k);   /* CARD-PBK: THE PERFECT BOOK's gifts, flat, last (placeUnit's order) */
   return hp; }
 function sgBfHP(b,r){ const rr=(r==null)? ((META.up.sarge||0)|0) : Math.max(0,Math.min(RANK_MAX,r|0));
-  let hp=bfHpAt('sarge',rr)+wpnPlateAt(b.w, b.r|0)+(b.w==='pistol'? pistolMileHp(b.r|0) : 0);
+  let hp=bfHpAt('sarge',rr)+wpnPlateAt(b.w, b.r|0, rr)+(b.w==='pistol'? pistolMileHp(b.r|0) : 0);
   if(CMD.hpMul && b.w==='commander') hp=Math.round(hp*CMD.hpMul);
   if(soulIs('u','sarge')) hp*=SOUL_MUL;
   if(b.soul) hp*=SOUL_MUL;
