@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.66","md5":"921b09ec57d5467eccd1988e244c8331","sha":"f49185e93","at":"2026-10-11T14:32:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"20.67","md5":"2f66d89e663de2db03eabb17d97ad31a","sha":"388638411","at":"2026-10-11T14:43:18Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -61514,7 +61514,7 @@ const LS10={ wreckX:-250, wreckY:300, wreckW:0.9, larDx:66, larDy:4, tanDx:[96,1
 const LN10={ rng:300, rate:0.3, dmg:3, grit:4, w:60 };   // THE LOAN's own rifle (UDEF.larsonloan: a long rifle, three pips a round, air true) · w = his drawn width
 const LS10_SAY={ bark:"THEY'RE ALREADY BEHIND YOU.", nb:'Not bad, Sergeant.', hatch:"THE SUIT RUNS ON MY BATTERY. OPEN THE HATCH. I'LL TAKE THE SHOT." };   // ⚑ his lines (the rows' words; the bark is 201's own, turned round): drafts, his pen
 const SC10={ rise:1.0, nbHold:3.5, beat:1.0, hatchHold:8.5, tagDx:-18, tagDy:-92, end:2.0, read:17 };   // THE SCENE's clock from their Sarge's fall: he stands up over rise s (the dust), "Not bad, Sergeant." (its window nbHold s: 18 letters read twice = 2.1), a beat, the hatch line (hatchHold s: 64 letters read twice = 7.53) with THE HATCH tagged tagDx/tagDy off the wreck, the scene ends end s after the window closes (the verdict freed); read = letters a second (C50's dial)
-function olvLoanDef(){ if(!UDEF.larsonloan) UDEF.larsonloan={ rng:LN10.rng, rate:LN10.rate, dmg:LN10.dmg, air:true, grit:LN10.grit, name:'LARSON', loan10:1 }; return UDEF.larsonloan; }   // CARD-OLV-B10 THE LOAN: COMMANDER LARSON as a unit of yours on 275 alone (the row seated at the first ask: UDEF is declared below this block; the tray's one deal; his picture through unitImg's one clause; his shot through the band)
+function olvLoanDef(){ if(!UDEF.larsonloan) UDEF.larsonloan={ rng:LN10.rng, rate:LN10.rate, dmg:LN10.dmg, air:true, grit:LN10.grit, name:'LARSON', loan10:1 }; return l75Def(UDEF.larsonloan); }   /* CARD-L75: x2 HP, x2 rate, his face */   // CARD-OLV-B10 THE LOAN: COMMANDER LARSON as a unit of yours on 275 alone (the row seated at the first ask: UDEF is declared below this block; the tray's one deal; his picture through unitImg's one clause; his shot through the band)
 CAMP_GOAL_NOBOX[OLV_B10N.stand]='DEFEAT THEIR SARGE';   // the goal under 275's opening card (the duel's own words: a shipped key)
 try{ NX_ART.laststand=NX_ART.glint; }catch(e){}   // the boss wing for 271 to 274 and the wall's seventeenth face: the scouter's glint (⚑ B10-F: one word to seat Larson's own face, NX_ART.larson)
 function olvLoanOn(){ const c=S.cfg; if(!(c && !S.bf && c.olv10==='stand' && S.mode==='play')) return false; olvLoanDef(); return true; }   // the loan's one rug, in play
@@ -61523,6 +61523,39 @@ try{ Object.defineProperty(COSTS,'larsonloan',{ get(){ return olvLoanSpent()? 1e
 function olvLoanCard(t){ return t==='larsonloan' && olvLoanOn(); }   // TRAY's clause: the card rides the platoon's filter on 275
 function olvLoanImg(){ return olvTanImg('larson'); }   // unitImg's clause: his tan picture (the card, the ghost in your hand, the man, his corpse)
 function olvLoanU(){ for(const u of S.units){ if(u.type==='larsonloan' && !u.dead) return u; } return null; }
+// ===== CARD-L75 · 275 LARSON'S LAST STAND: COMMANDER LARSON ON LOAN, STRONGER + THE RUG NEVER STANDS STILL (design/larson-loan-275-1011/00-CARD-L75.md; board J91; Wyatt 10/11/2026 02:19 EDT by phone, verbatim:
+// "235 glitched and got stuck. Larson needs to always face correct directions and have double the ho and 2x attack speed and now has Energy shot." (his screenshot: WAVE 3/5 under the loan's dark card: 275, the one rug of the loan).
+// (1) THE FACE: Larson's picture is the FOE mold (authored facing WEST: the man who marched on your box at 201), so on your side he showed his back to the way he faced; UNIT_WEST.larsonloan (seated at the first ask: UNIT_WEST
+// is declared below this block) mirrors him like King Rex: the draw shows the way he faces (unitDrawFl), and through his overcharged lock and his energy shot's plant he is turned to his man. (2) DOUBLE THE HP: grit x L75.gritX.
+// (3) 2x ATTACK SPEED: his rifle's rate x L75.rateX (the fire loop's cooldown divides by it). (4) THE ENERGY SHOT: Sarge's three bolts of light (laStep -> laBolts, the shipped machine: the plant, the gather, the fan from the
+// barrel's mouth onto his man, every red man a bolt crosses destroyed outright, THEIR SARGE down through nothing on the strict hitbox (CARD-EKO), a boss the volley's share) on HIS OWN CLOCK: L75.esFirst s after the deal, then
+// every L75.esEvery s, at the red man nearest him inside L75.esRng (their Sarge first: ls10Mark's own pick), never while his overcharged red line stands, never in the scene; planted where he stands for the gather.
+// THE RUG NEVER STANDS STILL (the stall he hit; not reproduced in 27 headless legs, so three guards on the one rug, each counted in the ledger L.l75): (a) THE EMPTY RUG CALL: the drum is 27.9 s here and the rug can sit EMPTY
+// for 20 s under WAVE 3/5 with no count on the glass; with no red man standing and nothing but the band's sentinel and its trickle queued, the next wave walks on within L75.empty s (the referee's drum: sqRef; a guest follows
+// the relay). (b) THE ORPHAN BRIEF: a briefing whose window is gone from the glass holds the drum forever (update's sqTick gate reads COMM.brief); one that stands with no brief window for L75.orphan s is closed (commClear).
+// (c) THE LOST SENTINEL: the verdict's hold10 sentinel standing with no scene and no Sarge of theirs on the rug for L75.lost s is lifted (the drum's own end then reads the field). No word, no save, no css, no server byte.
+const L75={ gritX:2, rateX:2, esFirst:6, esEvery:16, esRng:560, esLead:0.6, empty:4, orphan:1.5, lost:20 };   // gritX/rateX = his HP and his attack speed (x2 each) · esFirst/esEvery = the energy shot's clock, s · esRng = px, the man he plants on · esLead = s of the overcharged clock the energy shot leaves clear · empty = s the drum waits on an EMPTY rug (was up to 27.9) · orphan = s a briefing may stand with no window · lost = s the hold10 sentinel may stand with nothing to hold for
+function l75L(L){ return L.l75 || (L.l75={ es:[], esN:0, calls:[], orphans:0, lost:0, face:0 }); }   // the card's own ledger (inside the band's, rebuilt with the cfg)
+function l75Def(d){ if(!d.l75){ d.l75=1; d.grit=LN10.grit*L75.gritX; d.rate=LN10.rate*L75.rateX; } try{ if(typeof UNIT_WEST==='object' && !UNIT_WEST.larsonloan) UNIT_WEST.larsonloan=1; }catch(e){} return d; }   // his row at the first ask: double the HP, twice the rate, and his west-authored mold mirrored on your side
+function l75Face(u,x){ if(x==null || !u) return; u.faceX=(x>=u.x)? 1 : -1; u.faceAt=S.t; u.faceTo=S.t+0.6; }   // turned to his man (the aim seat's own three stamps; aimLive reads them)
+function l75Es(L,u,dt){ const K=l75L(L), A=u.ln10 && u.ln10.shot; let E=u.l75; if(!E) E=u.l75={ st:'walk', cd:L75.esFirst, tgt:null, hold:null };
+  if(L.scene){ if(E.st==='plant'){ u.laT=0; E.st='walk'; } E.cd=Math.max(E.cd,1); return; }   // the scene: no light (the loan stands for his lines)
+  if(E.st==='walk'){ E.cd-=dt; if(E.cd>0 || (A && A.st!=='walk') || (A && A.cd<LA_PLANT+L75.esLead) || u.laT>0 || u.jetT>0 || u.dropT>0 || u.falling || (S.drag && S.drag.unit===u)) return;   // his own clock; never across his red line
+    const o=ls10Mark(u.x,u.y,L75.esRng); if(!o){ E.cd=1; return; }   // THE MARK: their Sarge first, a boss next, then the nearest
+    E.st='plant'; E.tgt=o; E.hold={ x:u.x, y:u.y }; u.laT=LA_PLANT; u.laN=(u.laN|0)+1; laFace(u,(o.x>=u.x)? 1 : -1); u.estTg=null; u.estPt=[o.x, o.y-EST_DY];   // THE PLANT: the shipped gather (laStep burns u.laT in the units loop, then laBolts) aimed at his man's spot
+    try{ bfSfx(SFX.harpRise,u.x,u.y); }catch(e){} S.fx.push({k:'ring',x:u.x,y:u.y-24,r:6,R:40,t:0,dur:0.32,col:'#FFD36B'}); S.fx.push({k:'lagather',u,pr:0,t:0,dur:LA_PLANT,col:null}); S.floats.push({x:u.x,y:u.y-76,txt:'ENERGY SHOT!',t:0,col:'#FFD36B'});
+    K.es.push([+S.t.toFixed(2), 'plant', o.type, Math.round(o.x), Math.round(o.y)]); if(K.es.length>40) K.es.shift(); return; }
+  if(E.st==='plant'){ const o=E.tgt; if(ls10Red(o)){ u.estTg=null; u.estPt=[o.x, o.y-EST_DY]; laFace(u,(o.x>=u.x)? 1 : -1); }   // the aim rides his man through the gather (a man who fell leaves the last spot: the bolts fly there)
+    if(E.hold){ u.x=E.hold.x; u.y=E.hold.y; } u.marching=false; u.cd=Math.max(u.cd||0,0.2); if(A && A.st==='walk') A.cd=Math.max(A.cd,(u.laT||0)+L75.esLead);   // planted where he stands; his rifle and his red line wait on the light
+    if(u.laT>0) return; E.st='walk'; E.cd=L75.esEvery; E.tgt=null; E.hold=null; K.esN++; K.es.push([+S.t.toFixed(2), 'bolts', o? o.type : null]); if(K.es.length>40) K.es.shift(); } }
+function l75Rug(L,dt){ const K=l75L(L), sq=S.sq; if(!sq || S.mode!=='play') return;
+  { const el=document.getElementById('comms'); if(COMM.brief && !(el && /\bbrief\b/.test(el.className) && el.firstChild)){ K.orT=(K.orT||0)+dt; if(K.orT>=L75.orphan){ K.orT=0; K.orphans++; olvB10Log(L,['l75 orphan brief', +S.t.toFixed(2), COMM.brief.kind||null]); commClear(); } } else K.orT=0; }   // (b) THE ORPHAN BRIEF: no window on the glass, no hold on the drum
+  if(L.hold && !L.scene && L.sargeOn!=null && L.sargeFell==null && !(L.sarge && !L.sarge.dead && S.foes.indexOf(L.sarge)>=0)){ K.loT=(K.loT||0)+dt; if(K.loT>=L75.lost){ K.loT=0; K.lost++; olvB10Log(L,['l75 lost sentinel', +S.t.toFixed(2)]); olvHold10(L,0); } } else K.loT=0;   // (c) THE LOST SENTINEL
+  if(!sqRef() || COMM.brief || !(S.wave>=1) || S.wave>=S.cfg.waves.length || sq.nextT-sq.t<=L75.empty) return;   // (a) THE EMPTY RUG CALL (the referee's drum)
+  for(const o of S.foes){ if(o && !o.dead && o.hp>0 && !o.tease) return; } for(const q of S.queue){ if(!q.hold10 && !q.ls10trk) return; }
+  sq.nextT=sq.t+L75.empty; K.calls.push([+S.t.toFixed(2), S.wave|0]); if(K.calls.length>20) K.calls.shift(); olvB10Log(L,['l75 empty rug', +S.t.toFixed(2), S.wave|0]); }
+function l75Pass(L,dt){ l75Rug(L,dt); const u=olvLoanU(); if(!u || !u.ln10) return; l75Def(u.def); const A=u.ln10.shot; if(A && A.st==='tell' && A.tgt) l75Face(u,A.tx);   // his red line: turned to the man under it
+  l75Es(L,u,dt); }
 function ls10Props(L){ if(L.props) return L.props; const x=W+LS10.wreckX, y=foeBandY(LS10.wreckY), P={ wreck:{ x:x, y:y, w:Math.round(FDEF.cmdtank.w*LS10.wreckW) }, lar:{ x:x+LS10.larDx, y:foeBandY(y+LS10.larDy), on:1, offT:null, shot:{ st:'walk', cd:LS10.first, tgt:null, tx:0, ty:0, t:0 } }, tans:LS10.tanDx.map((dx,i)=>({ x:x+dx, y:foeBandY(y+LS10.tanDy[i]), cd:0.4+i*0.35 })) }; L.props=P; olvTanImg('larson'); olvTanImg('tanrifle'); olvTanImg('cmdtank'); olvB10Log(L,['props', +S.t.toFixed(2), Math.round(x), Math.round(y)]); return P; }
 function ls10Red(o){ return !!(o && o.def && !o.dead && o.hp>0 && !o.retreat && !o.tease && !o.gjAir && !o.burrow && !o.falling && S.foes.indexOf(o)>=0 && o.x<W-10 && o.x>-20); }   // a red man on the rug (the mice, the lines, the rods, the balls, their Sarge)
 function ls10Mark(sx,sy,R){ let b=null, bs=1e9; for(const o of S.foes){ if(!ls10Red(o)) continue; const d=Math.hypot(o.x-sx,o.y-sy); if(d>R) continue; const sc=(o.type==='tansarge'? 0 : o.boss? 1 : 2)*1e5+d; if(sc<bs){ bs=sc; b=o; } } return b; }   // THE MARK: their Sarge first, a boss next, then the nearest (PLT's pick, turned on the red army)
@@ -61532,7 +61565,7 @@ function olvShot10(L,A,sx,sy,dt,who,src){ if(A.st==='walk'){ A.cd-=dt; if(A.cd>0
   if(hit){ if(o.type==='tansarge'){ how='sarge'; o.hp=0; hitCheck(o,(src && !src.dead && S.units.indexOf(src)>=0)? src : null); } else { how='hit'; hurt(o,LS10.pips,(src && !src.dead && S.units.indexOf(src)>=0)? src : null); } }   // RULE 2: ONE overcharged shot ends THEIR SARGE; any other red man takes the knocks
   else S.fx.push({k:'puff',x:A.tx,y:A.ty+24,t:0,dur:0.35,R:12});
   S.floats.push({x:sx,y:sy-96,txt:t('OVERCHARGED!'),t:0,col:'#FF6A4A'}); L.shots.push([+S.t.toFixed(2), who, how, o? o.type : null, +far.toFixed(1)]); if(L.shots.length>40) L.shots.shift(); olvB10Log(L,['shot', +S.t.toFixed(2), who, how]); A.st='walk'; A.cd=LS10.every; A.tgt=null; }
-function olvLoanPass(L,dt){ const u=olvLoanU(); if(u && !u.ln10){ u.ln10={ t0:S.t, shot:{ st:'walk', cd:LS10.first, tgt:null, tx:0, ty:0, t:0 } }; u.floopIm=olvLoanImg(); L.loan.placed++; L.loan.placedT=+S.t.toFixed(2); L.loan.id=u.id; olvB10Log(L,['loan', L.loan.placedT, Math.round(u.x), Math.round(u.y)]);   // THE DEAL: the kid plays Larson
+function olvLoanPass(L,dt){ l75Pass(L,dt);   /* CARD-L75 */ const u=olvLoanU(); if(u && !u.ln10){ u.ln10={ t0:S.t, shot:{ st:'walk', cd:LS10.first, tgt:null, tx:0, ty:0, t:0 } }; u.floopIm=olvLoanImg(); L.loan.placed++; L.loan.placedT=+S.t.toFixed(2); L.loan.id=u.id; olvB10Log(L,['loan', L.loan.placedT, Math.round(u.x), Math.round(u.y)]);   // THE DEAL: the kid plays Larson
     const P=ls10Props(L); if(P.lar.on){ P.lar.on=0; P.lar.offT=S.t; }   // the prop leaves the wreck
     let n=0, far=0, R0=0; for(const q of S.units){ if(q.dead || q===u || q.falling || (q.dropT>0)) continue; n++; const d=Math.abs(q.x-u.x); R0=Math.max(R0,d); if(d>LS10.fbR) far++; } L.loan.fb={ t0:S.t, until:S.t+LS10.fbDur, n:n, far:far, R0:Math.round(R0) }; S.floats.push({x:u.x,y:u.y-110,txt:'FALL IN!',t:0,col:'#FFD34D'}); try{ SFX.whistle(); }catch(e){} }   // laws §6.1: the men fall in on him the frame he is dealt (FALL IN! in the bar and on the rug, Sarge's whistle)
   if(u && L.loan.fb && !L.loan.fbDone){ if(S.t<L.loan.fb.until){ for(const q of S.units){ if(q.dead || q===u || q.falling || (q.dropT>0) || (q.jetT>0) || (S.drag && S.drag.unit===q) || q.type==='aagun') continue; const dx=u.x-q.x, d=Math.abs(dx); if(d<=LS10.fbR) continue; q.x+=Math.sign(dx)*Math.min(d-LS10.fbR,LS10.fbV*dt); } }   // THE FALL-IN: every man further than fbR from his line steps toward it along the rug (his row kept: the rims stay covered), six seconds
@@ -81577,7 +81610,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.66';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
