@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.87","md5":"ab813fe5dac4b0572435daf30a451106","sha":"92af1be2d","at":"2026-10-11T16:55:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"20.88","md5":"9894715e09b7fa884e4b138f5f80e53f","sha":"3076b7d74","at":"2026-10-11T16:57:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -10856,6 +10856,10 @@
      front paws above the floor) and on the attic's coyote (hunCyPlay: his sit dips forward, the tail wags); the words; reduced motion stills every one of them (the bow stands still). */
   .ro-hunter { pointer-events:none; }
   .ro-hunter .dhWalk { transition:transform 0.14s linear; }
+  /* CARD-HCL (Dylan 10/11: the collar moves with his torso, not his head): the collar is on his body (hunCollar), so on the sniff his head tips about his NECK (7 under the head's centre: the collar's seat), the chin over the collar */
+  .ro-hunter .dogsniffB .dogHeadG { animation-name:hunhsniff; }
+  @keyframes hunhsniff { from{transform:translate(0px,7px) rotate(-26deg) translate(0px,-7px)} to{transform:translate(0px,7px) rotate(-34deg) translate(0px,-7px)} }
+  @media (prefers-reduced-motion: reduce){ .ro-hunter .dogsniffB .dogHeadG { animation:none; } }
   .huBow, .huHug { display:none; }
   .hunBow .dgTrot, .hunBow .dgSit, .hunHug .dgTrot, .hunHug .dgSit { display:none; }
   .hunBow .huBow, .hunHug .huHug { display:inline; }
@@ -82156,7 +82160,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='20.87';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='20.88';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -174185,14 +174189,15 @@ function hunLeg(x,y,len,col,cls){ return '<g transform="translate('+x+','+y+')">
 function hunPaw(x,y,col){ return '<ellipse cx="'+x+'" cy="'+y+'" rx="2.7" ry="2" fill="'+col+'"/><path d="M'+(x-.9)+' '+(y-.5)+' v1.4 M'+(x+.9)+' '+(y-.5)+' v1.4" stroke="'+HU_INK+'" stroke-width=".45" stroke-linecap="round"/>'; }
 function hunFore(x0,y0,x1,y1,col){ return '<path d="M'+x0+' '+y0+' L'+x1+' '+y1+'" stroke="'+col+'" stroke-width="3.6" stroke-linecap="round"/>'+hunPaw(x1-.4, y1+.2, col); }
 function hunLine(d){ return '<path d="'+d+'" stroke="'+HU_INK+'" stroke-width=".45" fill="none" stroke-linecap="round"/>'; }
-function hunHead(){   // her face: front-facing, round, the pointed ears pink inside, the brows, the eyes, the nose line, the nose, the tongue out, the smile, the purple collar
+function hunHead(){   // her face: front-facing, round, the pointed ears pink inside, the brows, the eyes, the nose line, the nose, the tongue out, the smile (CARD-HCL: the purple collar is hunCollar, on his body)
   return '<path d="M-7.4 -3.4 L-6.6 -18 L-1.6 -6.4 Z" fill="'+HU_Y+'"/><path d="M-6.1 -5.6 L-5.8 -14.4 L-3 -6.8 Z" fill="'+HU_EAR+'"/><path d="M1.6 -6.4 L6.6 -18 L7.4 -3.4 Z" fill="'+HU_Y+'"/><path d="M3 -6.8 L5.8 -14.4 L6.1 -5.6 Z" fill="'+HU_EAR+'"/>'
-    +'<path d="M-6.4 6.4 Q0 9.6 6.4 6.4" stroke="'+HU_PURP+'" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle r="8.2" fill="'+HU_Y+'"/>'+hunLine('M-4.9 -5.9 Q-3 -6.9 -1.3 -5.9 M1.3 -5.9 Q3 -6.9 4.9 -5.9')
+    +'<circle r="8.2" fill="'+HU_Y+'"/>'+hunLine('M-4.9 -5.9 Q-3 -6.9 -1.3 -5.9 M1.3 -5.9 Q3 -6.9 4.9 -5.9')
     +'<ellipse cx="-3" cy="-2.6" rx="2.2" ry="2.5" fill="#fff"/><circle cx="-3.4" cy="-2.3" r="1.25" fill="'+HU_INK+'"/><ellipse cx="3" cy="-2.6" rx="2.2" ry="2.5" fill="#fff"/><circle cx="2.6" cy="-2.3" r="1.25" fill="'+HU_INK+'"/>'
     +'<path d="M0 -1.4 L0 1.2" stroke="'+HU_INK+'" stroke-width=".5"/><path d="M-2.1 1.1 Q0 .3 2.1 1.1 Q1.9 3.5 0 3.7 Q-1.9 3.5 -2.1 1.1 Z" fill="'+HU_INK+'"/>'
     +'<path class="dogTng" d="M-1.5 4.4 Q-1.9 8.6 0 8.8 Q1.9 8.6 1.5 4.4 Z" fill="'+HU_TONG+'"/><path d="M0 5 L0 7.4" stroke="#9E1F2C" stroke-width=".4"/>'+hunLine('M-5.7 2.5 Q-4.4 6.3 0 4.2 Q4.4 6.3 5.7 2.5'); }
 function hunTail(){ return '<path d="M0 0 Q-.4 -3 1.6 -4.6" stroke="'+HU_Y+'" stroke-width="3.6" fill="none" stroke-linecap="round"/><circle cx="3.4" cy="-6.6" r="4.3" fill="'+HU_Y+'"/><path d="M3.4 -6.6 a1 1 0 1 1 1 1 a2 2 0 1 1 -2 -2 a3 3 0 1 1 3 3" stroke="'+HU_INK+'" stroke-width=".5" fill="none"/>'; }
-function hunHeadAt(x,y,rot){ return '<g transform="translate('+x+','+y+')'+(rot? ' rotate('+rot+')' : '')+'"><g class="dgPin dogHeadG">'+hunHead()+'</g></g>'; }
+function hunCollar(){ return '<path class="huCollar" d="M-6.4 6.4 Q0 9.6 6.4 6.4" stroke="'+HU_PURP+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>'; }   // CARD-HCL (Dylan 10/11: "make Hunters collar move with his torso, not his head"): the purple collar, in the head seat's own units, drawn by hunHeadAt OUTSIDE .dogHeadG: it rides the pose's body, and the nod, the sit's tilt and the sniff turn the head alone
+function hunHeadAt(x,y,rot){ return '<g transform="translate('+x+','+y+')'+(rot? ' rotate('+rot+')' : '')+'">'+hunCollar()+'<g class="dgPin dogHeadG">'+hunHead()+'</g></g>'; }
 function hunTailAt(x,y){ return '<g transform="translate('+x+','+y+')"><g class="dgPin dogwagG">'+hunTail()+'</g></g>'; }
 function hunArt(mode){   // 'room' = every pose, the room's classes pick one · 'trot' = the walk alone (the battle's mold) · 'hug' = the hug alone (the battle's hug mold)
   const trot='<g class="dgTrot">'+hunTailAt(11.6,-2.6)+hunLeg(-2.5,7,8.5,HU_YS,'dgLegB')+hunLeg(9.5,7,8.5,HU_YS,'dgLegA')
