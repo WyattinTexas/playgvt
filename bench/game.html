@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.41","md5":"f777e5eb3d904d8233434eb1e604ebad","sha":"2f3a3a497","at":"2026-10-12T03:25:04Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.42","md5":"92f8cc43b5d23ef0b8d78b1c15793aa3","sha":"dbe44b26c","at":"2026-10-12T03:49:33Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83552,7 +83552,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.41';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.42';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -105683,6 +105683,29 @@ function breathHitsU(b,u){
 const BR_TICK=FS_TICK;   // ⚑ THE BEAT: the breath's drum = the flamestrike's (0.5 s) — one const; the tongue's dur (0.65/0.7) is the other dial
 const BREATH_TELL=1;   // ⚑ 0 = the silent pip again (every lane's damage is unchanged either way)
 function breathTell(u){ if(!BREATH_TELL) return; S.floats.push({x:u.x,y:u.y-52,txt:'',flame:1,t:0,col:'#FF9A3D'}); S.fx.push({k:'ring',x:u.x,y:u.y-18,r:4,R:18,t:0,dur:0.22,col:'#FF9A3D'}); }
+// ═══ CARD-RFF KING REX'S FIRE AND THE RED CRYSTAL'S FIRE TRAIL BURN HIS OWN MEN (design/rex-red-friendly-fire-1011/00-BUILD-RFF.md) ═══ Wyatt 10/11/2026 23:18 EDT by phone (jumpr remote, dictated), verbatim: "The fire from king rex and reds enhanced crystal needs to have friendly fire"
+// The house law of 8/18 (FS_FF; Wyatt: "the fire created by fire in general… should hurt all players. It doesn't belong to a certain player") reaches the two fires that stood outside it:
+//   RED A THE FIRE TRAIL (CARD-CCN-B3; CCN-Q6 made its patches enemies-only: p.ftEn skipped fsTick's own-side lane) and YOUR King Rex's tongue (0461's 'hero' lane in breathBurn walked his enemies alone).
+// THE TRAIL: fsTick's own-side gate reads rffTrail(p): every ground patch, the trail's (and the pen's bonfires) too, burns the men of the side that lit it through the FS_FF lane as it stands (a NULL src so the ledger pays nobody, the lane's skip-set, tanHit grit on the campaign / hurt on the BF, one 🔥 a man). p.ftEn is still stamped (the rigs' reader); the enemy lane is byte-what-it-was.
+// THE TONGUE: rffOwn(b) after the hero lane's enemy pass: every man of his OWN side whose figure stands in the drawn tongue (breathHitsU, the 0461 wedge) burns every BR_TICK on the region's own next-beat clock (b.hit), never the king himself, with a NULL src: the BF hurt(e, b.dmg, null, 1) (his captured damage, no owner); the campaign tanHit(e, b.x, b.y, null, 1) (one grit pip a beat; every save keeps its say); breathTell. Co-op: every commander's men (S.units), as the FS_FF lane reads "friendly".
+// RFF.on 0 = before (the trail's skip, the hero lane's enemies alone). Zero wire, zero server, zero save, zero words; dice-free (positions + the sim's clocks; the funnels' own rolls are the sim's seeded rng, as the FS_FF lane's).
+const RFF={ on:1, hero:1, trail:1, self:1 };   // ⚑ RFF-Q1 the BOSS king's tongue stays on your men alone (his own Tan never) · Q2 Sarge stands in his own last patch · Q3 own men take the enemy's beat whole · Q4 co-op: the other commanders' men too
+function rffTrail(p){ return !p.ftEn || !!(RFF.on && RFF.trail); }   // fsTick's own-side gate: the trail's patches no longer skip it
+function rffSelf(p,e){ return !!(p.ftEn && e===p.src && RFF.self); }   // ⚑ RFF-Q2: the RUNNER is out of his own trail's patches (his run ends inside the last one or two: he would fall a second after every cast); his men, the other commanders' men and the Tan all burn. RFF.self 0 = he burns too, as under a flamestrike's patch (FB_SOAK with the blade)
+function rffOwn(b){   // breathBurn's 'hero' lane: his OWN side in the tongue (the FS_FF lane's grammar)
+  if(!(RFF.on && RFF.hero)) return; const k=b.src; if(!k) return;
+  for(const e of (S.bf? S.units.filter(o=>o.side===k.side) : S.units)){
+    if(e===k||e.dead||e.jetT>0||e.dropT>0||e.falling||e.burrow||(S.drag&&S.drag.unit===e)) continue;   // the FS_FF lane's skip-set + the breather himself
+    const nb=b.hit.get(e); if(nb!=null && b.t<nb) continue;   // 0462b: his next beat is not due yet
+    if(!breathHitsU(b,e)) continue;
+    b.hit.set(e,b.t+BR_TICK);
+    if(S.bf) hurt(e,b.dmg,null,1); else tanHit(e,b.x,b.y,null,1);   // a FIRE beat with no owner (0404's ledger grammar: a friendly kill pays nobody; a blue wall throws it at nobody)
+    breathTell(e);
+  }
+}
+function rffRig(o){ o=o||{}; if(o.on!=null) RFF.on=o.on|0; if(o.hero!=null) RFF.hero=o.hero|0; if(o.trail!=null) RFF.trail=o.trail|0; if(o.self!=null) RFF.self=o.self|0; return { cv:GVT_CV, dial:Object.assign({},RFF), ff:FS_FF, tick:BR_TICK, body:BR_BODY }; }   // the rig door's body
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.rff=rffRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (the DJS/DSF/KYU grammar: window.GVT stands far below this line)
+// ═══ /CARD-RFF ═══
 function breathBurn(b){
   if(b.lane==='nem'){                            // the BF hatchling's tongue: either army, never a hatchling (nemNearFig's own skip-set)
     for(const u of S.units){
@@ -105715,6 +105738,7 @@ function breathBurn(b){
       if(!breathHitsU(b,f)) continue;
       b.hit.set(f,b.t+BR_TICK); hurt(f,b.dmg,k,1); breathTell(f);   // 0906: a FIRE beat · vet/mods/rank rode the captured line; the kill is his — once a beat
     }
+    rffOwn(b);   /* CARD-RFF: his OWN men in the tongue burn too (friendly fire, Wyatt 10/11); RFF.on 0 = enemies alone */
     return;
   }
   for(const u of S.units){
@@ -107922,9 +107946,9 @@ function fsTick(dt){
       // burrowed and dropping men are out of the flame, one 🔥 float per
       // man per patch, and the dragged man keeps the standing "drag your
       // men out" grace.
-      if(FS_FF && !p.ftEn){   // CARD-CCN-B3 (CCN-Q6): THE FIRE TRAIL burns enemies only, never his own men
+      if(FS_FF && rffTrail(p)){   /* CARD-RFF: THE FIRE TRAIL burns his own men too (friendly fire, Wyatt 10/11); RFF.on 0 = CCN-Q6's skip */   // CARD-CCN-B3 (CCN-Q6): THE FIRE TRAIL burned enemies only, never his own men
         for(const e of (S.bf? S.units.filter(o=>o.side===p.side) : S.units)){
-          if(e.dead||e.jetT>0||e.dropT>0||e.falling||e.burrow||(S.drag&&S.drag.unit===e)) continue;
+          if(e.dead||e.jetT>0||e.dropT>0||e.falling||e.burrow||(S.drag&&S.drag.unit===e)||rffSelf(p,e)) continue;   /* CARD-RFF: the runner is out of his own trail's patches (RFF-Q2) */
           if(Math.hypot(e.x-p.x,e.y-p.y)>p.r) continue;
           if(!p.hit.has(e)){ p.hit.add(e); S.floats.push({x:e.x,y:e.y-52,txt:'',flame:1,t:0,col:'#FF9A3D'}); }
           if(S.bf) hurt(e, (p.dps||FS_DPS)*FS_TICK, null, 1); else tanHit(e, p.x, p.y, null, 1);   // 0906: a FIRE beat — his own fire included (D4: he stands in his own patch at FB_SOAK)
