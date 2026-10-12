@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.26","md5":"017d5aa136fe6ecea76b7df709d35faa","sha":"3229cffd0","at":"2026-10-12T01:42:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.27","md5":"174aea20310c9fb1c2491d22140102cf","sha":"5d9d5adcd","at":"2026-10-12T01:49:37Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83092,7 +83092,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -86732,35 +86732,37 @@ function bdName(){ return (bdKind()==='tundra')? 'THE BATTLE OF THE FROZEN TUNDR
 function bdTeamMin(){ return fztOn()? FZT_MIN : BD_TEAM_MIN; }   // bdFielded / bdRoster read the night's own minimum
 function bdPromoKey(){ return (bdKind()==='tundra')? 'tundra' : 'bd'; }   // Q9: tundra-promo.jpg/.webm/.mp4 beside index.html (the desert promo's law)
 function fztTitleKey(n){ return fztOn()? (n===1? '⚔ THE BATTLE OF THE FROZEN TUNDRA · %1 REAL COMMANDER · YOU: %2' : '⚔ THE BATTLE OF THE FROZEN TUNDRA · %1 REAL COMMANDERS · YOU: %2') : (n===1? '⚔ THE BATTLE OF THE DESERT · %1 REAL COMMANDER · YOU: %2' : '⚔ THE BATTLE OF THE DESERT · %1 REAL COMMANDERS · YOU: %2'); }   // the HUD's title under the bar (0824-LATE II's seat)
-function fztBag(){ return { posts:FZT_POSTS.map(p=>({ x:p.x, y:p.y, o:0, pr:0, prs:0, tur:0 })), t:'h', k:'ice', hold:[0,0], shots:0, flips:[] }; }   // the Tundra's post table on the BATTLE bag (drawRaidPosts reads it in S.raid's place; t 'h' = the green gun's row for the hopper's clock; k for the painter's grammar)
+function fztBag(){ return { posts:FZT_POSTS.map(p=>({ x:p.x, y:p.y, o:0, pr:0, prs:0, tur:0, dead:0, tk:[null,null,null] })),   /* CARD-FZT5: dead (Q6 the wreck) + tk (Q1 the one taker a team) */ t:'h', k:'ice', hold:[0,0], shots:0, flips:[] }; }   // the Tundra's post table on the BATTLE bag (drawRaidPosts reads it in S.raid's place; t 'h' = the green gun's row for the hopper's clock; k for the painter's grammar)
 function fztPostCol(o){ return o===1? ((S.bf&&S.bf.hex&&S.bf.hex.you)||'#BFE39A') : o===2? ((S.bf&&S.bf.hex&&S.bf.hex.foe)||'#9CC0D8') : '#C9D4E2'; }   // the holder's colour = the TEAM's seat hex (Team 1 = seat 0's, Team 2 = seat team's); nobody's = the castle's grey; the raid keeps its ours/theirs literals
 function fztStanding(u){ return !(u.dead || u.down || u.dropT>0 || u.jetT>0 || u.cloakT>0 || u.falling) && u.hp>0; }   // raidTick's standing filter (a cloaked spy neither holds nor is held)
 function fztTeamOf(u){ return (u.side==='foe')? 2 : 1; }   // TEAM 1 = the LEFT ('you' on every sim), TEAM 2 = the RIGHT ('foe')
 function fztCapSet(i,o,remote){   // the flip — raidCapSet's twin for two teams: the ring burst in the taker's colour, the trumpet on the taker's screens / the clack on the other's, the word, the referee's relay (the castle's own `cap` word; a guest lands it here through coopApply with remote)
-  const bg=S.bf&&S.bf.fzt; if(!bg || S.mode!=='play') return; const P=bg.posts[i|0]; if(!P) return; o=Math.max(0,Math.min(2,o|0));
+  const bg=S.bf&&S.bf.fzt; if(!bg || S.mode!=='play') return; const P=bg.posts[i|0]; if(!P) return; if((o|0)===3 && FZT5.on){ fzt5Wreck(bg,i|0,remote); return; } if(P.dead) return; o=Math.max(0,Math.min(2,o|0));   /* CARD-FZT5 Q5/Q6: t 3 = THE WRECK (a vehicle crushed it: the referee's own call and a guest's relayed word both land here); a dead turret takes no word */
   if(P.o===o){ P.pr=0; P.prs=0; return; }
-  P.o=o; P.pr=0; P.prs=0; P.tur=0; bg.flips.push({ t:+S.t.toFixed(2), i:i|0, o:o });
+  const prev9=P.o; P.o=o; P.pr=0; P.prs=0; P.tur=0; bg.flips.push({ t:+S.t.toFixed(2), i:i|0, o:o });
   S.fx.push({k:'ring',x:P.x,y:P.y,r:8,R:RAID_CAP_R,t:0,dur:0.45,col:fztPostCol(o)});
-  if(o){ const mine=(bfMyTeam()==='foe')? 2 : 1; if(o===mine) SFX.trumpet(); else SFX.clack(); }   /* CARD-FZT4 Q1 (Wyatt 10/9/2026 ~16:16 EDT: "get rid of the text in the middle that says, 'You've taken the turret.' That text is just disrupting the game"): NO WORD across the middle of the field at a flip, on every screen (the referee's own flip and a guest's relayed cap word both land here): the ring burst in the taker's colour at the gun, the trumpet on the taker's screens / the clack on the other's, the gun's colours and the three pips under the bar (fzt2Pips) say it. CARD-FZT2's band (S.ann = fzt2CapKey's key, 2.2 s over the middle of the field) retired; fzt2CapKey and its six keys stay in the seven dictionaries, unread */
+  if(o){ const mine=(bfMyTeam()==='foe')? 2 : 1; if(o===mine) SFX.trumpet(); else SFX.clack(); } else if(FZT5.on && prev9===((bfMyTeam()==='foe')? 2 : 1)) SFX.clack();   /* CARD-FZT5 Q3 THE FALL: our man at the gun fell and the turret fell free: the clack on our screens */   /* CARD-FZT4 Q1 (Wyatt 10/9/2026 ~16:16 EDT: "get rid of the text in the middle that says, 'You've taken the turret.' That text is just disrupting the game"): NO WORD across the middle of the field at a flip, on every screen (the referee's own flip and a guest's relayed cap word both land here): the ring burst in the taker's colour at the gun, the trumpet on the taker's screens / the clack on the other's, the gun's colours and the three pips under the bar (fzt2Pips) say it. CARD-FZT2's band (S.ann = fzt2CapKey's key, 2.2 s over the middle of the field) retired; fzt2CapKey and its six keys stay in the seven dictionaries, unread */
   if(!remote && sqRef() && S.coop) coopSend({k:'cap', n:i|0, t:o, x:0});
 }
 function fztTick(dt){   // the Tundra's own clocks (update, beside raidTick): the gun on EVERY sim (the castle's law: each screen's gun fires at its own copy of the men), the capture on the REFEREE's word (guests render relayed truth); nothing in the hold
   const bg=S.bf&&S.bf.fzt; if(!bg || S.mode!=='play' || S.evHold) return;
   fzt2Tick(bg,dt);   /* CARD-FZT2: the turrets' pay + the computers' posts */
   for(let i=0;i<bg.posts.length;i++){ const P=bg.posts[i];
+    if(P.dead){ fzt5Smoke(P,dt); continue; }   /* CARD-FZT5 Q6: a wreck fires nothing */
     P.tur=(P.tur||0)-dt; P.turHotCd=(P.turHotCd||0)-dt;
     let best=null,bd=FZT2.rng; const enemy=(P.o===1)? 2 : 1;   /* CARD-FZT2 Q3: the Tundra gun's own reach */
     if(P.o){ for(const u of S.units){ if(fztTeamOf(u)!==enemy || !fztStanding(u)) continue; const d=Math.hypot(u.x-P.x,u.y-P.y); if(d<FZT2.dead) continue; if(d<bd){ bd=d; best=u; } } }   /* CARD-FZT2 Q7: never into its own ring */
     const was9=!!P.turHot; P.turHot=!!best;
     if(best){ const ga=Math.atan2((best.y-14)-(P.y-18.5), best.x-P.x); let d9=ga-(P.aim||0); while(d9>Math.PI) d9-=Math.PI*2; while(d9<-Math.PI) d9+=Math.PI*2; P.aim=(P.aim||0)+d9*Math.min(1,dt*TUR_TRACK); if(!was9 && P.turHotCd<=0){ bfSfx(SFX.clack,P.x,P.y); P.turHotCd=2; } }
     if(P.tur>0 || !best) continue;
-    P.tur=FZT2.cd;   /* CARD-FZT2 Q3: the Tundra gun's own cadence */   // Q4 ONE SYMMETRIC GUN: the green gun's cadence for either holder — TUR_ROUNDS rounds of RAID_TUR_DMG fanned across the nearest enemy men inside RAID_TUR_RNG, through the battleground's one damage door (hurt: the Nemesis kit's own law for a unit); no knock
-    const marks=[best]; hurt(best,FZT2.dmg,null); if(best.hp<=0) P._killT=S.t;   /* CARD-FZT2 Q3: the Tundra's own round */
+    P.tur=FZT5.on? FZT5.cd : FZT2.cd;   /* CARD-FZT5 Q4 RAPID FIRE: the round's own cadence */   /* CARD-FZT2 Q3: the Tundra gun's own cadence */   // Q4 ONE SYMMETRIC GUN: the green gun's cadence for either holder — TUR_ROUNDS rounds of RAID_TUR_DMG fanned across the nearest enemy men inside RAID_TUR_RNG, through the battleground's one damage door (hurt: the Nemesis kit's own law for a unit); no knock
+    const dmg9=FZT5.on? FZT5.dmg : FZT2.dmg;   /* CARD-FZT5 Q4: the round's own damage */ const marks=[best]; hurt(best,dmg9,null); if(best.hp<=0) P._killT=S.t;   /* CARD-FZT2 Q3: the Tundra's own round */
     for(let r=1;r<FZT2.rounds;r++){ let m=null,md=FZT2.rng; for(const u of S.units){ if(fztTeamOf(u)!==enemy || !fztStanding(u) || marks.indexOf(u)>=0) continue; const d=Math.hypot(u.x-P.x,u.y-P.y); if(d<FZT2.dead) continue; if(d<md){ md=d; m=u; } }
-      if(!m) m=marks.find(u=>fztStanding(u)); if(!m) break; marks.push(m); hurt(m,FZT2.dmg,null); if(m.hp<=0) P._killT=S.t; }
-    raidTurBurst(P,marks); bg.shots++;
+      if(!m) m=marks.find(u=>fztStanding(u)); if(!m) break; marks.push(m); hurt(m,dmg9,null); if(m.hp<=0) P._killT=S.t; }
+    if(FZT5.on) fzt5Round(P,marks); else raidTurBurst(P,marks); bg.shots++;   /* CARD-FZT5 Q4: the rapid gun's own picture */
   }
   if(!sqRef()) return;   // the capture is the REFEREE's word (fztCapSet relays it)
+  if(FZT5.on){ fzt5Ref(bg,dt); return; }   /* CARD-FZT5 Q1..Q5: the one-man law (the mount, the fall) + the crush, the referee's; round 1's ring count below stands for FZT5.on 0 */
   for(let i=0;i<bg.posts.length;i++){ const P=bg.posts[i]; let g1=0,g2=0;
     for(const u of S.units){ if(!fztStanding(u)) continue; if(Math.hypot(u.x-P.x,u.y-P.y)<=RAID_CAP_R){ if(fztTeamOf(u)===2) g2=1; else g1=1; if(g1&&g2) break; } }
     const side=(g1&&!g2)? 1 : (g2&&!g1)? 2 : 0;   // a side ALONE inside the ring fills the arc (RAID_CAP_T s); contested stands; empty drains
@@ -86770,13 +86772,15 @@ function fztTick(dt){   // the Tundra's own clocks (update, beside raidTick): th
   }
 }
 function fztStamp(u,y){   // Q10 THE TURRET ORDER at placement (the castle's raidRetakeStamp, team-aware): a man placed in a post's outer third of the mat while that post is not his team's is stamped with it — his lane runs onto the post's latitude (a seeded spread); fztHold stands him in its ring. The middle third marches as today; a vehicle, a mine and the spy never take the order
-  const bg=S.bf&&S.bf.fzt; u.fzPost=null; if(!bg || u.def.vehicle || u.def.mine || u.type==='spy') return;
+  const bg=S.bf&&S.bf.fzt; u.fzPost=null; u.fzRam=null; if(bg && FZT5.on && u.def.vehicle && !u.def.air && !u.def.mine) fzt5Aim(bg,u,y);   /* CARD-FZT5 Q5 THE RAM: a ground vehicle placed on a turret's lane carries that turret */ if(!bg || u.def.vehicle || u.def.mine || u.type==='spy') return;
   const i=fzt2Band(bg,y); if(i<0) return;   /* CARD-FZT2 Q4: the post of his own third (three posts = three bands; the middle third now has its own) */
   const P=bg.posts[i]; if(!P || P.o===fztTeamOf(u)) return;
+  if(FZT5.on){ fzt5Order(bg,i,P,u); return; }   /* CARD-FZT5 Q1 ONE MAN A TURRET: the first man placed in the band takes the order, the rest march */
   u.fzPost=i; u.laneY=P.y+FZT_SPREAD[(u.zigS>>>0)%FZT_SPREAD.length];
 }
-function fztHold(u){   // Q10: inside the ring of a post that is not his team's he STANDS, his gun up (true = the weapon loop runs: a defender); the moment the post is his team's the stamp clears and he marches on as today
-  const bg=S.bf&&S.bf.fzt; if(!bg || u.fzPost==null) return false;
+function fztHold(u,dt){   /* CARD-FZT5: + dt (the walk to the seat); 1 = he stands at the gun, 2 = the frame was spent walking to it, 0 = the march */   // Q10: inside the ring of a post that is not his team's he STANDS, his gun up (true = the weapon loop runs: a defender); the moment the post is his team's the stamp clears and he marches on as today
+  const bg=S.bf&&S.bf.fzt; if(!bg || (u.fzPost==null && u.fzRam==null)) return false;   /* CARD-FZT5 Q5: a ramming vehicle rides this hook too */
+  if(FZT5.on) return fzt5Hold(u,dt);   /* CARD-FZT5 Q1 THE SEAT · Q5 THE RAM */
   const P=bg.posts[u.fzPost]; if(!P || P.o===fztTeamOf(u)){ u.fzPost=null; return false; }
   return Math.hypot(u.x-P.x,u.y-P.y)<=RAID_CAP_R-14;
 }
@@ -86815,6 +86819,7 @@ function fzt2Pips(a9){   // Q6 THE THREE TURRETS ON THE HUD: north / centre / so
   cx.save(); cx.globalAlpha=al; cx.lineCap='round'; cx.lineJoin='round';
   for(let i=0;i<n;i++){ const P=bg.posts[i], x=x0+i*gap;
     cx.fillStyle='rgba(16,22,30,0.66)'; cx.beginPath(); cx.arc(x,y,16.5,0,7); cx.fill();
+    if(P.dead){ fzt5Pip(x,y); continue; }   /* CARD-FZT5 Q6: a wrecked turret's pip */
     if(P.o){ cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(x,y,13.5,0,7); cx.fill(); cx.fillStyle=fztPostCol(P.o); cx.beginPath(); cx.arc(x,y,11.5,0,7); cx.fill(); }   // HELD: the holder's colour inside a white rim
     else { cx.strokeStyle='rgba(201,212,226,0.85)'; cx.lineWidth=2; cx.setLineDash([3,3]); cx.beginPath(); cx.arc(x,y,11.5,0,7); cx.stroke(); cx.setLineDash([]); }   // NOBODY'S: hollow, the castle's grey ring dashed
     if(P.pr>0 && P.prs){ cx.strokeStyle=fztPostCol(P.prs); cx.lineWidth=3.4; cx.beginPath(); cx.arc(x,y,15,-Math.PI/2,-Math.PI/2+P.pr*Math.PI*2); cx.stroke(); }
@@ -86834,6 +86839,102 @@ function fzt2Pips(a9){   // Q6 THE THREE TURRETS ON THE HUD: north / centre / so
 // mid-Tundra is hushed too (the library's own law); the fight's end shows the state.
 const FZT4={ open:4 };   // seconds after the bell's first beat before the hush: the bell's card (3.0 s) and the launch's (3.4 s) are gone by then
 function fzt4Hush(){ const bg=S.bf&&S.bf.fzt; return !!(bg && bg.even && S.mode==='play' && !S.evHold && (S.t-(bg.bellT||0))>=FZT4.open && !S.bf.whistled && !S.bf.resolved); }   // hlbHush's shape on the Tundra's bag
+// ═══ CARD-FZT5 THE FROZEN TUNDRA, ROUND 5: ONE MAN WORKS A TURRET, THE GUNS RAPID AND VOLATILE, A JEEP OR TANK CRUSHES ONE (design/tundra-one-man-1011/00-BUILD-FZT5.md; Wyatt 10/11/2026 20:49 EDT by phone, verbatim:
+// "Battle of the frozen tundra needs to only have 1 man working a turret at a time. Not troops just waiting in the middle. We need the turrets to be rapidly firing and being volatile.  A jeep or can run over a turret and destroy it.
+// At that point no units stop to try and control it"; his screenshot of tonight's fight: a dozen men and tanks piled in the two centre rings). A TURRET IS HELD BY THE MAN WORKING IT: the turret order goes to ONE man a team a post
+// (fzt5Order: the first man placed in its band, P.tk; re-given when he falls), his lane runs onto the gun's seat and inside the ring he walks straight to it (fzt5Hold: 16 px his side of the hub) and stands there, his own gun up; every
+// other man placed in the band marches on. A free turret with one man at the seat mounts over RAID_CAP_T s (fzt5Ref, the referee's word as before: both teams at the seat = contested, they fight it out); when the gunner falls (fztGunner:
+// nobody of the holder's team within gunR of the hub for fallT s) the turret FALLS FREE (cap t 0). The gun chatters (FZT5.cd / FZT5.dmg, fzt5Round: a tracer, a snowball, a flash, the splat every round; the rings every third; the laser
+// cue at most every sfxT). VOLATILE: a ground vehicle (def.vehicle, not a plane, not a mine) within crushR of the hub of a turret that is NOT its team's CRUSHES it (fzt5Wreck: the castle raid's crush grammar + a boom + a blast of
+// FZT5.blast on every man within blastR, the vehicle too; a vehicle placed on a turret's lane drives AT the hub from ramIn: fzt5Aim at placement, the drive in fzt5Hold), the referee's call relayed as the castle's own `cap` word with t 3 (fztCapSet lands it on every guest); the wreck is DEAD for the fight: nobody's, no arc, no gun, no pay, no
+// order (fzt5DrawWreck on the ice, fzt5Pip's ✕ on the HUD strip, smoke for FZT5.smoke s). FZT5.on 0 = round 4's law whole. ⚑ FZT5-Q1..Q7 at their RECs, one cell each.
+const FZT5={   // THE ROUND'S DIALS, one cell each (the rig may lay its own over this table)
+  on:1,        // the round (0 = round 4's law: every man in the band stands in the ring, the gun of round 2, nothing crushes a turret)
+  cd:0.2,      // Q4 RAPID FIRE: seconds a round (round 2: 0.8)
+  dmg:1.5,     // Q4: a round (round 2: 4 every 0.8 s = 5 a second) = 7.5 a second on the nearest enemy man between the dead zone and the reach (FZT2.dead / FZT2.rng stand): a rifleman (3) in two rounds, a Sarge (6) in four, a machine gunner (8) in six, a jeep (24) reaches the hub from 300 px with ~7 left, a tank (40, 22 px/s) never does alone
+  seatDx:16,   // Q1 THE SEAT: a gunner stands this far his own side of the hub (Team 1 west, Team 2 east)
+  seatDy:6,    // Q1: and this far below it (in front of the tripod)
+  seatR:14,    // Q1: at the seat = within this of it: he works the gun (stands, his gun up)
+  gunR:34,     // Q2/Q3: a standing man of the holder's team within this of the hub IS the gunner; a man of either team within it at a free turret mounts it
+  pull:110,    // Q1: inside this of the seat (the ring) an ordered man walks straight to it, zig or no zig
+  fallT:0.5,   // Q3 THE FALL: seconds with nobody of its team at the gun before a held turret falls free
+  crushR:34,   // Q5 VOLATILE: a ground vehicle's centre within this of the hub (or within its own bumper's reach, def.ramR 46 on a jeep) crushes a turret that is not its team's (the tripod spans ±13; a jeep's hull is wider)
+  ramLane:60,  // Q5 THE RAM: a vehicle a HUMAN places within this of a post's latitude is on that turret's lane: it drives AT the hub once within ramIn of it (a snow bank on the approach deflects a straight drive 60 px off the hub: the audit's zero wrecks in three fights)
+  ramLaneAI:130, // Q5: a COMPUTER's vehicle in a turret's band drives at it from this far off its row (its chair leans on the post but its drops land 70-110 px off: the audit's zero rams); the human's own lane stays the aimed one
+  ramIn:300,   // Q5: from this far it aims at the hub (the gun's own reach: the drive under fire)
+  blast:4,     // Q7: the burst's damage on every man within blastR (both teams, the gunner and the vehicle too): the light men beside it fall (a rifleman 3, a medic 2), the heavy are wounded (a Sarge 6, a commando 7, a machine gunner 8, a jeep 24); 0 = the crush alone
+  blastR:70,   // Q7: the burst's reach
+  sfxT:0.45,   // Q4: the laser cue at most this often a gun (five rounds a second would be five cues)
+  smoke:12 };  // Q6: seconds a wreck smokes
+function fzt5Live(u){ return !!(u && !u.dead && u.hp>0); }
+function fzt5Seat(P,tm){ return { x:P.x+FZT5.seatDx*(tm===2? 1 : -1), y:P.y+FZT5.seatDy }; }   // Q1: Team 1's seat west of the hub, Team 2's east (each comes from his own side)
+function fzt5SeatMan(P,tm){   // the man of team tm at the gun: the post's own taker when he stands within gunR, else the nearest standing man of that team within it (a vehicle never works a gun, a mine never)
+  const tk=P.tk? P.tk[tm] : null; if(tk && fztStanding(tk) && tk.fzPost!=null && Math.hypot(tk.x-P.x,tk.y-P.y)<=FZT5.gunR) return tk;
+  let b=null,bd=FZT5.gunR; for(const u of S.units){ if(fztTeamOf(u)!==tm || !fztStanding(u) || u.def.vehicle || u.def.mine) continue; const d=Math.hypot(u.x-P.x,u.y-P.y); if(d<bd){ bd=d; b=u; } } return b; }
+function fztGunner(P){ return (P.o && !P.dead)? fzt5SeatMan(P,P.o) : null; }   // Q2: the man working a held turret (null = nobody at the gun: fzt5Ref's fall clock runs)
+function fzt5Order(bg,i,P,u){   // Q1 THE ORDER at placement (from fztStamp, after its own filters: not a vehicle, a mine or the spy; the band's post is not his team's): ONE taker a team a post
+  if(P.dead) return;   // Q6: a wreck orders nobody
+  const tm=fztTeamOf(u); const tk=P.tk? P.tk[tm] : null; if(tk && tk!==u && fzt5Live(tk) && tk.fzPost===i) return;   // his team's taker lives and still carries the order: this man marches on
+  if(!P.tk) P.tk=[null,null,null]; P.tk[tm]=u; u.fzPost=i; u.laneY=P.y+FZT5.seatDy; }   // his lane runs onto the seat's latitude
+function fzt5Aim(bg,u,y){ u.fzRam=null; const i=fzt2Band(bg,y); const P=bg.posts[i]; if(!P || P.dead || P.o===fztTeamOf(u) || Math.abs(y-P.y)>(fzt5Human(u)? FZT5.ramLane : FZT5.ramLaneAI)) return; u.fzRam=i; }   // Q5 THE RAM at placement (from fztStamp, a ground vehicle): placed on a turret's lane (a human's aim; a computer's driver from anywhere near in the band: the chair's own word, the same on every sim), it carries that turret unless its own team holds it
+function fzt5Human(u){ const st=S.bf && S.bf.seats && S.bf.seats[u.seat]; return !!(st && st.human); }   // the chair behind a unit is a human's (HQ's roster word, bdRoster: the same on every screen; bfHumanU reads MY seat alone)
+function fzt5Hold(u,dt){   // Q1 THE SEAT (from fztHold, every step of an ordered man): 1 = he works the gun (he stands, his gun up: the weapon loop runs) · 2 = the frame was spent walking to the seat · 0 = the order is off, or the march brings him
+  const bg=S.bf&&S.bf.fzt; if(!bg) return 0;
+  if(u.fzRam!=null){ const R=bg.posts[u.fzRam], tm=fztTeamOf(u); if(!R || R.dead || R.o===tm){ u.fzRam=null; return 0; } const dx=R.x-u.x; if(Math.abs(dx)>FZT5.ramIn || (tm===1? dx<-20 : dx>20)) return 0; bfMarch(u,dt||0,{ x:R.x, y:R.y }); u.marching=true; return 2; }   // Q5 THE RAM: a vehicle on a turret's lane drives at the hub (its own team's turret, a wreck, a hub behind it: the lane as before)
+  if(u.fzPost==null) return 0; const P=bg.posts[u.fzPost]; if(!P || P.dead){ u.fzPost=null; return 0; }   // Q6: a wreck frees every man ordered to it
+  const tm=fztTeamOf(u); if(P.o===tm){ const g=fztGunner(P); if(g && g!==u){ u.fzPost=null; return 0; } }   // his team works it already (another man at the gun): he marches on; nobody at the gun = he goes back to the seat
+  const s=fzt5Seat(P,tm), d=Math.hypot(u.x-s.x,u.y-s.y);
+  if(d<=FZT5.seatR) return 1;
+  if(d<=FZT5.pull){ bfMarch(u,dt||0,s); u.marching=true; return 2; }   // inside the ring: straight to the seat (the walker steers round a bank)
+  return 0; }
+function fzt5Ref(bg,dt){   // THE REFEREE's clocks (from fztTick, in place of round 1's ring count): the crush (Q5), the fall (Q3), the mount (Q2); every verdict relayed by fztCapSet
+  for(let i=0;i<bg.posts.length;i++){ const P=bg.posts[i]; if(P.dead) continue;
+    let v=null; for(const u of S.units){ if(!u.def.vehicle || u.def.air || u.def.mine || u.dead || !(u.hp>0) || u.dropT>0) continue; if(P.o && P.o===fztTeamOf(u)) continue; if(Math.hypot(u.x-P.x,u.y-P.y)<=Math.max(FZT5.crushR,u.def.ramR||0)){ v=u; break; } }   // Q5: a ground vehicle over the hub of a turret that is not its team's (its bumper's reach when it has one)
+    if(v){ fztCapSet(i,3,false); continue; }
+    if(P.o){ if(fztGunner(P)) P.noMan=0; else { P.noMan=(P.noMan||0)+dt; if(P.noMan>=FZT5.fallT){ P.noMan=0; fztCapSet(i,0,false); continue; } } P.pr=0; P.prs=0; }   // Q3: held = its man at the gun; nobody there for fallT s = it falls free
+    else { const m1=fzt5SeatMan(P,1), m2=fzt5SeatMan(P,2); const side=(m1&&!m2)? 1 : (m2&&!m1)? 2 : 0;   // Q2: ONE man at a free gun mounts it; both teams there = contested, nobody mounts; empty drains
+      if(side){ if(P.prs!==side){ P.prs=side; P.pr=0; } P.pr=Math.min(1,P.pr+dt/RAID_CAP_T); if(P.pr>=1) fztCapSet(i,side,false); }
+      else P.pr=Math.max(0,P.pr-dt/RAID_CAP_T); }
+    if(P.o) bg.hold[P.o-1]+=dt; } }
+function fzt5Wreck(bg,i,remote){   // Q5/Q6 THE CRUSH (from fztCapSet on t 3: the referee's own call, or a guest's relayed word): the castle raid's crush grammar + the boom + the blast; the turret dead for the fight
+  const P=bg.posts[i]; if(!P || P.dead) return;
+  P.dead=1; P.deadT=S.t; P.o=0; P.pr=0; P.prs=0; P.tur=0; P.turHot=false; P.noMan=0; P.tk=[null,null,null]; bg.flips.push({ t:+S.t.toFixed(2), i:i, o:0, w:1 }); bg.wrecks=(bg.wrecks||0)+1;
+  const RM=reducedMotion();
+  S.shake=Math.max(S.shake||0,0.7); SFX.rumble(); bfSfx(SFX.boom,P.x,P.y);
+  for(let k2=0;k2<(RM? 2 : 6);k2++) S.fx.push({k:'smoke',x:P.x+(Math.random()-0.5)*90,y:P.y+(Math.random()-0.5)*60,t:0,dur:0.7});
+  S.fx.push({k:'ring',x:P.x,y:P.y,r:10,R:RAID_CAP_R,t:0,dur:0.5,col:'#EAF3FA'});
+  S.fx.push({k:'puff',x:P.x,y:P.y-14,t:0,dur:0.5,R:RM? 24 : 40}); S.fx.push({k:'ring',x:P.x,y:P.y-10,r:6,R:FZT5.blastR,t:0,dur:0.35,col:'#FF9A3D'}); S.fx.push({k:'flash',x:P.x,y:P.y-12,ang:0,R:RM? 10 : 22,lw:3,t:0,dur:0.12});
+  if(FZT5.blast>0){ for(const u of S.units){ if(u.dead || !(u.hp>0) || u.dropT>0) continue; if(Math.hypot(u.x-P.x,u.y-P.y)<=FZT5.blastR) hurt(u,FZT5.blast,null); } }   // Q7: the hopper and the drum go up: every man near it, both teams, the vehicle too (each sim on its own copy of the men: the gun's own law)
+  if(!remote && sqRef() && S.coop) coopSend({k:'cap', n:i, t:3, x:1}); }
+function fzt5Smoke(P,dt){ if(!(S.t-(P.deadT||0)<FZT5.smoke) || reducedMotion()) return; P.smkT=(P.smkT||0)-dt; if(P.smkT>0) return; P.smkT=0.5; S.fx.push({k:'smoke',x:P.x+(Math.random()-0.5)*16,y:P.y-18-Math.random()*8,t:0,dur:1.1}); }   // Q6: a wreck smokes for a while
+function fzt5Round(P,marks){   // Q4 RAPID FIRE's picture (from fztTick in raidTurBurst's place): one round = a silver tracer, the snowball, the muzzle flash, the splat on the mark; the impact rings + the eject every third round; the drum's kick every round; the laser cue at most every sfxT
+  const m0=marks[0]; if(!m0) return;
+  P.aim=Math.atan2((m0.y-14)-(P.y-12), m0.x-P.x); P.turKick=S.t; P.rn=(P.rn||0)+1;
+  const RM=reducedMotion(), a=P.aim, hx=P.x, hy=P.y-12, mx=hx+Math.cos(a)*20, my=hy+Math.sin(a)*20, tx=m0.x, ty=m0.y-14;
+  S.fx.push({k:'tracer',x1:mx,y1:my,x2:tx,y2:ty,t:0,dur:0.1,col:LZ_SILVER_ROW.hex,w:2.6});
+  S.fx.push({k:'slug',x1:mx,y1:my,x2:tx,y2:ty,t:0,dur:0.12,col:'#F4F8FC',colH:'#ffffff'});
+  S.fx.push({k:'flash',x:mx,y:my,ang:a,R:RM? 6 : 11,lw:RM? 2 : 2.6,t:0,dur:0.08});
+  S.fx.push({k:'puff',x:tx+((P.rn%3)-1)*4,y:ty-2,t:0.1,dur:0.26,R:RM? 7 : 10,col:'#F4F8FC'});
+  if(P.rn%3===0){ S.fx.push({k:'ring',x:tx,y:ty,r:3,R:14,t:0.1,dur:0.2,col:LZ_SILVER_ROW.hex}); if(!RM) S.fx.push({k:'puff',x:hx-Math.cos(a)*2-Math.sin(a)*7,y:hy-Math.sin(a)*2+Math.cos(a)*7,t:0,dur:0.3,R:4,col:'#F4F8FC'}); }
+  if(S.t-(P.sfxT!=null? P.sfxT : -9)>=FZT5.sfxT){ P.sfxT=S.t; bfSfx(SFX.laser,P.x,P.y); } }
+function fzt5DrawWreck(P){   // Q6 THE WRECK on the ice (from drawRaidPosts in the post's place): the scorch, the legs splayed, the drum on its side, the hopper cracked, the pole down, the debris
+  const x=P.x, y=P.y, TAU=Math.PI*2, fr=Math.min(1,(S.t-(P.deadT||0))/0.5);
+  cx.save();
+  cx.globalAlpha=0.32*fr; cx.fillStyle='#2A2A2E'; cx.beginPath(); cx.ellipse(x,y+4,34,14,0,0,TAU); cx.fill();
+  cx.globalAlpha=1; cx.strokeStyle='#3A4350'; cx.lineWidth=2.2; cx.lineCap='round';
+  cx.beginPath(); cx.moveTo(x-6,y+2); cx.lineTo(x-26,y+10); cx.moveTo(x-2,y+4); cx.lineTo(x+18,y+13); cx.moveTo(x+4,y-2); cx.lineTo(x+22,y-8); cx.stroke(); cx.lineCap='butt';
+  cx.save(); cx.translate(x+2,y-4); cx.rotate(-0.55); cx.fillStyle='#4A5461'; cx.strokeStyle='#2A3038'; cx.lineWidth=1.6; cx.beginPath(); cx.roundRect(-13,-5.5,26,11,4); cx.fill(); cx.stroke();
+  cx.beginPath(); for(let i=0;i<3;i++){ cx.moveTo(-9+i*8,-5); cx.lineTo(-9+i*8,5); } cx.stroke(); cx.fillStyle='#1E2228'; cx.beginPath(); cx.arc(13,0,4,0,TAU); cx.fill(); cx.restore();
+  cx.fillStyle='#8E9BAA'; cx.strokeStyle='#3A4350'; cx.lineWidth=1.4; cx.beginPath(); cx.moveTo(x-24,y-14); cx.lineTo(x-13,y-16); cx.lineTo(x-12,y-7); cx.lineTo(x-20,y-5); cx.closePath(); cx.fill(); cx.stroke();
+  cx.strokeStyle='#5A4634'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(x+17,y+6); cx.lineTo(x+44,y-10); cx.stroke(); cx.fillStyle='#D9A544'; cx.beginPath(); cx.arc(x+45,y-11,1.6,0,TAU); cx.fill();
+  cx.fillStyle='#1E2228'; for(const [dx,dy,r] of [[-30,-2,1.6],[28,8,1.4],[10,16,1.2],[-14,18,1.5],[36,2,1.1]]){ cx.beginPath(); cx.arc(x+dx,y+dy,r,0,TAU); cx.fill(); }
+  cx.restore(); }
+function fzt5Pip(x,y){   // Q6: a wrecked turret's pip on the HUD strip (from fzt2Pips, after the backing disc): the castle's grey ring, dashed and faint, with a ✕ across it
+  cx.strokeStyle='rgba(201,212,226,0.5)'; cx.lineWidth=2; cx.setLineDash([3,3]); cx.beginPath(); cx.arc(x,y,11.5,0,7); cx.stroke(); cx.setLineDash([]);
+  cx.strokeStyle='#C9D4E2'; cx.lineWidth=3; cx.lineCap='round'; cx.beginPath(); cx.moveTo(x-6,y-6); cx.lineTo(x+6,y+6); cx.moveTo(x+6,y-6); cx.lineTo(x-6,y+6); cx.stroke(); cx.lineCap='butt'; }
+function fzt5Probe(){ const bg=S.bf&&S.bf.fzt; if(!bg) return { on:!!FZT5.on, bag:false };   // the rig's window: the dials, every post's holder / gunner / taker, every ordered man, the flips (w:1 = a wreck)
+  return { on:!!FZT5.on, bag:true, dials:Object.assign({},FZT5), wrecks:bg.wrecks||0, posts:bg.posts.map((P,i)=>{ const g=fztGunner(P); return { i, o:P.o, dead:P.dead|0, pr:+(P.pr||0).toFixed(3), prs:P.prs|0, gunner:g? { id:g.id, type:g.type, x:Math.round(g.x), y:Math.round(g.y) } : null, tk:(P.tk||[]).map(u=>u? u.id : null) }; }),
+    rams:S.units.filter(u=>u.fzRam!=null && !u.dead).map(u=>({ id:u.id, type:u.type, side:u.side, post:u.fzRam, x:Math.round(u.x), y:Math.round(u.y) })), ordered:S.units.filter(u=>u.fzPost!=null && !u.dead).map(u=>({ id:u.id, type:u.type, side:u.side, post:u.fzPost, x:Math.round(u.x), y:Math.round(u.y), m:u.marching|0 })), flips:bg.flips.slice() }; }
 // ═══ CARD-FZT-K THE CASTLE'S DOOR LINE (FZT-F10; Wyatt 10/8/2026 12:16 EDT by Discord, his word on it: "build"): when THE FROZEN TUNDRA and KING YETI ring the same evening at HQ (a Sunday), the castle's
 // door names both of the night's fights on one line — THE FROZEN TUNDRA 8:30 PM EDT · KING YETI 9:15 PM EDT, each bell in the player's own clock with its zone (the 0522a law). The castle's door = THE ICE CASTLE's
 // poster on the adventure map (the place's card: the pins' own `line` is no longer drawn since the poster took the card's seat). '' on every other night (a desert night, a Thursday Tundra, King Rex's Wednesday).
@@ -96726,7 +96827,7 @@ function bfUnitStep(u,dt){
   if(u.saberState && u.saberState!=='idle') return true;   // let a charging Sarge finish his run
   if(u.sgDash) return true;                                // v1.67: ...and a gap-closing one too (out or walking back)
   if(u.cmdDash) return true;                               // 0488: ...and a high-blade dash (out, landed or walking back)
-  if(u.fzPost!=null && fztHold(u)){ u.marching=false; return true; }   // CARD-FZT Q10: inside the ring of a post that is not his team's he stands his post, his gun up (the dig-in idiom)
+  if(u.fzPost!=null || u.fzRam!=null){ const h9=fztHold(u,dt); if(h9===2) return false; if(h9){ u.marching=false; return true; } }   /* CARD-FZT5: 2 = the frame was spent walking to the gun's seat, or driving a vehicle at the hub (owTwinStep's grammar) */   // CARD-FZT Q10: inside the ring of a post that is not his team's he stands his post, his gun up (the dig-in idiom)
   { const n9=owTwinStep(u,dt);   // CARD-NET (2) A COPY WALKS TO HIS OWNER'S SPOT: 1 = the frame was spent walking to the row · 2 = he stands on it, his gun his own (a copy never marches by his own brain, never spends himself on their box: his owner's 'ol' does)
     if(n9===1) return false;   // CARD-NET
     if(n9===2){ u.marching=false; if(u.sdT>0 && u.type!=='sarge') return false;   /* CARD-NET: a copy waiting on a word holds his fire */
@@ -154210,6 +154311,7 @@ function raidTick(dt){
 function drawRaidPosts(){
   const rd=(S.bf&&S.bf.fzt)||S.raid; if(!rd) return; const RM=reducedMotion(), t=S.t, TAU=Math.PI*2, SIL=LZ_SILVER_ROW.hex;   // CARD-FZT: the Tundra's bag paints here too
   for(const P of rd.posts){
+    if(P.dead && fztOn()){ fzt5DrawWreck(P); continue; }   /* CARD-FZT5 Q6: a crushed turret paints as a wreck (the castle raid's posts never die) */
     if(P._o!==P.o){ if(P._o!==undefined) P._flipT=t; P._o=P.o; }
     const col=fztOn()? fztPostCol(P.o) : (P.o===1?'#BFE39A':P.o===2?'#9CC0D8':'#C9D4E2'), x=P.x, y=P.y, ours=P.o===1, ice=P.o===2, held=!!P.o;   // CARD-FZT: on the Tundra the holder's colour is the TEAM's seat hex
     const contested=P.pr>0, pc=fztOn()? fztPostCol(P.prs) : (P.prs===1?'#BFE39A':'#9CC0D8');
