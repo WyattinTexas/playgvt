@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"21.34","md5":"8ef579aec4e7875525461cfcb345fc47","sha":"648fd7814","at":"2026-10-12T02:35:15Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"21.35","md5":"d16bf36f05dc2c655a6568ab040c3201","sha":"10d638ac1","at":"2026-10-12T02:47:14Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -1640,6 +1640,18 @@
   #fortBg[data-motion="1"] svg.fhero #fhRecord .rcp-body.rcp-tap { animation:rcpTap .26s ease-out; }
   @keyframes rcpSpin { to { transform:rotate(360deg); } }
   @keyframes rcpTap { 0% { transform:scale(1,1); } 40% { transform:scale(1.06,.92); } 100% { transform:scale(1,1); } }
+  /* CARD-MBH THE RECORD PLAYER ON HQ's LOWER SHELF (Dylan): the fort's own motions on the bedroom's copy ([data-mbh] = the shelf's player and the magnifying glass's copy): the disc's turn while music is audibly on, the tap's hop, three notes rising west off the disc in turn (each a 2.4 s loop, a third apart), reduced motion = a still disc and ONE still note over it */
+  [data-mbh] .rcp-disc { transform-box:fill-box; transform-origin:50% 50%; }
+  [data-mbh].rcp-live .rcp-disc { animation:rcpSpin 1.8s linear infinite; }
+  [data-mbh] .rcp-body { transform-box:fill-box; transform-origin:50% 100%; }
+  [data-mbh] .rcp-body.rcp-tap { animation:rcpTap .26s ease-out; }
+  [data-mbh] .mbh-n { opacity:0; transform-box:fill-box; transform-origin:50% 50%; }
+  [data-mbh].rcp-live .mbh-n { animation:mbhRise 2.4s linear infinite both; }
+  [data-mbh].rcp-live .mbh-n1 { animation-delay:.8s; }
+  [data-mbh].rcp-live .mbh-n2 { animation-delay:1.6s; }
+  @keyframes mbhRise { 0% { opacity:0; transform:translate(0,0) scale(.6); } 15% { opacity:1; transform:translate(-2px,-4px) scale(1); } 70% { opacity:1; } 100% { opacity:0; transform:translate(-16px,-24px) scale(1.05); } }
+  [data-mbh].mbh-still .rcp-disc, [data-mbh].mbh-still .mbh-n { animation:none; }
+  [data-mbh].mbh-still.rcp-live .mbh-n0 { opacity:1; transform:translate(-4px,-8px); }
   /* ═══ 1090 THE FORT'S NOTES + THE TRAINING SPACE (FM-GVT-FORT-NOTES-TRAINING-01; Wyatt 9/18/2026, the call notes: "Musical notes flowing from the record player in the fort." · "You can just click the
      training area space."). THE NOTES = an HTML layer seated on the player's box by fortSceneLayout (z 1: over the yard's art, UNDER every button, pill, plate and the ✕ — and pointer-events none, so it never
      takes a tap): each note = a zero-size span born at the disc; THREE nested motions, all transform / opacity (the compositor's own — the big svg never repaints for them): the span RISES and LEANS WEST
@@ -83282,7 +83294,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -136779,7 +136791,7 @@ SIGN_CX.board=SEV.cup; SIGN_CX.tv=SEV.tv; SIGN_LANE.board=100; SIGN_LANE.tv=94;
 function shelfRowSVG(){
   flxShelfSync();   // CARD-FLX: the shelf's seats for this paint (the vial gone once the tour has shown the lab)
   return ''
-  +shelfSVG()+gmyBookSVG()   // CARD-GMY THE GIANT MUMMY: the haunted book on the lower shelf (gmyOpen() alone: the code word LIBRARY in October)
+  +shelfSVG()+gmyBookSVG()+mbhShelfSVG()   /* CARD-MBH: THE RECORD PLAYER on the lower shelf (Dylan) */   // CARD-GMY THE GIANT MUMMY: the haunted book on the lower shelf (gmyOpen() alone: the code word LIBRARY in October)
   // the BANK PIGGY on the shelf — the bank building and the pig on its stoop, one wrapper, at PIG_SEAT (0.6)
   +mmWrap('piggy', piggySignSVG()+'<g id="ro-piggy"><g transform="translate('+PIG_SEAT.x+','+PIG_SEAT.y+') scale('+PIG_SEAT.s+')">'
   +bankSVG()
@@ -165983,7 +165995,7 @@ function fortHeroSVG(){
   // ═══ THE AREAS — far to near (paint order is depth). The grill is out.
   v+=fhWallArt(hex,ink,dye,picks);
   v+='<g data-afq="flag" transform="translate('+AFQ.flag[0]+' '+AFQ.flag[1]+') scale('+AFQ.flag[2]+')">'+fhFlag(1074,34,270,hex,ink)/* CARD-FP: the pole re-seated top 22 → 34, h 282 → 270 (the foot at 304 as before) — the ball stands where it stood (its centre 18 vs 19), the cloth hangs 12 px lower under the new pole, off the stage's top edge (⚑ FP-Q6) */+'<ellipse cx="1074" cy="304" rx="12" ry="3.5" fill="#000" opacity=".2"/><rect x="1067" y="294" width="14" height="10" rx="2" fill="#5A4634" stroke="#26261f" stroke-width="1.2"/></g>';   // CARD-AFQ: the flag x0.6 east of the pen (her board)
-  v+=fhRecordArt();   // 1080 THE RECORD PLAYER: a little suitcase player ON THE PARAPET, top-right — painted with the wall's own furniture (before the rack and the kings: the giant's head passes IN FRONT of it); fortSceneLayout seats it by the window
+  v+=(MBH.on? '' : fhRecordArt());   // CARD-MBH: the player stands on HQ's lower shelf now (mbhShelfSVG; MBH.on 0 = back on the parapet) · 1080 THE RECORD PLAYER: a little suitcase player ON THE PARAPET, top-right — painted with the wall's own furniture (before the rack and the kings: the giant's head passes IN FRONT of it); fortSceneLayout seats it by the window
   v+=afqTentArt(hex,ink);   // CARD-AFQ SARGE'S QUARTERS: the tent, ONE outfit + ONE pistol inside (her reply 16:06); the rack + the three stands stay in the tree unpainted (their readers still find them)
   v+='<g data-afq="rackoff" display="none">'+fhRackArt();   // 1010 THE GUN RACK at the post's BACK: painted before the kings, so the council's visitor stands in front of it
   v+=fhStandsArt()+'</g>';   // CARD-AFQ: the unpainted rack's group closes
@@ -167460,7 +167472,7 @@ function renderFortScene(){
     +'<button type="button" class="fh-train-hot" id="fhTrain" onclick="UI.fortTrain()" aria-label="THE TRAINING RANGE"></button>'   // 1090 THE TRAINING SPACE: the yard's targets + dummy corner = ONE tap to the range; FIRST of its layer — every iron, king and pet button after it paints over it (a pet over the corner keeps his tap)
     +SARGE_ORDER.filter(wkOwned).map(wk=>'<button type="button" class="fh-iron-hot" id="fhIron-'+wk+'" data-k="'+wk+'" data-own="1" onclick="UI.fortIron(\''+wk+'\')" aria-label="'+wk+'"></button>').join('')   // 0912-3 SARGE'S EQUIPMENT cell 4: every iron on the bench is a tap target of its own — TAP TO EQUIP, above the post's hotspot (CARD-EB: an unowned iron is not on the rack, so no button — its bare seat's tap falls through to the post's door, the SARGE'S EQUIPMENT card)
     +HEROES.filter(k=>unitOwned(k) && k!==capStandK()).map(k=>'<button type="button" class="fh-king-hot" id="fhKh-'+k+'" data-k="'+k+'" onclick="UI.fortKing(\''+k+'\')" aria-label="'+k+'">'+(k===heroSel()? fhKingPlateHTML(k) : '')+'</button>').join('')
-    +Object.keys(FH_PET_PAINT).map(k=>'<button type="button" class="fh-pet-hot" id="fhPh-'+k+'" data-k="'+k+'" aria-label="'+k+'"></button>').join('')+''+trcDoorHTML()+'<button type="button" class="fh-rec-hot" id="fhRec" onclick="UI.fortRecord()" aria-label="THE RECORD PLAYER"></button><div class="fh-notes" id="fhNotes" aria-hidden="true"></div>'+flxHotHTML()+'</div>'   // 1080 THE RECORD PLAYER: its own tap target on the shelf (fortSceneLayout seats it)   // 1013 ALIVE-D THE CARRY: every painted pet is a tap target of his own (the hold = the lift, the tap = the poke), above the pen's door — fhCarryArm reads them
+    +Object.keys(FH_PET_PAINT).map(k=>'<button type="button" class="fh-pet-hot" id="fhPh-'+k+'" data-k="'+k+'" aria-label="'+k+'"></button>').join('')+''+trcDoorHTML()+(MBH.on? '' : '<button type="button" class="fh-rec-hot" id="fhRec" onclick="UI.fortRecord()" aria-label="THE RECORD PLAYER"></button><div class="fh-notes" id="fhNotes" aria-hidden="true"></div>')+flxHotHTML()+'</div>'   // 1080 THE RECORD PLAYER: its own tap target on the shelf (fortSceneLayout seats it)   // 1013 ALIVE-D THE CARRY: every painted pet is a tap target of his own (the hold = the lift, the tap = the poke), above the pen's door — fhCarryArm reads them
     +'<div class="wt-top"><div class="fh-namecol"><button type="button" class="wt-wordmark fh-name" data-notr onclick="UI.fortName()">'+escH(fortName())+FH_PENCIL+'</button>'+(FH_HINT_ON? '<span class="fh-hint">TAP THE NAME TO RENAME YOUR FORT</span>' : '')+'</div><div class="wt-spacer"></div>'+fmatBtnHTML()+'<button type="button" class="wt-x" onclick="UI.fortClose()">✕</button></div>';   // 0991 THE FORT'S CHROME: the name (and, once per device, the hint) on THE VALANCE — .fh-namecol
   fhSetDress(); fmatApply(); fhLifeWrap(); fhStationsWrap(); fhKingsWrap(); fhPetsWrap(); fortSceneLayout(); FD.start(); fhPuffStart(); fhRecStart(); fhSwipeArm(); fhCarryArm(); fhPlateFadeArm();   // 1013 ALIVE-D: the pets' body wrappers after the kings'; the jailbreak's own clock retired (break-out 1 on the director's deck — FD.boDeal); THE CARRY armed once on the scene   // 1012 ALIVE-C: the kings' body wrappers after the stations; the council's and the sit's clocks are the engine's now (B5 — fhCouncilStart / fhSitStart retired); THE YARD SWIPE armed once on the scene   // 0992 THE LIVING FORT: REV 5's life pass + the stations wrapped over the mounted yard after the set, the director dealt after the seats (the first deal at 400 ms)   // REV 4: the three clocks restart on every paint   // 0990 THE FORT'S SET: the set and the light painted ONCE over the mounted yard (zero movers) before the seats are laid
 }
@@ -174261,6 +174273,34 @@ function dchHz(ts){ if(reducedMotion()) return 0; if(DCH.pin>=0) return DCH.pin;
 function dchFresh(ts){ DCH.at=-1e9; return dchHz(ts)>0; }   // mfpFrame's seat, before the clock adopts for the beat's sake: the toys counted afresh, so a floor just emptied (a repaint deals new loops) is never adopted on the old count
 function mfpStart(){ if(MFP.raf || typeof requestAnimationFrame!=='function') return; MFP.prev=0; MFP.last=performance.now(); MFP.raf=requestAnimationFrame(mfpFrame); }
 mfpStart();
+// ═══ CARD-MBH THE MUSIC BOX MOVES TO HQ (FROM DYLAN, the jumpr guest link 2026-10-12 00:54:47 UTC, verbatim: "Run a design pass to move the music box from the fort into HQ on the lower shelf."; his live switch ON, Wyatt 10/8;
+// design/music-box-hq-1011/00-BUILD-MBH.md): THE RECORD PLAYER (1080 / CARD-FRP, "the music box" in his words) leaves the fort's parapet and stands on the BEDROOM's lower shelf ("HQ", his word of 10/1), its feet on the
+// plank (282), just east of the study globe and west of FORT GREEN's pill. The SAME art (fhRecordArt, re-seated at MBH.k), the SAME sheet (rcpHTML, THE SONG SHEET, every row and RECORD YOURSELF as in the fort), the SAME save
+// (META.fortSong): a tap = the body's hop + the sheet; the disc turns and three notes rise while music is audibly on (rcpLive, the fort's own truth), the label wears the record's colour, NEEDLE UP lifts the arm (mbhSync, a
+// light clock). No pill (a toy's quiet: the turning disc is the sign). The fort paints no player and no tap (fortHeroSVG, renderFortScene). MBH.on 0 = the player back on the parapet, the shelf bare, byte for byte.
+const MBH={ on:1, x:228, y:282, k:1.15, pad:[8,10,8,6], tid:0 };   // the seat: the art's west edge, the plank's top (its feet), the scale of the fort's 64 x 48 · the tap's pad (west, top, east, foot) in room units
+function mbhOn(){ return !!MBH.on && roomCur()==='bedroom'; }
+function mbhBox(){ const w=FH_REC.w*MBH.k, h=FH_REC.h*MBH.k; return [MBH.x, MBH.y-h, w, h]; }   // the art's box in room units: 73.6 x 55.2 at 228..301.6 x 226.8..282
+function mbhNotesSVG(){ const n=[[24,20,0,0],[30,18,1,1],[26,21,0,2]];   // three notes born at the disc (art units), the quaver / the beamed pair, staggered by the css (.mbh-n0..2)
+  return '<g class="mbh-notes" pointer-events="none">'+n.map(q=>'<g transform="translate('+q[0]+' '+q[1]+')"><g class="mbh-n mbh-n'+q[3]+'">'+fhNoteArt(q[2], FH_NOTES.COLS[q[3]%2]).replace('<svg ','<svg x="-9" y="-9" width="18" height="18" ')+'</g></g>').join('')+'</g>'; }
+function mbhShelfSVG(){ if(!mbhOn()) return ''; const b=mbhBox();
+  return fhRecordArt().replace(/^<g id="fhRecord" data-fh="record" transform="[^"]*">/, '<g id="mbhRecord" data-mbh="record" class="'+(rcpLive()? 'rcp-live' : '')+(reducedMotion()? ' mbh-still' : '')+'" pointer-events="none" transform="translate('+b[0].toFixed(1)+' '+b[1].toFixed(1)+') scale('+MBH.k+')">').replace(/<\/g><\/g>$/, '</g>'+mbhNotesSVG()+'</g>'); }   // the fort's art, its id and seat swapped; the notes ride in its own frame
+function mbhSync(){ const gs=document.querySelectorAll('[data-mbh="record"]'); if(!gs.length) return false; const on=rcpLive(), row=rcpRow(rcpOn())||RCP_SONGS[0], up=!!rcpUpId(row.id);
+  for(const g of gs){ if(g.classList.contains('rcp-live')!==on) g.classList.toggle('rcp-live', on);
+    const lab=g.querySelector('.rcp-lab'); if(lab && lab.getAttribute('fill')!==row.col) lab.setAttribute('fill', row.col);
+    const arm=g.querySelector('.rcp-arm'); if(arm && up!==arm.hasAttribute('transform')){ if(up) arm.setAttribute('transform','rotate(40 48.6 22.6)'); else arm.removeAttribute('transform'); } }   // the shelf's player and the magnifying glass's copy of it
+  const l=document.querySelector('#roomModal .rcp-list'); if(l && l.classList.contains('rcp-live')!==on) l.classList.toggle('rcp-live', on);
+  if(on && dlgBeat()){ const u=dlgFind('mbhRecord'); if(u && !u.__life && dlgHoldU(u, 1500)) dlgLayers(dlgAwake()); }   // THE STILL ROOM (CARD-DLG): a playing player is held awake (its disc turns, its notes rise), never a touch (no dlgRouse: the doze's clock is the finger's); silent, its hold runs out and it rests in its picture
+  return on; }   // the shelf follows the music within 0.6 s (a pick, a theme's end, the chip): class and attribute writes only on a change
+function mbhTap(){ audio(); SFX.blip(); const b=document.querySelector('#mbhRecord .rcp-body'); if(b){ b.classList.remove('rcp-tap'); void b.getBoundingClientRect(); b.classList.add('rcp-tap'); }
+  roomModal(rcpHTML(), 'medalhall fortcard rcpcard'); mbhSync(); return true; }   // UI.fortRecord's own steps from the shelf: a real tap wakes the context, the sheet opens over the room
+MBH.tid=setInterval(()=>{ if(MBH.on) mbhSync(); }, 600);
+ROOM_SPOTS.push({ id:'mbhrec', x:MBH.x-MBH.pad[0], y:MBH.y-FH_REC.h*MBH.k-MBH.pad[1], w:FH_REC.w*MBH.k+MBH.pad[0]+MBH.pad[2], h:FH_REC.h*MBH.k+MBH.pad[1]+MBH.pad[3], z:3, due:()=>mbhOn(), act:()=>{ mbhTap(); } });   // THE DOOR: the player's box + its pad (89.6 x 71.2 room units = 60 x 48 css px at the phone's fit), no pill
+setTimeout(()=>{ GVT.mbh=(o)=>{ o=o||{}; if(o.on!=null){ MBH.on=o.on? 1 : 0; if(S.mode==='menu') renderMenu(); } if(o.tap) mbhTap();
+  const g=document.getElementById('mbhRecord'), f=document.getElementById('fhRecord'), h=document.getElementById('fhRec'), R=el=>{ if(!el) return null; const r=el.getBoundingClientRect(); return [Math.round(r.left*10)/10, Math.round(r.top*10)/10, Math.round(r.width*10)/10, Math.round(r.height*10)/10]; };
+  const sp=ROOM_SPOTS.find(q=>q.id==='mbhrec'), hot=document.querySelector('#roomStage > div[onclick="UI.room(\'mbhrec\')"]');
+  return { on:MBH.on, room:roomCur(), shelf:!!g, box:mbhBox(), art:R(g), live:!!g && g.classList.contains('rcp-live'), still:!!g && g.classList.contains('mbh-still'), lab:g && (g.querySelector('.rcp-lab')||{getAttribute:()=>null}).getAttribute('fill'), arm:g && !!(g.querySelector('.rcp-arm')||{hasAttribute:()=>false}).hasAttribute('transform'), notes:g? g.querySelectorAll('.mbh-n').length : 0,
+    spot:sp? [sp.x, sp.y, sp.w, sp.h] : null, hot:R(hot), fort:{ art:!!f, hot:!!h, notes:!!document.getElementById('fhNotes') }, sheet:!!document.querySelector('#roomModal .rcpcard'), song:rcpOn(), rcpLive:rcpLive() }; }; }, 0);   // the rig's door (window.GVT stands up later in the page) · on = the switch (the menu repainted), tap = the shelf's own tap
 // ═══ CARD-DLG THE CLUTTERED ROOM COSTS NOTHING · DLG-A THE STILL ROOM, the bedroom (design/decor-load-1009/BUILD-DLG-A.md; the pass 00-DESIGN-DLG.md §4–§5, §8.1). Wyatt 10/9/2026 on Maker 1, verbatim: "if somebody has a ton of decorations out, we prevent the game from lagging and heating up ... a player will be rewarded for having a bunch of decorations out, and it doesn't heat up their phone or lag or anything. They just have a cluttered room, and they like it that way." His go 10/10/2026 19:00 EDT: "Do it. Plan it out. Execute to the best of your ability." (DLG-Q1..Q6 at their RECs)
 // THE CAUSE (CARD-DCH's measure, re-read by the pass): the room is ONE svg, and one moving thing anywhere in it repaints the whole room; a full floor is 11,000 vector nodes under two drop-shadow filters a toy (every toy out: a slow phone's main thread 99.6 %, the iPhone's painter 11.8 G instructions a second).
 // THE CURE (the industry's static batch + sleeping objects): after every paint each unit of the room that is not awake is painted ONCE into its own picture (its paint read from the live page and inlined, its css transforms as the engine's own resolved matrix,
