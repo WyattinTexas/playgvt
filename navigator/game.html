@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.27","md5":"174aea20310c9fb1c2491d22140102cf","sha":"5d9d5adcd","at":"2026-10-12T01:49:37Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.28","md5":"cc5d5241a15f0fd3f19878ea65472644","sha":"2ecee550d","at":"2026-10-12T01:50:57Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83092,7 +83092,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.28';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -132837,7 +132837,13 @@ function sgbFound(){   // THE TAKE-BACK's read: the kid met the globe (out on a 
   return false;
 }
 function sgbSaw(){ if(META.sgbGift || decOwns('studyglobe')) return; META.sgbGift=1; saveMeta(); }   // glOpen's foot: THE GLOBE seen, the gift owed
-function sgbGiftDue(){ return META.sgbGift===1 && !decOwns('studyglobe'); }
+// ═══ CARD-GOS THE GLOBE ON THE SHELF BY DEFAULT (design/globe-shelf-1011/00-BUILD-GOS.md; Wyatt by phone 10/11/2026 20:53 EDT, dictated, verbatim: "Add the globe to always be on the shelf. It still
+// can be put away but by default on new accounts its out once theyre high enough level to participate (5)"): THE STUDY GLOBE is OWED at commander level GOS_LV as well as after THE GLOBE is seen
+// (CARD-SGG's road stands): a save never given it (META.sgbGift absent) reaches level 5 → sgbGiftTick deals CARD-SGG's own gift, OUT on the lower shelf with its card. Put away, it waits in the chest
+// for good (owned, rdecSeen, sgbGift=2: never dealt twice). GOS.on 0 = before. Zero words, zero save keys, zero server bytes. ═══
+const GOS={ on:1 }, GOS_LV=5;
+function gosDue(){ return GOS.on===1 && !META.sgbGift && (META.lvl|0)>=GOS_LV; }   // sgbGiftDue's second door: level 5, never given
+function sgbGiftDue(){ return (META.sgbGift===1 || gosDue()) && !decOwns('studyglobe'); }   // CARD-GOS: owed after THE GLOBE is seen, or at level 5 never given (gosDue)
 function sgbGiftQuiet(){ const c=document.getElementById('glCard'); return S.mode==='menu' && !document.hidden && !GL.open && !(c && !c.classList.contains('hidden')) && roomQuiet() && tourQuiet() && !tailHeld(); }
 function sgbGiftTick(){   // the room's 1 s tick (evDoorTick): the gift deals on the SGB_GIFT_Q-th quiet second in a row at home; anything standing over the room starts the count again
   if(!sgbGiftDue() || !sgbGiftQuiet()){ SGB_Q=0; return; }
