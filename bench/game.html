@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.17","md5":"90cf98aa70e3347da87f4e983e8853b0","sha":"7c9bb03db","at":"2026-10-12T00:44:51Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.18","md5":"c87b30e5ef80679730f6c49af8d299c0","sha":"ad2d22329","at":"2026-10-12T00:59:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -69015,12 +69015,13 @@ const SECRET_CODES={
 // over the top or the bottom rim each wave (a HORDE wave both), so the rear towers wake; the first one is announced once. The pay: the
 // campaign's own (the blobs, gtxTag); hrdEnd banks what the campaign's loss banks (the ace, checkAch, saveMeta, netSync) and lands the
 // tags still in the air. No XP, no stars (not in his notes). S.hrd.noSarge is a rig's dial (the turret-alone measurement); the game never sets it.
-const HRD_RUG=1, HRD_GAP=30, HRD_EVERY=5, HRD_REST=20, HRD_BIG=1.5;
+const HRD_RUG=1, HRD_GAP=30, HRD_EVERY=5, HRD_REST=10, HRD_BIG=1.5;   // CARD-HFG (Dylan 10/11: "Cool downs of ten seconds in between, every five waves"): the breather after a HORDE wave 20 → 10 s; a wave every HRD_GAP s from the push (the wave enters the field at the push)
 const HRD_TUR={ rng:260, dmg:2, cd:1.2, track:8 };   // B2: the four guns' dials as ONE table, TUNED on HEAD (B1's first guess 280 / 3 / 1.1 let the turrets alone hold to wave 10): the record's measurement table
-const HRD_FX0=24, HRD_FX1=300, HRD_FDY=150, HRD_BLK=22, HRD_GATE=36;
-const HRD_COLS=['#C9463D','#3E6FB0','#E2B33C','#4E8A4A'];
+const HRD_FX0=24, HRD_FX1=326, HRD_FDY=165, HRD_BLK=22, HRD_GATE=36;   // CARD-HFG (Dylan: "expand the fort by 20% in total space"): B2's 276 × 300 (82,800) → 302 × 330 (99,660, +20.4 %); the box's seat, the flanks' spread and Sarge's yard seat ride these
+const HRD_COLS=['#C9463D','#3E6FB0','#E2B33C','#4E8A4A'];   // B1's toy-block colours: the rug's fort no longer wears them (CARD-HFG: FORT GREEN's colours); the leaderboard's living stage (hzLand) still does
 const HRD_RAMP={ n:0.1, hp:0 };   // B2 THE RAMP (measured: one campaign wave per 30 s never outgrows a ranked squad): wave N's counts ×(1+n·(N−1)), its health ×(1+hp·(N−1)) over level N's own
-const HRD_WALL={ hp:60, gate:45 }, HRD_PAD=9, HRD_TOWER_R=32, HRD_SEAT=20, HRD_FLANK0=15, HRD_FLANK_K=0.35, HRD_SARGE_X=236;
+const HRD_WALL={ hp:60, gate:3000 }, HRD_PAD=9, HRD_TOWER_R=32, HRD_SEAT=20, HRD_FLANK0=15, HRD_FLANK_K=0.35, HRD_SARGE_X=236;   // CARD-HFG (Dylan: "3000 health that enemy must inflict to open the door"): the gate's pool 45 → 3000; the walls' 60 is nominal now (every other section is SOLID: hrdSecs, hrdHitSec)
+const HRD_DOOR={ k:67, cap:300, r:40 }, HRD_BOX_K=0.5, HRD_PLACE={ m:5, pad:24 }, HRD_TSEAT=10, HFG_CV0=21.18;   // CARD-HFG: the Tan's bite on the gate = B2's √health × k (one rifle round ≈ 94 of the 3000), one bite capped at cap (a boss needs ten) · r = the gate's reach: inside it he stands and works the door · the toy box at half (Dylan) · the band: no man further than m metres (TK_M px a metre) east of the front wall's face, the fort's height + pad · the tower seat HRD_TSEAT under the gun · the first client with the 3000 gate (hrdSecsLoad scales an older save's 45)
 function hrdOn(){ return !!(S.hrd && S.cfg && S.hrd.cfg===S.cfg && !S.bf); }
 function hrdLevel(n){ return n<=100? n : 61+((n-101)%40); }
 function hrdWave(n){
@@ -69038,8 +69039,8 @@ function hrdWave(n){
 }
 function hrdLoad(a){ S.cfg.waves.push(a.w); S.cfg.hpMul=a.hp; S.cfg.rateMul=a.rate; S.cfg.bossF=a.bossF; }   // the NEXT wave's numbers ride the cfg from the frame it is queued (spawnFoe reads them at the walk-on)
 function hrdFort(){ const y0=T.y-HRD_FDY, y1=T.y+HRD_FDY; return { x0:HRD_FX0, x1:HRD_FX1, y0, y1, tw:[[HRD_FX0,y0],[HRD_FX1,y0],[HRD_FX0,y1],[HRD_FX1,y1]] }; }
-function hrdSecs(F){   // B2: the fort's HP sections. k = the face (e front · n top · s bottom · w back); a..b along the wall's own line
-  const out=[], add=(k,ax,ay,bx,by,gate)=>{ const mx=gate? HRD_WALL.gate : HRD_WALL.hp; out.push({ k, ax, ay, bx, by, gate:!!gate, hp:mx, max:mx, st:0, hitT:0 }); };
+function hrdSecs(F){   // B2: the fort's HP sections. k = the face (e front · n top · s bottom · w back); a..b along the wall's own line   // CARD-HFG (Dylan: "not let any enemy units enter the fort unless it's through the main entry"): every section but THE GATE is SOLID — never damaged, never a gap (hrdHitSec works the gate alone)
+  const out=[], add=(k,ax,ay,bx,by,gate)=>{ const mx=gate? HRD_WALL.gate : HRD_WALL.hp; out.push({ k, ax, ay, bx, by, gate:!!gate, solid:!gate, hp:mx, max:mx, st:0, hitT:0 }); };
   add('e', F.x1, F.y0, F.x1, T.y-HRD_GATE); add('e', F.x1, T.y-HRD_GATE, F.x1, T.y+HRD_GATE, 1); add('e', F.x1, T.y+HRD_GATE, F.x1, F.y1);
   for(let i=0;i<3;i++){ const xa=F.x0+(F.x1-F.x0)*i/3, xb=F.x0+(F.x1-F.x0)*(i+1)/3; add('n', xa, F.y0, xb, F.y0); add('s', xa, F.y1, xb, F.y1); }
   add('w', F.x0, F.y0, F.x0, F.y1);
@@ -69074,42 +69075,51 @@ function hrdSecAt(k, c){   // the section of face k under coordinate c (y on the
 function hrdWalker(f){ return !!f && !(f.dead || f.pendDie || f.burrow || f.hp<=0 || (f.def && (f.def.fly || f.def.swoop)) || f.skyDrop || f.jetT>0); }   // a body on its feet (the sky and a burrow pass over / under the blocks)
 function hrdBite(f){ return Math.max(1, Math.sqrt(f.hpMax||(f.def && f.def.hp)||2))*(f.boss? 2 : 1); }   // one round on a block: grows with the man (a giant's fist, a boss's double)
 function hrdHitSec(s, d, f){
-  const H9=S.hrd; if(s.hp<=0) return;
-  s.hp=Math.max(0, s.hp-d); s.hitT=0.16;
+  const H9=S.hrd; if(s.hp<=0 || s.solid) return;   // CARD-HFG: THE GATE alone takes a round; a solid wall shrugs it off (Dylan: the main entry is the only way in)
+  s.hp=Math.max(0, s.hp-Math.min(d, HRD_DOOR.cap)); s.hitT=0.16;   // CARD-HFG: one bite at most HRD_DOOR.cap of the 3000 (a boss needs ten)
   const mx=(s.ax+s.bx)/2, my=(s.ay+s.by)/2, wx=(s.k==='e'||s.k==='w')? s.ax : Math.max(Math.min(s.ax,s.bx), Math.min(Math.max(s.ax,s.bx), f.x)), wy=(s.k==='e'||s.k==='w')? Math.max(Math.min(s.ay,s.by), Math.min(Math.max(s.ay,s.by), f.y)) : s.ay;
   H9.bolts.push({ x0:f.x, y0:f.y-16, x1:wx, y1:wy, t:0.12, tan:1 });
   const st=s.hp<=0? 3 : s.hp<s.max/3? 2 : s.hp<s.max*2/3? 1 : 0;
-  if(st!==s.st){ s.st=st; H9.art=null;   // the wall repaints at each step
+  if(st!==s.st){ s.st=st; H9.art=null;   // the door repaints at each step
     S.fx.push({ k:'ring', x:mx, y:my, r:8, R:st===3? 46 : 28, t:0, dur:0.4, col:'rgba(120,96,70,0.85)' });
-    if(st===3){ S.floats.push({ x:mx+(s.k==='e'? 40 : 0), y:my-34, txt:TXT(s.gate? 'THE GATE IS DOWN!' : 'BREACH!'), t:0, col:'#FF8A6B' }); try{ SFX.boom(); }catch(e){} if(!reducedMotion()) S.shake=Math.max(S.shake,0.35); }
+    if(st===3){ S.floats.push({ x:mx+40, y:my-34, txt:TXT('THE GATE IS DOWN!'), t:0, col:'#FF8A6B' }); try{ SFX.boom(); }catch(e){} if(!reducedMotion()) S.shake=Math.max(S.shake,0.35); }
     else { try{ SFX.crack(); }catch(e){} }
   }
 }
-function hrdWalls(dt){   // B2 THE WALLS ARE REAL: before the foe loop walks anyone, every walking Tan outside the fort is held off a standing section's face (and a tower), and his gun works the blocks
-  const H9=S.hrd, F=hrdFort(), hw=HRD_BLK/2;
+function hrdWalls(dt){   // B2 THE WALLS ARE REAL: before the foe loop walks anyone, every walking Tan outside the fort is held off a standing section's face (and a tower)   // CARD-HFG (Dylan): the walls are SOLID and the Tan's rounds work THE GATE alone, from inside its reach (HRD_DOOR.r of the door, held at the front wall or standing before it); a held man leaves his formation (his road is his own feet now: hrdFoeAim); one held on a side wall slides east toward the front
+  const H9=S.hrd, F=hrdFort(), hw=HRD_BLK/2, G=H9.secs.find(s=>s.gate);
   for(const s of H9.secs) if(s.hitT>0) s.hitT-=dt;
   for(const f of S.foes){
     f.hrdS=null;
     if(f.hrdIn || !hrdWalker(f)) continue;
-    const b=hw+HRD_PAD+Math.min(24,((f.def && f.def.w)||50)*0.12);
+    const b=hrdPadOf(f);
     for(const [tx,ty] of F.tw){ const dx=f.x-tx, dy=f.y-ty, d=Math.hypot(dx,dy), R=HRD_TOWER_R+b-hw; if(d<R){ const k=d>0.01? R/d : 0; f.x=tx+(d>0.01? dx*k : R); f.y=ty+(d>0.01? dy*k : 0); } }   // the towers never fall
-    if(f.x<F.x0-b || f.x>F.x1+b || f.y<F.y0-b || f.y>F.y1+b) continue;   // clear of the fort
-    if(f.x>F.x0+b && f.x<F.x1-b && f.y>F.y0+b && f.y<F.y1-b){ f.hrdIn=1; continue; }   // in the yard (he came through a gap): the box is his
-    const dE=(F.x1+b)-f.x, dN=f.y-(F.y0-b), dS=(F.y1+b)-f.y, dW=f.x-(F.x0-b), m=Math.min(dE,dN,dS,dW);
-    const k=(m===dE)? 'e' : (m===dN)? 'n' : (m===dS)? 's' : 'w', s=hrdSecAt(k, (k==='e'||k==='w')? f.y : f.x);
-    if(!s || s.hp<=0) continue;   // a gap: he walks through
-    if(k==='e') f.x=F.x1+b; else if(k==='w') f.x=F.x0-b; else if(k==='n') f.y=F.y0-b; else f.y=F.y1+b;
-    f.hrdS=s;
-    if(f.hrdWT==null) f.hrdWT=0.4+Math.random()*1.2;
-    f.hrdWT-=dt;
-    if(f.hrdWT<=0){ f.hrdWT=Math.max(0.6, ((f.def && f.def.fireCd)||2.5)*(f.fireAura||1)/(S.cfg.rateMul||1)); hrdHitSec(s, hrdBite(f), f); }
+    if(!(f.x<F.x0-b || f.x>F.x1+b || f.y<F.y0-b || f.y>F.y1+b)){   // not clear of the fort
+      if(f.x>F.x0+b && f.x<F.x1-b && f.y>F.y0+b && f.y<F.y1-b){ f.hrdIn=1; continue; }   // in the yard (he came through the open gate): the box is his
+      const dE=(F.x1+b)-f.x, dN=f.y-(F.y0-b), dS=(F.y1+b)-f.y, dW=f.x-(F.x0-b), m=Math.min(dE,dN,dS,dW);
+      const k=(m===dE)? 'e' : (m===dN)? 'n' : (m===dS)? 's' : 'w', s=hrdSecAt(k, (k==='e'||k==='w')? f.y : f.x);
+      if(s && s.hp>0){   // a standing section (every one but a fallen gate): held off its face
+        if(k==='e') f.x=F.x1+b; else if(k==='w') f.x=F.x0-b; else if(k==='n') f.y=F.y0-b; else f.y=F.y1+b;
+        f.hrdS=s;
+        if(f.form) f.form=null;   // CARD-HFG: a held man walks his own road to the gate, not his block's slot
+        if(k==='n' || k==='s'){ const sp=((f.def && f.def.spd)||40)*(f.spdMul||1)*0.5*dt; f.x=Math.min(F.x1+b+80, f.x+sp); }   // CARD-HFG: along a side wall he slides east (his own walk, hrdFoeAim's corner goal, carries him too)
+      }
+    }
+    if(G && G.hp>0 && hrdGateReach(f,G,b)){   // CARD-HFG: inside the gate's reach he works the door — B2's clock (the first round 0.4..1.6 s in, then his own fire clock), B2's bite × HRD_DOOR.k
+      if(f.form) f.form=null;
+      if(f.hrdWT==null) f.hrdWT=0.4+Math.random()*1.2;
+      f.hrdWT-=dt;
+      if(f.hrdWT<=0){ f.hrdWT=Math.max(0.6, ((f.def && f.def.fireCd)||2.5)*(f.fireAura||1)/(S.cfg.rateMul||1)); hrdHitSec(G, hrdBite(f)*HRD_DOOR.k, f); }
+    }
   }
 }
-function hrdSeat(){   // B2: a man who lands within HRD_SEAT of a standing wall's line is seated ON its walkway (hrdHold keeps him there)
+function hrdSeat(){   // B2: a man who lands within HRD_SEAT of a standing wall's line is seated ON its walkway (hrdHold keeps him there)   // CARD-HFG (Dylan: "one unit to go in each [tower] of the fort"): a man who lands on a tower (inside HRD_TOWER_R+6 of its centre, the tower free) is seated ON it, HRD_TSEAT under its gun — one man a tower (hrdTowerFree)
   const F=hrdFort();
   for(const u of S.units){
     if(u.hrdSeen || u.dead || u.coopBy || u.dropT>0) continue; u.hrdSeen=1;
     if(!hrdHold(u)) continue;
+    let tw=-1; F.tw.forEach(([tx,ty],i)=>{ if(tw<0 && Math.hypot(u.x-tx,u.y-ty)<=HRD_TOWER_R+6 && hrdTowerFree(i,u)) tw=i; });
+    if(tw>=0){ u.x=F.tw[tw][0]; u.y=F.tw[tw][1]+HRD_TSEAT; u.laneY=u.y; u.hrdTower=tw; continue; }
     for(const s of S.hrd.secs){ if(s.hp<=0) continue;
       const v=(s.k==='e'||s.k==='w'), lo=v? Math.min(s.ay,s.by) : Math.min(s.ax,s.bx), hi=v? Math.max(s.ay,s.by) : Math.max(s.ax,s.bx), c=v? u.y : u.x, off=v? u.x-s.ax : u.y-s.ay;
       if(c<lo-4 || c>hi+4 || Math.abs(off)>HRD_SEAT) continue;
@@ -69154,51 +69164,74 @@ function hrdTick(dt){
   }
   for(const b of H9.bolts) b.t-=dt; H9.bolts=H9.bolts.filter(b=>b.t>0);
 }
-function hrdArt(){   // the walls (each section at its step: whole · cracked · broken · a gap of rubble) + the towers' block rings + the plates: painted to a 2x canvas when a step changes, blitted every frame
+function hrdArt(){   // CARD-HFG (Dylan: "the base in Horde Mode to look like fort green"): FORT GREEN's own grammar (fortHeroSVG / fortSVG) laid on the rug — every wall a band in the ARMY'S colour with hexShade's ink rim and lit edge, brick courses, merlons along the outer edge; square corner towers with merlons, a lit band and two arrow slits; the yard packed earth; THE GATE an arch with its wooden door (whole · cracked · broken · open: splinters). Painted to a 2x canvas when a step changes, blitted every frame (B1's cache)
   const F=hrdFort(), pad=44, w=(F.x1-F.x0)+pad*2, h=(F.y1-F.y0)+pad*2, c=document.createElement('canvas'); c.width=w*2; c.height=h*2;
   const g=c.getContext('2d'); g.scale(2,2); g.translate(pad-F.x0, pad-F.y0);
-  g.fillStyle='rgba(0,0,0,0.16)'; g.fillRect(F.x0+6, F.y0+8, F.x1-F.x0, F.y1-F.y0);
-  const t=HRD_BLK, hsh=(i,k)=>{ const v=Math.sin(i*12.9898+k*78.233)*43758.5453; return v-Math.floor(v); };
-  const crack=(x,y,i)=>{ g.strokeStyle='rgba(25,14,8,0.8)'; g.lineWidth=1.4; g.beginPath(); g.moveTo(x-t*0.4+hsh(i,1)*4, y-t*0.45); g.lineTo(x+hsh(i,2)*6-3, y-1); g.lineTo(x-hsh(i,3)*5+2, y+t*0.45); g.stroke(); g.beginPath(); g.moveTo(x+hsh(i,2)*6-3, y-1); g.lineTo(x+t*0.42, y+hsh(i,4)*6-3); g.stroke(); };
-  const rubble=(x,y,i,k0)=>{ for(let r=0;r<3;r++){ const rx=x+(hsh(i,r+5)-0.5)*t*1.3, ry=y+(hsh(i,r+9)-0.5)*t*1.1, rs=4+hsh(i,r+13)*5; g.save(); g.translate(rx,ry); g.rotate(hsh(i,r+17)*3); g.fillStyle=HRD_COLS[(i+k0+r)%4]; g.fillRect(-rs/2,-rs/2,rs,rs); g.strokeStyle='rgba(20,10,5,0.5)'; g.lineWidth=1; g.strokeRect(-rs/2,-rs/2,rs,rs); g.restore(); } };
-  const block=(x,y,i,k0,st)=>{
-    if(st>=3 || (st===2 && i%3===1)){ rubble(x,y,i,k0); return; }
-    g.save(); g.translate(x,y); if(st===2) g.rotate((hsh(i,7)-0.5)*0.5);
-    g.fillStyle=HRD_COLS[(i+k0)%4]; g.fillRect(-t/2, -t/2, t, t);
-    g.fillStyle='rgba(255,255,255,0.2)'; g.fillRect(-t/2, -t/2, t, 4); g.fillStyle='rgba(0,0,0,0.25)'; g.fillRect(-t/2, t/2-4, t, 4);
-    g.strokeStyle='rgba(20,10,5,0.55)'; g.lineWidth=1.5; g.strokeRect(-t/2, -t/2, t, t);
-    g.fillStyle='rgba(255,255,255,0.5)'; g.font='bold 11px Arial'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('GVTABC'[(i+k0)%6], 0, 1);
-    if(st>=1 && (st===2 || i%2===0)) crack(0,0,i);
-    g.restore(); };
-  S.hrd.secs.forEach((s,si)=>{
-    const len=Math.hypot(s.bx-s.ax, s.by-s.ay), n=Math.max(1, Math.round(len/t)), dx=(s.bx-s.ax)/n, dy=(s.by-s.ay)/n;
-    if(s.st>=3){ g.fillStyle='rgba(60,40,24,0.28)'; g.beginPath(); g.ellipse((s.ax+s.bx)/2, (s.ay+s.by)/2, Math.max(14, Math.abs(s.bx-s.ax)/2+6), Math.max(14, Math.abs(s.by-s.ay)/2+6), 0, 0, Math.PI*2); g.fill(); }
-    if(s.gate){   // the gate's wooden door, shut (B1 painted it swung open): planks + two iron bands; it splits as it falls
-      const x=s.ax, ya=Math.min(s.ay,s.by), yb=Math.max(s.ay,s.by);
-      if(s.st>=3){ for(let i=0;i<6;i++){ g.save(); g.translate(x+(hsh(i,21)-0.5)*26, ya+(i+0.5)*(yb-ya)/6); g.rotate((hsh(i,22)-0.5)*1.6); g.fillStyle='#7A4E27'; g.fillRect(-9,-2.5,18,5); g.restore(); } return; }
+  const hex=dyeHex()||GREEN, ink=hexShade(hex,0.55), lit=hexShade(hex,1.22), t=HRD_BLK, hw=t/2;
+  const hsh=(i,k)=>{ const v=Math.sin(i*12.9898+k*78.233)*43758.5453; return v-Math.floor(v); };
+  g.fillStyle='rgba(0,0,0,0.16)'; g.fillRect(F.x0+6, F.y0+8, F.x1-F.x0, F.y1-F.y0);   // the fort's one cast shadow
+  g.fillStyle='rgba(166,132,88,0.22)'; g.fillRect(F.x0, F.y0, F.x1-F.x0, F.y1-F.y0);   // the yard: packed earth (the fort hub's floor)
+  for(let i=0;i<40;i++){ g.fillStyle='rgba(90,70,40,'+(0.10+hsh(i,3)*0.12).toFixed(2)+')'; g.fillRect(F.x0+12+hsh(i,1)*(F.x1-F.x0-24), F.y0+14+hsh(i,2)*(F.y1-F.y0-28), 2+hsh(i,4)*3, 1.5); }   // the rake's specks
+  const band=(s)=>{   // one wall section: the band along its line, the courses, the lit outer edge, the shade inside, the rim, the merlons on the outer side
+    const v=(s.k==='e'||s.k==='w'), x0=Math.min(s.ax,s.bx), x1=Math.max(s.ax,s.bx), y0=Math.min(s.ay,s.by), y1=Math.max(s.ay,s.by), L=v? y1-y0 : x1-x0;
+    const bx=v? s.ax-hw : x0, by=v? y0 : s.ay-hw, bw=v? t : L, bh=v? L : t, out=(s.k==='e'||s.k==='s')? 1 : -1;   // out = the side that faces the field (+1 east / south)
+    g.fillStyle=hex; g.fillRect(bx,by,bw,bh);
+    g.strokeStyle=ink; g.lineWidth=1.6; g.globalAlpha=0.28;   // the courses (the hub's brick lines, at the band's scale)
+    if(v){ g.beginPath(); g.moveTo(s.ax,y0); g.lineTo(s.ax,y1); g.stroke(); for(let y=y0+7, j=0; y<y1; y+=14, j++){ g.beginPath(); g.moveTo(bx+(j%2? hw : 0), y); g.lineTo(bx+(j%2? t : hw), y); g.stroke(); } }
+    else { g.beginPath(); g.moveTo(x0,s.ay); g.lineTo(x1,s.ay); g.stroke(); for(let x=x0+7, j=0; x<x1; x+=14, j++){ g.beginPath(); g.moveTo(x, by+(j%2? hw : 0)); g.lineTo(x, by+(j%2? t : hw)); g.stroke(); } }
+    g.globalAlpha=0.35; g.fillStyle=lit; if(v) g.fillRect(out>0? bx+t-3 : bx, by, 3, bh); else g.fillRect(bx, out>0? by+t-3 : by, bw, 3);   // the lit outer edge
+    g.globalAlpha=0.22; g.fillStyle=ink; if(v) g.fillRect(out>0? bx : bx+t-3, by, 3, bh); else g.fillRect(bx, out>0? by : by+t-3, bw, 3);   // the shade inside
+    g.globalAlpha=1; g.strokeStyle=ink; g.lineWidth=1.5; g.strokeRect(bx+0.5,by+0.5,bw-1,bh-1);   // the rim
+    const m=6, gap=16;   // the merlons on the outer edge (the hub's teeth, small)
+    for(let p=8; p<L-6; p+=gap){ const mx=v? (out>0? bx+t : bx-m) : bx+p, my=v? by+p : (out>0? by+t : by-m); g.fillStyle=hex; g.fillRect(mx,my,m,m); g.strokeStyle=ink; g.lineWidth=1.2; g.strokeRect(mx+0.5,my+0.5,m-1,m-1); }
+  };
+  const gate=(s)=>{   // THE GATE: the arch opening (dark) with the ink jambs and lintels; the door's two leaves (planks, iron bands, brass rings) while it stands: cracked → broken (the middle plank gone) → open (splinters on the ground, the arch stands)
+    const x=s.ax, ya=Math.min(s.ay,s.by), yb=Math.max(s.ay,s.by), si=1;
+    g.fillStyle='#1a1410'; g.fillRect(x-hw, ya, t, yb-ya);
+    if(s.st>=3){ for(let i=0;i<7;i++){ g.save(); g.translate(x+(hsh(i,21)-0.5)*30, ya+(i+0.5)*(yb-ya)/7); g.rotate((hsh(i,22)-0.5)*1.6); g.fillStyle='#7A4E27'; g.fillRect(-9,-2.5,18,5); g.restore(); } }
+    else {
       g.fillStyle='#8A5A2E'; g.fillRect(x-9, ya, 18, yb-ya); g.strokeStyle='#4A2C12'; g.lineWidth=2;
       for(let y=ya+6; y<yb; y+=9){ if(s.st===2 && Math.abs(y-(ya+yb)/2)<6) continue; g.beginPath(); g.moveTo(x-9,y); g.lineTo(x+9,y); g.stroke(); }
+      g.strokeStyle='#2A1A0C'; g.lineWidth=1; g.beginPath(); g.moveTo(x,ya); g.lineTo(x,yb); g.stroke();   // where the two leaves meet
       g.fillStyle='#3C3A36'; g.fillRect(x-10, ya+10, 20, 4); g.fillRect(x-10, yb-14, 20, 4);
+      g.fillStyle='#D9A544'; g.beginPath(); g.arc(x-3,(ya+yb)/2,1.6,0,7); g.arc(x+3,(ya+yb)/2,1.6,0,7); g.fill();   // the brass rings
+      const crack=(cx9,cy9,i)=>{ g.strokeStyle='rgba(25,14,8,0.8)'; g.lineWidth=1.4; g.beginPath(); g.moveTo(cx9-t*0.4+hsh(i,1)*4, cy9-t*0.45); g.lineTo(cx9+hsh(i,2)*6-3, cy9-1); g.lineTo(cx9-hsh(i,3)*5+2, cy9+t*0.45); g.stroke(); };
       if(s.st>=1){ crack(x, ya+(yb-ya)*0.3, si); crack(x, ya+(yb-ya)*0.7, si+3); }
       if(s.st===2){ g.fillStyle='rgba(14,10,6,0.85)'; g.fillRect(x-9, (ya+yb)/2-6, 18, 12); }
-      return; }
-    for(let i=0;i<n;i++) block(s.ax+dx*(i+0.5), s.ay+dy*(i+0.5), i, si, s.st);
+    }
+    g.strokeStyle=ink; g.lineWidth=2.2; g.beginPath(); g.moveTo(x-hw,ya); g.lineTo(x-hw,yb); g.moveTo(x+hw,ya); g.lineTo(x+hw,yb); g.stroke();   // the jambs
+    g.fillStyle=ink; g.fillRect(x-hw-2, ya-5, t+4, 5); g.fillRect(x-hw-2, yb, t+4, 5);   // the lintel stones
+  };
+  for(const s of S.hrd.secs){ if(!s.gate) band(s); }
+  for(const s of S.hrd.secs){ if(s.gate) gate(s); }
+  F.tw.forEach(([x,y])=>{   // the square towers (fortSVG's: the merlons, the lit band, the slits), over the walls' ends
+    const R=HRD_TOWER_R-4;
+    g.fillStyle='rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(x+5,y+9,R+6,R*0.8,0,0,Math.PI*2); g.fill();
+    g.fillStyle=hex; g.fillRect(x-R,y-R,2*R,2*R);
+    g.strokeStyle=ink; g.lineWidth=1.6; g.globalAlpha=0.26; for(let yy=y-R+10; yy<y+R; yy+=12){ g.beginPath(); g.moveTo(x-R,yy); g.lineTo(x+R,yy); g.stroke(); } g.globalAlpha=1;
+    g.fillStyle=lit; g.globalAlpha=0.5; g.fillRect(x-R+5, y-R+4, 3, 2*R-8); g.globalAlpha=1;
+    g.fillStyle=ink; g.fillRect(x-9,y-5,3,9); g.fillRect(x+6,y-5,3,9);   // the arrow slits
+    g.strokeStyle=ink; g.lineWidth=2.2; g.strokeRect(x-R+1,y-R+1,2*R-2,2*R-2);
+    for(let k=0;k<4;k++){ const mx=x-R+2+k*((2*R-4-7)/3); g.fillStyle=hex; g.fillRect(mx, y-R-7, 7, 7); g.strokeStyle=ink; g.lineWidth=1.3; g.strokeRect(mx+0.5, y-R-6.5, 6, 6); }   // the merlons
   });
-  F.tw.forEach(([x,y],i)=>{
-    g.fillStyle='rgba(0,0,0,0.28)'; g.beginPath(); g.ellipse(x+5,y+7,36,30,0,0,Math.PI*2); g.fill();
-    for(let k=0;k<10;k++){ const a=k/10*Math.PI*2; g.save(); g.translate(x+Math.cos(a)*24, y+Math.sin(a)*20); g.fillStyle=HRD_COLS[(k+i)%4]; g.fillRect(-9,-9,18,18); g.strokeStyle='rgba(20,10,5,0.55)'; g.lineWidth=1.3; g.strokeRect(-9,-9,18,18); g.restore(); }
-    g.fillStyle='#3D3A33'; g.beginPath(); g.ellipse(x,y,22,18,0,0,Math.PI*2); g.fill(); g.fillStyle='#2A2823'; g.beginPath(); g.ellipse(x,y+2,18,13,0,0,Math.PI*2); g.fill(); });
   return { c, x:F.x0-pad, y:F.y0-pad, w, h };
 }
 function hrdDrawUnder(){
   const H9=S.hrd; if(!H9.art) H9.art=hrdArt();
   const A=H9.art; cx.drawImage(A.c, A.x, A.y, A.w, A.h);
-  for(const s of H9.secs){   // B2: a struck section flashes; a hurt one wears its bar on the outside face
-    const v=(s.k==='e'||s.k==='w'), mx=(s.ax+s.bx)/2, my=(s.ay+s.by)/2, L=v? Math.abs(s.by-s.ay) : Math.abs(s.bx-s.ax);
-    if(s.hitT>0 && s.hp>0){ cx.globalAlpha=Math.min(0.55, s.hitT*3.5); cx.fillStyle='#FFF6E0'; if(v) cx.fillRect(s.ax-HRD_BLK/2, my-L/2, HRD_BLK, L); else cx.fillRect(mx-L/2, s.ay-HRD_BLK/2, L, HRD_BLK); cx.globalAlpha=1; }
-    if(s.hp>0 && s.hp<s.max){ const bw=Math.min(54, L*0.7), bx=v? s.ax+(s.k==='e'? 16 : -16)-3 : mx-bw/2, by=v? my-bw/2 : s.ay+(s.k==='n'? -19 : 13), f=s.hp/s.max, col=f>2/3? '#7CC46A' : f>1/3? '#E2B33C' : '#D9573F';
-      cx.fillStyle='rgba(12,10,6,0.75)'; if(v) cx.fillRect(bx-1, by-1, 8, bw+2); else cx.fillRect(bx-1, by-1, bw+2, 8);
-      cx.fillStyle=col; if(v) cx.fillRect(bx, by+bw*(1-f), 6, bw*f); else cx.fillRect(bx, by, bw*f, 6); }
+  const F=hrdFort();
+  if(S.drag){   // CARD-HFG THE BAND (Dylan: nothing further than 5 metres from the front): while a man is held, where he may land — the fort itself and the band east of the front wall, its far edge dashed
+    const E=F.x1+HRD_BLK/2, far=E+HRD_PLACE.m*TK_M, y0=F.y0-HRD_PLACE.pad, y1=F.y1+HRD_PLACE.pad;
+    cx.fillStyle='rgba(191,227,154,0.10)'; cx.fillRect(E, y0, far-E, y1-y0);
+    cx.save(); cx.setLineDash([8,6]); cx.strokeStyle='rgba(191,227,154,0.85)'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(far,y0); cx.lineTo(far,y1); cx.stroke(); cx.restore();
+  }
+  for(const s of H9.secs){   // CARD-HFG: THE GATE's bar and its count stand always (the one section that can fall); a struck door flashes; the solid walls wear nothing
+    if(!s.gate) continue;
+    const my=(s.ay+s.by)/2, L=Math.abs(s.by-s.ay);
+    if(s.hitT>0 && s.hp>0){ cx.globalAlpha=Math.min(0.55, s.hitT*3.5); cx.fillStyle='#FFF6E0'; cx.fillRect(s.ax-HRD_BLK/2, my-L/2, HRD_BLK, L); cx.globalAlpha=1; }
+    if(s.hp>0){ const bw=Math.min(54, L*0.7), bx=s.ax+13, by=my-bw/2, f=s.hp/s.max, col=f>2/3? '#7CC46A' : f>1/3? '#E2B33C' : '#D9573F';
+      cx.fillStyle='rgba(12,10,6,0.75)'; cx.fillRect(bx-1, by-1, 8, bw+2); cx.fillStyle=col; cx.fillRect(bx, by+bw*(1-f), 6, bw*f);
+      cx.save(); cx.font='bold 10px Arial'; cx.textAlign='left'; cx.textBaseline='middle'; cx.lineWidth=3; cx.strokeStyle='rgba(12,10,6,0.85)'; cx.fillStyle='#F3E7B9'; const n9=String(Math.ceil(s.hp)); cx.strokeText(n9, bx+11, my); cx.fillText(n9, bx+11, my); cx.restore(); }
   }
   const hex=dyeHex()||GREEN;
   H9.tur.forEach((P,i)=>{
@@ -69206,11 +69239,57 @@ function hrdDrawUnder(){
     cx.fillStyle=hex; rr(P.x-12, P.y-20, 24, 20, 5); cx.fill(); cx.strokeStyle='rgba(10,10,5,0.8)'; cx.lineWidth=2; cx.stroke();
     cx.fillStyle='rgba(255,255,255,0.2)'; cx.fillRect(P.x-10, P.y-18, 20, 4);
     const wv=reducedMotion()? 0 : Math.sin(S.t*4+i)*3;
-    cx.strokeStyle='#6E5130'; cx.lineWidth=2.5; cx.beginPath(); cx.moveTo(P.x-16,P.y-12); cx.lineTo(P.x-16,P.y-46); cx.stroke();
+    cx.strokeStyle='#6E5130'; cx.lineWidth=2.5; cx.beginPath(); cx.moveTo(P.x-16,P.y-12); cx.lineTo(P.x-16,P.y-48); cx.stroke();
     cx.fillStyle=hex; cx.beginPath(); cx.moveTo(P.x-16,P.y-46); cx.lineTo(P.x+6,P.y-40+wv); cx.lineTo(P.x-16,P.y-33); cx.closePath(); cx.fill();
-    cx.strokeStyle='rgba(26,18,10,0.9)'; cx.lineWidth=1.5; cx.stroke(); });
+    cx.strokeStyle='rgba(26,18,10,0.9)'; cx.lineWidth=1.5; cx.stroke();
+    cx.fillStyle='#D9A544'; cx.beginPath(); cx.arc(P.x-16,P.y-49.5,2.4,0,7); cx.fill(); cx.strokeStyle='rgba(26,18,10,0.9)'; cx.lineWidth=1; cx.stroke(); });   // CARD-HFG: the brass ball on top of each pennant's pole (Fort Green's flagpoles, CARD-FP)
   for(const b of H9.bolts){ cx.globalAlpha=Math.min(1,b.t*8); cx.strokeStyle=b.tan? '#FFB25A' : '#9FE8FF'; cx.lineWidth=b.tan? 2 : 3.5; cx.beginPath(); cx.moveTo(b.x0,b.y0); cx.lineTo(b.x1,b.y1); cx.stroke(); if(!b.tan){ cx.strokeStyle='#FFFFFF'; cx.lineWidth=1.2; cx.stroke(); } }
   cx.globalAlpha=1;
+}
+// ═══ CARD-HFG HORDE MODE: THE FORT IN FORT GREEN'S COLOURS (sec:CARD-HRD; design/horde-fort-green-1011/00-BUILD-HFG.md, board J2). DYLAN (co-designer, GVT) by the jumpr guest link
+// 10/11/2026 20:18 EDT, dictated, verbatim: "Run design pass for the base in "Horde Mode" to look like fort green. Let's shrink the toybox size in half and expand the fort by 20% in total
+// space. Let's stop the ability to put units anywhere further than 5 meters from the front of the fort. Let's allow for one unit to go in each three of the fort. Let's allow for units to be
+// placed on and inside the walls for defense. Let's make the fort door open for players units but have 3000 health that enemy must inflict to open the door prior to entering the fort. Let's
+// not let any enemy units enter the fort unless it's through the main entry. Let's increase rate of incoming waves to 30 second intervals from when each waves enters the field. Cool downs of
+// ten seconds in between, every five waves." (Dylan's live switch: Wyatt 10/8 18:30.) THE LOOK: hrdArt in FORT GREEN's grammar (fortHeroSVG / fortSVG: the army's colour, hexShade's ink
+// and light, brick courses, merlons, square towers with slits, the arch gate, the brass-ball pennants). THE BOX at half (hrdBoxDraw, HRD_BOX_K, draw()'s seat). THE FORT +20 % in area
+// (HRD_FX1 326, HRD_FDY 165). THE BAND (hrdCanPlace at canPlace's head): no man further than HRD_PLACE.m metres (TK_M px a metre) east of the front wall's face; the yard, the walls and
+// the towers are his, one man a tower (hrdTowerFree, hrdSeat). THE GATE: the one breakable section, HRD_WALL.gate 3000, the Tan's bite √health × HRD_DOOR.k capped at HRD_DOOR.cap; every
+// other section SOLID (hrdHitSec). THE ROAD (hrdFoeAim, update's walker where CARD-CMX's street guide sits): every Tan walks to the gate — beside the fort round its front corner, east of the
+// front to the gate's approach, inside HRD_DOOR.r he stands and works the door; a held man leaves his formation; one held on a side wall slides east. THE CLOCK: HRD_REST 10 (the breather after
+// every 5th wave). A saved run (CARD-HSV): hrdSecsLoad at hsvResume's sections seat — the walls whole, the gate's HP kept, an older save's 45-point gate scaled to the 3000.
+function hrdPadOf(f){ return HRD_BLK/2+HRD_PAD+Math.min(24,((f.def && f.def.w)||50)*0.12); }   // B2's hold distance off a wall's line (half the band, the pad, a share of the man's width)
+function hrdGateReach(f,G,b){ const gy=Math.max(Math.min(G.ay,G.by), Math.min(Math.max(G.ay,G.by), f.y)); return Math.hypot(f.x-G.ax, f.y-gy)<=HRD_DOOR.r+(b==null? hrdPadOf(f) : b); }   // inside the door's reach (to the gate's nearest point)
+function hrdTowerFree(i, me){ const [tx,ty]=hrdFort().tw[i]; for(const u of S.units){ if(u===me || u.dead || !u.def || u.def.vehicle || u.def.mine) continue; if(Math.hypot(u.x-tx,u.y-ty)<=HRD_TOWER_R) return false; } return true; }   // one man a tower: a live man on it (geometric, so a continued run's men count too) keeps the next one off
+function hrdElbow(x,y){ for(const u of S.units){ if(Math.hypot(u.x-x,u.y-y)<40) return false; } return true; }   // canPlace's own elbow room (the campaign's 40)
+function hrdCanPlace(x,y,type){   // THE BAND: true / false = this card's word; null = the band in front, judged by canPlace's own rules below it (the rug's edges, the furniture, the men's elbow room)
+  const F=hrdFort(), E=F.x1+HRD_BLK/2, far=E+HRD_PLACE.m*TK_M;
+  if(x>far || x<F.x0-HRD_BLK/2 || y<F.y0-HRD_PLACE.pad || y>F.y1+HRD_PLACE.pad) return false;   // further than 5 metres from the front, behind the fort, or off its height: never
+  for(let i=0;i<F.tw.length;i++){ const [tx,ty]=F.tw[i]; if(Math.hypot(x-tx,y-ty)<=HRD_TOWER_R+6) return hrdTowerFree(i,null) && hrdElbow(x,y); }   // a tower: one man each
+  if(x<=E){   // on a wall or in the yard
+    if(Math.abs(x-cfaBoxX())<150*HRD_BOX_K*0.62 && y>T.y-40 && y<T.y+62) return false;   // the toy box's own ground
+    return hrdElbow(x,y);
+  }
+  return null;
+}
+function hrdFoeAim(f){   // THE ROAD TO THE GATE (update's walker): null = the box as shipped (a man already inside the fort)
+  if(!S.hrd || f.hrdIn) return null;
+  const F=hrdFort(), b=hrdPadOf(f), E=F.x1+b, G=S.hrd.secs.find(s=>s.gate), shut=!!(G && G.hp>0);
+  if(shut && hrdGateReach(f,G,b)) return { x:f.x, y:f.y };   // inside the door's reach: he stands and works it (hrdWalls)
+  if(f.hrdS && f.hrdS.k==='w') return { x:F.x0-b-6, y:(f.y<T.y)? F.y0-b-6 : F.y1+b+6 };   // held on the back wall: along it to the nearer rear corner (then he is beside the fort)
+  if(f.x<E+40 && (f.y<F.y0-b-2 || f.y>F.y1+b+2)) return { x:E+70, y:(f.y<T.y)? F.y0-b-6 : F.y1+b+6 };   // beside the fort (a flank, a straggler): round the front corner first
+  if(!shut) return { x:F.x1-30, y:T.y };   // the door is open: through it (the hold on the front wall slides him to the gap; in the yard he is hrdIn and walks for the box)
+  if(f.x<=E+2 && f.hrdS) return { x:E, y:T.y };   // held on the front wall out of the door's reach: along the wall to the door
+  return { x:E+HRD_DOOR.r*0.6, y:Math.max(T.y-70, Math.min(T.y+70, f.y)) };   // east of the fort: the gate's approach, each on his own line (the reach stops him)
+}
+function hrdBoxDraw(){   // THE BOX AT HALF (Dylan): draw()'s seat (cfaBoxX, T.y+52), the sprite at 150 × HRD_BOX_K, its one cast shadow (boxSeat's ellipse) at the same half
+  const x=cfaBoxX(), y=T.y+52, ga=cx.globalAlpha; cx.globalAlpha=0.25; cx.fillStyle=boxSeatDark(); cx.beginPath(); cx.ellipse(x+6*HRD_BOX_K, y+7*HRD_BOX_K, 80*HRD_BOX_K, 13*HRD_BOX_K, 0, 0, 7); cx.fill(); cx.globalAlpha=ga;
+  drawSprite('toybox', x, y, 150*HRD_BOX_K, 0, 0);
+}
+function hrdSecsLoad(H9,P){   // hsvResume's sections seat: the walls come back WHOLE whatever the save held (they are solid now), the gate keeps its HP; a save from before this client (cv < HFG_CV0) held a 45-point gate: scaled to the 3000
+  const L=Array.isArray(P.secs)? P.secs : [], old=(parseFloat(String(P.cv||'0'))||0)<HFG_CV0;
+  H9.secs.forEach((s,i)=>{ let hp=s.max; if(s.gate){ const v=+L[i]; if(Number.isFinite(v)) hp=old? v/45*s.max : v; } s.hp=Math.max(0, Math.min(s.max, hp)); s.st=s.hp<=0? 3 : s.hp<s.max/3? 2 : s.hp<s.max*2/3? 1 : 0; });
+  H9.art=null;
 }
 function hrdHudLine(){
   const left=Math.max(0, Math.ceil(S.sq.nextT-S.sq.t));
@@ -69450,7 +69529,7 @@ function hsvResume(P){
   for(let i=2;i<=n+1;i++) hrdLoad(hrdWave(i));   // the drum's list as it stood: waves 1..n dealt, n+1 queued (one ahead), the cfg on n+1's numbers
   S.wave=n; H9.w=n; H9.pushT=-HRD_GAP; H9.best0=P.best0|0; H9.flankSaid=P.fl|0;
   sq.t=0; sq.nextT=Math.max(HSV_REST0, Math.min(HRD_GAP+HRD_REST, P.rest|0));
-  (Array.isArray(P.secs)? P.secs : []).forEach((hp,i)=>{ const s=H9.secs[i]; if(!s) return; s.hp=Math.max(0, Math.min(s.max, +hp||0)); s.st=s.hp<=0? 3 : s.hp<s.max/3? 2 : s.hp<s.max*2/3? 1 : 0; });
+  hrdSecsLoad(H9, P);   // CARD-HFG: the walls whole (solid now), the gate's HP kept, an older save's 45-point gate scaled to the 3000
   H9.art=null;
   if(Number.isFinite(P.plastic)) S.plastic=Math.max(0, P.plastic|0);
   if((P.lives|0)>0) S.lives=P.lives|0;
@@ -82948,7 +83027,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -108836,6 +108915,7 @@ function canPlace(x,y,type,side){
     for(const u of S.units){ if(!u.dead && u.side===s && Math.hypot(u.x-x,u.y-y)<34) return false; }
     return true;
   }
+  if(hrdOn()){ const r9=hrdCanPlace(x,y,type); if(r9!=null) return r9; }   // CARD-HFG (Dylan): in HORDE MODE the fort, its towers and the 5 m band in front are the only ground (true / false here; null = the band, judged by the rules below)
   if(x<58||x>W-24||y<70||y>WORLD_H-92) return false;   // 0197: the live height (===H flat)
   if(x<215&&y>T.y-100&&y<T.y+80) return false; // toy box zone (0197: rides the crate's own latitude — 200..380 on every flat rug, byte-still)
   // v1.31: with an enemy crate to take, drops land on YOUR HALF (the
@@ -113530,7 +113610,8 @@ function update(dt){
       if(S.cfg.terrain.gaps && !f.boss && !f.def.swoop){
         const d6=aiGapGoal(f.x,f.y,g6.x,g6.y); if(d6) g6=d6;
       }
-      if(g6===T && S.cfg.terrain.cmx && !f.boss && !f.def.swoop){ const d7=cmxFoeAim(f,dt); if(d7) g6=d7; }   // CARD-CMX: on the campaign's HILL VILLAGE the tan walk the streets to the toy box (THE STREET GUIDE; every other rug reads no cmx)
+      if(g6===T && S.cfg.terrain.cmx && !f.boss && !f.def.swoop){ const d7=cmxFoeAim(f,dt); if(d7) g6=d7; }
+      if(g6===T && hrdOn() && !f.def.swoop){ const d8=hrdFoeAim(f); if(d8) g6=d8; }   // CARD-HFG (Dylan): in HORDE MODE every Tan's road is THE GATE (hrdFoeAim: round the fort's front corner, the gate's approach, then he stands and works the door)   // CARD-CMX: on the campaign's HILL VILLAGE the tan walk the streets to the toy box (THE STREET GUIDE; every other rug reads no cmx)
       const d=Math.hypot(g6.x-f.x, g6.y-f.y);
       if(d>1){ const sp=f.def.spd*aura*(f.def.rush? teddyRushX(f) : 1)*teddyGunRoll(f)*clawPaceX(f) /* CARD-CW: THE CLAW creeps at CLAW.creep px/s while it fishes or holds — ×1 for every other foe on every rug */, st=rockSteer(f.x,f.y,g6.x,g6.y,f.squeeze?3:ROCK_PAD_FOE,null,1);   // 0554c THE RUSH, the walk's seat (a `rush` row alone; every other foe reads ×1) · 0586 THE ROLL: a bear cannon east of THE GUN LINE hauls on at ×TEDDY_GUN_ROLL (×1 for every other foe)
         f.x+=(st?st.x:(g6.x-f.x)/d)*sp*amv; f.y+=(st?st.y:(g6.y-f.y)/d)*sp*amv; }   // 0278a: amv — the air-step gate (=== dt for every non-gait foe)
@@ -120520,6 +120601,7 @@ function draw(){
   if(cavesOn()) trnDrawUnder();   // CARD-TRN THE TREASURE RUN: the chevrons along the frozen stream toward the order's thing and the ring under it, over the cave's floor, under the men
   if(hrdOn()) hrdDrawUnder();   // CARD-HRD: the toy-block fort, the four towers, their bolts
   if(S.bf){ drawBase('you'); drawBase('foe'); if(S.bf.fzt) drawRaidPosts(); }   // CARD-FZT: the Tundra's two gatlings after both boxes, under the men (the castle's painter reads S.bf.fzt in S.raid's place)
+  else if(hrdOn()) hrdBoxDraw();   // CARD-HFG (Dylan): in HORDE MODE the toy box at half size on its seat (its own shadow at half)
   else { boxSeat(cfaBoxX(),T.y+52); /* CARD-CFA-A: the box drawn on its seat (120 everywhere but the chess stage) */ /* 0998 THE CAMPAIGN RUG I (PICK 12): the toy box's one cast shadow, the same seat as the crate's — a BLOCK comment: the served line carries on (the 0651 swallowed-tail trap) */ drawSprite('toybox',cfaBoxX(),T.y+52,150,0,(cavesOn()||skyOn())? cvBoxWob() : 0); if(cavesOn()||skyOn()) cvBoxFlash(120,T.y+52,150); /* CARD-SF2-B: and on the roof — a strafe's pass, a bomb on the box */ /* CARD-YF2 THE BITE READS: the box rocks and flashes on a raider's bite (paint alone) */ if(S.tanBase) drawTanBase(); if(S.raid) drawRaidPosts(); if(S.evHold) drawEvSpots(); }   // 0197: the box rides its own live latitude (T.y+52===352 on every flat rug) · 0484: the spotlight cones on the snow while the room holds
   if(S.vflag) drawVFlag();   // the victory flag flies at the crate layer (v1.47)
   frbDrawRings();   // CARD-HL4 FRANKENSTEIN'S BOLT: his 4 m reach, a faint blue ring under his feet (over the rug and the boxes, under every figure)
