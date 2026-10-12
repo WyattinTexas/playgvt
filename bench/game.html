@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.36","md5":"330230a9725f63bc8d58889b63f253fd","sha":"1d6ad8a4f","at":"2026-10-12T02:50:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.37","md5":"a57dfd40769be96c34db55a84804c685","sha":"df4ca695c","at":"2026-10-12T02:57:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83359,7 +83359,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.37';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -100641,7 +100641,7 @@ function foeLeapTick(f,dt){
     return;
   }
   f.plCd-=dt;
-  if(f.plCd<=0){   // 0452: the !kyTk seize-interlock left with the king — no sergeant ever carries kyTk
+  if(f.plCd<=0 && !f.kyTk && !(f.kySwing>0)){   /* CARD-KYU: the king's own wheel first (no leap mid-seize or mid-swing; Cold and the teddy leapers carry neither: byte-behaviour) */   // 0452: the !kyTk seize-interlock left with the king — no sergeant ever carries kyTk
     const m=foeLeapPick(f);
     if(!m){ f.plCd=2.5; return; }
     f.plAim=m; f.plWind=L.wind;
@@ -101431,7 +101431,8 @@ function gsnowTick(f,dt){
     }
     return;
   }
-  if(f.shot>=f.def.fireCd*tkSlowMul(f)+(f.cdAdd||0)){   // 0574 THE ULTRA MEGA TUNE II: + the per-foe cdAdd (the 'u' room's Sergeant Snowman: 4.5 → 10.5 s between volleys on 0574's 6 — 8.5 on 0842's 4; every unstamped thrower reads +0 — byte-behaviour); the statue re-ask below untouched
+  if(f.gsNow && f.x<W-10){ f.gsNow=0; const m9=kyuFirstPick(f); if(m9){ const dx9=m9.x-f.x, dy9=m9.y-f.y, d9=Math.hypot(dx9,dy9)||1; f.gsDir={x:dx9/d9,y:dy9/d9}; f.gsWind=sb.wind; foeAim(f,m9); return; } }   /* CARD-KYU cell 3: the first volley at the door (the 'u' room's Sergeant: his reach waived for this one throw; nobody standing = the shipped law below) */
+  if(f.shot>=(f.def.fireCd*tkSlowMul(f)+(f.cdAdd||0))*(f.cdX||1)){   /* CARD-KYU cell 2: x f.cdX (the 'u' room's Sergeant 0.8 = 6.8 s; every unstamped thrower x1) */   // 0574 THE ULTRA MEGA TUNE II: + the per-foe cdAdd (the 'u' room's Sergeant Snowman: 4.5 → 10.5 s between volleys on 0574's 6 — 8.5 on 0842's 4; every unstamped thrower reads +0 — byte-behaviour); the statue re-ask below untouched
     const m=tanPick(f);
     if(m){ const dx=m.x-f.x, dy=m.y-f.y, d=Math.hypot(dx,dy)||1;
       f.gsDir={x:dx/d,y:dy/d}; f.gsWind=sb.wind; foeAim(f,m); }   // 0652: the wind-up turns him
@@ -109869,6 +109870,9 @@ function spawnGroup9(g){
       if(f && g.sbn)  f.sbn=Math.max(1,g.sbn|0);
       if(f && g.cdAdd) f.cdAdd=+g.cdAdd||0;   // 0574 THE ULTRA MEGA TUNE II: seconds ADDED to this boss's volley cooldown — gsnowTick's one read (the 'u' room's Sergeant Snowman rides EV_SNOW_CD_ADD; every unstamped thrower reads +0)
       if(f && g.hopOn) f.hopOn=1;             // 0574: the march chain's halt-to-hurl yields to the AIR_GAIT hop for THIS foe alone ("They should be hopping forward") — he plants only for the wind-up
+      if(f && g.cdX) f.cdX=+g.cdX||1;   /* CARD-KYU cell 2: this boss's volley clock x cdX (gsnowTick's one read; the 'u' room's Sergeant 0.8) */
+      if(f && g.gsNow) f.gsNow=1;   /* CARD-KYU cell 3: the first volley the tick he is on the carpet */
+      if(f && g.leap) f.def=Object.assign({}, f.def, { leap:g.leap });   /* CARD-KYU cell 4a THE JUMP-IN: the king's leap bag on his own DEF COPY (the szx idiom; the boss section's foeLeapTick reads f.def.leap) */
       if(f && g.runAdd) f.runAdd=+g.runAdd||0;   // 0842 THE ULTRA MEGA KING YETI, ROUND THREE (cell C1): px ADDED to this boss's snowballs' roll budget — gsnowTick's one read at the volley push (the 'u' room's Sergeant Snowman rides EV_SNOW_RUN_ADD; every unstamped thrower reads +0)
       if(f && g.ret!=null) f.retFloor=+g.ret;
       // 0340 KING CROAK's tier stamps: dmgX scales every pip his rounds
@@ -109912,6 +109916,7 @@ function spawnGroup9(g){
       // and the source should read his number, not a ×1.087719 (post-curve,
       // exactly the hpX seat's own idiom).
       if(g.hpAdd) f.hp=f.hpMax=Math.max(1,f.hpMax+(g.hpAdd|0));
+      if(g.hpAddP && kyuCmd()>=(g.hpAddN||1)) f.hp=f.hpMax=Math.max(1,f.hpMax+(g.hpAddP|0));   /* CARD-KYU cell 4b: + 3,000 FLAT with 3+ real commanders (after the boss curve x bk and hpAdd; never x bk) */
       // v2.29 MOM AT THE DOOR: HER TEMPER — the authored phase (1 CALM SWEEP ·
       // 2 BUSY DAY · 3 FURIOUS) rides the group and keys the same MOM_SPD/
       // MOM_STOMP_CD/MOM_KICK_CD/MOM_TOYS_N arrays her raid rounds key.
@@ -113614,7 +113619,7 @@ function update(dt){
   if(S.sq && S.mode==='play' && !S.bf){
     S.tagT+=dt;
     if(S.tagT>=CAMP_TICK_EVERY){ S.tagT-=CAMP_TICK_EVERY;   // v1.40: three pours where there was one — “about three times faster income”
-      const pour=Math.round(((S.raid && S.raid.t==='u')? EV_TICK_U : CAMP_TICK)*iceP3TagX()*momP3TagX()*bfTagX()*rtxTagX()*gtxX());   /* CARD-FSQ: the faucet +9 % · CARD-RTX: x1 in a raid · CARD-TSZ: by the commanders at the table (S.sq.p) · CARD-GTX: x0.95 in a group */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the faucet is gated !S.bf) · 0842 THE FAUCET CUT (the ADDENDUM, Wyatt 9/5 ~9:57 pm: "okay- lets do it."): the ULTRA MEGA room pours EV_TICK_U 15 (0824-NIGHT poured CAMP_TICK+10 = 30); everywhere else the same 20 it always was · 0648 D2: the castle's third act pours ×ICE_P3_TAGX (30; the 'u' room 23, was 45) — this float prints the poured number · 0662: ×momP3TagX rides for the one-grammar law — her fight never pours (S.sq stays null at startMomRaid), so the mom factor is provably 1 wherever this line runs
+      const pour=Math.round(((S.raid && S.raid.t==='u')? EV_TICK_U : CAMP_TICK)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()*rtxTagX()*gtxX());   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   /* CARD-FSQ: the faucet +9 % · CARD-RTX: x1 in a raid · CARD-TSZ: by the commanders at the table (S.sq.p) · CARD-GTX: x0.95 in a group */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the faucet is gated !S.bf) · 0842 THE FAUCET CUT (the ADDENDUM, Wyatt 9/5 ~9:57 pm: "okay- lets do it."): the ULTRA MEGA room pours EV_TICK_U 15 (0824-NIGHT poured CAMP_TICK+10 = 30); everywhere else the same 20 it always was · 0648 D2: the castle's third act pours ×ICE_P3_TAGX (30; the 'u' room 23, was 45) — this float prints the poured number · 0662: ×momP3TagX rides for the one-grammar law — her fight never pours (S.sq stays null at startMomRaid), so the mom factor is provably 1 wherever this line runs
       S.plastic+=pour;
       S.floats.push({x:166, y:280, txt:'+'+pour, t:0, col:'#FFF3C4'});
     }
@@ -117498,7 +117503,7 @@ function foeFell(f,u){
       // law, and a five-jack rug must never be a plastic faucet. Every other
       // death still drops the dog tag exactly as it always has.
       if(!(u&&u.side==='jax') && !FS_NOBLOB && !f.def.bubbleOf && !f.def.mine)
-        S.blobs.push({x:f.x,y:f.y-8,v:Math.round(f.def.bounty*(f.bountyMul||1)*iceP3TagX()*momP3TagX()*bfTagX()),t:0});   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the campaign's mint never runs under S.bf) · their dog tag — your bounty (0426: a foe burned dead in ground fire pays NOBODY — fire belongs to nobody, 0404, now at the ledger's last door; a pit fall keeps its v2.71 tag) · 0648 D2: the castle's third act pays ×ICE_P3_TAGX (iceP3TagX — identity 1 everywhere else) · 0662 Card I: MOM'S ROUND 3 pays ×MOM_P3_TAGX (momP3TagX — identity 1 everywhere else, the same one-door law)
+        S.blobs.push({x:f.x,y:f.y-8,v:Math.round(f.def.bounty*(f.bountyMul||1)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()),t:0});   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the campaign's mint never runs under S.bf) · their dog tag — your bounty (0426: a foe burned dead in ground fire pays NOBODY — fire belongs to nobody, 0404, now at the ledger's last door; a pit fall keeps its v2.71 tag) · 0648 D2: the castle's third act pays ×ICE_P3_TAGX (iceP3TagX — identity 1 everywhere else) · 0662 Card I: MOM'S ROUND 3 pays ×MOM_P3_TAGX (momP3TagX — identity 1 everywhere else, the same one-door law)
       if(f.type==='crawler'){ META.stats.crawlerKills++; }
       if(f.boss){
         // a boss goes down LOUD: shake, a burst of smoke, and a victory shout
@@ -153973,6 +153978,7 @@ function raidCfg(tier,rk){
       // only the edges and a rock stop a ball). spawnGroup copies all three beside the sbn
       // stamp; a party's min(bs,2) rows two stamped Sergeants.
       for(const w of cfg.waves) for(const g of w.groups){ if(g.f==='boss' && g.t==='sgtsnow'){ g.cdAdd=EV_SNOW_CD_ADD; g.hopOn=1; g.runAdd=EV_SNOW_RUN_ADD; } }
+      kyuStamp(cfg);   /* CARD-KYU: the Sergeant's cdX + gsNow, the king's leap bag + the flat 3,000 at 3+ commanders (the ULTRA room alone; after the EV_HPX pass: hpAddP never scales) */
       // 0574 THE ULTRA MEGA TUNE II ("that final wave was just way too big. It needs to
       // be about half the size."): W3 alone — asserted by its NAME, never by index —
       // every non-boss group INCLUDING the 24 trk landings (the count loop above exempts
@@ -154239,6 +154245,25 @@ function raidCapSet(i,o,crush,remote){
   }
   if(!remote && sqRef() && S.coop) coopSend({k:'cap', n:i|0, t:o, x:crush?1:0});
 }
+// ═══ CARD-KYU THE ULTRA MEGA KING YETI WITH THREE OR MORE COMMANDERS (design/king-yeti-three-1011/00-BUILD-KYU.md; board J15; Wyatt by phone 10/11/2026 21:21 EDT, jumpr remote, dictated, verbatim: "Ultra mega King Yeti fight should reward 15% less dogtags when there are 3+ commanders. Sergent snowman needs to first snowballs 20% faster and immediately after entering the scrne. King yeti should jump in during ohase 3 and if there are 3 or more commanders increase his hp by 3000").
+// FOUR CELLS, the ULTRA room alone (S.raid k 'ice' t 'u', identity-stamped; the e/m/h/g castles, the lair and every other throne byte-still):
+//   1 THE TAGS: with three or more REAL commanders at the table (S.sq.bp = COOP.pc, CARD-BHP's count: the humans, never the ten-wide pin) every dog tag the fight MINTS — the faucet's pour (update) and every kill blob (foeFell) — pays × KYU.tagX 0.85 through kyuTagX(), read beside iceP3TagX(); the opening purse (EV_TAGS_ADD), the refund and the win's stars never move (⚑ KYU-Q1).
+//   2 THE SERGEANT'S ARM: the W2 row carries cdX KYU.snowCdX 0.8 → f.cdX (spawnGroup's seat beside cdAdd); gsnowTick's gate reads (fireCd × tkSlowMul + cdAdd) × f.cdX: (4.5 + 4) × 0.8 = 6.8 s between volleys (was 8.5) + the 0.6 s wind-up; every unstamped thrower reads × 1 (⚑ KYU-Q2).
+//   3 THE FIRST VOLLEY AT THE DOOR: the row carries gsNow → f.gsNow: the first tick he stands on the carpet (x < W−10) he winds up at the nearest standing man beyond his dead zone WHATEVER the distance (kyuFirstPick: his 440 reach waived for this one throw — the 'u' room's balls roll 2,420 px, past the mat) and the volley leaves 0.6 s later; then his clock runs as cell 2. Nobody standing = the shipped statue re-ask.
+//   4 THE KING: (a) THE JUMP-IN — his W3 row carries a `leap` bag (0554c's capability cell: SERGEANT COLD's six dials, the first leap at KYU.leapFirst 2.5 s on the carpet, the cadence LEAP_CD_SGT 15 s: the tell, the parabola, the purple landing ring that flattens every man inside 3 m), copied onto his own DEF COPY at spawn (the szx idiom; FDEF.kingyeti never moves) — the seat 0452 retired on his 8/20 word comes back on his 10/11 word, the ULTRA room alone, phase 3 = his act; interlocked with his own wheel (foeLeapTick's trigger: no leap mid-seize or mid-swing, a Cold no-op); (b) + KYU.kingHpAdd 3,000 HP FLAT with KYU.kingHpN 3 or more real commanders, on top of CARD-BHP's × (1 + 0.9 (p − 1)) bar: the row's hpAddP / hpAddN, spawnGroup's seat right after hpAdd (after the boss curve × bk; never × bk).
+// KYU.on 0 = the stamps are not written at the cfg (kyuStamp) and the tag door reads 1. Zero wire (p is frozen at HQ: every sim computes the same bar and the same tags), zero server, zero save, zero words.
+const KYU={ on:1, tagX:0.85, tagN:3, snowCdX:0.8, snowNow:1, kingHpAdd:3000, kingHpN:3, leapFirst:2.5, leapCd:LEAP_CD_SGT };
+function kyuRoom(){ const rd=S.raid; return !!(rd && rd.k==='ice' && rd.t==='u' && rd.cfg===S.cfg); }   // the ULTRA room, identity-stamped (iceP3TagX's grammar)
+function kyuCmd(){ const q=S.sq; return q? Math.max(1,(q.bp||q.p)|0) : 1; }   // the REAL commanders at the table (CARD-BHP: the event room's S.sq.bp = COOP.pc; a raid party's p; solo 1)
+function kyuTagX(){ return (KYU.on && kyuRoom() && kyuCmd()>=KYU.tagN)? KYU.tagX : 1; }   // cell 1: the faucet's pour + the kill blob read this beside iceP3TagX()
+function kyuLeapBag(){ return { cd:KYU.leapCd, first:KYU.leapFirst, wind:LEAP_WIND, t:LEAP_T, h:LEAP_H, minD:LEAP_MIN_D, mega:1 }; }   // cell 4a: Cold's bag with the first leap early (mega:1 = the boss section's own gate, true in the ULTRA room)
+function kyuFirstPick(f){ let b=null, bd=1e9; for(const u of S.units){ if(u.dead || u.jetT>0 || u.dropT>0 || u.falling || u.cloakT>0 || (S.drag && S.drag.unit===u)) continue; const d=Math.hypot(u.x-f.x,u.y-f.y); if(d<(f.def.minRng||0)) continue; if(d<bd){ bd=d; b=u; } } return b; }   // cell 3: the nearest standing man beyond his dead zone, his reach waived
+function kyuStamp(cfg){ if(!KYU.on) return; for(const w of cfg.waves) for(const g of w.groups){ if(g.f!=='boss') continue; if(g.t==='sgtsnow'){ g.cdX=KYU.snowCdX; if(KYU.snowNow) g.gsNow=1; } else if(g.t==='kingyeti'){ g.leap=kyuLeapBag(); g.hpAddP=KYU.kingHpAdd; g.hpAddN=KYU.kingHpN; } } }   // the 'u' cfg's stamps (raidCfg's u block, after the EV_HPX pass: hpAddP never scales)
+setTimeout(()=>{ try{ GVT.kyu=function(){ const k=S.foes.find(f=>f.type==='kingyeti' && !f.dead)||null, sg=S.foes.find(f=>f.type==='sgtsnow' && !f.dead)||null;   // the rig's read door
+  return { cv:GVT_CV, dial:Object.assign({},KYU), room:kyuRoom()?1:0, cmd:kyuCmd(), tagX:kyuTagX(), p3:!!(S.raid&&S.raid.p3), wave:S.wave, leapC:{ cd:LEAP_CD_SGT, first:LEAP_FIRST, wind:LEAP_WIND, t:LEAP_T, h:LEAP_H, minD:LEAP_MIN_D },
+    king:k? { hp:Math.round(k.hp), hpMax:Math.round(k.hpMax), x:Math.round(k.x), y:Math.round(k.y), leap:k.def.leap? Object.assign({},k.def.leap) : null, plCd:(k.plCd==null)? null : +k.plCd.toFixed(2), plWind:+(k.plWind||0).toFixed(2), plT:+(k.plT||0).toFixed(2), airB:+(k.airB||0).toFixed(1), tk:!!k.kyTk, swing:+(k.kySwing||0).toFixed(2) } : null,
+    sgt:sg? { x:Math.round(sg.x), y:Math.round(sg.y), shot:+(sg.shot||0).toFixed(2), cdX:sg.cdX||null, gsNow:sg.gsNow|0, cdAdd:sg.cdAdd||0, wind:+(sg.gsWind||0).toFixed(2), gate:+((sg.def.fireCd*tkSlowMul(sg)+(sg.cdAdd||0))*(sg.cdX||1)).toFixed(2), balls:(S.gboul||[]).filter(b=>b.src===sg).length } : null }; }; }catch(e){} },0);
+// ═══ /CARD-KYU
 // ===== 0648 D2 — PHASE 3 PAYS ×1.5 (FM-GVT-YETIJUICE-0831 §2 D2; Wyatt 8/31:
 // "In Phase 3 give the player 1.5x dogtags.") — the ICE castle's third act
 // pays every dog tag at ICE_P3_TAGX: the kill blob (foeFell's mint) and the
