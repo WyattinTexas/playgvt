@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.28","md5":"cc5d5241a15f0fd3f19878ea65472644","sha":"2ecee550d","at":"2026-10-12T01:50:57Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.29","md5":"cfe6cd0544d70640176fb897cd47c6db","sha":"a2f63dd97","at":"2026-10-12T01:52:31Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83092,7 +83092,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.28';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.29';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -137040,7 +137040,8 @@ function xrPull(k, v){   // rpXY's seat: a saved pair whose rect leaves the boar
 // and carry), the mouse's drag or a wheel slides #fortBg LEFT by up to half the glass (FXR.x scene units); the yard's doors ride it (one transform), the chrome (the name, the roller, the ✕) stands;
 // a pan's late click is eaten (rzEat). The yard opens at home every visit. Zero save keys, zero words, zero server, zero sw.js. ═══
 const EXR_ROOM={ bedroom:1 }, EXR_K=0.5, EXR_FORT_K=0.5;   // the rooms that run on east · half the glass (his "an additional half screen of length") · the fort's the same
-function exrRoomOn(){ const r=roomCur(); return !!EXR_ROOM[r] && !ROOM_ZOOM_OFF[r] && xrBand()>0; }   // the true edge's own gates (xrBand: motion on, an unfenced room, a height-bound glass)
+const EXR_OLD_IOS=(function(){ try{ const m=/(?:iPhone|iPad|iPod|CPU) OS (\d+)_/.exec(navigator.userAgent||''); return !!m && +m[1]<18; }catch(e){ return false; } })();   // CARD-SKM R2 THE CAUSE OF SKYLAR'S ROOM (design/skylar-menu-1011/00-CARD-SKM.md §8; HQ's access log: his app runs on iOS 15.6.1): the legacy WebKit SVG engine measures a clip-path on an svg ROOT against the content's own box, not the CSS box, so CARD-EXR's west trim (round(rzb)+exr-rzb, 652 units on his glass) cut away every live thing left of x 652 (the chest, the glass, the raid tile, the shelves' pictures, the tent, SARGE'S SURPLUS, the awake toys) while the still room's canvases stood; the true edge's symmetric 0.57 px trim (CARD-DCH) was harmless there for a week. iOS 18.5 and 26.5 measure it right (the Simulators). Before iOS 18 the bedroom keeps its pre-EXR box: no east run, no west trim.
+function exrRoomOn(){ const r=roomCur(); return !!EXR_ROOM[r] && !ROOM_ZOOM_OFF[r] && xrBand()>0 && !EXR_OLD_IOS; }   // the true edge's own gates (xrBand: motion on, an unfenced room, a height-bound glass)
 function exrEast(){ if(!exrRoomOn()) return 0; const B=rzBox(), w=B? B.w : window.innerWidth, s=B? B.s : roomScale(); if(!(s>0) || !(w>0)) return 0;   // the east floor past the band, stage units, whole
   return Math.max(0, Math.min(Math.ceil(EXR_K*w/s), XR_EAST-Math.ceil(Math.max(0, (w/s-960)/2)))); }
 function exrLx(B, k, lx){ const E=exrEast(); if(!E || !B) return lx; const b0=Math.max(0, (B.w/B.s-960)/2); return Math.max(lx, (480+b0+E)*k-B.w/2); }   // the pan's east stop (screen px): the view's right edge on 960 + the band + E; at z 1 = E x the fit
