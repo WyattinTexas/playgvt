@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.30","md5":"c99bd2fb87d014c631721b3b505eb026","sha":"df06f6f8b","at":"2026-10-12T02:14:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.31","md5":"85b4149746cc9aa047d016ef6f149df4","sha":"d605cf3c8","at":"2026-10-12T02:20:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83092,7 +83092,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -149876,6 +149876,23 @@ function featDone(){ return !!(META.featDays && META.featDays[todayStr()]); }
 // the presence beats STAY (crewSt/crewTickLone — the invite list's on/💤 and
 // the leader lock still read them; P8). The war-table squadmate VS button
 // went with the strip — the party sheet's VS card is the split now (flagged).
+// ═══ CARD-WSV R2 THE SURVIVAL MODE TILE ON THE BATTLEFIELD (design/where-survival-1011/00-CARD-WSV.md §3; FROM DYLAN on WhatsApp 10/11/2026 22:02 EDT, verbatim: "Let's also add a way to
+// enter survival mode in the battlefield area. Let's try it to the right of the "featured battle" tab with the same scale and layout as that tab. Go live with this when you're ready please."; Dylan's
+// live switch, Wyatt 10/8 18:30): renderWarTable's FEATURED BATTLE stands in a row of two with ★ SURVIVAL MODE on its right: one face (.wt-m2.wt-feat), one size (both columns the wider tile's
+// width, one height), the pair centred where FEATURED BATTLE stood. The small line: CONTINUE · WAVE N (a saved run) · YOUR BEST: WAVE N · HOW LONG CAN YOUR FORT HOLD? (zero new keys). The tap =
+// hsvGo (CARD-HSV: a saved run first; B3's hrdTileGo -> hrdStart() would end it), after FEATURED BATTLE's own party guard (the tile greys with every .wt-m2 under the leader lock). It puts back the
+// seat CARD-HOM emptied on Wyatt's 10/11 word (⚑ WSV-Q1, his word decides). WSV.on 0 = the v21.29 table byte for byte (FEATURED BATTLE alone, .wt-mid's direct child). ═══
+const WSV={ on:1 };
+function wsvTileHTML(){ wsvCss(); const P=hsvPark(), M=hrdMine();
+  const small=P? tf('CONTINUE · WAVE %1', P.n|0) : (M.w|0)>0? tf('YOUR BEST: WAVE %1', M.w|0) : t('HOW LONG CAN YOUR FORT HOLD?');
+  return '<button type="button" class="wt-m2 wt-feat wsv-tile" onclick="wsvTileGo()"><span class="n" data-notr>★ '+escH(t('SURVIVAL MODE'))+'</span><small data-notr>'+escH(small)+'</small></button>'; }
+function wsvTileGo(){ try{ audio(); SFX.blip(); }catch(e){}
+  if(partyLocked(null, 1)){ wtLockSpeak(); return; }   // FEATURED BATTLE's own guard (UI.wtFeat): the leader starts
+  try{ closeWarTable(); }catch(e){} hsvGo(); }   // every horde door: the saved run first
+function wsvCss(){ if(document.getElementById('wsvCss')) return; const st=document.createElement('style'); st.id='wsvCss';
+  st.textContent='.wsv-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.4vw,14px);align-items:stretch;width:max-content;max-width:100%}'   // the columns = the wider tile; the glass's width caps the pair
+    +'.wsv-row>.wt-feat{min-width:0;justify-content:center}';
+  document.head.appendChild(st); }
 function renderWarTable(){
   const riv=todaysRival();
   const pLock=partyLocked(), pLead=partyLeader();   // v3.09 (card 07): the leader lock decides before the markup builds
@@ -149911,9 +149928,11 @@ function renderWarTable(){
         : '<button type="button" class="wt-m2" onclick="UI.wtPlay(2)"><span class="n">2v2</span><small>GRAB AN ALLY</small></button>')
     // v2.52 THE FEATURED BATTLE card — today's map + size, the +30★ hook (or
     // its calm won-today state); composed + data-notr like every wt line
+    +(WSV.on? '<div class="wsv-row">' : '')   // CARD-WSV (Dylan 10/11): FEATURED BATTLE + ★ SURVIVAL MODE, one row, one size
     +'<button type="button" class="wt-m2 wt-feat" onclick="UI.wtFeat()">'
       +'<span class="n" data-notr>★ '+TXT('FEATURED BATTLE')+' · '+ft.size+'v'+ft.size+'</span>'
       +'<small data-notr>'+escH(bfMapLabel(ft.map))+' · '+(ftDone? TXT('WON TODAY · REPLAY ANYTIME') : tf('FIRST WIN +%1★', FEAT_STARS))+'</small></button>'
+    +(WSV.on? wsvTileHTML()+'</div>' : '')   // CARD-WSV: ★ SURVIVAL MODE on FEATURED BATTLE's right (the tap = hsvGo)
     +gaTileHTML()+glTileHTML()   // 0879 THE GAUNTLET (⚑ D8) · THE GLOBE: the square's twin on the LEFT ('' until HQ v82 answers): the fourth .wt-m2 row — the five faces off EV.ga; '' on an older HQ
     // v3.09 (card 07): the party's law, said where the grayed buttons are —
     // composed + data-notr (the v1.37 share-text law)
