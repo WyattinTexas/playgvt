@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.69","md5":"3b6fedddc2902f94074369b1ba35de2b","sha":"59f471fc1","at":"2026-10-13T14:42:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.70","md5":"80ebe0f5679149b9a9786bd34885dec9","sha":"997a3d015","at":"2026-10-13T14:51:24Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49268,8 +49268,11 @@ function prfR(){ return Math.round(PRF.m*TK_M); }   // the ring's radius in px
 function prfBox(){ if(S.bf){ const t=bfMyTeam(); return S.bf.base[t==='you'?'foe':'you'] || null; } return S.tanBase || null; }   // THEIR toy box on this carpet (null = a carpet with no enemy crate: no ring)
 function prfMine(){ return !!PRF.on && S.mode==='play' && (S.bf? prMine('medic', bfMyTeam(), S.bf.seats[bfMySeat()]) : prCamp('medic')); }   // the ring binds MY medic with PARA RESCUE on: the part's own doors (a plain medic never reaches their half)
 function prfMap(){ return S.bf? { x0:40, x1:WORLD_W-40, y0:74, y1:WORLD_H-96 } : { x0:58, x1:W-24, y0:70, y1:WORLD_H-92 }; }   // the carpet's placeable box, canPlace's own numbers: "but not off the map"
+// THE SIDE (CARD-PRS, design/para-flare-ring-1012/01-BUILD-PRS.md; Wyatt by Discord 10/13/2026 10:26 EDT, verbatim: "Additionally, you should always be able to play medics wherever you want on your side of the map, so the radius does not apply to your side of the map ever."): the ring binds THEIR side of the map alone. A drop on MY side (the carpet's own half, tapHalf: west of the chalk line on a rug, my half short of the no-drop strip on the mat, mirrored for the east chair) lands where the finger let go, whatever the ring's size; the ring is drawn over their side alone (the strip included); no landing preview on my side. A drop on their side inside the ring lands on the ring as before, even where that ring point lies on my side (the nearest direction, his first note). The strip is nobody's side: a drop there meets the ring.
+function prfMySide(x){ const h=tapHalf(); return (S.bf && bfMyTeam()==='foe')? x>=h.x0 : x<=h.x1; }   // CARD-PRS: is the world x on MY side of the map? The carpet's own half (canPlace's numbers by tapHalf): a rug = west of the chalk line (campDeployX; the chess fight's line too); the mat = my half short of the strip (x <= MID-MID_BUFFER for the west chair, x >= MID+MID_BUFFER for the east)
 function prfSpot(type,x,y){   // where the drop lands: {x,y} unchanged outside the ring (or for anyone else); the ring's nearest legal point inside it; null = nowhere legal (the clack)
   if(type!=='medic' || !prfMine()) return {x:x,y:y};
+  if(prfMySide(x)) return {x:x,y:y};   // CARD-PRS: MY side of the map: the ring never applies; the finger's point as it is (the carpet's own legality after it, as for any man)
   const B=prfBox(); if(!B) return {x:x,y:y};
   const R=prfR(); let dx=x-B.x, dy=y-B.y, d=Math.hypot(dx,dy);
   if(d>=R) return {x:x,y:y};
@@ -49291,9 +49294,11 @@ function prfDrawDrag(){   // while a NEW medic with the part is held: the ring r
   const d=S.drag; if(!d || d.unit || d.fly || d.type!=='medic' || !prfMine()) return;
   const B=prfBox(); if(!B) return; const R=prfR(), RM=reducedMotion();
   cx.save();
+  cx.save(); { const h=tapHalf(), E=(S.bf && bfMyTeam()==='foe'), x0=E? -1e5 : h.x1+0.5, x1=E? h.x0-0.5 : 1e5; cx.beginPath(); cx.rect(x0,-1e5,x1-x0,2e5); cx.clip(); }   // CARD-PRS: the ring is drawn over THEIR side of the map alone (the strip included): nothing of it on my side, where it never applies
   cx.fillStyle='rgba(123,224,123,0.05)'; cx.beginPath(); cx.arc(B.x,B.y,R,0,7); cx.fill();
   cx.strokeStyle='rgba(123,224,123,0.6)'; cx.lineWidth=2.5; cx.setLineDash([12,9]); if(!RM) cx.lineDashOffset=-S.t*24; cx.beginPath(); cx.arc(B.x,B.y,R,0,7); cx.stroke(); cx.setLineDash([]);
-  if(Math.hypot(d.x-B.x,d.y-B.y)<R){ const q=prfSpot('medic',d.x,d.y);
+  cx.restore();   // CARD-PRS: the clip ends with the ring; the landing preview below is never clipped (a drop on their side may land on a ring point that lies on my side)
+  if(!prfMySide(d.x) && Math.hypot(d.x-B.x,d.y-B.y)<R){ const q=prfSpot('medic',d.x,d.y);   // CARD-PRS: no preview with the finger on MY side (he lands under it)
     if(q){ cx.strokeStyle='rgba(255,255,255,0.65)'; cx.lineWidth=1.5; cx.setLineDash([3,7]); cx.beginPath(); cx.moveTo(d.x,d.y); cx.lineTo(q.x,q.y); cx.stroke(); cx.setLineDash([]);
       ring(q.x,q.y,UDEF.medic.auraR,'rgba(123,224,123,0.10)','rgba(123,224,123,0.9)');   // his circle where he WILL land
       cx.fillStyle='#2E3A22'; cx.fillRect(q.x-1.5,q.y-14,3,14); cx.fillStyle='rgba(123,224,123,0.55)'; cx.beginPath(); cx.arc(q.x,q.y-15,7,0,7); cx.fill(); cx.fillStyle='#F4FFE8'; cx.beginPath(); cx.arc(q.x,q.y-15,3,0,7); cx.fill(); }
@@ -84061,7 +84066,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.70';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -177826,6 +177831,7 @@ requestAnimationFrame(frame);
 // ================= DEBUG API =================
 window.GVT = {
   prf(){ const P=S.mode==='play', B=P? prfBox() : null; return { cv:GVT_CV, on:PRF.on, m:PRF.m, R0:PRF.R0, R:prfR(), tkM:TK_M, box:B? [B.x,B.y] : null, mine:P? prfMine() : null, map:P? prfMap() : null, W:S.bf? WORLD_W : W, H:WORLD_H, mid:MID, strip:MID_BUFFER, line:(!S.bf && P)? campDeployX() : null }; },   // CARD-PRF: the ring's numbers for a rig
+  prs(){ const P=S.mode==='play'; return { cv:GVT_CV, holds:1, half:P? tapHalf() : null, east:!!(S.bf && bfMyTeam()==='foe') }; },   // CARD-PRS: my side of the map for a rig (the half the ring never binds; east = the mat's east chair)
   psb(){ const w=document.getElementById('wartable'), g=document.getElementById('glScr'), d=document.querySelector('#wartable .psb-door'), f=document.querySelector('#wartable .wt-foot2'), R=e=>{ if(!e) return null; const b=e.getBoundingClientRect(); return [+b.left.toFixed(1), +b.top.toFixed(1), +b.width.toFixed(1), +b.height.toFixed(1)]; }; return { cv:GVT_CV, wt:PSB.wt, fitN:PSB.fitN, hidden:!!(d && d.style.display==='none'), tight:!!(d && d.classList.contains('psb-tight')), park:MGP.park, wsv:WSV.on, wtShown:!!w && !w.classList.contains('hidden'), glOpen:!!GL.open, glShown:!!g && !g.classList.contains('hidden'), sel:GL.sel, card:!!document.querySelector('#roomModal .rmback'), stage:!!document.querySelector('#roomModal .msa-body'), tile:!!document.querySelector('#wartable .wsv-tile'), row:!!document.querySelector('#wartable .wsv-row'), door:R(d), doorLab:d? (d.querySelector('.dlab')||{}).textContent : null, badge:d? ((d.querySelector('.wt-new')||{}).textContent||null) : null, prev:d && d.previousElementSibling? (d.previousElementSibling.querySelector('.dlab')||{}).textContent : null, foot:R(f), footScroll:f? [f.scrollWidth, f.clientWidth] : null, ghost:R(document.querySelector('#wartable .gb-seat')), grp:R(document.getElementById('grpBtn')) }; },   // CARD-PSB: the rig's read
   dsb(){ const T=S.cfg&&S.cfg.terrain, R=(T&&T.rocks)||[]; return { cv:GVT_CV, on:DSB.on, gate:dsbOn(), bd:!!(S.bf&&S.bf.bd), plc:COOP? COOP.plc : null, map:S.bf? S.bf.mapId : null, W:S.bf? WORLD_W : 0, H:S.bf? WORLD_H : 0, mid:MID, buffer:MID_BUFFER, trkBan:TRK_BAN, trenchW:TRENCH_W, works:DSB.WORKS.map(w=>[w.dx,w.y]), bags:R.filter(r=>r.dsb).map(r=>[r.x,r.y,r.r]), rocks:R.map(r=>[r.x,r.y,r.r,r.art||'']), trench:(T&&T.trench)? T.trench.pts : null, rail:(T&&T.rail)? T.rail.ban.map(p=>p.pts) : null, jax:(T&&T.jax)? T.jax.map(j=>[j.x,j.y]) : null, bases:S.bf? [[S.bf.base.you.x,S.bf.base.you.y],[S.bf.base.foe.x,S.bf.base.foe.y]] : null }; },   // CARD-DSB: the rig's read (the works, the bags on the live carpet, the ground they were proven against)
   tpo(o){ return tpoRig(o); },   // CARD-TPO: the travel posters' gate + painters for a rig
