@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.59","md5":"bccb0ada5cf668383a9c5fd4b3e9aea8","sha":"f522edaa7","at":"2026-10-13T03:42:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.60","md5":"394193bacb607e9991910ed5dc788fbc","sha":"21ea7c293","at":"2026-10-13T03:46:40Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83939,7 +83939,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.60';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -142392,6 +142392,12 @@ function advFitLabels(el){   // the name bands on the paid layout: every tongue 
   const rows=[...el.querySelectorAll('.am-pin')].map(g=>{ const tx=g.querySelector('text.am-nm'), rc=g.querySelector('rect.am-band'); let L=0; try{ L=tx.getComputedTextLength(); }catch(e){} return [tx, rc, L]; });
   rows.forEach(r=>{ const tx=r[0], rc=r[1]; let L=r[2]; if(!(L>0)) return; if(L>150){ tx.setAttribute('textLength','150'); tx.setAttribute('lengthAdjust','spacingAndGlyphs'); L=150; } const w=Math.max(54, Math.round(L+14)); rc.setAttribute('width', w); rc.setAttribute('x', -w/2); });
 }
+// ═══ CARD-FLN THE FROZEN LAKE IS NEXT ONCE (design/frozen-lake-next-1012/00-BUILD-FLN.md; Wyatt by phone 10/12/2026 23:10 EDT, verbatim: "The frozen lake is confusing players. These players have already fished at the frozen lake before, but it's saying that it's up next."):
+// advNext's daily-prize rung pointed THE NEXT ring (the Known World's token, the log's chapter ribbon, the strip, the pins) at the lake every day until that day's catch stood on CARD-IP's ledger, so a veteran who had fished there read NEXT on it again the next morning.
+// Now the lake is THE NEXT only for a save that has never fished it: once THE GREAT BASS is home (lakeCast: META.bassGot, or the bass owned) or any repeat day stands on the ledger (lakeAgain: META.lake.day), the ring moves on (the torch, the battlefield).
+// The lake itself, its purse (LAKE_AGAIN_STARS once a LOCAL day, lakeTake) and its pin's line are byte-still: the lake pays as ever, it just stops being called what is next. FLN.on 0 = the daily pointer as before. ═══
+const FLN={ on:1 };   // 1 = the lake is NEXT until the first catch, never after (rec) · 0 = before (NEXT until today's catch, every day)
+function flnFished(){ try{ if(!FLN.on) return !!(META.lake && META.lake.day===todayStr() && META.lake.paid); return !!META.bassGot || !!(META.lake && META.lake.day) || decOwns('bass'); }catch(e){ return false; } }   // has this save ever fished the lake? the great bass (the first catch), the bass in the chest, or any repeat day on the ledger; the switch off = fished TODAY (the old rule)
 function advNext(){   // THE NEXT THING (⚑ AM-Q4), computed never authored: tonight's bell → the next rung → the one-level-away lock → the first park never entered → the daily prize → the torch → the battlefield
   try{
     if(nightGateOpen()){ const soon=(st, left)=>st==='live' || (st==='quiet' && left<=1800); const ev=(EV.bell>0 && soon(evDoorState(), evSaidIn())), bd=(BD.bell>0 && soon(bdDoorState(), bdSaidIn()));
@@ -142400,7 +142406,7 @@ function advNext(){   // THE NEXT THING (⚑ AM-Q4), computed never authored: to
     if((META.campaign|0)<campTop()) return { id:'camp', line:'YOUR NEXT LEVEL WAITS.' };
     if((META.lvl|0)+1===NIGHT_MIN_LVL) return { id:'bd', line:'ONE MORE LEVEL AND IT OPENS.' };
     for(const k of ['yeti','dino','western','teddy','moon']){ const L=parkLedger(k); if(!(L.lv>0) && !(L.pd>0)) return { id:AM_PARK_PIN[k], line:'YOU HAVE NEVER BEEN. GO SEE.' }; }
-    if(lakeOpen() && roomOwns('winter') && !(META.lake && META.lake.day===todayStr() && META.lake.paid)) return { id:'lake', line:'IT PAYS ONCE A DAY.' };
+    if(lakeOpen() && roomOwns('winter') && !flnFished()) return { id:'lake', line:'IT PAYS ONCE A DAY.' };   // CARD-FLN THE FROZEN LAKE IS NEXT ONCE: a save that has ever fished the lake is never pointed back at it (was: until today's catch, every day)
     if(gaState()) return { id:'torch', line:'CHALLENGE FOR THE TORCH' };
   }catch(e){}
   return { id:'bf', line:'REAL COMMANDERS. ONE ON ONE, TWO ON TWO, OR YOUR WHOLE SQUAD.' };
