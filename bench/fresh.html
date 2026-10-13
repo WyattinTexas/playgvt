@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"21.67","md5":"d3194e34accf9af6779a7f0c9932d18a","sha":"44b9703ae","at":"2026-10-13T04:46:05Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"21.68","md5":"8c6874e0d09f485379426e4f1a99019f","sha":"9d3aae976","at":"2026-10-13T12:27:49Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84061,7 +84061,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -106748,6 +106748,7 @@ function fzThrow(sh,C){
 function ggCanShove(f){
   if(!f || f.dead || (f.hp!=null&&f.hp<=0)) return false;
   if(f.jetT>0 || f.burrow || f.falling) return false;   // v2.76: a man already plummeting is past shoving
+  if(f.stkT>0) return false;   // CARD-STK2 THE STAKE HOLDS (Dylan 10/13, verbatim: "that unit can not be moved until stake shot wears off"): a staked man is pinned to the rug, no slide of any kind moves him till the peg pops (every knock-back rides this gate on both carpets and every sim; the blow's own damage landed in the caller before the slide was asked for)
   if(f.def && (f.def.vehicle || f.def.boss)) return false;
   if(f.boss || f.type==='mom' || f.type==='yeti') return false;
   return true;
@@ -108011,7 +108012,7 @@ function stkMark(u,mt,mx,my){   // the relay's mark: the sender named him by typ
   return stkTarget(u);
 }
 function stkStake(tg,u){   // THE STAKE LANDS: his clock, his seat, the rank left, the tells (the ring, the dust, the float)
-  tg.stkT=STK_ROOT; tg.stkT0=STK_ROOT; tg.stkX=tg.x; tg.stkY=tg.y; tg.stkPopT=0; tg.vx=0; tg.vy=0;
+  tg.stkT=STK_ROOT; tg.stkT0=STK_ROOT; tg.stkX=tg.x; tg.stkY=tg.y; tg.stkPopT=0; tg.vx=0; tg.vy=0; tg.shv=null;   // CARD-STK2: a man staked MID-FLIGHT ends his flight where the peg lands
   tg.stkDir=(u && tg.x<u.x)? -1 : 1;   // the peg stands BEHIND him: the side away from the rifle that drove it (draw-time only)
   const fo=tg.form; if(fo){ const i9=fo.members? fo.members.indexOf(tg) : -1; if(i9>=0) fo.members.splice(i9,1); tg.form=null; }   // HE LEAVES HIS RANK (the ranks' own break idiom: m.form=null) — he walks on alone, three seconds late
   const RM=reducedMotion(), w9=(tg.def && tg.def.w)||54;
@@ -108052,8 +108053,8 @@ function stkPass(dt){   // the staked men's clocks, their seats and the pop — 
     if(o.stkPopT>0) o.stkPopT=Math.max(0,o.stkPopT-dt);
     if(!(o.stkT>0)) continue;
     if(o.dead || !(o.hp>0)){ o.stkT=0; continue; }
-    if(o.falling || o.shv){ o.stkX=o.x; o.stkY=o.y; }   // a fall or a shove is a flight: the peg rides with him and holds where he lands
-    else { o.x=o.stkX; o.y=o.stkY; o.vx=0; o.vy=0; }   // THE PIN: whatever moved him this step, he ends it on his seat
+    if(o.falling){ o.stkX=o.x; o.stkY=o.y; }   // a fall is a plummet (gravity's, never a knock-back's; it cannot start on a pinned man: no walk, no slide): the peg rides with him
+    else { o.x=o.stkX; o.y=o.stkY; o.vx=0; o.vy=0; if(o.shv) o.shv=null; }   // THE PIN: whatever moved him this step, he ends it on his seat. CARD-STK2 THE STAKE HOLDS (Dylan 10/13: "the unit itself shouldn't move from any knock-back ability"): a shove never rides the peg any more (ggCanShove and petShoveKing refuse a staked man, stkStake ends a flight); a stray flight is ended here
     o.stkT-=dt; if(o.stkT<=1e-9) stkPop(o);   // 180 steps of the 1/60 clock are his three seconds (3 − 180/60 leaves 5.7e-15 in a double: the hair is not a 181st step)
   }
 }
@@ -116405,7 +116406,7 @@ function petDressStart(p,u){   // SQUAD DRESSING (50, ⚑ Q5): rested, Sarge at 
   if(!best) return false; p.phase='dress'; p.dressU=best; p.t=0; return true;
 }
 function foeHalted(f,dt){ if(!(f.haltT>0)) return false; f.haltT-=dt; return true; }   // 0806q: a halted foe (THE BIG BOWL-OVER's second, THE SCREECH's flinch) — the plant chain's HEAD on the rug (a predicate with its own clock; first in the chain so it burns every frame)
-function petShoveKing(f,mx,my,src,dist){ const dx=f.x-mx, dy=(f.y-18)-my, d=Math.hypot(dx,dy)||1; f.shv={ t:GG_T, dur:GG_T, x:dx/d, y:dy/d, src:src, p:dist||0 }; S.fx.push({k:'ring',x:f.x,y:f.y-16,r:4,R:26,t:0,dur:0.22,col:'#CDE6FF'}); }   // THE KING'S BANE (100, ⚑ Q12): ggShove's own row + ring, written past ggCanShove's boss refusal for HIS bite alone
+function petShoveKing(f,mx,my,src,dist){ if(f.stkT>0) return;   /* CARD-STK2: a staked king holds his seat through THE KING'S BANE, THE BOULDER and the oath (the bite's blow landed in petFlBite; the pace alone is refused) */ const dx=f.x-mx, dy=(f.y-18)-my, d=Math.hypot(dx,dy)||1; f.shv={ t:GG_T, dur:GG_T, x:dx/d, y:dy/d, src:src, p:dist||0 }; S.fx.push({k:'ring',x:f.x,y:f.y-16,r:4,R:26,t:0,dur:0.22,col:'#CDE6FF'}); }   // THE KING'S BANE (100, ⚑ Q12): ggShove's own row + ring, written past ggCanShove's boss refusal for HIS bite alone
 function petScreech(p,u){ for(const f of TGT(u)){ if(!petFlLive(f) || !petTgtOk(u,f) || f.boss || (f.def && (f.def.vehicle || f.def.boss))) continue; if(Math.hypot(f.x-p.x,f.y-p.y)<=FL_SCREECH_R) f.haltT=Math.max(f.haltT||0, FL_SCREECH_T); } }   // THE SCREECH (70): every live Tan MAN inside three metres of the strike flinches — a short halt (no vehicle, no king)
 function petFlBite(p,u,f){   // THE BITE through the one funnel + the bowl-over — the rungs read here: THE MACHINE STRIKE (50: a vehicle takes the bite, never the shove), THE BIG BOWL-OVER (20: FL_SHOVE_BIG + the halt), THE KING'S BANE (100: the shove lands on a king)
   if(f.def && f.def.vehicle && !petHas(p,'machine')) return;   // ⚑ Q3 (0807b): machines are strafed for nothing — until THE MACHINE STRIKE
@@ -179397,6 +179398,7 @@ window.GVT = {
       pick:t9? { type:t9.type, id:t9.id, hp:t9.hp, hpMax:t9.hpMax, x:Math.round(t9.x), y:Math.round(t9.y), boss:t9.boss?1:0 } : null,
       staked:(S.bf? S.units : S.foes).filter(o=>o.stkT>0).map(o=>({ type:o.type, id:o.id, t:+o.stkT.toFixed(3), x:+o.x.toFixed(2), y:+o.y.toFixed(2), form:o.form?1:0 })), cost:ENH_COST.stakeshot, rival:ENH_RIVAL.stakeshot, arm:LAB_ARM.stakeshot, order:ENH_ORDER.length, curve:LAB_CURVE.length }; },
   stkGo(){ return stkActivate(); },
+  stk2(){ return { holds:1, staked:(S.bf? S.units : S.foes).filter(o=>o.stkT>0).map(o=>({ id:o.id, type:o.type, can:ggCanShove(o)?1:0, shv:o.shv?1:0, slip:+Math.hypot(o.x-o.stkX,o.y-o.stkY).toFixed(3), t:+o.stkT.toFixed(3) })) }; },   // CARD-STK2: the rig's read (product-inert)
   snpBtn(){ return { rect:btnRects.snp? btnRects.snp.slice():null, on:snpOn()?1:0, cd:+(S.snpCd||0).toFixed(1), tk:btnRects.tk? btnRects.tk.slice():null, bmb:btnRects.bmb? btnRects.bmb.slice():null }; },
   csBtn(){ const u9=csCardU(), b9=u9? window.csBtn(u9) : null, c29=u9? cs2N(u9) : 0, b29=(u9&&c29)? window.csBtn(u9,false,c29) : null;   // 0522d THE BUTTON ON THE RIGHT — the read door beside the crystal's and the outlaw's: the rect, the face, the clocks, the whole stack (every 64×56 rung, top-down) · 0650: the second rung's face beside the first's
     return { rect:btnRects.cs? btnRects.cs.slice():null, on:csOn()?1:0, cs:b9? b9.cs : 0, can:b9? (b9.can?1:0) : 0, cd:b9? +b9.cd.toFixed(2) : 0, cdMax:b9? b9.cdMax : 0, chan:b9? +b9.chan.toFixed(2) : 0, chanMax:b9? b9.chanMax : 0, flash:+(S.csFlash||0).toFixed(2),
