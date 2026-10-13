@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"21.54","md5":"2122a43566dd965401a8e9eeeb07c13d","sha":"73e80e845","at":"2026-10-13T02:58:08Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"21.55","md5":"730ff105cea4bfd7f83d17fe7ab0d642","sha":"3fd300ebf","at":"2026-10-13T03:08:38Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -47523,6 +47523,16 @@ function cringCars(clk){
   let d=rl.cross.arc-sm; if(d<0) d+=rl.len;
   return { cars, s:sm, warn: d<CRING_SPD*SIGNAL_LEAD };
 }
+// ═══ CARD-DSB THE DESERT'S SANDBAGS (sec:CARD-DSB; design/desert-tonight-1012/00-DESIGN-DSB.md §2.2 at the REC; board J3). FROM WYATT by phone 10/12/2026 20:27 EDT, verbatim: "for all future Battles in the Desert, add about 5 sandbags that are towards the middle of the map. On the left and the right side, please run a design pass for it, then go with the recommended and ship to live."
+// THE REC: five sandbag WORKS a side on each team's own FRONT LINE. A work = the campaign's barricade row (L3 / L7 / L23): three overlapping bags, r 16, the 26/18 diagonal, art 'bags', on the rock laws as they stand (men shoulder and steer round them: rockSteer; no drop within r+14: canPlace; the AI legal by inheritance; a bullet flies over, as over every rock: the trench is the only sight cover, DSB-Q4). The LEFT half is authored
+// (Team 1's line: a work's east shoulder sits on the deploy line MID-MID_BUFFER = 1160 at six a side; the works at 600 and 860 step 14 px back, off the trench's bulges), one work a lane down the two-carpet mat (y 238 · 600 · 730 · 860 · 1000); every seat AND its mirror was proven (rig/geo_dsb.py in the kit; the trench is not symmetric) >= 70 px off every rail (TRK_BAN 38 + two shoulders), >= 68 off the trench's centre line (the cut's half-width 32 + a shoulder + 20), >= 60 edge to edge from every mesa, cactus and other work, >= 60 off every jax, inside the drop bounds; bfTerrain's mirror pass seats Team 2's fifteen bags.
+// THE GATE: THE BATTLE OF THE DESERT's room alone (COOP.plc 'bd': bdJoin stamps it before bdLaunch builds the carpet). A private WESTERN LAND room (plc 'room'), the War Table's western pick, the daily raid and the campaign's western rungs keep their ground byte for byte (dsbWorks() answers [], and the row's .concat([]) is the same seven rocks); the Tundra plays its own map and never calls the western's build. DSB.on 1 by default; ?dsb=0 a device key turns the works off, ?dsb=1 clears it (the hangar's gate, CARD-FHG). ═══
+const DSB={ on:(function(){ try{ const q=/[?&]dsb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dsb','0'); else localStorage.removeItem('gvt_dsb'); } return localStorage.getItem('gvt_dsb')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  R:16, STEP:[26,18],   // a bag's radius · the row's diagonal (the campaign's house pattern: three bags read as ONE work)
+  WORKS:[ {dx:162,y:238}, {dx:176,y:600}, {dx:162,y:730}, {dx:176,y:860}, {dx:162,y:1000} ] };   // the LEFT half's five works: x = MID - dx (the east bag's shoulder on the deploy line; two of them 14 px further back, off the trench's bulges on BOTH sides once mirrored), y down the mat (the north lane under the ring's top leg · the toy boxes' latitude · two works south of the crates' drag · the south field)
+function dsbOn(){ return !!(DSB.on && COOP && COOP.plc==='bd'); }   // CARD-DSB: THE BATTLE OF THE DESERT's room (the pitcher's join stamps plc 'bd' before the carpet is built); never a private room ('room'), the invasion ('ev') or a solo battleground (COOP null)
+function dsbWorks(){ if(!dsbOn()) return []; const out=[]; for(const w of DSB.WORKS){ for(let k=-1;k<=1;k++) out.push({ x:MID-w.dx+k*DSB.STEP[0], y:w.y+k*DSB.STEP[1], r:DSB.R, art:'bags', dsb:1 }); } return out; }   // CARD-DSB: fifteen bags (five works) on the LEFT half, each tagged dsb for the rigs; bfTerrain mirrors every one for Team 2 (thirty on the carpet)
+// ═══ end of sec:CARD-DSB ═══
 const BF_MAPS = [
   { id:'open', name:'OPEN FIELD', blurb:'The toy bin tipped over everything. One clean lane is left. Time your push.',
     build:()=>({ rocks:[
@@ -47854,7 +47864,7 @@ const BF_MAPS = [
         {x:MID-360,y:236,r:13,art:'cactus'},
         {x:MID-268,y:764,r:13,art:'cactus'},
         {x:MID-470,y:948,r:12,art:'cactus'},
-        {x:MID-190,y:396,r:12,art:'cactus'} ],
+        {x:MID-190,y:396,r:12,art:'cactus'} ].concat(dsbWorks()),   // CARD-DSB THE DESERT'S SANDBAGS (design/desert-tonight-1012; Wyatt by phone 10/12): five three-bag works on Team 1's front line when this carpet is THE BATTLE OF THE DESERT's room (dsbOn: COOP.plc 'bd'); [] on every other western battle, so its rocks stay exactly these seven; bfTerrain mirrors the works for Team 2
       rivers:[],
       // v2.15 JAX (Wyatt: "Little Jax. 1 time mines. Add 3 of them onto the
       // Western Land Map"): one on the north marching lane (40px shy of the
@@ -83906,7 +83916,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.54';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.55';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -177595,6 +177605,7 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
+  dsb(){ const T=S.cfg&&S.cfg.terrain, R=(T&&T.rocks)||[]; return { cv:GVT_CV, on:DSB.on, gate:dsbOn(), bd:!!(S.bf&&S.bf.bd), plc:COOP? COOP.plc : null, map:S.bf? S.bf.mapId : null, W:S.bf? WORLD_W : 0, H:S.bf? WORLD_H : 0, mid:MID, buffer:MID_BUFFER, trkBan:TRK_BAN, trenchW:TRENCH_W, works:DSB.WORKS.map(w=>[w.dx,w.y]), bags:R.filter(r=>r.dsb).map(r=>[r.x,r.y,r.r]), rocks:R.map(r=>[r.x,r.y,r.r,r.art||'']), trench:(T&&T.trench)? T.trench.pts : null, rail:(T&&T.rail)? T.rail.ban.map(p=>p.pts) : null, jax:(T&&T.jax)? T.jax.map(j=>[j.x,j.y]) : null, bases:S.bf? [[S.bf.base.you.x,S.bf.base.you.y],[S.bf.base.foe.x,S.bf.base.foe.y]] : null }; },   // CARD-DSB: the rig's read (the works, the bags on the live carpet, the ground they were proven against)
   tpo(o){ return tpoRig(o); },   // CARD-TPO: the travel posters' gate + painters for a rig
   hhb(){ const o={ cv:GVT_CV, ck:HHB.ck, book:{}, words:{}, base:{}, top:{}, card:{} }; for(const k of HEROES){ o.book[k]=HP_RANK100[k]; o.words[k]=hhbWords(k); o.base[k]=(BF_MOVE[k]&&BF_MOVE[k].hp)||3; o.top[k]=bfHpAt(k,RANK_MAX); o.card[k]=heroHP(k); } return o; },   // CARD-HHB: the book, the bare words, each hero's base and summit, his card today
   trn(v){ v=v||{}; if(v.dials) Object.assign(TEX, v.dials); if(v.fg) Object.assign(TEX_FG, v.fg); /* CARD-TRN-B2 */ if(v.b3) Object.assign(TEX_END, v.b3); /* CARD-TRN-B3 */ if(v.go) texStart(v.go===true? {} : v.go); if(v.end) texEnd(); if(v.tap && S.tex) texTapAt({ x:+v.tap[0]-S.tex.cam.x, y:+v.tap[1] });   // CARD-TRN-B1 THE TOY EXPRESS's rig door: go (the set) · end (home) · tap [world x, y] · dials · the read
