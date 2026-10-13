@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.58","md5":"f9ef12e1d49c25a1c8dbd4ebb43fd04f","sha":"f2ff90c60","at":"2026-10-13T03:36:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.59","md5":"bccb0ada5cf668383a9c5fd4b3e9aea8","sha":"f522edaa7","at":"2026-10-13T03:42:06Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83939,7 +83939,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.58';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -150945,7 +150945,7 @@ function renderWarTable(){
     +(WSV.on? '<div class="wsv-row">' : '')   // CARD-WSV (Dylan 10/11): FEATURED BATTLE + ★ SURVIVAL MODE, one row, one size
     +'<button type="button" class="wt-m2 wt-feat" onclick="UI.wtFeat()">'
       +'<span class="n" data-notr>★ '+TXT('FEATURED BATTLE')+' · '+ft.size+'v'+ft.size+'</span>'
-      +'<small data-notr>'+escH(bfMapLabel(ft.map))+' · '+(ftDone? TXT('WON TODAY · REPLAY ANYTIME') : tf('FIRST WIN +%1★', FEAT_STARS))+'</small></button>'
+      +'<small data-notr>'+escH(bfMapLabel(ft.map))+' · '+(ftDone? TXT('WON TODAY · REPLAY ANYTIME') : tf('FIRST WIN +%1★', starX(FEAT_STARS)))+'</small></button>'
     +(WSV.on? wsvTileHTML()+'</div>' : '')   // CARD-WSV: ★ SURVIVAL MODE on FEATURED BATTLE's right (the tap = hsvGo)
     +gaTileHTML()+glTileHTML()   // 0879 THE GAUNTLET (⚑ D8) · THE GLOBE: the square's twin on the LEFT ('' until HQ v82 answers): the fourth .wt-m2 row — the five faces off EV.ga; '' on an older HQ
     // v3.09 (card 07): the party's law, said where the grayed buttons are —
@@ -161053,7 +161053,7 @@ function advCount(){
 }
 const WR_TABS = [ {id:'rating', lab:'RATING'}, {id:'bf1', lab:'1v1'}, {id:'bf2', lab:'2v2'}, {id:'squad', lab:'SQUAD'}, {id:'adv', lab:'ADVENTURE'}, {id:'torch', lab:'THE GAUNTLET'}, {id:'horde', lab:'SURVIVAL'} ];   // CARD-HFG R2 (Dylan 10/11): the tab reads SURVIVAL (the id stays horde: HQ's door, the save, the rigs)   // 0898 THE GAUNTLET tab at the tail (D7 lifted by Wyatt's 9/8 word) — the key stands ×7   // v2.65: Wyatt's order — solo rating · 1v1 · 2v2 · SQUAD; 0400: ADVENTURE at the TAIL, RIGHT of SQUAD (Wyatt 8/18: "The Adventures tab should be on the right of the Squads tab, so it's the fourth tab over") — every consumer keys on the id string; nothing positional
 const WR_CTA = { bf1:'⚔ PLAY 1v1', bf2:'⚔ PLAY 2v2', adv:'TO THE CAMPAIGN', torch:'CHALLENGE FOR THE TORCH', horde:'PLAY SURVIVAL MODE' };   // CARD-HFG R2 (Dylan): SURVIVAL MODE   // 0582: ONE sword (THE GLYPH LAW), the map's picture gone   // squad's CTA is composed at render — ⚑ + the translated YOUR SQUAD; 0398: adv's button is the honest "go climb" door (⚑ ADV_CTA)
-const WR_REWARD = { rating:'⚔ TAP A COMMANDER · ONCE A DAY · FULL STRENGTH', bf1:'★ WIN = +25★ + XP', bf2:'★ GRAB AN ALLY · +25★ + XP', squad:'FIFTEEN OF YOU. ONE FIELD.' };
+const WR_REWARD = { rating:'⚔ TAP A COMMANDER · ONCE A DAY · FULL STRENGTH', get bf1(){ return '★ WIN = +'+starX(25)+'★ + XP'; }, get bf2(){ return '★ GRAB AN ALLY · +'+starX(25)+'★ + XP'; }, squad:'FIFTEEN OF YOU. ONE FIELD.' };   // CARD-SEM-2: the battleground's base purse (endBattle's starBase 25) through THE ONE PIPE, read at render (a getter: the weekend flips live); the keys carry the digit as a hole, so the seven tongues follow
 const WR_EMPTY = { rating:'FIGHT A BATTLE TO GET RATED', bf1:'WIN A 1v1 TO GET ON THE BOARD', bf2:'WIN A 2v2 TO GET ON THE BOARD', adv:'BEAT A LEVEL TO GET ON THE BOARD', squad:'WIN A BATTLE WITH YOUR SQUAD TO GET ON THE BOARD', torch:'CHALLENGE FOR THE TORCH', horde:'PLAY SURVIVAL MODE TO PLANT YOUR FLAG' };   // 0898: the torch tab's empty face = the tile's own line (zero new keys)
 const WR_TITLE = { rating:'LEADERBOARD · RATING', bf1:'LEADERBOARD · 1v1', bf2:'LEADERBOARD · 2v2', adv:'LEADERBOARD · ADVENTURE', squad:'LEADERBOARD · SQUADS', torch:'LEADERBOARD · THE GAUNTLET', horde:'LEADERBOARD · SURVIVAL MODE' };   // CARD-HFG R2 (Dylan): SURVIVAL MODE   // 0898: composed at the muster (LEADERBOARD · THE GAUNTLET off the two keys)
 const WR_N=500;   // 0905 THE TOP FIVE HUNDRED (FM-GVT-TOP500-0905; Wyatt 9/5: "extend the number of players you can view on the leaderboard to 500"): THE ONE DIAL — the depth this client asks HQ for (?n=, server v55's BOARD_N) and the number on the ALL n -> door (the tokenised "ALL {0} ->" key: zero new strings); a v54 box ignores the ask and serves its hundred; a ladder shorter than n ends where it ends (2v2 today)
