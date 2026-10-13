@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.81","md5":"fd2f247e3708db58e84d2f74531ee0d6","sha":"c132ca851","at":"2026-10-13T17:17:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.82","md5":"0386ff89608ef976dc17425217d5e5c7","sha":"6b3e3a7e0","at":"2026-10-13T17:24:49Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84275,7 +84275,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.81';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.82';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -144687,17 +144687,38 @@ function tpoArt(){ try{ const k=String(lg3Safe(()=>skyCorpsHex())||''); if(!TPO.
 function tpoPic(id, vb, cls){ const sc=tpoArt()[id]; if(!sc) return ''; return '<svg class="'+(cls||'tpo-pic')+'" viewBox="'+(vb||'-100 -100 200 200')+'" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'+TPO_DEFS+sc+TPO_OVER+'</svg>'; }   // one picture in one crop (the bottom kept: the hero and the ground)
 function tpoCoverHTML(id){ if(!TPO_IDS[id]) return ''; const p=tpoPic(id, '-100 -40 200 140'); return p? '<div class="tpo-cov">'+p+'</div>' : ''; }   // THE COVER: inside the gold frame, above the name's band
 function tpoLeftScene(c, scene){ try{ if(!c || c.tiers || c.place!=='' || !TPO_IDS[c.id]) return scene; return tpoPic(c.id, '-100 -70 200 170', 'lg-scene tpo-page')||scene; }catch(e){ return scene; } }   // THE SPREAD: a park's left page (c.place is '' there); the chapters (tiers) and the thrones (a place line) keep their pictures
-function tpoPosterSVG(id){ const c=lgCh(id); if(!c || !TPO_IDS[id]) return ''; const sc=tpoArt()[id]; if(!sc) return '';   // THE WHOLE POSTER: the title band in the sky's top tone, the picture, the cream tagline band, GREEN VS TAN small, a thin inner border, the grain over all
-  const nm=String(t(c.name)), tag=String(t(TPO_TAG[id]||'')), FF="'Futura-CondensedExtraBold','Futura Condensed ExtraBold',Impact,'Arial Black',sans-serif";
-  const tl=nm.length*13.2>176? ' textLength="176" lengthAdjust="spacingAndGlyphs"' : '', tt=tag.length*6.9>172? ' textLength="172" lengthAdjust="spacingAndGlyphs"' : '';
-  return '<svg class="tpo-poster" viewBox="0 0 200 300" aria-hidden="true">'+TPO_DEFS+'<rect width="200" height="300" fill="#F2E6C8"/><rect x="0" y="0" width="200" height="52" fill="'+(TPO_TOP[id]||'#1E1A12')+'"/>'
-    +'<svg x="0" y="52" width="200" height="200" viewBox="-100 -100 200 200">'+sc+TPO_OVER+'</svg>'
-    +'<text x="100" y="37" text-anchor="middle" font-family="'+FF+'" font-size="24" letter-spacing=".5" fill="#F6ECD2"'+tl+'>'+LG3_E(nm)+'</text>'
-    +'<text x="100" y="272" text-anchor="middle" font-family="'+FF+'" font-size="8.5" letter-spacing="2.2" fill="#1E1A12"'+tt+'>'+LG3_E(tag)+'</text>'
-    +'<path d="M70 282 H130" stroke="#1E1A12" stroke-width=".8" opacity=".6"/><text x="100" y="292" text-anchor="middle" font-family="'+FF+'" font-size="5.5" letter-spacing="1.6" fill="#1E1A12" opacity=".75">GREEN VS TAN</text>'
-    +'<rect x="5" y="5" width="190" height="290" fill="none" stroke="#1E1A12" stroke-width=".9" opacity=".55"/><rect x="0" y="0" width="200" height="300" filter="url(#tpogr)"/></svg>'; }
+// ── R2 (AL, WhatsApp 10/13/2026 13:11 + 13:12, verbatim: "Lets add in the text that is currently in there for example \"every gun on her\" from the image I've sent. Can we also do block letters with shadow for each header." · "Also experiment with different fonts for each world like in the travel posters i sent"):
+//    the whole poster carries the page's own lines (the yellow slab = c.place, the caption = the chapter's or the place's cap: the game's keys in every tongue; TPO_TAG stays a fallback), every header = the page title's white block letters with the ink stroke and the shadow (.lg-h1's own dress), each world in its own face: the faces iPhones carry (the game loads no web font), a generic feel behind them for a tablet without them.
+const TPO_FONT={   // [the face stack, a letter's width in ems (the fallback when nothing can be measured), the base size, 'up' | 'title' (a script reads in title case, her posters' way), the weight]
+  camp:["'Futura-CondensedExtraBold','Futura Condensed ExtraBold','Avenir Next Condensed',sans-serif", .5, 26, 'up', 900],   // the army's stencil
+  elite:["'AvenirNextCondensed-Heavy','Avenir Next Condensed','Futura-CondensedExtraBold',sans-serif", .5, 28, 'up', 900],   // the clean condensed deco (FLY TWA)
+  over:["'GillSans-UltraBold','Gill Sans Ultra Bold','Gill Sans','Arial Black',sans-serif", .68, 24, 'up', 900],   // the fat shout
+  dino:["'Rockwell-Bold','Rockwell','Roboto Slab','Georgia',serif", .62, 24, 'up', 700],   // the national-park slab
+  yeti:["'SnellRoundhand-Bold','Snell Roundhand','Savoye LET','Dancing Script',cursive", .5, 32, 'title', 700],   // the Venice script
+  west:["'Copperplate-Bold','Copperplate','Georgia',serif", .74, 22, 'up', 700],   // the saloon's engraved caps
+  teddy:["'ArialRoundedMTBold','Arial Rounded MT Bold','Helvetica Neue',sans-serif", .62, 24, 'up', 700],   // plush and round
+  caves:["'Chalkduster','Chalkboard SE','Marker Felt',fantasy", .62, 24, 'up', 400],   // frost on the rock
+  sky:["'AmericanTypewriter-Bold','American Typewriter','Courier New',monospace", .62, 24, 'up', 700],   // the dispatch
+  moon:["'Noteworthy-Bold','Noteworthy','Bradley Hand','Comic Sans MS',cursive", .58, 26, 'up', 700] };   // the storybook hand
+let TPO_MW={};
+function tpoMeasure(txt, fam, wt, fs, ls){ const k=[txt, fam, wt, fs, ls].join('|'); if(TPO_MW[k]!==undefined) return TPO_MW[k]; try{ const sv=document.createElementNS('http://www.w3.org/2000/svg','svg'); sv.setAttribute('style','position:absolute;left:-9999px;top:0;width:400px;height:100px;visibility:hidden;pointer-events:none'); sv.setAttribute('aria-hidden','true'); const t9=document.createElementNS('http://www.w3.org/2000/svg','text'); t9.setAttribute('font-family', fam); t9.setAttribute('font-weight', wt); t9.setAttribute('font-size', fs); t9.setAttribute('letter-spacing', ls); t9.textContent=txt; sv.appendChild(t9); document.body.appendChild(sv); const w=t9.getComputedTextLength(); sv.remove(); TPO_MW[k]=w; return w; }catch(e){ return String(txt).length*fs*.62; } }   // the width of a line in the device's own face (the fallbacks included), measured once a line
+function tpoLines(id){ const c=lgCh(id); if(!c) return null; const ch=(typeof LG3_CH!=='undefined' && LG3_CH[id])||null; const cap=(ch && ch.cap) || c.cap || TPO_TAG[id] || ''; return { name:String(t(c.name)), place:c.place? String(t(c.place)) : '', cap:String(t(cap)) }; }   // the page's own lines: the title, the yellow slab, the caption
+function tpoTitleCase(s){ return String(s).toLowerCase().replace(/(^|[\s\-])(\S)/g, (m, a, b)=>a+b.toUpperCase()); }
+function tpoCapLines(cap){ const parts=String(cap||'').split('. ').map((p, i, a)=>i<a.length-1? p+'.' : p).filter(Boolean); const L=[]; let cur=''; for(const p of parts){ if(cur && (cur+' '+p).length>30){ L.push(cur); cur=p; } else cur=cur? cur+' '+p : p; } if(cur) L.push(cur); return L.slice(0, 3); }   // the caption on one to three lines, cut at its sentences
+function tpoPosterSVG(id){ const c=lgCh(id); if(!c || !TPO_IDS[id]) return ''; const sc=tpoArt()[id]; if(!sc) return ''; const Ln=tpoLines(id)||{ name:'', place:'', cap:'' };   // THE WHOLE POSTER (R2): the title band in the sky's top tone with the world's own face in block letters and the page title's shadow, the picture with the page's yellow slab, the page's gold caption on the dark strip, GREEN VS TAN small, a thin inner border, the grain over all
+  const F=TPO_FONT[id]||TPO_FONT.camp, STN="'Futura-CondensedExtraBold','Futura Condensed ExtraBold',Impact,'Arial Black',sans-serif", INK='#1E1A12';
+  const nm=F[3]==='title'? tpoTitleCase(Ln.name) : Ln.name, tls=F[3]==='title'? 0 : .4; let fs=F[2]; const tw=tpoMeasure(nm, F[0], F[4], fs, tls); if(tw>182) fs=+Math.max(12, fs*182/tw).toFixed(1); const ty=F[3]==='title'? 38 : 36;
+  const title='<g font-family="'+F[0]+'" font-weight="'+F[4]+'" font-size="'+fs+'" text-anchor="middle" letter-spacing="'+tls+'"><text x="102.5" y="'+(ty+2.5)+'" fill="'+INK+'">'+LG3_E(nm)+'</text><text x="100" y="'+ty+'" fill="#FFFFFF" stroke="'+INK+'" stroke-width="1.3" stroke-linejoin="round" paint-order="stroke">'+LG3_E(nm)+'</text></g>';
+  let slab=''; if(Ln.place){ const w=Math.min(176, Math.round(tpoMeasure(Ln.place, STN, 400, 8, .5)+11)); slab='<g transform="translate(10 60) rotate(-2)"><rect x="2" y="2" width="'+w+'" height="13" fill="'+INK+'"/><rect width="'+w+'" height="13" fill="#FFD23F" stroke="'+INK+'" stroke-width="1.2"/><text x="'+(w/2).toFixed(1)+'" y="9.6" text-anchor="middle" font-family="'+STN+'" font-size="8" letter-spacing=".5" fill="'+INK+'">'+LG3_E(Ln.place)+'</text></g>'; }
+  const lines=tpoCapLines(Ln.cap), n=lines.length||1, y0=n===1? 272 : n===2? 268 : 264, gy=n===1? 290 : n===2? 293 : 296; let capT='';
+  lines.forEach((l, i)=>{ capT+='<text x="100" y="'+(y0+i*11)+'" text-anchor="middle" font-family="'+STN+'" font-size="8.4" letter-spacing=".6" fill="#FFD23F"'+(tpoMeasure(l, STN, 400, 8.4, .6)>184? ' textLength="184" lengthAdjust="spacingAndGlyphs"' : '')+'>'+LG3_E(l)+'</text>'; });
+  return '<svg class="tpo-poster" viewBox="0 0 200 300" aria-hidden="true">'+TPO_DEFS+'<rect width="200" height="300" fill="#F2E6C8"/><rect x="0" y="0" width="200" height="52" fill="'+(TPO_TOP[id]||INK)+'"/>'
+    +'<svg x="0" y="52" width="200" height="200" viewBox="-100 -100 200 200">'+sc+TPO_OVER+'</svg>'+slab+title
+    +'<rect x="0" y="252" width="200" height="48" fill="#15100A" opacity=".9"/><path d="M0 252 H200" stroke="'+INK+'" stroke-width="1.6"/>'+capT
+    +'<text x="100" y="'+gy+'" text-anchor="middle" font-family="'+STN+'" font-size="5.2" letter-spacing="1.6" fill="#F2E6C8" opacity=".8">GREEN VS TAN</text>'
+    +'<rect x="5" y="5" width="190" height="290" fill="none" stroke="'+INK+'" stroke-width=".9" opacity=".55"/><rect x="0" y="0" width="200" height="300" filter="url(#tpogr)"/></svg>'; }
 function tpoRig(o){ if(o && typeof o==='object' && 'on' in o){ TPO.on=o.on? 1 : 0; try{ if(TPO.on) localStorage.setItem('gvt_tpo','1'); else localStorage.removeItem('gvt_tpo'); }catch(e){} }   // the rig's door: the gate, the painters
-  return { on:TPO.on, ids:Object.keys(TPO_IDS), tag:TPO_TAG, poster:id=>tpoPosterSVG(id), cover:id=>tpoCoverHTML(id), page:id=>tpoPic(id, '-100 -70 200 170', 'lg-scene tpo-page') }; }
+  return { on:TPO.on, ids:Object.keys(TPO_IDS), tag:TPO_TAG, lines:id=>tpoLines(id), fonts:TPO_FONT, poster:id=>tpoPosterSVG(id), cover:id=>tpoCoverHTML(id), page:id=>tpoPic(id, '-100 -70 200 170', 'lg-scene tpo-page') }; }
 function lg3WhereSVG(p){   // THE POSTER'S WHERE (a place with no page: the battlefield · the gauntlet · the fort · the lake · the desert): the new Known World whole and small, the dark drawn back from the place, the place ringed red and drawn a size up
   const id=p && p.id, T=LG3_TOK[id]||[412,182], cx=T[0], cy=T[1]+30, inner=lg3KingdomSVG().replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
   return '<svg class="ad-map" viewBox="0 0 824 364" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="adspot" cx="'+cx+'" cy="'+cy+'" r="300" gradientUnits="userSpaceOnUse"><stop offset="30%" stop-color="#1a1208" stop-opacity="0"/><stop offset="100%" stop-color="#1a1208" stop-opacity=".62"/></radialGradient></defs>'+inner
