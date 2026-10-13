@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.64","md5":"4ce812b249d1e26d9d31ee82e1ef54b3","sha":"2c76f8856","at":"2026-10-13T04:20:09Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"21.65","md5":"63878862daf6661eea7ec113f0860abe","sha":"8cda2ca43","at":"2026-10-13T04:30:26Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49244,6 +49244,65 @@ function prCamp(type){ return type==='medic' && !S.bf && !S.evHold && !chsOn() &
 function prJump(u){ if(!u || S.bf || u.type!=='medic' || !enhU(u,'pararescue')) return u; const T=PMC.prWait+PARA_FALL;   // the owner's stamp (dropNew) and the partner's (coopApply's w:1) alike
   u.para=0; u.prJ=1; u.dropT=0; u.sprue=0; u.jetT=T; u.jetFrom={x:u.x,y:u.y}; u.jetTo={x:u.x,y:u.y}; return u; }   // para 0: he is still one of YOUR MEN (the radio's paratrooper is a favour); jetFrom = jetTo: he comes straight down
 function prDrawJet(u){ const d=u.dropT; u.dropT=u.jetT; prDrawFlare(u); u.dropT=d; }   // the battleground's picture, lent the air clock: the flare 3.4 s, then the game's own chute 1.6 s
+// ═══ CARD-PRF PARA RESCUE: THE FLARE BURNS + THE RING ROUND THEIR TOY BOX (design/para-flare-ring-1012/00-BUILD-PRF.md; Wyatt by phone 10/12/2026 23:42 EDT, verbatim: "For the medic's parachuting, let's change the green to be more of a flare. When you drop the medic within 40 m of the enemy toy box, it gets pushed out of those 40 m and then drops there. There's a big circle around the enemy toy box that pushes out any attempt to drop directly on their toy box. The medic will drop out, but not on top of the toy box, instead 40 m in the nearest direction of that circle, but not off the map."):
+// THE FLARE: prDrawFlare (below, rewritten in place) burns like a signal flare now (prfFlare): a pool of green light on the ground, the stick, a white-hot core in a flickering green corona, sparks spat upward that fall back, a dense smoke column leaning with the wind; the timer ring and the count stand. Reduced motion = the still picture. The chute's 1.6 s is the game's own, untouched.
+// THE RING: every road a NEW man takes to the carpet ends in dropNew (the finger's drop, the nearest-spot rings, the tap's flight). There MY medic with the part on, dropped inside PRF.m metres of THEIR toy box, lands on the ring instead (prfSpot): the ring's nearest point to the drop, kept ON the carpet (canPlace's own bounds), on legal ground (canPlace, else the nearest legal point ALONG the ring, never back inside it); nowhere legal = the clack, no man placed, no purse spent. The battleground reads S.bf.base[their side], the campaign and co-op S.tanBase; a relayed copy carries the landed point. While he is held the ring shows round their box, and where he will land when the finger is inside it (prfDrawDrag).
+// THE NUMBER (⚑ PRF-Q1): his 40 m is 1120 px in the house metre (TK_M 28, the metre every card's "m" uses). On the 1v1 carpet (their box at x 1790, the chalk line at 960) that ring reaches x 670, WEST of the line: no inch of their half would be left for a part whose whole point is landing past the line; on the campaign carpet (1240 wide, the Tan box at 1110) it covers the whole rug. So the ring ships at PRF.m 11 (308 px, the radio paratroopers' own 300 px standoff from their box: PARA_STANDOFF) and the number is ONE constant; the device keys ?prf=40 (his 40 m on that device), ?prf=0 (the ring off), ?prf=on (the key cleared). ═══
+const PRF={ on:1, m:11, R0:11 };   // on: the ring stands · m: its radius in metres (TK_M px a metre) · R0: the shipped radius (the record's number)
+(function(){ try{ const q=/[?&]prf=(off|on|\d+(?:\.\d+)?)/.exec(location.search||''); if(q){ if(q[1]==='on') localStorage.removeItem('gvt_prf'); else localStorage.setItem('gvt_prf', q[1]==='off'? '0' : q[1]); } const v=localStorage.getItem('gvt_prf'); if(v!=null){ const n=parseFloat(v); if(n>0) PRF.m=n; else PRF.on=0; } }catch(e){} })();   // the device key, kept across loads like ?dsb=
+function prfR(){ return Math.round(PRF.m*TK_M); }   // the ring's radius in px
+function prfBox(){ if(S.bf){ const t=bfMyTeam(); return S.bf.base[t==='you'?'foe':'you'] || null; } return S.tanBase || null; }   // THEIR toy box on this carpet (null = a carpet with no enemy crate: no ring)
+function prfMine(){ return !!PRF.on && S.mode==='play' && (S.bf? prMine('medic', bfMyTeam(), S.bf.seats[bfMySeat()]) : prCamp('medic')); }   // the ring binds MY medic with PARA RESCUE on: the part's own doors (a plain medic never reaches their half)
+function prfMap(){ return S.bf? { x0:40, x1:WORLD_W-40, y0:74, y1:WORLD_H-96 } : { x0:58, x1:W-24, y0:70, y1:WORLD_H-92 }; }   // the carpet's placeable box, canPlace's own numbers: "but not off the map"
+function prfSpot(type,x,y){   // where the drop lands: {x,y} unchanged outside the ring (or for anyone else); the ring's nearest legal point inside it; null = nowhere legal (the clack)
+  if(type!=='medic' || !prfMine()) return {x:x,y:y};
+  const B=prfBox(); if(!B) return {x:x,y:y};
+  const R=prfR(); let dx=x-B.x, dy=y-B.y, d=Math.hypot(dx,dy);
+  if(d>=R) return {x:x,y:y};
+  if(d<1e-6){ dx=(S.bf && bfMyTeam()==='foe')? 1 : -1; dy=0; d=1; }   // dropped dead on their box: straight back toward my own side
+  const M=prfMap(), side=S.bf? bfMyTeam() : undefined, a0=Math.atan2(dy,dx);
+  const inMap=(px,py)=>px>=M.x0 && px<=M.x1 && py>=M.y0 && py<=M.y1;
+  const at=(a,out)=>({ x:Math.round(B.x+Math.cos(a)*(R+out)), y:Math.round(B.y+Math.sin(a)*(R+out)) });
+  // the ring's nearest point that is on the carpet: the radial one; else the nearest along the ring; else (a ring wider than the carpet) the carpet's edge on the ray
+  let p=at(a0,1); if(!inMap(p.x,p.y)){ p=null; for(let s=1;s<=180 && !p;s++){ for(const k of [1,-1]){ const q=at(a0+k*s*Math.PI/180,1); if(inMap(q.x,q.y)){ p=q; break; } } } }
+  if(!p){ let t=1e9; for(const e of [[M.x0-B.x,dx],[M.x1-B.x,dx],[M.y0-B.y,dy],[M.y1-B.y,dy]]){ if(Math.abs(e[1])>1e-9){ const u9=e[0]/e[1]; if(u9>0 && u9<t) t=u9; } } if(t>=1e9) t=0; p={ x:Math.round(Math.max(M.x0,Math.min(M.x1,B.x+dx*t))), y:Math.round(Math.max(M.y0,Math.min(M.y1,B.y+dy*t))) }; }
+  if(canPlace(p.x,p.y,type,side)) return p;
+  // the spot is water, rock, rail or a man's elbow: the nearest legal point ALONG the ring (never back inside it)
+  const ap=Math.atan2(p.y-B.y,p.x-B.x), st=Math.max(0.5,180*8/(Math.PI*R));   // about 8 px a step
+  for(let s=1;s<=360/st;s++){ for(const k of [1,-1]){ const q=at(ap+k*s*st*Math.PI/180,2); if(inMap(q.x,q.y) && canPlace(q.x,q.y,type,side)) return q; } }
+  return null;
+}
+function prfDrawDrag(){   // while a NEW medic with the part is held: the ring round their box, and where he will land when the finger is inside it (world space: draw()'s own camera, right after the drag ghost's ring)
+  const d=S.drag; if(!d || d.unit || d.fly || d.type!=='medic' || !prfMine()) return;
+  const B=prfBox(); if(!B) return; const R=prfR(), RM=reducedMotion();
+  cx.save();
+  cx.fillStyle='rgba(123,224,123,0.05)'; cx.beginPath(); cx.arc(B.x,B.y,R,0,7); cx.fill();
+  cx.strokeStyle='rgba(123,224,123,0.6)'; cx.lineWidth=2.5; cx.setLineDash([12,9]); if(!RM) cx.lineDashOffset=-S.t*24; cx.beginPath(); cx.arc(B.x,B.y,R,0,7); cx.stroke(); cx.setLineDash([]);
+  if(Math.hypot(d.x-B.x,d.y-B.y)<R){ const q=prfSpot('medic',d.x,d.y);
+    if(q){ cx.strokeStyle='rgba(255,255,255,0.65)'; cx.lineWidth=1.5; cx.setLineDash([3,7]); cx.beginPath(); cx.moveTo(d.x,d.y); cx.lineTo(q.x,q.y); cx.stroke(); cx.setLineDash([]);
+      ring(q.x,q.y,UDEF.medic.auraR,'rgba(123,224,123,0.10)','rgba(123,224,123,0.9)');   // his circle where he WILL land
+      cx.fillStyle='#2E3A22'; cx.fillRect(q.x-1.5,q.y-14,3,14); cx.fillStyle='rgba(123,224,123,0.55)'; cx.beginPath(); cx.arc(q.x,q.y-15,7,0,7); cx.fill(); cx.fillStyle='#F4FFE8'; cx.beginPath(); cx.arc(q.x,q.y-15,3,0,7); cx.fill(); }
+    else { cx.strokeStyle='rgba(220,90,70,0.9)'; cx.lineWidth=3; cx.beginPath(); cx.moveTo(d.x-10,d.y-10); cx.lineTo(d.x+10,d.y+10); cx.moveTo(d.x+10,d.y-10); cx.lineTo(d.x-10,d.y+10); cx.stroke(); } }   // nowhere legal on the ring from here: the drop would clack
+  cx.restore(); }
+function prfFlare(x,y,k,rem,ph){   // THE BURNING FLARE at (x,y): k 0 -> 1 the wait spent, rem the seconds left, ph a per-man seed. A signal flare: the pool of light, the stick, the white-hot core in a flickering corona, the sparks, the smoke column leaning with the wind; then the ring and the count
+  const RM=reducedMotion(), t=RM? 0 : S.t, fl=RM? 1 : 0.82+0.18*Math.sin(t*37+ph)*Math.sin(t*23+ph*1.7);   // the flicker: two beats that never line up
+  cx.save();
+  let g=cx.createRadialGradient(x,y-4,2,x,y-4,64*fl+10); g.addColorStop(0,'rgba(200,255,180,0.7)'); g.addColorStop(0.4,'rgba(123,224,123,0.3)'); g.addColorStop(1,'rgba(123,224,123,0)');   // the pool of light on the ground
+  cx.fillStyle=g; cx.beginPath(); cx.ellipse(x,y-2,76,30,0,0,7); cx.fill();
+  const N=RM? 3 : 9, lean=RM? 10 : 14+6*Math.sin(t*0.7+ph);   // the smoke: a column that leans with the wind, each puff bigger and thinner as it climbs (RM: three still puffs)
+  for(let i=0;i<N;i++){ const a=RM? (i+0.5)/N : ((t*0.55+i/N+ph*0.1)%1), h=a*96; cx.fillStyle='rgba(118,196,118,'+(0.42*(1-a)*(0.6+0.4*a)).toFixed(3)+')'; cx.beginPath(); cx.arc(x+lean*a*a*2.2+(RM? 0 : Math.sin(i*2.3+t*1.6)*5*a), y-20-h, 7+a*26, 0, 7); cx.fill(); }
+  cx.fillStyle='#2E3A22'; cx.fillRect(x-2,y-14,4,14); cx.fillStyle='#6B4A2A'; cx.fillRect(x-2,y-14,4,3);   // the stick and its cap
+  g=cx.createRadialGradient(x,y-17,1,x,y-17,28*fl); g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(0.25,'rgba(215,255,190,0.9)'); g.addColorStop(0.6,'rgba(123,224,123,0.4)'); g.addColorStop(1,'rgba(123,224,123,0)');   // the corona
+  cx.fillStyle=g; cx.beginPath(); cx.arc(x,y-17,28*fl,0,7); cx.fill();
+  cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(x,y-17,5*fl+1,0,7); cx.fill();   // the white-hot core
+  if(!RM){ cx.lineCap='round'; cx.lineWidth=2.4;   // the sparks: short bright streaks spat upward, falling back to the ground (none under reduced motion)
+    for(let i=0;i<12;i++){ const c=t*1.3+i*0.173+ph*0.05, T=c%1, n=Math.floor(c), vx=Math.sin(i*7.1+n*3.3)*56, A=130+40*Math.abs(Math.sin(i*3.7+n+ph)), Bq=A+17;
+      const P=q=>[x+vx*q, y-17-A*q+Bq*q*q], p1=P(T), p0=P(Math.max(0,T-0.1));
+      cx.strokeStyle='rgba('+(T<0.5? '255,255,220' : '190,255,160')+','+(0.9*(1-T)).toFixed(3)+')'; cx.beginPath(); cx.moveTo(p0[0],p0[1]); cx.lineTo(p1[0],p1[1]); cx.stroke(); } }
+  cx.lineWidth=3; cx.strokeStyle='rgba(0,0,0,0.25)'; cx.beginPath(); cx.ellipse(x,y,30,12,0,0,7); cx.stroke();   // the ring and the count: the wait spent, the seconds left (how a player knows the wait)
+  cx.strokeStyle='#A8F0A0'; cx.beginPath(); cx.ellipse(x,y,30,12,0,-Math.PI/2,-Math.PI/2+k*Math.PI*2); cx.stroke();
+  const s=rem.toFixed(1); cx.font='bold 15px sans-serif'; cx.textAlign='center'; cx.lineWidth=3; cx.strokeStyle='rgba(0,0,0,0.6)'; cx.strokeText(s,x,y+30); cx.fillStyle='#fff'; cx.fillText(s,x,y+30);
+  cx.restore(); }
 function mcOn(r){ return !!r && r.type==='radioman' && !!S.bf && enhU(r,'mindcontrol'); }
 function radioR(r){ return mcOn(r)? PMC.mcR : UDEF.radioman.auraR; }   // MC-Q5: the +25% reach rides the smaller circle; the ring, the aura and LARSON'S RADIO all read this one radius
 function mcExempt(f){ return f.side==='nem' || f.type==='sarge' || HEROES.indexOf(f.type)>=0 || !f.def || !!f.def.vehicle || !!f.def.boss || !!f.def.elite || f.dropT>0 || f.jetT>0 || !!f.falling || !!f.hlbAir || !!f.hlbBat || f.cloakT>0 || !!f.shv; }   // MC-Q3: heroes, Sarge, bosses and machines stay theirs (and a man in the air, hidden or carried)
@@ -49258,17 +49317,10 @@ function pmcMindPass(){   // once a frame (the first man's step stamps S.t): MC-
     if(R===null){ R=[]; for(const r of S.units) if(r.type==='radioman' && !r.dead && !(r.dropT>0) && !(r.jetT>0) && mcOn(r)) R.push(r); }
     for(const r of R){ if(r.side!==f.side && Math.hypot(f.x-r.x,f.y-r.y)<PMC.mcR){ mcTurn(f,r); break; } }
   } }
-function prDrawFlare(u){   // PR-Q4: both armies see the flare. The last PARA_FALL seconds are the game's own chute (drawChute reads jetT: lent for the one draw)
+function prDrawFlare(u){   // PR-Q4: both armies see the flare. The last PARA_FALL seconds are the game's own chute (drawChute reads jetT: lent for the one draw)   // CARD-PRF: the flare BURNS now (prfFlare, sec CARD-PRF above): the pool of light, the white-hot core, the sparks, the leaning smoke; the ring and the count stand
   const rem=u.dropT;
   if(rem<=PARA_FALL){ const j=u.jetT; u.jetT=rem; drawChute(u); u.jetT=j; return; }
-  const RM=reducedMotion(), t=S.t, k=Math.max(0,Math.min(1,1-(rem-PARA_FALL)/PMC.prWait));
-  cx.save();
-  for(let i=0;i<7;i++){ const a=RM? i/7 : ((t*0.9+i/7)%1); cx.fillStyle='rgba(123,224,123,'+(0.35*(1-a)).toFixed(3)+')'; cx.beginPath(); cx.arc(u.x+(RM? 0 : Math.sin(i*2.1+t)*8*a), u.y-6-a*70, 6+a*16, 0, 7); cx.fill(); }
-  cx.fillStyle='#2E3A22'; cx.fillRect(u.x-1.5,u.y-12,3,12); cx.fillStyle='#7BE07B'; cx.beginPath(); cx.arc(u.x,u.y-13,3.5,0,7); cx.fill();
-  cx.lineWidth=3; cx.strokeStyle='rgba(0,0,0,0.25)'; cx.beginPath(); cx.ellipse(u.x,u.y,30,12,0,0,7); cx.stroke();
-  cx.strokeStyle='#7BE07B'; cx.beginPath(); cx.ellipse(u.x,u.y,30,12,0,-Math.PI/2,-Math.PI/2+k*Math.PI*2); cx.stroke();
-  const s=rem.toFixed(1); cx.font='bold 15px sans-serif'; cx.textAlign='center'; cx.lineWidth=3; cx.strokeStyle='rgba(0,0,0,0.6)'; cx.strokeText(s,u.x,u.y+30); cx.fillStyle='#fff'; cx.fillText(s,u.x,u.y+30);
-  cx.restore(); }
+  prfFlare(u.x, u.y, Math.max(0,Math.min(1,1-(rem-PARA_FALL)/PMC.prWait)), rem, u.phase||0); }   // CARD-PRF: k = the wait spent, rem = the seconds left, the man's own phase seeds his flicker and sparks
 function mcDrawSwirls(){   // MC-Q4's tell: a violet swirl over every turned man's head (after the actors, beside the radio's chevrons)
   const RM=reducedMotion();
   for(const u of S.units){ if(u.mcBy==null || u.dead) continue;
@@ -83948,7 +84000,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.64';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.65';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -121702,6 +121754,7 @@ function draw(){
     const rr2=def.minRng?200:(def.rng||def.auraR||(def.ram?def.ramR*1.7:0));   // v2.45: the radioman previews his aura
     ring(S.drag.x,S.drag.y,rr2, ok?'rgba(255,255,255,0.10)':'rgba(166,59,42,0.15)', ok?'rgba(255,255,255,0.7)':'rgba(220,90,70,0.9)');
   }
+  prfDrawDrag();   // CARD-PRF: a held PARA RESCUE medic shows the ring round their toy box, and where he will land when the finger is inside it
   // THE JET PACK's aim (v1.39): a dotted arc and the landing reticle, drawn
   // from the very jetResolve the launch reads — the preview IS the landing,
   // clamps, range-pull and rock-nudge included. World space, so it rides the
@@ -127354,6 +127407,7 @@ function tapLand(){   // the flying man lands: the game's own drop at the spot �
 }
 function dropNew(type,x,y){   // THE NEW MAN'S LANDING — the finger's drop and the tap's flight land through this one seat: the battleground's door, then the campaign's block byte-what-it-was (moved here from pointerup by CARD-TP)
   if(type==='dogfighter'){ dfDrop(x,y); return; }   // CARD-DF2: the drop is a LAUNCH on either carpet (before the battleground's door: a plane is no placement; dfDrop knows the seat)
+  if(type==='medic' && PRF.on){ const q=prfSpot(type,x,y); if(!q){ SFX.clack(); return; } x=q.x; y=q.y; }   // CARD-PRF: MY medic with PARA RESCUE dropped inside the ring round THEIR toy box lands on the ring (its nearest legal point on the carpet, prfSpot); nowhere legal = the clack, no man, no purse. Both carpets, every road (the finger, the nearest-spot rings, the tap's flight)
   if(S.bf){ if(applyDeploy(bfMySeat(), type, x, y)) roomPlaced(bfMySeat(), type, Math.round(x), Math.round(y)); else SFX.clack(); return; }   // CARD-SF3-D2 THE DOGFIGHTER: the drop is a LAUNCH (the finger's drop and the tap's flight alike): it takes off from where the finger let go; no man is placed
   S.plastic-=capCost(type); const nu=placeUnit(type,x,y); if(nu && capRung() && capLoan(type)) nu.loan=1;   // CARD SC: the hero in charge lands for 0   // OC-3 CAPTURE: a LOANER — an unowned hero fielded at stock rank 0 (perkRank), never written to the owned list, gone at the rescue
   if(nu && prCamp(type)) prJump(nu);   // CARD-PRC: MY medic with PARA RESCUE comes down by the flare (3.4 s) and the chute (1.6 s), the battleground's 5.0 s
@@ -177704,6 +177758,7 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
+  prf(){ const P=S.mode==='play', B=P? prfBox() : null; return { cv:GVT_CV, on:PRF.on, m:PRF.m, R0:PRF.R0, R:prfR(), tkM:TK_M, box:B? [B.x,B.y] : null, mine:P? prfMine() : null, map:P? prfMap() : null, W:S.bf? WORLD_W : W, H:WORLD_H, mid:MID, strip:MID_BUFFER, line:(!S.bf && P)? campDeployX() : null }; },   // CARD-PRF: the ring's numbers for a rig
   psb(){ const w=document.getElementById('wartable'), g=document.getElementById('glScr'), d=document.querySelector('#wartable .psb-door'), f=document.querySelector('#wartable .wt-foot2'), R=e=>{ if(!e) return null; const b=e.getBoundingClientRect(); return [+b.left.toFixed(1), +b.top.toFixed(1), +b.width.toFixed(1), +b.height.toFixed(1)]; }; return { cv:GVT_CV, wt:PSB.wt, fitN:PSB.fitN, hidden:!!(d && d.style.display==='none'), tight:!!(d && d.classList.contains('psb-tight')), park:MGP.park, wsv:WSV.on, wtShown:!!w && !w.classList.contains('hidden'), glOpen:!!GL.open, glShown:!!g && !g.classList.contains('hidden'), sel:GL.sel, card:!!document.querySelector('#roomModal .rmback'), stage:!!document.querySelector('#roomModal .msa-body'), tile:!!document.querySelector('#wartable .wsv-tile'), row:!!document.querySelector('#wartable .wsv-row'), door:R(d), doorLab:d? (d.querySelector('.dlab')||{}).textContent : null, badge:d? ((d.querySelector('.wt-new')||{}).textContent||null) : null, prev:d && d.previousElementSibling? (d.previousElementSibling.querySelector('.dlab')||{}).textContent : null, foot:R(f), footScroll:f? [f.scrollWidth, f.clientWidth] : null, ghost:R(document.querySelector('#wartable .gb-seat')), grp:R(document.getElementById('grpBtn')) }; },   // CARD-PSB: the rig's read
   dsb(){ const T=S.cfg&&S.cfg.terrain, R=(T&&T.rocks)||[]; return { cv:GVT_CV, on:DSB.on, gate:dsbOn(), bd:!!(S.bf&&S.bf.bd), plc:COOP? COOP.plc : null, map:S.bf? S.bf.mapId : null, W:S.bf? WORLD_W : 0, H:S.bf? WORLD_H : 0, mid:MID, buffer:MID_BUFFER, trkBan:TRK_BAN, trenchW:TRENCH_W, works:DSB.WORKS.map(w=>[w.dx,w.y]), bags:R.filter(r=>r.dsb).map(r=>[r.x,r.y,r.r]), rocks:R.map(r=>[r.x,r.y,r.r,r.art||'']), trench:(T&&T.trench)? T.trench.pts : null, rail:(T&&T.rail)? T.rail.ban.map(p=>p.pts) : null, jax:(T&&T.jax)? T.jax.map(j=>[j.x,j.y]) : null, bases:S.bf? [[S.bf.base.you.x,S.bf.base.you.y],[S.bf.base.foe.x,S.bf.base.foe.y]] : null }; },   // CARD-DSB: the rig's read (the works, the bags on the live carpet, the ground they were proven against)
   tpo(o){ return tpoRig(o); },   // CARD-TPO: the travel posters' gate + painters for a rig
