@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.00","md5":"ec4a5431a9fb164b25f0557ac402ed72","sha":"3997a3b30","at":"2026-10-13T19:26:05Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.01","md5":"ccaba284175415c9607e04dfaba2c7a0","sha":"b66b31a34","at":"2026-10-13T19:51:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84538,7 +84538,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -123309,6 +123309,16 @@ function drawPanHand(){
   const press = k<0.08 ? 1-k/0.08 : (k>0.97 ? 1 : 0);
   drawFinger(fx,y,press,PAN_ROT);   // CARD-PAN-2: the pan glove's own angle
 }
+// ═══ CARD-TBU · THEIR TOY BOX ON THE PAUSE BUTTON'S ROW (FROM DYLAN, a co-designer, by the jumpr guest link, 10/13/2026 14:36 EDT, verbatim: "Can we move the enemy toy box health bar to be on the same plane as the pause bar please?"). Live on Dylan's standing switch (Wyatt 10/8/2026 18:30 by Discord: "Give Al full permission to go through indefinitely, and Skylar as well, and Dylan as well."). Every fight that is not a battlefield (the campaign's rungs, the parks, the raids, the event rooms, a co-op campaign: the doors whose drawHUD paints THEIR TOY BOX's plate; a battlefield keeps its scoreboard and its HQ slab) seats THEIR TOY BOX's bar IN the top strip: its plate's middle on the pause slab's middle (drawHUD's pauBtn('hq', VW/2+240, 6, 58, 32): y 22), right-aligned as before but kept TBU.edge css px off the glass's right edge (a phone's rounded corner eats the strip's top-right corner; the old seat, 39 px lower, cleared it), its width, fill, words and colours as they were. THEIR PILLOW FORT and THE JUNCTION BOX ride it (the same plate in another skin). YOUR TOY BOX, the boss's bar, the pause slab, the centre line and every word stay where they were. ?tbu=0 a device key = the old seat (VW-16-bw, 54), ?tbu=1 clears it.
+const TBU={ on:(function(){ try{ const q=/[?&]tbu=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tbu','0'); else localStorage.removeItem('gvt_tbu'); } return localStorage.getItem('gvt_tbu')==='0'? 0 : 1; }catch(e){ return 1; } })(), mid:22, gap:12, edge:32, min:150, ww:innerWidth };   // mid = the pause slab's middle (6 + 32/2) · gap = the least air between the slab's right edge (VW/2+298) and the plate · edge = css px the plate keeps off the glass's right edge (an iPhone's corner, R 55-62 css px, clears at 32) · min = the narrowest bar the strip seats (narrower: the old seat) · ww = the glass's width in css px, kept by the resize event so a frame never reads layout
+addEventListener('resize', ()=>{ TBU.ww=innerWidth; });
+function tbuOn(){ try{ return !!TBU.on; }catch(e){ return false; } }
+function tbuSeat(bw){   // THEIR TOY BOX's bar for drawBaseBar: { x, y, w } (its plate is x-8 .. x+w+8 by y-7 .. y+21)
+  if(tbuOn()){ const pill=Math.max(0,(TBU.ww-VW*scale)/2)/scale, r=Math.min(VW-16, VW+pill-TBU.edge/scale-8), w=Math.min(bw, r-(VW/2+240+58+TBU.gap+8));   // pill = the glass beside the canvas (the narrow rug's pillars), world px · r = the bar's right end: as far right as the glass's corner allows · w = the width left once the plate clears the slab
+    if(w>=TBU.min) return { x:r-w, y:TBU.mid-7, w }; }
+  return { x:VW-16-bw, y:54, w:bw };   // the old seat: the gate off, or a stage too narrow to seat the plate beside the slab (none today: every door that draws it runs VW >= 1240)
+}
+// ═══ END CARD-TBU ═══
 // one bar, three jobs: the boss menace bar, and a base bar for each army
 function drawBaseBar(bx,by,bw,k,label,col){
   cx.fillStyle='rgba(20,16,12,0.9)'; rr(bx-8,by-7,bw+16,28,9); cx.fill();
@@ -126447,8 +126457,8 @@ function drawHUD(){
     // v1.31: the objective, always on screen — their crate's plastic, in the
     // battlefield scoreboard's own right-hand slot (clears the boss bar by 3px)
     if(S.tanBase){
-      const bw=Math.min(240,(VW-40)*0.27), k=S.tanBase.hp/S.tanBase.hpMax;
-      drawBaseBar(VW-16-bw, 54, bw, k, teddyFortUp()? tf('THEIR PILLOW FORT') : tf(jbxOn()? 'THE JUNCTION BOX %1' : 'THEIR TOY BOX %1', Math.max(0,Math.ceil(S.tanBase.hp))), k>(campBoxAlarmBand()? BOX_ALARM : 0.35)?'#C0473A':'#8a2f26');   // 0552a D8b: on rungs 1-5 the dark-red step sits at HALF — the colour and the alarm are one number a kid can learn; every other rug keeps 0.35 · 0573a: while THE PILLOW FORT stands the bar wears its word (the box number returns the frame it falls)
+      const bw=Math.min(240,(VW-40)*0.27), k=S.tanBase.hp/S.tanBase.hpMax, tb=tbuSeat(bw);   // CARD-TBU (Dylan 10/13): the seat from tbuSeat: the top strip, level with the pause slab ((VW-16-bw, 54) with the gate off)
+      drawBaseBar(tb.x, tb.y, tb.w, k, teddyFortUp()? tf('THEIR PILLOW FORT') : tf(jbxOn()? 'THE JUNCTION BOX %1' : 'THEIR TOY BOX %1', Math.max(0,Math.ceil(S.tanBase.hp))), k>(campBoxAlarmBand()? BOX_ALARM : 0.35)?'#C0473A':'#8a2f26');   // 0552a D8b: on rungs 1-5 the dark-red step sits at HALF — the colour and the alarm are one number a kid can learn; every other rug keeps 0.35 · 0573a: while THE PILLOW FORT stands the bar wears its word (the box number returns the frame it falls)
     }
     if(!S.training){ const bw9=Math.min(240,(VW-40)*0.27), k9=Math.max(0,Math.min(1,(S.lives|0)/10)); const px9=16+((cavesOn()||skyOn())? cvPlateShake() : 0); drawBaseBar(px9, 54, bw9, k9, tf('YOUR TOY BOX %1', Math.max(0,S.lives|0)), k9>0.35? '#5E7F44' : '#E8705A'); if(cavesOn()||skyOn()) cvPlatePaint(px9, 54, bw9); }   // CARD-YF2 THE BITE READS (jumpr 1298): in the caves a raider's bite FLASHES the plate red and SHAKES it; at ≤ 3 lives it pulses red till the fight ends — paint alone, ZERO words (⚑ YF-Q8: a banner would be a words card)   // 1191b CARD-HB-2 YOUR TOY BOX (Wyatt 9/23/2026: "the health bar for your toy box needs to be on the left side, under where the dog tags currently are. On the top right, we have toy box × 10 … we're going to scrap that. Get rid of that. We keep the 10 health, and then just over your toy box it will say that you have 10 health in the health bar."): the lives as a bar in the strip's LEFT slot (16, 54 — THEIR TOY BOX's mirror: the same plate, width and row), the shipped key 'YOUR TOY BOX %1' (the win screen's), green over 35 % (3 lives), ember under; every non-battleground door the old count served (the campaign, the raids, the parks — the range excluded as before); 10 = the cap the medic's refill and the reset keep
   }
