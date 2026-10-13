@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.96","md5":"bdb0dd938bf9e20134f94efb9906e574","sha":"0542d45ed","at":"2026-10-13T19:09:29Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"21.97","md5":"f75bdbd49a22426dad3e831b99c6174b","sha":"2496ce3dd","at":"2026-10-13T19:10:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -13384,6 +13384,11 @@
   #ro-shopnew .ssnew { transform-box:fill-box; transform-origin:center; animation:ssnew 1.6s ease-in-out infinite; }
   @keyframes ssnew { 50% { transform:scale(1.1); } }
   @media (prefers-reduced-motion: reduce){ #ro-shopnew .ssnew { animation:none; } }
+  /* CARD-SGS THE SURPLUS STAR IN GOLD (design/surplus-gold-star-1013/00-DESIGN-SGS.md; FROM DYLAN 10/13/2026 14:22 EDT, verbatim: "be bright gold and pulse in a golden flash … a black border around the star so it pops"): the shelf insignia's star (surplusInsArt's .sgs-star) breathes gold every 2.2 s, the fill warming with a soft gold glow at the top of the breath; it rests while the beckon's own glow breathes the whole mark, and under reduced motion */
+  #ro-shop .sgs-star { transform-box:fill-box; transform-origin:center; animation:sgsBreath 2.2s ease-in-out infinite; }
+  @keyframes sgsBreath { 0%,100% { filter:drop-shadow(0 0 0 rgba(255,210,74,0)); } 50% { filter:drop-shadow(0 0 5px rgba(255,210,74,0.95)) brightness(1.18); } }
+  #ro-shop.beckon .sgs-star { animation:none; }
+  @media (prefers-reduced-motion: reduce){ #ro-shop .sgs-star { animation:none; } }
   /* 0904 THE TREASURE CHEST: the chest's door breathes with the idle beacon's family ONLY while a NEW! mark waits on its lid (roomBeaconSet —
      the crate's own breath, shopbeck); the ribbon on the lid rides 0723's ssnew beat under its own id; both parked by reduced motion. */
   #ro-chest.beacon { filter:drop-shadow(0 0 9px rgba(255,210,74,0.7)); animation:shopbeck 1.5s ease-in-out infinite alternate; }
@@ -84461,7 +84466,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='21.96';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='21.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -137840,7 +137845,7 @@ function surplusInsArt(){
   const dye=dyeHex(), dome=dye||'#4a6b35', hi=dye? insLight(dye) : '#6f9450';   // ⚑ D1: the highlight = the jar lightened 20 % toward white (the mark's own green → #6f9450 step); no jar → the bytes as drawn
   return '<g transform="translate(-50.00,-93.00) scale(1.0)">'+SURPLUS_MARK.split('fill="#4a6b35"').join('fill="'+dome+'"').replace('fill="#6f9450"','fill="'+hi+'"')+'</g>'   // BOTH #4a6b35 = the dome AND the brim (⚑ D2 ruled by Wyatt 9/10 19:29: "the brim of the hat is still green"); the one #6f9450 = the highlight
   // CARD-HT3: the SARGE'S SURPLUS board left this art for shelfSignSVG('shop') — at its stage seat in #ro-shop, two lines at 20, one kerning
-  +'<g transform="translate(0,-66) scale(1.8) rotate(-6)">'+STAR5+' fill="#EDEADF" opacity="0.85"/></g>'; }
+  +'<g class="sgs-star" transform="translate(0,-66) scale(1.8) rotate(-6)">'+STAR5+' fill="#FFD24A" stroke="#1a1208" stroke-width="0.9" stroke-linejoin="round" paint-order="stroke"/></g>'; }   // CARD-SGS THE SURPLUS STAR IN GOLD (design/surplus-gold-star-1013/00-DESIGN-SGS.md; FROM DYLAN 10/13/2026 14:22 EDT): bright gold, the black border OUTSIDE the gold so the points stay sharp, the golden breath by css:sgs (.sgs-star); the star stays gold under every dye (the dome still wears the jar)
 function insLight(h){ const n=parseInt(h.slice(1),16), L=c=>Math.round(c+(255-c)*0.2); return '#'+((1<<24)|(L(n>>16)<<16)|(L((n>>8)&255)<<8)|L(n&255)).toString(16).slice(1); }   // the dye 20 % toward white
 function easelArt(pend){ return ''
   +'<ellipse cx="66" cy="90" rx="60" ry="7" fill="#000" opacity="0.25"/>'
