@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.01","md5":"ccaba284175415c9607e04dfaba2c7a0","sha":"b66b31a34","at":"2026-10-13T19:51:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.02","md5":"0eeb6a4e8fac467e4db2e156ed8103ef","sha":"a20eec2e7","at":"2026-10-13T20:21:33Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84538,7 +84538,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -145024,9 +145024,9 @@ function cbkProbe(v){ v=v||{}; const bk=document.querySelector('#travelMap .lg-b
   for(const col of SP.slice(1)) for(const k of ['base','a','b']){ const a=cbkAb(col, k), st=cbkSt(col, k); ab[a.key]={ st, shown:cbkShown(col, k), name:a.name, line:a.line, word:a.word, note:a.note, nums:a.nums.map(q=>[q.k, q.v]), hint:st==='found'? '' : cbkHint(a), hilt:cbkHilt(col), refined:!!cbkSafe(()=>{ const r=rfPick(col); return r && r.pick===k; }, false) }; }
   return { cv:GVT_CV, cbr:cbrOn()? 1 : 0, seat:cbkSeatOn(), pg, at:cbkIs(pg)? cbkAt(pg) : -1, spreads:SP, found:fn[0], all:fn[1], zoom:bk && bk.querySelector('.cbk-zm')? bk.querySelector('.cbk-zm').getAttribute('data-ab') : null, k:bk? bk.style.getPropertyValue('--cbk-k') : '', flips:LG_PF.n, seen:cbkSeen().slice(), fresh:cbkNewKeys(), tag:cbkTagWord(), ret:CBK_RET, inks:CBK_INK.n, ab }; }
 // ═══ sec:CARD-CBR THE OLD BOOK: EVERY REGULAR POWER WRITTEN (design/crystal-book-regular-1011/00-CARD-CBR.md; FROM LAURA, WhatsApp 10/11/2026 20:46 EDT, verbatim: "This should tell you what each one does, even if you don't have it. Not the enhancements but the regular. Also, I have some of the colors but aren't showing the regular power") ═══
-// THE PREVIEW GATE, OFF for every player: Wyatt's MYSTERY LAW (v3.15, 8/11: "Nobody will tell you") and his CBK-Q3 (10/10) keep a regular power dark until it is used, so going live waits on his word (⚑ CBR-Q1) and her check (10/11: "I want to check them before it goes live"). The game's URL with ?cbr=1 shows it on that device (kept), ?cbr=0 takes it back. Live = this line becomes { on:1 }.
+// THE GATE, LIVE FOR EVERY PLAYER since 10/13/2026 on Laura's word (WhatsApp 16:10 EDT, verbatim: "Push to live"), under Wyatt's standing word for his designers (10/11 12:26: "Unlimited Pushed and she can deploy to live"). From 10/11 it was dark behind ?cbr=1: Wyatt's MYSTERY LAW (v3.15, 8/11) and his CBK-Q3 (10/10) kept a regular power dark until used (⚑ CBR-Q1); his TELEKINESIS card copy ("Nobody will tell you") is untouched. The game's URL with ?cbr=0 keeps the old dark book on that device (gvt_cbr=0), ?cbr=1 clears it. The way back for every player: kit/applyCBR2.py --undo (R1's gate).
 // With it on, every crystal's LEFT page is written, found or not: the name, the film, the line, the numbers, and the plate lifts. A power not found yet wears the book's own status line (cbkHint: no new words) as a label on the plate's corner. cbkSt stays the truth (found = used): the enhanced pages, the pips, N OF 14 FOUND, NEW PAGE and the torn page do not move. A power found under the gate: NEW PAGE, no ink.
-const CBR={ on:(function(){ try{ const q=/[?&]cbr=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_cbr','1'); else localStorage.removeItem('gvt_cbr'); } return localStorage.getItem('gvt_cbr')==='1'? 1 : 0; }catch(e){ return 0; } })() };
+const CBR={ on:(function(){ try{ const q=/[?&]cbr=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cbr','0'); else localStorage.removeItem('gvt_cbr'); } return localStorage.getItem('gvt_cbr')==='0'? 0 : 1; }catch(e){ return 1; } })() };
 function cbrOn(){ try{ return !!CBR.on; }catch(e){ return false; } }   // the book's painters sit above this line: they ask through a hoisted function
 function cbkShown(col, kind){ const st=cbkSt(col, kind); return (kind==='base' && st!=='found' && cbrOn())? 'found' : st; }   // what a page PAINTS
 function cbrTag(ab){ return '<span class="cbr-tag" data-fit="1">'+escH(cbkHint(ab))+'</span>'; }   // the label: YOU DO NOT HOLD THIS CRYSTAL YET · IT SLEEPS WITHOUT TELEKINESIS · FLOOP'S LAB · FIT IT TO THE SABER AND USE ITS POWER ONCE
