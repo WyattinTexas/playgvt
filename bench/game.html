@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.17","md5":"eddac781370ad804bf7a4a814dca7d17","sha":"2ba96466f","at":"2026-10-14T00:52:08Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.18","md5":"2cfe0b0f1505efb1dc1508a2f78ec69f","sha":"601305a05","at":"2026-10-14T00:54:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -3946,6 +3946,13 @@
   #trcPage.vtr .trc-wait { position:absolute; left:0; right:0; top:54px; bottom:0; display:flex; align-items:center; justify-content:center; }
   #trcPage.vtr .trc-wait i { width:clamp(40px,12vh,64px); height:clamp(40px,12vh,64px); border-radius:50%; border:4px solid rgba(232,194,74,.25); border-top-color:#E8C24A; animation:vtrSpin 1s linear infinite; }
   @keyframes vtrSpin { to { transform:rotate(360deg); } }
+  /* CARD-VTP VIEW TROPHIES: THE CONTINENT PLAQUES on the case's head bar, left of the ✕ (the globe's row at 36 px; it scrolls sideways where seven do not fit; the plates are still; the chips keep their digits: the row is what gives way) */
+  #trcPage .trc-mgp { flex:0 1 auto; margin-left:auto; width:clamp(118px,40vw,284px); min-width:0; height:36px; display:flex; align-items:center; gap:4px; padding:0 3px; box-sizing:border-box; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; scrollbar-width:none; touch-action:pan-x; }
+  #trcPage .trc-mgp::-webkit-scrollbar { display:none; }
+  #trcPage .trc-mgp .mgp-pl { width:36px; height:33px; cursor:default; }
+  #trcPage .trc-mgp .mgp-pl > svg { width:36px; height:33px; }
+  #trcPage .trc-mgp .mgp-pl.owed::before { border-radius:7px; }
+  #trcPage .trc-chip { flex-shrink:0; }
   .wr-mrow.far { opacity:0.38; filter:saturate(0.4); }
   .wr-mrow.near { background:rgba(216,168,69,0.10); border-radius:8px; }
   .wr-mrow.hot { background:rgba(216,168,69,0.12); border-radius:8px; box-shadow:inset 0 0 0 2px rgba(216,168,69,0.6); }   /* 0902 THE BOSS WALL GOES 3×3 (§2 D5): the viewed commander's dealt / muster row on ADVENTURE lights gold — the .wr-row.hot grammar */
@@ -84637,7 +84644,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -150217,7 +150224,7 @@ function trcRender(){   // the page, the WHOLE screen, no footer, the ✕ floati
     const seat=k=>{ const lv=trcLv(k), on=trcHas(k), n=on? trcSeatN(k) : 0;
       return '<button type="button" class="trc-seat'+(on?'':' dim')+(trcIsW(k)?' wpn':'')+'" data-k="'+k+'"'+' onclick="UI.trcRoll(\''+k+'\')"><span class="trc-box">'   /* CARD-TGF: every seat opens its roll (CARD-TWP's irons had none) */+trcTrophyHTML(k,{ dim:!on, world:n })+'</span><span class="trc-lab"><span class="trc-nm" data-notr>'+escH(trcName(k))+'</span>'
         +(on? (n? trcF50HTML() : '<span class="trc-sub" data-notr>'+escH(t(trcIsG(k)? '100 VICTORIES' : 'LEVEL 100'))+'</span>') : '<span class="trc-sub" data-notr>'+(trcIsG(k)? lv+' / 100' : 'LV '+lv)+'</span><span class="trc-bar"><u style="width:'+lv+'%"></u></span>')+'</span></button>'; };
-    p.className='case'; p.innerHTML='<div class="trc-grain"></div><div class="trc-head"><span class="trc-h1" data-notr>'+escH(t('TROPHY CASE'))+'</span></div>'+X   /* CARD-TRW (Wyatt 10/9/2026): "just read Trophy Case"; the 2 / 18 count and its plate, and WORLD FIRSTS, are off */
+    p.className='case'; p.innerHTML='<div class="trc-grain"></div><div class="trc-head"><span class="trc-h1" data-notr>'+escH(t('TROPHY CASE'))+'</span>'+vtpMineRow()+'</div>'+X   /* CARD-VTP: my continent plaques, left of the ✕ · CARD-TRW (Wyatt 10/9/2026): "just read Trophy Case"; the 2 / 18 count and its plate, and WORLD FIRSTS, are off */
       +trcShelvesHTML(seat); }   // CARD-TWP: the shelves scroll
   trcFit(); trcScrollSeat(); try{ if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(TRC.page) trcFit(); }); }catch(e){} }   // the fit again once the face is in (a late face is wider than its stand-in) · CARD-TWP: the shelves back where they stood (or at the trophy a card named)
 function trcShelvesHTML(seat){ const c=Math.ceil(TRC_ALL.length/2), lo=TRC_ALL.slice(c).filter(trcShow);   // CARD-P96: the second shelf closes up over a hidden seat (no gap)   // CARD-TWP THE CASE SCROLLS: two shelves of c (the men; the heroes + the irons), TRC_VIS in view at the old size; ‹ › float at the glass's edges while more stands that way
@@ -162831,10 +162838,23 @@ function vtrRender(){ if(!VTR.uid) return; const p=trcPageEl(), D=VTR.d, X='<but
     body='<div class="trc-shelves" style="--trc-c:'+Math.max(c, lo.length+H.length)+';--trc-v:'+TRC_VIS+'" onscroll="trcNavSet()"><div class="trc-shelf">'+TRC_ALL.slice(0,c).map(k=>vtrSeat(D,k)).join('')+'</div><div class="trc-shelf">'+lo.map(k=>vtrSeat(D,k)).join('')+vtrHrdSeats(H)+'</div></div>'
       +'<button type="button" class="trc-nav l" data-notr aria-label="‹" onclick="trcNav(-1)">'+trcChev(-1)+'</button><button type="button" class="trc-nav r" data-notr aria-label="›" onclick="trcNav(1)">'+trcChev(1)+'</button>'; }
   else { chip=VTR.err? t('HQ UNREACHABLE. CHECK BACK AFTER THE NEXT PATROL') : t('RADIOING HQ…'); if(!VTR.err) body='<div class="trc-wait"><i></i></div>'; }
-  p.className='case vtr'; p.innerHTML='<div class="trc-grain"></div><div class="trc-head"><span class="trc-h1" data-notr>'+escH(t('TROPHY CASE'))+'</span><span class="trc-chip w" data-notr>'+escH(VTR.name)+'</span><span class="trc-chip" data-notr>'+escH(chip)+'</span></div>'+X+body;
+  p.className='case vtr'; p.innerHTML='<div class="trc-grain"></div><div class="trc-head"><span class="trc-h1" data-notr>'+escH(t('TROPHY CASE'))+'</span><span class="trc-chip w" data-notr>'+escH(VTR.name)+'</span><span class="trc-chip" data-notr>'+escH(chip)+'</span>'+(D? vtpTheirRow(D) : '')+'</div>'+X+body;   /* CARD-VTP: their continent plaques, left of the ✕ (HQ's word alone) */
   trcFit(); const sh=trcShelfEl(); if(sh){ if(!sh.dataset.w){ sh.dataset.w=1; sh.addEventListener('wheel', trcWheel, { passive:false }); } sh.scrollLeft=0; trcNavSet(); }
   try{ if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(VTR.uid && !TRC.page) trcFit(); }); }catch(e){} }   // the shelves open at the west end; ‹ › as the case's own
 try{ addEventListener('resize', ()=>{ if(VTR.uid && !TRC.page) trcNavSet(); }); }catch(e){}
+// ═══ sec:CARD-VTP VIEW TROPHIES: THE CONTINENT PLAQUES (design/trophies-plaques-1013/00-CARD-VTP.md; Wyatt 10/13/2026 20:23 EDT by phone, jumpr remote, dictated, verbatim: "When you view someone's trophies, you should be able to see if they have any of the continent plaques as well.") ═══
+// THE ROW on the trophy case's head bar, left of the ✕ (the globe's own grammar, CARD-MGP): the seven continents' plaques in the world's order (MASTERS), brass under the sweeping light where held, grey stone with the continent carved in where not.
+// THEIR case reads HQ v129's word (GET /defense tro.mst = [[cont, t, the squad's name], ...]; an older HQ sends none: no row, never a guess). MY case reads META.master (the ring where a gift still waits). The plates are still (no card from the case: #roomModal lives under #trcPage). Zero words, zero save keys.
+const VTP_W=36;   // a plate's css px on the case's bar (the globe's are 44: the head holds the title and two chips beside the row)
+function vtpIds(s){ return s.replace(/mstBrass/g,'vtpBrass').replace(/mgpClip/g,'vtpClip').replace(/mgpStone/g,'vtpStone'); }   // the plates' gradient + clip ids, this row's own: the globe's hidden row (glScrEl stands in the body, display:none) would otherwise be the first #mstBrassN in the document, and a paint server inside display:none paints nothing
+function vtpPlateHTML(c,on,owed){ return '<span class="mgp-pl vtp-pl'+(on? ' on' : ' off')+(owed? ' owed' : '')+'" data-c="'+c+'" title="'+escH(mstName(c))+'" aria-label="'+escH(mstName(c))+'">'+vtpIds(on? mstPlateBig(c,VTP_W)+mgpShineSVG(c,VTP_W) : mgpStoneSVG(c,VTP_W))+'</span>'; }
+function vtpRowHTML(held,owed){ held=held||[]; owed=owed||[]; return '<div class="trc-mgp" id="trcMgp" data-notr>'+MASTERS.map(m=>vtpPlateHTML(m[0], held.indexOf(m[0])>=0, owed.indexOf(m[0])>=0)).join('')+'</div>'; }
+function vtpMineRow(){ try{ return vtpRowHTML(mstEarned(), mstOwed()); }catch(e){ return ''; } }   // MY case: the plaques HQ named me (the ring = the gift waits, as on the globe)
+function vtrMst(D){ if(!D || !Array.isArray(D.mst)) return null; const o=[]; for(const r of D.mst){ if(Array.isArray(r) && MST_N[r[0]] && o.indexOf(r[0])<0) o.push(r[0]); } return o; }   // HQ's word for THEIR plaques: the continents held (null = an older HQ said nothing)
+function vtpTheirRow(D){ const h=vtrMst(D); return h? vtpRowHTML(h, []) : ''; }   // THEIR case: the row only when HQ spoke (an empty list = seven stone plates: none held)
+function vtpRig(){ const el=document.getElementById('trcMgp'), R=e=>{ const b=e.getBoundingClientRect(); return [+b.left.toFixed(1), +b.top.toFixed(1), +b.width.toFixed(1), +b.height.toFixed(1)]; }, Q=s=>{ const e=document.querySelector(s); return e? R(e) : null; };
+  return { cv:GVT_CV, w:VTP_W, row:el? R(el) : null, sw:el? el.scrollWidth : 0, cw:el? el.clientWidth : 0, sl:el? el.scrollLeft : 0, plates:el? Array.from(el.querySelectorAll('.vtp-pl')).map(e=>[e.dataset.c, e.classList.contains('on')? 'on' : 'off', e.classList.contains('owed')? 1 : 0].concat(R(e))) : [], x:Q('#trcPage .trc-x'), head:Q('#trcPage .trc-head'), h1:Q('#trcPage .trc-h1'), chips:Array.from(document.querySelectorAll('#trcPage .trc-chip')).map(R), mine:mstEarned(), theirs:vtrMst(VTR.d), ids:el? Array.from(el.querySelectorAll('[id]')).map(e=>e.id) : [] }; }
+// ═══ end of sec:CARD-VTP ═══
 function wrPosterHTML(row){
   const A=awayLedger(), d=A.done[row.uid];
   const nm=wrDress(row.name||'COMMANDER', row.uid, false);   // the 0328 law — the poster wears the board's own dressed name
@@ -180133,6 +180153,7 @@ window.GVT = {
   plateSeat(){ return fhPlateSeat(); },   // 1131 THE PLATE ABOVE THE HERO: the seat law's read — idempotent (it re-seats the standing plate and returns the computation: his top, the foot, the lift, the faces it rose over, the fold)
   // 0553 THE WESTERN WING test rig: the wing's rows, their live stats, the case total (0563: achCase().length — the case's own count, ACH.length minus a retired row the save never earned)
   trc(){ return trcProbe(); },   // CARD-TRC THE TROPHY CASE: the rig's read (the trophies, the seats, the page, the cabinet)
+  vtp(){ return vtpRig(); },   // CARD-VTP: the plaques row on the case's head bar (the plates, their seats, the ids)
   icl(){ return iclProbe(); },   // CARD-ICL THE ICE CAVES LOCK: the rig's read (the key, the win, the latch, the EASY chip, the lock art, the pin's line)
   l100(){ return l100Probe(); },   // CARD-L100 THE LEVEL 100 GIFT: the rig's read (the cell, what is owed, the readers at the summit)
   l100Take(k,id){ return l100Take(k,id); },   // CARD-L100: the rig's hand on the choice (the one writer)
