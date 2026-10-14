@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.74","md5":"39c82ff536d63eeefee68aa1498e7963","sha":"3bf0a320c","at":"2026-10-14T20:46:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.75","md5":"a79335f5ce458566aa771d1d678cb8dd","sha":"95bf3098e","at":"2026-10-14T20:58:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -85667,7 +85667,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -173462,6 +173462,7 @@ const MB_RAYS='<svg class="mb-rays" viewBox="0 0 100 100"><g fill="#D9A544" opac
 // TWO WON PARTS (TROPHY_IDS: never sold, never rolled, hidden until won; ENH_COST 0; their rooms show them won with the medal, the film and the switch, as THE ELDER SABER: R5G-Q4), granted by the SABER's and the SHOTGUN's rank-5 crossing on the pistol's rank-10 grammar: the pseudo-keys
 // 'sab5' and 'sg5' in META.wpnMile (an open dict: an older build keeps the rows inert), mileLvl reads WPN_MILE.giftLvl, mileCross marks the ledger and hands the part over OWNED and ON (R5G-Q6; an owner keeps his, no second grant, nothing refunded: R5G-Q3), the pick's bank (UI.pickW → PP_Q → ppPop) and
 // mileSweep's room door deal the moment (mileOpen → WPM.open: the stage's rows sab5 / sg5, then THE FILM PLATE inside WPM), the promotion wall's tease, the sheets' ladders and the manual's rows name the rung. Zero server, wire, sw.js bytes; zero new media (the Crystal Book's eight films and the lab's lab-riotshield ship already).
+// CARD-R5S THE GIFTS ARE SILENT FOR THE OWNERS (design/rank5-gifts-1014/02-BUILD-R5S.md; Wyatt by phone 10/14/2026 16:41 EDT, verbatim: "We don't need to announce "Telekinesis unlocked" or "The Riot Shield unlocked" for players who already have it, only for players, I guess, that never had Telekinesis unlocked already or The Riot Shield unlocked already. It's a gift for them, but if you already have those things, then the player shouldn't get this announcement."): mileCross's cross on a player who already OWNS the part (enhOwns: he bought it from the lab before 10/14) marks the ledger and deals NO moment, and nothing of his moves. The grant, the stage and the film plate are for the player who never had it. A rig reads own / on / mile off GVT.r5g() as before.
 const R5G={ sab5:'telekinesis', sg5:'riotshield' }, R5G_WEP={ sab5:'lightsaber', sg5:'shotgun' }, R5G_TEASE={ lightsaber:'TELEKINESIS', shotgun:'THE RIOT SHIELD' };   // the key → the part · the key → the weapon whose rank it reads · the wall's tease under rank giftLvl (pkTeaseText)
 function r5gGrant(wk){ const id=R5G[wk]; if(!id) return false; const was=enhOwns(id); grantOwned('enh',id); if(!enhOn(id)){ META.enh.on.push(id); enhExclude(id); } return !was; }   // at the cross: OWNED (grantOwned refuses an owned id: no second grant; the NEW! chip for a new one) and FITTED (the gift exception to the perk-stays-off law; the lab's switch still works; the exclusion door walks as every ON does)
 function r5gRig(){ const tv=document.querySelector('#milePop .wpm-tv'), v=tv&&tv.querySelector('video'), src=v&&v.querySelector('source'), st=(typeof WPM!=='undefined')? WPM.rig('state') : null, q=tv? tv.getBoundingClientRect() : null, up=(META.sargeUp||{});   // the rig door GVT.r5g(): the ledger, the parts, the stage's plate as the glass shows it
@@ -173511,7 +173512,7 @@ function mileCross(wk){
   const r = bw==='pistol'? pistolRank() : Math.min(RANK_MAX,(META.sargeUp[bw]||0));
   if(r<mileLvl(wk)) return null;
   META.wpnMile[wk]=1;
-  if(R5G[wk]) r5gGrant(wk);   // CARD-R5G: at the cross the gift lands OWNED and ON (R5G-Q6); an owner keeps his, no second grant, nothing refunded (R5G-Q3)
+  if(R5G[wk]){ if(enhOwns(R5G[wk])){ saveMeta(); return null; } r5gGrant(wk); }   // CARD-R5G: at the cross the gift lands OWNED and ON (R5G-Q6) · CARD-R5S THE OWNERS GET NO MOMENT (Wyatt by phone 10/14/2026 16:41 EDT, verbatim: "We don't need to announce "Telekinesis unlocked" or "The Riot Shield unlocked" for players who already have it, only for players, I guess, that never had Telekinesis unlocked already or The Riot Shield unlocked already. It's a gift for them, but if you already have those things, then the player shouldn't get this announcement."): a player who already HAS the part (he bought it before it became a gift) is told nothing and nothing of his moves (no grant, his drawer as he left it; R5G-Q3's law stands: nothing clawed back, nothing refunded); the ledger still marks, saved here because no caller sees a key, so the cross never asks again. The gift and its announcement are for the player who never had it
   return wk;
 }
 // ===== SARGE'S GEAR sweep (v1.70) — the second door on the gear gate. The
