@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.72","md5":"f9a9eb4cbe6c6251af0961e6d4f047cb","sha":"0ffbf52b2","at":"2026-10-14T20:16:41Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.73","md5":"6e198b4e37e39d6161b51e3131caa8e0","sha":"69f24988a","at":"2026-10-14T20:22:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -2419,6 +2419,15 @@
   @keyframes pkmenace { 0%,38%,100%{transform:rotate(0deg)} 48%,60%{transform:rotate(7deg)} 66%{transform:rotate(-3deg)} 72%{transform:rotate(5deg)} 80%{transform:rotate(0deg)} }
   #parkBg .wdl { animation:pkwaddle 0.85s ease-in-out infinite alternate; }
   @keyframes pkwaddle { from{transform:rotate(-6deg)} to{transform:rotate(6deg)} }
+  /* CARD-MVL THE MOVEMENT LAW (from Laura; design/move-law-1014): a walker's gait bob and the greet hop ride the INNER wrapper (.mvl-gait); the outer (.mvl)
+     carries the law's transform attribute (a CSS transform would override it). Reduced motion: no bob, no hop (the law dresses nothing then anyway). */
+  .mvl-gait { transform-box:fill-box; transform-origin:50% 100%; }
+  .mvl-go > .mvl-gait { animation:mvlStep 0.36s ease-in-out infinite alternate; }
+  .mvl-hop > .mvl-gait { animation:mvlHop 0.5s ease-out 1; }
+  .mvl-wait > .mvl-gait { animation:none; }
+  @keyframes mvlStep { from{transform:translateY(0) rotate(-1.6deg)} to{transform:translateY(-2.5px) rotate(1.6deg)} }
+  @keyframes mvlHop { 0%{transform:translateY(0)} 40%{transform:translateY(-9px)} 100%{transform:translateY(0)} }
+  @media (prefers-reduced-motion: reduce){ .mvl-go > .mvl-gait, .mvl-hop > .mvl-gait { animation:none; } }
   #parkBg .sklrock { animation:pksklrock 4.4s ease-in-out infinite; }
   @keyframes pksklrock { 0%,100%{transform:rotate(-2.4deg)} 50%{transform:rotate(2.4deg)} }
   #parkBg .volcSmoke circle { animation:pkvsmoke 5.2s ease-in infinite; }
@@ -85644,7 +85653,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.72';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.73';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -158563,6 +158572,102 @@ const DPV_ART={ canopy:'<g class="dpv-canopy"><path d="M150 0 L470 0 Q450 42 380
 function dpvRig(o){ o=o||{}; if(o.on!==undefined){ DPV.on=o.on? 1 : 0; delete PARK_HERO.dino; if(typeof parkSceneOpen==='function' && parkSceneOpen() && PARK_CUR==='dino') paintParkScene(false); }
   const bg=document.getElementById('parkBg'), fl=document.getElementById('parkFlyer'); return { on:DPV.on, gate:!!(bg && bg.querySelector('.dpv-gate')), far:!!(bg && bg.querySelector('.dpv-far')), canopy:!!(bg && bg.querySelector('.dpv-canopy')), volc:!!(bg && bg.querySelector('.dpv-volc')), brachio:!!(bg && bg.querySelector('.dpv-br')), fly:!!(fl && fl.classList.contains('dpv-fly')), rays:!!(bg && bg.querySelector('.dpv-rays')), rexAl:bg? bg.querySelectorAll('use[href="#dpvRexAl"]').length : 0, trikeAl:!!(bg && bg.querySelector('[id^="dpvAT"]')), dfkAl:!!document.querySelector('#dfk [id^="dpvAD"]'), pond5:!!(bg && bg.querySelector('#dinoPond .dpv-pond5')), skullAl:!!(bg && bg.querySelector('.sklrock [id^="dpvAK"]')), pteroAl:!!(fl && fl.querySelector('[id^="dpvAP"]')), mid:bg? bg.querySelectorAll('.dpv-tf, .dpv-cy, .dpv-bu, .dpv-mo').length : 0 }; }
 // ═══ end of sec:CARD-DPV ═══
+// ═══ sec:CARD-MVL THE MOVEMENT LAW (design/move-law-1014/00-DESIGN-MVL.md; FROM LAURA, jumpr guest link 10/14/2026 15:18 EDT, verbatim: "Make sure across all parks and bedroom animations are consistent. How things move around all rooms from conga to bedroom should all be consistent. Things move and spaced consistently, keeping in mind when theres a bed on the floor, like in the attic, or can be on surafces and gravity, like in the bedroom." · her WhatsApp 15:22: "For Dino Park, please do a pass to keep all systems and animations simialr but in this style. I want to see an example before it is pushed live"). ═══
+// ONE LAW for how a thing moves about a floor, the same in every room and park; a SCENE ADAPTER per place names the floor, what is walked round, where the painting's depth vanishes, and who walks. THE FIRST SLICE: Dino Park, DARK (MVL.on 0 for every player; ?mvl=1 turns it on for that device: her example in the real game before anyone else sees it, her 10/11 rule; her go flips the gate).
+//   THE GAITS: a pace is the time to cross the stage at the front of the floor: stroll 24 s · walk 16 s · trot 11 s · dash 7 s (the bedroom's dogs 42 px/s on 960 = 23 s = a stroll; the cat 64 = 15 s = a walk; the ballroom's nutcracker 62 on 1600 = 26 s = a stroll; the mice 130 = 12 s = a trot). Farther back the same pace is fewer px/s, by the depth law.
+//   THE DEPTH LAW: a figure's size and its pace follow its feet: k = (feet y − the vanishing line) / (its painted feet y − the vanishing line) (CARD-NBW's law, the ballroom).
+//   THE SPACING: a walker never picks a seat inside another's bubble (1.2 bodies, at the seat's own depth); on the way the smaller stands while the bigger passes ahead of it (the cat yields to the dogs), and after 1.5 s takes a seat away from it instead. Two at their PAINTED seats are the painter's composition: a home is a home.
+//   THE FLOOR + THE WALK-ROUNDS: a seat is drawn inside the floor and outside every keep-out (the pond, a bed on the floor, a rock, the chrome's corners), padded by half the body; a leg that would enter a keep-out bends round its nearest corner (every leg checked against every keep-out, up to four bends). A seat under the chrome is left at the first tick.
+//   THE DEPTH ORDER: the near paints over the far (feet-sorted among the walkers; a split node = the painting's own middle ground, the pond: behind it before it, in front of it after its mounds; one DOM move only when the order changes).
+//   THE REST + THE GREET: a walker arriving beside another (150, × the depth) turns to it and both hop once (the ballroom's bow, the dogs' sniff).
+//   SURFACES + GRAVITY (the bedroom's law, stated here, built in the rooms' own cards): a thing set on a catch (a shelf, the bed, the sill, the attic's mattress) rests and sits; let go in the air it falls to the first catch below; a walker's loop is dealt from the floor alone.
+//   Zero server / wire / save / word bytes. GVT.mvl(o) is the rig door. With the gate shut (or reduced motion) mvlDress touches nothing: the painting is byte for byte today's.
+const MVL={ on:(function(){ try{ const q=/[?&]mvl=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_mvl','1'); else localStorage.removeItem('gvt_mvl'); } return localStorage.getItem('gvt_mvl')==='1'? 1 : 0; }catch(e){ return 0; } })(),   // THE GATE: DARK for every player; ?mvl=1 = on for this device (gvt_mvl), ?mvl=0 = off again (CARD-DPV's grammar). Her go = `on:1` here, ?mvl=0 the way off on a device
+  W:1600, gaits:{ stroll:24, walk:16, trot:11, dash:7 }, every:[2.5,5.5], max:2, home:0.2, gap:1.2, greet:150, yieldMax:1.5, minLeg:90, scene:null, sv:null, st:{}, raf:null, t:null, last:0, log:[] };   // every = seconds between walks · max = walking at once · home = the share of walks that go home · gap = bodies between two walkers · greet = a neighbour's reach (px at the front) · yieldMax = s the smaller waits · minLeg = the shortest walk
+const MVL_NS='http://www.w3.org/2000/svg';
+// THE SCENES: the floor (feet space, the painting's units), the keep-outs (feet inside = never), the vanishing line, the split node, the walkers read off the painting (each: its node, its feet, its art scale, its body (w, h at scale 1), which way its art faces, its gait)
+const MVL_SCENES={
+  dino:{ vp:300, floor:{ x0:330, x1:1540, y0:478, y1:612 },
+    keep:[ { id:'pond', x0:680, x1:920, y0:500, y1:600 }, { id:'trike', x0:640, x1:820, y0:440, y1:545 }, { id:'skull', x0:1300, x1:1475, y0:430, y1:530 }, { id:'corner', x0:1240, x1:1600, y0:528, y1:650 } ],   // the watering hole and its bank · the trike at the west lip · the skull rock · the GROUP button's corner on a phone + the east wing (⚑ MVL-F4: a later round reads the chrome's rects live)
+    split:{ sel:'#dinoPond', y:575, after:'.dpv-mo' },   // behind the pond's waterline = before the pond node; in front = after its mossy mounds
+    svg(){ const bg=document.getElementById('parkBg'); return bg? bg.querySelector('svg.phero') : null; },
+    live(){ try{ return parkSceneOpen() && PARK_CUR==='dino' && dpvOn(); }catch(e){ return false; } },
+    walkers(sv){ const out=[];
+      sv.querySelectorAll('use[href="#dpvRexAl"]').forEach(function(u,i){ const f=u.parentNode, d=f.parentNode; if(!d || d.parentNode!==sv) return; const m=/translate\(([-\d.]+)[ ,]+([-\d.]+)\)\s*scale\(([-\d.]+)\)/.exec(f.getAttribute('transform')||''); if(!m) return; const s=+m[3];
+        out.push({ id:'rex'+(i+1), el:d, x:+m[1]+70*s, y:+m[2]+130*s, s:s, bw:124*s, bh:98*s, face:'l', gait:'walk', trot:0.3, home:(i===2)? [1060,556] : null }); });   // the three little rexes (Al's Tin Rex): the art looks west; one walk in three a trot; the third stood under the GROUP button on a phone (MVL-F1), so his home moves east of the pond
+      const w=sv.querySelector('.wdl'); if(w){ const a=w.parentNode, b=a&&a.parentNode; if(b && b.parentNode===sv){ const m=/translate\(([-\d.]+)[ ,]+([-\d.]+)\)\s*scale\(([-\d.]+)\)/.exec(b.getAttribute('transform')||''); if(m){ const s=+m[3]; out.push({ id:'hatch', el:b, x:+m[1]+60*s, y:+m[2]+129*s, s:s, bw:70*s, bh:100*s, face:'', gait:'dash', run:[80,240], weight:2 }); } } }   // the hatchling: short dashes, picked twice as often
+      return out; } }
+};
+function mvlK(w, y){ const vp=MVL.scene.vp; return Math.max(0.4, Math.min(2.4, (y-vp)/(w.py-vp))); }   // THE DEPTH LAW: the size at these feet (1 at the painted seat)
+function mvlPx(gait, y){ const sc=MVL.scene, vp=sc.vp; return (MVL.W/(MVL.gaits[gait]||16))*Math.max(0.3, (y-vp)/(sc.floor.y1-vp)); }   // the pace in px/s at these feet (the table's crossing at the front, fewer px/s farther back)
+function mvlIn(sc, x, y, pad){ const f=sc.floor; if(x<f.x0+pad || x>f.x1-pad || y<f.y0 || y>f.y1) return false; for(let i=0;i<sc.keep.length;i++){ const k=sc.keep[i]; if(x>=k.x0-pad && x<=k.x1+pad && y>=k.y0 && y<=k.y1) return false; } return true; }
+function mvlCrossT(x0, y0, x1, y1, k, pad){ const bx0=k.x0-pad, bx1=k.x1+pad, by0=k.y0, by1=k.y1, dx=x1-x0, dy=y1-y0; let t0=0, t1=1; const P=[-dx,dx,-dy,dy], Q=[x0-bx0,bx1-x0,y0-by0,by1-y0];   // Liang-Barsky: where the leg enters the padded box (0..1), or -1
+  for(let i=0;i<4;i++){ if(P[i]===0){ if(Q[i]<0) return -1; } else { const t=Q[i]/P[i]; if(P[i]<0){ if(t>t1) return -1; if(t>t0) t0=t; } else { if(t<t0) return -1; if(t<t1) t1=t; } } } return t0; }
+function mvlHolds(k, x, y, pad){ return x>=k.x0-pad && x<=k.x1+pad && y>=k.y0 && y<=k.y1; }
+function mvlFirstHit(sc, ax, ay, tx, ty, pad){ let best=null, bt=2; for(let i=0;i<sc.keep.length;i++){ const k=sc.keep[i]; if(mvlHolds(k, ax, ay, pad)) continue;   /* the start stands in this one's padded box: it is being left, not crossed */ const t=mvlCrossT(ax, ay, tx, ty, k, pad); if(t>=0 && t<bt){ bt=t; best=k; } } return best; }   // the nearest keep-out the leg would enter
+function mvlRoute(sc, ax, ay, tx, ty, pad, depth){   // the legs from (ax,ay) to (tx,ty): straight, or round the nearest keep-out's corner (every leg checked against every keep-out; up to four bends)
+  const hit=mvlFirstHit(sc, ax, ay, tx, ty, pad); if(!hit) return [[tx,ty]]; if(depth>=4) return null; const m=pad+6;
+  const cs=[[hit.x0-m,hit.y0-6],[hit.x1+m,hit.y0-6],[hit.x0-m,hit.y1+6],[hit.x1+m,hit.y1+6]].filter(function(c){ return mvlIn(sc, c[0], c[1], 0) && !mvlFirstHit(sc, ax, ay, c[0], c[1], pad); }); if(!cs.length) return null;
+  cs.sort(function(a,b){ return (Math.hypot(a[0]-ax,a[1]-ay)+Math.hypot(tx-a[0],ty-a[1]))-(Math.hypot(b[0]-ax,b[1]-ay)+Math.hypot(tx-b[0],ty-b[1])); });
+  for(let j=0;j<cs.length;j++){ const rest=mvlRoute(sc, cs[j][0], cs[j][1], tx, ty, pad, depth+1); if(rest) return [cs[j]].concat(rest); } return null; }
+function mvlExit(sc, w){   // standing inside a keep-out (a seat under the chrome): the nearest point just outside it that is clear on the floor
+  for(let i=0;i<sc.keep.length;i++){ const k=sc.keep[i]; if(w.x<k.x0 || w.x>k.x1 || w.y<k.y0 || w.y>k.y1) continue; const m=w.bw/2+6;
+    const c=[[k.x0-m,w.y],[k.x1+m,w.y],[w.x,k.y0-6],[w.x,k.y1+6]].filter(function(q){ return mvlIn(sc, q[0], q[1], w.bw/2); }); if(!c.length) return null; c.sort(function(a,b){ return Math.hypot(a[0]-w.x,a[1]-w.y)-Math.hypot(b[0]-w.x,b[1]-w.y); }); return c[0]; }
+  return null; }
+function mvlGapPx(a, b, ay){ const kb=Math.max(mvlK(b,b.y), b.go? mvlK(b,b.ty) : 0); return MVL.gap*Math.max(a.bw*mvlK(a, ay==null? a.y : ay), b.bw*kb); }   // the bodies at the seat in question (ay) and at the other's deepest seat (where it stands, or where it is going)
+function mvlCrowded(w, x, y, away){ if(away){ const dx=x-w.x, dy=y-w.y, ex=away.x-w.x, ey=away.y-w.y; if(dx*ex+dy*ey>0) return true; }   /* giving way: the new seat lies away from the one in the way */ for(const id in MVL.st){ const o=MVL.st[id]; if(o===w) continue; const g=mvlGapPx(w,o,y), pts=[[o.x,o.y]]; if(o.go && o.legs){ pts.push([o.tx,o.ty]); } for(let i=0;i<pts.length;i++){ const dx=x-pts[i][0], dy=y-pts[i][1]; if(dx*dx+dy*dy<g*g) return true; } } return false; }
+function mvlTarget(w, away){ const sc=MVL.scene, f=sc.floor, pad=w.bw/2;
+  if(!away && Math.random()<MVL.home && (Math.abs(w.x-w.hx)>1 || Math.abs(w.y-w.hy)>1) && mvlIn(sc, w.hx, w.hy, 0) && !mvlCrowded(w, w.hx, w.hy)) return [w.hx, w.hy];   // now and then a walker goes home
+  for(let i=0;i<60;i++){ let x, y; if(w.run){ const r=w.run[0]+Math.random()*(w.run[1]-w.run[0]), a=Math.random()*Math.PI*2; x=w.x+Math.cos(a)*r; y=w.y+Math.sin(a)*r*0.45; } else { x=f.x0+Math.random()*(f.x1-f.x0); y=f.y0+Math.random()*(f.y1-f.y0); }
+    x=Math.round(x); y=Math.round(y); if(!mvlIn(sc, x, y, pad)) continue; const dx=x-w.x, dy=y-w.y; if(dx*dx+dy*dy<MVL.minLeg*MVL.minLeg) continue; if(mvlCrowded(w, x, y, away)) continue; return [x, y]; }
+  return null; }
+function mvlPlace(w){ const k=mvlK(w, w.y), f=(w.face==='l' && w.dir>0)? -1 : 1;   // the art that looks west is mirrored to walk east
+  w.wrap.setAttribute('transform', 'translate('+(w.x-w.px).toFixed(1)+' '+(w.y-w.py).toFixed(1)+') translate('+w.px+' '+w.py+') scale('+(f*k).toFixed(3)+' '+k.toFixed(3)+') translate('+(-w.px)+' '+(-w.py)+')'); }   // about the PAINTED feet (px,py): slid to (x,y), scaled by the depth, mirrored to face its way
+function mvlWrap(sv, w){ const g=document.createElementNS(MVL_NS,'g'), inner=document.createElementNS(MVL_NS,'g'); g.setAttribute('class','mvl'); g.setAttribute('data-fig', w.id); inner.setAttribute('class','mvl-gait'); sv.insertBefore(g, w.el); g.appendChild(inner); inner.appendChild(w.el); w.wrap=g; w.inner=inner; }
+function mvlLeg(w, pt){ w.leg={ x0:w.x, y0:w.y, x1:pt[0], y1:pt[1] }; const d=Math.hypot(pt[0]-w.x, pt[1]-w.y), ym=(w.y+pt[1])/2; w.dur=Math.max(0.15, d/mvlPx(w.gaitNow, ym)); w.p=0; if(Math.abs(pt[0]-w.x)>2){ const dd=(pt[0]>w.x)? 1 : -1; if(dd!==w.dir){ w.dir=dd; mvlPlace(w); } } }   // the facing turns the moment a leg is dealt
+function mvlWalk(id, x, y, gait){ const w=MVL.st[id]; if(!w || w.go) return false; const sc=MVL.scene, pad=w.bw/2; let legs=null, ax=w.x, ay=w.y, pre=[];
+  if(!mvlIn(sc, ax, ay, 0)){ const e=mvlExit(sc, w); if(!e) return false; pre=[e]; ax=e[0]; ay=e[1]; }   // out from under the chrome first
+  legs=mvlRoute(sc, ax, ay, x, y, pad, 0); if(!legs) return false; legs=pre.concat(legs);
+  w.go=1; w.tx=x; w.ty=y; w.wait=0; w.waited=0; w.gaitNow=gait||((w.trot && Math.random()<w.trot)? 'trot' : w.gait); w.nLegs=legs.length; w.legs=legs; mvlLeg(w, w.legs.shift()); w.wrap.classList.remove('mvl-hop'); w.wrap.classList.add('mvl-go'); w.t0=performance.now();
+  MVL.log.push({ id:id, from:[Math.round(w.leg.x0), Math.round(w.leg.y0)], to:[x, y], legs:w.nLegs, gait:w.gaitNow, t:Math.round(performance.now()) }); if(MVL.log.length>200) MVL.log.shift();
+  if(!MVL.raf){ MVL.last=performance.now(); MVL.raf=requestAnimationFrame(mvlFrame); } return true; }
+function mvlStop(w, again){ w.go=0; w.legs=null; w.wrap.classList.remove('mvl-go'); w.wrap.classList.remove('mvl-wait'); if(again) w.again=performance.now()+400; }
+function mvlYield(w){ for(const id in MVL.st){ const o=MVL.st[id]; if(o===w) continue; const g=mvlGapPx(w,o), dx=o.x-w.x, dy=o.y-w.y; if(dx*dx+dy*dy>=g*g) continue;
+    const ahead=(w.leg.x1-w.leg.x0)*dx+(w.leg.y1-w.leg.y0)*dy; if(ahead<=0) continue;   // only what stands in the way counts
+    const mine=w.bw*mvlK(w,w.y), its=o.bw*mvlK(o,o.y); if(its>mine*1.05 || (Math.abs(its-mine)<=mine*0.05 && (!o.go || o.id<w.id))) return o; } return null; }   // the smaller yields; equals: the one standing, else the lower name
+function mvlGreet(w){ let best=null, bd=MVL.greet*mvlK(w,w.y); for(const id in MVL.st){ const o=MVL.st[id]; if(o===w || o.go) continue; const d=Math.hypot(o.x-w.x, o.y-w.y); if(d<bd){ bd=d; best=o; } } if(!best) return;
+  if(Math.abs(best.x-w.x)>2){ w.dir=(best.x>w.x)? 1 : -1; best.dir=(w.x>best.x)? 1 : -1; mvlPlace(w); mvlPlace(best); }   // the two turn to each other
+  for(const o of [w, best]){ o.wrap.classList.remove('mvl-hop'); void o.wrap.getBoundingClientRect(); o.wrap.classList.add('mvl-hop'); } MVL.log.push({ greet:[w.id, best.id], t:Math.round(performance.now()) }); }
+function mvlOrder(){ const sc=MVL.scene, sv=sc.svg(); if(!sv) return; const split=sv.querySelector(sc.split.sel); if(!split) return; const ws=Object.keys(MVL.st).map(function(id){ return MVL.st[id]; }).sort(function(a,b){ return a.y-b.y; });
+  const behind=ws.filter(function(w){ return w.y<sc.split.y; }), front=ws.filter(function(w){ return w.y>=sc.split.y; });
+  let ref=split; for(let i=behind.length-1;i>=0;i--){ const w=behind[i]; if(w.wrap.nextElementSibling!==ref) sv.insertBefore(w.wrap, ref); ref=w.wrap; }   // behind the waterline: the farthest first, the nearest just before the pond
+  let anchor=split, e=split.nextElementSibling; while(e && e.matches && e.matches(sc.split.after)){ anchor=e; e=e.nextElementSibling; }
+  ref=anchor; for(let i=0;i<front.length;i++){ const w=front[i]; if(ref.nextElementSibling!==w.wrap) sv.insertBefore(w.wrap, ref.nextElementSibling); ref=w.wrap; } }   // in front: after the mounds, the farthest first
+function mvlFrame(now){ MVL.raf=null; const sc=MVL.scene, sv=sc && sc.svg(), dt=Math.min(0.1, Math.max(0, (now-MVL.last)/1000)); MVL.last=now; let busy=0, moved=0;
+  for(const id in MVL.st){ const w=MVL.st[id]; if(!w.go) continue; if(!sv || !sv.contains(w.wrap)){ w.go=0; continue; }
+    const y=mvlYield(w); if(y){ w.wait+=dt; w.waited=(w.waited||0)+dt; w.wrap.classList.add('mvl-wait'); if(w.wait>MVL.yieldMax){ mvlStop(w, 1); MVL.log.push({ gaveWay:w.id, to:y.id, t:Math.round(now) }); let t2=mvlTarget(w, y) || mvlTarget(w); if(!t2){ const L=w.leg, dl=Math.hypot(L.x1-L.x0, L.y1-L.y0)||1, g=mvlGapPx(w, y), bx=Math.round(w.x-(L.x1-L.x0)/dl*g), by=Math.round(w.y-(L.y1-L.y0)/dl*g); if(mvlIn(MVL.scene, bx, by, w.bw/2)) t2=[bx, by]; }   /* a seat away from the one in the way, else any clear seat, else a step back the way it came */ if(t2){ w.again=0; mvlWalk(id, t2[0], t2[1], w.gaitNow); } } busy++; continue; }
+    if(w.wait){ w.wait=0; w.wrap.classList.remove('mvl-wait'); }
+    w.p=Math.min(1, w.p+dt/w.dur); const L=w.leg; w.x=L.x0+(L.x1-L.x0)*w.p; w.y=L.y0+(L.y1-L.y0)*w.p; mvlPlace(w); moved=1;
+    if(w.p>=1){ w.x=L.x1; w.y=L.y1; if(w.legs && w.legs.length){ mvlLeg(w, w.legs.shift()); busy++; } else { mvlStop(w, 0); MVL.log.push({ arrive:id, at:[Math.round(w.x), Math.round(w.y)], waited:+(w.waited||0).toFixed(2), t:Math.round(now) }); mvlGreet(w); } } else busy++; }
+  if(moved) mvlOrder(); if(busy) MVL.raf=requestAnimationFrame(mvlFrame); }
+function mvlLive(){ const sc=MVL.scene; return !!(MVL.on && sc && sc.live() && sc.svg() && !(typeof reducedMotion==='function' && reducedMotion())); }
+function mvlTick(){ MVL.t=null; if(!mvlLive()) return;
+  if(!document.hidden){ const now=performance.now(), free=[]; let going=0; for(const id in MVL.st){ const w=MVL.st[id]; if(w.go) going++; else if(!(w.again && w.again>now)){ const n=w.weight||1; for(let i=0;i<n;i++) free.push(id); } }
+    if(free.length && going<MVL.max){ const id=free[Math.floor(Math.random()*free.length)], w=MVL.st[id], t=mvlTarget(w); if(t) mvlWalk(id, t[0], t[1]); } }
+  MVL.t=setTimeout(mvlTick, (MVL.every[0]+Math.random()*(MVL.every[1]-MVL.every[0]))*1000); }
+function mvlStopAll(){ if(MVL.t){ clearTimeout(MVL.t); MVL.t=null; } if(MVL.raf){ cancelAnimationFrame(MVL.raf); MVL.raf=null; } }
+function mvlDress(){   // paintParkScene's last call: the park's walkers under the law (nothing at all with the gate shut or reduced motion: the painting stays today's); the same painting dressed again = the ticker alone
+  const sc=MVL_SCENES[PARK_CUR]||null, sv=sc? sc.svg() : null;
+  if(sc && sv && MVL.scene===sc && MVL.sv===sv && sv.querySelector('g.mvl')){ if(!MVL.t && mvlLive()) MVL.t=setTimeout(mvlTick, 1500); return Object.keys(MVL.st).length; }
+  mvlStopAll(); MVL.st={}; MVL.scene=sc; MVL.sv=sv; if(!sc || !sv || !MVL.on || (typeof reducedMotion==='function' && reducedMotion())) return 0;
+  const ws=sc.walkers(sv); for(let i=0;i<ws.length;i++){ const w=ws[i]; w.px=w.x; w.py=w.y; w.hx=w.x; w.hy=w.y; w.dir=(w.face==='l')? -1 : 1; w.go=0; w.wait=0; if(w.home){ w.hx=w.home[0]; w.hy=w.home[1]; } mvlWrap(sv, w); mvlPlace(w); MVL.st[w.id]=w; }
+  mvlOrder(); if(!mvlLive()) return ws.length;
+  for(const id in MVL.st){ const w=MVL.st[id]; if(!mvlIn(sc, w.x, w.y, 0) && w.home) mvlWalk(id, w.hx, w.hy, 'walk'); }   // a seat under the chrome is left at once
+  MVL.t=setTimeout(mvlTick, (1.5+Math.random()*1.5)*1000); return ws.length; }
+function mvlRig(o){ o=o||{}; if(o.every) MVL.every=o.every; if(o.max!=null) MVL.max=o.max; if(o.on!=null) MVL.on=o.on? 1 : 0; if(o.walk) mvlWalk(o.walk[0], o.walk[1], o.walk[2], o.walk[3]); if(o.dress) mvlDress(); if(o.stop) mvlStopAll();
+  const st={}; for(const id in MVL.st){ const w=MVL.st[id]; st[id]={ x:+w.x.toFixed(1), y:+w.y.toFixed(1), px:w.px, py:w.py, hx:w.hx, hy:w.hy, go:w.go, dir:w.dir, k:+mvlK(w,w.y).toFixed(3), bw:w.bw, gait:w.gaitNow||w.gait, tx:w.tx, ty:w.ty, wait:+(w.wait||0).toFixed(2), legs:w.legs? w.legs.length : 0 }; }
+  return { on:MVL.on, scene:MVL.scene? Object.keys(MVL_SCENES).find(function(k){ return MVL_SCENES[k]===MVL.scene; }) : null, every:MVL.every, max:MVL.max, gaits:MVL.gaits, st:st, log:MVL.log.slice(-40) }; }
+// ═══ end of sec:CARD-MVL ═══
 // ═══ CARD-YPB · YETI PARK: BIRCHES, BUSHES, SNOW MOUNDS, SUNLIGHT STREAMING IN (FROM AL, the lead designer, by the jumpr guest link, 10/13/2026 13:08 EDT, verbatim: "lets update YETI PARK. I want to diversify trees (birch trees and bushes). Add some mounds of snow. Sunlight streaming in. Based on the following images" + four Klaus backgrounds: tall birches with dark bark rings framing a golden winter wood, bare twig bushes under snow caps, rounded drifts, light streaming in from the upper left). Her live switch (Wyatt 10/8 18:30) = on for every player; ?ypb=0 a device key turns it off (the aurora night as shipped, byte for byte), ?ypb=1 clears it. Every piece is a pure addition to parkHeroSVG('yeti')'s night branch on a .ypb-* node: THE DAWN (ypbSkySVG: a warm winter-dawn veil over the night sky, the stars and the aurora fading at the top, the sun where the moon sat, its glow, five rays streaming down and to the right), THE TREES (ypbBirch among the pines, two tall ones framing the edges; ypbBush = twig fans under snow caps), THE MOUNDS (ypbMound, lit from the sun's side, a blue shadow side), warm light pools and the trees' long blue shadows on the snow. Laura's dark ?ypv=1 painting is untouched (YPB-F1). GVT.ypb({on:0|1}) for a rig (the memos dropped). ═══
 const YPB={ on:(function(){ try{ const q=/[?&]ypb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_ypb','0'); else localStorage.removeItem('gvt_ypb'); } return localStorage.getItem('gvt_ypb')==='0'? 0 : 1; }catch(e){ return 1; } })() };
 function ypbOn(){ try{ return !!YPB.on; }catch(e){ return false; } }
@@ -163669,6 +163774,7 @@ function paintParkScene(dpk){
       +'<button type="button" id="castleHot" onclick="UI.castleTap()">'+(META.silverKey? '<span class="key"><svg viewBox="0 0 36 36" style="display:block;width:100%">'+PK_KEYGLYPH+'</svg></span>' : '')+'</button>';   // 0278k Wyatt 8/13: the door stands keyless too — a locked tap speaks the hunt hint (castleTap); only the key glyph stays keyed
   }
   parkSceneLayout();
+  try{ mvlDress(); }catch(e){}   // CARD-MVL THE MOVEMENT LAW (from Laura): the park's walkers under the law, dark behind ?mvl=1 (sec CARD-MVL); with the gate shut the painting is untouched
 }
 // ONE mapping for every positioned mover: scene units → px under the hero's
 // crop (s=max cover scale, centred offsets — their demo's layoutScene).
@@ -164139,7 +164245,7 @@ function openParkScene(id){
   locSync();   // 0444: the park's bed fades in over the room's (the tap is the gesture; the autoplay law holds)
   if(PARK_CUR==='moon') mgEntryChord();   // 0997: THE MOON GARDEN's entry takes the hedge door's chord — one chord per arrival (the four-right's own chord counts; the code's fanfare has its say first)
 }
-function closeParkScene(){ document.getElementById('parkscene').classList.add('hidden'); stageResync(); grpBtnSync();   // 1020 THE SMALL BEDROOM AFTER THE FORT (⚑ FR-Q1): the same family, the same hole — the room re-reads its scale at every full-stage ✕   // 0561b: the GROUP button re-homes (the room, or the scene still standing under this one)
+function closeParkScene(){ document.getElementById('parkscene').classList.add('hidden'); try{ mvlStopAll(); }catch(e){} /* CARD-MVL: the walks stop with the door */ stageResync(); grpBtnSync();   // 1020 THE SMALL BEDROOM AFTER THE FORT (⚑ FR-Q1): the same family, the same hole — the room re-reads its scale at every full-stage ✕   // 0561b: the GROUP button re-homes (the room, or the scene still standing under this one)
   if(COOP && COOP.campWish) COOP.campWish=null;   // the wish dies with the door (leave-truth)
   clearTimeout(CREW.pollT); crewTick();
   locSync(); themeHome(); msPauseSync(); }   // CARD-BMR: ...and on the bedroom's floor, where no bed answers, THE THEME comes back (themeHome: the ferry's knock; BEAR PARK's gate was the first park inside the bedroom, and its ✕ left the room silent)   // 1021 THE MOON GARDEN AND THE PALACE AT FULL SPEED, ROUND TWO: the room's loops run again at the ✕   // 0444: ...and the room's bed comes back when the gate closes
@@ -182790,6 +182896,7 @@ window.GVT = {
   ywf(o){ return ywfRig(o); },   // CARD-YPV R4: the winter field ({ on } + the read)
   yps(o){ return ypsRig(o); },   // CARD-YPV R4: Yeti Park's slide ({ on } + the key)
   dpv(o){ return dpvRig(o); },   // CARD-DPV: Dino Park's new pieces ({ on } + the read)
+  mvl(o){ return mvlRig(o); },   // CARD-MVL: the movement law's rig door ({ every, max, on, walk, dress, stop } + the walkers' seats and the log)
   cmx(o){ return cmxRig(o); },   // CARD-CMX: the campaign maps 5 to 10 (the dealt rung's read: name, mines, the village's guide counters, L9's bridge row)   // CARD-DPV: Dino Park's new pieces ({ on } + the read)   // CARD-YPV: Yeti Park's new painting ({ on } + the read)   // CARD-RPD: the replay pick ({ c · p · t } + the read)
   pth(){ return pthRig(); },   // CARD-PTH: the dealt rung's road (on, its character, bends, least gap to the ground, its two ends)
   // ===== 0605 THE RANK-50 ULTIMATES rig doors — the door, the clocks, the rect, the consts
