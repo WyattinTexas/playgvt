@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.51","md5":"99cbb7b81af8bb2328d56a19ddd7b3e1","sha":"e63fefdef","at":"2026-10-14T15:55:19Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.52","md5":"fea4359b14e2c736c85cd33d734fc121","sha":"8202e905a","at":"2026-10-14T15:58:53Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -85250,7 +85250,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.51';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.52';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -95973,7 +95973,7 @@ function startBattlefield(mapId,diffOverride,teamSize,plan,rivX){
   // deterministic replay path ever reads a battleground back); a private
   // room never reaches here with 'random' — its draw was made at room birth.
   const mapReq=mapId||META.bfMap;
-  const map=bfMap(bfMapResolve(mapReq));
+  const map=tsnMap(bfMap(bfMapResolve(mapReq)));   // CARD-TSN THE TUTORIAL'S SNOWFIELD: the opener's mint alone reads THE CROSSING with the snow on (dark till Wyatt's word; every other door gets the row itself)
   // v2.52: a queue hands its own RANDOM army in (rivX); every direct caller —
   // the daily raid above all — keeps todaysRival exactly as before
   const riv=rivX||todaysRival();
@@ -177937,6 +177937,20 @@ function ptDoorFallback(e){
 // stamp (absent = owed: a kid who closes the app mid-fight meets it again, exactly as LEVEL 1 did). Veterans: campaign>0 → the room, untouched; a campaign-0 save
 // that already fought a battleground is healed at boot. The war table, its queue, the bf briefing, the tour, the plane, the flow: byte-still.
 const OPENER_MAP='crossing';   // ⚑ Q1 DECIDED: THE CROSSING (Wyatt 9/22 14:2x: 'the one with the two bridges. Its called The Crossing' — the fish-tank spill splits the carpet, two popsicle bridges, the duck); was OPEN CARPET, then THE SPILL for one push
+// ═══ CARD-TSN THE TUTORIAL'S SNOWFIELD (design/tutorial-snowfield-1014/00-BUILD-TSN.md). ISAAC at the keyboard 10/14/2026 ~11:38, verbatim: "let's change the map
+// to one of the snowfields. We want to keep the bridges and the river in, so that way there's a little more variety in the landscape. Throw that in."
+// THE OPENER ALONE: THE CROSSING's own half (the spill, the two popsicle bridges, the duck) on THE WINTER FIELD's snow (ground 'snow': the served comb, the flakes,
+// both armies' rims on white), its two pebbles as snow mounds (art 'drift', the raid's own dressing). The row stays 'crossing' (the name, the words, the random
+// draws, the room cycler: untouched); the mint reads a copy with the snow on. DARK till Wyatt's word: ?tsn=1 turns a device on (gvt_tsn '1'), ?tsn=0 clears it;
+// the flip for everyone = this gate's default. Zero save keys of its own, zero words, zero css, zero server, zero wire (the opener is a solo fight).
+const TSN={ on:(function(){ try{ const q=/[?&]tsn=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_tsn','1'); else localStorage.removeItem('gvt_tsn'); } return localStorage.getItem('gvt_tsn')==='1'? 1 : 0; }catch(e){ return 0; } })() };   // THE GATE (the CARD-XBI road): dark till Wyatt's word
+function tsnOn(){ return !!TSN.on; }
+function tsnMap(m){ return (OP_ARM && m && m.id===OPENER_MAP && tsnOn())? Object.assign({}, m, { ground:'snow', tsn:1, build:()=>tsnBuild(m) }) : m; }   // the opener's mint alone (OP_ARM stands only inside startOpener's call)
+function tsnBuild(m){ const h=m.build(); h.rocks=(h.rocks||[]).map((r,i)=>Object.assign({}, r, { art:'drift', chain:'tsn'+i })); return h; }   // the pebbles become snow mounds; the river, the bridges and the duck ride through
+function tsnRig(o){ if(o && o.on!==undefined) TSN.on=o.on? 1 : 0;   // the rig door: { on } flips the gate for the NEXT mint; the read = what the field carries
+  const bf=S.bf, t=S.cfg&&S.cfg.terrain;
+  return { cv:GVT_CV, on:TSN.on, opener:!!(bf&&bf.opener), mapId:bf? bf.mapId : null, ground:t? (t.ground||'') : null, rivers:t? (t.rivers||[]).map(r=>({ x:r.x, w:r.w, bridges:(r.bridges||[]).map(b=>b.y) })) : null,
+    rocks:t? (t.rocks||[]).map(r=>({ x:r.x, y:r.y, r:r.r, art:r.art||'', chain:r.chain||'' })) : null, flakes:(t&&t.flakes)? t.flakes.length : 0, duck:!!(t&&t.riverDuck), light:(typeof lightField==='function')? !!lightField() : null }; }
 let OP_ARM=0;              // the door's word to startBattlefield (session-only): the S.bf mint reads it once
 function startOpener(){ OP_ARM=1; try{ startBattlefield(OPENER_MAP, null, 1, null, ARMIES.find(a=>a.id==='tan')||ARMIES[2]); } finally { OP_ARM=0; } }   // ⚑ Q2: THE TAN ARMY every time
 function titleClickEat(){   // CARD-FF FF-09 THE RETURN VISIT'S PRESS START (BH-ROOKIE-02): the door opens the ROOM inside the tap's pointerdown, so that tap's own CLICK (a touch's click is aimed where the finger lifts) landed on whatever door of the new room lay under the thumb: the wall's WALLPAPERS, a shelf, a rug tile, and Sarge's campaign line never came. That ONE click is eaten (tourClickEat's grammar), its clock started when the finger LIFTS (a slow thumb outlasts a 400 ms clock from the press); a NEW pointerdown disarms it, so the kid's next tap is his own
@@ -181154,7 +181168,8 @@ window.GVT = {
     return { set:DECOR_HALLOW.slice(), own:DECOR_HALLOW.filter(decOwns), out:DECOR_HALLOW.filter(decorOn), cap:CHEST_CAP, allN:DECOR_ALL_N, on:halloweenOn(), night:roomNight(), led:(META.hw? { at:META.hw.at, cap:META.hw.cap } : null), due:hwDue(), next:hwNext(), step:HW_STEP, rung:hwRung(), capStars:HW_CAP_STARS }; },   // 1110 BUILD B: + the ledger · due · the next gift · the step
   fzb(o){ return fzbRig(o); },   // CARD-FZB's rig door: FUZZIES + the SHOT-CLAW (see sec:CARD-FZB)
   otp(o){ return otpRig(o); },   // CARD-OTP's rig door: { hour, t } (see sec:CARD-OTP)
-  xbi(o){ return xbiRig(o); },   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
+  xbi(o){ return xbiRig(o); },
+  tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   night(v){ NW_PIN=(v===undefined||v===null)? null : (v? 1 : 0); if(roomOpenNow()) renderMenu(); return { pin:NW_PIN, night:roomNight(), from:NW_NIGHT[0], to:NW_NIGHT[1], tick:!!NW_TICK }; },   // 0904 PART TWO rig door: pin the night (1 · 0 · null = the clock) and repaint the open room   // 0584 rig door: pin the NEXT flight (1 loop · 0 plain · null = the dice)   // 0568 D11 rig door — read-only (next = the PURE read; the pin is never consumed here)
   dogFreeze(on){ DOGRIG.frozen=on?1:0; DOG_LAST=0; return DOGRIG.frozen; },
   dogStep(s){ if(!DOGT) dogArm(); let r=Math.max(0,+s||0);
