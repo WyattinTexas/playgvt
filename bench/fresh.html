@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"22.61","md5":"a883e965227c59a5ef39a5ccb82fc181","sha":"efe394330","at":"2026-10-14T17:40:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"22.62","md5":"c9f1fad6ac9d8622a7a134779b5511e6","sha":"70dcf8454","at":"2026-10-14T17:53:28Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -13540,11 +13540,30 @@
   #comms .cm-txt { text-wrap:pretty; }
   #comms .cm-txt[data-rest]::after { content:attr(data-rest); visibility:hidden; }
   @keyframes cmbob { from { transform:translateY(-0.15em); } to { transform:translateY(0.15em); } }
+  /* ===== CARD-FNT THE TUBE (FROM ISAAC, Wyatt's co-designer, WhatsApp 10/14/2026 13:36 EDT on Wyatt's font pass of that hour, verbatim: "The tube option A looks good. Go ahead and push that to live"; design/dialogue-font-1014/00-DESIGN-FNT.md).
+     Every Sarge window but the tour's is a little CRT. The words move to the vertical MIDDLE of the box (align-items:center on the win; the 4.3em floor moves from the words to the BOX, written in the words' own clamp, so the box
+     stands exactly as tall as before and nothing bounces between a one-line and a two-line page), and three see-through layers lie BEHIND the words (the layers z 1, the portrait, the words and the chevron z 2): fine
+     scanlines (1 px at 18 % black + 1 px of phosphor green at 5.5 % on a 3 px period), a slow bright roll (7.5 s top to bottom, a transform on the compositor) and the tube's dark corners. Nothing lies over a letter: cut A of
+     the pass, the legibility-first cut (the words keep their 11:1 on the box). The tour's console keeps its tail and its plate OUTSIDE the box, so it wears no clip and no tube. TUBEFX.on 1 for everyone; ?tube=0 = a device's
+     way back (commWin adds no class and no layers: the box byte-what-it-was). ===== */
+  .cm-win.cm-tube { position:relative; overflow:hidden; isolation:isolate; align-items:center; }
+  .cm-win.cm-tube > .cm-left, .cm-win.cm-tube > .cm-txt, .cm-win.cm-tube > .cm-hint { position:relative; z-index:2; }
+  #comms .cm-win.cm-tube > .cm-txt { min-height:0; }   /* the floor leaves the words (it stands on the box below), so the words are as tall as their page and centre */
+  #comms.brief .cm-win.cm-tube { min-height:calc(1em + 4px + 4.4*clamp(34px,11.2vh,48px)); }   /* the tutorial's floor = 4.3em of its words + their 0.1em pad + the box's padding and borders */
+  #comms.brief.reg .cm-win.cm-tube { min-height:calc(1em + 4px + 4.4*clamp(17px,5.6vh,24px)); }   /* CARD-SS's regular-game words */
+  @media (min-width:1280px){ #comms.brief .cm-win.cm-tube { min-height:calc(1em + 4px + 4.4*clamp(48px,3.5vw,60px)); } #comms.brief.reg .cm-win.cm-tube { min-height:calc(1em + 4px + 4.4*clamp(24px,1.75vw,30px)); } }   /* the desk's two rules */
+  #comms.brief.ttb .cm-win.cm-tube { min-height:0; }   /* CARD-TTB2's pages carry no floor */
+  #comms.say .cm-win.cm-tube, #comms.invite .cm-win.cm-tube { min-height:calc(3.236em + 4px); }   /* the soundbite's and the invite's 2.5em floor (+0.1em pad) at the words' 0.86em */
+  .cm-tubel { position:absolute; left:0; top:0; right:0; bottom:0; pointer-events:none; z-index:1; }
+  .cm-scanl { background:repeating-linear-gradient(180deg, rgba(0,0,0,0.18) 0 1px, rgba(0,0,0,0) 1px 3px), repeating-linear-gradient(180deg, rgba(191,227,154,0.055) 0 1px, rgba(0,0,0,0) 1px 3px); background-position:0 0, 0 2px; }
+  .cm-roll { bottom:auto; height:30%; transform:translateY(-100%); background:linear-gradient(180deg, rgba(191,227,154,0) 0%, rgba(191,227,154,0.07) 42%, rgba(230,240,210,0.06) 50%, rgba(191,227,154,0.07) 58%, rgba(191,227,154,0) 100%); animation:cmroll 7.5s linear infinite; will-change:transform; }
+  @keyframes cmroll { from { transform:translateY(-100%); } to { transform:translateY(434%); } }
+  .cm-glass { border-radius:8px; background:radial-gradient(115% 95% at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,0.40) 100%); box-shadow:inset 0 0 1.1em rgba(0,0,0,0.55); }
   /* the reduce override, ID-scoped and AFTER everything it cancels (the
      v1.11/v1.21 law); the JS gate never attaches .cm-scan under reduce at all —
      this rule is the belt to that brace */
   @media (prefers-reduced-motion: reduce){
-    #comms .cm-scan, #comms .cm-hint { animation:none; }
+    #comms .cm-scan, #comms .cm-hint, #comms .cm-roll { animation:none; }   /* CARD-FNT THE TUBE: the roll stands still too (the JS gate never attaches it under reduce; this is the belt) */
   }
   /* v2.86 THE SHOP INTRO (Wyatt 8/9): a third mode on the same root — .invite
      is a ROOM-side soundbite (the .say law verbatim: pointer-events:none from
@@ -82478,6 +82497,16 @@ function commChirp(){ tone(520,880,0.06,'square',0.05); setTimeout(()=>tone(760,
 // string in here is resolved through TXT() ONCE by hand, and the typewriter
 // then writes .nodeValue — a partial substring must never re-enter the
 // translating setters (it could match another key mid-type and audit-spam).
+// ═══ CARD-FNT THE TUBE (FROM ISAAC, Wyatt's co-designer, WhatsApp 10/14/2026 13:36 EDT on Wyatt's font pass of that hour, verbatim: "The tube option A looks good. Go ahead and push that to live"). Every Sarge window but the tour's wears a little CRT:
+// the words in the vertical middle of the box and three see-through layers BEHIND them (fine scanlines, a slow bright roll, the tube's dark corners); nothing lies over a letter (cut A of the pass, the legibility-first cut). The face
+// is Arial Narrow as shipped (Wyatt's pick on a new face stays open in the record). TUBEFX.on 1 for everyone on Isaac's go under Wyatt's standing word for his designers (10/8 + 10/14 12:55); ?tube=0 = a device's way back (localStorage
+// gvt_tube '0': commWin adds no class and no layers, the box byte-what-it-was), ?tube=1 clears it. GVT.tube() for a rig. Record: design/dialogue-font-1014/00-DESIGN-FNT.md ═══
+const TUBEFX={ on:(function(){ try{ const m=/[?&]tube=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_tube','0'); else localStorage.removeItem('gvt_tube'); } return localStorage.getItem('gvt_tube')==='0'? 0 : 1; }catch(e){ return 1; } })() };
+function tubeDress(win){   // the class carries the centring and the clip; the layers go under the words (z 1 under the content's z 2): the scanlines, the roll (never under reduced motion: the lines then stand still), the glass
+  win.classList.add('cm-tube');
+  const mk=(c)=>{ const d=document.createElement('div'); d.className='cm-tubel '+c; win.appendChild(d); };
+  mk('cm-scanl'); if(!reducedMotion()) mk('cm-roll'); mk('cm-glass');
+}
 function commWin(mode, spk){   // 0344: spk = optional speaker card {name,img,hex} — the nemPark briefing seats NEMESIS; every other window is Sarge's exactly as shipped
   const el=document.getElementById('comms'); if(!el) return null;
   clearTimeout(COMM.timer); COMM.timer=0;
@@ -82487,6 +82516,7 @@ function commWin(mode, spk){   // 0344: spk = optional speaker card {name,img,he
   const win=document.createElement('div'); win.className='cm-win';
   win.setAttribute('data-notr','');
   const tour=(mode==='tour');   // 0906 BIG SARGE (SARGE'S TOUR, TAKE THREE): the ROOM GUIDE has no .cm-left — no 3.4em portrait box, no scanlines: Sarge stands on the floor as the FULL figure (#tourFig, tourFigNode; spk = { pose, next }: the pose he arrives in and the pointing pose preloaded for the cross-fade) and the console is his speech; the SARGE plate rides the console's top edge as a tab, a tail on its left edge points at him, the hint is a drawn gold chevron
+  if(TUBEFX.on && !tour) tubeDress(win);   // CARD-FNT THE TUBE (Isaac 10/14): the layers under the words + the centring class on every window but the tour's (its tail and its plate stand outside the box)
   let port=null, left=null;
   if(!tour){
   port=document.createElement('div'); port.className='cm-port';
@@ -85502,7 +85532,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.61';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.62';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -181887,6 +181917,7 @@ window.GVT = {
   // ---- SARGE COMMS RIG (v1.41) ----
   comm(ev){ return commSay(ev); },
   commBrief(k){ return commBriefing(k||'camp'); },
+  tube(){ const w=document.querySelector('#comms .cm-win'); return { on:TUBEFX.on, win:!!w, dressed:!!(w&&w.classList.contains('cm-tube')), layers:w? w.querySelectorAll('.cm-tubel').length : 0, roll:!!(w&&w.querySelector('.cm-roll')) }; },   // CARD-FNT THE TUBE: the read door for a rig
   commAdv(){ return commAdvance(); },
   commState(){ const e=document.querySelector('#comms .cm-txt');
     return { brief:COMM.brief? { kind:COMM.brief.kind, page:COMM.brief.i,
