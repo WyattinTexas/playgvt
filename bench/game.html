@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.67","md5":"1952fdeaed219f0b5fafd79b3425f808","sha":"f4455da0a","at":"2026-10-14T18:45:05Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.68","md5":"d44561778bafa634f97980f711dd71a5","sha":"dd55ce908","at":"2026-10-14T18:47:11Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -82555,7 +82555,7 @@ function commWin(mode, spk){   // 0344: spk = optional speaker card {name,img,he
   clearTimeout(COMM.timer); COMM.timer=0;
   el.innerHTML='';
   el.className=mode;
-  if(mode==='brief' && !commTut()) el.classList.add('reg');   // CARD-SS: a briefing in a regular game reads at CARD-BB's size (#comms.brief.reg); the tutorial's keeps CARD-X2's. Set before any page is fitted (commFitPages measures the console as it stands)
+  if(mode==='brief') el.classList.add('reg');   // CARD-FFR R2 (Wyatt 10/14/2026 14:36 EDT (Discord 1559998290181890112): "Sarge's dialogue to his regular-sized dialogue, but keep the new enhancement with the lines going through, giving it the retro look"): the TUTORIAL's briefing reads at the regular size too (CARD-X2's 9/25 doubling retired for the brief; the tube stays; the tour's boxes stand) · CARD-SS: a briefing in a regular game reads at CARD-BB's size (#comms.brief.reg); the tutorial's keeps CARD-X2's. Set before any page is fitted (commFitPages measures the console as it stands)
   const win=document.createElement('div'); win.className='cm-win';
   win.setAttribute('data-notr','');
   const tour=(mode==='tour');   // 0906 BIG SARGE (SARGE'S TOUR, TAKE THREE): the ROOM GUIDE has no .cm-left — no 3.4em portrait box, no scanlines: Sarge stands on the floor as the FULL figure (#tourFig, tourFigNode; spk = { pose, next }: the pose he arrives in and the pointing pose preloaded for the cross-fade) and the console is his speech; the SARGE plate rides the console's top edge as a tab, a tail on its left edge points at him, the hint is a drawn gold chevron
@@ -83149,8 +83149,7 @@ function ttbOpen(bf, T){
   h.el.classList.add('ttb');
   const band=Math.max(74, innerHeight*0.185)+8;   // CARD-TTB2: the seat's top band (the css padding) + a margin, parked in the window's bottom padding while the pages are fitted, so commFitPages measures the room the band leaves (a glass too short for a page splits it, never runs it off the bottom)
   h.win.style.paddingBottom=band+'px'; let p1, p2;
-  try{ p1=commFitPages(h, tourPages(TXT(TTB_LINES[0]), 1));
-    h.el.classList.add('ttbbox'); p2=commFitPages(h, tourPages(TXT(TTB_LINES[1]), 1)); h.el.classList.remove('ttbbox'); }   // each line fitted at its own page's width
+  try{ p1=commFitPages(h, tourPages(TXT(TTB_LINES[0]), 1)); p2=[]; }   // CARD-FFR R2 (Wyatt 10/14/2026 14:36 EDT (Discord 1559998290181890112): "the zoom-in to the toy box should only happen after the first time the Tan soldiers reach the toy box"): NO box page, no glide to OUR box after the tags; the first leak's cut (ffrLeakTick) is the only zoom to the box. TTB_LINES[1] stands unused (its rows too)
   finally { h.win.style.paddingBottom=''; }
   const u=S.units.find(v=>v.side===bfMyTeam() && v.type!=='sarge');
   T.boxAt=p1.length; T.cost=u? (capBfCost(u.type)|0) : 0; T.p0=performance.now(); T.c0=T.p0;   // CARD-FFR: the cost float's own clock (each page resets p0)
@@ -83216,7 +83215,7 @@ function ttbAimBox(bf, T, now){ T.in0=now; T.from={ x:bf.cam.x, y:bf.cam.y||0 };
 function ffrLeakArm(bf){ if(!bf || !bf.opener || bf.lkDone || bf.resolved || S.mode!=='play') return; bf.lkDone=1; bf.lkArm=1; }   // the FIRST hit, once an opener
 function ffrLeakTick(){ const bf=S.bf; if(!bf || !bf.lkArm) return; if(bf.resolved || S.mode!=='play'){ bf.lkArm=0; return; } if(COMM.brief) return;
   const T=bf.ttb||(bf.ttb={ st:0, k:0 }); if(T.st===1 || T.st===2) return;   // the tags beat's own glide is running: wait for it
-  bf.lkArm=0; const h=commWin('brief'); if(!h) return; h.el.classList.add('ttb'); h.el.classList.add('ttbbox');
+  bf.lkArm=0; const h=commWin('brief'); if(!h) return; h.el.classList.add('ttb');   // CARD-FFR R2: the right-hand seat alone (.ttb); the old box page's .ttbbox width is gone with that page
   const band=Math.max(74, innerHeight*0.185)+8; h.win.style.paddingBottom=band+'px'; let p; try{ p=commFitPages(h, tourPages(TXT(FFR_LEAK_LINE), 1)); } finally { h.win.style.paddingBottom=''; }
   const now=performance.now(); T.st=1; T.k=0; T.p0=now; T.out0=0; T.inMs=FFR.cutMs; ttbAimBox(bf, T, now);
   COMM.brief={ kind:'lk', pages:p, i:0, h, always:true, done:ttbHome };   // ALWAYS: no META.comms flag; the last tap glides the camera home (the field still held) through ttbHome
@@ -85601,7 +85600,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
