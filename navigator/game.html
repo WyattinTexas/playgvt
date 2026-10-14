@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.47","md5":"f254ce424c3ecaf09569330ea9f19379","sha":"f52886b6d","at":"2026-10-14T14:47:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.48","md5":"2678d8bc26e125625f9cb0530891065d","sha":"75d612dab","at":"2026-10-14T14:51:35Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -85231,7 +85231,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -98697,7 +98697,7 @@ function bfMarch(u,dt,goal){
   // and deliberately never stamps. 20 px/s clears the noise floor.
   const wkv=nx*sp*v2m, wkf=u.cmdWkF?7:(u.type==='jane'? JANE_WKF : u.type==='kingbear'? KB_HERO_WKF : 20);   // 0876 THE EMPEROR BEAR cell F (⚑ Q7): the emperor's floor 10 — at the rifleman's 44 a 45° step is 31 on the axis and stamps; at the shipped 26 it was 18.4 and never did (the 0585 F3 / 0517 class — his face froze and he moonwalked)   // 0585 F3 JANE'S STAMP FLOOR (the 0517 fix shape): her 26 px/s pace against the 20 floor stamped only within ~±40° of the axis — every diagonal step and every wade stamped nothing, her face froze and THE STEP's gait gate shut while she slid (the moonwalk); at JANE_WKF 12 every step she takes stamps and the gate opens whenever she moves — every other figure keeps its floor byte-what-it-was   // 0517 THE MOONWALK: the Commander's stride (CMD.pace ×0.55 → 14 campaign / 22 BF) sat UNDER the 20 floor, so his walk never stamped and he faced east on every westward step (Wyatt: "unable to turn around… just walks backwards"); the floor drops to 7 where the pace seats mark him (u.cmdWkF — half his slowest stride, the same ±60-degree acceptance the 20 gives a 40 px/s walker; displacement never routes through this line, so the jitter guard keeps) — every other figure keeps the 20 byte-what-it-was
   if(u.coopBy && u.glOn && GLIDE_FACE){ /* 0585 F4: a co-op glide is moving this ally's man — the march still moves him between beats, it does not vote on his face (glideTick stamps the way it slides him) ⚑ Q4 */ }
-  else if(wkv>wkf){ u.wkX=1; u.wkT=S.t; } else if(wkv<-wkf){ u.wkX=-1; u.wkT=S.t; }   // 0585 F2's clear of the aim RETIRED 0652: faceX is a sim field now (the muzzle law) and this line stands down behind a per-screen glide — the aim expires by its own hold; the fresh stride still outranks it in the picture
+  else wkStride(u,wkv,wkf,dt);   // CARD-CFP THE TURN SETTLE: the stride stamps through THE STEP (sec:CARD-CFP; was: else if(wkv>wkf){ u.wkX=1; u.wkT=S.t; } else if(wkv<-wkf){ u.wkX=-1; u.wkT=S.t; })   // 0585 F2's clear of the aim RETIRED 0652: faceX is a sim field now (the muzzle law) and this line stands down behind a per-screen glide — the aim expires by its own hold; the fresh stride still outranks it in the picture
   for(const rk of S.cfg.terrain.rocks){          // rocks shoulder him aside (reused kernel)
     const ax=u.x-rk.x, ay=u.y-rk.y, dd=Math.hypot(ax,ay), min=rk.r+pad;
     if(dd>0.1&&dd<min){ u.x+=ax/dd*(min-dd)*Math.min(1,dt*8); u.y+=ay/dd*(min-dd)*Math.min(1,dt*8); }
@@ -120167,6 +120167,30 @@ function drawSprite(k,x,y,w,rot,wob,imgOverride,flip){
 // (the mvSm law), so co-op's twin sims and seeded replays stay byte-equal.
 // 0652 Card C: the stale-out is no longer the attack-facing law — THE AIM SEAT below is (a pull turns the shooter toward his
 // man on both armies and both carpets); the walk still outranks it in the picture while the steps keep coming.
+// ═══ CARD-CFP · THE TURN SETTLE (10/14/2026, from Wyatt's phone: "characters will turn left and right rapidly, specifically the Claymore unit … rapidly looking like he's glitching out, turning left and right when he was just temporarily stuck on a rock") ═══
+// THE FINDING (the kit's rig, design/claymore-flip-1014): wedged between two rocks' shoulders at the field's top edge (the OPEN FIELD's pair at (900,96) and (980,150) on the rig), rockSteer's "better side" changes every frame or three — the west tangent off the
+// carpet (+900) beats the east one inside the other rock (+1400) — so the stride's INTENT sign alternates at frame rate; bfMarch stamped wkX off it every frame (the Commander's floor is 7 px/s, 0517) and unitFl mirrored the whole figure — the sword, the pack,
+// the outfit — off the stamp: 39 turns in one second while the sim moved him 0.6 px. Two smaller cousins: THE BLINK (the sword's recovery clock runs out a frame before the next step-in launches, and unitFl fell to the chair's side for that one frame — W, E, W
+// once a swing cycle) and THE SHORT STEP (a one-to-three-frame step against the march stamped the picture round for the whole 0.15 s hold, then a fresh stride turned it back).
+// THE CURE, presentation only — nothing in the sim reads wkX/wkT or these fields (the 0307 mvSm law), so co-op's twin sims and seeded replays are byte-what-they-were (the battery proves every figure's positions equal between the base and this build):
+//   (1) THE STRIDE'S STEP (wkStride — bfMarch's one stamp line calls it): a stride turns the picture once it has carried him CFP.step px of INTENDED travel in its new direction; a stride the way he already faces stamps at once (the gait gate stays live); a wedged
+//       man's half-pixel back-steps never add up to a step, so his face holds. The Commander's own movers (cmdWkStamp: the flight, the hops, the walk home) are pinned lines and stamp as shipped.
+//   (2) THE CHAIR'S GRACE (flSeat / flChair — unitFl and foeFl): a facing the law SPOKE (a fresh stride, the strike's side, the aim) is remembered, and the chair's default takes the picture only CFP.grace after the last spoken one — the one-frame gap between two
+//       authorities no longer snaps him round and back; a man who halts still settles to his army's side, two beats later than before.
+// ⚑ CFP-Q1 the steer's own flip-flop (a sim change: a sticky side for rockSteer while a man is wedged) is a later card · ⚑ CFP-Q2 CFP.step 4 px (one step; 0 = the shipped stamp) · ⚑ CFP-Q3 CFP.grace 0.3 s (two beats; 0 = the shipped chair) · ⚑ CFP-Q4 the campaign
+// Tan's own stamp (f.vx in update's foe loop) keeps its 20 px/s floor as shipped — foeFl's grace covers its blinks; a wedged Tan's step is a later cell.
+const CFP={ step:4, grace:0.3 };   // the dials (GVT.cfp reads and sets them; the battery's NEG turns both to 0 = the shipped law, flip for flip)
+function wkStride(u,wkv,wkf,dt){   // the stride stamp with THE STEP: s = the stride's sign above its floor (0 = too slow to vote, as shipped)
+  const s=(wkv>wkf)? 1 : (wkv<-wkf)? -1 : 0; if(!s) return;
+  if(u.wkS!==s){ u.wkS=s; u.wkSD=0; }   // a new direction: the step starts here
+  u.wkSD+=Math.abs(wkv)*dt;   // intended travel this way (the rock-shoulder is displacement, never a walk — it never counted, as shipped)
+  if(u.wkX===s || u.wkSD>=CFP.step){ u.wkX=s; u.wkT=S.t; } }   // the way he already faces, or a whole step the new way: the 0307 stamp, its two fields byte-what-they-were
+function flSeat(o,v){ o.flA=v; o.flAt=S.t; return v; }   // a facing the law spoke (true = mirrored): remembered for the grace
+function flChair(o,v){ return (o.flAt!=null && o.flA!==v && S.t-o.flAt<CFP.grace)? o.flA : v; }   // the chair's default answers only CFP.grace after the last spoken facing; till then the picture keeps what it was told
+function cfpRig(o){ if(o){ if(o.step!=null) CFP.step=+o.step; if(o.grace!=null) CFP.grace=+o.grace; }   // the rig door (read-only without an argument)
+  const U=(o&&o.id!=null)? S.units.find(q=>q.id===o.id) : null;
+  return { cv:GVT_CV, step:CFP.step, grace:CFP.grace, hold:WKF_HOLD, u:U? { id:U.id, wkX:U.wkX==null? null : U.wkX, wkAge:U.wkT==null? null : +(S.t-U.wkT).toFixed(3), wkS:U.wkS==null? null : U.wkS, wkSD:U.wkSD==null? null : +U.wkSD.toFixed(2), flA:U.flA==null? null : !!U.flA, flAge:U.flAt==null? null : +(S.t-U.flAt).toFixed(3), fl:!!unitFl(U) } : null }; }
+// ═══ end of sec:CARD-CFP ═══
 const WKF_HOLD=0.15;
 function wkBack(o,dir){ return !!(o.wkT && S.t-o.wkT<WKF_HOLD && o.wkX===-dir); }
 // ===== 0652 Card C TURN TO FACE — THE AIM SEAT (Wyatt 8/31: "a lot of units are not turning around when they're firing …
@@ -120183,11 +120207,12 @@ function aimLive(o){ return !!(AIM_FACE && o.faceX && o.faceTo!=null && S.t<o.fa
 function aimBeat(o){ return !!(AIM_BEAT>0 && o.faceAt!=null && S.t-o.faceAt<AIM_BEAT && !(o.def && (o.def.ride||o.def.vehicle)) && aimLive(o)); }   // the shot beat: the aim wins the picture over a fresh stride — never for a rider or a hull
 function unitFaceX(u){ return aimLive(u)? u.faceX : ((S.bf&&u.side==='foe')?-1:1); }   // the SIM's own facing sign (+1 east / −1 west): the aim, else the chair — the muzzle law
 function foeFaceX(f){ return aimLive(f)? f.faceX : -1; }                                // ...tan edition (the molds face −x)
-function foeFl(f){ return (f.wkT && S.t-f.wkT<WKF_HOLD && !aimBeat(f))? f.wkX===1 : foeFaceX(f)>0; }  // the tan PICTURE: a fresh stride first (the 0307 walk-flip, byte-what-it-was) unless the shot beat, then the aim; true = mirrored to face east
+function foeFl(f){ return (f.wkT && S.t-f.wkT<WKF_HOLD && !aimBeat(f))? flSeat(f, f.wkX===1) : aimLive(f)? flSeat(f, f.faceX>0) : flChair(f, false); }   // CARD-CFP THE CHAIR'S GRACE, tan edition: the stride and the aim speak (foeFaceX's own two answers, split); the molds' own −x answers only CFP.grace after the last spoken facing
 function unitFl(u){ const b=!!(S.bf && u.side==='foe');   // ⚠ !! matters: null!==false is TRUE — an uncoerced campaign b mirrored every green (battery r1's find)
-  if(u.cmdFs && !(u.wkT && S.t-u.wkT<WKF_HOLD) && (u.cmdSwT>0||u.cmdFx>0||u.cmdWallT>0)) return u.cmdFs<0;   // 0517: WORKING AT THE SWORD the Commander faces his man — u.cmdFs, the strike's own (the blade already turned on it, drawSargeWeapon's rem; now the body agrees, and outfit/weapon/pack follow this one reader). A fresh stride still outranks: travel first, then the work. Only a Commander ever holds cmdFs; every other figure reads the line below byte-what-it-was.
-  if(aimLive(u) && (!(u.wkT && S.t-u.wkT<WKF_HOLD) || aimBeat(u))) return u.faceX<0;   // 0585 F2/F5 → 0652 Card C: standing still (or inside the shot beat), the AIM decides — on BOTH carpets now (faceX is absolute, so the chair needs no XOR — 0585 §7's lesson) and for the hold of the shooter's own drum + AIM_HOLD (aimLive); a fresh walk stamp still wins above (travel first, then the work — the 0517 grammar); no live aim = the shipped decay
-  return b !== wkBack(u, b?-1:1); }
+  const wk9=!!(u.wkT && S.t-u.wkT<WKF_HOLD);   // CARD-CFP: the fresh stride, read once for the three seats below
+  if(u.cmdFs && !wk9 && (u.cmdSwT>0||u.cmdFx>0||u.cmdWallT>0)) return flSeat(u, u.cmdFs<0);   // 0517: WORKING AT THE SWORD the Commander faces his man — u.cmdFs, the strike's own (the blade already turned on it, drawSargeWeapon's rem; now the body agrees, and outfit/weapon/pack follow this one reader). A fresh stride still outranks: travel first, then the work. Only a Commander ever holds cmdFs; every other figure reads the line below byte-what-it-was.   // CARD-CFP: a spoken seat (the strike's side) is remembered for the chair's grace
+  if(aimLive(u) && (!wk9 || aimBeat(u))) return flSeat(u, u.faceX<0);   // 0585 F2/F5 → 0652 Card C: standing still (or inside the shot beat), the AIM decides — on BOTH carpets now (faceX is absolute, so the chair needs no XOR — 0585 §7's lesson) and for the hold of the shooter's own drum + AIM_HOLD (aimLive); a fresh walk stamp still wins above (travel first, then the work — the 0517 grammar); no live aim = the shipped decay   // CARD-CFP: a spoken seat (the aim)
+  return wk9? flSeat(u, b !== wkBack(u, b?-1:1)) : flChair(u, b); }   // CARD-CFP THE CHAIR'S GRACE: a fresh stride speaks (the 0307 walk-flip, byte-what-it-was); with nothing spoken the chair's side answers — but only CFP.grace after the last spoken facing (the one-frame gap between two authorities no longer snaps him round and back)
 // 0462b KING REX FACES HIS FIGHT (Wyatt 8/21: "when you have King Rex as a
 // hero, he just walks backwards. He's just facing the left, even though you
 // are on the left as a player"): unitFl answers WHICH WAY A FIGURE FACES
@@ -182068,6 +182093,7 @@ window.GVT = {
       bigText:(up? (up.querySelector('.xj-big')||{}).textContent : null)||null,
       anims:anim(card)+anim(up) }; },
   // ===== SARGE'S RESPAWN COOLDOWN rig (v1.25) =====
+  cfp(o){ return cfpRig(o); },   // CARD-CFP's rig door: THE TURN SETTLE's dials (step, grace) + one man's fields by id (see sec:CARD-CFP)
   bfSarge(seat){ if(!S.bf) return null;
     const s=(seat==null? bfMySeat() : seat|0), st=S.bf.seats[s];
     return { seat:s, cd:+bfSargeCd(s).toFixed(2), max:BF_SARGE_DOWN, ready:bfSargeCd(s)<=0,
