@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.11","md5":"76b13c427d9d417ed7ecd6a571501655","sha":"41cec6a22","at":"2026-10-13T23:12:06Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.12","md5":"b243dc6d7ea75c278e6a1c62ac5768be","sha":"1c534087c","at":"2026-10-14T00:10:15Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -47219,6 +47219,18 @@ function chestNew(){ const c=META.chest; return (c && Array.isArray(c.nw))? c.nw
 function chestNewN(){ return chestNew().length; }
 function chestNewAdd(id){ const c=META.chest||(META.chest={ v:1, nw:[] }); if(!Array.isArray(c.nw)) c.nw=[]; if(c.nw.indexOf(id)<0) c.nw.push(id); }
 function chestNewDrop(id){ const c=META.chest; if(!c || !Array.isArray(c.nw)) return; const i=c.nw.indexOf(id); if(i>=0) c.nw.splice(i,1); }
+// ═══ sec:CARD-TCM THE TREASURE CHEST MOVES, IN EVERY ROOM (design/chest-moves-1013/00-CARD-TCM.md; FROM LAURA, WhatsApp 10/13/2026 17:36 EDT, verbatim: "With the treasure box or the treasure chest, apply the logic that you can move that around like in the bedroom" + "Apply that logic to any scenario the treasure box arises in a room or a park") ═══
+// The chest (0904's FIXED door) drags like a toy on every floor: a press in its box picks it after every toy (a toy in front keeps its grab), the drag moves its art (+ the NEW! ribbon) and its tap box, the release parks its seat on that floor in the toys' own map (META.roomPosR[room].chest, rdragClamp's room); a tap still opens it; a toy let go over it goes in where it stands (chestDropHit reads chestAt); it never falls off the roof. No park paints a chest: every room is every place it shows.
+// THE GATE: on for every player; ?tcm=0 keeps the fixed chest on that device (gvt_tcm=0), ?tcm=1 clears it.
+const TCM={ on:(function(){ try{ const q=/[?&]tcm=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tcm','0'); else localStorage.removeItem('gvt_tcm'); } return localStorage.getItem('gvt_tcm')==='0'? 0 : 1; }catch(e){ return 1; } })() };
+function tcmOn(){ try{ return !!TCM.on; }catch(e){ return false; } }   // the chest's painters and the drag sit on both sides of this line: they ask through a hoisted try
+function tcmXY(){ if(!tcmOn()) return [0,0]; try{ const d=rpXY(CHEST_DOOR); return (d && d.length===2)? [+d[0]||0, +d[1]||0] : [0,0]; }catch(e){ return [0,0]; } }   // this floor's offset for the chest (the toys' map; [0,0] = its authored seat)
+function chestAt(){ const s=chestSeat(), d=tcmXY(); return { x:s.x+d[0], y:s.y+d[1], w:s.w, h:s.h }; }   // where the chest STANDS (its tap box, its drop pad); chestSeat() stays the authored seat (the drag's base)
+function tcmTf(){ const d=tcmXY(); return (d[0]||d[1])? ' transform="translate('+d[0]+','+d[1]+')"' : ''; }   // the art's wrapper at paint (rdragApply writes the same translate while it moves)
+function tcmPick(p){ if(!tcmOn() || !p) return null; const s=chestSeat(), d=tcmXY(); return (p.x>=s.x+d[0] && p.x<=s.x+s.w+d[0] && p.y>=s.y+d[1] && p.y<=s.y+s.h+d[1])? { k:CHEST_DOOR, base:s } : null; }
+function tcmPark(d){ const m=rpMap(); if(d.dx||d.dy) m[CHEST_DOOR]=[Math.round(d.dx), Math.round(d.dy)]; else delete m[CHEST_DOOR]; saveMeta(); audio(); SFX.blip(); if(S.mode==='menu') renderMenu(); }   // the release: the seat into the toys' map, ONE save, the blip; the room repaints (the tap box and the drop pad at the new seat)
+function tcmRig(o){ o=o||{}; if(o.on!==undefined){ TCM.on=o.on? 1 : 0; if(S.mode==='menu') renderMenu(); } return { cv:GVT_CV, on:TCM.on, room:roomCur(), at:chestAt(), seat:chestSeat(), xy:tcmXY(), key:(function(){ try{ return localStorage.getItem('gvt_tcm'); }catch(e){ return null; } })() }; }
+// ═══ end of sec:CARD-TCM ═══
 // ═══ 1080 THE RECORD PLAYER (FM-GVT-FORT-RECORD-DECOR-01, jumpr 1080 — THE PLAYTEST BATCH of 9/17 evening; Wyatt 9/17/2026 ~21:00 EDT, dictated, verbatim: "add a record player that is small and tiny inside
 // of the fort. It will be in the top-right area of the fort, kind of small and out of the way. Upon clicking that, you're able to change the song that's played in your room to any song in the game that you've
 // currently gotten up to. Otherwise, it'll show up as ???."): THE SONG SHEET's rows in REACH ORDER (⚑ RD-Q2: each world's park, then its throne; the Nemesis after the three first worlds). id = the LOC_TRACKS
@@ -52391,7 +52403,7 @@ if(!META.crownV2){ META.crownV2=1;
         'helmet','banana','goldkey','silverkey','bronzekey','puffer','bass','doghouse','doghouse2',
         'tsdummy','tscrew','tsnem','tsgiant','tsgice','tsgvol','tsgfort','tsmap','tschest','tshorse','tsjack','tssub','tsdrum','tsrocket','tsmusic','tskite','tstop','tsyoyo','tsradio','tscastle','tsgold','magicbone','harp','bonefish','dirtyshoe','rave','zombie','witch',
         'hwpumpkin','hwjack','hwbats','hwghosts','hwbowl','hwhat','hwweb','hwspider','hwcat','hwcauldron','hwgarland','hwlights','hwhouse','hwscarecrow','hwbroom','hwapple','hwbag','hwcling','hwmoon','hwmug','betta','goldfish','seahorse','fishtank','studyglobe',
-        'xmcane','xmbauble','xmstar','xmstocking','xmtree','xmgift','xmlights','xmwreath','xmginger','xmbell','xmsnowflake','xmnut','xmreindeer','xmcocoa','xmchain','xmangel','xmsnowman','xmcookies','xmbird','xmmistletoe','xmsleigh','xmmusic','xmelf','xmsanta','xmwalnut','bubbleman' /* CARD-BBM BUBBLE MAN: BY HAND (the 0332 law), or his drag delta dies at the next boot */,'goldenbook' /* CARD-PBK: BY HAND (the 0332 law) */,'bigbattery' /* CARD-OVF-B19: BY HAND (the 0332 law) */,'bunbun','erniedog' /* AIR WILLOW'S TOYS: BY HAND (the 0332 law) */,'gmyfig' /* CARD-GMY: BY HAND (the 0332 law) */,'gmypumpkin' /* CARD-HL4: BY HAND */,'unclerex' /* CARD-SQL LEVEL 4: BY HAND (the 0332 law) */,'flashlight','steadmedal','gensshelf' /* CARD-DRG THE FRIENDLY GRAB: BY HAND (the 0332 law), or their dragged seats die at the next boot */];   /* CARD-XMAS-05: the twenty-four BY HAND here too — or a Christmas piece's dragged seat dies at the next boot */   // CARD-SGB THE STUDY GLOBE: its drag delta survives the boot too (BY HAND, the 0332 law)   // 1163 THE PONDS' FISH: their drag deltas survive the boot too (BY HAND — the 0332 law) · 1109 THE HALLOWEEN TREASURES: the twenty BY HAND (the 0332 law) — or the drag delta dies at the next boot   // 1031 THE DIRTY SHOE: its drag delta survives the boot too (BY HAND — the 0332 law) · 1023g THE BONE FISH: his drag delta survives the boot too (BY HAND — the 0332 law) · 0904 THE TREASURE CHEST (v8.04): the 23 classics' drag deltas survive the boot too (RDRAG_DECOR leads with them since TR-02; the hand-kept purge dropped them — the 0824 okp trap)   // 0904 THE NEW SAVE'S DEFAULTS: 'warplane' LEFT this list - FIXED on the window sill (a saved plane delta in any room dies here at every boot, the scrub the sill move needed; the tap stays THE RIDE through the dspot)   // 0540: the bass drags · 0824-LATE III THE WHOLE FLOOR DRAGS: BY HAND (the 0332 law) — the seven fixed toys drag now; without this row a saved delta died on the next launch
+        'xmcane','xmbauble','xmstar','xmstocking','xmtree','xmgift','xmlights','xmwreath','xmginger','xmbell','xmsnowflake','xmnut','xmreindeer','xmcocoa','xmchain','xmangel','xmsnowman','xmcookies','xmbird','xmmistletoe','xmsleigh','xmmusic','xmelf','xmsanta','xmwalnut','bubbleman' /* CARD-BBM BUBBLE MAN: BY HAND (the 0332 law), or his drag delta dies at the next boot */,'goldenbook' /* CARD-PBK: BY HAND (the 0332 law) */,'bigbattery' /* CARD-OVF-B19: BY HAND (the 0332 law) */,'bunbun','erniedog' /* AIR WILLOW'S TOYS: BY HAND (the 0332 law) */,'gmyfig' /* CARD-GMY: BY HAND (the 0332 law) */,'gmypumpkin' /* CARD-HL4: BY HAND */,'unclerex' /* CARD-SQL LEVEL 4: BY HAND (the 0332 law) */,'flashlight','steadmedal','gensshelf' /* CARD-DRG THE FRIENDLY GRAB: BY HAND (the 0332 law), or their dragged seats die at the next boot */,'chest' /* CARD-TCM THE TREASURE CHEST MOVES: BY HAND (the 0332 law), or its parked seat dies at the next boot */];   /* CARD-XMAS-05: the twenty-four BY HAND here too — or a Christmas piece's dragged seat dies at the next boot */   // CARD-SGB THE STUDY GLOBE: its drag delta survives the boot too (BY HAND, the 0332 law)   // 1163 THE PONDS' FISH: their drag deltas survive the boot too (BY HAND — the 0332 law) · 1109 THE HALLOWEEN TREASURES: the twenty BY HAND (the 0332 law) — or the drag delta dies at the next boot   // 1031 THE DIRTY SHOE: its drag delta survives the boot too (BY HAND — the 0332 law) · 1023g THE BONE FISH: his drag delta survives the boot too (BY HAND — the 0332 law) · 0904 THE TREASURE CHEST (v8.04): the 23 classics' drag deltas survive the boot too (RDRAG_DECOR leads with them since TR-02; the hand-kept purge dropped them — the 0824 okp trap)   // 0904 THE NEW SAVE'S DEFAULTS: 'warplane' LEFT this list - FIXED on the window sill (a saved plane delta in any room dies here at every boot, the scrub the sill move needed; the tap stays THE RIDE through the dspot)   // 0540: the bass drags · 0824-LATE III THE WHOLE FLOOR DRAGS: BY HAND (the 0332 law) — the seven fixed toys drag now; without this row a saved delta died on the next launch
     const sd=META.rdec||{}, rd={}, sp=META.roomPosR||{}, rp={};
     for(const r of okr){
       if(Array.isArray(sd[r])){ const l=sd[r].filter(id=>okd.indexOf(id)>=0); if(l.length) rd[r]=l; }
@@ -84600,7 +84612,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -138386,7 +138398,7 @@ function raidTileSVG(riv, rivDone, momD, nemD){ riv=tourRivalToday(riv);   // 09
 // park them). THE NEW! MARK = 0723's ribbon on the lid (#ro-chestnew .ssnew, the same breath, its own id) while META.chest.nw holds ids. ═══
 function chestSVG(){
   const b=chestSeat(), i=TS_TOYS.tschest.ink, sc=b.h/i[3];
-  return '<g id="ro-chest"><g transform="translate('+(b.x+b.w/2-(i[0]+i[2]/2)*sc).toFixed(1)+','+(b.y+b.h-(i[1]+i[3])*sc).toFixed(1)+') scale('+sc.toFixed(3)+')">'
+  return '<g id="ro-chest"'+tcmTf()+'><g transform="translate('+(b.x+b.w/2-(i[0]+i[2]/2)*sc).toFixed(1)+','+(b.y+b.h-(i[1]+i[3])*sc).toFixed(1)+') scale('+sc.toFixed(3)+')">'
     +'<g class="dec dec-tschest" id="decChestDoor"><g class="tsw">'+tsChestArt()+'</g></g></g>'
     +((chestNewN() || stockGlowAt()==='chest')? chestMarkSVG() : '')+'</g>';   // 0905 (⚑ Q8): the ribbon for a treasure rung's stock too — new in the store
 }
@@ -139193,6 +139205,7 @@ function rdragPick(p){
     if(p.x>=b.x+d[0] && p.x<=b.x+b.w+d[0] && p.y>=b.y+d[1] && p.y<=b.y+b.h+d[1])
       return { k:k, base:b };
   }
+  { const h9=tcmPick(p); if(h9) return h9; }   // CARD-TCM: THE TREASURE CHEST drags (behind every toy: picked last)
   return null;
 }
 // v2.85: the TAP-ONLY react family — the fixed toys (the space-rug planet;
@@ -139241,6 +139254,7 @@ function rdragApply(k, dx, dy){
   if(dp){ const dv=document.getElementById('dspot-'+k);
     if(dv){ dv.style.left=(dp.x+dx)+'px'; dv.style.top=(dp.y+dy)+'px'; } }
   if(k===XH2_TREE) xh2Follow(dx, dy);   // CARD-XH2: the tree's hung pieces' tap pads follow it
+  if(k===CHEST_DOOR){ const hs=document.getElementById('rspot-'+CHEST_DOOR), s=chestSeat(); if(hs){ hs.style.left=(s.x+dx)+'px'; hs.style.top=(s.y+dy)+'px'; } }   // CARD-TCM: the chest's tap box rides its drag
   if(k==='vt1') petSideAim(dx, dy);   // 1037 THE PET AT SARGE'S SIDE: Sarge moved (a drag's step, a fall, a park, the sled's dismount) — his pet goes after him
 }
 // ===== v3.06 THE ROOFTOP'S RULE (Wyatt, verbatim: "if you drag anything
@@ -139295,7 +139309,7 @@ function vtcCardsHTML(){   // the chest's gallery head: one card per man in THIS
 function vtcSill(){ return { id:'sill', x0:734, x1:896, y:150, hold:12 }; }   // THE WINDOW SILL as a catch (windowSVG's rect: x 734, width 162, its top 150, 12 tall — a toy's feet anywhere on it REST there)
 function chestDropHit(d){
   if(!d || d.dx===undefined || !d.base || !(vtcMan(d.k) || (chestFloorToy(d.k) && rdecList(roomCur()).indexOf(d.k)>=0))) return false;   // CARD-TCS: one of the four men counts too (a treasure: a floor toy on THIS floor's list, as shipped)
-  const b=chestSeat(), p=CHEST_DROP_PAD;
+  const b=chestAt(), p=CHEST_DROP_PAD;   /* CARD-TCM: the chest's pad where it stands */
   const inn=(x,y)=> x>=b.x-p && x<=b.x+b.w+p && y>=b.y-p && y<=b.y+b.h+p;
   return inn(d.base.x+d.base.w/2+d.dx, d.base.y+d.base.h/2+d.dy) || (d.mx!==undefined && inn(d.mx, d.my));
 }
@@ -139373,7 +139387,7 @@ function chestSwallow(d){
   saveMeta(); renderMenu();
   const st=document.getElementById('roomStage'), door=document.getElementById('decChestDoor');
   if(door){ door.classList.remove('react'); void door.getBoundingClientRect(); door.classList.add('react'); setTimeout(()=>{ try{ door.classList.remove('react'); }catch(e){} }, DECOR_REACT.tschest.ms); }
-  const b=chestSeat(), cx=d.base.x+d.base.w/2+d.dx, cy=d.base.y+d.base.h/2+d.dy;
+  const b=chestAt(), cx=d.base.x+d.base.w/2+d.dx, cy=d.base.y+d.base.h/2+d.dy;   /* CARD-TCM: into the chest where it stands */
   let ms=0;
   if(st && art && !reducedMotion()){
     ms=CHEST_DROP_MS;
@@ -140830,6 +140844,7 @@ function rdragEnd(e){
   document.addEventListener('click', eat, {capture:true, once:true});
   setTimeout(()=>document.removeEventListener('click', eat, {capture:true}), 350);
   if(d.menu){ mmPark(d); return; }   // v11.10 CARD-MM THE MENU MOVES: a shelf item's park — before every toy verdict (none applies)
+  if(d.k===CHEST_DOOR && d.dx!==undefined){ tcmPark(d); return; }   // CARD-TCM: the chest's release = its new seat on this floor
   if(d.play) return;   // 1163 THE PONDS' FISH THE BONE FISH SMILES: a play-drag's release parks nothing (the click eaten above, the fish where he was)
   if(d.dx!==undefined){
     if(xh2Drop(d)) return;   // CARD-XH2: THE WALNUT let go on the nutcracker is cracked (200 stars, once) · a Christmas treasure let go on the little tree hangs there. FIRST of the drop's verdicts: the nutcracker stands at the chest's side, inside the chest's own catch pad, and he is the point (the dog's law)
@@ -151042,7 +151057,7 @@ function renderMenu(){
   // innerHTML rebuild — every buy, every payout — repaints the room exactly
   // the way its owner arranged it, and a mid-gesture rebuild self-heals by id.
   const spots=ROOM_SPOTS.filter(sp=>!(sp.id==='tv'&&STEAM_SHELL) && (!sp.due || sp.due())).map(sp=>{   // v3.31: the TV's invisible tap door leaves with its art — no dead target on the Steam floor. v3.33: a row may carry due() — the park door exists only on the winter floor after the find
-    const d=sp.mv? (MM_KEYS.indexOf(sp.mv)>=0? mmXY(sp.mv) : rpXY(sp.mv)) : [0,0];   // v11.10 CARD-MM THE MENU MOVES: the six shelf rows wear META.menuPos ([0,0] while the switch is OFF); every other row as ever
+    const d=sp.mv? (MM_KEYS.indexOf(sp.mv)>=0? mmXY(sp.mv) : sp.mv===CHEST_DOOR? tcmXY() : rpXY(sp.mv)) : [0,0];   /* CARD-TCM: the chest's tap box at its parked seat (tcmXY: [0,0] while the gate is off) */   // v11.10 CARD-MM THE MENU MOVES: the six shelf rows wear META.menuPos ([0,0] while the switch is OFF); every other row as ever
     // v2.45: a label may now answer EMPTY for a state with nothing to say
     // (the beaten rival) — computed once, and an empty answer renders no tag,
     // exactly like a row with no label at all (the v2.25 shop idiom).
@@ -180492,6 +180507,7 @@ window.GVT = {
   huv(o){ return huvRig(o); },   // CARD-HUV: HUNTER'S VISIT ({ on · odds · wait · stay · roll · show · bye } + the read)
   rpd(o){ return rpdRig(o); },
   ypv(o){ return ypvRig(o); },
+  tcm(o){ return tcmRig(o); },   // CARD-TCM: the treasure chest's drag ({ on } + where it stands)
   ywf(o){ return ywfRig(o); },   // CARD-YPV R4: the winter field ({ on } + the read)
   yps(o){ return ypsRig(o); },   // CARD-YPV R4: Yeti Park's slide ({ on } + the key)
   dpv(o){ return dpvRig(o); },   // CARD-DPV: Dino Park's new pieces ({ on } + the read)
