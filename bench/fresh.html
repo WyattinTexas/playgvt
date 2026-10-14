@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"22.68","md5":"d44561778bafa634f97980f711dd71a5","sha":"dd55ce908","at":"2026-10-14T18:47:11Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"22.69","md5":"5e5213a6b6bb37dbcf5ab9d7d815e69f","sha":"c3b18f4eb","at":"2026-10-14T19:08:29Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -5288,6 +5288,14 @@
   #travelMap .l3-tech .s-hnm, #travelMap .l3-tech .s-hcnt b { color:#F5EEFF; } #travelMap .l3-tech .s-ht .c-where, #travelMap .l3-tech .s-hcnt { color:#c9b2f2; }
   #travelMap .s-list .s-row .s-pic > svg.c-tick { width:17px; height:17px; }
   #travelMap .l3-night .lg-tab { background:#2F5FB8; } #travelMap .l3-tech .lg-tab { background:#6A2FB8; top:14px; }
+  /* ═══ CARD-LLK-S THE LOG'S LISTS SCROLL (design/log-loot-kinds-1014/00-DESIGN-LLK.md §8; Wyatt 10/14/2026 by phone, verbatim: "for our pages in Captain's Log, we need to be able to scroll up and down to see all of the loot."):
+     every list of rows in the Captain's Log takes the co-op page's own law (CARD-CRL's .crl-form: pan-y inside the book's touch-action none, the overscroll contained, no bar); a spread's row never squeezes under 43 px (five rows still fill their page as today, a sixth scrolls);
+     the loot spreads' lists (CARD-LLA-2) are bounded by their page and never wrap: unbounded (flex 0 0 auto) they ran off the page's foot (THE CAMPAIGN's loot page cut at V2 TANK, THE BAKER RIFLE and the GOLDEN TICKET out of sight), and a GLOBAL .sl-list rule of another screen (flex-wrap:wrap, by the shared class name) wrapped a bounded list into a hidden second column. ═══ */
+  #travelMap .s-list, #travelMap .sl-list { overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; touch-action:pan-y; scrollbar-width:none; }
+  #travelMap .s-list::-webkit-scrollbar, #travelMap .sl-list::-webkit-scrollbar { display:none; }
+  #travelMap .s-list .s-row { flex:1 0 43px; min-height:43px; }   /* grows to fill as before (five rows = today's heights to the pixel), never under 43: a longer list scrolls instead of squeezing */
+  #travelMap .s-list.sl-list { flex:1 1 auto; min-height:0; flex-wrap:nowrap; }   /* the loot spread's list fills its page and scrolls inside it; nowrap against the global .sl-list rule */
+  #travelMap .s-list.sl-list .s-row { flex:0 0 48px; min-height:48px; }   /* CARD-LLA-2's own row, never stretched, never squeezed */
   /* ═══ CARD-AD THE PLACE'S ADVERTISEMENT (design/notes-0925-late/CARD-AD.md; Wyatt 9/25: "it should be like a little advertisement for Dino Park … It's located in the backyard. What can you find there? … there's no teleporting."): a place's tap in THE CAPTAIN'S LOG deals a POSTER over the book — the scene big, the Known World small with the land lit, the finds as pictures with a name under each; a tap outside or the ✕ closes; no GO, no ledger (v12.01's ledger card retired) */
   #travelMap .ad-scrim { position:absolute; left:0; right:0; bottom:0; top:var(--lg-top,44px); z-index:8; background:rgba(10,8,5,.58); display:flex; align-items:center; justify-content:center; padding:2% 3%; box-sizing:border-box; }
   #travelMap .ad-poster { position:relative; width:min(94%, 720px); max-height:97%; overflow:hidden; display:flex; flex-direction:column; background:#F1E3BC; border:3px solid #3A2A14; border-radius:6px; box-shadow:0 14px 30px rgba(0,0,0,.6), inset 0 0 0 5px #E3CF9C; padding:8px 12px 8px; box-sizing:border-box; color:#2A1F12; font-size:clamp(11px,3.2vh,15px); letter-spacing:0.03em; animation:adIn .22s ease-out; }
@@ -85600,7 +85608,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
