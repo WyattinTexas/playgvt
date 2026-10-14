@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.49","md5":"c4ad5601b91217f6879c55d5bf7424b4","sha":"cd34fd337","at":"2026-10-14T15:46:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.50","md5":"c996e2ac6f0ee5a6f97191eb8f7b4fb8","sha":"652f51a6f","at":"2026-10-14T15:51:19Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -13464,7 +13464,8 @@
   #comms.brief .cm-win { width:min(96vw,1200px); font-size:clamp(30px,9.2vh,42px); }   /* CARD-X2 INTRO TEXT ×2 (Wyatt 9/25: "All intro text needs to be bigger, especially Sarge's text and his bubble. Make it huge, right? A lot of people have trouble seeing. It needs to be twice as big."): the window's em DOUBLED (the portrait, the SARGE plate, the ▼ and the padding ride it: the plate ~10 → ~20 px on a phone) and the box up to 96vw / 1200 — the bubble grows WITH the words, never the same bubble with bigger words crammed in */
   #comms.brief .cm-txt { font-size:clamp(34px,11.2vh,48px); min-height:4.3em; }   /* CARD-X2: the words DOUBLED — the phone reads 44 px (was 22), the small phone 42, the desk below 48–60; the 4.3em floor stands (no bounce) and the box grows past it for a longer page (a page too tall for the screen is split by commFitPages — MORE PAGES, never a scroll) */   /* CARD-BB THE BIG BRIEF (Wyatt 9/22 N1: "people don't really like to read, and if they are going to read, you better make sure the text is big"): the briefing's words on the tour console's clamp (0906 BIG SARGE's own rule — one console, one rule): the phone reads 22 px where it read 0.86em = 15.5; the desk's rule below reads bigger still. The 4.3em floor stays (no bounce between a one-line and a two-line page) */
   #comms.brief.pcface { background:rgba(10,8,5,0.14); align-items:flex-end; padding-bottom:max(10px,3.5vh); box-sizing:border-box; }   /* 1032 CARD-PM-A THE FACEOFF: the briefing's own root, the veil thinned and the card seated low — the cards speak OVER her room (the dais and the line stay in sight) */
-  #comms.brief.ttb { background:rgba(10,8,5,0.16); align-items:flex-start; justify-content:center; padding:max(74px,18.5vh) max(12px,2vw) 0; box-sizing:border-box; }   /* CARD-TTB THE TAGS AND THE TOY BOX: Sarge's console in the TOP band (the veil thin), so the dog tags chip under it and OUR toy box stay in sight */
+  #comms.brief.ttb { background:rgba(10,8,5,0.16); align-items:flex-start; justify-content:flex-end; padding:max(74px,18.5vh) max(12px,2vw) 0; box-sizing:border-box; }   /* CARD-TTB2 (ISAAC 10/14: "make sure the dialog boxes aren't covering up the toy boxes"): BOTH pages seated right, so OUR box at the left of the glass is never under the console */   /* CARD-TTB THE TAGS AND THE TOY BOX: Sarge's console in the TOP band (the veil thin), so the dog tags chip under it and OUR toy box stay in sight */
+  #comms.brief.ttb .cm-win { width:min(80vw,1040px); }   /* CARD-TTB2 page 1 (the tags): 80vw clears the box at zoom 1 (its art ends x 131 css on his glass; the console starts 157) and keeps the English line at its three lines */
   #comms.brief.ttb.ttbbox { justify-content:flex-end; }   /* page 2: the console seated right; the camera has OUR box low on the left */
   #comms.brief.ttb.ttbbox .cm-win { width:min(72vw,1040px); }
   #comms.brief.ttb .cm-win { padding-top:0.3em; padding-bottom:0.3em; }
@@ -82806,6 +82807,8 @@ function coachEvent(ev,u){
 // premiere card is closed -> the fight holds under Sarge's console (the briefing's own machine; its own seat: #comms.brief.ttb, top right, the veil thin):
 // page 1 THE TAGS (the chip ringed, the -N the man cost over it, the dog tag's picture beside the words: TTB_MARK in the line, ttbPut) . page 2 THE TOY BOX
 // (the camera glides in to TTB.Z on OUR box, ringed) . the last tap: the camera glides home and the coach goes on (ADD A SECOND SOLDIER). Reduced motion = cuts.
+// CARD-TTB2 (ISAAC at the keyboard 10/14/2026 ~11:35, verbatim: "make sure the dialog boxes aren't covering up the toy boxes. We want them to see as many artifacts as possible"):
+// page 1 was centred at 96vw and stood over OUR box at zoom 1 on his glass; now BOTH pages seat right (page 1 80vw, page 2 72vw) and each page is fitted to the band's room.
 // Zero save keys of its own, zero server bytes, zero wire (the opener is a solo fight).
 const TTB={ Z:1.7, wait:600, inMs:1200, outMs:1000 };   // the push-in's factor . the beat waits 0.6 s after the drop . the glide in / home (ms, wall time)
 const TTB_MARK='';   // in a page: the dog tag's picture goes HERE (the line's English and its seven rows carry it after the words for dog tags)
@@ -82822,8 +82825,11 @@ function ttbOpen(bf, T){
   if((S.coop || (coopLaunching && COOP)) && coopHumans()>1) return false;
   const h=commWin('brief'); if(!h) return false;
   h.el.classList.add('ttb');
-  const p1=commFitPages(h, tourPages(TXT(TTB_LINES[0]), 1));
-  h.el.classList.add('ttbbox'); const p2=commFitPages(h, tourPages(TXT(TTB_LINES[1]), 1)); h.el.classList.remove('ttbbox');   // each line fitted at its own page's width
+  const band=Math.max(74, innerHeight*0.185)+8;   // CARD-TTB2: the seat's top band (the css padding) + a margin, parked in the window's bottom padding while the pages are fitted, so commFitPages measures the room the band leaves (a glass too short for a page splits it, never runs it off the bottom)
+  h.win.style.paddingBottom=band+'px'; let p1, p2;
+  try{ p1=commFitPages(h, tourPages(TXT(TTB_LINES[0]), 1));
+    h.el.classList.add('ttbbox'); p2=commFitPages(h, tourPages(TXT(TTB_LINES[1]), 1)); h.el.classList.remove('ttbbox'); }   // each line fitted at its own page's width
+  finally { h.win.style.paddingBottom=''; }
   const u=S.units.find(v=>v.side===bfMyTeam() && v.type!=='sarge');
   T.boxAt=p1.length; T.cost=u? (capBfCost(u.type)|0) : 0; T.p0=performance.now();
   COMM.brief={ kind:'ttb', pages:p1.concat(p2), i:0, h, always:false, onPage:j=>ttbPage(j), done:ttbHome };   // commAdvance writes META.comms.ttb at the last tap (once a save)
@@ -85244,7 +85250,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.49';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.50';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
