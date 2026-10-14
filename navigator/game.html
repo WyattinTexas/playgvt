@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.26","md5":"9e0243d11f6d458496855d2047819335","sha":"056c141d6","at":"2026-10-14T02:27:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.27","md5":"6b66aa87c0b0f65fa92422576c21b923","sha":"9b3ea2e8e","at":"2026-10-14T02:39:50Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84824,7 +84824,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -164311,7 +164311,7 @@ function surpUp(){ return rosPaintStands() && S.mode==='menu'; }   // THE DEMO's
 // flickering out, the white flash; SFX.fwlaunch / SFX.fwpop at the same crossings); STARS = what plays when no show is picked (the gold ring and the gold stars of the flag top). One canvas (.fwp-cv)
 // over the sky (after .fwr-bursts) and under .fwr-left / .fwr-right (z 1); the page's two painted bursts dim while it plays; a new tap restarts it; it ends with the show or when the page leaves.
 // Reduced motion: one still frame of the bloom, held 2.6 s (the ceremony skips its show under reduced motion; the room still shows what the colour looks like).
-const FWP={ raf:0, cv:null, id:null, t0:0, last:-1, W:0, H:0, dpr:1, sh:null, rm:false, n:0 };
+const FWP={ raf:0, cv:null, id:null, t0:0, last:-1, W:0, H:0, dpr:1, sh:null, rm:false, n:0, inT:0 };   // R2: inT = the entry's timer
 const FWP_R=54;   // the bloom's reach in css px: the ceremony's own 54
 function fwpStop(){ if(FWP.raf) cancelAnimationFrame(FWP.raf); FWP.raf=0; if(FWP.cv && FWP.cv.parentNode){ const pg=FWP.cv.parentNode; pg.removeChild(FWP.cv); if(pg.classList) pg.classList.remove('fwp-on'); } FWP.cv=null; FWP.id=null; FWP.sh=null; }
 function fwpCx(){ return FWP.W*0.70; } function fwpCy(){ return FWP.H*0.27; }   // the show's centre: the open sky over the pick (the painted bursts' own corner)
@@ -164354,7 +164354,15 @@ function fwpDraw(t, still){ const cv=FWP.cv; if(!cv) return; const g=cv.getConte
         g.beginPath(); g.moveTo(sh.x+Math.cos(a)*R*0.82, sh.y+Math.sin(a)*R*0.82+droop); g.lineTo(sh.x+Math.cos(a)*R, sh.y+Math.sin(a)*R+droop); g.stroke(); }
       if(b<0.15){ g.globalAlpha=(1-b/0.15)*0.9; g.fillStyle='#FFFFFF'; g.beginPath(); g.arc(sh.x, sh.y, 10*(0.4+(b/0.15)*0.6), 0, 7); g.fill(); }
       g.globalAlpha=1; g.lineCap='butt'; } } }
-function fwpRig(o){ o=o||{}; if(o.play) fwpPlay(o.play); if(o.stop) fwpStop(); return { cv:GVT_CV, id:FWP.id, playing:!!FWP.cv, raf:!!FWP.raf, rm:FWP.rm, n:FWP.n, dur:fwpDur(), sh:FWP.sh? FWP.sh.map(s=>({ at:s.at, x:Math.round(s.x), y:Math.round(s.y), hex:s.hex })) : null }; }
+function fwpRig(o){ o=o||{}; if(o.play) fwpPlay(o.play); if(o.stop) fwpStop(); return { cv:GVT_CV, id:FWP.id, playing:!!FWP.cv, raf:!!FWP.raf, rm:FWP.rm, n:FWP.n, dur:fwpDur(), inT:!!FWP.inT, enterId:fwpEnterId(), sh:FWP.sh? FWP.sh.map(s=>({ at:s.at, x:Math.round(s.x), y:Math.round(s.y), hex:s.hex })) : null }; }
+// R2 (FROM WYATT, Discord 10/13/2026 22:25 EDT, verbatim: "Fireworks page needs to play fireworks automatically when you enter"): every way into the room plays a show by itself, once,
+// FWP_IN_MS after the room paints (after its .34 s rise, so the canvas is measured at rest): the hall's door (UI.labToggle: the walk, or the room at once under reduced motion) and the lab opened
+// straight onto the room (lchLabPage: the news / menu spot). WHICH: the player's own pick (the box owned, a colour picked), else RAINBOW (never the bare gold stars on the way in; a look at the
+// whole box before the buy). A tap first wins (the entry plays only while no show has started since the paint); a repaint inside the room never restarts it; walking out stops it (fwpTick).
+const FWP_IN_MS=400;
+function fwpEnterId(){ return (fwOwned() && META.fwOn && FW_COLORS.some(c=>c.id===META.fwOn))? META.fwOn : 'rainbow'; }
+function fwpEnter(key){ if(key!=='fireworks') return; clearTimeout(FWP.inT); const n=FWP.n;
+  FWP.inT=setTimeout(()=>{ FWP.inT=0; const pg=document.getElementById('flPage'); if(FWP.n!==n || FWP.cv || !pg || !pg.classList.contains('flh-fw') || !shopIsOpen() || SHOP.store!=='lab' || SHOP.labOpen!=='fireworks') return; fwpPlay(fwpEnterId()); }, FWP_IN_MS); }
 // ═══ end of sec:CARD-FWP ═══
 // ═══ CARD-ICL THE ICE CAVES LOCK: KING YETI'S DOOR (board JH4, lane home; design/ice-caves-lock-1013/00-BUILD-ICL.md; Wyatt 10/13/2026 12:26 EDT by phone, jumpr remote 2146, dictated, verbatim: "Lock the ice caves. For someone to enter the ice caves,
 // they must defeat King Yeti on easy once. Then they can access the ice caves, and they also get an announcement when they can access the ice caves. For players who already have done this, please don't give them an announcement because they already
@@ -164576,7 +164584,7 @@ function flhLsrPageHTML(S){ const anim=LAB_PG.anim; LAB_PG.anim=0; SHOP.labSel=n
   return '<div id="flPage" class="flh-lsr'+(anim? ' in' : '')+'"><div class="lch-page lch-lz"><b class="lch-ttl">LASER ROOM</b>'+shopLasersInnerHTML()+'</div></div>'; }   // THE BACK COUNTER's own case (the neon, the eight guns + the won irons, the counsel); UI.laser's shopRefresh repaints the lab with this page still up
 function flhCryPageHTML(S){ const anim=LAB_PG.anim; LAB_PG.anim=0; SHOP.labSel=null;
   return '<div id="flPage" class="flh-cry'+(anim? ' in' : '')+'"><div class="lch-page lch-cry"><b class="lch-ttl">CRYSTAL ROOM</b>'+shopSaberInnerHTML()+'</div></div>'; }   // THE CRYSTAL CASE's own case (the hilt, the vials, the refinement rows, the veil, the counsel); UI.sabBuy's and the rite's shopRefresh keep the page up
-function lchLabPage(key){ openShop('lab'); SHOP.labOpen=key; SHOP.labSel=null; LAB_PG.anim=0; shopRefresh(); }   // the lab opened on a page (CARD-FWR's nmSurpGo recipe)
+function lchLabPage(key){ openShop('lab'); SHOP.labOpen=key; SHOP.labSel=null; LAB_PG.anim=0; shopRefresh(); fwpEnter(key); }   /* CARD-FWP R2: the fireworks room's show plays as the lab opens on it */   // the lab opened on a page (CARD-FWR's nmSurpGo recipe)
 function lchShopGo(dept, spot){ if(dept==='saber') lchLabPage('crystals'); else if(dept==='lasers') lchLabPage('lasers'); else if(dept==='motor'){ openShop('hangar'); shopJump('motor', false); } else { openShop(); shopJump(dept, false); } if(spot) nmSpot(spot); }   // where a Surplus department went: the crystals and the lasers to the lab, the garage to the hangar, the rest (STARS, CODES) still the Surplus
 function lchHangarTap(){ if(!LCH.on || S.mode!=='menu' || shopIsOpen()) return; try{ audio(); }catch(e){} SFX.blip(); openShop('hangar'); shopJump('motor', false); }   // THE HANGAR'S DOOR: a tap on the shed or its apron (fhgArt's hit rect) opens THE HANGAR's store over the yard; the ✕ lands back in the yard
 function lchProbe(){ const q=k=>Array.from(document.querySelectorAll(k)); return { on:LCH.on, tabs:SHOP_TABS.map(t=>t.id), tab:SHOP.tab, store:SHOP.store, labOpen:SHOP.labOpen, hit:(typeof FHG!=='undefined' && FHG.on)? /data-fhg="hit"/.test(fhgArt()) : null, bays:q('#flhHall .flh-bay[data-key]').map(b=>b.getAttribute('data-key')), pips:q('#flhMap .flh-pip').map(p=>p.getAttribute('data-key')), page:(document.getElementById('flPage')||{}).className||null, sign:(document.querySelector('#toyshop .sh-sign b')||{}).textContent||null }; }   // the rig's read (GVT.lch)
@@ -174662,10 +174670,10 @@ window.UI = {
   // a padlocked mod line in the field manual is a shortcut down the aisle
   labToggle(key){ const b9=document.querySelector('#shLab .flh-bay[data-key="'+key+'"]'); if(b9 && b9.classList.contains('flh-lock')){ SFX.blip(); b9.classList.remove('flh-rattle'); void b9.offsetWidth; b9.classList.add('flh-rattle'); return; }   // CARD-FLH THE WALK IN (the door keeps the drawer's id lbh-<key>): a LOCKED room = the soft blip (1204 CARD-WW-LAB-3 R1) and its padlock rattles — the state untouched
     if(SHOP.labOpen===key || LAB_PG.t) return;   // the room already open under this key (a stale tap on a repaint), or a walk already in flight
-    SFX.blip(); const d=document.getElementById('shLab'), h=document.getElementById('flhHall'); SHOP.flhSel=null; SHOP.flhCue=null; if(!d || !b9 || !h || reducedMotion()){ SHOP.labOpen=key; SHOP.labSel=null; LAB_PG.anim=0; shopRefresh(); return; }   // Reduced motion: the room at once, no walk
+    SFX.blip(); const d=document.getElementById('shLab'), h=document.getElementById('flhHall'); SHOP.flhSel=null; SHOP.flhCue=null; if(!d || !b9 || !h || reducedMotion()){ SHOP.labOpen=key; SHOP.labSel=null; LAB_PG.anim=0; shopRefresh(); fwpEnter(key); return; }   // Reduced motion: the room at once, no walk   // CARD-FWP R2: the fireworks room's show plays as he walks in
     b9.classList.add('flh-open');   // BEAT 1: the leaf slides up into the wall (its porthole, its number, its bar), the room's light on the hall floor (0.30 s)
     LAB_PG.t=setTimeout(()=>{ if(!shopIsOpen() || SHOP.store!=='lab'){ LAB_PG.t=0; return; } try{ SFX.whoosh(); }catch(e){} const v=document.getElementById('flhVeil'); h.style.transformOrigin=flhOrigin(b9); h.style.transition='transform .44s cubic-bezier(.5,0,.85,.5)'; h.style.transform=flhZoom(b9); if(v) v.classList.add('on');   // BEAT 2: he walks in — the hall grows round the open door as it comes to the middle of the glass, under the room's rising light (0.44 s)
-      LAB_PG.t=setTimeout(()=>{ LAB_PG.t=0; if(!shopIsOpen() || SHOP.store!=='lab') return; LAB_PG.anim=1; SHOP.flhAnim={ kind:'in', key:key }; SHOP.labOpen=key; SHOP.labSel=null; d.scrollTop=0; shopRefresh(); }, 430); }, 300); },   // BEAT 3: the room paints under the light (the shipped .in rise of the cards; the light lifts)
+      LAB_PG.t=setTimeout(()=>{ LAB_PG.t=0; if(!shopIsOpen() || SHOP.store!=='lab') return; LAB_PG.anim=1; SHOP.flhAnim={ kind:'in', key:key }; SHOP.labOpen=key; SHOP.labSel=null; d.scrollTop=0; shopRefresh(); fwpEnter(key); }, 430); }, 300); },   /* CARD-FWP R2: the fireworks room's show plays as he walks in */   // BEAT 3: the room paints under the light (the shipped .in rise of the cards; the light lifts)
   labPageBack(){ const key=SHOP.labOpen, p=document.getElementById('flPage'); if(!key || key==='-' || LAB_PG.t) return; LAB_PG.x=Date.now(); /* CARD-LXB: the step back stamps its clock (the ✕ is deaf LAB_X_MS after it); its one door is the store's ✕ (UI.shopX), no arrow in the room */ SFX.clack(); const rm=reducedMotion();   // CARD-FLH THE WALK OUT: the room folds (#flPage.out, .22 s), then the hall paints at the zoom on the door he came through and eases home (.46 s, flhAfter), the leaf comes down with the clack; the hall stands on that door. Reduced motion: the hall at once
     const go=()=>{ LAB_PG.t=0; if(!shopIsOpen() || SHOP.store!=='lab') return; SHOP.flhAnim={ kind:'out', key:key }; SHOP.flhSel=null; SHOP.labOpen='-'; SHOP.labSel=null; SHOP.labNext=null; const d0=document.getElementById('shLab'); if(d0) d0.scrollTop=0; shopRefresh(); };
     if(rm || !p){ go(); return; } p.classList.add('out'); LAB_PG.t=setTimeout(go, 220); },
