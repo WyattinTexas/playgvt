@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.21","md5":"b4546e8184b6b5dc050b9b8425cb69cd","sha":"2a04f5094","at":"2026-10-14T01:19:25Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"22.22","md5":"18ad1606b1c2fdf8dd831a4e01a1975c","sha":"a36c7d1d8","at":"2026-10-14T01:29:37Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84706,7 +84706,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -98818,6 +98818,40 @@ function rbaSmash(u,b,tx,ty){ if(!rbaOwn(u)) return false;   // campSmash's pict
     u.rcAt=S.t; u.rcH=h; bfSfx(SFX.wshot, hz.x, hz.y); return true; }
   return false; }
 function rbaRig(){ return { cv:GVT_CV, dials:Object.assign({},RBA), men:S.units.filter(u=>!u.dead && rbaOwn(u)).map(u=>({ id:u.id, t:u.type, x:+u.x.toFixed(1), y:+u.y.toFixed(1), sga:u.sgaK||null, brTo:u.brTo==null? null : +(u.brTo-S.t).toFixed(3), brFc:u.brFc||0, rc:u.rcAt==null? null : +(S.t-u.rcAt).toFixed(3), rcH:u.rcH==null? null : u.rcH, pluck:+(u.pcPluck||0).toFixed(3), th:u.kyThAt==null? null : +(S.t-u.kyThAt).toFixed(3) })) }; }   // the rig's read (no game caller)
+// ═══ CARD-CBX THE SNOW CANNONS AND THE CANNON SHOOT THEIR OWN SHOT AT THEIR TOY BOX (design/cannons-at-box-1013/00-BUILD-CBX.md; Wyatt 10/13/2026 20:28 EDT (00:28 UTC 10/14) from his phone, verbatim: "The snow cannons and the regular cannon
+// are currently shooting lasers when they attack the campaign enemy box. It needs to just shoot the regular cannons at the box. That's how it needs to be animated, not like it's instantly shooting a laser once it hits the box. Also, the range
+// when hitting the box should be maybe 4 m closer."). Until this card the siege (campSmash) drew THE EMPEROR'S CANNON (kbcannon: the Teddy Snow Cannons) and THE CANNON (the mortar's fitted tube, cannonU) the generic +16,-26 tracer at the
+// boards and moved the box's hp on the whack. Now each whack FIRES THE GUN'S OWN SHOT at the box through lobFire (the cotton ball on its arc for the snow cannon, the iron for the cannon: the same picture, flight, report and muzzle the fire
+// loop gives them, aimed at the boards with a small scatter), and THE HIT LANDS WHEN THE BALL LANDS (cbxLand, from the shots loop: the snow splash / the iron's burst on the boards, then campSmash's own arithmetic deferred by the flight: the
+// box's hp, hitT, the alarm haste, the ring, the -n float, the pillow fort's puff, the fall). The whack's damage is campSmash's table number (the rank law, the crew share), computed at the whack and carried on the shot (sh.cbx). The box
+// shot hurts no man (the siege's law: the crate takes the table damage, nobody else; sh.dmg is 0 and it never reaches splash), the iron does not roll on (the boards stop it), and the magnet jeep never steals it (a siege whack was never
+// catchable). THE REACH: campSiegeRng hands both guns CBX.closer px less than the shipped number (4 m at the 28 px/m ruler = 112), floored at arm's length, so they walk 4 m nearer the box before they open on it. The foe halt (campUnitStep's
+// rng line) is untouched: a cannon still fights a man from its full reach. Every other man at the box, the battleground (S.bf) and the Tan's own cannons are byte-what-they-were. No save key, no wire byte, no server byte, no css. ═══
+const CBX={ on:1, closer:4*28, scatter:14 };   // the gate (a rig's switch: 0 = the shipped tracer + reach) · 4 m closer at the box (TK_M's 28 px/m, ⚑ CBX-Q1 his "maybe 4 m") · the landing's scatter on the boards (px; the shipped tracer's own ±15/±13)
+function cbxU(u){ return !!(CBX.on && u && !S.bf && (u.type==='kbcannon' || cannonU(u))); }   // the two guns of his word, on the campaign alone
+function cbxFire(u,b,dmg,dist){   // campSmash's whack for a cannon: the gun's own shot at the boards (lobFire: the report, the flight), the hit riding on it (sh.cbx) to cbxLand
+  const tgt={ x:b.x-10, y:b.y-42, vx:0, vy:0 }, g9=cannonU(u)? gigaU(u) : false;   // the boards' seat (the shipped tracer's own target); the giga cannon's bigger iron
+  const P=cannonU(u)? { spd:CANNON_LOB_SPD, r:CANNON_R*(g9? GIGA.r : 1), iron:1, tag:'cbxiron' } : { spd:190, r:24, cot:1, tag:'cbxcot' };   // THE CANNON's iron (cannonFire's own numbers) · the snow cannon's cotton (the fire loop's own lob)
+  lobFire(u, tgt, { scatter:CBX.scatter, splash:(cannonU(u)? CANNON_SPLASH : ((u.def && u.def.splash)||40)) }, 1, 0, P);   // dmg 0: the ball hurts nobody; the burst radius = the gun's own (the cannon's 40, the snow cannon's row: the landing's picture alone)
+  const sh=S.shots[S.shots.length-1]; if(sh && sh.k==='lob' && sh.src===u && !sh.cbx) sh.cbx={ dmg:dmg, d:Math.round(dist||0) };   // the whack's number rides the shot
+}
+function cbxLand(sh){   // the ball lands on the boards: its own picture, then the whack's hit (campSmash's arithmetic, by the flight later)
+  const x=sh.tx, y=sh.ty, R=sh.splash||40, c=sh.cbx||{}, dmg=Math.max(0,c.dmg|0);
+  bfSfx(SFX.boom, x, y);
+  if(sh.cot) snowSplashFx(x,y,R); else S.fx.push({k:'puff',x,y:y-10,t:0,dur:0.45,R:R});   // CARD-HA's snow splash for the cotton; splash's cream disc for the iron (mtrLand refuses an iron; no roll: the boards stop it)
+  const b=S.tanBase; if(!b || b.dead || !dmg) return;   // a crate already fallen (or a shot with no hit on it) takes nothing more
+  const fortUp9=teddyFortUp();   // 0573a THE PILLOW FORT: the hit lands on the FORT while it stands (campSmash's own door, read at the landing)
+  if(!fortUp9) b.hp=Math.max(0, b.hp-dmg);
+  b.hitT=0.25;
+  sqSiegeHaste(dmg);   // v1.48 THE ALARM: a battered crate hurries the next wave out
+  S.fx.push({k:'ring',x:b.x-6,y:b.y-40,r:6,R:34,t:0,dur:0.3,col:'rgba(255,243,196,0.8)'});
+  if(fortUp9) S.fx.push({k:'puff',x:b.x-12+(Math.random()-0.5)*26,y:b.y-46+(Math.random()-0.5)*18,t:0,dur:0.32,R:14,col:'#f1ecf7'});   // 0573a: a pillow puff where the -dmg float would land
+  else S.floats.push({x:b.x,y:b.y-96,txt:'−'+dmg,t:0,col:'#BFE39A'});
+  if(b.hp<=0) campCrateFall();
+}
+function cbxRig(){ return { cv:GVT_CV, dials:Object.assign({},CBX), guns:S.units.filter(u=>!u.dead && cbxU(u)).map(u=>({ id:u.id, t:u.type, x:+u.x.toFixed(1), y:+u.y.toFixed(1), rng:+campSiegeRng(u).toFixed(1), sT:(u.siegeT==null? null : +u.siegeT.toFixed(3)), k:u.sgaK||null, n:u.sgaN|0 })),
+  shots:S.shots.filter(sh=>sh.cbx).map(sh=>({ src:sh.src&&sh.src.id, cot:sh.cot|0, iron:sh.iron|0, t:+sh.t.toFixed(3), dur:+sh.dur.toFixed(3), tx:Math.round(sh.tx), ty:Math.round(sh.ty), dmg:sh.cbx.dmg, d:sh.cbx.d })) }; }   // the rig's read (no game caller)
+// ═══ END CARD-CBX ═══
 function campSmash(u,dist){
   const b=S.tanBase; if(!b||b.dead) return;
   // the hit rides the SAME rank law as every other hit — vet ×1.5, promotion
@@ -98834,6 +98868,7 @@ function campSmash(u,dist){
   const nAtk=(S.crewN&&S.crewN[u.coopBy||'me'])|0;
   const share=Math.min(1, CAMP_CREW/Math.max(1,nAtk));
   const dmg=Math.max(1, Math.round((BF_BASEDMG[u.type]||6)*(u.vet?1.5:1)*(u.coopUM!=null?u.coopUM:upMul(u.type))*soulDmgMulU(u)*share));   // 0093: a souled man presses the crate 5% harder — the same rail his rank rides
+  if(cbxU(u)){ cbxFire(u,b,dmg,dist); return; }   // CARD-CBX: THE EMPEROR'S CANNON and THE CANNON fire their own shot at the boards; the hit (this dmg), the ring, the float and the fall land with the ball (cbxLand); the tracer below never draws for them
   const fortUp9=teddyFortUp();   // 0573a THE PILLOW FORT: while it stands the whack lands on the FORT — no hp moves, but the weapon fx below play exactly as shipped and THE SURGE still runs (a rush still pulls the bears out faster)
   if(!fortUp9) b.hp=Math.max(0, b.hp-dmg);
   b.hitT=0.25;
@@ -99040,7 +99075,8 @@ function campSiegeRng(u){
     if(sw.w==='lightsaber' || sw.w==='commander') return melee;   // 0092: both swords close to arm's length (his 38 would floor to melee anyway — stated beside the blade for the next reader)
     return Math.max(melee,(sw.rng||u.def.rng)*radioAura(u).rng*lzRngMul(u)+tkSilvRng(u));
   }
-  return Math.max(melee, ((u.type==='mortar' && enhU(u,'cannon'))? CANNON_RUN : u.def.rng)*radioAura(u).rng*lzRngMul(u)*((u.type==='bazooka'&&enhU(u,'longtube'))?ENH_BAZ_RNG:1)+tkSilvRng(u)+bakRng(u));   // 0542 THE CANNON besieges the crate from its BALL's run (CANNON_RUN) — the tube's 9999 would park him where he stands   // v2.36: the tan beam besieges too — what a man can shoot he can besiege · 0481: the Baker's +3 m besieges too (additive, applied last — the silver grammar)
+  const r9=Math.max(melee, ((u.type==='mortar' && enhU(u,'cannon'))? CANNON_RUN : u.def.rng)*radioAura(u).rng*lzRngMul(u)*((u.type==='bazooka'&&enhU(u,'longtube'))?ENH_BAZ_RNG:1)+tkSilvRng(u)+bakRng(u));   // 0542 THE CANNON besieges the crate from its BALL's run (CANNON_RUN) — the tube's 9999 would park him where he stands   // v2.36: the tan beam besieges too — what a man can shoot he can besiege · 0481: the Baker's +3 m besieges too (additive, applied last — the silver grammar)
+  return cbxU(u)? Math.max(melee, r9-CBX.closer) : r9;   // CARD-CBX: THE EMPEROR'S CANNON and THE CANNON open on the box CBX.closer px (4 m) nearer than the shipped reach, never inside arm's length; every other man r9, byte-what-it-was
 }
 // the same "could my gun actually take him" test the weapon loop applies, so a
 // man never halts for a target his trigger would refuse (offscreen, burrowed)
@@ -116561,7 +116597,7 @@ function update(dt){
   // it lands through foeSplash (knocks greens, no blame), never splash()
   for(let i=S.shots.length-1;i>=0;i--){
     const sh=S.shots[i];
-    if(!S.bf && (sh.k==='rocket' || sh.k==='lob') && magShot(sh,dt)){ S.shots.splice(i,1); continue; }   // OC-8 THE MAGNET JEEP: YOUR rocket, bomb or grenade in flight inside the magnet's reach swings onto its grille and STICKS — it never bursts (false on every rug without a live magnet: S.magOn)
+    if(!S.bf && (sh.k==='rocket' || sh.k==='lob') && !sh.cbx && magShot(sh,dt)){ S.shots.splice(i,1); continue; }   // OC-8 THE MAGNET JEEP: YOUR rocket, bomb or grenade in flight inside the magnet's reach swings onto its grille and STICKS — it never bursts (false on every rug without a live magnet: S.magOn)
     if(sh.k==='rocket'){ if(sh.hsm) hsmSteer(sh);   /* CARD-HSM: the seeker re-aims the missile at its machine every frame of the flight */
       const dx=sh.tx-sh.x, dy=(sh.ty-14)-sh.y, d=Math.hypot(dx,dy);
       if(d<10){ S.shots.splice(i,1); if(sh.hsm) hsmLand(sh); /* CARD-HSM: the missile's own burst: the rocket's blast, then the share */ else if(sh.dfAir) dfBurst(sh); /* CARD-SF3-D2: a rocket aimed at the plane bursts IN THE AIR */ else if(sh.refl) cmdoReflLand(sh); else if(sh.foe) foeSplash(sh.tx,sh.ty,sh.splash,sh.src,sh.mwf,rbOf(sh)); else splash(sh.tx,sh.ty,sh.splash,sh.dmg,sh.papa? 'papa' : true,sh.src,false,false,sh.big,rbOf(sh),sh.air); }   // CARD-RB: a tube's rocket lands THE BLAST (rbOf — the tank's round answers 0 and keeps the disc)   // 1178 CARD-NM: BIG PAPA's rocket lands with vx2 'papa' — the ×3 on a hull at both carpets' vehicle factors
@@ -116582,7 +116618,7 @@ function update(dt){
       sh.t+=dt;
       if(sh.t>=sh.dur){ if(sh.gren && sh.air){ S.shots.splice(i,1); splash(sh.tx,sh.ty,sh.splash,sh.dmg,false,sh.src,false,false,0,0,1); continue; }   /* CARD-SF2-B2 THE AIR BURST: thrown at the sky, it bursts in the sky */
         if(sh.gren){ if(!sh.landed) grLand(sh); continue; }   // 1189 CARD-GR: a grenade LANDS instead of bursting — the fuse beat begins (the puff, the snap); a landed grenade waits for grFuse above, never the shipped landing below
-        S.shots.splice(i,1); if(sh.refl) cmdoReflLand(sh);
+        S.shots.splice(i,1); if(sh.refl) cmdoReflLand(sh); else if(sh.cbx){ cbxLand(sh); }   /* CARD-CBX: a cannon's shot at THEIR TOY BOX lands its hit on the boards (never splash: no man is hurt, no roll) */
         else if(sh.foe && sh.fish){ hyLand(sh); }   // CARD-YB THE FISH lands on its own law (the pips inside HY_R + the slip-shove + a puff)
         else if(sh.foe){ const c9=foeSplash(sh.tx,sh.ty,sh.splash,sh.src,sh.mwf,0,sh);   /* CARD-MTR: the shell rides down to the disc's seat (msh) */
           // FM-GVT-ROBO-01: the robot's shell LEAVES FIRE where it lands
