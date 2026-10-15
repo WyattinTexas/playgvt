@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.57","md5":"f13d5c5093331455ae3227d9cc8180a5","sha":"082cb173b","at":"2026-10-15T22:57:09Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.58","md5":"d9b28992ce892c491bb3df9caeafe2fe","sha":"68d592e6d","at":"2026-10-15T23:01:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -2692,6 +2692,12 @@
   #hideHot::after { content:''; position:absolute; left:50%; bottom:8%; width:34%; height:40%;
     transform:translate(-50%,0); border-radius:10px; box-shadow:0 0 26px 8px rgba(255,217,160,0.18); }
   #hideHot.deny { animation:shno3 0.42s; }
+  /* ═══ css:bkr: CARD-BKR THE BANK'S CLOCK AND ITS TWO REWARDS (design/bank-cage-note-1015/00-CARD-BCN.md; FROM DYLAN 10/15 18:26 + 18:28): the taps on the vault, the counter's star and the clock, their gold pulse, MR. GREENBACK's plate fading after ten seconds ═══ */
+  #wbkbank .bkr-hit { cursor:pointer; }   /* CARD-BKR: the vault's door, the counter's star, the grandfather clock */
+  #wbkbank .wbk-say.bkr-fade { opacity:0; transition:opacity .6s ease; }   /* CARD-BKR: the plate steps aside after ten seconds (bkrHush) */
+  #wbkbank .bkr-pulse { animation:bkrpulse .9s ease-out forwards; transform-box:fill-box; transform-origin:center; pointer-events:none; }   /* CARD-BKR: the soft gold pulse on a tapped piece */
+  @keyframes bkrpulse { 0%{ opacity:.6; transform:scale(.5) } 100%{ opacity:0; transform:scale(1.6) } }   /* CARD-BKR */
+  @media (prefers-reduced-motion: reduce){ #wbkbank .bkr-pulse { animation:none; opacity:0; } #wbkbank .wbk-say.bkr-fade { transition:none; } }   /* CARD-BKR: still under reduced motion */
   /* ═══ css:wbk: CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN 10/15): the lobby (#wbkbank: the whole screen over the room, no footer, the ✕ top right, the purse pill bottom right: Fuzzies' page grammar), MR. GREENBACK's plate, THE TELLER'S MAT (#wbkmat), the SAFE card's gate line ═══ */
   body.wbk-open #fsiSay { display:none !important; }   /* CARD-WBK: the coaching plate never over the lobby (fsiBusy yields too) */
   #milePop .mb-line.wbk-gate { color:#FFD24A; margin-top:6px; }   /* CARD-WBK: the SAFE card's one gold line while King Croak still rules Outlaw Town */
@@ -87145,7 +87151,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.57';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.58';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -166291,7 +166297,7 @@ const WBK_ART=(function(){   // the art, drawn NEW in THE GVT STYLE GUIDE's look
     s+=L('M0 '+(-r*0.55)+' V'+(r*0.55)+' M'+(-r*0.55)+' 0 H'+(r*0.55)+' M'+(-r*0.39)+' '+(-r*0.39)+' L'+(r*0.39)+' '+(r*0.39)+' M'+(-r*0.39)+' '+(r*0.39)+' L'+(r*0.39)+' '+(-r*0.39), '#4A5560', 6);
     return s+E(0, 0, r*0.16, r*0.16, '#E8B93C', { w:2 })+'</g>'; }   // the round vault door: the steel, the wheel, the gold bolts
   function clock(x, y){ return '<g transform="translate('+x+','+y+')">'+R(-34, -10, 68, 150, '#6E3F22', { w:3, r:8, pan:true })+P('M-40 -10 Q0 -44 40 -10 Z', '#7A4A28', { w:3 })+E(0, 26, 26, 26, '#F6EED8', { w:2.4 })
-    +L('M0 26 V10 M0 26 L12 30', '#2A2320', 3)+R(-20, 62, 40, 70, '#3A2414', { w:2, r:4 })+'<g class="wbk-pend">'+L('M0 64 V112', '#C99A3E', 2.4)+E(0, 116, 9, 9, '#E8B93C', { w:1.8 })+'</g></g>'; }   // the regulator clock; its pendulum swings (css)
+    +(bkrOn()? bkrHands() : L('M0 26 V10 M0 26 L12 30', '#2A2320', 3))+R(-20, 62, 40, 70, '#3A2414', { w:2, r:4 })+'<g class="wbk-pend">'+L('M0 64 V112', '#C99A3E', 2.4)+E(0, 116, 9, 9, '#E8B93C', { w:1.8 })+'</g></g>'; }   // the regulator clock; its pendulum swings (css)
   function bag(x, y, k){ k=k||1; return '<g transform="translate('+x+','+y+') scale('+k+')">'+P('M0 0 Q-20 6 -21 26 Q-21 40 0 40 Q21 40 21 26 Q20 6 0 0 Q5 -5 4 -10 L-4 -10 Q-5 -5 0 0 Z', '#C9A96A', { w:2.6, pan:true })
     +L('M-5 -8 h10', '#6D4C28', 2.2)+star(0, 22, 9, { fill:'#E8B93C', w:1.6 })+'</g>'; }
   function wanted(x, y, face){ return '<g transform="translate('+x+','+y+') rotate(-3)">'+R(0, 0, 140, 190, '#EFE3C2', { w:2.4, pan:true })+L('M8 8 l6 6 M132 8 l-6 6 M8 182 l6 -6 M132 182 l-6 -6', '#8A6A3E', 1.4, { op:0.7 })
@@ -166340,7 +166346,7 @@ function wbkSceneSVG(o){ o=o||{}; const A=WBK_ART; let s='<svg class="wbk-scene"
   s+=A.R(-300, 110, 220, 330, '#7A4E2A', { w:3, r:4, pan:true })+'<rect x="-286" y="124" width="192" height="302" fill="url(#wbkGlass)"/>'   // the street window (off a phone's glass: a wider screen shows it) and its sunbeam
     +A.P('M-286 330 L-240 300 L-190 312 L-150 282 L-94 300 L-94 426 L-286 426 Z', '#C9754A', { w:2 })+A.L('M-190 124 V426 M-286 275 H-94', '#7A4E2A', 8)
     +'<path d="M-94 130 L380 650 L60 700 L-160 430 Z" fill="url(#wbkSun)" pointer-events="none"/>';
-  s+=A.wanted(20, 128, o.face||'')+A.clock(1520, 110)+A.R(1494, 330, 52, 8, '#5A3A1E', { w:2 });
+  s+=A.wanted(20, 128, o.face||'')+A.clock(1520, 110)+bkrTrim(1520, 110)+A.R(1494, 330, 52, 8, '#5A3A1E', { w:2 });   // CARD-BKR: the detail molding round the clock's perimeter (Dylan 18:26)
   s+='<rect x="230" y="150" width="1140" height="310" fill="#6E4528"/>'; q=''; for(let x=240;x<1370;x+=48) q+='M'+x+' 150 V460 '; s+=A.L(q, '#55331C', 1.4, { op:0.4 });   // THE CAGE: the back office through the windows
   s+=A.vault(386, 336, 92)+A.R(650, 214, 300, 12, '#5A3A1E', { w:2.4 })+A.bag(690, 170, 0.9)+A.bag(728, 176, 0.75)+A.R(770, 168, 22, 46, '#3A5A8A', { w:2 })+A.R(794, 172, 20, 42, '#8A2E2E', { w:2 })+A.R(816, 166, 24, 48, '#2E6B4A', { w:2 })+A.bag(900, 172, 0.85);
   s+=A.lamp(912, 360);
@@ -166372,6 +166378,7 @@ function wbkSceneSVG(o){ o=o||{}; const A=WBK_ART; let s='<svg class="wbk-scene"
   s+='<rect class="wbk-hit" x="640" y="178" width="320" height="274" fill="#000" fill-opacity="0" onclick="wbkTap(\'win\')"/>'   // the doors to THE TELLER'S MAT: his window, the price board, the bell
     +'<rect class="wbk-hit" x="1080" y="184" width="270" height="222" fill="#000" fill-opacity="0" onclick="wbkTap(\'rates\')"/>'
     +'<rect class="wbk-hit" x="1104" y="400" width="72" height="58" fill="#000" fill-opacity="0" onclick="wbkTap(\'bell\')"/>';
+  s+=bkrHits();   // CARD-BKR (FROM DYLAN 18:26 + 18:28): the vault's door (+100 once), the counter's star (+50 once), the grandfather clock (a star a day), through THE ONE PIPE; the pulses' seat
   return s+'</svg>'; }
 function wbkFace(){ try{ return lg3Face('croak'); }catch(e){ return ''; } }
 function wbkPageHTML(o){ o=o||{}; return '<div class="wbk-top"><button type="button" class="wt-x" onclick="wbkX()">✕</button></div>'
@@ -166382,7 +166389,7 @@ const WBK_SAY={ hi:['HOWDY, PARTNER!', 'KING CROAK IS GONE, SO THE BANK IS OPEN 
 function wbkSay(k){ const d=wbkEl(); if(!d) return false; const old=document.getElementById('wbkSay'); if(old) old.remove(); const L=WBK_SAY[k]; if(!L) return false; WBK.say=k;
   const b=document.createElement('div'); b.id='wbkSay'; b.className='wbk-say'; b.setAttribute('data-say', k);
   b.innerHTML='<b>'+t(L[0])+'</b><span>'+t(L[1])+'</span>'+(L[2]? '<button type="button" class="wbk-go" onclick="wbkMatOpen()">'+t(L[2])+'</button>' : '');
-  d.appendChild(b); wbkSeat(); return true; }
+  d.appendChild(b); wbkSeat(); bkrHush(); return true; }   // CARD-BKR (Dylan 18:28): the plate goes after ten seconds, the picture alone
 function wbkSeat(){ const d=wbkEl(), b=document.getElementById('wbkSay'), svg=d && d.querySelector('svg.wbk-scene'); if(!b || !svg) return; let m=null; try{ m=svg.getScreenCTM(); }catch(e){} if(!m) return;   // the plate on the painting: its tail at his cheek (scene x 700), its top at his brow (y 150), never over his face, on any glass
   const tipX=m.a*700+m.e, topY=m.d*150+m.f, W=innerWidth; b.style.right=Math.max(8, W-tipX+18)+'px'; b.style.top=Math.max(52, topY)+'px'; b.style.maxWidth=Math.max(200, Math.min(tipX-26, Math.max(260, W*0.42), 440))+'px'; }
 function wbkFit(){ const d=wbkEl(); if(!d) return; d.querySelectorAll('text[data-fit]').forEach(tx=>{ try{ const w=+tx.getAttribute('data-fit'); tx.removeAttribute('textLength'); if(tx.getComputedTextLength()>w){ tx.setAttribute('textLength', w); tx.setAttribute('lengthAdjust', 'spacingAndGlyphs'); } }catch(e){} }); }   // a long tongue squeezes into its board, never past it
@@ -166401,7 +166408,7 @@ function wbkEnter(){ if(!wbkBiz()) return false; if(wbkEl()) return true;
   if(first || due) saveMeta();   // the ledger first, the show second (the flag-first purse law)
   WBK.pose=first? 'wave' : due? 'pay' : 'idle';
   const d=document.createElement('div'); d.id='wbkbank'; d.setAttribute('data-notr', ''); d.innerHTML=wbkPageHTML({ pose:WBK.pose, coins:due? Math.min(w9, 6) : 0 }); document.body.appendChild(d); document.body.classList.add('wbk-open');
-  wbkSay(first? 'hi' : due? 'day' : 'idle'); wbkWarm(); wbkFit(); wbkWatch();
+  wbkSay(first? 'hi' : due? 'day' : 'idle'); wbkWarm(); wbkFit(); wbkWatch(); bkrDress();   // CARD-BKR: the clock's hands on the device's time, refreshed while the lobby stands
   try{ SFX.creak(); }catch(e){}
   if(first) setTimeout(()=>{ try{ SFX.wribbit(); }catch(e){} }, 220);
   if(due){ const p=wbkDishXY(); setTimeout(()=>{ if(!wbkEl()) return; wbkFloat('+'+w9+'★', p[0], p[1]); try{ SFX.coin(); }catch(e){} }, 300);
@@ -166454,6 +166461,65 @@ function wbkRig(o){ o=o||{}; let r=null;   // THE RIG's door: { enter, close, ma
     prices:{ unit:wbkPrice('unit'), hero:wbkPrice('hero'), vil:wbkPrice('vil'), nemesis:wbkPrice('nemesis'), sarge:wbkPrice('sarge') }, tiles:p? p.querySelectorAll('.wbk-tile').length : null, pan:WBK.pan,
     door:!!document.querySelector('#roomStage .wbk-door'), fsiBusy:(function(){ try{ return fsiBusy(); }catch(e){ return 'err'; } })() }; }
 // ═══ end of sec:CARD-WBK ═══
+// ═══ CARD-BKR · THE BANK'S CLOCK AND ITS TWO REWARDS (sec:CARD-BKR; design/bank-cage-note-1015/00-CARD-BCN.md; FROM DYLAN, co-designer, WhatsApp 10/15/2026 18:26 EDT, verbatim: "Let's add that it's a +50 star bonus the
+// first time you tap the star symbol under the frog please. Let's also make a single star a day when you tap the grandfather clock. Can we also add some detail molding around the perimeter of the grandfather clock? I'd also like
+// the clock to show the actual time for the players given time zone. Thank you!" and 18:28: "Let's give +100 stars the first time players touch the vault door. With that, let's have the text blurb disappear after ten seconds
+// upon entering the bank please. This way they can see all of your beautiful design. Thank you!"). A round ON TOP of CARD-WBK (the lobby as J11 landed it, v23.42): nothing of the bank's workings moves.
+// THE CLOCK: the regulator's hands read the device's clock (new Date() = the player's own zone), set at the paint and every 15 s while the lobby stands (bkrDress); twelve ticks on its face; DETAIL MOLDING round the case's
+//   perimeter (bkrTrim: a crown band riding the pediment with a brass finial, a dentil row under it, carved bead rails down both edges, a stepped plinth at the foot), in THE GVT STYLE GUIDE's look through WBK_ART's own
+//   P/R/E (tonal, the rim a shade darker and see-through, crisp lines). ?bkr=0 = the clock as J11 drew it (the static hands), no molding, no rewards, the plate as it was.
+// THE REWARDS walk THE ONE PIPE (starX; CARD-SEM): the counter's star medallion pays BKR.base.star (100 = +50 on a weekday, +100 on a weekend) ONCE EVER; the vault's door pays BKR.base.vault (200 = +100 / +200) ONCE EVER;
+//   the grandfather clock pays BKR.base.clock (2 = +1 / +2) ONCE A DAY. The ledger first (META.bkr { star, vault, clk }, a comet-law flat healed on every read: bkrLed), saveMeta, then the show: a soft gold pulse on the
+//   piece, the stars' float (wbkFloat), the purse pill (wbkStarsSync), SFX.coin; a tap that pays nothing: a clack and a small pulse. The purse AND the lifetime count, as the keeper's daily stars (⚑ BKR-Q4).
+//   ⚑ BKR-Q3: Dylan's +50 / +100 / one star are the WEEKDAY numbers here (the bank's own price convention, WBK.base); a weekend doubles them. The alternative: his numbers as the base, halved on a weekday.
+// THE PLATE: every plate of MR. GREENBACK's (wbkSay: HOWDY, the daily stars, his usual line) steps aside TEN SECONDS after it is shown (bkrHush: a fade, then gone; the day-plate's own swap to his usual line is cancelled
+//   with it, so nothing comes back over the picture). His window, the bell and the price board still open the mat. Zero words, zero server bytes, zero sw.js. THE RIG: GVT.bkr({ star, vault, clock, time:'HH:MM'|null, hush, tick }).
+const BKR={ on:(()=>{ try{ const m=/[?&]bkr=(\d)/.exec(location.search); return m? +m[1] : 1; }catch(e){ return 1; } })(),   // the switch (?bkr=0 = the lobby as J11 landed it)
+  base:{ star:100, vault:200, clock:2 },   // ⚑ BKR-Q3: the bases, walked through starX (a weekday: 50 · 100 · 1; a weekend: 100 · 200 · 2)
+  hushMs:10000, tickMs:15000, force:null, hush:0, iv:0, last:null };   // hushMs = the plate's stand (Dylan: ten seconds) · tickMs = the hands' refresh · force = the rig's clock
+function bkrOn(){ return !!BKR.on; }
+function bkrLed(){ let L=META.bkr; if(!L || typeof L!=='object' || Array.isArray(L)) L=META.bkr={}; L.star=L.star? 1 : 0; L.vault=L.vault? 1 : 0; L.clk=(typeof L.clk==='string')? L.clk : ''; return L; }   // the save's one seat, healed on every read: star / vault = paid once · clk = the day the clock last paid
+function bkrAngles(){ const d=new Date(), f=BKR.force; const H=f? f.h : d.getHours(), M=f? f.m : d.getMinutes(); return { h:(H%12)*30+M*0.5, m:M*6, hh:H, mm:M }; }   // the device's clock = the player's zone
+function bkrHands(){ const a=bkrAngles(); let s='<g class="bkr-hands">';   // the face's twelve ticks, then the hour and the minute hand on the real time (A.clock's seat; ?bkr=0 keeps J11's static hands)
+  for(let i=0;i<12;i++){ const q=i*Math.PI/6, r0=i%3? 21 : 18.5, r1=23.5; s+='<path d="M'+(r0*Math.sin(q)).toFixed(1)+' '+(26-r0*Math.cos(q)).toFixed(1)+' L'+(r1*Math.sin(q)).toFixed(1)+' '+(26-r1*Math.cos(q)).toFixed(1)+'" stroke="#6E5A40" stroke-width="'+(i%3? 1.2 : 2)+'" stroke-linecap="round" fill="none"/>'; }
+  s+='<path id="bkrHh" d="M0 29 V13" stroke="#2A2320" stroke-width="3.2" stroke-linecap="round" fill="none" transform="rotate('+a.h.toFixed(1)+' 0 26)"/>'
+    +'<path id="bkrMh" d="M0 30 V6.5" stroke="#2A2320" stroke-width="2.4" stroke-linecap="round" fill="none" transform="rotate('+a.m.toFixed(1)+' 0 26)"/>'
+    +'<circle cx="0" cy="26" r="2.4" fill="#2A2320"/></g>'; return s; }
+function bkrClockSet(){ const a=bkrAngles(); const h=document.getElementById('bkrHh'), m=document.getElementById('bkrMh'); if(h) h.setAttribute('transform', 'rotate('+a.h.toFixed(1)+' 0 26)'); if(m) m.setAttribute('transform', 'rotate('+a.m.toFixed(1)+' 0 26)'); return a; }
+function bkrTick(){ if(!wbkEl()){ if(BKR.iv){ clearInterval(BKR.iv); BKR.iv=0; } return false; } bkrClockSet(); return true; }
+function bkrDress(){ if(!bkrOn()) return false; bkrClockSet(); if(BKR.iv) clearInterval(BKR.iv); BKR.iv=setInterval(bkrTick, BKR.tickMs); if(BKR.hush) clearTimeout(BKR.hush); BKR.hush=setTimeout(bkrHushNow, BKR.hushMs); return true; }   // wbkEnter's last line: the hands kept right while the lobby stands (the interval folds itself when the page is gone); the plate's ten seconds count from THIS entry
+function bkrTrim(x, y){ if(!bkrOn()) return ''; const A=WBK_ART; let s='<g id="bkrTrim" transform="translate('+x+','+y+')" pointer-events="none">';   // DETAIL MOLDING round the clock's perimeter (Dylan 18:26), over A.clock's case
+  s+=A.P('M-46 -8 Q0 -56 46 -8 L40 -8 Q0 -46 -40 -8 Z', '#5C3A1F', { w:2.4 })+A.E(0, -37, 5, 5, '#E8B93C', { w:1.6 })+A.R(-6, -33, 12, 5, '#C99A3E', { w:1.4, r:2 });   // the crown band riding the pediment's arch, the brass finial
+  for(let dx=-31;dx<=25;dx+=8) s+=A.R(dx, -9, 5, 6, '#3E2614', { w:1.2 });   // the dentil row under the pediment
+  [-38.5, 38.5].forEach(sx=>{ for(let dy=2;dy<=130;dy+=8) s+=A.E(sx, dy, 3.2, 3.2, '#8A5A30', { w:1.2 }); });   // the carved bead rails down both edges of the case
+  s+=A.R(-44, 138, 88, 8, '#5C3A1F', { w:2, r:2 })+A.R(-40, 146, 80, 6, '#3E2614', { w:1.6, r:2 });   // the stepped plinth at the foot
+  return s+'</g>'; }
+function bkrHits(){ if(!bkrOn()) return ''; return '<g id="bkrFx" pointer-events="none"></g>'   // the pulses' seat, then the three taps (the vault's door, the counter's star, the clock), clear of J11's three
+    +'<rect class="wbk-hit bkr-hit" x="250" y="200" width="270" height="252" fill="#000" fill-opacity="0" onclick="bkrTap(\'vault\')"/>'
+    +'<rect class="wbk-hit bkr-hit" x="748" y="516" width="104" height="104" fill="#000" fill-opacity="0" onclick="bkrTap(\'star\')"/>'
+    +'<rect class="wbk-hit bkr-hit" x="1470" y="54" width="100" height="212" fill="#000" fill-opacity="0" onclick="bkrTap(\'clock\')"/>'; }
+function bkrXY(sx, sy){ const svg=document.querySelector('#wbkbank svg.wbk-scene'); let m=null; try{ m=svg && svg.getScreenCTM(); }catch(e){} return m? [m.a*sx+m.e, m.d*sy+m.f] : [innerWidth/2, innerHeight/2]; }   // scene units to client px (wbkDishXY's grammar)
+function bkrPulse(cx, cy, r){ const g=document.getElementById('bkrFx'); if(!g) return; const c=document.createElementNS('http://www.w3.org/2000/svg', 'circle'); c.setAttribute('class', 'bkr-pulse'); c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', r); c.setAttribute('fill', '#FFE27A'); g.appendChild(c); setTimeout(()=>{ try{ c.remove(); }catch(e){} }, 1000); }
+function bkrTap(k){ if(!wbkEl() || !bkrOn()) return false; const L=bkrLed(), today=todayStr(); let n=0, at=null;   // the ledger first (the flag-first purse law), the show second
+  if(k==='star'){ at=[800, 568]; if(!L.star){ L.star=1; n=starX(BKR.base.star); } }
+  else if(k==='vault'){ at=[386, 336]; if(!L.vault){ L.vault=1; n=starX(BKR.base.vault); } }
+  else if(k==='clock'){ at=[1520, 136]; if(L.clk!==today){ L.clk=today; n=starX(BKR.base.clock); } }
+  else return false;
+  if(n>0){ META.starBank=(META.starBank|0)+n; META.starsLifetime=(META.starsLifetime|0)+n; saveMeta(); }
+  bkrPulse(at[0], at[1], n>0? 72 : 34);
+  if(n>0){ const p=bkrXY(at[0], at[1]); wbkFloat('+'+n+'★', p[0]-40, p[1]-24); wbkStarsSync(); try{ SFX.coin(); }catch(e){} } else { try{ SFX.clack(); }catch(e){} }
+  BKR.last={ k, n }; return n; }
+function bkrHushNow(){ BKR.hush=0; const b=document.getElementById('wbkSay'); if(b){ b.classList.add('bkr-fade'); setTimeout(()=>{ try{ b.remove(); }catch(e){} }, 650); } if(WBK.tm){ clearTimeout(WBK.tm); WBK.tm=0; } WBK.say=null; return !!b; }   // the plate fades and goes; the day-plate's swap to his usual line goes with it
+function bkrHush(){ if(!bkrOn()) return false; if(BKR.hush) return true; BKR.hush=setTimeout(bkrHushNow, BKR.hushMs); return true; }   // wbkSay's last line: ten seconds, then the picture alone (Dylan 18:28); a plate swapped in meanwhile (the day-plate's own swap to his usual line) keeps the first deadline
+function bkrRig(o){ o=o||{}; let r=null;   // THE RIG's door: { star, vault, clock, time:'HH:MM'|null, hush, tick } and the state
+  if(o.star) r=bkrTap('star'); if(o.vault) r=bkrTap('vault'); if(o.clock) r=bkrTap('clock');
+  if('time' in o){ const q=o.time? /^(\d{1,2}):(\d{2})$/.exec(String(o.time)) : null; BKR.force=q? { h:+q[1], m:+q[2] } : null; bkrClockSet(); }
+  if(o.hush){ if(BKR.hush){ clearTimeout(BKR.hush); BKR.hush=0; } r=bkrHushNow(); } if(o.tick) r=bkrTick();
+  const L=bkrLed(), a=bkrAngles(), d=wbkEl(), hh=document.getElementById('bkrHh'), mh=document.getElementById('bkrMh');
+  return { cv:GVT_CV, on:bkrOn(), r, open:!!d, star:L.star, vault:L.vault, clk:L.clk, today:todayStr(), stars:META.starBank|0, life:META.starsLifetime|0, base:BKR.base, pay:{ star:starX(BKR.base.star), vault:starX(BKR.base.vault), clock:starX(BKR.base.clock) },
+    hands:{ h:a.h, m:a.m, hh:a.hh, mm:a.mm, hAttr:hh? hh.getAttribute('transform') : null, mAttr:mh? mh.getAttribute('transform') : null, forced:!!BKR.force }, trim:!!document.getElementById('bkrTrim'), hits:document.querySelectorAll('#wbkbank .bkr-hit').length,
+    plate:!!document.getElementById('wbkSay'), fading:!!document.querySelector('#wbkSay.bkr-fade'), hushArmed:!!BKR.hush, hushMs:BKR.hushMs, iv:!!BKR.iv, wbkTm:!!WBK.tm, last:BKR.last, pulses:document.querySelectorAll('#bkrFx .bkr-pulse').length }; }
+// ═══ end of sec:CARD-BKR ═══
 function paintParkScene(dpk){
   const bg=document.getElementById('parkBg'); if(!bg) return;
   if(PARK_CUR==='turkey'){ tkhPaint(bg); return; }   // CARD-TKH TURKEY HUNT (Isaac 10/15): the dining room
@@ -186708,7 +186774,8 @@ window.GVT = {
   pfTankTap(x,y){ return pfTankTapAt(+x,+y); },   // the tank's tap at a room point by hand — the fish it resolved or 'glass'
   bfishSmile(v){ if(v!==undefined && !!v!==bfishSmiling()) bfishSmileFlip(); return bfishSmiling(); },   // THE BONE FISH SMILES: read / set his face by hand
   bfishPlay(x,y){ return bfishPlayAt(+x,+y); },   // the play-drag's step by hand (needs a live claim — the battery drags for real)
-  wbk(o){ return wbkRig(o); },   // CARD-WBK's rig door: { enter, close, mat, back, sell:id, all } and the state (see sec:CARD-WBK)
+  wbk(o){ return wbkRig(o); },
+  bkr(o){ return bkrRig(o); },   // CARD-BKR's rig door: { star, vault, clock, time, hush, tick } and the state (see sec:CARD-BKR)   // CARD-WBK's rig door: { enter, close, mat, back, sell:id, all } and the state (see sec:CARD-WBK)
   // 0346: the bank's window, for the battery's eyes only.
   bank(){ return { key:(META.goldKey||decOwns('goldkey'))?1:0, cacti:META.wcacti|0, done:META.nemBank?1:0, day:META.bankDay||'',
     spot:document.getElementById('rspot-bank')?1:0, pop:!document.getElementById('milePop').classList.contains('hidden'),
