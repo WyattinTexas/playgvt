@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.15","md5":"4e30a4cc78202596f9ec56349b68ef7a","sha":"d8e826d07","at":"2026-10-15T15:46:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.16","md5":"1a813f6f51a46fe941e7444a98fe41dd","sha":"6c4fa07ca","at":"2026-10-15T15:54:45Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -55620,7 +55620,7 @@ function netSync(){
         // keys it knows (the soul-field precedent), v25 clamps it monotonic
         // + capped + floored and the ADVENTURE ladder ranks it
         adv:advCount(),
-        advv:3,   // v17.76 (CARD-AOC) THE COUNT'S STYLE: 3 = the campaign leg runs to THIRD_MAX (300) — a v102 box takes the number as sent (clamped at its cap 523); a v74 .. v101 box reads 3 as at least 2 and clamps 423 (rollback-safe, monotonic); v10.98 (1127): 2 = the leg runs to ELITE_TOP, HQ adds the third leg it sees itself; a client that sends no key is an older one and HQ adds the Elite leg too
+        advv:4, advo:advCount523(),   // CARD-ASP2: 4 = five parks + 47 cells (597 tops; a v131 box takes the number as sent, an older box clamps 523); advo = the 523-law count of the SAME save, HQ's fold is baseline · v17.76 (CARD-AOC) THE COUNT'S STYLE: 3 = the campaign leg runs to THIRD_MAX (300) — a v102 box takes the number as sent (clamped at its cap 523); a v74 .. v101 box reads 3 as at least 2 and clamps 423 (rollback-safe, monotonic); v10.98 (1127): 2 = the leg runs to ELITE_TOP, HQ adds the third leg it sees itself; a client that sends no key is an older one and HQ adds the Elite leg too
         // 0442: THE BOSS WALL RIDES THE WIRE — one compact digit string off
         // the same ledgers the 0441 rings read (wrWallBW, wall order + ROBO
         // sixth); v31 right-pads and per-char MAXes it against the stored
@@ -86366,7 +86366,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -165441,8 +165441,8 @@ function closeCampScene(){ document.getElementById('campscene').classList.add('h
 // new latches, host-only ledgers stay host-only — the count follows the book,
 // it never edits it); pure + cheap (sync time, never per frame). ADV_CELLS is
 // THE one table: each entry is a 0/1 reader off META, and the two LADDER legs
-// (campaign THIRD_MAX + parks 4×50) ride beside it, so ADV_MAX is DERIVED
-// (300+200+cells.length = 523 since v17.76 / CARD-AOC; 423 from v10.98 with the
+// (campaign THIRD_MAX + parks 5×50) ride beside it, so ADV_MAX is DERIVED
+// (300+250+47 = 597 since CARD-ASP2: five parks + 47 cells; 300+200+23 = 523 from v17.76 / CARD-AOC; 423 from v10.98 with the
 // campaign leg at ELITE_TOP 200, 269 as shipped, 323 from 0555 to v10.97 with the
 // leg at 100): never a second literal. The server's ADV_CAP quotes the result:
 // one moves, both move; SERVER FIRST.
@@ -165460,15 +165460,28 @@ const ADV_CELLS=[
   ()=> (((META.nemesis&&META.nemesis.w)|0)>0)?1:0,  // the room NEMESIS himself, first defeat (the BESTED RIVAL predicate)
   ()=> META.nemBank?1:0,                            // THE BANK HEIST — beating him IS stopping the robbery (one fight, one cell)
   ...['ice','bone','croak','fields'].flatMap(k=>['e','m','h','g'].map(d=>()=>(META[k]&&META[k][d])?1:0)),   // 16 boss tiers — ICE CASTLE · KING REX'S LAIR · KING CROAK'S HIDEOUT · THE PILLOW FIELDS × e/m/h/👑g (0555: the fields join — server v42's ADV_CAP moved to 323 FIRST, the one-moves-both-move law)
-  ()=> (META.mom&&META.mom.done)?1:0                // MOM — the room raid's one ledger (hm11's predicate)
+  ()=> (META.mom&&META.mom.done)?1:0,               // MOM — the room raid's one ledger (hm11's predicate)
+  // ═══ CARD-ASP2 THE ADVENTURE NUMBER COUNTS EVERYTHING (design/adventure-standings-1015/01-BUILD-ASP2.md; Wyatt 10/15/2026 11:25 EDT on Discord: "I haven't beaten all of the content … I'm still at level 38 of 50 in Gnome Park … how can I trust any of your numbers"): the 24 cells the book never grew — the explainer's own promise ("every Nemesis showdown … every park boss at every difficulty"). APPENDED, never reordered (the rig's names ride ADV_CELLS' order; the first 23 + the first four parks = the 523 law the wire still reports as advo); server v131's ADV_CAP quotes 597 FIRST
+  ()=> META.nemT20?1:0,                             // THE FLUFF CLAIM — BEAR PARK rung 20 (0600)
+  ()=> META.nemM20?1:0,                             // THE GARDEN CLAIM — THE MOON GARDEN rung 20 (0947d)
+  ...['palace','caves','sky','chess','gmy'].flatMap(k=>['e','m','h','g'].map(d=>()=>(META[k]&&META[k][d])?1:0)),   // 20 boss tiers — PRINCESS CROAK'S PALACE · THE ICE CAVES · THE SKY FORTRESS · THE CHESS SET · THE HAUNTED LIBRARY × e/m/h/g (the same guarded read as the sixteen above)
+  ()=> (META.ice&&META.ice.u)?1:0,                  // ULTRA YETI — the ice's fifth tier
+  ()=> (META.bone&&META.bone.u)?1:0                 // ULTRA REX — the bone's fifth tier
 ];
-const ADV_PARKS=['yeti','dino','western','teddy'];  // the boot normalizer builds all four every boot; reads guarded anyway (0555: BEAR PARK's fifty joins)
-const ADV_MAX=THIRD_MAX+ADV_PARKS.length*50+ADV_CELLS.length;   // 269 as shipped · 323 since 0555 · 423 since v10.98 (1127: the campaign leg runs to ELITE_TOP) · 523 since v17.76 (CARD-AOC: the leg runs to THIRD_MAX, the third hundred's 300) — DERIVED, the "one moves, both move" contract (server v102 quotes 523)
+const ADV_PARKS=['yeti','dino','western','teddy','moon'];   /* CARD-ASP2: + GNOME PARK (parks.moon, fifty rungs, 0947a) */  // the boot normalizer builds all four every boot; reads guarded anyway (0555: BEAR PARK's fifty joins)
+const ADV_MAX=THIRD_MAX+ADV_PARKS.length*50+ADV_CELLS.length;   // 597 since CARD-ASP2 (five parks + 47 cells; server v131) · 269 as shipped · 323 since 0555 · 423 since v10.98 (1127: the campaign leg runs to ELITE_TOP) · 523 since v17.76 (CARD-AOC: the leg runs to THIRD_MAX, the third hundred's 300) — DERIVED, the "one moves, both move" contract (server v102 quotes 523)
 function advCount(){
   let n=Math.max(0, Math.min(THIRD_MAX, META.campaign|0));              // the linear campaign ladder to the third hundred's top (v17.76, CARD-AOC: OVERCHARGED 201–300 count too; v10.98, 1127: ELITE FORCES 101–200 — the GIANT BANANA's 100 was the first)
   for(const id of ADV_PARKS){ const p=(META.parks&&META.parks[id])||{};
     n+=Math.max(0, Math.min(parkLevels(id), p.lv|0)); }                 // linear park ladders (lv50 ⇒ all 50)
   for(const cl of ADV_CELLS){ try{ n+=cl()?1:0; }catch(e){} }           // a hand-rolled save clamps, never throws
+  return n;
+}
+const ADV_PARKS_523=ADV_PARKS.slice(0,4), ADV_CELLS_523=ADV_CELLS.slice(0,23);   // CARD-ASP2: the book as it stood from v17.76 to v23.14 (four parks + 23 cells, 523 tops) — the wire's advo, so HQ folds the new content as BASELINE (no rating credit for beats won before the count counted them; v74's law)
+function advCount523(){
+  let n=Math.max(0, Math.min(THIRD_MAX, META.campaign|0));
+  for(const id of ADV_PARKS_523){ const p=(META.parks&&META.parks[id])||{}; n+=Math.max(0, Math.min(parkLevels(id), p.lv|0)); }
+  for(const cl of ADV_CELLS_523){ try{ n+=cl()?1:0; }catch(e){} }
   return n;
 }
 const WR_TABS = [ {id:'rating', lab:'RATING'}, {id:'bf1', lab:'1v1'}, {id:'bf2', lab:'2v2'}, {id:'squad', lab:'SQUAD'}, {id:'adv', lab:'ADVENTURE'}, {id:'torch', lab:'THE GAUNTLET'}, {id:'horde', lab:'SURVIVAL'} ];   // CARD-HFG R2 (Dylan 10/11): the tab reads SURVIVAL (the id stays horde: HQ's door, the save, the rigs)   // 0898 THE GAUNTLET tab at the tail (D7 lifted by Wyatt's 9/8 word) — the key stands ×7   // v2.65: Wyatt's order — solo rating · 1v1 · 2v2 · SQUAD; 0400: ADVENTURE at the TAIL, RIGHT of SQUAD (Wyatt 8/18: "The Adventures tab should be on the right of the Squads tab, so it's the fourth tab over") — every consumer keys on the id string; nothing positional
@@ -183549,11 +183562,12 @@ window.GVT = {
   // the campaign leg + the parks leg + Σcells, and max must equal THIRD_MAX+200+cells (v17.76: 523; v10.98: 423)
   adv(){ const cells={}; const names=['nemPark','nemY50','nemD50','nemW20','nemRoom','nemBank',
       'ice_e','ice_m','ice_h','ice_g','bone_e','bone_m','bone_h','bone_g',
-      'croak_e','croak_m','croak_h','croak_g','fields_e','fields_m','fields_h','fields_g','mom'];   // v10.98 (1127): the 23 names in ADV_CELLS' own order (the four fields tiers were unnamed — fields_e read as mom, the rest c19…c22)
+      'croak_e','croak_m','croak_h','croak_g','fields_e','fields_m','fields_h','fields_g','mom',
+      'nemT20','nemM20','palace_e','palace_m','palace_h','palace_g','caves_e','caves_m','caves_h','caves_g','sky_e','sky_m','sky_h','sky_g','chess_e','chess_m','chess_h','chess_g','gmy_e','gmy_m','gmy_h','gmy_g','ice_u','bone_u'];   // CARD-ASP2: the 24 appended names, in ADV_CELLS' own order   // v10.98 (1127): the 23 names in ADV_CELLS' own order (the four fields tiers were unnamed — fields_e read as mom, the rest c19…c22)
     ADV_CELLS.forEach((c,j)=>{ let v=0; try{ v=c()?1:0; }catch(e){} cells[names[j]||('c'+j)]=v; });
     const legs={ camp:Math.max(0,Math.min(THIRD_MAX,META.campaign|0)),
       parks:ADV_PARKS.map(id=>{ const p=(META.parks&&META.parks[id])||{}; return Math.max(0,Math.min(parkLevels(id),p.lv|0)); }) };
-    return { n:advCount(), max:ADV_MAX, cells:cells, legs:legs }; },
+    return { n:advCount(), max:ADV_MAX, old:advCount523(), cells:cells, legs:legs }; },
   // v3.08: first-rankings name prompt rig — read-only (the v2.60 never-gates law)
   namePromptState(){ const el=document.getElementById('nameProm');
     return { up: !!el && !el.classList.contains('hidden'),
