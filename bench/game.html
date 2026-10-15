@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.60","md5":"7a35d300bdd083e6cc384bd5e9046a01","sha":"4ed479d0d","at":"2026-10-15T23:12:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.61","md5":"8df1d348761b5780125807c465ec4e58","sha":"62b1975a1","at":"2026-10-15T23:17:10Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -9463,6 +9463,37 @@
   .roomtag { position:absolute; z-index:4; transform:translate(-50%,-50%); background:rgba(38,40,31,0.9); color:#fff; font-weight:bold; font-size:24px; letter-spacing:0.06em; padding:4px 14px; border-radius:15px; cursor:pointer; white-space:nowrap; text-transform:uppercase; }   /* CARD-HT: the pills 18 → 24 (15.7 px on the phone — the floor; 11.8 before) */
   .roomtag.rt-wrap { white-space:normal; text-align:center; line-height:1.15; }   /* CARD-HT THE LANE LAW: a pill wider than its lane wraps to two lines at 24 (renderMenu's pass) instead of stepping down to 14 */   /* 0904 THE LOOP ROW: z 4 — a pill is always its own door (over the tiles' z 2, the park doors' z 3 and every toy anchor) */
   .dogtop { position:absolute; inset:0; width:100%; height:100%; z-index:6; pointer-events:none; overflow:visible; }   /* FM-GVT-DOGS-TOP-RECORD-01 THE TOP LAYER: a second svg over the pills (z 4) and the tap boxes (z 2/3) — a dog walking over a menu item is moved here (dogLift) so his art covers the words; the layer takes no finger (the router's dogPick / dogHomePick already claim him by geometry) */
+  /* ═══ CARD-BWH THE BIRD WHISTLE (sec CARD-BWH): THE WHISTLE's play (.react: the hop as it is blown, three notes float up from the spout) and THE BIRD's calm beats at rest (one class at a time, each short: a blink, a tilt,
+     a look, a fluff, a tail flick; nothing runs between them) + the landing's settle and the sing-back's hop. Every css transform rides a wrapper the JS never writes (.bwh-bi · .bwh-hd · .bwh-tl · .bwh-lid · .bwh-wb · the notes):
+     the flight's transforms are attributes on #bwh-bird, .bwh-tilt and the wings. Reduced motion: none of it (the visit fades in and out). ═══ */
+  .dec-bwhistle .bwh-notes > g { opacity:0; }
+  .dec-bwhistle .bwh-wb { transform-box:fill-box; transform-origin:50% 100%; }
+  .dec-bwhistle.react .bwh-wb { animation:bwhblow 1.1s ease-out; }
+  @keyframes bwhblow { 0% { transform:rotate(0deg); } 14% { transform:translateY(-3px) rotate(-8deg); } 34% { transform:translateY(0px) rotate(4deg); } 54% { transform:translateY(-2px) rotate(-5deg); } 76% { transform:rotate(2deg); } 100% { transform:rotate(0deg); } }
+  .dec-bwhistle.react .bwh-n1 { animation:bwhnote 1.2s ease-out 0.05s both; }
+  .dec-bwhistle.react .bwh-n2 { animation:bwhnote 1.2s ease-out 0.3s both; }
+  .dec-bwhistle.react .bwh-n3 { animation:bwhnote 1.2s ease-out 0.55s both; }
+  @keyframes bwhnote { 0% { opacity:0; transform:translate(0px,4px); } 25% { opacity:1; } 100% { opacity:0; transform:translate(-6px,-15px); } }
+  #bwh-bird .bwh-lid { transform-box:fill-box; transform-origin:50% 0%; transform:scaleY(0); }
+  #bwh-bird.bwh-blink .bwh-lid { animation:bwhblink 0.24s ease-in-out 2; }
+  @keyframes bwhblink { 0%,100% { transform:scaleY(0); } 50% { transform:scaleY(1); } }
+  #bwh-bird .bwh-hd { transform-box:fill-box; transform-origin:30% 90%; }
+  #bwh-bird.bwh-tilt .bwh-hd { animation:bwhtilt 1.2s ease-in-out; }
+  @keyframes bwhtilt { 0%,100% { transform:rotate(0deg); } 30%,70% { transform:rotate(-16deg); } }
+  #bwh-bird.bwh-look .bwh-hd { animation:bwhlook 1.25s ease-in-out; }
+  @keyframes bwhlook { 0%,100% { transform:rotate(0deg); } 18%,42% { transform:rotate(11deg); } 60%,84% { transform:rotate(-9deg); } }
+  #bwh-bird .bwh-bi { transform-box:fill-box; transform-origin:50% 100%; }
+  #bwh-bird.bwh-fluff .bwh-bi { animation:bwhfluff 0.9s ease-in-out; }
+  @keyframes bwhfluff { 0%,100% { transform:scale(1,1); } 35% { transform:scale(1.08,1.06); } 60% { transform:scale(0.98,1); } }
+  #bwh-bird .bwh-tl { transform-box:fill-box; transform-origin:100% 0%; }
+  #bwh-bird.bwh-tailf .bwh-tl { animation:bwhtail 0.46s ease-in-out 2; }
+  @keyframes bwhtail { 0%,100% { transform:rotate(0deg); } 50% { transform:rotate(-14deg); } }
+  #bwh-bird.bwh-hop .bwh-bi { animation:bwhhop 0.62s ease-out; }
+  @keyframes bwhhop { 0%,100% { transform:translateY(0px); } 30% { transform:translateY(-6px); } 55% { transform:translateY(0px); } 72% { transform:translateY(-2px); } }
+  #bwh-bird.bwh-settle .bwh-bi { animation:bwhsettle 0.5s ease-out; }
+  @keyframes bwhsettle { 0% { transform:scale(1.06,0.9); } 60% { transform:scale(0.98,1.03); } 100% { transform:scale(1,1); } }
+  #bwh-bird.bwh-fade { transition:opacity 0.42s ease; }
+  @media (prefers-reduced-motion:reduce){ .dec-bwhistle *, #bwh-bird, #bwh-bird * { animation:none !important; } }
   /* 0904 THE LOOP ROW — THE BADGE (bfBadgeHTML): the duel badge on the BATTLEFIELD tile's top-right corner (a round dog tag, gold with
      the came-for-you count — 0904 THE ROOM NOTES PART ONE: its three squad states (the filling match, the invite, the quiet pennant)
      RETIRED with the squad's room door, Wyatt 9/4 4:25 pm; the disc shows only with news). z 5: a badge wins its corner over the tile
@@ -16708,6 +16739,8 @@ const TR_DATA={
 // v2.62 ARABIC — kid-simple MSA, keys = the English master (the same law
 // as every dict above); digits stay Western, tokens ride verbatim.
 ar:{
+// CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md): 4 keys, drafts for his pen
+"THE BIRD WHISTLE":"صفارة الطيور", "PAINTED CLAY · IT CALLS A BIRD":"طين ملوّن · ينادي طائرًا", "PLAY IT! A BIRD FLIES TO SARGE!":"اعزف عليها! يطير طائر إلى سارج!", "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!":"صفارة الطيور تنتظرك في صندوق الكنز. أخرجها واعزف عليها: يطير طائر ويرتاح على يد سارج حتى يتحرك!",
 // CARD-DFS DRAGONFLY SIGHT (design/dragonfly-sight-1015/00-BUILD-DFS.md): 7 keys, drafts for his pen
 "DRAGONFLY SIGHT":"عين اليعسوب", "HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM":"يرى من فوقه ومن تحته، ويرشّهم بالرصاص", "NOTHING SNEAKS PAST HIM!":"لا شيء يتسلل من أمامه!", "Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.":"يناسب الملك كرواك: مثل اليعسوب، يرى من كل جهة. العدو فوقه أو تحته يُرشّ بالرصاص: 20 ضررًا في الثانية عند المستوى 100، على كل من في تلك البقعة.", "Only above and below him. A lower level sprays a little less.":"فوقه وتحته فقط. المستوى الأدنى يرشّ أقل قليلًا.", "SPRAYS FOES ABOVE AND BELOW HIM · 20 DAMAGE A SECOND AT LEVEL 100":"يرشّ الأعداء فوقه وتحته · 20 ضررًا في الثانية عند المستوى 100", "ONLY ABOVE AND BELOW · LESS AT A LOWER LEVEL":"فوقه وتحته فقط · أقل في مستوى أدنى",
 // CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN): 25 keys, drafts for his pen (FUZZIES is the bar's sign: kept)
@@ -20980,6 +21013,8 @@ ar:{
 "WHAT DOES HE DO?":"ماذا يفعل؟", "MORPHS":"يتحوّل", "SEWS":"يخيط", "DIVES":"ينقضّ", "BITES":"يعضّ", "BOWLS":"يدحرج", "BREATHES FIRE":"ينفث النار", "DIGS":"يحفر", "HOWLS":"يعوي", "CASTS FIRE":"يستحضر النار", "KEEPS BITING":"يعضّ ويعضّ", "BLOCKS":"يصدّ", "LEAPS":"يقفز", "BREATHES FIREBALLS":"ينفث كرات النار",
 },
 "ja":{
+// CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md): 4 keys, drafts for his pen
+"THE BIRD WHISTLE":"とりぶえ", "PAINTED CLAY · IT CALLS A BIRD":"いろを ぬった ねんど · とりを よぶよ", "PLAY IT! A BIRD FLIES TO SARGE!":"ふいてみて！とりが サージの てに とんでくるよ！", "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!":"とりぶえが たからばこで まってるよ。だして ふいてみてね。とりが とんできて、サージが うごくまで てに とまって やすむよ！",
 // CARD-DFS DRAGONFLY SIGHT (design/dragonfly-sight-1015/00-BUILD-DFS.md): 7 keys, drafts for his pen
 "DRAGONFLY SIGHT":"トンボの め", "HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM":"うえも したも みえる。そして うちまくる", "NOTHING SNEAKS PAST HIM!":"だれも すりぬけられない!", "Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.":"キングクロークよう: トンボのように ぐるりと みえる。うえか したの てきを うちまくる。レベル100で 1びょうに 20ダメージ、その ばしょの みんなに。", "Only above and below him. A lower level sprays a little less.":"うえと したの てきだけ。レベルが ひくいと すこし よわい。", "SPRAYS FOES ABOVE AND BELOW HIM · 20 DAMAGE A SECOND AT LEVEL 100":"うえと したの てきを うつ · レベル100で 1びょう 20ダメージ", "ONLY ABOVE AND BELOW · LESS AT A LOWER LEVEL":"うえと したの てきだけ · レベルが ひくいと よわい",
 // CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN): 25 keys, drafts for his pen (FUZZIES is the bar's sign: kept)
@@ -25252,6 +25287,8 @@ ar:{
 "WHAT DOES HE DO?":"なにを するの？", "MORPHS":"へんしん する", "SEWS":"ぬう", "DIVES":"きゅうこうか する", "BITES":"かみつく", "BOWLS":"ころがす", "BREATHES FIRE":"ひを ふく", "DIGS":"ほる", "HOWLS":"とおぼえ する", "CASTS FIRE":"ひの まほう", "KEEPS BITING":"かみまくる", "BLOCKS":"ふせぐ", "LEAPS":"とびかかる", "BREATHES FIREBALLS":"ひのたまを ふく",
 },
 "ko":{
+// CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md): 4 keys, drafts for his pen
+"THE BIRD WHISTLE":"새 피리", "PAINTED CLAY · IT CALLS A BIRD":"색칠한 점토 · 새를 불러", "PLAY IT! A BIRD FLIES TO SARGE!":"불어 봐! 새가 사지에게 날아와!", "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!":"새 피리가 보물 상자에서 기다리고 있어. 꺼내서 불어 봐. 새가 날아와서 사지가 움직일 때까지 손 위에서 쉬어!",
 // CARD-DFS DRAGONFLY SIGHT (design/dragonfly-sight-1015/00-BUILD-DFS.md): 7 keys, drafts for his pen
 "DRAGONFLY SIGHT":"잠자리 눈", "HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM":"위도 아래도 본다, 그리고 쏟아붓는다", "NOTHING SNEAKS PAST HIM!":"아무도 몰래 못 지나간다!", "Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.":"킹 크록 전용: 잠자리처럼 사방을 본다. 위나 아래의 적에게 쏟아붓는다. 레벨 100에서 초당 20 피해, 그 자리의 모두에게.", "Only above and below him. A lower level sprays a little less.":"위와 아래만. 레벨이 낮으면 조금 약하다.", "SPRAYS FOES ABOVE AND BELOW HIM · 20 DAMAGE A SECOND AT LEVEL 100":"위아래 적에게 사격 · 레벨 100에서 초당 20 피해", "ONLY ABOVE AND BELOW · LESS AT A LOWER LEVEL":"위아래만 · 레벨이 낮으면 약함",
 // CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN): 25 keys, drafts for his pen (FUZZIES is the bar's sign: kept)
@@ -29524,6 +29561,8 @@ ar:{
 "WHAT DOES HE DO?":"뭘 하는 거야?", "MORPHS":"변신한다", "SEWS":"꿰맨다", "DIVES":"급강하한다", "BITES":"문다", "BOWLS":"굴린다", "BREATHES FIRE":"불을 뿜는다", "DIGS":"판다", "HOWLS":"울부짖는다", "CASTS FIRE":"불을 부른다", "KEEPS BITING":"계속 문다", "BLOCKS":"막는다", "LEAPS":"뛰어든다", "BREATHES FIREBALLS":"불덩이를 뿜는다",
 },
 "zh-Hans":{
+// CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md): 4 keys, drafts for his pen
+"THE BIRD WHISTLE":"小鸟哨子", "PAINTED CLAY · IT CALLS A BIRD":"彩绘陶土 · 能召来小鸟", "PLAY IT! A BIRD FLIES TO SARGE!":"吹一吹！小鸟会飞到中士身边！", "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!":"小鸟哨子在宝箱里等你。拿出来吹一吹：小鸟会飞来，停在中士手上休息，直到他动一下！",
 // CARD-DFS DRAGONFLY SIGHT (design/dragonfly-sight-1015/00-BUILD-DFS.md): 7 keys, drafts for his pen
 "DRAGONFLY SIGHT":"蜻蜓之眼", "HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM":"上下全看见，一通扫射", "NOTHING SNEAKS PAST HIM!":"谁也别想溜过去！", "Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.":"专属蛙王：像蜻蜓一样四面都看得见。上方或下方的敌人会遭到扫射：100级时每秒20点伤害，那片地方的人全都中弹。", "Only above and below him. A lower level sprays a little less.":"只管上方和下方。等级越低，扫射越弱一点。", "SPRAYS FOES ABOVE AND BELOW HIM · 20 DAMAGE A SECOND AT LEVEL 100":"扫射上下的敌人 · 100级每秒20伤害", "ONLY ABOVE AND BELOW · LESS AT A LOWER LEVEL":"只管上下 · 等级低时较弱",
 // CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN): 25 keys, drafts for his pen (FUZZIES is the bar's sign: kept)
@@ -33796,6 +33835,8 @@ ar:{
 "WHAT DOES HE DO?":"他会做什么？", "MORPHS":"变形", "SEWS":"缝补", "DIVES":"俯冲", "BITES":"咬", "BOWLS":"滚雪球", "BREATHES FIRE":"喷火", "DIGS":"挖", "HOWLS":"嚎叫", "CASTS FIRE":"召唤火焰", "KEEPS BITING":"连咬不停", "BLOCKS":"格挡", "LEAPS":"跳跃", "BREATHES FIREBALLS":"喷火球",
 },
 "de":{
+// CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md): 4 keys, drafts for his pen
+"THE BIRD WHISTLE":"DIE VOGELPFEIFE", "PAINTED CLAY · IT CALLS A BIRD":"BEMALTER TON · RUFT EINEN VOGEL", "PLAY IT! A BIRD FLIES TO SARGE!":"SPIEL SIE! EIN VOGEL FLIEGT ZU SARGE!", "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!":"DIE VOGELPFEIFE wartet in deiner Truhe. Hol sie raus und spiel sie: Ein Vogel fliegt herein und ruht auf Sarges Hand, bis er sich bewegt!",
 // CARD-DFS DRAGONFLY SIGHT (design/dragonfly-sight-1015/00-BUILD-DFS.md): 7 keys, drafts for his pen
 "DRAGONFLY SIGHT":"LIBELLENBLICK", "HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM":"ER SIEHT ÜBER UND UNTER SICH, UND DECKT SIE EIN", "NOTHING SNEAKS PAST HIM!":"NIEMAND SCHLEICHT AN IHM VORBEI!", "Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.":"Passt zu KÖNIG CROAK: wie eine Libelle sieht er rundum. Ein Feind über oder unter ihm wird eingedeckt: 20 Schaden pro Sekunde auf Stufe 100, für jeden an dieser Stelle.", "Only above and below him. A lower level sprays a little less.":"Nur über und unter ihm. Auf niedrigerer Stufe etwas weniger.", "SPRAYS FOES ABOVE AND BELOW HIM · 20 DAMAGE A SECOND AT LEVEL 100":"DECKT FEINDE ÜBER UND UNTER IHM EIN · 20 SCHADEN PRO SEKUNDE AUF STUFE 100", "ONLY ABOVE AND BELOW · LESS AT A LOWER LEVEL":"NUR ÜBER UND UNTER IHM · WENIGER AUF NIEDRIGERER STUFE",
 // CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN): 25 keys, drafts for his pen (FUZZIES is the bar's sign: kept)
@@ -38068,6 +38109,8 @@ ar:{
 "WHAT DOES HE DO?":"WAS MACHT ER?", "MORPHS":"VERWANDELT SICH", "SEWS":"NÄHT", "DIVES":"STÜRZT HERAB", "BITES":"BEISST", "BOWLS":"ROLLT", "BREATHES FIRE":"SPEIT FEUER", "DIGS":"GRÄBT", "HOWLS":"HEULT", "CASTS FIRE":"ZAUBERT FEUER", "KEEPS BITING":"BEISST WEITER", "BLOCKS":"BLOCKT", "LEAPS":"SPRINGT", "BREATHES FIREBALLS":"SPEIT FEUERBÄLLE",
 },
 "ru":{
+// CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md): 4 keys, drafts for his pen
+"THE BIRD WHISTLE":"ПТИЧЬЯ СВИСТУЛЬКА", "PAINTED CLAY · IT CALLS A BIRD":"РАСПИСНАЯ ГЛИНА · ЗОВЁТ ПТИЦУ", "PLAY IT! A BIRD FLIES TO SARGE!":"СВИСТНИ! ПТИЦА ЛЕТИТ К СЕРЖУ!", "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!":"ПТИЧЬЯ СВИСТУЛЬКА ждёт в твоём сундуке. Достань её и свистни: прилетит птица и отдохнёт на руке Сержа, пока он не сдвинется!",
 // CARD-DFS DRAGONFLY SIGHT (design/dragonfly-sight-1015/00-BUILD-DFS.md): 7 keys, drafts for his pen
 "DRAGONFLY SIGHT":"ВЗОР СТРЕКОЗЫ", "HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM":"ВИДИТ СВЕРХУ И СНИЗУ, И ПОЛИВАЕТ ИХ", "NOTHING SNEAKS PAST HIM!":"МИМО НЕГО НЕ ПРОСКОЧИШЬ!", "Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.":"Для КОРОЛЯ КРОАКА: как стрекоза, он видит всё вокруг. Врага сверху или снизу он поливает огнём: 20 урона в секунду на уровне 100, всем в этом месте.", "Only above and below him. A lower level sprays a little less.":"Только сверху и снизу. На низком уровне чуть слабее.", "SPRAYS FOES ABOVE AND BELOW HIM · 20 DAMAGE A SECOND AT LEVEL 100":"ПОЛИВАЕТ ВРАГОВ СВЕРХУ И СНИЗУ · 20 УРОНА В СЕКУНДУ НА УРОВНЕ 100", "ONLY ABOVE AND BELOW · LESS AT A LOWER LEVEL":"ТОЛЬКО СВЕРХУ И СНИЗУ · СЛАБЕЕ НА НИЗКОМ УРОВНЕ",
 // CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN): 25 keys, drafts for his pen (FUZZIES is the bar's sign: kept)
@@ -42340,6 +42383,8 @@ ar:{
 "WHAT DOES HE DO?":"ЧТО ОН ДЕЛАЕТ?", "MORPHS":"ПРЕВРАЩАЕТСЯ", "SEWS":"ЗАШИВАЕТ", "DIVES":"ПИКИРУЕТ", "BITES":"КУСАЕТ", "BOWLS":"КАТИТ", "BREATHES FIRE":"ДЫШИТ ОГНЁМ", "DIGS":"КОПАЕТ", "HOWLS":"ВОЕТ", "CASTS FIRE":"КОЛДУЕТ ОГОНЬ", "KEEPS BITING":"КУСАЕТ И КУСАЕТ", "BLOCKS":"БЛОКИРУЕТ", "LEAPS":"ПРЫГАЕТ", "BREATHES FIREBALLS":"ПУСКАЕТ ОГНЕННЫЕ ШАРЫ",
 },
 "es":{
+// CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md): 4 keys, drafts for his pen
+"THE BIRD WHISTLE":"EL SILBATO DE PÁJARO", "PAINTED CLAY · IT CALLS A BIRD":"BARRO PINTADO · LLAMA A UN PÁJARO", "PLAY IT! A BIRD FLIES TO SARGE!":"¡TÓCALO! ¡UN PÁJARO VUELA HACIA SARGE!", "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!":"EL SILBATO DE PÁJARO te espera en tu cofre. Sácalo y tócalo: ¡un pájaro entra volando y descansa en la mano de Sarge hasta que se mueva!",
 // CARD-DFS DRAGONFLY SIGHT (design/dragonfly-sight-1015/00-BUILD-DFS.md): 7 keys, drafts for his pen
 "DRAGONFLY SIGHT":"VISTA DE LIBÉLULA", "HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM":"VE ARRIBA Y ABAJO, Y LOS ROCÍA", "NOTHING SNEAKS PAST HIM!":"¡NADIE SE LE ESCAPA!", "Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.":"Para el REY CROAK: como una libélula, lo ve todo alrededor. Un enemigo arriba o abajo de él recibe una ráfaga: 20 de daño por segundo en el nivel 100, a todos en ese lugar.", "Only above and below him. A lower level sprays a little less.":"Solo arriba y abajo de él. Con menos nivel, rocía un poco menos.", "SPRAYS FOES ABOVE AND BELOW HIM · 20 DAMAGE A SECOND AT LEVEL 100":"ROCÍA A LOS ENEMIGOS ARRIBA Y ABAJO · 20 DE DAÑO POR SEGUNDO EN NIVEL 100", "ONLY ABOVE AND BELOW · LESS AT A LOWER LEVEL":"SOLO ARRIBA Y ABAJO · MENOS CON MENOS NIVEL",
 // CARD-WBK THE BANK IN WESTERN LAND, INSIDE (design/western-bank-lobby-1015/00-CARD-WBK.md; FROM DYLAN): 25 keys, drafts for his pen (FUZZIES is the bar's sign: kept)
@@ -47743,7 +47788,7 @@ function bmbRelay(cm){
 const RGX={ on:(function(){ try{ const m=/[?&]rgx=(\d)/.exec(location.search); if(m) localStorage.setItem('gvt_rgx', m[1]); return localStorage.getItem('gvt_rgx')==='0'? 0 : 1; }catch(e){ return 1; } })() };
 const RGX_IDS=['townmat','citymat','westrug','winterrug','yardrug'];
 const RGX_ON_IDS=RGX.on? RGX_IDS : [];
-const DECOR_ORDER=['elephant','train','robot','spacerug','sunrug','braidrug','creamrug','armyrug',...RGX_ON_IDS,'banana','unicorn','tsdummy','tscrew','tsnem','tsgiant','tsgice','tsgvol','tsgfort','tsmap','tschest','tshorse','tsjack','tssub','tsdrum','tsrocket','tsmusic','tskite','tstop','tsyoyo','tsradio','tscastle','tsgold','rave','zombie','witch'];   // 1130 THE RAVE LIGHTS: the emitter joins the SOLD census at the tail (the LOUD growth law — DECOR_ALL_N +1; THE FULL FLOOR / QUARTERS re-price by construction)   // TR-03 THE CLASSICS: the twelve join the SOLD census (the box gates on trStocked — ⚑ Q5 the capstone rides the box; DECOR_ALL_N grows by 12 — the v1.68 auto-extend law, ⚑ Q3)   // TR-02 THE TOP SHELF: the eleven join the SOLD census (the box gates on trStocked; DECOR_ALL_N grows by 11 — the v1.68 auto-extend law, THE FULL FLOOR / QUARTERS re-price, ⚑ Q3 the standing growth default)   // 0589 THE TREASURE ROAD: the teddy, the soccer ball and the football LEAVE the sold shelf for DECOR_EARN_ORDER (the commander's gifts — never sold, never boxed; DECOR_ALL_N is a sum, byte-still)   // SOLD in the shop — the mystery-box pool reads exactly this list (v2.61: the unicorn joins, so the box can gift her too; v3.04: the two balls roll in — the box gifts them too, and the FULL FLOOR / GENERAL'S QUARTERS goals grow with the shelf, both intended)
+const DECOR_ORDER=['elephant','train','robot','spacerug','sunrug','braidrug','creamrug','armyrug',...RGX_ON_IDS,'banana','unicorn','tsdummy','tscrew','tsnem','tsgiant','tsgice','tsgvol','tsgfort','tsmap','tschest','tshorse','tsjack','tssub','tsdrum','tsrocket','tsmusic','tskite','tstop','tsyoyo','tsradio','tscastle','tsgold','rave','zombie','witch','bwhistle' /* CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015; Wyatt by phone 10/15): sold at the tail (the census + 1: the LOUD growth law; the SHOP tab and the mystery box read this list) */];   // 1130 THE RAVE LIGHTS: the emitter joins the SOLD census at the tail (the LOUD growth law — DECOR_ALL_N +1; THE FULL FLOOR / QUARTERS re-price by construction)   // TR-03 THE CLASSICS: the twelve join the SOLD census (the box gates on trStocked — ⚑ Q5 the capstone rides the box; DECOR_ALL_N grows by 12 — the v1.68 auto-extend law, ⚑ Q3)   // TR-02 THE TOP SHELF: the eleven join the SOLD census (the box gates on trStocked; DECOR_ALL_N grows by 11 — the v1.68 auto-extend law, THE FULL FLOOR / QUARTERS re-price, ⚑ Q3 the standing growth default)   // 0589 THE TREASURE ROAD: the teddy, the soccer ball and the football LEAVE the sold shelf for DECOR_EARN_ORDER (the commander's gifts — never sold, never boxed; DECOR_ALL_N is a sum, byte-still)   // SOLD in the shop — the mystery-box pool reads exactly this list (v2.61: the unicorn joins, so the box can gift her too; v3.04: the two balls roll in — the box gifts them too, and the FULL FLOOR / GENERAL'S QUARTERS goals grow with the shelf, both intended)
 // ===== 0905 THE RUGS (FM-GVT-RUGS-0905, jumpr 0807; the Go Machine's card 9/5 — Wyatt 9/5 ~3:15 pm: "Okay, everything got approved. Move the rugs in the treasure screen."): the rug
 // skins' tables (the card's cell 1, verbatim). They stand HERE, beside the decor tables, under the v1.26 TDZ law — chestFloorToy reads RUG_SKINS inside the boot's parse-time
 // cap heal below, and a const declared 48,000 lines down beside the art would still be in its dead zone there. The art itself (rugSunSVG · rugBraidSVG) stands beside roomRugSVG. =====
@@ -47847,7 +47892,7 @@ const BEDROOM_ONLY={ witch:1, /* CARD-WCH: a bedroom toy (the kite's law: never 
 // (the boot's walk home lets that one seat stand). No other bedroom toy moves; the bedroom's own lights are byte-still. ═══
 const ATTIC_ALSO={ rave:1 }, RVA_SEAT=[858,176], RVA_L=1400;
 const ROOFTOP_ONLY={ skytrophy:1 };   // CARD-SF3-D1 THE SKY FORTRESS TROPHY: a toy that HANGS IN THE ROOF'S SKY is the rooftop's alone (the hookshot's floor law as a table, the kite's law turned to the roof): never home on another floor; dealt to the rooftop wherever it is won; its chest card works the rooftop's floor from every room; the load-in sky rule lets it hang (roofSkySweep). Declared HERE, above every reader (the TDZ law)
-const DECOR_COST={ /* 0905 THE REWARD ROAD RE-CUT: the duck 15★ and the bear 20★ — Wyatt's own stickers (cells 5 + 3) */ ducky:15, elephant:80, train:110, robot:140, spacerug:170, sunrug:200, braidrug:180, creamrug:160, armyrug:180, townmat:250, citymat:250, westrug:250, winterrug:250, yardrug:250, banana:350, unicorn:200, sdino:90, ptero:100, trike:120, bdino:130, stego:140, dilo:160, kingrex:300, syeti:80, snowfig:90, byeti:120, gsnowman:180, kingyeti:300, wbandit:80, wmouse:90, wsniper:110, wteddy:140, wrider:150, wsnake:170, wlady:180, kingcroaklil:300, kingcroak:300, tsdummy:240, tscrew:300, tsnem:320, tsgiant:340, tsgice:360, tsgvol:380, tsgfort:400, tsmap:420, tschest:750, tshorse:450, tsjack:480, tssub:500, tsdrum:520, tsrocket:560, tsmusic:600, tskite:620, tstop:650, tsyoyo:680, tsradio:720, tscastle:800, tsgold:1500, rave:625, zombie:450, witch:525 };   // TR-03 THE CLASSICS: 450 to 800, the golden man's 1,500 the road's capstone (§2 D7 — the whole shelf 12,090★; ⚑ Q8 every price one cell)   // TR-02 THE TOP SHELF: prices climb with the level (§2 D7 — 220 to 420, the chest's 750 the row's capstone; ⚑ Q8 every price one cell)   // 0552 CROAK'S SURPLUS: the outlaw cast on D18's ladder — smalls 80–180★, kings 300★ (⚑ prices; the little king rides the kings' row)   // v3.04: the balls = Wyatt's own stickers (8/10 night, verbatim: "the football is 180 and the Soccer Ball is 170")   // v2.53 (Wyatt 8/5): every decor +50★ (the lens rode along, 100→150; the piggy BANK TIERS are economy, not decor — untouched, flagged). v2.61: unicorn 200★ = Wyatt's own sticker, no rider
+const DECOR_COST={ /* 0905 THE REWARD ROAD RE-CUT: the duck 15★ and the bear 20★ — Wyatt's own stickers (cells 5 + 3) */ ducky:15, elephant:80, train:110, robot:140, spacerug:170, sunrug:200, braidrug:180, creamrug:160, armyrug:180, townmat:250, citymat:250, westrug:250, winterrug:250, yardrug:250, banana:350, unicorn:200, sdino:90, ptero:100, trike:120, bdino:130, stego:140, dilo:160, kingrex:300, syeti:80, snowfig:90, byeti:120, gsnowman:180, kingyeti:300, wbandit:80, wmouse:90, wsniper:110, wteddy:140, wrider:150, wsnake:170, wlady:180, kingcroaklil:300, kingcroak:300, tsdummy:240, tscrew:300, tsnem:320, tsgiant:340, tsgice:360, tsgvol:380, tsgfort:400, tsmap:420, tschest:750, tshorse:450, tsjack:480, tssub:500, tsdrum:520, tsrocket:560, tsmusic:600, tskite:620, tstop:650, tsyoyo:680, tsradio:720, tscastle:800, tsgold:1500, rave:625, zombie:450, witch:525, bwhistle:150 /* CARD-BWH ⚑ BWH-Q2: 150★, in stock from day one (no Treasure Road row: trStocked) */ };   // TR-03 THE CLASSICS: 450 to 800, the golden man's 1,500 the road's capstone (§2 D7 — the whole shelf 12,090★; ⚑ Q8 every price one cell)   // TR-02 THE TOP SHELF: prices climb with the level (§2 D7 — 220 to 420, the chest's 750 the row's capstone; ⚑ Q8 every price one cell)   // 0552 CROAK'S SURPLUS: the outlaw cast on D18's ladder — smalls 80–180★, kings 300★ (⚑ prices; the little king rides the kings' row)   // v3.04: the balls = Wyatt's own stickers (8/10 night, verbatim: "the football is 180 and the Soccer Ball is 170")   // v2.53 (Wyatt 8/5): every decor +50★ (the lens rode along, 100→150; the piggy BANK TIERS are economy, not decor — untouched, flagged). v2.61: unicorn 200★ = Wyatt's own sticker, no rider
 // ===== EARNED DECORATIONS (v1.71) — prizes, never sold. Wyatt 7/29, verbatim:
 // "Please add two more decorative items that you can [earn] from beating level
 // 5 of the Campaign. A rubber ducky. For beating 50 opponents in battlefields,
@@ -48603,7 +48648,8 @@ const DECOR_INFO={
   tsgold:{   name:'THE GOLDEN ARMY MAN', sub:"SARGE CAST IN SOLID GOLD · THE ROAD'S LAST WORD", tag:'TAP HIM! FANFARE AND A SALUTE!' },
   witch:{    name:'THE WITCH',            sub:'ON HER BROOMSTICK · SHE FLIES!',                tag:'TAP HER! POOF! A FROG!' },   // CARD-WCH THE WITCH (DYLAN's guest note 9/30 09:37 EDT: “Witch” character that flys around the room on a broomstick. Cost of 525 stars. · Wyatt 9/30 14:12 EDT: "Yeah, put them in.")
   zombie:{   name:'THE ZOMBIE',           sub:'A LITTLE SOLDIER ZOMBIE · HE WALKS!',           tag:'TAP HIM! HIS ARM POPS OFF!' },   // CARD-ZMB THE ZOMBIE FIGURE (three keys ×7)
-  rave:{     name:'THE RAVE LIGHTS',      sub:'SIX BEAMS · A PARTY ON THE WALL',                tag:'TAP THE EMITTER! LIGHTS ON, LIGHTS OFF!' }   // 1130 THE RAVE LIGHTS
+  rave:{     name:'THE RAVE LIGHTS',      sub:'SIX BEAMS · A PARTY ON THE WALL',                tag:'TAP THE EMITTER! LIGHTS ON, LIGHTS OFF!' },   // 1130 THE RAVE LIGHTS
+  bwhistle:{ name:'THE BIRD WHISTLE', sub:'PAINTED CLAY · IT CALLS A BIRD', tag:'PLAY IT! A BIRD FLIES TO SARGE!' }   // CARD-BWH THE BIRD WHISTLE (3 new keys x7)
 };
 for(const r of HW_SET) DECOR_INFO[r.id]={ name:r.name, sub:HW_SUB, tag:HW_TAG };
 for(const r of XM_SET) DECOR_INFO[r.id]={ name:r.name, sub:XM_SUB, tag:XM_TAG };   // CARD-XMAS-02: the Christmas pieces' rows from their table (empty till the treasure cards)   // 1109 THE HALLOWEEN TREASURES: the twenty rows from the table — dgDecorId, the chest and every DECOR_INFO reader work unchanged
@@ -48655,7 +48701,7 @@ function decorPlacedAny(id){ const d=META.decor; if(!decOwns(id)) return false;
 // CHEST_CAP of them OUT, the rest live IN THE CHEST = off the room's own placed list (META.rdec[room] — one field, one truth, no drift).
 // META.chest = { v: the migration latch (cell 4), nw: the ids that landed in the chest unseen — the lid's NEW! mark } is the ONE new save
 // field (flat null in META_DEFAULT, rebuilt fresh at the normalise — the surpSeen shape, the v1.22 alias law). ═══
-const CHEST_CAP=109;   // CARD-WCH THE WITCH: +1 (the census grows by one: the LOUD growth law)                            // 1109 THE HALLOWEEN TREASURES: the census 79 + the set 20 + 8, RAW (1080's own law — no floor is ever full) · 1080 THE DECORATION CAP (FM-GVT-FORT-RECORD-DECOR-01; Wyatt 9/17/2026, dictated, verbatim: "You should be able to fill your room with more than the maximum amount of decorations. Upon gaining decorations, they won't show up when you pass the maximum decoration limit."): THE CENSUS + 8, RAW — CHEST_GALLERY() holds 79 treasures the game can grant (31 sold + 27 earned + 21 boss = DECOR_ALL_N; 70 of them floor toys), so no floor is ever full again: a toy GAINED lands on the floor you stand on (rdecSweep's deal — the gate of his note: at eight it was chested with a NEW! mark and never drawn), the chest's switch never denies, the head reads n / 87 OUT. Not a draw cap (every toy owns its surveyed seat DECOR_SPOTS + the kid's own drag — no slots), not a save cut, not on the wire (the box never sees a room's list). Was 8: · 0836 EIGHT TOYS ON EVERY FLOOR (FM-GVT-EIGHT-BROOM-01; Wyatt 9/5: "increase the amount of toys someone can have in a location to 8 … Each location has its own 8-counter, so you could have 6 in the bedroom, and then in the snowfields, you could have 8"): EIGHT PER FLOOR (0904's ⚑ Q3 was four) — the room-linked floor's own unit; the counter was per room from the start (META.rdec[room]). Every read goes through this one constant (chestFull · the migration · rdecSweep's deal · the switch's deny · the head's counter · the rig)
+const CHEST_CAP=110;   // CARD-BWH THE BIRD WHISTLE: +1 (the census grows by one: the LOUD growth law)   // CARD-WCH THE WITCH: +1 (the census grows by one: the LOUD growth law)                            // 1109 THE HALLOWEEN TREASURES: the census 79 + the set 20 + 8, RAW (1080's own law — no floor is ever full) · 1080 THE DECORATION CAP (FM-GVT-FORT-RECORD-DECOR-01; Wyatt 9/17/2026, dictated, verbatim: "You should be able to fill your room with more than the maximum amount of decorations. Upon gaining decorations, they won't show up when you pass the maximum decoration limit."): THE CENSUS + 8, RAW — CHEST_GALLERY() holds 79 treasures the game can grant (31 sold + 27 earned + 21 boss = DECOR_ALL_N; 70 of them floor toys), so no floor is ever full again: a toy GAINED lands on the floor you stand on (rdecSweep's deal — the gate of his note: at eight it was chested with a NEW! mark and never drawn), the chest's switch never denies, the head reads n / 87 OUT. Not a draw cap (every toy owns its surveyed seat DECOR_SPOTS + the kid's own drag — no slots), not a save cut, not on the wire (the box never sees a room's list). Was 8: · 0836 EIGHT TOYS ON EVERY FLOOR (FM-GVT-EIGHT-BROOM-01; Wyatt 9/5: "increase the amount of toys someone can have in a location to 8 … Each location has its own 8-counter, so you could have 6 in the bedroom, and then in the snowfields, you could have 8"): EIGHT PER FLOOR (0904's ⚑ Q3 was four) — the room-linked floor's own unit; the counter was per room from the start (META.rdec[room]). Every read goes through this one constant (chestFull · the migration · rdecSweep's deal · the switch's deny · the head's counter · the rig)
 const CHEST_DOOR='chest';                       // the ROOM_SPOTS mv key: #ro-chest the art (the beacon + the rig read it), #rspot-chest the hotspot; no pill — the chest is the sign
 const CHEST_SEAT={ x:-6, y:288, w:96, h:104 }, CHEST_SEAT_BY={ x:73, y:370, w:96, h:104 };   /* CARD-BCL round 3 (Al 10/14 20:58, her Procreate layout of the yard): +69 east with her file, +12 down (her +43.5 clipped to the band a phone shows, BCL3-F2); was 4,358 */   // CARD-TC 9/26 (design/chest-ten-left-0925; Wyatt 9/25: "the treasure chest in the bedroom needs to move to the left 10 pixels"): x 4 -> -6 on the shared seat — every floor but the yard rides the same 10 (the yard's own CHEST_SEAT_BY untouched); THE WALL's window FO_CHEST_VB + its measured ink rode with it · ⚑ Q17 the FIXED seat on EVERY floor: the bedroom's west corner (surveyTC on v8.02: the wall boards to RN_SEAM 316, the tiles from 392, the patrol's men at x 82..110 from PT_FLOOR 352 — the ink stays west of them; the campaign box's ink is 120 tall, 104 is the corner's own height); its base on the tiles' top edge, its lid in front of the wall
 const CHEST_SEAT_AT={ x:-6, y:490, w:96, h:104 };   // CARD-ATC: THE TREASURE CHEST in the attic — the floor's front-left corner (CHEST_SEAT's x, 202 lower): the shared seat hung it over her marionette
@@ -54298,13 +54344,13 @@ if(!META.crownV2){ META.crownV2=1;
         'pdino','sdino','bdino','trike','ptero','stego','dilo','kingrex','syeti','byeti','snowfig','gsnowman','kingyeti','whorse','bluedragon','wbandit','wmouse','wsniper','wteddy','wrider','wsnake','wlady','kingcroaklil','kingcroak',
         'tsdummy','tscrew','tsnem','tsgiant','tsgice','tsgvol','tsgfort','tsmap','tschest','tshorse','tsjack','tssub','tsdrum','tsrocket','tsmusic','tskite','tstop','tsyoyo','tsradio','tscastle','tsgold','magicbone','harp','bonefish','dirtyshoe','rave','zombie','witch',
         'hwpumpkin','hwjack','hwbats','hwghosts','hwbowl','hwhat','hwweb','hwspider','hwcat','hwcauldron','hwgarland','hwlights','hwhouse','hwscarecrow','hwbroom','hwapple','hwbag','hwcling','hwmoon','hwmug','betta','goldfish','seahorse','fishtank','studyglobe','skytrophy',
-        'xmcane','xmbauble','xmstar','xmstocking','xmtree','xmgift','xmlights','xmwreath','xmginger','xmbell','xmsnowflake','xmnut','xmreindeer','xmcocoa','xmchain','xmangel','xmsnowman','xmcookies','xmbird','xmmistletoe','xmsleigh','xmmusic','xmelf','xmsanta','xmwalnut','bubbleman' /* CARD-BBM BUBBLE MAN: BY HAND (the 0332 law), or he leaves his floor at every boot */,'goldenbook' /* CARD-PBK: BY HAND (the 0332 law) */,'bigbattery' /* CARD-OVF-B19: BY HAND (the 0332 law) */,'bunbun','erniedog' /* AIR WILLOW'S TOYS: BY HAND (the 0332 law) */,'gmyfig' /* CARD-GMY: BY HAND (the 0332 law) */,'gmypumpkin' /* CARD-HL4: BY HAND */,'unclerex' /* CARD-SQL LEVEL 4: BY HAND (the 0332 law) */,'flashlight','steadmedal' /* CARD-SLT: BY HAND (the 0332 law), or they leave the sill at every boot */,'gensshelf' /* CARD-DRG THE GENERALS' SHELF: BY HAND (the 0332 law), or it leaves the wall at every boot; the three stand in okp since CARD-DRG: they drag */],   /* CARD-XMAS-05 THE CHRISTMAS TREASURES: the roster's twenty-four BY HAND (the 0332 law: XM_SET is in its TDZ while this load path runs) — without them every Christmas piece left its floor at each boot (still owned, back in the chest): the four landed before this card too */   // CARD-SF3-D1 THE SKY FORTRESS TROPHY: BY HAND (the 0332 law: without it the trophy leaves the roof's floor list and the floor ledger at every boot); NOT in okp: its seat is fixed, a saved delta dies at the boot (the warplane's sill law)   // CARD-SGB THE STUDY GLOBE: BY HAND (the 0332 law: without it the IN THE CHEST stamp and a placed globe's floor row die at every boot)   // 1163 THE PONDS' FISH: the four BY HAND (the 0332 law) · 1109 THE HALLOWEEN TREASURES: the twenty BY HAND (the 0332 law)   // 1031 THE DIRTY SHOE: BY HAND (the 0332 law) · 1023g THE BONE FISH: BY HAND (the 0332 law) · 0904 THE TREASURE CHEST (v8.04): THE 23 CLASSICS BY HAND (the 0332 law) — TR-02/TR-03 never listed them, so a placed classic left its floor and rdecSeen at every boot and was re-dealt onto the boot floor; under the cap it re-entered the chest with a NEW! mark at every launch (found by the served-bytes liveboot)   // 0552: the outlaw cast BY HAND (the 0332 law)   // 0340: the horse joins BY HAND (the 0332 hand-kept-list law) · 0341: the dragon follows it
+        'xmcane','xmbauble','xmstar','xmstocking','xmtree','xmgift','xmlights','xmwreath','xmginger','xmbell','xmsnowflake','xmnut','xmreindeer','xmcocoa','xmchain','xmangel','xmsnowman','xmcookies','xmbird','xmmistletoe','xmsleigh','xmmusic','xmelf','xmsanta','xmwalnut','bubbleman' /* CARD-BBM BUBBLE MAN: BY HAND (the 0332 law), or he leaves his floor at every boot */,'bwhistle' /* CARD-BWH THE BIRD WHISTLE: BY HAND (the 0332 law), or it leaves its floor at every boot */,'goldenbook' /* CARD-PBK: BY HAND (the 0332 law) */,'bigbattery' /* CARD-OVF-B19: BY HAND (the 0332 law) */,'bunbun','erniedog' /* AIR WILLOW'S TOYS: BY HAND (the 0332 law) */,'gmyfig' /* CARD-GMY: BY HAND (the 0332 law) */,'gmypumpkin' /* CARD-HL4: BY HAND */,'unclerex' /* CARD-SQL LEVEL 4: BY HAND (the 0332 law) */,'flashlight','steadmedal' /* CARD-SLT: BY HAND (the 0332 law), or they leave the sill at every boot */,'gensshelf' /* CARD-DRG THE GENERALS' SHELF: BY HAND (the 0332 law), or it leaves the wall at every boot; the three stand in okp since CARD-DRG: they drag */],   /* CARD-XMAS-05 THE CHRISTMAS TREASURES: the roster's twenty-four BY HAND (the 0332 law: XM_SET is in its TDZ while this load path runs) — without them every Christmas piece left its floor at each boot (still owned, back in the chest): the four landed before this card too */   // CARD-SF3-D1 THE SKY FORTRESS TROPHY: BY HAND (the 0332 law: without it the trophy leaves the roof's floor list and the floor ledger at every boot); NOT in okp: its seat is fixed, a saved delta dies at the boot (the warplane's sill law)   // CARD-SGB THE STUDY GLOBE: BY HAND (the 0332 law: without it the IN THE CHEST stamp and a placed globe's floor row die at every boot)   // 1163 THE PONDS' FISH: the four BY HAND (the 0332 law) · 1109 THE HALLOWEEN TREASURES: the twenty BY HAND (the 0332 law)   // 1031 THE DIRTY SHOE: BY HAND (the 0332 law) · 1023g THE BONE FISH: BY HAND (the 0332 law) · 0904 THE TREASURE CHEST (v8.04): THE 23 CLASSICS BY HAND (the 0332 law) — TR-02/TR-03 never listed them, so a placed classic left its floor and rdecSeen at every boot and was re-dealt onto the boot floor; under the cap it re-entered the chest with a NEW! mark at every launch (found by the served-bytes liveboot)   // 0552: the outlaw cast BY HAND (the 0332 law)   // 0340: the horse joins BY HAND (the 0332 hand-kept-list law) · 0341: the dragon follows it
       okp=['vt1','vt2','vt3','vt4','ship','racecar','ducky','teddy','elephant','train','unicorn','football','soccer','yeti','dino',   // 0335: the ship drags now — its per-room seat survives the load purge
         'pdino','sdino','bdino','trike','ptero','stego','dilo','kingrex','syeti','byeti','snowfig','gsnowman','kingyeti','whorse','bluedragon','wbandit','wmouse','wsniper','wteddy','wrider','wsnake','wlady','kingcroaklil','kingcroak','robot',   // 0341: BY HAND (the 0332 law) — the dragon drags; the robot's WANDER HOME drags
         'helmet','banana','goldkey','silverkey','bronzekey','puffer','bass','doghouse','doghouse2',
         'tsdummy','tscrew','tsnem','tsgiant','tsgice','tsgvol','tsgfort','tsmap','tschest','tshorse','tsjack','tssub','tsdrum','tsrocket','tsmusic','tskite','tstop','tsyoyo','tsradio','tscastle','tsgold','magicbone','harp','bonefish','dirtyshoe','rave','zombie','witch',
         'hwpumpkin','hwjack','hwbats','hwghosts','hwbowl','hwhat','hwweb','hwspider','hwcat','hwcauldron','hwgarland','hwlights','hwhouse','hwscarecrow','hwbroom','hwapple','hwbag','hwcling','hwmoon','hwmug','betta','goldfish','seahorse','fishtank','studyglobe',
-        'xmcane','xmbauble','xmstar','xmstocking','xmtree','xmgift','xmlights','xmwreath','xmginger','xmbell','xmsnowflake','xmnut','xmreindeer','xmcocoa','xmchain','xmangel','xmsnowman','xmcookies','xmbird','xmmistletoe','xmsleigh','xmmusic','xmelf','xmsanta','xmwalnut','bubbleman' /* CARD-BBM BUBBLE MAN: BY HAND (the 0332 law), or his drag delta dies at the next boot */,'goldenbook' /* CARD-PBK: BY HAND (the 0332 law) */,'bigbattery' /* CARD-OVF-B19: BY HAND (the 0332 law) */,'bunbun','erniedog' /* AIR WILLOW'S TOYS: BY HAND (the 0332 law) */,'gmyfig' /* CARD-GMY: BY HAND (the 0332 law) */,'gmypumpkin' /* CARD-HL4: BY HAND */,'unclerex' /* CARD-SQL LEVEL 4: BY HAND (the 0332 law) */,'flashlight','steadmedal','gensshelf' /* CARD-DRG THE FRIENDLY GRAB: BY HAND (the 0332 law), or their dragged seats die at the next boot */,'chest' /* CARD-TCM THE TREASURE CHEST MOVES: BY HAND (the 0332 law), or its parked seat dies at the next boot */];   /* CARD-XMAS-05: the twenty-four BY HAND here too — or a Christmas piece's dragged seat dies at the next boot */   // CARD-SGB THE STUDY GLOBE: its drag delta survives the boot too (BY HAND, the 0332 law)   // 1163 THE PONDS' FISH: their drag deltas survive the boot too (BY HAND — the 0332 law) · 1109 THE HALLOWEEN TREASURES: the twenty BY HAND (the 0332 law) — or the drag delta dies at the next boot   // 1031 THE DIRTY SHOE: its drag delta survives the boot too (BY HAND — the 0332 law) · 1023g THE BONE FISH: his drag delta survives the boot too (BY HAND — the 0332 law) · 0904 THE TREASURE CHEST (v8.04): the 23 classics' drag deltas survive the boot too (RDRAG_DECOR leads with them since TR-02; the hand-kept purge dropped them — the 0824 okp trap)   // 0904 THE NEW SAVE'S DEFAULTS: 'warplane' LEFT this list - FIXED on the window sill (a saved plane delta in any room dies here at every boot, the scrub the sill move needed; the tap stays THE RIDE through the dspot)   // 0540: the bass drags · 0824-LATE III THE WHOLE FLOOR DRAGS: BY HAND (the 0332 law) — the seven fixed toys drag now; without this row a saved delta died on the next launch
+        'xmcane','xmbauble','xmstar','xmstocking','xmtree','xmgift','xmlights','xmwreath','xmginger','xmbell','xmsnowflake','xmnut','xmreindeer','xmcocoa','xmchain','xmangel','xmsnowman','xmcookies','xmbird','xmmistletoe','xmsleigh','xmmusic','xmelf','xmsanta','xmwalnut','bubbleman' /* CARD-BBM BUBBLE MAN: BY HAND (the 0332 law), or his drag delta dies at the next boot */,'bwhistle' /* CARD-BWH THE BIRD WHISTLE: BY HAND (the 0332 law), or its drag delta dies at the next boot */,'goldenbook' /* CARD-PBK: BY HAND (the 0332 law) */,'bigbattery' /* CARD-OVF-B19: BY HAND (the 0332 law) */,'bunbun','erniedog' /* AIR WILLOW'S TOYS: BY HAND (the 0332 law) */,'gmyfig' /* CARD-GMY: BY HAND (the 0332 law) */,'gmypumpkin' /* CARD-HL4: BY HAND */,'unclerex' /* CARD-SQL LEVEL 4: BY HAND (the 0332 law) */,'flashlight','steadmedal','gensshelf' /* CARD-DRG THE FRIENDLY GRAB: BY HAND (the 0332 law), or their dragged seats die at the next boot */,'chest' /* CARD-TCM THE TREASURE CHEST MOVES: BY HAND (the 0332 law), or its parked seat dies at the next boot */];   /* CARD-XMAS-05: the twenty-four BY HAND here too — or a Christmas piece's dragged seat dies at the next boot */   // CARD-SGB THE STUDY GLOBE: its drag delta survives the boot too (BY HAND, the 0332 law)   // 1163 THE PONDS' FISH: their drag deltas survive the boot too (BY HAND — the 0332 law) · 1109 THE HALLOWEEN TREASURES: the twenty BY HAND (the 0332 law) — or the drag delta dies at the next boot   // 1031 THE DIRTY SHOE: its drag delta survives the boot too (BY HAND — the 0332 law) · 1023g THE BONE FISH: his drag delta survives the boot too (BY HAND — the 0332 law) · 0904 THE TREASURE CHEST (v8.04): the 23 classics' drag deltas survive the boot too (RDRAG_DECOR leads with them since TR-02; the hand-kept purge dropped them — the 0824 okp trap)   // 0904 THE NEW SAVE'S DEFAULTS: 'warplane' LEFT this list - FIXED on the window sill (a saved plane delta in any room dies here at every boot, the scrub the sill move needed; the tap stays THE RIDE through the dspot)   // 0540: the bass drags · 0824-LATE III THE WHOLE FLOOR DRAGS: BY HAND (the 0332 law) — the seven fixed toys drag now; without this row a saved delta died on the next launch
     const sd=META.rdec||{}, rd={}, sp=META.roomPosR||{}, rp={};
     for(const r of okr){
       if(Array.isArray(sd[r])){ const l=sd[r].filter(id=>okd.indexOf(id)>=0); if(l.length) rd[r]=l; }
@@ -87214,7 +87260,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.60';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.61';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -137667,7 +137713,7 @@ function decorSVG(){
     +(decorHome('bonefish')? bfishSVG():'')+(decorHome('dirtyshoe')? dshoeSVG():'')+(decorHome('bigbattery')? bb19SVG():'')+(decorHome('bunbun')? wbSVG('bunbun'):'')+(decorHome('erniedog')? wbSVG('erniedog'):'')+(decorHome('unclerex')? urxSVG():'')+(decorHome('gmyfig')? gmyFigSVG():'')+(decorHome('gmypumpkin')? gmyPumpkinSVG():'')   /* CARD-OVF-B19 THE BIG BATTERY beside the shoe */
     +(decorHome('betta')? pfSVG('betta'):'')+(decorHome('goldfish')? pfSVG('goldfish'):'')+(decorHome('seahorse')? pfSVG('seahorse'):'')+(decorHome('fishtank')? pfTankSVG():'')   // 1163 THE PONDS' FISH: the three fish in their glass, then THE FISH TANK (a home tank holds every home fish — pfSVG answers nothing for one, pfTankSVG paints him inside); the four paint LAST of the floor objects (RDRAG_DECOR leads with them in reverse — the reverse paint order law)
     +(decorHome('studyglobe')? sgbSVG():'')   // CARD-SGB THE STUDY GLOBE paints after the fish tank (RDRAG_DECOR leads with it: the reverse paint order law)
-    +(decorHome('goldenbook')? gbkSVG():'')   // CARD-PBK THE GOLDEN BOOK paints after the study globe (RDRAG_DECOR: the reverse paint order law)
+    +(decorHome('goldenbook')? gbkSVG():'')+(decorHome('bwhistle')? bwhToySVG():'')   /* CARD-BWH THE BIRD WHISTLE paints after the golden book, before Bubble Man (RDRAG_DECOR: after him, the reverse paint order law) */   // CARD-PBK THE GOLDEN BOOK paints after the study globe (RDRAG_DECOR: the reverse paint order law)
     +(decorHome('bubbleman')? bmSVG():'')   // CARD-BBM BUBBLE MAN floats LAST of the floor objects (RDRAG_DECOR leads with him after the witch: the reverse paint order law)
     +hwFloorSVG()+xmFloorSVG();   // CARD-XMAS-02: the Christmas floor pieces after the Halloween's, sorted by their feet   // 1109 THE HALLOWEEN TREASURES: the floor pieces LAST of the floor objects, sorted by their feet, under #ychars   // 1031 THE DIRTY SHOE paints LAST of the floor objects now (RDRAG_DECOR leads with it — the reverse paint order law) ·   // 1023g THE BONE FISH paints LAST of the floor objects (RDRAG_DECOR leads with him — the reverse paint order law)
     // 0335 PART E: the STANDING CHARACTERS left this list for the depth belt
@@ -138859,6 +138905,7 @@ const DECOR_SPOTS={
   flashlight:{ x:656, y:104, w:60, h:28 },   // CARD-SLT THE FLASHLIGHT on the sill (the art at FL14.sill 690,118: its ink 658..714 x 106..130, a 2-unit margin); fixed on the sill like the plane (no drag)
   steadmedal:{ x:733, y:92, w:30, h:43 },   // CARD-SLT STEADFAST'S MEDAL on the sill (the art at FL14.medal 748,124: its ink 737..759 x 94..133, grown 4 a side for a thumb); its pad stands later than the plane's and the bubble man's, so it wins where they overlap (the medal hangs in front of the plane's tail)
   gensshelf:{ x:0, y:164, w:88, h:36 },   // CARD-DRG THE GENERALS' SHELF on the bare wall WEST of the DAILY REWARD door (the plank at GS19 2,190, 84 wide, level with the big shelf's plank; the props' ink -1..90 x 167..199): the piggy's row starts at 88, the MISSING poster hangs under it at 42,199; draggable (RDRAG_DECOR + okp)
+  bwhistle:{ x:312, y:360, w:36, h:30 },   // CARD-BWH THE BIRD WHISTLE: just east of Sarge on the toy box (seatBWH.mjs: the free seat nearest him that meets no door box, no pill and no man and rests on the floor; under no toy's box); the art 36 x 30, its feet at 30; draggable (RDRAG_DECOR + okp)
   studyglobe:{ x:162, y:216, w:60, h:66 }   // CARD-SGB THE STUDY GLOBE: the lower shelf's west end (its foot on the plank at 282), between the seahorse's jar (ends x 154) and the magic bone (starts x 236), under the ship's shelf; clear of every door and pill (build-sgb/rig/surveySGB.mjs); the western horse's default seat shares it (the whole census out is a crowd: a kid drags)
 };
 for(const r of HW_SET) DECOR_SPOTS[r.id]=r.spot;
@@ -138924,6 +138971,7 @@ const DECOR_REACT={
   flashlight:{ el:'decFlashlight', ms:1700, sfx:'blip', solo:true },   // CARD-SLT THE FLASHLIGHT: LOAD-BEARING (the rig walk reads every earned id's row); the tap routes to olvFlash14Tap in decorReact (the beam's sweep, 1.7 s)
   steadmedal:{ el:'decSteadmedal', ms:1300, sfx:'blip', solo:true },   // CARD-SLT STEADFAST'S MEDAL: the tap routes to olvMedal14Tap in decorReact (the salute, 1.3 s)
   gensshelf:{ el:'decGensshelf', ms:900, sfx:'blip', solo:true },   // CARD-DRG THE GENERALS' SHELF: LOAD-BEARING (the rig walk reads every earned id's row); the tap routes to gs19TapAt in decorReact (the prop under the press wobbles and sounds, 0.9 s)
+  bwhistle:{ el:'decBwhistle', ms:1300, sfx:'bwhToot', solo:true },   // CARD-BWH THE BIRD WHISTLE: the tap routes to bwhTap in decorReact (the hop, the notes, the warble, the bird); a fresh-bought whistle introduces itself with its warble alone (the buy's own line: SFX[d.sfx])
   goldenbook:{ el:'decGoldenbook', ms:GBK_MS, sfx:'twink', solo:true },   // CARD-PBK THE GOLDEN BOOK: LOAD-BEARING (the rig walk reads every earned id's row); the tap routes to gbkTap (the hop, the first tap's gift, else THE CAPTAIN'S LOG)
   bubbleman:{ el:'decBubbleman', ms:BM_MS, sfx:'squeak', solo:true },   // CARD-BBM BUBBLE MAN: the row is LOAD-BEARING (the rig walk reads every earned id's row); the tap itself routes to bmTap in decorReact (the wiggle, the pop, gone, back: the classes + the sounds); solo: a tap mid-dance does nothing
   bunbun:{ el:'decBunbun', ms:WB_MS, sfx:'boing', solo:true }, erniedog:{ el:'decErniedog', ms:WB_MS, sfx:'yip', solo:true },   // AIR WILLOW'S TOYS: the rows for the readers; the taps route to wbTap in decorReact
@@ -139509,6 +139557,7 @@ function decorReact(id){
   if(id==='flashlight'){ olvFlash14Tap(); return; }   // CARD-SLT THE FLASHLIGHT: the beam sweeps the room and the toys squint (the pad dspot-flashlight is the tap now)
   if(id==='steadmedal'){ olvMedal14Tap(); return; }   // CARD-SLT STEADFAST'S MEDAL: two notes, the salute (the pad dspot-steadmedal)
   if(id==='gensshelf'){ gs19TapAt(); return; }   // CARD-DRG THE GENERALS' SHELF: the prop under the press (GS19.tap, set by rdragEnd) honks, clicks or tweets; a pad click with no press point = the next one round
+  if(id==='bwhistle'){ bwhTap(); return; }   // CARD-BWH THE BIRD WHISTLE: the play (the hop, the notes, the warble) and the floor's bird called to Sarge's hand (sec CARD-BWH)
   if(id==='goldenbook'){ gbkTap(); return; }   // CARD-PBK THE GOLDEN BOOK: the hop, then the first tap's 1,000 stars, else THE CAPTAIN'S LOG (gbkTap)
   if(id==='bubbleman'){ bmTap(); return; }   // CARD-BBM BUBBLE MAN: the wiggle, the pop, a few seconds gone, back inside tiny bubbles (bmTap owns the latch, the sounds and the class flips)
   if(id==='bunbun' || id==='erniedog'){ wbTap(id); return; }   // AIR WILLOW'S TOYS: BUN BUN hops and sparkles · ERNIE DOG wakes with a yip and dozes off again
@@ -142203,7 +142252,7 @@ const VTROOPS=[   // 0866 THE BACKYARD MAKEOVER (cell F, ⚑ Q4): x/y are GETTER
 // origin through the #ro- wrapper. The BED went back to plain furniture with
 // the rest of the room — RDRAG_BED is deleted with its rdragPick test, and
 // its squatters sleep at the authored 700,34 for good.
-const RDRAG_DECOR=['zombie','witch',/* CARD-WCH: her still piece's grab, first of the toys (she is over them all; live, wchPick claims her before this walk) */'bubbleman',/* CARD-BBM BUBBLE MAN: he floats over the floor's toys (painted last of the floor objects: the reverse paint order law) */'bigbattery',/* CARD-OVF-B19 THE BIG BATTERY */'bunbun','erniedog',/* AIR WILLOW'S TOYS */'unclerex',/* CARD-SQL LEVEL 4 UNCLE REX */'gmyfig',/* CARD-GMY */'gmypumpkin',/* CARD-HL4 */'goldenbook',/* CARD-PBK THE GOLDEN BOOK */'studyglobe','fishtank','seahorse','goldfish','betta','rave','dirtyshoe','bonefish','harp','magicbone','hook','tsgold','tshorse','tscastle','tsradio','tsyoyo','tstop','tskite','tsrocket','tsdrum','tssub','tsjack','tsgiant','tsnem','tscrew','tsdummy','tschest','tsmap','tsgvol','tsgice','bluedragon','whorse','pdino','kingcroak','kingcroaklil','wlady','wsnake','wrider','wteddy','wsniper','wmouse','wbandit','kingyeti','gsnowman','snowfig','byeti','syeti','kingrex','dilo','stego','ptero','trike','bdino','sdino','dino','yeti','bass','doghouse','doghouse2','puffer','bronzekey','silverkey','goldkey','helmet','racecar','soccer','football','tsgfort','tsmusic','ducky','unicorn','teddy','banana','elephant','train','gensshelf','steadmedal','flashlight' /* CARD-DRG THE FRIENDLY GRAB (design/friendly-grab-1012; Wyatt by phone 10/12/2026: "I was unable to drag the metal around, nor the flashlight"): the wall layer's three (olvFlash14SVG paints the flashlight then the medal, olvGens19SVG the generals' shelf, all before decorSVG's toys, so they answer after them: the reverse paint order law); CARD-SLT's plane's law for the medal and the flashlight RETIRED on his word */].concat(DECOR_HALLOW, DECOR_XMAS.slice().reverse() /* CARD-XMAS-05: the Christmas rows LAST ROW FIRST — a later row's zone lies over an earlier row's (xmSpotsUnder paints them in the table's order), so the grab follows the tap: the present under the tree is taken from inside the tree's own pad */)   /* 0824-LATE III THE WHOLE FLOOR DRAGS: the seven fixed toys join — decorSVG paints train → banana → … → racecar → helmet → warplane → the keys (gold, silver, bronze) → the hook → puffer, and this list is that z reversed (the rugs stay furniture: the planet is the last tap-only toy) */   /* 0331: the twelve models lead — they paint LAST in decorSVG (after the dino plush), reverse paint order is this list's law */;   // 0315: the plushies lead — they paint LAST in decorSVG (dino after yeti), and reverse paint order is this list's law   // v2.61: the unicorn is plush family — reverse paint order law holds (she paints after the bear). v3.04: the balls slot between car and duck — decorSVG paints duck → football → soccer → racecar, and this list is that z reversed
+const RDRAG_DECOR=['zombie','witch',/* CARD-WCH: her still piece's grab, first of the toys (she is over them all; live, wchPick claims her before this walk) */'bubbleman',/* CARD-BBM BUBBLE MAN: he floats over the floor's toys (painted last of the floor objects: the reverse paint order law) */'bwhistle',/* CARD-BWH THE BIRD WHISTLE (painted just before Bubble Man) */'bigbattery',/* CARD-OVF-B19 THE BIG BATTERY */'bunbun','erniedog',/* AIR WILLOW'S TOYS */'unclerex',/* CARD-SQL LEVEL 4 UNCLE REX */'gmyfig',/* CARD-GMY */'gmypumpkin',/* CARD-HL4 */'goldenbook',/* CARD-PBK THE GOLDEN BOOK */'studyglobe','fishtank','seahorse','goldfish','betta','rave','dirtyshoe','bonefish','harp','magicbone','hook','tsgold','tshorse','tscastle','tsradio','tsyoyo','tstop','tskite','tsrocket','tsdrum','tssub','tsjack','tsgiant','tsnem','tscrew','tsdummy','tschest','tsmap','tsgvol','tsgice','bluedragon','whorse','pdino','kingcroak','kingcroaklil','wlady','wsnake','wrider','wteddy','wsniper','wmouse','wbandit','kingyeti','gsnowman','snowfig','byeti','syeti','kingrex','dilo','stego','ptero','trike','bdino','sdino','dino','yeti','bass','doghouse','doghouse2','puffer','bronzekey','silverkey','goldkey','helmet','racecar','soccer','football','tsgfort','tsmusic','ducky','unicorn','teddy','banana','elephant','train','gensshelf','steadmedal','flashlight' /* CARD-DRG THE FRIENDLY GRAB (design/friendly-grab-1012; Wyatt by phone 10/12/2026: "I was unable to drag the metal around, nor the flashlight"): the wall layer's three (olvFlash14SVG paints the flashlight then the medal, olvGens19SVG the generals' shelf, all before decorSVG's toys, so they answer after them: the reverse paint order law); CARD-SLT's plane's law for the medal and the flashlight RETIRED on his word */].concat(DECOR_HALLOW, DECOR_XMAS.slice().reverse() /* CARD-XMAS-05: the Christmas rows LAST ROW FIRST — a later row's zone lies over an earlier row's (xmSpotsUnder paints them in the table's order), so the grab follows the tap: the present under the tree is taken from inside the tree's own pad */)   /* 0824-LATE III THE WHOLE FLOOR DRAGS: the seven fixed toys join — decorSVG paints train → banana → … → racecar → helmet → warplane → the keys (gold, silver, bronze) → the hook → puffer, and this list is that z reversed (the rugs stay furniture: the planet is the last tap-only toy) */   /* 0331: the twelve models lead — they paint LAST in decorSVG (after the dino plush), reverse paint order is this list's law */;   // 0315: the plushies lead — they paint LAST in decorSVG (dino after yeti), and reverse paint order is this list's law   // v2.61: the unicorn is plush family — reverse paint order law holds (she paints after the bear). v3.04: the balls slot between car and duck — decorSVG paints duck → football → soccer → racecar, and this list is that z reversed
 let RDRAG=null;
 // 0330a: the arrangement is PER ROOM now — reads and writes go through the
 // current room's own map (created on write). META.roomPos is the pre-0330a
@@ -142593,6 +142642,7 @@ function rdragApply(k, dx, dy){
   if(k===XH2_TREE) xh2Follow(dx, dy);   // CARD-XH2: the tree's hung pieces' tap pads follow it
   if(k===CHEST_DOOR){ const hs=document.getElementById('rspot-'+CHEST_DOOR), s=chestSeat(); if(hs){ hs.style.left=(s.x+dx)+'px'; hs.style.top=(s.y+dy)+'px'; } }   // CARD-TCM: the chest's tap box rides its drag
   if(k==='vt1') petSideAim(dx, dy);   // 1037 THE PET AT SARGE'S SIDE: Sarge moved (a drag's step, a fall, a park, the sled's dismount) — his pet goes after him
+  try{ bwhMoved(k, dx, dy); }catch(e){}   // CARD-BWH THE BIRD WHISTLE: Sarge moved (or the whistle a bird rests on): the bird takes off
 }
 // ===== v3.06 THE ROOFTOP'S RULE (Wyatt, verbatim: "if you drag anything
 // into the cliff that's in the middle or off the side of the roof, just
@@ -154634,6 +154684,7 @@ function renderMenu(){
   piggyHeldSet();   // 1002 THE PIGGY HIDES WHILE THE INVADER STANDS: the shelf's piggy off the shelf while today's invader stands (the three nodes wear .held), back on it — with her return beat — on the first paint after the win
   atsunArm();   // CARD-ASN THE ATTIC ALWAYS MOVING + THE SUN CLOCK (Laura's pass, card 2/6): her pieces move where they stand after the paint (a no-op off the attic)
   atpArm();   // CARD-ATP THE ATTIC, TAP IT (Laura's pass, card 3/6): the bulb, the candle and the record put back as the kid left them after the paint (a no-op off the attic)
+  try{ bwhAfterPaint(); }catch(e){}   // CARD-BWH THE BIRD WHISTLE: a visiting bird back on the fresh top layer (#dogTop), or its visit ends (another floor, a fight, Sarge gone)
   try{ dlgAfterPaint(); }catch(e){}   // CARD-DLG THE STILL ROOM: the room laid a frame after this paint (the bedroom's toys at rest as pictures on their layers; a no-op off the bedroom; a paint before the sec stands is laid by the sec itself)
   wrPosseArm();   // 0900 OUTLAW TOWN COMES TO THE RANGE (§REV 2.2): the posse's seat takes the global clock's phase; THE TRAIN WINS' rAF watch opens inside the gallop window (a no-op off the range)
   sizeRoom();
@@ -160989,7 +161040,7 @@ const SGP_SCREENS={ 'park-dino':1, 'park-yeti':1, 'park-yeti-live':1, 'park-west
 const SGP_PKO={ 'park-yeti':1, 'park-yeti-live':1, 'room-winter':1 };   // CARD-PKO's outline pass already ran upstream: the panels alone here
 const SGP_RICH={ 'raid-ice':1 };   // her rule 3: the pale screen
 const SGP_FREEZE={   // ids and classes whose whole subtree stays exactly as painted (Al's pieces; every figure): by screen, '*' everywhere
-  '*':['ypb-sky','ypb-mid','ypb-birch','ypb-bush','ypb-mound','ypb-pool','ypb-sun','ypb-ray','dpv-rx','dpvRexAl','dpv-br','brhead','dpv-skull','sklrock','ychars','patrol','ptfig','ro-nem','ro-nemt','tedw','ro-bearfort','gty-m','gty-eye','rxhead','bhead','bshade','btail','bbody','blegB','snort'],
+  '*':['dec-bwhistle' /* CARD-BWH THE BIRD WHISTLE: its drawing carries the guide's numbers itself (one drawing on the floor and in the chest card: no second pass) */,'ypb-sky','ypb-mid','ypb-birch','ypb-bush','ypb-mound','ypb-pool','ypb-sun','ypb-ray','dpv-rx','dpvRexAl','dpv-br','brhead','dpv-skull','sklrock','ychars','patrol','ptfig','ro-nem','ro-nemt','tedw','ro-bearfort','gty-m','gty-eye','rxhead','bhead','bshade','btail','bbody','blegB','snort'],
   'park-western':['otp-posse','otp-wk','wwd','whkT','wpk'],
   'park-moon':['mg-barrow','mg-push','mg-rod','mg-fly','mg-fish','mg-frog','mg-frogR','mg-swan','mg-toad','mg-wasp','mg-rabbit','gf','gf-spl'],
   'raid-croak':['kcbob','kcson','kcsonhands','kcsonhead','kcsarge','kcmoth','kckA','kckB','kcsm'],
@@ -170945,6 +170996,7 @@ function decShopArt(id){
   if(id==='flashlight') return flashlightSVG14();   // CARD-SLT THE FLASHLIGHT: the ticket's own picture (the one geometry: the chest's window, the room card, the face-off's backdrop)
   if(id==='steadmedal') return medalSVG14();   // CARD-SLT STEADFAST'S MEDAL: the ticket's own picture
   if(id==='gensshelf') return gens19SVG();   // CARD-DRG THE GENERALS' SHELF: the ticket's own picture (the chest's window, the room card, the face-off's backdrop)
+  if(id==='bwhistle') return bwhShopSVG();   // CARD-BWH THE BIRD WHISTLE: the chest card's window (the floor's own drawing)
   if(id==='goldenbook') return '<svg viewBox="'+GBK_VB+'">'+gbkArt()+'</svg>';   // CARD-PBK THE GOLDEN BOOK: the one drawing (the card's window + the chest's gallery); no id, no url(#)
   if(id==='bubbleman') return '<svg viewBox="'+BM_VB+'">'+BM_ART+'</svg>';   // CARD-BBM BUBBLE MAN: the one drawing (the card's window + the chest's gallery); no id, no url(#)
   if(id==='bunbun' || id==='erniedog') return '<svg viewBox="'+WB_VB[id]+'">'+WB_ART[id]+'</svg>';   // AIR WILLOW'S TOYS: the one drawing each (no id, no url(#))
@@ -177659,7 +177711,8 @@ const DECOR_LINE={
   tsgold:   "THE GOLDEN ARMY MAN! Sarge, cast in solid gold. The whole road, walked. Salute!",
   witch:    "THE WITCH is waiting in your chest. Take her out and she flies round the room on her broomstick. Tap her and her own spell turns her into a frog!",   // CARD-WCH THE WITCH
   zombie:   "THE ZOMBIE gets up and walks. Arms out, one boot dragging, and he never looks where he is going!",   // CARD-ZMB THE ZOMBIE FIGURE
-  rave:     "THE RAVE LIGHTS are waiting in your chest. Take them out and tap the emitter: lights on, lights off, and the whole room dances!"   // 1130 THE RAVE LIGHTS
+  rave:     "THE RAVE LIGHTS are waiting in your chest. Take them out and tap the emitter: lights on, lights off, and the whole room dances!",   // 1130 THE RAVE LIGHTS
+  bwhistle: "THE BIRD WHISTLE is waiting in your chest. Take it out and play it: a bird flies in and rests on Sarge's hand until he moves!"   // CARD-BWH THE BIRD WHISTLE: the mystery box's card (one new key x7)
 };
 // ===== 0341 MEGA'S HERALD — the one-shot announcement (the decorSweep card
 // law: a live 50/50 win cards at its own sweep door; an already-crowned save
@@ -182312,6 +182365,287 @@ setTimeout(()=>{ GVT.mbh=(o)=>{ o=o||{}; if(o.on!=null){ MBH.on=o.on? 1 : 0; if(
   const sp=ROOM_SPOTS.find(q=>q.id==='mbhrec'), hot=document.querySelector('#roomStage > div[onclick="UI.room(\'mbhrec\')"]');
   return { on:MBH.on, room:roomCur(), shelf:!!g, box:mbhBox(), art:R(g), live:!!g && g.classList.contains('rcp-live'), still:!!g && g.classList.contains('mbh-still'), lab:g && (g.querySelector('.rcp-lab')||{getAttribute:()=>null}).getAttribute('fill'), arm:g && !!(g.querySelector('.rcp-arm')||{hasAttribute:()=>false}).hasAttribute('transform'), notes:g? g.querySelectorAll('.mbh-n').length : 0,
     spot:sp? [sp.x, sp.y, sp.w, sp.h] : null, hot:R(hot), fort:{ art:!!f, hot:!!h, notes:!!document.getElementById('fhNotes') }, sheet:!!document.querySelector('#roomModal .rcpcard'), song:rcpOn(), rcpLive:rcpLive() }; }; }, 0);   // the rig's door (window.GVT stands up later in the page) · on = the switch (the menu repainted), tap = the shelf's own tap
+// ═══ CARD-BWH THE BIRD WHISTLE (design/bird-whistle-1015/00-BUILD-BWH.md; Wyatt by phone 10/15/2026 19:46, Wispr Flow, verbatim: "Add a bird whistle as a treasure to the game. If you play the bird whistle, a bird will fly to
+// Sarge and land on his hand for a while until you move Sarge, and it just relaxes there peacefully. Each area has its own type of bird. In the bedroom, the window opens up so the bird can fly in and land on Sarge's hand. Run a
+// design pass for this, then go with the recommended and ship it live."; built on Maker 1 at the pass's RECs, BWH-Q1..Q11):
+//   THE TREASURE 'bwhistle' (DECOR_ORDER's tail: sold in the chest's SHOP for 150★ from day one, the mystery box's too): a painted clay bird whistle (a water warbler) on the floor of ANY room, a floor toy like every treasure
+//     (it drags, it goes back in the chest). Its drawing carries THE GVT STYLE GUIDE's numbers itself (soft rims = pkoShade of the fill, 0.6x, 55 %; a light top + a deeper foot; crisp drawn lines) and its group is frozen
+//     for the room's pass (SGP_FREEZE '*': 'dec-bwhistle'), so the floor and the chest card show one drawing.
+//   THE PLAY (bwhTap, decorReact's branch): the whistle hops as it is blown, three notes float up, the warble plays (bwhSong: synthesised, the sound switch rules it); the floor's bird is called BWH.delay ms later.
+//   THE VISIT (BWV; one bird at a time, nothing saved): the floor's bird (BWH_BIRDS) flies in on THE TOP LAYER (#dogTop: over the pills, outside the still room) to SARGE'S FREE HAND (BWH_PERCH by the art he holds:
+//     sargeArtW; the hand = his arm path's end, the bird's feet on its top, facing out along his arm) and rests there, calm (a blink, a tilt, a look, a fluff, a tail flick now and then; nothing moves between them) UNTIL SARGE MOVES:
+//     rdragApply's tail (every live move of him: the drag, the hold's lift, a fall, a park, the sled) and the idle beat's look (his wrapper's transform, his node gone: knocked flat, the chest, the roof) send it away the way
+//     it came. No Sarge on the floor (the bedroom before today's fight is won, Mom's day, the capture's stand-in): it rests ON THE WHISTLE until the whistle moves. A tap while it rests: it sings back and hops.
+//     Leaving the floor, a fight or a reload ends the visit (bwhAfterPaint at renderMenu's tail re-seats the node on the fresh top layer, or ends it).
+//   THE WINDOW (the bedroom; bwhSash*): the two halves swing open on their hinges (the base's mullion path stands aside while the sashes stand; dlgHold keeps #ro-window awake), the bluebird flies in through it and the window
+//     swings shut behind it; it opens again for the way out. Between visits the window is the base's own drawing.
+//   REDUCED MOTION: no flight, no swing, no idle beats: the bird fades in on the hand and out when Sarge moves; the call still plays. The rig door: GVT.bwh(o). ═══
+const BWH={ on:1, s:0.5, delay:520, flyMin:1500, flyMax:2700, flapHz:7.5, idleMin:2600, idleMax:5600, sashMs:520, fadeMs:420, look:1500, k:58/120, ink:{ dark:'#2B2420' } };   // s = room units per bird unit (a songbird ~44 long = ~22 units on the room's 58-unit Sarge: a cartoon bird, ~15 pt on a phone in landscape); k = the room figure's scale over its 120 x 140 art box
+const BWH_BIRDS={   // ⚑ BWH-Q6: one bird a floor (ROOM_ORDER), each easy to tell apart at a phone's size; never white (FLAPPY the pet is)
+  bedroom: { k:'bluebird',   s:1,    back:'#3B78D8', wing:'#2F63C0', head:'#3B78D8', breast:'#E07A36', belly:'#F6F0E2', tail:'#2F60B8', beak:'#2B2622', leg:'#4A3B30', eye:'#1C1712' },
+  backyard:{ k:'robin',      s:1.04, back:'#706559', wing:'#5F564C', head:'#3A342E', breast:'#D4542A', belly:'#F4EEE2', tail:'#4A433D', beak:'#F2B532', leg:'#8B6A4C', eye:'#1C1712', ring:1 },
+  winter:  { k:'cardinal',   s:1,    back:'#D42A20', wing:'#AE2018', head:'#D42A20', breast:'#E2392B', belly:'#E2392B', tail:'#A91E17', beak:'#F07A2A', leg:'#6B4A3A', eye:'#1C1712', crest:1, mask:'#1E1A18', thick:1 },
+  rooftop: { k:'pigeon',     s:1.12, back:'#8F99AA', wing:'#A9B2C0', head:'#7E889B', breast:'#8C93A6', belly:'#9EA6B6', tail:'#7A8496', beak:'#E3DAD0', leg:'#D8777A', eye:'#E0782E', neck:1, bars:'#4A5060', plump:1, short:1 },
+  western: { k:'roadrunner', s:1.02, back:'#8C6B46', wing:'#6E5236', head:'#6E5236', breast:'#E9DDC2', belly:'#EFE5CF', tail:'#5A4530', beak:'#3A3026', leg:'#7D97A6', eye:'#1C1712', crest:2, streak:1, longTail:1, patch:1, long:1 },
+  attic:   { k:'owl',        s:1.06, back:'#D3A04F', wing:'#C48F44', head:'#D3A04F', face:'#F7F2E7', disc:'#C9A06A', belly:'#F6EFE2', tail:'#B98840', beak:'#E9D3AE', leg:'#EADBC2', eye:'#241A12', owl:1 }
+};
+const BWH_PERCH={   // the free hand by the art id the room's Sarge wears (sargeArtW): [x, the hand's top, facing: +1 east / -1 west, OUT along his arm (a bird facing him hid his face: his hand is a head's width from it)] on the 120 x 140 art box (an arm is a stroke 8 wide, round caps: its end is the hand)
+  pistol:[81,68.8,1], pistol2:[69,70.6,1], shotgun:[88,70.4,1], sniper:[92,67.2,1], lightsaber:[38,66.4,-1], unarmed:[92,60.4,1], commander:[38,66.4,-1],
+  claymore:[70,58.6,1], highblade:[73.4,66.8,1], iceblade:[73.4,66.8,1], flameblade:[73.4,66.8,1], co_d:[34,50.6,-1] };
+let BWV=null;   // THE VISIT (the theater, never the truth): { room, kind, on:'sarge'|'whistle', ph:'in'|'perch'|'out'|'gone', el, t0, dur, P:[4 points], s0, s1, fx, x, y, d0, tr0, raf, idle, beat, sash, rm }
+let BWH_RIM={};   // the soft rims: a fill's own shade (the pass's pkoShade), kept
+function bwhRim(hex){ let v=BWH_RIM[hex]; if(v) return v; try{ v=pkoShade(pkoCol(hex)); }catch(e){ v='#3a3026'; } BWH_RIM[hex]=v; return v; }
+function bwhF(tag, a, fill, w){ return '<'+tag+' '+a+' fill="'+fill+'" stroke="'+bwhRim(fill)+'" stroke-width="'+(w||1.3)+'" stroke-opacity="0.55" stroke-linejoin="round"/>'; }   // a filled closed shape: its rim a shade of its own fill, 0.6x the width, 55 % (the guide's rule 1)
+function bwhL(d, col, w){ return '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+(w||1.2)+'" stroke-linecap="round" stroke-linejoin="round"/>'; }   // a drawn line keeps its full dark line (rule 3)
+// ---- THE WHISTLE: a plump sky-blue clay bird, a cream breast, a painted wing, a red beak; you blow into its tail (the cream spout). 36 x 30, its feet at y 30 ----
+function bwhWhistleArt(){
+  const B='#4D8FE0', C='#F5E6C4', W='#2F67BE', R='#E04E36', S='#EEDDB8';
+  return '<g class="bwh-w">'
+    +'<ellipse cx="18" cy="28.6" rx="13.5" ry="2.4" fill="#000" opacity="0.16"/>'
+    +'<g class="bwh-wb">'
+    +bwhF('ellipse', 'cx="17" cy="26.4" rx="7.4" ry="2.4"', W, 1.1)
+    +bwhF('path', 'd="M7.2 15.2 L0.8 11.6 Q-0.4 13.8 0.6 16.4 L6.8 20.6 Z"', S, 1.1)
+    +'<ellipse cx="1.5" cy="14" rx="0.9" ry="1.3" fill="#5a4630"/>'
+    +bwhF('ellipse', 'cx="17" cy="18.2" rx="12.4" ry="8.9"', B, 1.4)
+    +bwhF('circle', 'cx="25.6" cy="11.6" r="6.6"', B, 1.3)
+    +bwhF('ellipse', 'cx="22.2" cy="20" rx="6.4" ry="5.8"', C, 1.1)
+    +bwhF('path', 'd="M9.4 15.6 C13.6 11.8 19.4 12.8 20.6 18.2 C17.2 16.6 13.4 18 9.8 21.6 Z"', W, 1.1)
+    +'<circle cx="13" cy="17.6" r="0.9" fill="#FFF4DC"/><circle cx="15.8" cy="16.2" r="0.9" fill="#FFF4DC"/><circle cx="16" cy="19.2" r="0.8" fill="#FFF4DC"/>'
+    +'<path d="M20.4 22.6 c-0.9-1.2 0.4-2.4 1.3-1.2 c0.9-1.2 2.2 0 1.3 1.2 l-1.3 1.3 z" fill="'+R+'" opacity="0.9"/>'
+    +'<ellipse cx="20" cy="12.6" rx="7.4" ry="3" fill="#FFF4DC" opacity="0.22"/>'
+    +'<ellipse cx="16" cy="24.6" rx="10" ry="2.6" fill="#1E1408" opacity="0.18"/>'
+    +bwhF('path', 'd="M31.2 10.6 L35.6 12.2 L31.2 14 Z"', R, 1)
+    +'<circle cx="27.4" cy="10.4" r="1.35" fill="#1E1A16"/><circle cx="27.9" cy="9.9" r="0.45" fill="#fff"/>'
+    +'<ellipse cx="25.4" cy="7.6" rx="2.2" ry="1.1" fill="#fff" opacity="0.6" transform="rotate(-18 25.4 7.6)"/>'
+    +'</g>'
+    +'<g class="bwh-notes" fill="#2B2420"><g class="bwh-n1"><ellipse cx="2" cy="7" rx="1.9" ry="1.4" transform="rotate(-20 2 7)"/><path d="M3.6 6.6 V0.6 l3 1.2" fill="none" stroke="#2B2420" stroke-width="0.9" stroke-linecap="round"/></g>'
+    +'<g class="bwh-n2"><ellipse cx="-3" cy="3" rx="1.7" ry="1.3" transform="rotate(-20 -3 3)"/><path d="M-1.6 2.7 V-2.6" fill="none" stroke="#2B2420" stroke-width="0.9" stroke-linecap="round"/></g>'
+    +'<g class="bwh-n3"><ellipse cx="6" cy="2" rx="1.6" ry="1.2" transform="rotate(-20 6 2)"/><path d="M7.4 1.7 V-3.4 l2.4 1" fill="none" stroke="#2B2420" stroke-width="0.9" stroke-linecap="round"/></g></g>'
+    +'</g>';
+}
+function bwhToySVG(){ try{ const p=DECOR_SPOTS.bwhistle;   // the room's seat (the chest grammar): the wrapper wears the drag delta, the art its seat; no inline onclick (the pad dspot-bwhistle is the tap: UI.decorTap -> decorReact -> bwhTap)
+  return '<g id="ro-bwhistle"'+rpT('bwhistle')+'><g class="dec dec-bwhistle" id="decBwhistle" transform="translate('+p.x+','+p.y+')">'+bwhWhistleArt()+'</g></g>'; }catch(e){ return ''; } }
+function bwhShopSVG(){ return '<svg viewBox="-6 -6 46 38">'+bwhWhistleArt()+'</svg>'; }   // the chest card's window (decShopArt)
+// ---- THE BIRDS: one songbird mold (the five) + the barn owl; feet at 0,0, facing east (+x); the parts the flight and the rest move: .bwh-tilt (the body's lean, JS) > .bwh-bi (fluff / hop / sing, css) >
+//      .bwh-tl (the tail, css) · .bwh-wf / .bwh-wn (the far / near wing, JS: rotate about the shoulder) · .bwh-legs (JS: shown at rest and in the landing flare) · .bwh-hd (the head, css) > .bwh-lid (the blink, css) ----
+const BWH_SH=[4.5,-17.5];   // the songbird's shoulder (the wings' pivot)
+function bwhSongSVG(b){
+  const tail=b.longTail? 'M-7 -12 L-35 -23.5 Q-37.4 -21.4 -35.6 -19.2 L-6 -6.6 Z' : b.short? 'M-7 -11 L-23.5 -6.8 Q-24.8 -4 -22.8 -3 L-6 -6.6 Z' : 'M-7 -11 L-25.5 -5.6 Q-27 -3.4 -24.8 -2.2 L-6 -6.6 Z';
+  const by=b.long? -2.6 : 0, bodyRx=b.plump? 13.6 : b.long? 12.2 : 12.6, bodyRy=b.plump? 10.6 : b.long? 7.8 : 9.4, rot=b.long? -10 : -16;
+  let s='<g class="bwh-tl">'+bwhF('path', 'd="'+tail+'"', b.tail, 1.2)
+    +(b.longTail? '<path d="M-33.4 -22.4 l-1.4 3.6 M-28.4 -20.2 l-1.2 3.2" stroke="#F4EEE2" stroke-width="1.6" stroke-linecap="round"/>' : '')
+    +(b.short? '<path d="M-22.6 -6.4 L-23.6 -3.4" stroke="#3E4452" stroke-width="2.4" stroke-linecap="round"/>' : '')+'</g>';
+  s+='<g class="bwh-wf" style="display:none">'+bwhF('path', 'd="M4.5 -18 C-2 -29 -14 -33 -27 -30.5 C-24 -27.6 -21.5 -26 -19 -24.4 C-22.6 -23.4 -25 -22 -26.2 -20.2 C-18 -18.4 -8.6 -16.4 3.2 -14.2 Z"', bwhRim(b.wing), 1.1)+'</g>';
+  s+='<g transform="translate(0 '+by+')">'
+    +bwhF('ellipse', 'cx="-1" cy="-13" rx="'+bodyRx+'" ry="'+bodyRy+'" transform="rotate('+rot+' -1 -13)"', b.back, 1.4)
+    +bwhF('ellipse', 'cx="5" cy="-11.6" rx="7.4" ry="'+(b.plump? 7.8 : 6.9)+'" transform="rotate('+rot+' 5 -11.6)"', b.breast, 1.1)
+    +(b.belly!==b.breast? bwhF('ellipse', 'cx="1.6" cy="-6.4" rx="6.4" ry="3"', b.belly, 1) : '')
+    +(b.streak? bwhL('M3.6 -12.4 l1.6 -0.6 M6.2 -9.6 l1.6 -0.6 M2.2 -8.4 l1.4 -0.6 M-4 -16.4 l2 -1 M-8.6 -14 l2 -1 M-6 -11 l2 -1', '#5A4530', 0.9) : '')
+    +'<ellipse cx="2" cy="-19.4" rx="7.6" ry="2.8" fill="#FFF4DC" opacity="0.22"/>'
+    +'<ellipse cx="-1.6" cy="-4.8" rx="9" ry="2.2" fill="#1E1408" opacity="0.16"/>'
+    +'</g>';
+  s+='<g class="bwh-legs">'+(b.long? bwhL('M1 -7 L2.4 0 M-2.8 -7.2 L-2.2 0', b.leg, 1.4) : bwhL('M1.2 -5 L2 0 M-2.6 -5.2 L-2.2 0', b.leg, 1.3))+bwhL('M2 0 L5 0.4 M2 0 L0.6 1 M-2.2 0 L0.8 0.4 M-2.2 0 L-3.6 1', b.leg, 1)+'</g>';
+  s+='<g class="bwh-wn"><g class="bwh-wfold">'+bwhF('path', 'd="M5 -17.5 C-1 -21.6 -11 -18.6 -18.6 -9 C-11 -9.6 -3 -9.8 3.6 -11.6 Z"', b.wing, 1.2)
+    +bwhL('M-5.4 -13.4 L-14.4 -10.4 M-1.6 -14.8 L-10.6 -11.8', bwhRim(b.wing), 0.8)
+    +(b.bars? bwhL('M-1.4 -15.6 L-9.6 -13.2 M-5.6 -12.8 L-13.6 -10.6', b.bars, 1.5) : '')+'</g>'
+    +'<g class="bwh-wspread" style="display:none">'+bwhF('path', 'd="M4.5 -18 C-3 -28.4 -16 -31.4 -30 -27.4 C-27 -24.6 -24 -23.4 -21 -22 C-25 -20.6 -27.2 -19.2 -28.2 -17.2 C-20 -15.6 -10 -14.2 3 -13 Z"', b.wing, 1.2)
+    +bwhL('M-8 -21.6 L-20 -24.8 M-6 -18 L-20.6 -19.6', bwhRim(b.wing), 0.8)+(b.bars? bwhL('M-4 -20.6 L-14 -22.6 M-6 -17.4 L-15.6 -18.2', b.bars, 1.4) : '')+'</g></g>';
+  const hx=b.short? 10.2 : b.long? 10.4 : 9, hy=b.short? -21.6 : b.long? -23.2 : -22.6, hr=b.short? 6 : b.long? 6.2 : 7.2;
+  let h=(b.crest===1? bwhF('path', 'd="M'+(hx-3.6)+' '+(hy-4.8)+' L'+(hx-8.6)+' '+(hy-13.4)+' L'+(hx+0.2)+' '+(hy-6.4)+' Z"', b.head, 1.1) : '')
+    +(b.crest===2? bwhF('path', 'd="M'+(hx-2)+' '+(hy-5)+' L'+(hx-9)+' '+(hy-10)+' L'+(hx-4.6)+' '+(hy-6.2)+' L'+(hx-8.4)+' '+(hy-12.6)+' L'+(hx+1.6)+' '+(hy-6)+' Z"', '#3E3226', 1) : '')
+    +bwhF('circle', 'cx="'+hx+'" cy="'+hy+'" r="'+hr+'"', b.head, 1.3)
+    +(b.neck? '<path d="M'+(hx-6.4)+' '+(hy+3.4)+' Q'+(hx-1)+' '+(hy+7.6)+' '+(hx+1.4)+' '+(hy+11)+' Q'+(hx-5)+' '+(hy+10)+' '+(hx-8)+' '+(hy+6.6)+' Z" fill="#4E9C78" opacity="0.85"/><path d="M'+(hx-4.6)+' '+(hy+6.2)+' Q'+(hx-0.8)+' '+(hy+8.4)+' '+(hx+0.6)+' '+(hy+10.4)+' Q'+(hx-3.4)+' '+(hy+9.8)+' '+(hx-5.6)+' '+(hy+8)+' Z" fill="#8A5AA8" opacity="0.75"/>' : '')
+    +(b.mask? '<path d="M'+(hx+4.4)+' '+(hy-4.4)+' Q'+(hx+1.6)+' '+(hy-1.4)+' '+(hx+3.6)+' '+(hy+3.4)+' L'+(hx+8.4)+' '+(hy+1.6)+' L'+(hx+8.2)+' '+(hy-2.6)+' Z" fill="'+b.mask+'"/>' : '')
+    +(b.patch? '<path d="M'+(hx-2.6)+' '+(hy-1.2)+' Q'+(hx-0.6)+' '+(hy-3.4)+' '+(hx+1)+' '+(hy-1)+' Q'+(hx-0.8)+' '+(hy+0.8)+' '+(hx-2.6)+' '+(hy-1.2)+' Z" fill="#3E7FC4"/><path d="M'+(hx-4.8)+' '+(hy-0.6)+' q1 -1.4 2.2 -0.6 q-1 1.2 -2.2 0.6 z" fill="#D7432E"/>' : '')
+    +'<ellipse cx="'+(hx+0.4)+'" cy="'+(hy-4.4)+'" rx="'+(hr*0.62).toFixed(2)+'" ry="'+(hr*0.3).toFixed(2)+'" fill="#FFF4DC" opacity="0.22"/>';
+  const bx=hx+hr*0.82, ex=hx+2.3, ey=hy-1.4;
+  h+=(b.thick? bwhF('path', 'd="M'+(bx-0.6)+' '+(hy-3.2)+' L'+(bx+6.6)+' '+(hy-0.2)+' L'+(bx-0.6)+' '+(hy+3.2)+' Z"', b.beak, 1)
+      : b.long? bwhF('path', 'd="M'+(bx-0.4)+' '+(hy-1.2)+' L'+(bx+11.4)+' '+(hy+0.8)+' L'+(bx-0.4)+' '+(hy+2.6)+' Z"', b.beak, 0.9)
+      : b.short? bwhF('path', 'd="M'+(bx-0.4)+' '+(hy-1.2)+' L'+(bx+4.2)+' '+(hy-0.2)+' L'+(bx-0.4)+' '+(hy+1.2)+' Z"', b.beak, 0.9)+'<circle cx="'+(bx-0.1)+'" cy="'+(hy-0.9)+'" r="1.05" fill="#F4EEE6"/>'
+      : bwhF('path', 'd="M'+(bx-0.4)+' '+(hy-2)+' L'+(bx+5.6)+' '+(hy-0.1)+' L'+(bx-0.4)+' '+(hy+1.8)+' Z"', b.beak, 1))
+    +bwhL('M'+(bx-0.2)+' '+(hy-0.1)+' L'+(bx+(b.long? 9.6 : b.thick? 5 : 4.2))+' '+(hy+(b.long? 0.9 : 0)), bwhRim(b.beak), 0.5)
+    +(b.ring? '<circle cx="'+ex+'" cy="'+ey+'" r="2.5" fill="none" stroke="#F4EEE2" stroke-width="0.9" stroke-dasharray="5 2.2"/>' : '')
+    +'<circle cx="'+ex+'" cy="'+ey+'" r="1.75" fill="'+b.eye+'"/>'+(b.eye!==b.head && b.eye!=='#1C1712'? '<circle cx="'+ex+'" cy="'+ey+'" r="0.8" fill="#1C1712"/>' : '')
+    +'<circle cx="'+(ex+0.6)+'" cy="'+(ey-0.6)+'" r="0.6" fill="#fff"/>'
+    +'<ellipse class="bwh-lid" cx="'+ex+'" cy="'+ey+'" rx="2.1" ry="2.1" fill="'+(b.mask? b.mask : b.head)+'"/>';
+  s+='<g class="bwh-hd">'+h+'</g>';
+  return s;
+}
+function bwhOwlSVG(b){
+  let s='<g class="bwh-tl">'+bwhF('path', 'd="M-4.6 -5 L0 1 L4.6 -5 Z"', b.tail, 1)+'</g>';
+  s+='<g class="bwh-wf" data-sh="-8 -21">'+bwhF('path', 'd="M-8 -21.6 C-13.6 -16 -13.4 -7 -8.6 -3.2 C-9.4 -10 -9.2 -16.4 -5.6 -21.8 Z"', b.wing, 1.2)+'</g>';
+  s+=bwhF('ellipse', 'cx="0" cy="-15" rx="11" ry="12.6"', b.back, 1.5)
+    +bwhF('ellipse', 'cx="0.4" cy="-11.6" rx="7.8" ry="9.2"', b.belly, 1.1)
+    +'<g fill="#9C7A4E" opacity="0.7"><circle cx="-2.6" cy="-14" r="0.7"/><circle cx="2.4" cy="-12.4" r="0.7"/><circle cx="-1" cy="-8.6" r="0.7"/><circle cx="3.4" cy="-7.6" r="0.6"/><circle cx="-3.8" cy="-6.6" r="0.6"/></g>'
+    +'<ellipse cx="2.4" cy="-23.6" rx="6.4" ry="2.2" fill="#FFF4DC" opacity="0.22"/>'
+    +'<ellipse cx="0" cy="-4.4" rx="8.6" ry="2.2" fill="#1E1408" opacity="0.16"/>';
+  s+='<g class="bwh-legs">'+bwhL('M-3.4 -3.6 L-3.8 0 M3.4 -3.6 L3.8 0', b.leg, 1.8)+bwhL('M-3.8 0 l-1.6 0.8 M-3.8 0 l1.2 0.9 M3.8 0 l1.6 0.8 M3.8 0 l-1.2 0.9', '#4A3B30', 0.8)+'</g>';
+  s+='<g class="bwh-wn" data-sh="8 -21">'+bwhF('path', 'd="M8 -21.6 C13.6 -16 13.4 -7 8.6 -3.2 C9.4 -10 9.2 -16.4 5.6 -21.8 Z"', b.wing, 1.2)+'</g>';
+  s+='<g class="bwh-hd">'+bwhF('ellipse', 'cx="0" cy="-28.6" rx="10.6" ry="8.8"', b.head, 1.4)
+    +'<path d="M0 -21.6 C-6.2 -22.2 -9.8 -25.8 -9.2 -30.4 C-8.6 -34.6 -4.2 -36 0 -33.2 C4.2 -36 8.6 -34.6 9.2 -30.4 C9.8 -25.8 6.2 -22.2 0 -21.6 Z" fill="'+b.face+'" stroke="'+b.disc+'" stroke-width="1" stroke-opacity="0.85"/>'
+    +'<ellipse cx="2" cy="-35.2" rx="5.4" ry="1.6" fill="#FFF4DC" opacity="0.22"/>'
+    +'<circle cx="-3.7" cy="-29.4" r="2.2" fill="'+b.eye+'"/><circle cx="3.7" cy="-29.4" r="2.2" fill="'+b.eye+'"/><circle cx="-3.1" cy="-30" r="0.7" fill="#fff"/><circle cx="4.3" cy="-30" r="0.7" fill="#fff"/>'
+    +bwhF('path', 'd="M0 -28.2 L-1.2 -26 L0 -24.2 L1.2 -26 Z"', b.beak, 0.8)
+    +'<ellipse class="bwh-lid" cx="-3.7" cy="-29.4" rx="2.5" ry="2.5" fill="'+b.face+'"/><ellipse class="bwh-lid" cx="3.7" cy="-29.4" rx="2.5" ry="2.5" fill="'+b.face+'"/></g>';
+  return s;
+}
+function bwhBirdSVG(room){ const b=BWH_BIRDS[room]||BWH_BIRDS.bedroom;   // the bird's whole node (the visit seats it by its transform)
+  return '<g id="bwh-bird" class="bwh-bird bwh-'+b.k+'" data-k="'+b.k+'" pointer-events="none"><g class="bwh-tilt"><g class="bwh-bi">'+(b.owl? bwhOwlSVG(b) : bwhSongSVG(b))+'</g></g></g>'; }
+// ---- THE SOUNDS (⚑ BWH-Q9): synthesised on the game's one audio path (the sound switch rules them); nothing plays while the bird rests ----
+function bwhSing(notes){ if(!soundOn) return; const ac=audio(); if(!ac) return; try{ const t0=ac.currentTime+0.02;   // notes: [at s, dur s, f0 Hz, f1 Hz, vol, vibrato Hz, vibrato depth Hz]
+  for(const n of notes){ const o=ac.createOscillator(), g=ac.createGain(), v=ac.createOscillator(), vg=ac.createGain(), a=t0+n[0], d=n[1];
+    o.type='sine'; o.frequency.setValueAtTime(n[2], a); o.frequency.linearRampToValueAtTime(n[3], a+d);
+    v.type='sine'; v.frequency.value=n[5]||0.01; vg.gain.value=n[6]||0; v.connect(vg).connect(o.frequency);
+    g.gain.setValueAtTime(0.0001, a); g.gain.exponentialRampToValueAtTime(n[4]||0.05, a+Math.min(0.03, d*0.3)); g.gain.exponentialRampToValueAtTime(0.0008, a+d);
+    o.connect(g).connect(ac.destination); o.start(a); v.start(a); o.stop(a+d+0.02); v.stop(a+d+0.02); } }catch(e){} }
+const BWH_CALLS={   // each bird its own soft call at the landing (and when it sings back)
+  bluebird:[[0,0.16,1900,2500,0.045,0,0],[0.2,0.24,2600,2200,0.045,9,60]],   // tur-wee
+  robin:[[0,0.14,2300,2700,0.04,0,0],[0.18,0.13,2700,2400,0.04,0,0],[0.36,0.2,2400,2800,0.04,12,80]],   // cheer-up, cheerily
+  cardinal:[[0,0.12,3600,2200,0.045,0,0],[0.16,0.12,3600,2200,0.045,0,0],[0.32,0.12,3600,2200,0.045,0,0]],   // birdie birdie birdie
+  pigeon:[[0,0.42,480,430,0.07,5,18],[0.5,0.3,470,420,0.06,5,14]],   // coo-ooo
+  roadrunner:[[0,0.22,700,560,0.06,0,0],[0.3,0.22,680,540,0.06,0,0],[0.6,0.26,660,500,0.06,0,0]],   // coo coo coo, falling
+  owl:[[0,0.36,520,500,0.07,0,0],[0.5,0.5,500,460,0.07,4,10]] };   // hoo, hoooo
+function bwhCallSound(k){ bwhSing(BWH_CALLS[k]||BWH_CALLS.bluebird); }
+function bwhFlapSound(n){ for(let i=0;i<(n||3);i++) setTimeout(()=>noise(0.05, 0.035, 900), i*95); }   // soft wing flutters (the takeoff, the landing)
+SFX.bwhToot=()=>bwhSing([[0,0.34,2350,2900,0.05,22,140],[0.42,0.22,2900,2500,0.05,24,160],[0.68,0.42,2500,3000,0.05,20,150]]);   // THE WHISTLE: a water warbler's two phrases (a sine with a fast vibrato)
+// ---- THE PERCH: Sarge's free hand on THIS floor (null = he does not stand here) or the whistle's back ----
+function bwhSargeEl(){ return document.querySelector('#roomStage > svg #ro-vt1'); }   // the REAL room's Sarge (the porthole's clone dupes ids)
+function bwhSargeHere(){ try{ if(!bwhSargeEl()) return false; if(typeof capStandURI==='function' && capStandURI()) return false; return true; }catch(e){ return false; } }   // ⚑ BWH-Q5: the capture's stand-in wears another figure: the whistle is the perch then
+function bwhSargePerch(){ const tb=VTROOPS[0], d=rpXY('vt1'); let art='pistol'; try{ art=sargeArtW(META.sargeWeapon||'pistol'); }catch(e){}
+  const P=BWH_PERCH[art]||BWH_PERCH.pistol; return { x:tb.x+d[0]+P[0]*BWH.k, y:tb.y+d[1]+P[1]*BWH.k, fx:P[2], art:art }; }
+function bwhWhistlePerch(){ const p=DECOR_SPOTS.bwhistle, d=rpXY('bwhistle'); return { x:p.x+d[0]+17, y:p.y+d[1]+10, fx:1, art:'whistle' }; }   // on the clay bird's back
+function bwhPerch(){ return (BWV && BWV.on==='whistle')? bwhWhistlePerch() : bwhSargePerch(); }
+function bwhWrapTr(k){ const g=document.querySelector('#roomStage > svg #ro-'+k); return g? (g.getAttribute('transform')||'') : null; }
+// ---- THE PLAY ----
+function bwhTap(){ const el=document.getElementById('decBwhistle');
+  if(SFX.bwhToot) SFX.bwhToot();
+  if(el){ el.classList.remove('react'); void el.getBoundingClientRect(); el.classList.add('react'); setTimeout(()=>{ try{ el.classList.remove('react'); }catch(e){} }, 1300); }
+  if(BWV && BWV.ph==='perch'){ setTimeout(bwhSingBack, 700); return; }   // one bird at a time: the one that is here sings back
+  if(BWV || !BWH.on || S.mode!=='menu' || MAPPIN) return;
+  setTimeout(bwhCall, BWH.delay); }
+function bwhSingBack(){ if(!BWV || BWV.ph!=='perch') return; bwhCallSound(BWV.kind); const n=BWV.el; if(n && !reducedMotion()){ n.classList.remove('bwh-hop'); void n.getBoundingClientRect(); n.classList.add('bwh-hop'); setTimeout(()=>{ try{ n.classList.remove('bwh-hop'); }catch(e){} }, 700); } }
+function bwhTop(){ const t=dogTopEl(); return (t && t.closest('#roomStage'))? t : null; }
+function bwhCall(){ if(BWV || S.mode!=='menu' || MAPPIN || !decorHome('bwhistle')) return; const top=bwhTop(); if(!top) return;
+  const room=roomCur(), b=BWH_BIRDS[room]||BWH_BIRDS.bedroom, on=bwhSargeHere()? 'sarge' : 'whistle';
+  BWV={ room:room, kind:b.k, on:on, ph:'in', el:null, raf:0, idle:0, beat:0, sash:null, rm:reducedMotion(), s1:BWH.s*(b.s||1), t0:0 };
+  const tgt=bwhPerch(); BWV.d0=rpXY(on==='sarge'? 'vt1' : 'bwhistle').slice(); BWV.tr0=bwhWrapTr(on==='sarge'? 'vt1' : 'bwhistle');
+  const g=document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.innerHTML=bwhBirdSVG(room); const el=g.firstChild; BWV.el=el; top.appendChild(el);
+  if(BWV.rm){ bwhSeat(tgt.x, tgt.y, tgt.fx, BWV.s1, 0, 'rest'); el.style.opacity='0'; el.classList.add('bwh-fade'); void el.getBoundingClientRect(); el.style.opacity='1'; BWV.ph='perch'; bwhCallSound(BWV.kind); bwhBeatArm(); return; }
+  bwhFlight('in', tgt);
+}
+function bwhSeat(x, y, fx, s, tilt, pose, wa){ const V=BWV; if(!V || !V.el) return; const el=V.el; V.x=x; V.y=y; V.fx=fx; V.sc=s; V.pose=pose;
+  el.setAttribute('transform', 'translate('+x.toFixed(2)+','+y.toFixed(2)+') scale('+(fx*s).toFixed(4)+','+s.toFixed(4)+')');
+  const tl=el.querySelector('.bwh-tilt'); if(tl){ if(tilt) tl.setAttribute('transform', 'rotate('+tilt.toFixed(1)+')'); else tl.removeAttribute('transform'); }
+  const fly=(pose!=='rest'), owl=(V.kind==='owl'), wn=el.querySelector('.bwh-wn'), wf=el.querySelector('.bwh-wf'), legs=el.querySelector('.bwh-legs');
+  if(legs) legs.style.display=(pose==='fly')? 'none' : '';
+  if(owl){ const a=fly? (wa||0) : 0; if(wn) wn.setAttribute('transform', 'rotate('+(-a).toFixed(1)+' 8 -21)'); if(wf) wf.setAttribute('transform', 'rotate('+a.toFixed(1)+' -8 -21)'); return; }
+  const fo=el.querySelector('.bwh-wfold'), sp=el.querySelector('.bwh-wspread'); if(fo) fo.style.display=fly? 'none' : ''; if(sp) sp.style.display=fly? '' : 'none'; if(wf) wf.style.display=fly? '' : 'none';
+  if(wn){ if(fly) wn.setAttribute('transform', 'rotate('+(wa||0).toFixed(1)+' '+BWH_SH[0]+' '+BWH_SH[1]+')'); else wn.removeAttribute('transform'); }
+  if(wf && fly) wf.setAttribute('transform', 'rotate('+((wa||0)*0.86-6).toFixed(1)+' '+BWH_SH[0]+' '+BWH_SH[1]+')');
+}
+// ---- THE FLIGHT: a cubic swoop on the top layer (rAF while it flies, nothing at rest); the bedroom's way runs through the window (BWH-Q7) ----
+function bwhWinPts(){ return { far:[876,84], sill:[818,134] }; }   // inside the pane's upper right (the sky) · the window's lower middle (the opening)
+function bwhEdge(tx, room){ if(room==='attic') return [tx>480? 150 : 820, -40];   // the attic's owl drops from the rafters (Laura's round window is her dove's)
+  return [tx<480? 1010 : -50, room==='backyard'? 60 : 74]; }
+function bwhFlight(dir, tgt){ const V=BWV; if(!V) return; const room=V.room, bed=(room==='bedroom' && !!bwhWinEl());
+  let A, D, pre=0;
+  if(dir==='in'){ D=[tgt.x, tgt.y]; A=bed? bwhWinPts().far : bwhEdge(tgt.x, room); }
+  else { A=[V.x, V.y]; D=bed? bwhWinPts().far : bwhEdge(V.x, room); }
+  const sx=D[0]-A[0], up=Math.min(-60, -0.18*Math.abs(sx));
+  let P;
+  if(bed && dir==='in'){ const w=bwhWinPts().sill; P=[A, [w[0]+6, w[1]-26], [D[0]+(A[0]>D[0]? 70 : -70), D[1]-90], D]; }
+  else if(bed){ const w=bwhWinPts().sill; P=[A, [A[0]+(D[0]>A[0]? 60 : -60), A[1]-80], [w[0]-10, w[1]+10], D]; }
+  else P=[A, [A[0]+sx*0.32, A[1]+(dir==='in'? 90 : up)], [D[0]-sx*0.28, D[1]+(dir==='in'? up : 40)], D];
+  const L=Math.hypot(sx, D[1]-A[1]), dur=Math.max(BWH.flyMin, Math.min(BWH.flyMax, 900+L*1.9));
+  if(bed){ pre=(dir==='in')? 0 : 0; bwhSashOpen(); if(dir==='in') pre=BWH.sashMs; }
+  V.ph=dir; V.P=P; V.dur=dur; V.t0=performance.now()+pre; V.end=(dir==='in')? tgt : null; V.bed=bed;
+  if(dir==='out') bwhFlapSound(3);
+  if(V.raf) cancelAnimationFrame(V.raf); V.raf=requestAnimationFrame(bwhFly);
+}
+function bwhBez(P, t){ const u=1-t, a=u*u*u, b=3*u*u*t, c=3*u*t*t, d=t*t*t; return [a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0], a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1]]; }
+function bwhFly(now){ const V=BWV; if(!V) return; V.raf=0; if(!V.el || !V.el.isConnected){ return; }
+  const T=(now-V.t0)/V.dur;
+  if(T<0){ V.el.style.opacity='0'; V.raf=requestAnimationFrame(bwhFly); return; }
+  if(V.ph==='in' && V.end){ const tg=bwhPerch(); V.P[3]=[tg.x, tg.y]; V.end=tg; }   // a Sarge moved while it comes: it comes to where he is now (no jump at the landing)
+  const t=Math.min(1, T), e=(V.ph==='in')? (1-Math.pow(1-t, 1.7)) : Math.pow(t, 1.25), p=bwhBez(V.P, e), q=bwhBez(V.P, Math.min(1, e+0.02));
+  let s=V.s1, fx=(q[0]>=p[0])? 1 : -1, pose='fly', wa=0, tilt=Math.max(-24, Math.min(24, Math.atan2(q[1]-p[1], Math.abs(q[0]-p[0])+0.001)*57.3*0.5));
+  if(V.bed){ const a=(V.ph==='in')? Math.min(1, e/0.45) : Math.max(0, (e-0.55)/0.45); s=V.s1*((V.ph==='in')? (0.32+0.68*a) : (1-0.68*a)); }
+  V.el.style.opacity=(V.ph==='in')? String(Math.min(1, T*6)) : String(Math.min(1, (1-T)*(V.bed? 5 : 3)+(V.bed? 0 : 0.4)));
+  const ph=now/1000*BWH.flapHz*Math.PI*2;
+  if(V.ph==='in' && e>0.86){ pose='flare'; wa=68+6*Math.sin(ph*1.6); fx=V.end? V.end.fx : fx; tilt=-10; }   // THE LANDING: wings up and back, feet forward, turned to face him
+  else if(V.ph==='in' && e>0.6){ wa=12+8*Math.sin(ph*0.5); }   // the glide
+  else wa=24+44*Math.sin(ph);
+  if(V.kind==='owl') wa=wa*0.9;
+  bwhSeat(p[0], p[1], fx, s, tilt, pose, wa);
+  if(T<1){ V.raf=requestAnimationFrame(bwhFly); return; }
+  if(V.ph==='in') bwhLand();
+  else if(V.bed && V.sash){ V.ph='gone'; try{ V.el.remove(); }catch(e){} bwhSashTo(0, ()=>{ bwhSashGone(); bwhEnd(); }); }   // the bedroom: out through the window, which swings shut behind it
+  else bwhEnd();
+}
+function bwhLand(){ const V=BWV; if(!V) return; const tgt=bwhPerch(); V.ph='perch'; V.el.style.opacity='1'; bwhSeat(tgt.x, tgt.y, tgt.fx, V.s1, 0, 'rest');
+  V.d0=rpXY(V.on==='sarge'? 'vt1' : 'bwhistle').slice(); V.tr0=bwhWrapTr(V.on==='sarge'? 'vt1' : 'bwhistle');
+  bwhFlapSound(2); setTimeout(()=>{ if(BWV===V && V.ph==='perch') bwhCallSound(V.kind); }, 260);
+  const n=V.el; n.classList.add('bwh-settle'); setTimeout(()=>{ try{ n.classList.remove('bwh-settle'); }catch(e){} }, 600);
+  if(V.bed) setTimeout(()=>{ if(BWV===V) bwhSashClose(); }, 380);
+  bwhBeatArm(); }
+// ---- THE REST: a calm beat now and then (css on its own wrappers; nothing runs between them) + the look: has the perch moved? ----
+const BWH_IDLE=['bwh-blink','bwh-tilt','bwh-look','bwh-blink','bwh-fluff','bwh-tailf','bwh-blink','bwh-tilt'];
+function bwhBeatArm(){ const V=BWV; if(!V) return; clearInterval(V.beat); V.beat=setInterval(bwhLook, BWH.look); if(!V.rm) bwhIdleArm(); }
+function bwhIdleArm(){ const V=BWV; if(!V) return; clearTimeout(V.idle); V.idle=setTimeout(()=>{ if(BWV!==V || V.ph!=='perch' || !V.el) return; const c=BWH_IDLE[Math.floor(Math.random()*BWH_IDLE.length)], n=V.el;
+  n.classList.remove(c); void n.getBoundingClientRect(); n.classList.add(c); setTimeout(()=>{ try{ n.classList.remove(c); }catch(e){} }, 1300); bwhIdleArm(); }, BWH.idleMin+Math.random()*(BWH.idleMax-BWH.idleMin)); }
+function bwhLook(){ const V=BWV; if(!V || V.ph!=='perch') return; if(S.mode!=='menu' || roomCur()!==V.room){ bwhEnd(); return; }
+  const k=(V.on==='sarge')? 'vt1' : 'bwhistle', d=rpXY(k), tr=bwhWrapTr(k);
+  if(V.on==='sarge' && !bwhSargeEl()){ bwhLeave('gone'); return; }   // knocked flat, in the chest, off the roof: his node left
+  if(V.on==='whistle' && !decorHome('bwhistle')){ bwhLeave('gone'); return; }
+  if(Math.abs(d[0]-V.d0[0])>0.5 || Math.abs(d[1]-V.d0[1])>0.5 || (tr!==null && V.tr0!==null && tr!==V.tr0)) bwhLeave('moved'); }
+function bwhMoved(k, dx, dy){ const V=BWV; if(!V || V.ph!=='perch') return; if(k!==(V.on==='sarge'? 'vt1' : 'bwhistle')) return;
+  if(Math.abs(dx-V.d0[0])>0.5 || Math.abs(dy-V.d0[1])>0.5) bwhLeave('moved'); }   // rdragApply's tail: THE ONE SEAT of every live move of a room object
+function bwhLeave(why){ const V=BWV; if(!V || V.ph!=='perch') return; clearTimeout(V.idle); clearInterval(V.beat); V.why=why;
+  if(V.rm || !V.el || !V.el.isConnected){ if(V.el){ V.el.classList.add('bwh-fade'); V.el.style.opacity='0'; } V.ph='out'; setTimeout(()=>{ if(BWV===V) bwhEnd(); }, BWH.fadeMs); return; }
+  bwhFlapSound(3); bwhFlight('out', null); }
+function bwhEnd(){ const V=BWV; if(!V) return; if(V.raf) cancelAnimationFrame(V.raf); clearTimeout(V.idle); clearInterval(V.beat); V.ph='gone';
+  try{ if(V.el) V.el.remove(); }catch(e){} BWV=null; if(V.sash) bwhSashClose(true); }
+// ---- THE REPAINT (renderMenu's tail): the top layer is minted fresh; the bird goes back on it, or the visit ends ----
+function bwhAfterPaint(){ const V=BWV; if(!V) return;
+  if(S.mode!=='menu' || MAPPIN || roomCur()!==V.room){ bwhEnd(); return; }
+  const top=bwhTop(); if(!top){ bwhEnd(); return; } if(V.el && V.el.parentNode!==top) top.appendChild(V.el);
+  if(V.sash) bwhSashRebuild();
+  if(V.ph==='perch'){ const k=(V.on==='sarge')? 'vt1' : 'bwhistle'; if((V.on==='sarge' && !bwhSargeEl()) || (V.on==='whistle' && !decorHome('bwhistle'))){ bwhLeave('gone'); return; }
+    const tgt=bwhPerch(), d=rpXY(k); if(Math.abs(d[0]-V.d0[0])>0.5 || Math.abs(d[1]-V.d0[1])>0.5){ bwhLeave('moved'); return; }
+    V.tr0=bwhWrapTr(k); bwhSeat(tgt.x, tgt.y, tgt.fx, V.s1, 0, 'rest'); } }
+// ---- THE WINDOW (the bedroom, ⚑ BWH-Q7): two sashes swing open on their hinges at the frame (740 · 890), the base's mullion path stands aside while they stand ----
+function bwhWinEl(){ return (roomCur()==='bedroom')? document.querySelector('#roomStage > svg #ro-window') : null; }
+function bwhSashSVG(){ const R='#8a683e', half=(m)=>{ const X=x=>m? (1630-x) : x, x0=Math.min(X(740), X(815)), cls=m? 'bwh-sr' : 'bwh-sl';
+    return '<g class="'+cls+'"><rect x="'+x0+'" y="60" width="75" height="92" fill="#E8F6FF" fill-opacity="0.34"/>'
+      +'<path d="M'+X(752)+' 140 L'+X(790)+' 70 M'+X(762)+' 146 L'+X(800)+' 76" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="2.4" stroke-linecap="round"/>'
+      +'<path d="M'+X(740)+' 106 H'+X(815)+'" stroke="'+R+'" stroke-width="5"/>'
+      +'<path d="M'+X(813.2)+' 60 V152" stroke="'+R+'" stroke-width="3.6"/>'
+      +'<rect x="'+(x0+1.5)+'" y="61.5" width="72" height="89" fill="none" stroke="'+R+'" stroke-width="2.6"/></g>'; };
+  return '<g id="bwh-sash" pointer-events="none">'+half(0)+half(1)+'</g>'; }
+function bwhSashSet(a){ const w=bwhWinEl(), g=w && w.querySelector('#bwh-sash'); if(!g) return; const sx=1-0.74*a;   // a = 0 shut .. 1 open: each sash folds toward its hinge
+  const l=g.querySelector('.bwh-sl'), r=g.querySelector('.bwh-sr');
+  if(l) l.setAttribute('transform', 'matrix('+sx.toFixed(4)+',0,0,1,'+(740*(1-sx)).toFixed(2)+',0)');
+  if(r) r.setAttribute('transform', 'matrix('+sx.toFixed(4)+',0,0,1,'+(890*(1-sx)).toFixed(2)+',0)'); }
+function bwhSashRebuild(){ const V=BWV, S0=V && V.sash; if(!S0) return; const w=bwhWinEl(); if(!w) return; if(!w.querySelector('#bwh-sash')) bwhSashMount(w); bwhSashSet(S0.a); }
+function bwhSashMount(w){ const m=w.querySelector('path[d^="M815 60"]'); if(m) m.style.display='none'; const g=document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.innerHTML=bwhSashSVG(); const s=g.firstChild;
+  if(m && m.parentNode) m.parentNode.insertBefore(s, m.nextSibling); else w.appendChild(s); }
+function bwhSashOpen(){ const V=BWV, w=bwhWinEl(); if(!V || !w) return; try{ dlgHold('window', BWH.sashMs+2600); }catch(e){}
+  if(!V.sash) V.sash={ a:0, raf:0 }; if(!w.querySelector('#bwh-sash')) bwhSashMount(w); bwhSashTo(1); try{ noise(0.18, 0.03, 700); }catch(e){} }
+function bwhSashClose(now){ const V=BWV; if(now || !V){ bwhSashGone(); return; } try{ dlgHold('window', BWH.sashMs+600); }catch(e){} bwhSashTo(0, bwhSashGone); }
+function bwhSashTo(goal, done){ const V=BWV; if(!V || !V.sash) return; const S0=V.sash, a0=S0.a, t0=performance.now(); if(S0.raf) cancelAnimationFrame(S0.raf);
+  const step=now=>{ S0.raf=0; if(BWV!==V){ return; } const t=Math.min(1, (now-t0)/BWH.sashMs), e=t<0.5? 2*t*t : 1-Math.pow(-2*t+2, 2)/2; S0.a=a0+(goal-a0)*e; bwhSashSet(S0.a);
+    if(t<1) S0.raf=requestAnimationFrame(step); else if(done) done(); };
+  S0.raf=requestAnimationFrame(step); }
+function bwhSashGone(){ const w=document.querySelector('#roomStage > svg #ro-window'); if(w){ const g=w.querySelector('#bwh-sash'); if(g) g.remove(); const m=w.querySelector('path[d^="M815 60"]'); if(m) m.removeAttribute('style'); }
+  if(BWV && BWV.sash){ if(BWV.sash.raf) cancelAnimationFrame(BWV.sash.raf); BWV.sash=null; } }
+// ---- THE RIG DOOR ----
+function bwhRig(o){ o=o||{}; if(o.on!=null) BWH.on=o.on? 1 : 0; if(o.call) bwhCall(); if(o.tap) bwhTap(); if(o.leave) bwhLeave('rig'); if(o.end) bwhEnd();
+  const V=BWV, w=document.querySelector('#roomStage > svg #ro-window');
+  return { on:BWH.on, room:roomCur(), own:decOwns('bwhistle')? 1 : 0, home:decorHome('bwhistle')? 1 : 0, sargeHere:bwhSargeHere()? 1 : 0, perch:(function(){ try{ return bwhSargePerch(); }catch(e){ return null; } })(), wperch:(function(){ try{ return bwhWhistlePerch(); }catch(e){ return null; } })(),
+    v:V? { kind:V.kind, on:V.on, ph:V.ph, x:+(V.x||0).toFixed(1), y:+(V.y||0).toFixed(1), fx:V.fx, sc:+(V.sc||0).toFixed(3), pose:V.pose, rm:V.rm, el:!!(V.el && V.el.isConnected), inTop:!!(V.el && V.el.parentNode && V.el.parentNode.id==='dogTop'), sash:V.sash? +V.sash.a.toFixed(3) : null, why:V.why||null, cls:V.el? (V.el.getAttribute('class')||'') : null, op:V.el? V.el.style.opacity : null } : null,
+    sash:!!(w && w.querySelector('#bwh-sash')), mull:(function(){ const m=w && w.querySelector('path[d^="M815 60"]'); return m? (m.getAttribute('style')||'') : null; })(), birds:Object.keys(BWH_BIRDS).map(k=>[k, BWH_BIRDS[k].k]) }; }
+setTimeout(()=>{ try{ if(window.GVT) GVT.bwh=bwhRig; }catch(e){} }, 0);
+// ═══ END CARD-BWH ═══
 // ═══ CARD-DLG THE CLUTTERED ROOM COSTS NOTHING · DLG-A THE STILL ROOM, the bedroom (design/decor-load-1009/BUILD-DLG-A.md; the pass 00-DESIGN-DLG.md §4–§5, §8.1). Wyatt 10/9/2026 on Maker 1, verbatim: "if somebody has a ton of decorations out, we prevent the game from lagging and heating up ... a player will be rewarded for having a bunch of decorations out, and it doesn't heat up their phone or lag or anything. They just have a cluttered room, and they like it that way." His go 10/10/2026 19:00 EDT: "Do it. Plan it out. Execute to the best of your ability." (DLG-Q1..Q6 at their RECs)
 // THE CAUSE (CARD-DCH's measure, re-read by the pass): the room is ONE svg, and one moving thing anywhere in it repaints the whole room; a full floor is 11,000 vector nodes under two drop-shadow filters a toy (every toy out: a slow phone's main thread 99.6 %, the iPhone's painter 11.8 G instructions a second).
 // THE CURE (the industry's static batch + sleeping objects): after every paint each unit of the room that is not awake is painted ONCE into its own picture (its paint read from the live page and inlined, its css transforms as the engine's own resolved matrix,
@@ -182573,7 +182907,7 @@ function dlgRelay(){ if(!DLGP.on) return; dlgOff(); dlgAfterPaint(); }
 //   flips the rave lights, calls Sarge on the radio. A toy whose answer is more than its look (DLG_PLAY_NOT, the fish, a teed ball, an egg, a run, a rampage) passes its turn to the next toy the round wakes. Never in the doze (the round stands still), never under a cover (dlgTick stands still) nor a card (the toy box's, the fort's: the turn waits),
 //   never with reduced motion, never on Mom's day, never under a briefing. The wake is THE ONE LAW's swap (dlgHoldU: the toy live in this frame, its picture gone), held through its answer like a tap.
 const DLG_PLAY_EVERY=(typeof window.__DLG_PLAY==='number')? window.__DLG_PLAY : 6;   // one in six of the round's wakes · window.__DLG_PLAY = a rig's pin before the boot (0 = never)
-const DLG_PLAY_NOT={ gensshelf:1, /* CARD-DRG: the honk, the click and the tweet are their own beats */ flashlight:1, steadmedal:1, /* CARD-SLT: the sweep and the salute are their own beats */ fishtank:1, bigbattery:1, goldenbook:1, bubbleman:1, bunbun:1, erniedog:1, gmyfig:1, gmypumpkin:1, studyglobe:1, witch:1, ship:1, warplane:1, rave:1, tsradio:1, betta:1, goldfish:1, seahorse:1 };   // decorReact sends each to its own beat (a purse, a trip, a switch, a voice, the fish's three answers): no plain look to play
+const DLG_PLAY_NOT={ bwhistle:1, /* CARD-BWH: the warble and the bird are its own beats */ gensshelf:1, /* CARD-DRG: the honk, the click and the tweet are their own beats */ flashlight:1, steadmedal:1, /* CARD-SLT: the sweep and the salute are their own beats */ fishtank:1, bigbattery:1, goldenbook:1, bubbleman:1, bunbun:1, erniedog:1, gmyfig:1, gmypumpkin:1, studyglobe:1, witch:1, ship:1, warplane:1, rave:1, tsradio:1, betta:1, goldfish:1, seahorse:1 };   // decorReact sends each to its own beat (a purse, a trip, a switch, a voice, the fish's three answers): no plain look to play
 DLGP.wakeN=0; DLGP.playN=0; DLGP.playDue=0; DLGP.plays=[];
 function dlgCardUp(){ const m=document.getElementById('roomModal'); return !!(m && m.innerHTML); }   // a card over the room (the toy box, the fort, a prize): the round turns behind it as before (CARD-DLG-B), the answer waits for the room to show
 function dlgPlayOk(){ try{ return DLG_PLAY_EVERY>0 && !reducedMotion() && !DLGP.dozing && S.mode==='menu' && !msRoomHid() && !momDue() && !COMM.brief && !dlgCardUp(); }catch(e){ return false; } }
