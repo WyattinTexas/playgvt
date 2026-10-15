@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.26","md5":"96c0c134f9e58bd98280ac5b18bac94b","sha":"bb6d51584","at":"2026-10-15T17:21:06Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.27","md5":"bab26275c3a85bdd743325ccd0373762","sha":"6b002e955","at":"2026-10-15T17:24:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -4911,6 +4911,9 @@
   /* THE DIFFICULTY STARS: three seats over the book's bar, on the bar's own axis and width */
   #travelMap .lsw-stars { position:absolute; left:50%; bottom:16.5px; margin-left:-20px; width:48px; height:16px; display:flex; justify-content:space-between; align-items:center; z-index:2; pointer-events:none; }
   #travelMap .lsw-stars > svg { display:block; flex:0 0 auto; width:16px; height:16px; overflow:visible; }
+  /* ═══ CARD-BKT THE BOOK TITLES INSIDE THEIR FRAMES (design/book-titles-1015/00-CARD-BKT.md; Wyatt's phone 10/15/2026 12:40, verbatim: "In Captain's Log, the titles of the books (like Outlaw Town, The Ice Caves, Gnome Park, Overcharged, and The Campaign) are all currently overlapping the first golden border. They need to fit appropriately in their respective books. Please run a design pass for them to look nice and snazzy, and then go with recommendations and push live."): the name's band inside the cover's INNER gold line (x 22 → 87 of the 100-unit book; the inner line stands at 18 / 91, the outer at 15 / 94; the band ran 15 → 94, so a long name met both lines); every name from 11 px (the .long / .xl pre-fits off; .xl keeps its tight tracking): LSW.fitNames stacks a wide name on two lines, condenses one that will not break, then steps it down; THE GOLD FOIL: a light top to a deeper foot clipped to the glyphs, a hard ink shadow under them (the flat gold + its text-shadow were the stamping before). The class .bkt rides the stage (set by LSW.fitNames; ?bkt=0 on a device takes it off: the old band, sizes and stamping) ═══ */
+  #travelMap .lg-stage.sls.lsw.bkt .sls-slot .sls-nm { left:22px; right:13px; color:transparent; background:linear-gradient(180deg, #FFE9A3 0%, #E8C45A 46%, #B8892A 100%); -webkit-background-clip:text; background-clip:text; text-shadow:none; filter:drop-shadow(0 1.2px 0 rgba(0,0,0,.72)); }
+  #travelMap .lg-stage.sls.lsw.bkt .sls-slot .sls-nm.long, #travelMap .lg-stage.sls.lsw.bkt .sls-slot .sls-nm.xl { font-size:11px; }
   /* ═══ CARD-TPO THE TRAVEL POSTERS (design/log-posters-1011/00-BUILD-TPO.md; from AL 10/11/2026: "use these images to inspire new graphics for each area that is in the captain's log for each book. Let's see some mock ups"): behind TPO.on (?tpo=1): a book's cover wears its poster's picture inside the gold frame above the name's band (the round window hidden); a park's left page wears the picture whole ═══ */
   #travelMap .sls-slot.tpo .sls-art { display:none; }
   #travelMap .tpo-cov { position:absolute; left:17px; top:8px; right:8px; height:52px; overflow:hidden; pointer-events:none; background:#1E1A12; }
@@ -86380,7 +86383,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -146537,7 +146540,13 @@ function floor(B){ const x0=-B.x, x1=840+B.x, W=x1-x0, fh=110+B.y; let s='<rect 
 //   A BOOK'S NAME: its band holds two lines between the picture and the stars; a name wider than the cover's frame (BANDITENSTADT) or taller than the band steps down half a px at a time, never under NAME_MIN.
 function inkOf(e){ const q=e.getBoundingClientRect(), k=(q.width/(e.offsetWidth||1))||1, g=document.createRange(); g.selectNodeContents(e); const rs=[...g.getClientRects()]; if(!rs.length) return { w:0, lines:0 }; const tops=[]; let l=1e9, r=-1e9; for(const c of rs){ l=Math.min(l, c.left); r=Math.max(r, c.right); if(!tops.some(t=>Math.abs(t-c.top)<2)) tops.push(c.top); } return { w:(r-l)/k, lines:tops.length }; }
 function fitTitle(st){ const b=st.querySelector(':scope > .sls-title b'); if(!b) return; b.style.fontSize=''; if(!b.clientWidth) return; let fs=parseFloat(getComputedStyle(b).fontSize)||30; while(inkOf(b).w>b.clientWidth-6 && fs>TITLE_MIN){ fs-=1; b.style.fontSize=fs+'px'; } }   // 6 = the stencil's stroke and its 3 px shadow
-function fitNames(st){ for(const n of st.querySelectorAll('.sls-slot .sls-nm')){ n.style.fontSize=''; if(!n.clientWidth) continue; const cs=getComputedStyle(n); let fs=parseFloat(cs.fontSize)||11; const lhK=(parseFloat(cs.lineHeight)||fs*1.02)/fs, over=()=>{ const i=inkOf(n); return i.w>n.clientWidth+0.5 || i.lines*fs*lhK>n.clientHeight+0.5; }; while(over() && fs>NAME_MIN){ fs-=0.5; n.style.fontSize=fs+'px'; } } }
+// CARD-BKT THE BOOK TITLES INSIDE THEIR FRAMES (design/book-titles-1015/00-CARD-BKT.md; Wyatt's phone 10/15/2026 12:40: the titles "are all currently overlapping the first golden border. They need to fit appropriately in their respective books … nice and snazzy, and then go with recommendations and push live"):
+//   the stage wears .bkt (the css: the name's band inside the cover's INNER gold line, x 22 → 87 of the book; every name from 11 px; the gold-foil letters). THE LAW, in that band: a name wider than it breaks at a space (two lines fill the band; the base's law);
+//   one that still will not fit (one long word: OVERCHARGED!, BANDITENSTADT, ¡SOBRECARGA!; or two lines still too wide) is CONDENSED, scaleX down to BKT_SQ (.88: never seen as a squeeze), before it steps down half a px at a time, never under NAME_MIN.
+//   ?bkt=0 on a device = v23.22's band, sizes and law (the class off, the inline transform cleared). The ten books on his glass: nine at 11 (DINO · YETI · BEAR PARK one line; THE / CAMPAIGN, ELITE / FORCES, OUTLAW / TOWN, THE ICE / CAVES, THE SKY / FORTRESS, GNOME / PARK stacked), OVERCHARGED! at 10 condensed .91 (it stood at 9).
+const BKT=(function(){ try{ const q=/[?&]bkt=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bkt','0'); else localStorage.removeItem('gvt_bkt'); } return localStorage.getItem('gvt_bkt')==='0'? 0 : 1; }catch(e){ return 1; } })(), BKT_SQ=0.88;
+function fitNames(st){ st.classList.toggle('bkt', !!BKT); for(const n of st.querySelectorAll('.sls-slot .sls-nm')){ n.style.fontSize=''; n.style.transform=''; n.style.left=''; n.style.right=''; if(!n.clientWidth) continue; const cs=getComputedStyle(n); let fs=parseFloat(cs.fontSize)||11; const lhK=(parseFloat(cs.lineHeight)||fs*1.02)/fs, W=n.clientWidth, H=n.clientHeight, L0=parseFloat(cs.left)||0, R0=parseFloat(cs.right)||0, over=()=>{ const i=inkOf(n); return i.w>W+0.5 || i.lines*fs*lhK>H+0.5; };
+  while(over() && fs>NAME_MIN){ if(BKT){ const i=inkOf(n), k=W/i.w; if(k>=BKT_SQ && i.lines*fs*lhK<=H+0.5){ const e=(W/k-W)/2; n.style.left=(L0-e).toFixed(2)+'px'; n.style.right=(R0-e).toFixed(2)+'px'; n.style.transform='scaleX('+k.toFixed(3)+')'; if(inkOf(n).lines===i.lines) break; n.style.left=''; n.style.right=''; n.style.transform=''; } } fs-=0.5; n.style.fontSize=fs+'px'; } } }   // CARD-BKT: the squeezed name's box WIDENS to its ink (left/right in by e) and scales back to the band, so nothing overflows the box (the foil and the shadow paint only inside it: an overflowing O went unpainted); inkOf reads the ink in layout units whatever the transform, so the squeeze is set once and the loop ends
 function fit(bk, w, h){ const ks=ksOf(w, h, bk); bk.style.setProperty('--ks', ks.toFixed(4)); const st=bk.querySelector(':scope > .lg-stage.sls.lsw'); if(!st) return ks; try{ fitTitle(st); fitNames(st); }catch(e){ try{ console.error('LSW.fit words', e); }catch(e2){} }
   const n=need(w, h, ks); if(n.x>(+st.getAttribute('data-bx')||0)-PAD || n.y>(+st.getAttribute('data-by')||0)-PAD){ const B=bleedOf(n), wl=st.querySelector(':scope > .sls-wall'), fl=st.querySelector(':scope > .sls-floor');   // the glass shows more than was painted (the phone's insets read late, a turned or resized glass): the wall and the floor once more
     if(wl) wl.outerHTML=wall(st.getAttribute('data-wall')||'wood', B); if(fl) fl.outerHTML=floor(B); st.setAttribute('data-bx', B.x); st.setAttribute('data-by', B.y); }
@@ -146545,7 +146554,7 @@ function fit(bk, w, h){ const ks=ksOf(w, h, bk); bk.style.setProperty('--ks', ks
 // ── THE TURN: to or from the shelf = a crossfade (lgTurn's kept render, whole)
 function xf(cur, pg){ return cur==='shelf' || pg==='shelf'; }
 function flipCls(cur, x){ return (cur==='shelf'? ' lsw-from' : '')+(x? ' lsw-xf' : ''); }
-return { H, WALL, ROW, BAR, XF_MS, STARS, star, stars, ksOf, need, bleed, wall, floor, fit, fitTitle, fitNames, xf, flipCls };
+return { H, WALL, ROW, BAR, XF_MS, STARS, star, stars, ksOf, need, bleed, wall, floor, fit, fitTitle, fitNames, xf, flipCls, bkt:()=>({ on:BKT, sq:BKT_SQ }) };   /* CARD-BKT: the dial and the squeeze floor, for GVT.bkt */
 })();
 // ═══ CARD-SLB THE SARGE'S LOG: THE SHELF + ONE PLACE A SPREAD + THE UNLOCKS AS ROWS (design/sarges-log-isaac-0930/10-BUILD-SLB.md; ISAAC's two guest notes 9/30 13:44 + 13:47 → the design passes CARD-SLI (acct B) + CARD-SLS (acct E) → Wyatt 9/30 ~15:45, attended: "Pushed live, and then we'll make edits from there. This looks fantastic.") ═══
 // THE LOG OPENS ON A BOOKSHELF (page 0, the cover's seat): the room's own wallpaper, the floor, two planks, nine books (THE CAMPAIGN · ELITE FORCES · OVERCHARGED! on top; the six quests below), the Known World tacked on the wall, the cover's words on the wall, KEPT BY on the low plank (the first open ever plays the hand-down beat there), the owned pets at play on the floor.
@@ -182834,6 +182843,7 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
+  bkt(){ const bk=document.querySelector('#travelMap .lg-book'), st=bk && bk.querySelector('.lg-stage.sls.lsw'); return Object.assign(LSW.bkt(), { cls:!!(st && st.classList.contains('bkt')), names:st? [...st.querySelectorAll('.sls-slot .sls-nm')].map(n=>{ const sl=n.closest('.sls-slot'); return { id:sl? sl.getAttribute('data-book') : null, px:parseFloat(getComputedStyle(n).fontSize), tf:n.style.transform||'', w:n.clientWidth, h:n.clientHeight }; }) : null }); },   // CARD-BKT THE BOOK TITLES INSIDE THEIR FRAMES: the dial, the squeeze floor, the stage's class, every name's size, squeeze and band (read-only)
   sgd(){ return sgdRig(); },   // CARD-SGD THE SHOTGUN DOOR: the bay's read (the leaf, the face, the life, the movers' clocks; read-only)
   fwd(){ return fwdRig(); },   // CARD-FWD THE WALL IS THE DOOR + THE STAR PURSE: the wall's box, the purse, the valance (read-only)
   bst(){ return bstRig(); },
