@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.32","md5":"53848c3ee38961885cf220e4b23c5df4","sha":"16987a01b","at":"2026-10-15T18:15:33Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.33","md5":"899ec7dfcb68de6759e563d75a6787f3","sha":"5730dbae0","at":"2026-10-15T18:39:56Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -86394,7 +86394,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.33';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -112768,7 +112768,7 @@ function buildFoeTint(hex){
   ['tanrifle','tanmg','crawler','officer','jeep','jeepv2' /* CARD-ERP: the enemy V2 jeep takes the dye */,'tank','tankv2','bigtank','bigtank2','cmdtank','giant','rollpig','tansarge',
    'tanbazooka','tanmortar','tanradio','tanflame','tansniper','tanpistol2','tanshotgun','tancommander','tancommanderb','larson','tanmedic','tancommando','tangrenadier','bbill','bbillx','minesweeperw','larson18','tanspy' /* CARD-OVF-B18 */].concat(SKY_CORPS, CHS_KEYS, gmyTintKeys() /* CARD-GMY */).forEach(k=>{   // CARD-SF2-C: + the Air Corps' three planes — a Tan-dyed commander fights a GREEN Corps   // 0594: + Larson, the enemy medic, the enemy commando   // 0593: + the V2 foe tank   // 0117: the new roster rides both buckets (0478: + BUFFALO BILL) — miss this and a rival sortie fields factory tan
     const vb=SKY_BOX[k]||((k==='jeep'||k==='jeepv2' /* CARD-ERP */||k==='tank'||k==='tankv2'||k==='bigtank'||k==='bigtank2'||k==='cmdtank'||k==='rollpig')?'0 0 140 140':'0 0 120 140');   // CARD-SF2-C: a plane decodes in its own box (the v1.14 sliced-sprite law)
-    const body=amMold(k).split('currentColor').join(hex);   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
+    const body=lagSpr(amMold(k).split('currentColor').join(hex), k, hex);   /* CARD-LAG round M: the dyed mold through the style pass under lagOn() */   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
     const im=new Image();
     im.onload=()=>{ IMGT[hex][k]=im; };
     im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb+'">'+body+'</svg>');
@@ -112827,7 +112827,7 @@ function buildFoeRim(hex){
   ['tanrifle','tanmg','crawler','officer','jeep','jeepv2' /* CARD-ERP: the enemy V2 jeep takes the rim */,'tank','tankv2','giant','rollpig','tansarge','rex',
    'tanbazooka','tanmortar','tanradio','tanflame','tansniper','tanpistol2','tanshotgun','tancommander','tancommanderb','larson','tanmedic','tancommando','tangrenadier','bbill','bbillx','minesweeperw','larson18','tanspy' /* CARD-OVF-B18 */].forEach(k=>{   // 0594: + Larson, the enemy medic, the enemy commando   // 0593: + the V2 foe tank   // 0117: no rim (0478: + BUFFALO BILL) → a new tan dissolves at 2.1:1 on the winter stages
     const vb=(k==='jeep'||k==='jeepv2' /* CARD-ERP */||k==='tank'||k==='tankv2'||k==='rollpig'||k==='rex')?'0 0 140 140':'0 0 120 140';
-    const body=amMold(k).split('currentColor').join(hex);   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
+    const body=lagSpr(amMold(k).split('currentColor').join(hex), k, hex);   /* CARD-LAG round M: the dyed mold through the style pass under lagOn() */   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
     const im=new Image();
     im.onload=()=>{ IMGTR[hex][k]=im; };
     im.src='data:image/svg+xml;utf8,'+encodeURIComponent(
@@ -112862,7 +112862,7 @@ function buildUnitTint(hex){
   IMGU[hex]={};
   GREEN_UNITS.forEach(k=>{
     const vb=(k==='bfjeep'||k==='bftank'||k==='jeep2'||k==='jeep3'||k==='tank2'||k==='tank3'||k==='dogbig')?'0 0 140 140':'0 0 120 140';   // the vehicles ride a wider box (CARD-V3J: the V3 too; CARD-OCR-B3: the V3 tank too)
-    const body=amMold(k).split('currentColor').join(hex);   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
+    const body=lagSpr(amMold(k).split('currentColor').join(hex), k, hex);   /* CARD-LAG round M: the dyed mold through the style pass under lagOn() */   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
     const im=new Image();
     im.onload=()=>{ IMGU[hex][k]=im; };
     im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb+'">'+body+'</svg>');
@@ -112904,7 +112904,7 @@ function buildUnitRim(hex){
   IMGR[hex]={};
   GREEN_UNITS.forEach(k=>{
     const vb=(k==='bfjeep'||k==='bftank'||k==='jeep2'||k==='jeep3'||k==='tank2'||k==='tank3'||k==='dogbig')?'0 0 140 140':'0 0 120 140';   // CARD-V3J: the V3 too; CARD-OCR-B3: the V3 tank too
-    const body=amMold(k).split('currentColor').join(hex);   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
+    const body=lagSpr(amMold(k).split('currentColor').join(hex), k, hex);   /* CARD-LAG round M: the dyed mold through the style pass under lagOn() */   // 1022 CARD-AM-A: the seat — the dyed set wears the same hand (⚑ AM-B: the foe sets too, or a dyed tan army fights un-inked beside the inked green)
     const im=new Image();
     im.onload=()=>{ IMGR[hex][k]=im; };
     im.src='data:image/svg+xml;utf8,'+encodeURIComponent(
@@ -130368,7 +130368,7 @@ function sprURI(k,color,vbox,body){   // 0894: body = a dyed mold string in plac
   // clean off. bfjeep/bftank are the mirrored green twins and box the same.
   // vbox overrides both, for callers that want the art cropped to its own ink.
   const vb=vbox||SKY_BOX[k]||TEDDY_BOX[k]||PET_BOX[k]||(k==='kingyeti'?'-55 -59 230 204':k==='bomber'?'0 0 170 100':(k==='jeep'||k==='tank'||k==='bfjeep'||k==='bftank'||k==='tank2'||k==='jeep3' /* CARD-V3J */||k==='tank3' /* CARD-OCR-B3 */||k==='trike'||k==='btrike'||k==='ptero'||k==='stego'||k==='dilo'||k==='kingrex'||k==='unclerex'||k==='rex'||k==='sdino'||k==='bdino'||k==='spitter'||k==='dinoboss1'||k==='dinoboss2'||k==='dinoboss3'||k==='kingcroak'||k==='kingcroaklil')?'0 0 140 140':'0 0 120 140');   // CARD-DTL THE WHOLE TAIL (AL, Wyatt's lead designer, 10/1/2026 from his phone: "Can dino tails throughout game come to a point instead of a vertical line chop."): the rex family (rex · sdino · bdino · spitter · dinoboss1-3) rides the 140 box here too — buildSprites always carried them (the two-list law); in the men's 120 box every menu portrait of them was cut at x 120, a vertical line through the tail and the ground shadow (the map's pin cards, the log, the party picker)   // 0465: the son rides his father's box here too (buildSprites already does by the name-prefix law) · 0278a: the caped king's grown box — BOTH lists carry it (the v1.20 two-list law; 0278b: the four dino species ride the 140 box in both)
-  return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb+'">'+(body||amMold(k)).split('currentColor').join(color||(SKY_CORPS.indexOf(k)>=0? skyCorpsHex() : '#7FA35C'))+'</svg>');   // CARD-SF2-C: a plane of the Air Corps asked for with no colour wears the Corps' colour on this save (the lobby's flank, the party sheet's NEXT UP card, the map pin)   // 1022 CARD-AM-A: the seat — the tray, the fort's roster, the academy, the shop, the dance read the same hand
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb+'">'+lagSpr((body||amMold(k)).split('currentColor').join(color||(SKY_CORPS.indexOf(k)>=0? skyCorpsHex() : '#7FA35C')), k, color||(SKY_CORPS.indexOf(k)>=0? skyCorpsHex() : '#7FA35C'))+'</svg>');   // CARD-SF2-C: a plane of the Air Corps asked for with no colour wears the Corps' colour on this save (the lobby's flank, the party sheet's NEXT UP card, the map pin)   // 1022 CARD-AM-A: the seat — the tray, the fort's roster, the academy, the shop, the dance read the same hand
 }
 // The three unlockable figures. cost is the economy; name/band/tag are how the
 // carded blister pack reads on the pegboard in SARGE'S SURPLUS (see renderShop).
@@ -145023,7 +145023,7 @@ return `<path d="${d}" transform="translate(4,7)" fill="rgba(0,0,0,.42)"/><path 
 +`<defs><linearGradient id="crv" x1="0" x2="1"><stop offset="0" stop-color="rgba(58,42,20,0)"/><stop offset=".42" stop-color="rgba(58,42,20,.22)"/><stop offset=".55" stop-color="rgba(255,250,235,.55)"/><stop offset="1" stop-color="rgba(58,42,20,0)"/></linearGradient><linearGradient id="crh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(58,42,20,0)"/><stop offset=".42" stop-color="rgba(58,42,20,.18)"/><stop offset=".55" stop-color="rgba(255,250,235,.5)"/><stop offset="1" stop-color="rgba(58,42,20,0)"/></linearGradient><radialGradient id="cnr"><stop offset="0" stop-color="rgba(58,42,20,0)"/><stop offset="1" stop-color="rgba(58,42,20,.16)"/></radialGradient></defs>`;
 }
 function realSpr(k,hex,vb){ // the game's own sprite as a data URI (buildUnitTint's recipe, static)
-try{ const src=SPRITES_SRC[k].split('currentColor').join(hex||'#4A6B35'); return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+(vb||'0 0 120 140')+'">'+src+'</svg>'); }catch(e){ return fig(k,hex); }
+try{ const src=lagSpr(SPRITES_SRC[k].split('currentColor').join(hex||'#4A6B35'), k, hex||'#4A6B35'); return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+(vb||'0 0 120 140')+'">'+src+'</svg>'); }catch(e){ return fig(k,hex); }
 }
 function posterTree(x,y,s){ // THE game's tree: the backyard poster's canopy (roomCardArt), trunk + four rounds
 return `<g transform="translate(${x},${y}) scale(${s})"><ellipse cx="0" cy="34" rx="22" ry="5" fill="rgba(0,0,0,.18)"/><rect x="-6" y="0" width="12" height="38" rx="3" fill="#6E4522"/><circle cx="0" cy="-20" r="24" fill="${LAWN_DEEP.tuft}"/><circle cx="-18" cy="-10" r="15" fill="${LAWN_DEEP.tall}"/><circle cx="16" cy="-9" r="13" fill="${LAWN_DEEP.tall}"/><circle cx="-6" cy="-28" r="10" fill="#5E9A4A"/></g>`;
@@ -160639,7 +160639,7 @@ function lagRig(o){ o=o||{}; if(o.on!==undefined){ LAG.on=o.on? 1 : 0; delete PA
   const k=document.getElementById('volcKey');
   return { on:LAG.on, dino:q('.lag-dino'), army:q('#lag-army'), dog:q('#lag-dog'), walkers:q('.lag-walker'), smil:q('.lag-walker animateTransform'), twk:q('.lag-twk'), plume:q('.lag-plume'), ptero:q('.lag-ptero'), strip:q('.lag-strip'),
     trikeAl:q('.lag-trike [id^="dpvAT"]'), skullAl:q('.lag-skull [id^="dpvAK"]'), rexAl:q('.lag-rex use[href="#dpvRexAl"]'), egg:q('.wdl'), old:q('.dpv-far')+q('.dpv-volc')+q('.dpv-gate')+q('#dinoPond')+q('.dpv-canopy'), sgp:q('.lag-dino .sgp'), raster:q('.lag-dino image'),
-    lock:k && k.parentNode? k.parentNode.getAttribute('transform') : null, volcHot:box('volcHot'), pondHot:box('pondHot'), pkRod:box('pkRod'), wf:lagWFRead(), fort:lagFortRead(), hall:lagHallRead(), lab:lagLabRead(), title:lagTitleRead(), store:lagStoreRead(), cdr:lagCdrRead(), rank:lagRankRead(), fzb:lagFzbRead(), log:lagLogRead(), adv:lagAdvRead(), map:lagMapRead(), chrome:lagChromeRead(), yard:lagYardRead() }; }   /* round C: + the field's read; round D: + the fort's; round E: + the halls'; round F: + the lab's; round G: + the title's; round H: + the stores' and the Codes Room's; round I: + the rankings'; round J: + the bar's, the Log's, the cards'; round K: + the map's and the chrome's */
+    lock:k && k.parentNode? k.parentNode.getAttribute('transform') : null, volcHot:box('volcHot'), pondHot:box('pondHot'), pkRod:box('pkRod'), wf:lagWFRead(), fort:lagFortRead(), hall:lagHallRead(), lab:lagLabRead(), title:lagTitleRead(), store:lagStoreRead(), cdr:lagCdrRead(), rank:lagRankRead(), fzb:lagFzbRead(), log:lagLogRead(), adv:lagAdvRead(), map:lagMapRead(), chrome:lagChromeRead(), yard:lagYardRead(), char:lagCharRead() }; }   /* round C: + the field's read; round D: + the fort's; round E: + the halls'; round F: + the lab's; round G: + the title's; round H: + the stores' and the Codes Room's; round I: + the rankings'; round J: + the bar's, the Log's, the cards'; round K: + the map's and the chrome's */
 // ROUND C · WINTER FIELD PASS 3 (Laura 10/15 10:24: "Winter Field pass 3: GO (deeper colour, softer blue, glacier + ice face out). PNG + SVG in the zip."): her file is CARD-PKX's export of the live field restyled; the diff
 // export → hers (kit/genLAGwf.py) = THE TABLE below, applied at the paint over wfPaperSVG's and wfMoversSVG's strings (roomFloorSVG + roomSVG0, before CARD-PKO's outline pass): 70 colour changes keyed by the element's
 // own geometry (the first 48 chars of d / points, cx cy r, the rect's size, or the gradient's id + the stop's index; the painted value set on the element itself: the export read the computed colour), the glacier group
@@ -160731,6 +160731,22 @@ function lagChromeRead(){ const g=function(q){ const e=document.querySelector(q)
 // the plant, the fern) are FROZEN whole: byte-same, no outline change, no panel. Camp Snugg has been under the pass since CARD-SGL (CAMP_HERO, the bears frozen). The characters stay as drawn (Wyatt's 10/10 rule: Al's sheet).
 if(lagOn()){ SGP_SCREENS['room-backyard']=1; SGP_FREEZE['room-backyard']=['bcs-cloud','bcs-curt','bcs-far','bcs-fore','bcs-ivy','bcs-leaf','bcs-plant','bcs-pot','bcs-shrubs','bcs-vein','bcs-vine','bcl-fern','by-wilA','by-wilB','bcsCloudG','by-willow']; }
 function lagYardRead(){ if(roomCur()!=='backyard') return { room:roomCur() }; const m=document.getElementById('menu'); const sv=m? m.querySelector('svg.roomsvg, #roomsvg, svg') : null; if(!sv) return null; let fr=0; (SGP_FREEZE['room-backyard']||[]).forEach(function(k){ sv.querySelectorAll('.'+k+', #'+k).forEach(function(g){ fr+=g.querySelectorAll('.sgp').length; }); }); return { room:'backyard', sgp:sv.querySelectorAll('.sgp').length, defs:sv.querySelectorAll('defs.sgp-defs').length, frozen:fr, al:sv.querySelectorAll('.bcs-cloud, .bcs-shrubs, .bcs-far, .bcl-fern').length }; }
+// ROUND M · THE CHARACTERS THROUGH THE PASS (Laura 10/15 10:24 "the style pass DOES go on … the characters too"; 10:45 "every … character in the game, on for everyone"): every character drawn FROM THE MOLDS goes through
+// CARD-SGL's pass at the dye, where the mold's currentColor becomes its army's hex and the pass can see every fill: the units in play (buildUnitTint's tinted sets, green and tan), the rooms' four men and every <image> of a
+// mold (sprURI), the Log's troops (realSpr). The pass's figure freeze (the molds' signatures) is lifted for this one id, 'char', inside lagSpr alone; the inlined figures of the rooms and the parks (Al's and Dylan's
+// pieces, the walker dog) stay frozen as CARD-SGL left them. The outline rule is ON (her rule: a shade darker, see-through, never heavy black); the army men's INK HAND (amHand's #22262E lines at .9, stroke-only paths the
+// pass cannot shade) takes the same rule by lagInk: the plastic one step down, .55, the line x0.6. A memo per dyed string: the molds are passed once per colour. ?lag=0 = the ink molds.
+const LAG_SPRM={};
+if(lagOn()){ SGP_SCREENS['char']=1; }
+function lagInk(v,hex){   // the ink hand (amHand: INK #22262E at .9: a stroked copy of every limb INK_W wider under it, filled silhouettes INK_W/2 wider under the head, the stand, the rects and circles, the rifle's seam) takes her rule: the plastic one step down (CARD-PKO's shade), see-through at PKO.a, the rim x PKO.k (a copy's width = the limb's + INK_W: it loses INK_W x (1 - k)); the hand's shade and light bands stay
+  if(!hex || typeof v!=='string' || v.indexOf('#22262E')<0) return v; let sh=null; try{ const c=pkoCol(hex); sh=c? pkoShade(c) : null; }catch(e){} if(!sh) return v;
+  const A=String(PKO.a), dW=AM_R.INK_W*(1-PKO.k), OPEN='<g fill="none" stroke="#22262E" stroke-opacity=".9"';
+  let out='', i=0; while(true){ const j=v.indexOf(OPEN,i); if(j<0){ out+=v.slice(i); break; } out+=v.slice(i,j); const re=/<\/?g\b[^>]*>/g; re.lastIndex=j; let m, d=0, end=-1; while((m=re.exec(v))){ if(m[0].charAt(1)==='/'){ d--; if(d===0){ end=m.index+m[0].length; break; } } else if(!/\/>$/.test(m[0])) d++; } if(end<0){ out+=v.slice(j); break; }
+    out+=v.slice(j,end).replace(OPEN, '<g fill="none" stroke="'+sh+'" stroke-opacity="'+A+'"').replace(/stroke-width="([\d.]+)"/g, function(m0,w){ return 'stroke-width="'+(+(Math.max(0.5, parseFloat(w)-dW)).toFixed(2))+'"'; }); i=end; }
+  v=out.replace(/stroke="#22262E" stroke-opacity="\.9" stroke-width="([\d.]+)"/g, function(m0,w){ return 'stroke="'+sh+'" stroke-opacity="'+A+'" stroke-width="'+(+(Math.max(0.5, parseFloat(w)-dW)).toFixed(2))+'"'; });   // the rifle's seam, the dpath fills' strokes
+  return v.split('fill="#22262E" fill-opacity=".9"').join('fill="'+sh+'" fill-opacity="'+A+'"').split('stroke="#22262E" stroke-opacity=".9"').join('stroke="'+sh+'" stroke-opacity="'+A+'"'); }
+function lagSpr(src,k,hex){ if(!lagOn() || !src || typeof src!=='string') return src; const key=String(k)+'|'+String(hex||'')+'|'+src.length+'|'+src.slice(0,96)+'|'+src.slice(-48); const m=LAG_SPRM[key]; if(m && m.s===src) return m.v; let v=src; const keep=SGP_SIG; SGP_SIG={}; try{ v=sgpPass(src,'char'); }catch(e){ v=src; } finally{ SGP_SIG=keep; } try{ v=lagInk(v,hex); }catch(e){} LAG_SPRM[key]={ s:src, v:v }; return v; }
+function lagCharRead(){ const out={ memo:Object.keys(LAG_SPRM).length }; try{ const u=decodeURIComponent(sprURI('rifleman','#4A6B35').split(',').slice(1).join(',')); out.rifle=(u.match(/class="sgp"/g)||[]).length; out.ink=(u.match(/(?:stroke|fill)-opacity="0\.55"/g)||[]).length; out.defs=(u.match(/sgp-defs/g)||[]).length; }catch(e){ out.err=String(e).slice(0,80); } try{ const men=[...document.querySelectorAll('[id^="ro-vt"] image, [data-gid^="ro-vt"] image')]; out.men=men.length; out.menSgp=men.filter(function(i){ return /sgp/.test(decodeURIComponent(i.getAttribute('href')||'')); }).length; }catch(e){} try{ const H=typeof IMGU!=='undefined'? Object.keys(IMGU) : []; out.tints=H.length; if(H.length){ const set=IMGU[H[0]]; const ks=Object.keys(set); out.tintSgp=ks.filter(function(q){ const im=set[q]; return im && /sgp/.test(String(im.src||'')); }).length; out.tintN=ks.length; } }catch(e){} return out; }
 // ═══ END CARD-LAG ═══
 // ═══ CARD-GPP GNOME PARK ON EVERY PHONE (board J2; Wyatt's go 10/2/2026 14:23 EDT on CARD-DSK's ⚑ DSK-F1): the four glowing toadstools on the lawn's front edge (TOAD_XY 94 · 500 · 1100 · 1506) are Merlin's door,
 // tapped right to left. THE CROP LAW slices a phone at 1.9:1 and wider, so an 18:9 phone (720 x 360 = 2.0:1) saw x 150..1450 and lost both outer toadstools whole (Merlin out of reach), and his own 19.5:9 phone
