@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"23.48","md5":"f4f13a298b4b996357bab965c51df8ed","sha":"7ac84873f","at":"2026-10-15T21:59:31Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"23.49","md5":"b0dab43777b4b0ed5a814cc117b6a470","sha":"d4717bad7","at":"2026-10-15T22:02:43Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -51172,9 +51172,9 @@ function hskDraw(u){ if(!HSK.embers || !(u.kills>0) || u.dead || !hskU(u)) retur
 // unit 'hero', who 'kingcroak', pair ['kingcroak'], his own picture on the card, no lock). THE SIGHT: every live foe inside his own gun's reach (DFS.rng 240) whose line from him is nearer straight up or straight down than sideways (|dy| >= |dx|: the 90-degree cone over his hat,
 // the 90-degree cone under his boots; the rug's foes walk in from the east, where his gun and his storm already look). THE SPRAY: each cone with a foe in it runs its own clock (DFS.tick 0.25 s): the spot = the NEAREST foe in that cone, and every foe within DFS.area of the spot
 // takes DFS.dps x tick x his level's share through hurt() (deflects, resists, the kill credit his: the kills feed HOT STREAK too). THE LEVEL: DFS.dps 20 a second at level 100 (his number); below it the hero damage slope the game already walks (upMulR's HERO_DMG_RANK),
-// so the share = upMulR(rank) / upMulR(RANK_MAX). No RNG anywhere (the twin sims agree). THE LOOK: a small teal dragonfly hovering over his hat while he carries it (steady under reduced motion); a live cone = a fan of brass slugs streaming to the spot, a teal ring on the
-// spot when a burst begins. THE BENCH LAW = hskU's ladder (my bench · a relayed ally's coopMods · the away captain's lo.mo · a human chair's tokens; THEIR AI king never; the BOSS King Croak never). The wire, the save, the server, the css: byte-what-they-were.
-const DFS={ dps:20, rng:240, area:50, tick:0.25, cost:1000, hex:'#36C2D6', wing:'#BFF3FA', brass:'#F2D27A', fly:1 };   // his 20 a second at level 100 · his own gun's reach (UDEF.kingcroak.rng) · the spot's radius · the spray's beat · ⚑ DFS-Q1 the price (his note names none; HOT STREAK is 850) · the dragonfly's teal, its wings, the slugs' brass · the dragonfly's switch
+// so the share = upMulR(rank) / upMulR(RANK_MAX). No RNG anywhere (the twin sims agree). THE LOOK (R2, Wyatt 10/15 17:54 by Discord: "The bullets have to come from his gun, and please remove the dragonfly above him."): every beat HIS IRONS turn on the man (ckAimStamp, CARD-CKA's aimed molds) and the rounds leave the iron's own tip
+// (croakMzAim, right-left like his storm), with the muzzle flash, his recoil and his shot; a dashed teal ring marks the spot, a teal ring when a burst begins. No dragonfly. THE BENCH LAW = hskU's ladder (my bench · a relayed ally's coopMods · the away captain's lo.mo · a human chair's tokens; THEIR AI king never; the BOSS King Croak never). The wire, the save, the server, the css: byte-what-they-were.
+const DFS={ dps:20, rng:240, area:50, tick:0.25, cost:1000, hex:'#36C2D6', fan:0.07, hold:0.45 };   // his 20 a second at level 100 · his own gun's reach (UDEF.kingcroak.rng) · the spot's radius · the spray's beat · ⚑ DFS-Q1 the price (his note names none; HOT STREAK is 850) · the spot's teal · the two rounds' fan (rad) · how long his irons stay on the man after a beat
 ENH_INFO.dragonflysight={ unit:'hero', who:'kingcroak', pair:['kingcroak'], name:'DRAGONFLY SIGHT', sub:'HE SEES ABOVE AND BELOW HIM, AND SPRAYS THEM',   // CARD-DFS: KING CROAK's second sold part (1000 stars; HEROES, HOT STREAK's grammar)
   tag:'NOTHING SNEAKS PAST HIM!',
   up:'Fits KING CROAK: like a dragonfly, he sees all round. A foe above him or below him gets sprayed: 20 damage a second at level 100, on everyone in that spot.',
@@ -51208,25 +51208,22 @@ function dfsSpray(u,side,f){ const L=dfsLed(), amt=dfsDps(u)*DFS.tick, sx=f.x, s
   for(const g of dfsFoes(u)){ if(Math.hypot(g.x-sx,g.y-sy)>DFS.area) continue; hurt(g, amt, u); n++; L.dmg+=amt; }
   L.ticks++; L.hits+=n; L[side]++; L.last={ t:+S.t.toFixed(3), id:u.id, side:side, n:n, amt:+amt.toFixed(3), x:Math.round(sx), y:Math.round(sy) };
   const was=u.dfsLive && u.dfsLive[side]; u.dfsLive=u.dfsLive||{}; u.dfsLive[side]={ x:sx, y:sy, t:S.t };
+  dfsFire(u,f,L.ticks);   // R2: the rounds leave his gun
   if(!was && bfVis(sx,sy)) S.fx.push({k:'ring',x:sx,y:sy,r:8,R:DFS.area,t:0,dur:0.4,col:DFS.hex}); }   // the teal ring on the spot when a burst begins
+function dfsFire(u,f,k){ if(!bfVis(u.x,u.y)) return; const w=unitW(u.type);   // R2 THE ROUNDS FROM HIS GUN (CARD-CKA's whack, line for line): both irons on the man, this beat's iron (right-left), two rounds from its tip, the flash, his recoil, his shot (every second beat)
+  ckAimStamp(u, Math.atan2((f.y-18)-(u.y-0.39*w), f.x-u.x), f, DFS.hold); const h=u.dfsH=u.dfsH? 0 : 1, hz=croakMzAim(u.x,u.y,w,u.ckAimA)[h], ang=Math.atan2((f.y-18)-hz.y,f.x-hz.x), L=Math.hypot(f.x-hz.x,(f.y-18)-hz.y);
+  const lzc=lzVisOf(u), lz=lzc? (lzc==='silver'? LZ_SILVER_ROW : lzc==='slug'? LZ_SLUG_ROW : ARMIES.find(ar=>ar.id===lzc)) : null;   // his racked laser (rpStep's own paint law)
+  for(let i=0;i<2;i++){ const a=ang+(i-0.5)*DFS.fan, x2=hz.x+Math.cos(a)*L, y2=hz.y+Math.sin(a)*L, st=reducedMotion()? 0 : -i*0.05;
+    if(lz && lzc==='slug') S.fx.push({k:'slugtr',x1:hz.x,y1:hz.y,x2,y2,t:st,dur:BRG_DUR}); else S.fx.push({k:'bolt',x1:hz.x,y1:hz.y,x2,y2,t:st,dur:BRG_DUR,col:lz? lz.hex : '#FFF3C4'}); }
+  S.fx.push({k:'flash',x:hz.x,y:hz.y,ang,R:reducedMotion()? 8 : 12,lw:2.6,t:0,dur:0.1}); u.rcAt=S.t; u.rcH=h; if(k&1) bfSfx(SFX.wshot, hz.x, hz.y); }
 function dfsTick(u,dt){ if(u.dead || !dfsU(u)){ u.dfsAcc=0; u.dfsLive=null; return; }   // his own tick (ckUnitTick, both carpets): each cone's clock
   const see=dfsSee(u); u.dfsAcc=(u.dfsAcc||0)+dt;
   if(u.dfsLive){ for(const k of ['up','dn']) if(u.dfsLive[k] && !see[k] && S.t-u.dfsLive[k].t>DFS.tick*1.5) u.dfsLive[k]=null; }   // a cone gone quiet lets its stream fade
   if(!see.up && !see.dn){ u.dfsAcc=Math.min(u.dfsAcc,DFS.tick); return; }   // nothing in his sight: the first beat lands the moment one steps in
   while(u.dfsAcc>=DFS.tick){ u.dfsAcc-=DFS.tick; if(see.up && !see.up.dead) dfsSpray(u,'up',see.up); if(see.dn && !see.dn.dead) dfsSpray(u,'dn',see.dn); } }
-function dfsDraw(u){ if(u.dead || !dfsU(u)) return; const RM=reducedMotion(), t=S.t; cx.save();
-  if(u.dfsLive){ const mzl=unitFaceX(u); for(const k of ['up','dn']){ const z=u.dfsLive[k]; if(!z) continue; const ox=u.x+12*mzl, oy=u.y-(k==='up'? 52 : 30), a=Math.atan2(z.y-oy,z.x-ox), d=Math.hypot(z.x-ox,z.y-oy);   // THE STREAM: brass slugs from his irons to the spot
-    cx.globalAlpha=0.16; cx.fillStyle=DFS.hex; cx.beginPath(); cx.moveTo(ox,oy); cx.arc(ox,oy,d,a-0.16,a+0.16); cx.closePath(); cx.fill();
-    cx.strokeStyle=DFS.brass; cx.lineWidth=2.6; cx.lineCap='round';
-    for(let i=0;i<6;i++){ const ph=RM? (i+0.5)/6 : ((t*3.2+i/6)%1), sp=((i*37)%7-3)*0.045, r0=d*ph, x0=ox+Math.cos(a+sp)*r0, y0=oy+Math.sin(a+sp)*r0; cx.globalAlpha=0.9-ph*0.4; cx.beginPath(); cx.moveTo(x0,y0); cx.lineTo(x0+Math.cos(a+sp)*9,y0+Math.sin(a+sp)*9); cx.stroke(); }
-    cx.globalAlpha=0.5; cx.strokeStyle=DFS.hex; cx.lineWidth=2; cx.setLineDash([5,5]); cx.beginPath(); cx.ellipse(z.x,z.y,DFS.area,DFS.area*0.42,0,0,7); cx.stroke(); cx.setLineDash([]); } }   // the spot: a dashed teal ground ring
-  if(DFS.fly){ const live=u.dfsLive && (u.dfsLive.up || u.dfsLive.dn), bob=RM? 0 : Math.sin(t*2.4+(u.id|0))*4, dx=RM? 0 : Math.sin(t*1.3+(u.id|0))*10, fx=u.x+dx, fy=u.y-148+bob+(live && u.dfsLive.dn && !u.dfsLive.up? 6 : 0), fl=RM? 0.5 : (Math.sin(t*46)*0.5+0.5);   // THE DRAGONFLY over his hat (his crown stands ~118 over his boots)
-    cx.translate(fx,fy); cx.scale(1.35,1.35); cx.translate(-fx,-fy); cx.globalAlpha=0.75; cx.fillStyle=DFS.wing; cx.strokeStyle='#171512'; cx.lineWidth=0.8;
-    for(const s of [-1,1]){ cx.beginPath(); cx.ellipse(fx+s*8,fy-2,9,2.4+fl*1.4,s*(-0.25),0,7); cx.fill(); cx.stroke(); cx.beginPath(); cx.ellipse(fx+s*7,fy+3,7.5,2+fl*1.2,s*0.25,0,7); cx.fill(); cx.stroke(); }
-    cx.globalAlpha=1; cx.fillStyle=DFS.hex; cx.beginPath(); cx.ellipse(fx,fy+7,1.8,9,0,0,7); cx.fill(); cx.stroke();
-    cx.fillStyle='#2A8F9E'; cx.beginPath(); cx.arc(fx-2.2,fy-4,2.4,0,7); cx.arc(fx+2.2,fy-4,2.4,0,7); cx.fill();
-    if(live){ cx.globalAlpha=0.55+(RM? 0 : 0.3*Math.sin(t*9)); cx.strokeStyle=DFS.hex; cx.lineWidth=1.6; cx.beginPath(); cx.arc(fx,fy,13,0,7); cx.stroke(); } }   // its eyes lit while a cone is live
-  cx.restore(); }
+function dfsDraw(u){ if(u.dead || !u.dfsLive || !dfsU(u)) return; cx.save(); cx.globalAlpha=0.5; cx.strokeStyle=DFS.hex; cx.lineWidth=2; cx.setLineDash([5,5]);   // the sprayed spot: a dashed teal ground ring (R2: no dragonfly, no painted stream: the rounds are his gun's own bolts)
+  for(const k of ['up','dn']){ const z=u.dfsLive[k]; if(!z) continue; cx.beginPath(); cx.ellipse(z.x,z.y,DFS.area,DFS.area*0.42,0,0,7); cx.stroke(); }
+  cx.setLineDash([]); cx.restore(); }
 // ═══ END CARD-DFS ═══
 // ===== CARD-CFL COIN FLIP, JANE'S SOLD PART: A KILL FLIPS HER LUCKY COIN (design/coin-flip-1013/00-BUILD-CFL.md; Wyatt 10/13/2026 21:20 EDT from his phone, verbatim: "Add an invention to Floop's lab. It's called Coin Flip. It's for Jane.
 // When Jane gets a kill, she either gets +3 damage for the rest of the game, each time stacking infinitely or +15 Dogtags"): the lab's 74th id at the tail (1500 stars, CFL-Q1: his note names no price; server v130 raised the mo clamp 72 -> 80 FIRST at both cells, the 0542/0551/0557 law: CARD-HSK's hotstreak had taken the 73rd over the 72 clamp an hour before),
@@ -86801,7 +86798,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.49';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -127258,7 +127255,7 @@ function drawTkLeap(u){
 // reduced motion (a steady ring), juice only when motion is welcome.
 function drawTkFx(u){
   hskDraw(u);   // CARD-HSK HOT STREAK: the embers on a king whose streak stands
-  dfsDraw(u);   // CARD-DFS DRAGONFLY SIGHT: the dragonfly over his hat, the brass stream to a sprayed spot
+  dfsDraw(u);   // CARD-DFS DRAGONFLY SIGHT: the dashed ring on a sprayed spot (R2: the rounds are his gun's own bolts, no dragonfly)
   if(u.cmdWallT>0){   // 0510 THE STONE WALL: the countdown at his feet — a steady ground ellipse (the overdrive ring's own 28×10, cx.ellipse — HEAD has no scale(1,0.34) anywhere) + the draining arc, #EAF4FF over a #C9D2D8 ghost ring, both through fxSnow (the white-on-white sweep). STEADY under reduced motion — rings are information, and the drain IS the motion. Plus the boot trenches: static ink while he is dug in (the bench's own strokes, behind the boots, mirrored by facing).
     const wl=Math.max(0,Math.min(1,u.cmdWallT/CMD_WALL.t)), wfs=u.cmdFs||1;
     cx.save();
@@ -184291,8 +184288,8 @@ window.GVT = {
       clouds:L.map(c=>({ x:Math.round(c.x), y:Math.round(c.y), R:c.R, t:+c.t.toFixed(3), dur:c.dur, live:sgrLive(c), r:+sgrRad(c).toFixed(1), mine:c.cfg===S.cfg })), hidU:S.units.filter(u=>!u.dead && sgrHid(u)).map(u=>u.id), hidF:S.foes.filter(f=>!f.dead && sgrHid(f)).map(f=>f.id),
       cans:S.shots.filter(sh=>sh.sgr).map(sh=>({ x:Math.round(sh.x), y:Math.round(sh.y), tx:Math.round(sh.tx), ty:Math.round(sh.ty), t:+sh.t.toFixed(3), dur:+sh.dur.toFixed(3), landed:!!sh.landed, fuseT:sh.fuseT!=null? +sh.fuseT.toFixed(3) : null, dmg:sh.dmg, splash:sh.splash })), men:S.units.filter(u=>!u.dead && u.type==='grenadier').map(u=>({ id:u.id, x:Math.round(u.x), y:Math.round(u.y), on:sgrOn(u), cd:+(u.cd||0).toFixed(3), sgrN:u.sgrN|0, hid:sgrHid(u) })) }; },
   lfr(v){ v=v||{}; if(v.K!=null) LFR.K=+v.K; if(v.W!=null) LFR.W=+v.W; if(v.day!==undefined) LFR.day=v.day; if(v.T!==undefined) LRC.T=v.T; if(v.reset) lfrReset(); if(v.shot) for(let i=0;i<v.shot;i++) lfrShot(); if(v.tick!=null) lfrTick(v.tick); return lfrProbe(); },   // CARD-LFR's door (the rig): the dial's scale and window, the day and the clock pins, a reset, shots, a tick, then the read
-  dragonflysight(v){ v=v||{}; for(const k of ['dps','rng','area','tick','fly']) if(v[k]!=null) DFS[k]=+v[k]; if(v.reset) dfsReset();   // CARD-DFS's door (the rig): the dials, the fight's ledger, every King Croak on the field with what he sees
-    return { cv:GVT_CV, dials:{ dps:DFS.dps, rng:DFS.rng, area:DFS.area, tick:DFS.tick, cost:DFS.cost, fly:DFS.fly }, at:ENH_ORDER.indexOf('dragonflysight'), n:ENH_ORDER.length, cost:ENH_COST.dragonflysight, trophy:!!TROPHY_IDS.dragonflysight, own:enhOwns('dragonflysight'), on:enhOn('dragonflysight'), locked:enhLocked('dragonflysight'), curve:LAB_CURVE.length, goo:LAB_GOO.dragonflysight||null, room:labKeyOf('dragonflysight'), led:S.dfsL? Object.assign({},S.dfsL) : null,
+  dragonflysight(v){ v=v||{}; for(const k of ['dps','rng','area','tick','fan','hold']) if(v[k]!=null) DFS[k]=+v[k]; if(v.reset) dfsReset();   // CARD-DFS's door (the rig): the dials, the fight's ledger, every King Croak on the field with what he sees
+    return { cv:GVT_CV, dials:{ dps:DFS.dps, rng:DFS.rng, area:DFS.area, tick:DFS.tick, cost:DFS.cost, fan:DFS.fan, hold:DFS.hold }, at:ENH_ORDER.indexOf('dragonflysight'), n:ENH_ORDER.length, cost:ENH_COST.dragonflysight, trophy:!!TROPHY_IDS.dragonflysight, own:enhOwns('dragonflysight'), on:enhOn('dragonflysight'), locked:enhLocked('dragonflysight'), curve:LAB_CURVE.length, goo:LAB_GOO.dragonflysight||null, room:labKeyOf('dragonflysight'), led:S.dfsL? Object.assign({},S.dfsL) : null,
       kings:S.units.filter(u=>u.type==='kingcroak').map(u=>{ const sw=dfsU(u)? dfsSee(u) : { up:null, dn:null }; return { id:u.id, x:Math.round(u.x), y:Math.round(u.y), side:u.side||'camp', dead:!!u.dead, on:dfsU(u), mine:heroMine(u), rank:perkRank(u), share:+dfsShare(u).toFixed(4), dps:+dfsDps(u).toFixed(3), kills:u.kills|0, up:sw.up? sw.up.id||sw.up.type : null, dn:sw.dn? sw.dn.id||sw.dn.type : null, live:u.dfsLive? { up:!!u.dfsLive.up, dn:!!u.dfsLive.dn } : null }; }) }; },
   hotstreak(v){ v=v||{}; for(const k of ['as','crit','cap','cmp','every','embers']) if(v[k]!=null) HSK[k]=+v[k]; if(v.reset) hskReset();   // CARD-HSK's door (the rig): the dials, the fight's ledger, every king on the field with his streak, his factor and his crit
     return { cv:GVT_CV, dials:Object.assign({},HSK), at:ENH_ORDER.indexOf('hotstreak'), n:ENH_ORDER.length, cost:ENH_COST.hotstreak, trophy:!!TROPHY_IDS.hotstreak, own:enhOwns('hotstreak'), on:enhOn('hotstreak'), locked:enhLocked('hotstreak'), curve:LAB_CURVE.length, goo:LAB_GOO.hotstreak||null, counts:S.hskN? Object.assign({},S.hskN) : null,
