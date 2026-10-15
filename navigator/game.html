@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.03","md5":"c7b7baa2a21b66a9180d4c1f06d59477","sha":"710dbd259","at":"2026-10-15T05:16:47Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.04","md5":"b6ebb6667d28e48c6ec2c7b865fae85b","sha":"91d4ce2a9","at":"2026-10-15T05:19:22Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -71495,7 +71495,7 @@ function hrdWave(n){
   if(horde){ const bs=lc.waves.filter(w=>clean(w) && w.boss); src=bs.length? bs[bs.length-1] : null; }
   if(!src){ src=lc.waves.filter(w=>clean(w) && !w.boss && !w.piece).reduce((b,w)=>(!b || size(w)>size(b))? w : b, null) || lc.waves.filter(clean)[0] || null; if(horde) mul=HRD_BIG; }
   const rn=mul*(1+HRD_RAMP.n*(n-1));   // B2: THE RAMP rides every ordinary group (a boss stays one)
-  const groups=(src? src.groups : [{f:'column',t:'tanrifle',n:5,e:'right'}]).map(g=>Object.assign({}, g, (rn!==1 && g.f!=='boss')? {n:Math.max(1,Math.round((g.n|0)*rn))} : {}));
+  const groups=(src? src.groups : [{f:'column',t:'tanrifle',n:5,e:'right'}]).map(g=>smtGroup(Object.assign({}, g, (rn!==1 && g.f!=='boss')? {n:Math.max(1,Math.round((g.n|0)*rn))} : {})));   // CARD-SMT: a cheese-mice group comes as the Tan mortar battery
   const w={ groups, name:(src && src.name) || '', hrdN:n, hrdL:L };
   if(horde && src && src.boss) w.boss=true;
   return { w, hp:(lc.hpMul||1)*(n>100? 1+0.05*(n-100) : 1)*(1+HRD_RAMP.hp*(n-1)), rate:lc.rateMul||1, bossF:(lc.bossF!=null? lc.bossF : 0.5) };
@@ -71596,7 +71596,7 @@ function hrdSarge(){   // B2: Sarge seats himself in the yard by the box wheneve
 }
 function hrdFlank(n){   // B2 THE FLANKS (HRD-Q1 A): from HORDE 3 a party over the top or bottom rim each wave, a HORDE wave both — the wave's own infantry, a third of its count
   const w=S.cfg.waves[n-1]; if(!w) return;
-  const g=w.groups.find(x=>x.f!=='boss' && FDEF[x.t] && !FDEF[x.t].fly) || { t:'tanrifle', n:5 };
+  const g=w.groups.find(x=>x.f!=='boss' && FDEF[x.t] && !FDEF[x.t].fly && smtInf(x)) || { t:'tanrifle', n:5 };   // CARD-SMT: never the mortar battery (a tube at the rim is a statue inside its minRng)
   const sz=w.groups.reduce((a,x)=>a+(x.f==='boss'? 0 : (x.n|0)),0), k=Math.max(2, Math.round(sz*HRD_FLANK_K));
   const eds=(n%HRD_EVERY===0)? ['top','bottom'] : [(n%2)? 'top' : 'bottom'];
   for(const e of eds){ const i0=S.foes.length; spawnGroup({ f:'solo', t:g.t, n:k, e, k:n });
@@ -71800,6 +71800,17 @@ function hrdHudLine(){
   if(S.wave%HRD_EVERY===0 && (S.sq.t-S.hrd.pushT)>=hrdGapOf(S.wave+1)) return tf('BREATHER · WAVE %1 IN %2S', S.wave+1, left);   // CARD-STW: the band's gap (hrdGapOf), not the old 30
   return tf('WAVE %1 · NEXT IN %2S', S.wave, left);
 }
+// ═══ CARD-SMT SURVIVAL MODE: THE TAG CUT + THE MORTARS FOR THE MICE (design/survival-mortars-tags-1015/00-BUILD-SMT.md; Wyatt 10/15/2026 00:48 EDT from his phone, dictated, verbatim:
+// "Reduce the amount of dogtags you get from the survival mode by 70%. Have the enemies utilize the mortar instead of the cheese mice"). THE TAG CUT: every tag a survival run mints passes smtTagV
+// (the kill's dog tag in foeFell, the faucet's pour in update) and lands at ×SMT.tagX, the rounding's remainder carried on S.hrd.tagRem so a run's sum is the cut exactly (a 5-tag rifleman pays 1, 2, 1, 2 …);
+// hrdEnd / hsvSave land the blobs as minted; identity on every rug that is not a survival run (hrdOn). THE MORTARS: the campaign's cheese mice (FDEF.wmouse, the INFESTATION! wave of levels 31, 37, 43, 86:
+// a solo group off the rim at 0.6 s ahead of the crawler floods, so survival waves 31 / 37 / 43 / 86 / 126 / 166 fielded 4..17 of them and hrdFlank sent a third of the wave over the rim AS MICE) come as
+// THE TAN MORTAR BATTERY (smtGroup: t tanmortar, f line, e right = the campaign's own MORTAR BATTERY row; the count ramped as the mice's was, the beat kept); the party over the rim is the wave's walking
+// infantry (hrdFlank skips the battery: a tube dropped at the rim inside its own minRng is a statue). Every other wave, the ramp, the flank's count, the clock, the guns byte-still. SMT.on 0 = the shipped game.
+const SMT={ on:1, tagX:0.3, mouse:'wmouse', mortar:'tanmortar' };   // ⚑ SMT-Q1 the cut's doors (the kills + the faucet; the hat's pour and the pets' digs stay) · Q2 the battery's entry (the right edge, a line) · Q3 the flank party (the crawlers, never the tubes)
+function smtTagV(v){ if(!(SMT.on && hrdOn())) return v; const H=S.hrd, x=v*SMT.tagX+(H.tagRem||0), r=Math.round(x); H.tagRem=x-r; return r; }   // one door for every tag a run mints: ×0.3 with the remainder carried (the run's sum is the cut exactly)
+function smtGroup(g){ return (SMT.on && g.t===SMT.mouse)? Object.assign(g, { t:SMT.mortar, f:'line', e:'right', smt:1 }) : g; }   // the mice's group (hrdWave's own copy) becomes the mortar battery: the count as ramped, the beat kept
+function smtInf(g){ return !g.smt; }   // the flank party's pick (hrdFlank): never the battery that stands for the mice
 function hrdEnd(){
   const n=S.wave|0, best=Math.max(META.hrdBest|0, n), isNew=n>0 && n>(S.hrd.best0|0);
   for(const b of S.blobs){ const v9=gtxTag(b.v); S.plastic+=v9; if(META.stats) META.stats.tags=(META.stats.tags|0)+v9; } S.blobs.length=0;   // B2: the tags still in the air land (the blob road's own sum) — the fort fell before they reached the purse
@@ -86164,7 +86175,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -116546,7 +116557,7 @@ function update(dt){
   if(S.sq && S.mode==='play' && !S.bf){
     S.tagT+=dt;
     if(S.tagT>=CAMP_TICK_EVERY){ S.tagT-=CAMP_TICK_EVERY;   // v1.40: three pours where there was one — “about three times faster income”
-      const pour=Math.round(((S.raid && S.raid.t==='u')? EV_TICK_U : CAMP_TICK)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()*rtxTagX()*gtxX());   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   /* CARD-FSQ: the faucet +9 % · CARD-RTX: x1 in a raid · CARD-TSZ: by the commanders at the table (S.sq.p) · CARD-GTX: x0.95 in a group */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the faucet is gated !S.bf) · 0842 THE FAUCET CUT (the ADDENDUM, Wyatt 9/5 ~9:57 pm: "okay- lets do it."): the ULTRA MEGA room pours EV_TICK_U 15 (0824-NIGHT poured CAMP_TICK+10 = 30); everywhere else the same 20 it always was · 0648 D2: the castle's third act pours ×ICE_P3_TAGX (30; the 'u' room 23, was 45) — this float prints the poured number · 0662: ×momP3TagX rides for the one-grammar law — her fight never pours (S.sq stays null at startMomRaid), so the mom factor is provably 1 wherever this line runs
+      const pour=smtTagV(Math.round(((S.raid && S.raid.t==='u')? EV_TICK_U : CAMP_TICK)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()*rtxTagX()*gtxX()));   /* CARD-SMT: ×0.3 in a survival run (smtTagV), identity everywhere else */   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   /* CARD-FSQ: the faucet +9 % · CARD-RTX: x1 in a raid · CARD-TSZ: by the commanders at the table (S.sq.p) · CARD-GTX: x0.95 in a group */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the faucet is gated !S.bf) · 0842 THE FAUCET CUT (the ADDENDUM, Wyatt 9/5 ~9:57 pm: "okay- lets do it."): the ULTRA MEGA room pours EV_TICK_U 15 (0824-NIGHT poured CAMP_TICK+10 = 30); everywhere else the same 20 it always was · 0648 D2: the castle's third act pours ×ICE_P3_TAGX (30; the 'u' room 23, was 45) — this float prints the poured number · 0662: ×momP3TagX rides for the one-grammar law — her fight never pours (S.sq stays null at startMomRaid), so the mom factor is provably 1 wherever this line runs
       S.plastic+=pour;
       S.floats.push({x:166, y:280, txt:'+'+pour, t:0, col:'#FFF3C4'});
     }
@@ -120445,7 +120456,7 @@ function foeFell(f,u){
       // law, and a five-jack rug must never be a plastic faucet. Every other
       // death still drops the dog tag exactly as it always has.
       if(!(u&&u.side==='jax') && !FS_NOBLOB && !f.def.bubbleOf && !f.def.mine)
-        S.blobs.push({x:f.x,y:f.y-8,v:Math.round(f.def.bounty*(f.bountyMul||1)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()),t:0});   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the campaign's mint never runs under S.bf) · their dog tag — your bounty (0426: a foe burned dead in ground fire pays NOBODY — fire belongs to nobody, 0404, now at the ledger's last door; a pit fall keeps its v2.71 tag) · 0648 D2: the castle's third act pays ×ICE_P3_TAGX (iceP3TagX — identity 1 everywhere else) · 0662 Card I: MOM'S ROUND 3 pays ×MOM_P3_TAGX (momP3TagX — identity 1 everywhere else, the same one-door law)
+        S.blobs.push({x:f.x,y:f.y-8,v:smtTagV(Math.round(f.def.bounty*(f.bountyMul||1)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX())),t:0});   /* CARD-SMT: ×0.3 in a survival run (smtTagV, the remainder carried), identity everywhere else */   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the campaign's mint never runs under S.bf) · their dog tag — your bounty (0426: a foe burned dead in ground fire pays NOBODY — fire belongs to nobody, 0404, now at the ledger's last door; a pit fall keeps its v2.71 tag) · 0648 D2: the castle's third act pays ×ICE_P3_TAGX (iceP3TagX — identity 1 everywhere else) · 0662 Card I: MOM'S ROUND 3 pays ×MOM_P3_TAGX (momP3TagX — identity 1 everywhere else, the same one-door law)
       if(f.type==='crawler'){ META.stats.crawlerKills++; }
       if(f.boss){
         // a boss goes down LOUD: shake, a burst of smoke, and a victory shout
