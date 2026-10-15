@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.17","md5":"2fca851168d694443a528a6778bc0b1c","sha":"68e81aa6b","at":"2026-10-15T15:59:36Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.18","md5":"cf310640177783addf7fa87a6186b5b4","sha":"d3285ce52","at":"2026-10-15T16:20:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -86366,7 +86366,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -160600,7 +160600,7 @@ function lagRig(o){ o=o||{}; if(o.on!==undefined){ LAG.on=o.on? 1 : 0; delete PA
   const k=document.getElementById('volcKey');
   return { on:LAG.on, dino:q('.lag-dino'), army:q('#lag-army'), dog:q('#lag-dog'), walkers:q('.lag-walker'), smil:q('.lag-walker animateTransform'), twk:q('.lag-twk'), plume:q('.lag-plume'), ptero:q('.lag-ptero'), strip:q('.lag-strip'),
     trikeAl:q('.lag-trike [id^="dpvAT"]'), skullAl:q('.lag-skull [id^="dpvAK"]'), rexAl:q('.lag-rex use[href="#dpvRexAl"]'), egg:q('.wdl'), old:q('.dpv-far')+q('.dpv-volc')+q('.dpv-gate')+q('#dinoPond')+q('.dpv-canopy'), sgp:q('.lag-dino .sgp'), raster:q('.lag-dino image'),
-    lock:k && k.parentNode? k.parentNode.getAttribute('transform') : null, volcHot:box('volcHot'), pondHot:box('pondHot'), pkRod:box('pkRod'), wf:lagWFRead(), fort:lagFortRead(), hall:lagHallRead() }; }   /* round C: + the field's read; round D: + the fort's; round E: + the halls' */
+    lock:k && k.parentNode? k.parentNode.getAttribute('transform') : null, volcHot:box('volcHot'), pondHot:box('pondHot'), pkRod:box('pkRod'), wf:lagWFRead(), fort:lagFortRead(), hall:lagHallRead(), lab:lagLabRead() }; }   /* round C: + the field's read; round D: + the fort's; round E: + the halls'; round F: + the lab's */
 // ROUND C · WINTER FIELD PASS 3 (Laura 10/15 10:24: "Winter Field pass 3: GO (deeper colour, softer blue, glacier + ice face out). PNG + SVG in the zip."): her file is CARD-PKX's export of the live field restyled; the diff
 // export → hers (kit/genLAGwf.py) = THE TABLE below, applied at the paint over wfPaperSVG's and wfMoversSVG's strings (roomFloorSVG + roomSVG0, before CARD-PKO's outline pass): 70 colour changes keyed by the element's
 // own geometry (the first 48 chars of d / points, cx cy r, the rect's size, or the gradient's id + the stop's index; the painted value set on the element itself: the export read the computed colour), the glacier group
@@ -160645,6 +160645,12 @@ function lagFortRead(){ const bg=document.getElementById('fortBg'), sv=bg? bg.qu
 if(lagOn()){ SGP_SCREENS['raid-chess']=1; SGP_SCREENS['raid-xmasbox']=1; SGP_FREEZE['raid-chess']=['chs2-pc']; }   // the chess pieces (Sarge, the king, the men: figures) frozen; the squares keep their classes (no panel on a classed shape)
 function lagHall(s,id){ return lagOn()? sgpSVG(s,id) : s; }   // chsRenderScene / xmasRenderScene: the hall's painting through the pass
 function lagHallRead(){ const bg=document.getElementById('raidBg'), sv=bg? bg.querySelector('svg.rhero') : null; if(!sv) return null; const q=s=>sv.querySelectorAll(s).length; return { raid:typeof RAID_CUR==='string'? RAID_CUR : null, sgp:q('.sgp'), defs:q('.sgp-defs') }; }
+// ROUND F · FLOOP'S LAB IN THE DINO PARK STYLE (Laura 10/15 10:45: "every park, room, lobby, store, menu screen"): the lab's hall is a menu built of pictures, every one baked by flhURI(k, svg) from an svg string (the brushed
+// frame, each room's wall and front, the leaf on each door, the arm in the porthole, the tank, the end wall). The style pass (CARD-SGL's sgpSVG: her rule 1 the outlines, her rule 2 the tonal panels; its defs inside each
+// picture's own svg) runs over the svg string at that one choke point, as the screen 'lab', under this card's gate; a picture is baked once a session, so the gate is read once. ?lag=0 or ?sgp=0 = the lab as it was.
+if(lagOn()) SGP_SCREENS.lab=1;
+function lagLab(s){ return lagOn()? sgpSVG(s,'lab') : s; }   // flhURI: the picture's svg through the pass before it is baked
+function lagLabRead(){ const p=document.getElementById('shLab'); if(!p) return null; const im=Array.from(p.querySelectorAll('img')); const n=im.filter(i=>/sgp/.test(i.getAttribute('src')||'')).length; return { imgs:im.length, passed:n, keys:Object.keys(FLH_URI).length }; }
 // ═══ END CARD-LAG ═══
 // ═══ CARD-GPP GNOME PARK ON EVERY PHONE (board J2; Wyatt's go 10/2/2026 14:23 EDT on CARD-DSK's ⚑ DSK-F1): the four glowing toadstools on the lawn's front edge (TOAD_XY 94 · 500 · 1100 · 1506) are Merlin's door,
 // tapped right to left. THE CROP LAW slices a phone at 1.9:1 and wider, so an 18:9 phone (720 x 360 = 2.0:1) saw x 150..1450 and lost both outer toadstools whole (Merlin out of reach), and his own 19.5:9 phone
@@ -166945,7 +166951,7 @@ function labShapeHTML(id){ const inf=ENH_INFO[id], L=META.lab, job=L.job===id, p
 // The bay's still parts are BAKED (one picture each, once a session: the Moon door's lesson, a wall of molds is a still only when it is baked); the movers stay small, on transform and opacity where they are boxes. The session state rides SHOP (flhV the visit · flhX the hall's seat · flhSel his tap · flhCue a part just switched on · flhWas hall|room · flhKey the room last painted · flhAnim the walk's pending beat · flhList / flhAt the show), never saved.
 const FLH_INK='#171512', FLH_ZOOM=3.6, FLH_URI={};
 function flhF1(n){ return (Math.round(n*10)/10).toString(); }
-function flhURI(k, svg){ return FLH_URI[k] || (FLH_URI[k]='data:image/svg+xml;utf8,'+encodeURIComponent(svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '))); }   // a still baked ONCE a session into one picture (k = its name; the saber's colour rides the name)
+function flhURI(k, svg){ return FLH_URI[k] || (FLH_URI[k]='data:image/svg+xml;utf8,'+encodeURIComponent(lagLab(svg).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '))); }   /* CARD-LAG round F (Laura): every lab picture through the style pass before it is baked */   // a still baked ONCE a session into one picture (k = its name; the saber's colour rides the name)
 function flhLeafSVG(gold){ const A=gold? ['#F7DC83','#E9BE4B','#C99A2E','#9A7420','#7A5A14','#FFF3C4'] : ['#EE5046','#DC3A31','#C42B24','#A2211B','#7E1712','#F6A9A2'];   // the door's leaf: the drawers' red steel stood up (their gradient, their gloss), rivets, the porthole (the silver ring, the navy glass, the teal up-light), a kick plate; HEROES in gold
   let riv=''; for(let y=52;y<=250;y+=33) riv+='<circle cx="21" cy="'+y+'" r="2.3"/><circle cx="179" cy="'+y+'" r="2.3"/>';
   let port=''; for(let i=0;i<8;i++){ const a=Math.PI/8+i*Math.PI/4; port+='<circle cx="'+flhF1(100+50.5*Math.cos(a))+'" cy="'+flhF1(92+50.5*Math.sin(a))+'" r="2.1" fill="#EEF2F5" stroke="#4E545A" stroke-width=".8"/>'; }
