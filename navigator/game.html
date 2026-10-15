@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.19","md5":"cd563431dab251ac7da28d14f8127c63","sha":"d57e813b1","at":"2026-10-15T16:33:21Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.20","md5":"0dad342fbad12205b974a94c6c287ad2","sha":"37f25830c","at":"2026-10-15T16:41:34Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -54267,7 +54267,7 @@ META.rackSeen=Array.isArray(META.rackSeen)? META.rackSeen.filter(x=>typeof x==='
   META.sargeUp = Object.assign({}, META.sargeUp||{});
   if(META.sargeUp.pistol==null) META.sargeUp.pistol = ((META.up||{}).sarge)|0;
 })();
-function saveMeta(){ try{ localStorage.setItem('gvt_meta', JSON.stringify(tlzReal())); }catch(e){} uiKSync(); }   /* CARD-TLZ: while the loaner is out the REAL save is what lands on disk (tlzReal) */   // 0628 BIG BUTTONS: the factor follows the save (a campaign advance saves at the verdict, the sync merge, the seated co-op write)
+function saveMeta(){ try{ localStorage.setItem('gvt_meta', JSON.stringify(META)); }catch(e){} uiKSync(); }   // 0628 BIG BUTTONS: the factor follows the save (a campaign advance saves at the verdict, the sync merge, the seated co-op write)
 // LANGUAGE IS SETTLED BEFORE THE FIRST PIXEL. ?lang= beats the save, the save
 // beats the phone, the phone beats English — and ?l10n=audit turns on the
 // miss recorder, which is how 'every player-facing string' gets MEASURED.
@@ -54463,7 +54463,7 @@ function accDeal(html, bk){ let el=document.getElementById('accPage'); if(!el){ 
   el.innerHTML='<div class="rmback acc-top"><div class="rmcard acc-card"><button class="rmx" onclick="'+bk+'()">✕</button>'+html+'</div></div>';
   if(!ACC.w) ACC.w=setInterval(()=>{ try{ if(S.mode!=='menu' && ACC.face!=='bye') accShut(); }catch(e){} }, 500); }   // a battle that starts under it (a squad's pull, a knock taken) is never covered
 function accShut(){ const el=document.getElementById('accPage'); if(el) el.remove(); if(ACC.w){ clearInterval(ACC.w); ACC.w=0; } }
-function accSnap(){ try{ return META.account? '' : JSON.stringify(tlzReal()); }catch(e){ return ''; } }   // the guest army as it stood BEFORE a sign-in adopts it
+function accSnap(){ try{ return META.account? '' : JSON.stringify(META); }catch(e){ return ''; } }   // the guest army as it stood BEFORE a sign-in adopts it
 function accHasPlay(raw){ try{ const m=JSON.parse(raw); return !!m && ((m.campaign|0)>0 || (m.starsLifetime|0)>0 || (m.lvl|0)>1 || (m.starBank|0)>0); }catch(e){ return false; } }
 function accMe(){ return crewPost('poll', {}).then(r=>(r && r.ok && typeof r.me==='string' && r.me)? r.me : ''); }   // no st = no presence stamp: HQ just says whose this device is
 function accOpen(from){ ACC.face=''; ACC.err=0; ACC.busy=0; ACC.from=from||''; try{ SFX.blip(); }catch(e){} try{ UI.closeModal(); }catch(e){} accDeal(accHTML(), 'accClose'); }
@@ -54523,7 +54523,7 @@ function accOutGo(){
   acsOut().then(accMe).then(me=>{   // CARD-ACS: the latest army goes to HQ first (5 s at most; HQ dark never blocks the sign-out)
     if(!me) throw new Error('no uid');
     const A=accLoad();
-    A.u[me]={ m:JSON.stringify(tlzReal()), n:String(META.name||''), p:String(META.account), a:String(META.avatar||''), t:Date.now() };
+    A.u[me]={ m:JSON.stringify(META), n:String(META.name||''), p:String(META.account), a:String(META.avatar||''), t:Date.now() };
     if(!accStore(A)) throw new Error('stash');
     const g=A.g; let next=null;
     if(g && typeof g.m==='string'){ try{ next=JSON.parse(g.m); }catch(e){ next=null; } }
@@ -54755,7 +54755,7 @@ function ngpPlay(k){
     .catch(()=>{ ngpUnstash(me); ngpUnhold(); NGP.busy=0; NGP.face='seats'; NGP.err='HQ UNREACHABLE. CHECK BACK AFTER THE NEXT PATROL'; ngpPaint(); });
 }
 // the shelf (CARD-ACC's gvt_accts.u, by HQ uid; + s = the seat) — written and READ BACK before HQ moves the device.
-function ngpStash(me){ if(!me) return false; const A=accLoad(); A.u[me]={ m:JSON.stringify(tlzReal()), n:String(META.name||''), p:String(META.account||''), a:String(META.avatar||''), t:Date.now(), s:NGP.seat|0 }; return accStore(A); }
+function ngpStash(me){ if(!me) return false; const A=accLoad(); A.u[me]={ m:JSON.stringify(META), n:String(META.name||''), p:String(META.account||''), a:String(META.avatar||''), t:Date.now(), s:NGP.seat|0 }; return accStore(A); }
 function ngpUnstash(me){ const A=accLoad(); if(A.u[me]){ delete A.u[me]; accStore(A); } }
 function ngpHold(){ NGP.ls=lastSync; lastSync=Date.now()+864e5; }   // no sync of this Sarge leaves while the device moves
 function ngpUnhold(){ lastSync=NGP.ls; }
@@ -54839,7 +54839,7 @@ function acsPush(why){
   return acsSend(L, st, why);
 }
 function acsTick(){ try{ if(document.hidden) return;
-  if(ACS.on && META.account && !ACS.hold && !ACS.gone && S.mode==='menu' && saveMeta===ACS_SAVE0 && !ACC.busy && !NGP.busy && acsPend(acsLoad()) && Date.now()-ACS.at>ACS_GAP){ ACS.at=Date.now(); acsAfter(ACS.pre!==null? ACS.pre : JSON.stringify(tlzReal())); return; }   // HQ was dark at the sign-in: ask again, in the room only
+  if(ACS.on && META.account && !ACS.hold && !ACS.gone && S.mode==='menu' && saveMeta===ACS_SAVE0 && !ACC.busy && !NGP.busy && acsPend(acsLoad()) && Date.now()-ACS.at>ACS_GAP){ ACS.at=Date.now(); acsAfter(ACS.pre!==null? ACS.pre : JSON.stringify(META)); return; }   // HQ was dark at the sign-in: ask again, in the room only
   acsPush('tick'); }catch(e){} }
 // THE SIGN-OUT (accOutGo, BEFORE the stash): the latest army goes to HQ first (an in-flight push finishes, then this one; 5 s at most, HQ dark never blocks the sign-out)
 function acsOut(){
@@ -56227,7 +56227,7 @@ const CMDO={
 // beside a live enemy) is gone; dmg/rng untouched — pace, not power.
 // Dial: GVT.cmdoRepose(s). Session-local on purpose (the v2.88 law).
 let CMDO_REPOSE=0.2;
-function cmdoOwned(){ return META.campaign>=CMDO_LVL || !!(TLZ && TLZ.live); }   /* CARD-TLZ: the loaner's commando (his platoon has one; the campaign level is never lent) */
+function cmdoOwned(){ return META.campaign>=CMDO_LVL; }
 // ===== v2.42 THE SPY (Wyatt 8/5, voice — verbatim in the commit): the hidden
 // tenth man, DISCOVERED not bought — own the magic lens, carry the little
 // glass across the room, and hover it over the bed. Ownership is one bit
@@ -86366,7 +86366,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -97437,7 +97437,7 @@ function endBattlefield(reason, fromRelay){
     return;
   }
   bf.resolved=true; bf.ending=false; S.slowmo=1; S.drag=null; S.pan=null;
-  if(bf.opener){ tlzReturn(); META.opener=1; if(coach) coachDone(); }   // CARD-TLZ: the loaner goes back FIRST, so the verdict's writes land on the real save   // CARD-OP: the opener is fought (win or loss — the title's door reads it); the boot camp graduates here (endBattle's own one-battle law)
+  if(bf.opener){ META.opener=1; if(coach) coachDone(); }   // CARD-OP: the opener is fought (win or loss — the title's door reads it); the boot camp graduates here (endBattle's own one-battle law)
   sqNoteClear();   // 0322: the room family's verdict seam — the rejoin note dies with the match
   commClear();   // a comm must never survive onto the verdict screen (v1.41)
   { const gw9=gaWalkPov(reason); if(gw9) reason=gw9; else if(bfMyTeam()==='foe') reason=BF_FLIP[reason]||reason; }   // CARD-FOD: a torch room's walk word is the role's (the one who stayed wins), every other word flips by side as before
@@ -149098,7 +149098,6 @@ function tlfSay(line){   // Sarge's line in the yard: the gear lesson's slim con
 function tlfSaySeat(){ const el=TLT.say; if(!el) return; const nc=document.querySelector('#fortscene .fh-namecol'), r=nc? nc.getBoundingClientRect() : null; el.style.top=((r && r.height>0 && r.bottom<window.innerHeight*0.4)? Math.round(r.bottom+6) : 8)+'px'; el.style.left='50%'; }
 window.tlfProbe=function(){ return { on:TLT.on, leg:TLT.leg, arm:TLT.arm, at:TLT.at, say:TLT.sayK, door:tlfDoor(), lines:tlfLines(), shelf:flxShelfOn() }; };
 function showMenu(){
-  tlzReturn();   // CARD-TLZ: the loaner never survives the door home
   LAND_N++;   // CARD-TP THE TOUR'S PACING: a landing (the tour's beats come one a landing — tourEndDue · labBeatDue read it)
   awayForfeit();   // 0393: an unresolved away battle folded at the door = the L on the record (the day burned at the serve; ⚑ forfeit rule)
   if(S.mode==='play'||S.mode==='win'||S.mode==='lose') themeHome();   // CARD-BMR2 THE BEDROOM'S THEME COMES BACK AFTER A FIGHT (design/bedroom-music-1001/01-BUILD-BMR2.md; WYATT 10/1/2026 18:03, his word on ⚑ BMR-Q1: "Bring the theme back after fights too? Mine: yes, so the bedroom always plays its song when you arrive." = "Yes, and go with recommended for each"): A FIGHT'S WAY HOME IS A LANDING TOO. The mode this door finds before it writes 'menu' below names the road (play = a retreat mid-fight · win / lose = a verdict; title = the boot and menu = the room never knock): the ✕'s own knock, one tick later (themeHome → themeRevive, every guard whole), so the bedroom's floor, or glass over it, plays the theme from its first note, ONE 74 s pass, no loop (⚑ BMR-Q4: no loop), and a landing that opens a park, a lobby or a land in the same breath asks the decoder for nothing
@@ -179979,28 +179978,8 @@ function tsnRig(o){ if(o && o.on!==undefined) TSN.on=o.on? 1 : 0;   // the rig d
   const bf=S.bf, t=S.cfg&&S.cfg.terrain;
   return { cv:GVT_CV, on:TSN.on, opener:!!(bf&&bf.opener), mapId:bf? bf.mapId : null, ground:t? (t.ground||'') : null, rivers:t? (t.rivers||[]).map(r=>({ x:r.x, w:r.w, bridges:(r.bridges||[]).map(b=>b.y) })) : null,
     rocks:t? (t.rocks||[]).map(r=>({ x:r.x, y:r.y, r:r.r, art:r.art||'', chain:r.chain||'' })) : null, flakes:(t&&t.flakes)? t.flakes.length : 0, duck:!!(t&&t.riverDuck), light:(typeof lightField==='function')? !!lightField() : null }; }
-// ═══ CARD-TLZ SARGE'S LOANER KIT (design/tutorial-loadout-1015/00-CARD-TLZ.md). ISAAC's guest note 10/15/2026 12:01 EDT, verbatim: "Let's run a new design pass for the tutorial loadout. Instead of it being
-// basic level 1 stuff, let's base it off of Zorgy Baba's deck right now. … the goal is to show the players what they can have eventually and make the game a lot more of a hook off the bat. Run that."
-// THE OPENER ALONE (startOpener's call): the new player's first fight deals ZORGY BABABA's deck as it stood 10/15/2026 10:43 EDT (TLZ_DECK, cut from his cloud save: the ranks, the platoon, the Claymore and
-// his crystal, the worn pieces, the lit Lab parts, the pet, the hero in command, the jet, the rides). tlzLend swaps THOSE keys of META for the fight and keeps the real ones (TLZ.bak), so every dealer and
-// reader (bfTray, aplSix, sargeStats, sargeOfList, petSel, heroSel, jetOwned, enhOn, vehHas, dfOwned, placeUnit's rank stamp) answers the loaner untouched; the purse opens to TLZ.purse after the mint.
-// THE REAL SAVE NEVER MOVES: saveMeta and every JSON.stringify of the save write tlzReal() (the real keys over the loaner's); the loaner goes back at the verdict (endBattlefield, before META.opener and the
-// tallies), at the door home (showMenu) and on a mint that throws. The army stays green (dyeOn is not lent). The gate: ?tlz=0 on the game's address turns a device off (gvt_tlz '0'), ?tlz=1 clears it.
-// Zero words, zero css, zero server, zero wire, zero save keys of its own. The rig door: GVT.tlz({ on, purse, lend, ret }).
-const TLZ={ on:(function(){ try{ const q=/[?&]tlz=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tlz','0'); else localStorage.removeItem('gvt_tlz'); } return localStorage.getItem('gvt_tlz')==='0'? 0 : 1; }catch(e){ return 1; } })(), live:0, bak:null, purse:1000 };   // THE GATE, LIVE FOR EVERY NEW PLAYER · purse: the opener's wallet while the loaner is out (BF_START 210 never buys the Emperor at 400)
-const TLZ_DECK={"aplBench":"","aplBmb":1,"aplCap":10,"aplDf":1,"aplOrd":1,"cmdKey":0,"coopLevels":[1,2,3,4,5,6,10,16,17,18,19,20,21,24,25,26,27,28,29,30,31,33,34,35,36,37,38,39,40,41,42,44,45,46,47,48,49,50,51,53,54,55,56,57,58,62,63,64,65,67,68,69,71,72,73,74,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100],"elderSab":1,"enh":{"on":["jumptank","riotshield","aerial","stormcoil","telekinesis","guardianshotgun","flamestrike","renegadepistol","medicshield","emperorsblade","gotime","smokypowder","ambush","longeye","stride","cannon","lightarrow","medicrifle","reunited","golddetector","bigbangers","bakerrifle","foxhole","bombpack","gravgun","buddyshield","bigpop","bigpapa","jetboots","aces","arabesquemod","reveriemod","propshot","iceblade","redmines","larsonradio","janehk","penetrate","paperdecoy","flamestrike2","skeetsight","heatseeker","stakeshot","thecrank","doubletap","impeng","mindcontrol","pararescue","ocrocket","gigacannon","pocketdome","thegrab","trenchkit","smokegrenade","goldengun","heavyartillery"],"own":["bigbangers","jumptank","riotshield","dualgun","aerial","longtube","stormcoil","buddyshield","foxhole","gravgun","telekinesis","outlawsniper","guardianshotgun","renegadepistol","flamestrike","medicshield","ambush","bakerrifle","emperorsblade","gotime","smokypowder","eldersaber","smuggler","longeye","unarmed","flameblade","stride","cannon","medicrifle","lightarrow","golddetector","iceblade","freezebeam","intelligence","reunited","bigpapa","bombpack","bigpop","cougar","jetboots","aces","arabesquemod","reveriemod","propshot","janehk","redmines","larsonradio","penetrate","paperdecoy","skeetsight","flamestrike2","heatseeker","stakeshot","thecrank","doubletap","impeng","mindcontrol","pararescue","frankbolt","ocrocket","gigacannon","pocketdome","thegrab","fullsquad","trenchkit","smokegrenade","goldengun","heavyartillery"]},"gearUnlocked":["jetpack"],"heroSel":"kingbear","highBlade":1,"jetEng":1,"jetLvl":7,"jetV2":1,"laserOn":"teal","outfit":{"own":["mustache","belt","helmet","safarihat","snowhat","snowjacket","explorervest","snowboots","explorerboots","banditmask","cowboy","poncho","spurs","sheriffbadge","kingcrown","scout","advhat","furryhat","sheriffhat","muskboots","khakis","snowpants","chaps","cargopants","musksash","muskpads","efhelmet","efarmor","kingbearhat","muskarmor","fuzzyhat","muskhelmet","pajamapants","elitepants","monocle","fancybelt","eyepatch","dogglasses","scouter","princecrown","corsage","gnomebelt","gnomebeard","steelboots","aviators","tinfoilhat","gnomeboots","rockerhair","captainhat","icehood","iceplate","icegreaves","bodyarmor","iceboots","champhelm","champgreaves","champplate","champboots","champpatch","handlerhat","pharaohhelmet","marshalcap","pumpkin","gnomecap","skygoggles","santahat","pilotgloves","reactivegreaves","duelglove","acegloves","honkhorn","kingchest","nemesisboots","infilset","footwraps","headwraps","bodywraps","legwraps","luckysocks","sqtunic","chefhat","hoverboots","robovisor","sniperhat","sqboots"],"wear":["corsage","sheriffbadge","champpatch","honkhorn","gnomebelt","nemesisboots","captainhat","mustache","pilotgloves","legwraps","skygoggles","kingchest","muskpads","musksash"]},"pet":{"coat":{"bilbo":0,"bishop":0,"calvin":1,"coyote":0,"flappy":0,"floop":0,"francis":1,"hunter":0,"knight":1,"merlin":0,"nutcracker":1,"otto":0,"patch":0,"puff":3,"rook":0,"sandwiches":0,"slush":0,"smash":0,"snatch":0,"sugarplum":0,"tiny":3,"tiptoe":0,"witchpet":3},"mig":2,"name":{"bilbo":"","bishop":"","calvin":"","coyote":"","flappy":"","floop":"","francis":"","hunter":"","knight":"","merlin":"","nutcracker":"","otto":"","patch":"","puff":"","rook":"","sandwiches":"","slush":"","smash":"","snatch":"","sugarplum":"","tiny":"","tiptoe":"","witchpet":""},"own":{"bilbo":1,"bishop":1,"calvin":1,"coyote":1,"flappy":1,"floop":1,"francis":1,"hunter":1,"knight":1,"merlin":1,"nutcracker":1,"otto":1,"patch":1,"puff":1,"rook":1,"sandwiches":1,"slush":1,"snatch":1,"tiny":1,"tiptoe":1,"witchpet":1},"path":{"bilbo":"tags","puff":"bellows"},"rebase":{},"rung":{"bilbo":{"n":5,"pend":0},"bishop":{"n":0,"pend":0},"calvin":{"n":2,"pend":0},"coyote":{"n":10,"pend":0},"flappy":{"n":1,"pend":0},"floop":{"n":3,"pend":0},"francis":{"n":4,"pend":0},"hunter":{"n":0,"pend":0},"knight":{"n":1,"pend":0},"merlin":{"n":3,"pend":0},"nutcracker":{"n":0,"pend":0},"otto":{"n":1,"pend":0},"patch":{"n":1,"pend":0},"puff":{"n":6,"pend":0},"rook":{"n":0,"pend":0},"sandwiches":{"n":0,"pend":0},"slush":{"n":5,"pend":0},"snatch":{"n":1,"pend":0},"tiny":{"n":1,"pend":0},"tiptoe":{"n":1,"pend":0},"witchpet":{"n":1,"pend":0}},"seen":{"bilbo":1,"bishop":1,"calvin":1,"coyote":1,"flappy":1,"floop":1,"francis":1,"hunter":1,"knight":1,"merlin":1,"nutcracker":1,"otto":1,"patch":1,"puff":1,"rook":1,"sandwiches":1,"slush":1,"snatch":1,"tiny":1,"tiptoe":1,"witchpet":1},"sel":"calvin","team":{},"xp":{"bilbo":1108,"bishop":17,"calvin":230,"coyote":3505,"flappy":213,"floop":648,"francis":926,"hunter":22,"knight":103,"merlin":497,"nutcracker":62,"otto":104,"patch":152,"puff":1583,"rook":0,"sandwiches":59,"slush":265,"smash":0,"snatch":159,"sugarplum":0,"tiny":137,"tiptoe":196,"witchpet":97}},"platoon":["rifleman","mgunner","bazooka","radioman","commando","minesweeper","dogfighter","mortar","grenadier","medic"],"platoonMet":["rifleman","mgunner","bazooka","mortar","grenadier","minesweeper","flame","radioman","medic","commando","spy","bfjeep","bftank","dogfighter","bomber"],"saberColor":"#C8CDD6","saberColor2":"#FFE14D","saberMix":1,"sargeUnlocked":["shotgun","sniper","lightsaber"],"sargeUp":{"commander":52,"lightsaber":54,"pistol":100,"shotgun":27,"sniper":26},"sargeWeapon":"commander","sky":{"e":1,"g":1,"h":1,"m":1},"soul":"u:sarge","unlocked":["rifleman","mgunner","bazooka","mortar","sarge","minesweeper","flame","radioman","medic","jane","kingyeti","kingrex","kingcroak","kingbear","princess","grenadier"],"up":{"bazooka":53,"commando":23,"flame":41,"flappy":1,"grenadier":16,"jane":31,"kingbear":100,"kingcroak":33,"kingrex":97,"kingyeti":51,"medic":88,"mgunner":54,"minesweeper":21,"mortar":52,"patch":2,"princess":10,"radioman":27,"rifleman":51,"sarge":100,"spy":20},"vehOwned":["bfjeep","bftank","jeep2","tank2"],"vehUp":{"bfjeep":8,"bftank":8,"bomber":5,"dogfighter":8}};   // his save of 10/15/2026 10:43 EDT (uid 6704ece1082bff05, cv 23.09): the deck keys alone, cut by build-tlz/cutTLZ.py
-function tlzOn(){ return !!TLZ.on; }
-function tlzLend(){ if(!tlzOn() || TLZ.live) return false; const bak={}; for(const k in TLZ_DECK){ bak[k]=META[k]; META[k]=JSON.parse(JSON.stringify(TLZ_DECK[k])); } TLZ.bak=bak; TLZ.live=1; return true; }   // the real keys kept aside; the loaner's are COPIES (a pet's XP by doing lands on the copy and goes back with it)
-function tlzReturn(){ if(!TLZ.live) return false; const bak=TLZ.bak||{}; for(const k in TLZ_DECK){ if(bak[k]===undefined) delete META[k]; else META[k]=bak[k]; } TLZ.bak=null; TLZ.live=0; return true; }   // idempotent: the verdict, the door home, a mint that throws
-function tlzPurse(){ if(TLZ.live && S.bf && S.bf.opener) S.plastic=TLZ.purse; }
-function tlzReal(){ if(!TLZ.live) return META; const m=Object.assign({}, META), bak=TLZ.bak||{}; for(const k in TLZ_DECK){ if(bak[k]===undefined) delete m[k]; else m[k]=bak[k]; } return m; }   // what the disk and the wire see while the loaner is out: the save as it really is
-function tlzRig(o){ o=o||{}; if(o.on!==undefined) TLZ.on=o.on? 1 : 0; if(o.purse!==undefined) TLZ.purse=o.purse|0; if(o.lend) tlzLend(); if(o.ret) tlzReturn();
-  let st=null; try{ const m=JSON.parse(localStorage.getItem('gvt_meta')||'null'); st=m? { upRifle:(m.up&&m.up.rifleman)|0, unlocked:(m.unlocked||[]).length, heroSel:m.heroSel||null, enhOn:((m.enh&&m.enh.on)||[]).length, sw:m.sargeWeapon||null, opener:m.opener|0 } : null; }catch(e){}
-  let sw=null; try{ const b=sargeStats(); sw={ w:b.w, r:b.r }; }catch(e){}
-  let pk=null, plv=null; try{ pk=petSel(); plv=pk? petLv(pk) : null; }catch(e){}
-  return { cv:GVT_CV, on:TLZ.on, live:TLZ.live, purse:TLZ.purse, keys:Object.keys(TLZ_DECK).length, opener:!!(S.bf&&S.bf.opener), plastic:S.plastic, tray:(S.bf? bfTray() : null), upRifle:(META.up&&META.up.rifleman)|0, sw, hero:heroSel(), pet:pk, petLv:plv, jet:jetOwned(), labOn:((META.enh&&META.enh.on)||[]).length, unlocked:(META.unlocked||[]).length, stored:st }; }
 let OP_ARM=0;              // the door's word to startBattlefield (session-only): the S.bf mint reads it once
-function startOpener(){ OP_ARM=1; tlzLend(); try{ startBattlefield(OPENER_MAP, null, 1, null, ARMIES.find(a=>a.id==='tan')||ARMIES[2]); tlzPurse(); } catch(e){ tlzReturn(); throw e; } finally { OP_ARM=0; } }   /* CARD-TLZ: SARGE'S LOANER KIT lent before the mint, the purse opened after it, back at the verdict (tlzReturn) */   // ⚑ Q2: THE TAN ARMY every time
+function startOpener(){ OP_ARM=1; try{ startBattlefield(OPENER_MAP, null, 1, null, ARMIES.find(a=>a.id==='tan')||ARMIES[2]); } finally { OP_ARM=0; } }   // ⚑ Q2: THE TAN ARMY every time
 function titleClickEat(){   // CARD-FF FF-09 THE RETURN VISIT'S PRESS START (BH-ROOKIE-02): the door opens the ROOM inside the tap's pointerdown, so that tap's own CLICK (a touch's click is aimed where the finger lifts) landed on whatever door of the new room lay under the thumb: the wall's WALLPAPERS, a shelf, a rug tile, and Sarge's campaign line never came. That ONE click is eaten (tourClickEat's grammar), its clock started when the finger LIFTS (a slow thumb outlasts a 400 ms clock from the press); a NEW pointerdown disarms it, so the kid's next tap is his own
   let tm=0;
   const off=()=>{ clearTimeout(tm); document.removeEventListener('click', eat, true); document.removeEventListener('pointerdown', off, true); document.removeEventListener('pointerup', up, true); document.removeEventListener('pointercancel', up, true); };
@@ -182821,7 +182800,6 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
-  tlz(o){ return tlzRig(o); },   // CARD-TLZ: the loaner's rig door
   sgd(){ return sgdRig(); },   // CARD-SGD THE SHOTGUN DOOR: the bay's read (the leaf, the face, the life, the movers' clocks; read-only)
   fwd(){ return fwdRig(); },   // CARD-FWD THE WALL IS THE DOOR + THE STAR PURSE: the wall's box, the purse, the valance (read-only)
   bst(){ return bstRig(); },
@@ -183432,7 +183410,7 @@ window.GVT = {
   mvDayState(){ return { latch:META.mvDay||0, due:mvDayDue(), quiet:mvDayQuiet(), staged:!!MVDAY.tid, armed:MVDAY.armed|0, hand:MVDAY.hand? (MVDAY.geo||true) : false, glove:FHAND.ok, handEl:!!document.getElementById('mvHand'), dest:SHIP_DEST, trv:SHIPTRV, cur:roomCur(), ride:mvDayRide() }; },   // 0568: + ride = the ride the hand would press · 0528: the moving-day stager, for the battery's eyes · 0566: glove = the FHAND bake landed; hand = the standing glove's {w,h,k,tip:[x,y]} (true when it stands bare — the !FHAND.ok ring)
   paintState(){ return { owed:paintRiteOwed(), open:paintRiteIsOpen(), lvl:PAINT_GIFT_LVL, dyes:(META.dyes||[]).slice(), on:META.dyeOn||null, gift:META.dyeGift||null, price:dyePrice(), paid:dyePaid(), base:DYE_BASE, step:PAINT_ESCALATOR, sel:PAINTRITE.sel===undefined? null : PAINTRITE.sel }; },   // 0529: the paint ceremony + the escalator's paid read, for the battery's eyes
   rdecState(){ return JSON.parse(JSON.stringify({ cur:roomCur(), rooms:ownedRooms(), rdec:META.rdec, pos:META.roomPosR, seen:META.rdecSeen, ship:META.rdecShip, v:META.rdecV||0, trv:SHIPTRV })); },   // 0330a: the room-linked floor, for the battery's eyes
-  meta(){ return JSON.parse(JSON.stringify(tlzReal())); },
+  meta(){ return JSON.parse(JSON.stringify(META)); },
   // v2.59 THE REWARDED TV rig — state read, the day-stamp seeder (rollover
   // legs), and the placeholder's two exits. finish/abort drive the SAME
   // adTeardown the timer and the ✕ use, so a battery proves the real road
