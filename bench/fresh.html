@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"22.98","md5":"c2ec38829ec8e1f76ae48da40617aad2","sha":"0e0bdb5e7","at":"2026-10-15T04:35:43Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"22.99","md5":"1cc2366138c8e1ab3b45bbf996f93d3a","sha":"304d67aa1","at":"2026-10-15T04:39:29Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -85836,7 +85836,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.98';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -102283,6 +102283,18 @@ function saberNext(u,sw,r9){
   for(const f of S.foes){ if(f.burrow||f.x>W-10||f.pendDie) continue; if((f.def.fly||f.skyDrop) && !hrtS3Grd(f)) continue; /* CARD-SF THE AIR LAW: the blade hunts no plane, no man under a chute */ /* CARD-HRT-S3: THE WRECK on the roof it does */ const d=Math.hypot(f.x-u.x,f.y-u.y); if(d<bd){bd=d;best=f;} }   // 0927 THE BLADE HONOURS THE RIM (Wyatt 9/10: "the saber sarge just kills the half offscreen enemies over and over … the enemy is not firing back"): W-6 → W-10 = the guns' own rim — a man past it has no gun yet by law (66845's f.x<W-10 gates), so the blade waits for him too   // 0559 B: a sliver-held foe draws no dash
   return best;
 }
+// ═══ CARD-SSP · THE WALK-HOME BOUNCE (10/15/2026, from Wyatt on Discord 00:05 EDT, verbatim: "We are still getting Sarge spasms. We're getting them on every map. Clearly, our investigation didn't go far enough." + his clip: THE LAVA FIELD, his claymore Sarge in the open, no rock near him, facing E,E,W,W at 30 turns a second while his health bar jumps between two spots ~13 px apart) ═══
+// THE FINDING (design/sarge-spasm-1014 §5): four dash machines walk home with a step that is never cut to the distance left and stop only inside 4 px (updateSaber,
+// updateCmdDash 'back', updateSgDash 'back', updateFoeSaber 'back'). A phone draws a fight at 30 fps (CARD-ODV-B) and frame() steps the sim with the real gap (dt 1/30,
+// up to SIM_STEP_S 0.05; the speed dial multiplies it): one step at 390 px/s is 13 px (19.5 at 1/20), so a man who arrives 4..9 px from his post (4..15.5 at 1/20)
+// overshoots past the ring, then back past it, forever. Two spots, a turn every step (the Commander's walk stamps its way), and the machine owns his feet: no swing,
+// no march, no fight until his post moves. At 60 Hz a step is 6.5 px and its overshoot (< 2.5 px) stays inside the ring, which is why every desktop rig missed it
+// (GVT.step(sec) runs fixed 1/60 updates; CARD-CFP's 1/30 and 1/20 checks ran there too).
+// THE CURE: a step that would carry him more than the ring past his post lands ON the post (the next frame's d = 0 ends the walk, the frame the shipped snap ends it).
+// Every step that never overshoots by more than the ring (every step at 60 Hz) runs the shipped expression byte for byte.
+const SSP={ on:1, ring:4 };   // the switch (a rig's NEG sets on:0 = the shipped walk) and the ring all four walks stop inside
+function sspOver(d,st){ return !!(SSP.on && st-d>SSP.ring); }   // true = this step would land him more than the ring beyond his post
+// ═══ end of sec:CARD-SSP ═══
 function updateSaber(u,dt,sw){
   if(!u.home) u.home={x:u.x,y:u.y};
   if(!u.saberState) u.saberState='idle';
@@ -102343,7 +102355,7 @@ function updateSaber(u,dt,sw){
   // nobody left in reach — back to his post (campaign: where he was placed;
   // battlefield: where the dash began, then the march resumes from idle)
   const dx=u.home.x-u.x, dy=u.home.y-u.y, d=Math.hypot(dx,dy);
-  if(d>4){ const sp=390*infDashX(u); u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; }   // CARD-CHS13 THE INFILTRATION SET: the fall back x1.25
+  if(d>4){ const sp=390*infDashX(u); if(sspOver(d,sp*dt)){ u.x=u.home.x; u.y=u.home.y; } else { u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; } }   // CARD-CHS13 THE INFILTRATION SET: the fall back x1.25   // CARD-SSP THE WALK-HOME BOUNCE: a step that would carry him more than the 4 px ring past his post lands ON it (sec:CARD-SSP); every other step is the shipped line byte for byte
   else { u.x=u.home.x; u.y=u.home.y; u.saberState='idle'; u.saberTarget=null; }   // home clean — no stale man on the hook
 }
 // 0509: the Commander's nearest-man scan, named once — updateCmd's own
@@ -102680,7 +102692,7 @@ function updateCmdDash(u,dt,sw){
   }
   // 'back': nobody left at the sword — walk to the post, then the march resumes
   const dx=u.home.x-u.x, dy=u.home.y-u.y, d=Math.hypot(dx,dy);
-  if(d>4){ const sp=WPN_MILE.sgRet*fzWalk(u); u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; cmdWkStamp(u,dx/d*sp); }   // 0735: the frozen feet   // 0517: the walk home faces the walk — THE MOONWALK's clearest frame
+  if(d>4){ const sp=WPN_MILE.sgRet*fzWalk(u); if(sspOver(d,sp*dt)){ u.x=u.home.x; u.y=u.home.y; } else { u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; } cmdWkStamp(u,dx/d*sp); }   // 0735: the frozen feet   // 0517: the walk home faces the walk — THE MOONWALK's clearest frame   // CARD-SSP THE WALK-HOME BOUNCE: a step that would carry him more than the 4 px ring past his post lands ON it (sec:CARD-SSP); every other step is the shipped line byte for byte
   else { u.x=u.home.x; u.y=u.home.y; u.cmdDash=null; u.cmdTarget=null; }
   return true;
 }
@@ -102758,7 +102770,7 @@ function updateSgDash(u,dt,sw){
   }
   // 'back': nobody left in the window — walk to the post, then the march resumes
   const dx=u.home.x-u.x, dy=u.home.y-u.y, d=Math.hypot(dx,dy);
-  if(d>4){ const sp=WPN_MILE.sgRet*fzWalk(u); u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; }   // 0735: the frozen feet
+  if(d>4){ const sp=WPN_MILE.sgRet*fzWalk(u); if(sspOver(d,sp*dt)){ u.x=u.home.x; u.y=u.home.y; } else { u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; } }   // 0735: the frozen feet   // CARD-SSP THE WALK-HOME BOUNCE: a step that would carry him more than the 4 px ring past his post lands ON it (sec:CARD-SSP); every other step is the shipped line byte for byte
   else { u.x=u.home.x; u.y=u.home.y; sgDashEnd(u); }   // feet his own again — the hidden five starts HERE (v1.73)
 }
 // ===== S2 THE SHOWDOWN, TAKE TWO — NEMESIS IN FULL FORCE (CARD-S2, FM-GVT-ELITE-200-TAKE-TWO-01; design/showdown-take-two-0920/00-BUILD-S2.md; __WY__)
@@ -103002,7 +103014,7 @@ function updateFoeSaber(f,dt){
   // back: return to where the dash launched, then idle — the march resumes
   if(!f.home){ f.saberState='idle'; f.saberTarget=null; return; }
   const dx=f.home.x-f.x, dy=f.home.y-f.y, d=Math.hypot(dx,dy);
-  if(d>4){ f.x+=dx/d*sb.ret*dt; f.y+=dy/d*sb.ret*dt; }
+  if(d>4){ if(sspOver(d,sb.ret*dt)){ f.x=f.home.x; f.y=f.home.y; } else { f.x+=dx/d*sb.ret*dt; f.y+=dy/d*sb.ret*dt; } }   // CARD-SSP THE WALK-HOME BOUNCE: a step that would carry him more than the 4 px ring past his post lands ON it (sec:CARD-SSP); every other step is the shipped line byte for byte
   else { f.saberState='idle'; f.saberTarget=null; }
 }
 // ===== 0274a THE MUNCHKIN POUNCE (Wyatt 8/12: "they hop right to you and
