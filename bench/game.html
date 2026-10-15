@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.39","md5":"85cc29a7d7f5605f1d336c675d839db1","sha":"dd16ebce2","at":"2026-10-15T19:23:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.40","md5":"6d846f90e149c7b81f84ef29acc7bd7c","sha":"baa15c4f4","at":"2026-10-15T19:48:45Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -46503,7 +46503,40 @@ const ENG_CHARGE=1.6, ENG_RAMP=0.25, ENG_J2_WIND=2;
 // THE STAT SHEET's readers — the bay reads the ride's real numbers off the same seats the field does (fk = the FACE: jeep2 / tank2 wear the slot once earned)
 const VEH_ACCEL=['STEADY','QUICK','LIGHTNING'];   // no burst · a burst toward a foe · the V2's burst on the engine's quickened wind-up
 function vehSpd(fk,eng){ const s=(fk==='tank2'||fk==='tank3' /* CARD-OCR-B3 */)? Math.round(T2_SPD*BF_PACE) : BF_MOVE[fk].moveSpd; return eng? Math.round(s*ENG_MUL) : s; }   // px/s on the battleground — placeUnit's own arithmetic (the V2 tank's pace is T2_SPD on the def copy; the engine's ×ENG_MUL rides on top)
-function vehDmg(fk){ const d=UDEF[fk]||{}; return d.dmg? d.dmg : (d.ram|0)+(v3jFamK(fk)? J2_RAM_ADD : 0); }   /* CARD-V3J: the family's bumper */   // a tank's shell · a jeep has no gun: its hit is the bumper (the V2's +J2_RAM_ADD)
+// ===== CARD-TKD THE TANK HITS HARDER (design/tank-damage-1015/00-BUILD-TKD.md; Wyatt 10/15/2026 14:34 EDT by his phone, verbatim: "The tank is currently hitting for about 6 damage. We need it to hit harder based on how upgraded it
+// is and what version it is. A fully upgraded v3 tank should hit for about 70 to 150, depending on whether it's critting or not."). THE LADDER: the shell = the version's base + its gain a tank plate (the tank's eight, which the V2 and the V3
+// carry under the replacement law) + 5 a V3 plate (the V3's own eight): the heavy tank 6 to 22, the V2 10 to 34, the V3 34 to 74; the crit x2 (CRIT_MULT, the game's one knob) floats CRIT! where the round lands: a fully kitted V3 lands 74,
+// 148 on a crit. THE CRIT CHANCE: V1 5 %, V2 10 %, V3 12 %, + 0.5 point a plate (both rows), under THE 20 % LAW (CRIT_UNIT_MAX, Wyatt 8/10): the full V3 crits one shell in five; ONE roll a shell at the tank's push, after the scatter's two
+// dice (a seeded landing spot is byte-what-it-was); the burst carries the crit to every man in it. THE OWNERSHIP (enhU's own ladder): my tank, and a human chair's on this device, read my garage (vehTier('bftank') and, on the V3, t3Tier());
+// a relayed ally's tank reads the ally's garage off its room word (the token tk:<plates>.<V3 plates> inside mo beside 've': zero new wire words, the server passes mo opaque at 48 x 16, an older build's ENH filter drops it and sims the
+// factory gun, the engine's own accepted divergence); every AI seat (the computers, the away captain's army, the hard army) fields the factory gun byte for byte and draws NO die (its chance is 0, so tkdShot never rolls). The ladder lands on
+// the fire seat's base cell (tkdAdd: the rows keep dmg 6 in UDEF; every shipped multiplier and flat add rides on top as today); the crit at the push (tkdShot); the bay's DAMAGE line reads vehDmg(face, plates). Byte-still: the hull ladder,
+// the cadence, the pace, the blast, the burst (CARD-TKB), the words, the css, the save, the server, sw.js, the enemy's tanks, THE MAGNUS TANK's laser, IMPROVISED ENGINEERING's dials. The crit club's gear (the orange / teal crystals, the
+// monocle, the scouter, the eye patch, GO TIME, DOUBLE TIME, THE SHARP EYE) stays the trigger-men's and Sarge's: his 150 is the number (TKD-Q3).
+const TKD={ base:{ bftank:6, tank2:10, tank3:10 }, plate:{ bftank:2, tank2:3, tank3:3 }, v3:5, crit:{ bftank:0.05, tank2:0.10, tank3:0.12 }, critPlate:0.005, critX:2, hits:null, force:null };   // Wyatt's dials (TKD-Q1); hits = the rig's ledger when armed (GVT.tkd({arm:1})), force = the rig's crit die (1 always, 0 never), both null in play
+function tkdFace(t){ return (t==='bftank' || t==='tank2' || t==='tank3')? t : null; }   // the tank family by its face
+function tkdDmgAt(fk,p,q){ fk=tkdFace(fk); if(!fk) return 0; p=Math.max(0,Math.min(VEH_TIERS,p|0)); q=(fk==='tank3')? Math.max(0,Math.min(VEH_TIERS,q|0)) : 0; return TKD.base[fk]+TKD.plate[fk]*p+TKD.v3*q; }   // the shell at a face and its plates (p the tank's eight, q the V3's own)
+function tkdCritAt(fk,p,q){ fk=tkdFace(fk); if(!fk) return 0; p=Math.max(0,Math.min(VEH_TIERS,p|0)); q=(fk==='tank3')? Math.max(0,Math.min(VEH_TIERS,q|0)) : 0; return Math.min(CRIT_UNIT_MAX, TKD.crit[fk]+TKD.critPlate*(p+q)); }   // the chance at a face and its plates, under THE 20 % LAW
+function tkdPlates(u){   // [the tank's plates, the V3's own] THIS tank fires with (enhU's ownership ladder); null outside the tank family
+  if(!tkrTank(u)) return null;
+  if(u.coopMods) return [u.tkdP|0, (u.type==='tank3')? u.tkdQ|0 : 0];   // relayed: the ally's garage off the room word's token (tkdWireIn); an older ally's word carries none: the factory gun
+  if(S.bf && !bfHumanU(u)) return [0,0];   // every other seat on the battlefield fields the factory gun (the computers, the away captain's army, the hard army)
+  return [vehTier('bftank'), (u.type==='tank3')? t3Tier() : 0];   // my garage; a human chair's on this device reads the same garage, as its hull does (placeUnit)
+}
+function tkdAdd(u){ const pq=tkdPlates(u); if(!pq) return 0; return tkdDmgAt(u.type,pq[0],pq[1])-((UDEF[u.type]&&UDEF[u.type].dmg)||0); }   // the ladder's number over the row's 6, on the fire seat's base cell; 0 for every other unit
+function tkdCrit(u){ if(!tkrTank(u)) return 0; if(!u.coopMods && S.bf && !bfHumanU(u)) return 0; const pq=tkdPlates(u); return tkdCritAt(u.type,pq[0],pq[1]); }   // an AI seat's tank never rolls (no die drawn: its fight is byte-what-it-was)
+function tkdShot(u,dmg){ const c=tkdCrit(u), r9=(TKD.force!=null)? !!TKD.force : (c>0 && Math.random()<c), d=r9? dmg*TKD.critX : dmg;   // one roll a shell, after the scatter's two dice; no die when the chance is 0
+  if(TKD.hits){ const pq=tkdPlates(u)||[0,0]; TKD.hits.push({ t:u.type, seat:u.seat|0, mine:!u.coopMods && bfHumanU(u), p:pq[0], q:pq[1], c:+c.toFixed(4), crit:r9? 1 : 0, dmg:+(+d).toFixed(3), base:+(+dmg).toFixed(3), bf:!!S.bf }); }
+  return { d:d, c:r9? 1 : 0 }; }
+function tkdCritFx(sh){ try{ critFx({ x:sh.tx, y:sh.ty }); }catch(e){} }   // CRIT! where the round lands (the gold float + the ring, the crit club's own picture)
+function tkdTok(type){ if(!tkdFace(type)) return null; return 'tk:'+vehTier('bftank')+'.'+((type==='tank3')? t3Tier() : 0); }   // my garage on my room word (beside 've'; the server passes mo opaque)
+function tkdWireIn(u,cm){ if(!u || !cm || !tkrTank(u) || !Array.isArray(cm.mo)) return; for(let i=0;i<cm.mo.length;i++){ const m=cm.mo[i]; if(typeof m!=='string' || m.slice(0,3)!=='tk:') continue; const a=m.slice(3).split('.'); u.tkdP=Math.max(0,Math.min(VEH_TIERS,(+a[0])|0)); u.tkdQ=Math.max(0,Math.min(VEH_TIERS,(+a[1])|0)); return; } }   // THEIR garage off the token, raw before the ENH filter (the 've' law); absent = the factory gun
+function tkdRig(o){ o=o||{}; if(o.arm) TKD.hits=[]; if(o.disarm) TKD.hits=null; if(o.force!==undefined) TKD.force=o.force;   // the rig's door: the ledger, the die, the read
+  const table={}; for(const fk of ['bftank','tank2','tank3']){ table[fk]=[]; for(let p=0;p<=VEH_TIERS;p++){ if(fk==='tank3'){ for(let q=0;q<=VEH_TIERS;q++) table[fk].push([p,q,tkdDmgAt(fk,p,q),+tkdCritAt(fk,p,q).toFixed(4)]); } else table[fk].push([p,0,tkdDmgAt(fk,p,0),+tkdCritAt(fk,p,0).toFixed(4)]); } }
+  const fk=vehFaceK('bftank'), p=vehTier('bftank'), q=t3Tier();
+  return { cv:GVT_CV, dials:{ base:TKD.base, plate:TKD.plate, v3:TKD.v3, crit:TKD.crit, critPlate:TKD.critPlate, critX:TKD.critX, cap:CRIT_UNIT_MAX, mult:CRIT_MULT }, face:fk, p:p, q:q, mine:{ dmg:tkdDmgAt(fk,p,q), crit:+tkdCritAt(fk,p,q).toFixed(4), tok:tkdTok(fk) }, sheet:vehDmg(fk), table:table, hits:TKD.hits? TKD.hits.slice() : null, force:TKD.force }; }
+// ===== END CARD-TKD
+function vehDmg(fk,r,q){ const d=UDEF[fk]||{}; return d.dmg? (tkdFace(fk)? tkdDmgAt(fk, (r==null)? vehTier('bftank') : r, (q==null)? ((fk==='tank3')? t3Tier() : 0) : q) : d.dmg) : (d.ram|0)+(v3jFamK(fk)? J2_RAM_ADD : 0); }   /* CARD-TKD: a tank's shell climbs the ladder (the face at the plates; my garage when none are given) */   /* CARD-V3J: the family's bumper */   // a tank's shell · a jeep has no gun: its hit is the bumper (the V2's +J2_RAM_ADD)
 function vehAccelG(fk,eng){ return (v3jFamK(fk)?1:0)+(eng?1:0); }   /* CARD-V3J: the family's burst */   // the grade into VEH_ACCEL
 // 0547 THE V2 TANK (FM-GVT-GIFTS-01 §3 · 75): the solo campaign's 75 BEATEN hands the heavy tank's V2 — the J2 grammar
 // verbatim: the shared DEFS/BF_MOVE rows stay BYTE-IDENTICAL to bftank's (both armies read them), every delta is one of
@@ -86438,7 +86471,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.40';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -87867,6 +87900,7 @@ function coopPlaceCmd(u, bot, bi, re){
   // 0100 THE ENGINE's marker rides the same 'sl' seat — the campaign emg
   // loaner is the only vehicle this relay ever carries, and an old client's
   // ENH filter drops the token with zero errors (accepted divergence, R6).
+  { const tk9=tkdTok(u.type); if(tk9) cm.mo=(cm.mo||[]).concat(tk9); }   /* CARD-TKD: my tank's plates ride the campaign word beside 've' (the same law) */
   if(vehKind(u.type) && vehEng(u.type)) cm.mo=(cm.mo||[]).concat('ve');
   // 0121: the commando's banked defence pips ride the same seat ('cg' + a
   // digit) — CMD_KEYS carries no new word, an old client's ENH filter drops
@@ -88191,6 +88225,7 @@ function coopApply(cm){
     // copy exists (placeUnit's else branch), so nothing shared moves.
     if(u.def && u.def.vehicle && Array.isArray(cm.mo) && cm.mo.indexOf('ve')>=0){
       u.def.moveSpd=Math.round(u.def.moveSpd*ENG_MUL); u.def.eng=1; }   // 1065: the ally's engine bursts in this sim too (the same marker)
+    tkdWireIn(u,cm);   /* CARD-TKD: the ally's tank's plates off the token (the same law) */
     // v2.36: the ally's laser — raw read before the ENH filter (the coopSoul
     // law); absent on an older ally's orders, and lzOf answers factory stock.
     { const lt=Array.isArray(cm.mo)? cm.mo.find(m=>typeof m==='string'&&m.slice(0,3)==='lz:') : null;
@@ -96587,6 +96622,7 @@ function roomPlaced(seat,type,x,y,para,kit9){   // 1022z THE TORCH FIGHT'S ENEMY
     if(soulIs('u',type)) cm.mo=(cm.mo||[]).concat('sl');   // 0093: the mo-carried Soul marker (the campaign door's own law — CMD_KEYS has no 'sl')
     if(bondWarOn()) cm.mo=(cm.mo||[]).concat('bw');   // CARD-OCR-B6: THE WAR GIFT's token on MY room word (the place word and the kit word alike; the stamp placeUnit laid on the man this tick read the same table)
     if(vehKind(type)) cm.vh=vehHP(type)|0;
+    { const tk9=tkdTok(type); if(tk9) cm.mo=(cm.mo||[]).concat(tk9); }   /* CARD-TKD: my tank's plates ride the room word beside 've' (zero new wire words; an old build's ENH filter drops it) */
     if(vehKind(type) && vehEng(type)) cm.mo=(cm.mo||[]).concat('ve');   // 0100 THE ENGINE rides INSIDE mo (the 'sl' law); old builds drop it at their ENH filter
     { const pr=META.up[type]||0; if(pr>0 && (HP_RANK100[type]||PERK_MARKS[type]||HEROES.indexOf(type)>=0)) cm.mo=(cm.mo||[]).concat('mr'+pr); }   // 0877 HEROES ON THE BATTLEGROUND: a hero's rank rides the room word too (the campaign door's 0826 clause word for word — the far side fields my king at MY rank: bfHpRk + his milestones at the apply door)   // 0242 stripe token; v3.01: every rank-plastic class sends it from rank one — the cg idiom, an old client's ENH filter drops it (R6)
     if(META.laserOn) cm.mo=(cm.mo||[]).concat('lz:'+META.laserOn);   // v2.36: the laser token, same seat, same law — your men fight at YOUR tune
@@ -96870,6 +96906,7 @@ function roomDressUnit(u, cm){
   // placement-time copy, so the shared tables never move.
   if(u.def && u.def.vehicle && Array.isArray(cm.mo) && cm.mo.indexOf('ve')>=0){
     u.def.moveSpd=Math.round(u.def.moveSpd*ENG_MUL); u.def.eng=1; }   // 1065: THEIR engine bursts in every sim (the same marker — lockstep)
+  tkdWireIn(u,cm);   /* CARD-TKD: THEIR tank's plates off the token tk:p.q (raw before the ENH filter, the 've' law); absent = the factory gun */
   // THE DROP (v1.45): a called-in man swaps the ordinary spawn ghost for a
   // canopy. An older build never reads the flag and simply gives him the ghost
   // instead — a different picture and 0.4s more of untouchable, but the same
@@ -118112,7 +118149,7 @@ function update(dt){
     // 0538 THE BAKER −2: +0/+1/+2 per shot — bakDmg rolls once per compose, here
     // and nowhere else (was the flat +3 of v5.38-v6.10, D3 taken literally).
     // 0545 THE GENERAL'S FAVOR: +PICK_DMG on the base cell (the rapid three +PICK_DMG_RAPID) — the rank product rides on top as the Baker's roll does; the flame's licks and the MG's bursts read this dmg
-    const dmg = (def.dmg+bakDmg(u)+pickDmg(u)+toothDmg(u)+medrDmg(u)+reunDmg(u)+sqlDmg(u) /* CARD-SQL L3 THE SQUAD LEADER TUNIC: +6 beside a squadmate */) * (u.vet?1.5:1) * (tube?ENH_BAZ_DMG:1) * lzDmgMul(u) * sandDmgMul(u) *   // 0932 SANDWICHES' HOWL: the stamped man's plus rides the men's own product here (the riflemen never read vm — the Sarge arsenal branch's), ⚑ Q21
+    const dmg = (def.dmg+tkdAdd(u) /* CARD-TKD THE TANK HITS HARDER: the tank's ladder (its version and its plates) on the base cell; 0 for every other unit */+bakDmg(u)+pickDmg(u)+toothDmg(u)+medrDmg(u)+reunDmg(u)+sqlDmg(u) /* CARD-SQL L3 THE SQUAD LEADER TUNIC: +6 beside a squadmate */) * (u.vet?1.5:1) * (tube?ENH_BAZ_DMG:1) * lzDmgMul(u) * sandDmgMul(u) *   // 0932 SANDWICHES' HOWL: the stamped man's plus rides the men's own product here (the riflemen never read vm — the Sarge arsenal branch's), ⚑ Q21
       ((ssw&&ssw.dgM)||1) *   // v2.36: the mustache rides the pistol's REAL path here (bag dmg is its display number, v1.16) — and the red beam rides every round, rocket and lob this line feeds
       (u.coopUM!=null? u.coopUM : ((S.bf&&!bfHumanU(u))? ((((S.bf.nem&&(S.bf.nem.park||S.bf.nem.bank))||S.bf.away||S.bf.hard)&&u.side==='foe'&&u.nrk!=null)? upMulR(u.type,u.nrk) : 1) : upMul(u.type))) *   // 0305 BF-03 (D10) + 0346: in an AMBUSH (park or bank), the AWAY battle and 0418's HARD carpet, the mirrored/promoted nrk reaches damage — every other battleground fights at stock (the ownership law holds)
       soulDmgMulU(u) * jhkMul(u) *   // CARD-PRP JANE'S HANDKERCHIEF: +JHK_MAX x her health gone, on every round she fires (x1 for everyone else) · 0093 THE SOUL: one reader answers for every figure — souled rig OR souled type off the owner's save/wire; every other seat reads ×1
@@ -118227,7 +118264,7 @@ function update(dt){
       const mzx=u.x+42*mzl, mzy=u.y-44;
       S.fx.push({k:'puff',x:mzx,y:mzy,t:0,dur:0.4,R:14});                 // smoke first — fx draw in PUSH order,
       S.fx.push({k:'flash',x:mzx,y:mzy,ang:Math.atan2(ty-mzy,tx-mzx),R:20,lw:3.2,t:0,dur:0.13});   // so the flash sits on top of it
-      S.shots.push({k:'rocket',x:mzx,y:mzy,tx,ty,spd:520,dmg,splash:def.splash+t2SplashAdd(u),vx2:false,src:u});   // 0547: +T2_SPLASH_ADD on the V2's shell alone (the shared def byte-still)
+      { const s9=tkdShot(u,dmg); S.shots.push({k:'rocket',x:mzx,y:mzy,tx,ty,spd:520,dmg:s9.d,splash:def.splash+t2SplashAdd(u),vx2:false,src:u,tkdC:s9.c}); }   /* CARD-TKD: the crit roll at the push (x2 on a crit; tkdC floats CRIT! at the landing) */   // 0547: +T2_SPLASH_ADD on the V2's shell alone (the shared def byte-still)
     } else if(u.type==='bazooka'){
       bfSfx(SFX.rocket, u.x, u.y);
       // dumb-fire: he shoots where they WERE, roughly. It's a big rocket.
@@ -118383,7 +118420,7 @@ function update(dt){
     if(!S.bf && (sh.k==='rocket' || sh.k==='lob') && !sh.cbx && magShot(sh,dt)){ S.shots.splice(i,1); continue; }   // OC-8 THE MAGNET JEEP: YOUR rocket, bomb or grenade in flight inside the magnet's reach swings onto its grille and STICKS — it never bursts (false on every rug without a live magnet: S.magOn)
     if(sh.k==='rocket'){ if(sh.hsm) hsmSteer(sh);   /* CARD-HSM: the seeker re-aims the missile at its machine every frame of the flight */
       const dx=sh.tx-sh.x, dy=(sh.ty-14)-sh.y, d=Math.hypot(dx,dy);
-      if(d<10){ S.shots.splice(i,1); if(sh.hsm) hsmLand(sh); /* CARD-HSM: the missile's own burst: the rocket's blast, then the share */ else if(sh.dfAir) dfBurst(sh); /* CARD-SF3-D2: a rocket aimed at the plane bursts IN THE AIR */ else if(sh.refl) cmdoReflLand(sh); else if(sh.foe) foeSplash(sh.tx,sh.ty,sh.splash,sh.src,sh.mwf,rbOf(sh)); else splash(sh.tx,sh.ty,sh.splash,sh.dmg,sh.papa? 'papa' : true,sh.src,false,false,sh.big,rbOf(sh),sh.air); }   // CARD-RB: a tube's rocket lands THE BLAST (rbOf — the tank's round answers 0 and keeps the disc)   // 1178 CARD-NM: BIG PAPA's rocket lands with vx2 'papa' — the ×3 on a hull at both carpets' vehicle factors
+      if(d<10){ S.shots.splice(i,1); if(sh.hsm) hsmLand(sh); /* CARD-HSM: the missile's own burst: the rocket's blast, then the share */ else if(sh.dfAir) dfBurst(sh); /* CARD-SF3-D2: a rocket aimed at the plane bursts IN THE AIR */ else if(sh.refl) cmdoReflLand(sh); else if(sh.foe) foeSplash(sh.tx,sh.ty,sh.splash,sh.src,sh.mwf,rbOf(sh)); else { if(sh.tkdC) tkdCritFx(sh); /* CARD-TKD: CRIT! where a tank's crit round lands */ splash(sh.tx,sh.ty,sh.splash,sh.dmg,sh.papa? 'papa' : true,sh.src,false,false,sh.big,rbOf(sh),sh.air); } }   // CARD-RB: a tube's rocket lands THE BLAST (rbOf — the tank's round answers 0 and keeps the disc)   // 1178 CARD-NM: BIG PAPA's rocket lands with vx2 'papa' — the ×3 on a hull at both carpets' vehicle factors
       else { sh.x+=dx/d*sh.spd*dt; sh.y+=dy/d*sh.spd*dt;
         // v2.15 THE CROSSING's duck swallows a rocket WHOLE — "Bazooka" is
         // Wyatt's own list, and the tank's shell rides the same pipeline (a
@@ -168589,7 +168626,7 @@ function shopRigHTML(t){
   const sheet='<div class="sh-sheet" id="shst-'+t+'">'
     +stl('hp','HP',hpN, nxP? '+'+(vehHP(fk,r+1)-hpN) : v3n? '+'+(fk==='tank3'? T3.plate : V3J.plateHp) /* CARD-OCR-B3: +4 a V3 tank plate */ : '')   // CARD-V3J: the V3's next plate lights +3 once the jeep's eight stand
     +stl('spd','MOVEMENT SPEED',eng? espd : spd, nxE? '+'+(espd-spd) : '')
-    +stl('dmg','DAMAGE',vehDmg(fk),'')
+    +stl('dmg','DAMAGE',vehDmg(fk, own? r : 0, own? null : 0), (tkdFace(fk) && nxP)? '+'+TKD.plate[fk] : (fk==='tank3' && v3n)? '+'+TKD.v3 : '')   /* CARD-TKD: the ladder's number for the face at my plates (a locked bay reads the factory gun), the next plate's gain lit beside it (the HP line's own grammar) */
     +stl('acc','ACCELERATION',VEH_ACCEL[ag], nxE? VEH_ACCEL[ag+1] : '', 'to')
     +(fk==='jeep3'? stl('sarge','DAMAGE FROM SARGE',Math.round(V3J.x*100)+'%','') : '')   // CARD-V3J: the sheet's fifth line (the Sarge-proof hull, the V3's from the first drive)
     +(fk==='tank3'? stl('small','RIFLES AND PISTOLS','0%','') : '')   // CARD-OCR-B3: the sheet's fifth line (small arms bounce off, the V3 tank's from the first drive)
@@ -183319,6 +183356,7 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
+  tkd(o){ return tkdRig(o); },   // CARD-TKD THE TANK HITS HARDER: the ladder's table, my face, the ledger and the die for a rig
   rcc(){ return rccRig(); },   // CARD-RCC THE TWO CUTS: the dial, the book's blocks, the enlarged plate, the rite's cards for a rig
   lbc(o){ return lbcRig(o); },   // CARD-LBC THE LEADERBOARD CHECKS: the gate, the nine, the rings, the wire for a rig
   bkt(){ const bk=document.querySelector('#travelMap .lg-book'), st=bk && bk.querySelector('.lg-stage.sls.lsw'); return Object.assign(LSW.bkt(), { cls:!!(st && st.classList.contains('bkt')), names:st? [...st.querySelectorAll('.sls-slot .sls-nm')].map(n=>{ const sl=n.closest('.sls-slot'); return { id:sl? sl.getAttribute('data-book') : null, px:parseFloat(getComputedStyle(n).fontSize), tf:n.style.transform||'', w:n.clientWidth, h:n.clientHeight }; }) : null }); },   // CARD-BKT THE BOOK TITLES INSIDE THEIR FRAMES: the dial, the squeeze floor, the stage's class, every name's size, squeeze and band (read-only)
