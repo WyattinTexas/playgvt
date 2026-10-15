@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.82","md5":"116da6f1e6a58cbcbeeb614498e45827","sha":"459ce085a","at":"2026-10-15T01:31:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"22.83","md5":"daa8ebe3ccba1c7e278682badaa848b7","sha":"dd0b23c75","at":"2026-10-15T01:34:23Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -85733,7 +85733,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='22.82';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='22.83';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -127842,7 +127842,7 @@ function drawHUD(){
   // can't ghost-fire (btnRects persists between frames).
   btnRects.spd=null; btnRects.snd=null;
   if(S.bf && S.bf.bd) btnRects.hq=null;   // 0902 2.4 NO HQ BUTTON in the desert (Wyatt: "If someone really wants to leave, they can close the app, but I want to free that space up during this battle") — not drawn, no tap rect, every frame of the hold and the battle; every other battle keeps it
-  else if(S.bf) btn('hq',  VW/2+240, 6, 58, 32, TXT('HQ'));   // CARD-PAU: every battlefield keeps the word HQ (Wyatt 10/6/2026: "for Battlefields we'll keep it the same")
+  else if(S.bf && !S.bf.opener) btn('hq',  VW/2+240, 6, 58, 32, TXT('HQ'));   // CARD-PAU: every battlefield keeps the word HQ (Wyatt 10/6/2026: "for Battlefields we'll keep it the same")   // CARD-TPS THE TUTORIAL'S PAUSE SYMBOL (Wyatt 10/14/2026 21:12 EDT, his phone, verbatim: "In the tutorial, make sure that the HQ is the pause symbol instead, so new players know."): every battlefield but THE OPENER (S.bf.opener: a brand-new save's first battle, THE CROSSING = the tutorial, a battlefield by its build); the opener falls through to the pause glyph below, so the new player meets the symbol the campaign's rugs wear; the same slab, seat, tap rect and door (hqOpen); zero words
   else pauBtn('hq', VW/2+240, 6, 58, 32);   // CARD-PAU THE PAUSE ICON (Wyatt 10/6/2026 20:56 EDT, his phone: "In the campaign, please replace the HQ button with a pause icon. We can run a design pass, make it just look good, and for Battlefields we'll keep it the same. this is just for campaigns, so players know that they can pause the game easily, and it still has the same functionality. It opens up the options."): the campaign's fights (and every fight that is not a battlefield: the range, the parks, the raids, the event rooms) wear the PAUSE GLYPH in the HQ slab's own seat, size and tap rect; the tap is the same door (btnRects.hq -> hqOpen: the sheet with BACK TO THE BATTLE · SOUND · SPEED · RETREAT TO HQ; solo the sim holds while it is open); zero words
   // BATTLEFIELD tray: the whole roster, at battlefield prices
   if(S.bf && spcOn()){ spcDrawHUD(); return; }   // CARD-SPW: a watcher has no tray, no purse and no rung of buttons: ONE plate (trayRects emptied and every rung's rect nulled: a finger on the mat only pans)
@@ -128039,6 +128039,7 @@ function drawHUD(){
 }
 // ═══ CARD-PAU THE PAUSE ICON (design/pause-icon-1006/00-BUILD-PAU.md; Wyatt 10/6/2026 20:56 EDT, his phone, verbatim: "In the campaign, please replace the HQ button with a pause icon. We can run a design pass, make it just look good, and for Battlefields we'll keep it the same. this is just for campaigns, so players know that they can pause the game easily, and it still has the same functionality. It opens up the options.") ═══
 // THE RULE: in every fight that is not a battlefield (!S.bf: the campaign's rugs, the range, the parks, the raids, the event rooms) the top strip's HQ slab wears the PAUSE GLYPH (two rounded bars) in place of the word HQ: the same seat (VW/2+240, 6), the same 58x32 slab, the same tap rect
+// CARD-TPS (Wyatt 10/14/2026, the tutorial): + THE OPENER (S.bf.opener, a battlefield by its build) wears the glyph too; drawHUD's battlefield line reads `S.bf && !S.bf.opener` for the word. Every other battlefield keeps HQ.
 // btnRects.hq and the same door (hqOpen: the sheet with BACK TO THE BATTLE · SOUND · SPEED · RETREAT TO HQ; solo the sim holds while it is open, v1.44's law). Every battlefield keeps btn('hq', … TXT('HQ')) byte-still; the desert keeps no button (0902 2.4). Zero words (no key in any tongue), no save field, no wire, no server, no sw, no css byte.
 const PAU={ bw:7, bh:20, gap:7, r:3 };   // the glyph's dials (world px, the canvas's own units): each bar bw wide and bh tall, the gap between the bars, the bars' corner radius; the slab's fill, radius and ink are btn()'s own
 function pauBtn(id,x,y,w,h){ cx.fillStyle='rgba(255,255,255,0.12)'; rr(x,y,w,h,6); cx.fill(); cx.fillStyle=CREAM; const gx=x+(w-(2*PAU.bw+PAU.gap))/2, gy=y+(h-PAU.bh)/2; rr(gx,gy,PAU.bw,PAU.bh,PAU.r); cx.fill(); rr(gx+PAU.bw+PAU.gap,gy,PAU.bw,PAU.bh,PAU.r); cx.fill(); btnRects[id]=[x,y,w,h]; }   // the slab as btn() paints it, the two bars centred in it, the tap rect as btn() seats it
