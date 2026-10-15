@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.62","md5":"d628bbd73a884c3974966f77a8a37589","sha":"09f0dd949","at":"2026-10-15T23:20:24Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.63","md5":"38107b9a5329d70c14e35e4088bf36ec","sha":"534336063","at":"2026-10-15T23:30:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -87272,7 +87272,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.62';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.63';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -149076,7 +149076,7 @@ function gfLeave(){   // the end of the tour's sitting: the hand fades sinking 2
   const a=h.animate([{ transform:'translate('+p.x.toFixed(1)+'px,'+p.y.toFixed(1)+'px)', opacity:1 },{ transform:'translate('+p.x.toFixed(1)+'px,'+(p.y+GF_OUT.sink).toFixed(1)+'px)', opacity:0 }], { duration:GF_OUT.ms, easing:'ease-in', fill:'forwards' });
   const rm=()=>{ try{ h.remove(); }catch(e){} }; a.onfinish=rm; setTimeout(rm, GF_OUT.ms+400); }
 function gfDrop(){ if(gfLive()){ gfFreeze(); try{ GFH.hand.remove(); }catch(e){} } GFH.hand=null; GFH.state='gone'; GFH.free=0; GFH.seq++; }   // at once (a battle door)
-function gfInScene(){ return !!(LTUT.on || FXT.on || SURP.on || TLT.on); }   // a script inside a door the tour opened owns the hand (its scene is the hand's)
+function gfInScene(){ return !!(LTUT.on || FXT.on || SURP.on || TLT.on || FFG5.on); }   /* CARD FFG-5: the way out of Fort Green owns the hand too (the fort scene stands beside the room: tourRoomCovered reads it as a cover) */   // a script inside a door the tour opened owns the hand (its scene is the hand's)
 function gfOwned(){ return !!(gfInScene() || TOUR.walk || TOUR.owe || TOUR.up || TEND.up || LBEAT.up || TOUR.dim || tourDue()); }   // the tour's sitting still runs: a script, a walk, a stop's window, a beat, the hint's light, or stops still due
 function gfCardAt(p){ let els=null; try{ els=document.elementsFromPoint(p.x, p.y); }catch(e){ return false; } for(const el of (els||[])){ if(el.closest && el.closest('#roomModal > *, #shConfirm, #milePop, #premPop, #mboxPop, #nameProm')) return true; } return false; }   // a card stands over the fingertip
 function gfTick(){   // the one watcher (a frame while the hand stands): a battle takes it; unowned past its grace, it leaves; something else on the stage, it steps aside
@@ -150110,7 +150110,7 @@ function surpTutLeg(){   // the leg, read fresh (a buy, the ask, a try, the dept
 }
 function surpTutTick(){
   if(!SURP.on) return;
-  if(!surpUp() || S.mode!=='menu'){ surpTutFold(); return; }   // CARD-FWR: the card shut under the script (its ✕, a door, a battle): the pieces leave   // the store shut under the script (the ✕, a door, a battle): the pieces leave
+  if(!surpUp() || S.mode!=='menu'){ surpTutFold(); ffg5Start(); return; }   // CARD FFG-5 THE WAY OUT OF FORT GREEN: the card shut with the yard standing = the one hand goes on to the fort's ✕ and rests there (ffg5Start reads its own gates: the yard, the tour's stops left, no other script in the yard)   // CARD-FWR: the card shut under the script (its ✕, a door, a battle): the pieces leave   // the store shut under the script (the ✕, a door, a battle): the pieces leave
   if(TOUR.raf) return;   // the tour's own watcher still on the floor (the door's glove fading out as the store opens): one hand on the glass at a time
   const leg=surpTutLeg(), dt=Date.now()-SURP.t;
   if(leg!==SURP.leg){ surpTutEnter(leg); return; }
@@ -150169,6 +150169,49 @@ function surpTutUp(e){ if(SURP.fd[e.pointerId]==null) return; delete SURP.fd[e.p
 function surpTutFingers(){ const now=Date.now(); for(const k in SURP.fd){ if(now-SURP.fd[k]<SURP_HOLD_MAX_MS) return true; delete SURP.fd[k]; } return false; }   // a finger down in the store now
 function surpTutHeld(){ return surpTutFingers() || Date.now()-SURP.pd<SURP_TOUCH_MS; }   // the valve's guard: a finger down, or a touch this instant
 window.addEventListener('pointerdown', surpTutFinger, true); window.addEventListener('pointerup', surpTutUp, true); window.addEventListener('pointercancel', surpTutUp, true);
+// ═══ CARD FFG-5 THE WAY OUT OF FORT GREEN (design/first-five-goals-1015/build-ffg5/00-CARD-FFG5.md; cut by CARD-FFG §2 G5 / §5 on Wyatt's 10/15/2026 16:54 EDT word, verbatim: "go with any recommended … queued for task implementation and set live";
+// the finding FF-DASH-F1, design/first-five-dashboard-1014/00-DASH-FF.md CP3: "after the colour pick nothing points the way out of Fort Green; the tour's next stop deals only in the bedroom; the dashboard's hand stood 60 s") ═══
+// THE HINT: the colour stop's ROSTER card shuts (its own ✕, the glove's valve, the backdrop) with the fort's yard still standing and the tour still owing a stop (every later stop deals in the bedroom alone: tourQuiet) → FFG5_OUT_MS later the one hand walks
+// from the card's ✕ to the fort's ✕ and RESTS there (the breath, the soft tap once a breath), the light and the ring on the ✕: the gear lesson's and the lab stop's own 'out' leg (fxTutEnter / tlfEnter 'out'), now the colour stop's too. CARD-FF5's law: the glove
+// points, the kid taps: nothing is pressed for him; his tap on the ✕ is the plain door tap it is today (UI.fortClose). tourHint's grammar: his first tap ANYWHERE while the hand points folds the hint (NEVER eaten: that tap is his, the ✕'s own door, a yard door,
+// a toy). The yard shut, a battle, the tour done, another script in the yard: the pieces leave. A card over the yard (PROMOTIONS, a rite, a premiere): the hint waits for its fold. The ✕ moved under the resting hand (a resize): it walks again. Reduced motion
+// (the tour's law): the light and the ring alone, no hand. No clock takes it down (⚑ FFG5-Q2: the fort's other two 'out' legs rest until his tap too). Zero words, zero css, zero save keys, zero server. `?ffg5=0` = the base (ffg5On). Rig: GVT.ffg5().
+const FFG5_SEAT='#fortscene .wt-x', FFG5_OUT_MS=400;   // the fort's ✕ (the seat FX_SEAT.exit and TLF_SEAT.exit name, named once more so their tables stay their own) · the beat between the card's close and the walk (FX_OUT_MS's)
+let FFG5={ on:0, leg:'', tid:0, hand:null, dim:null, ring:null, t:0, seq:0, at:null, gone:0 };   // session state: the hint standing · its leg ('' · wait · out) · its tick · its pieces · the leg's clock · the leg's key · the hand's seat · the card's close time
+function ffg5On(){ return !/[?&]ffg5=0(&|$)/.test(location.search); }
+function ffg5Due(){ return ffg5On() && S.mode==='menu' && fortSceneOpen() && tourDue() && !FXT.on && !TLT.on; }   // the yard standing, stops left to deal at home, and neither of the yard's other scripts on the floor (each owns the hand and ends on the ✕ itself)
+function ffg5Start(){ if(FFG5.on || !ffg5Due()) return; FFG5.on=1; FFG5.leg=''; FFG5.t=FFG5.gone=Date.now(); FFG5.seq++; FFG5.at=null; clearInterval(FFG5.tid); FFG5.tid=setInterval(ffg5Tick, LT_TICK_MS); }
+function ffg5Covered(){   // something ELSE stands over the yard: a card (the fort's own, re-opened), a ceremony card, the shop, Sarge's window, a rite, the rename card, a premiere, the age gate, the ad ask; or the ✕ itself not shown (a page over the yard)
+  if(fxCardUp() || milePopUp() || shopIsOpen() || document.querySelector('#comms .cm-win')) return true;
+  for(const k of ['nameProm','sabrite','soulrite','paintrite','icerite','picker','premPop','ageGate','adAsk','trcPage']){ const e=document.getElementById(k); if(e && !e.classList.contains('hidden')) return true; }
+  return !fxTutSeatShown(FFG5_SEAT); }
+function ffg5Tick(){
+  if(!FFG5.on) return;
+  if(!fortSceneOpen() || S.mode!=='menu' || !tourDue() || FXT.on || TLT.on){ ffg5Fold(); return; }   // the yard shut (his ✕), a battle, the tour done, another script in the yard: the pieces leave
+  if(ffg5Covered()){ if(FFG5.leg!=='wait'){ ffg5Pieces(); FFG5.leg='wait'; FFG5.seq++; } FFG5.t=Date.now(); return; }   // a card over the yard: the hint waits for its fold
+  if(FFG5.leg!=='out'){ if(Date.now()-FFG5.gone>=FFG5_OUT_MS) ffg5Enter('out'); return; }
+  if(FFG5.at && Date.now()-FFG5.t>=TOUR_GLIDE_MS+GF_TAP.hold && !fxTutSeatLive(FFG5_SEAT, FFG5.at.x, FFG5.at.y)) ffg5Enter('out');   // the ✕ moved under the resting hand (a resize, the yard's scroll): it walks again
+}
+function ffg5Enter(leg){ const k=++FFG5.seq; FFG5.leg=leg; FFG5.t=Date.now(); ffg5Pieces();
+  if(leg!=='out') return;
+  const r=fxRectOf(FFG5_SEAT); if(!r || !fxTutSeatShown(FFG5_SEAT)){ FFG5.leg=''; return; }   // the ✕ not on the glass this tick (the card's teardown): the next tick looks again
+  ffg5Light(r); const at=gfSeat(r); FFG5.at=at;   // the light and the ring on the ✕; the fingertip in its MIDDLE (CARD-TH), the tilted hand below-right of it, whole on the glass
+  if(reducedMotion()) return;   // the tour's law: no hand, the light and the ring point
+  gfEnsure(); FFG5.hand=GFH.hand;
+  gfTravel(at, ()=>{ if(FFG5.hand===GFH.hand && FFG5.seq===k) gfRest(); }); }   // THE ONE HAND travels from the card's ✕ and RESTS (the breath, the soft tap once a breath: the invitation); never a press (CARD-FF5)
+function ffg5Light(r){ ffg5Dark();   // the tour's spotlight on the ✕, the gold ring round it (tlfLight's pieces, the tour's ids: one set on the glass at a time)
+  const q=labTutFit({ x:r.left-TOUR_LIT_PAD, y:r.top-TOUR_LIT_PAD, w:r.width+2*TOUR_LIT_PAD, h:r.height+2*TOUR_LIT_PAD });
+  const NS='http://www.w3.org/2000/svg'; const dim=document.createElementNS(NS,'svg'); dim.id='tourDim';
+  const p=document.createElementNS(NS,'path'); p.setAttribute('fill','rgba(0,0,0,'+TOUR_DIM_A+')'); p.setAttribute('fill-rule','evenodd'); p.setAttribute('d', tourDimPath([q])); dim.appendChild(p);
+  document.body.appendChild(dim); FFG5.dim=dim;
+  const rg=document.createElement('div'); rg.id='tourRing'; rg.style.left=q.x+'px'; rg.style.top=q.y+'px'; rg.style.width=q.w+'px'; rg.style.height=q.h+'px'; document.body.appendChild(rg); FFG5.ring=rg;
+  void dim.getBoundingClientRect(); dim.classList.add('in'); rg.classList.add('in'); }
+function ffg5Dark(){ for(const k of ['dim','ring']){ if(FFG5[k]){ try{ FFG5[k].remove(); }catch(e){} FFG5[k]=null; } } }
+function ffg5Pieces(){ if(FFG5.hand){ FFG5.hand=null; gfPark(); } ffg5Dark(); }   // the hand parks where it stands (it travels on with the next leg, or steps aside after GF_PARK_MS); the light leaves
+function ffg5Fold(){ clearInterval(FFG5.tid); FFG5.tid=0; FFG5.on=0; FFG5.leg=''; FFG5.seq++; FFG5.at=null; ffg5Pieces(); gfAway(true); }   // the hint is done: the pieces leave, the hand steps aside (the next stop's walk brings it back out of Sarge's arm, gfHome)
+function ffg5Down(e){ if(!FFG5.on || FFG5.leg!=='out' || e.isPrimary===false) return; ffg5Fold(); }   // tourHint's grammar: his first tap anywhere while the hand points = the hint has done its work; nothing eaten, nothing stopped: the ✕'s own door, a yard door, a toy answer as today
+window.addEventListener('pointerdown', ffg5Down, true);
+function ffg5Rig(){ const el=document.querySelector(FFG5_SEAT), r=el? el.getBoundingClientRect() : null; return { on:FFG5.on, leg:FFG5.leg, at:FFG5.at, due:ffg5Due(), sw:ffg5On(), seat:(r && r.width>0)? { l:Math.round(r.left), t:Math.round(r.top), w:Math.round(r.width), h:Math.round(r.height) } : null, hand:{ st:GFH.state, at:GFH.at, live:gfLive(), away:GFH.away|0 }, light:!!(FFG5.dim && FFG5.dim.isConnected), ring:!!(FFG5.ring && FFG5.ring.isConnected) }; }   // the hint's state, its seat, the one hand, the light for a rig
 // ═══ CARD-FX THE FORT'S EXIT PROMPT (jumpr 1324; Dylan 9/27) · RE-CUT CARD-FF3 AW-12 ARMOR FOR SARGE, THEN HOME (Wyatt 9/29) · RE-CUT CARD-TH THE FORT'S GEAR LESSON (Wyatt 10/5/2026 ~13:30 EDT, attended, verbatim:
 // "in the Fort Sarge, there needs to be added dialogue that says, "Unlock better gear here." It prompts you to click the equipment area, but it won't do it for you. You are forced to click it. When you do click it,
 // Sarge gives you enough to buy the basic helmet, enough stars, and then he'll tell you, "Buy the basic helmet." He'll click on it. You say "Confirm," and then you can leave, and the tutorial moves on.";
@@ -185052,6 +185095,7 @@ requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
 window.GVT = {
+  ffg5(){ return ffg5Rig(); },   // CARD FFG-5 THE WAY OUT OF FORT GREEN: the hint's state, its seat, the one hand, the light for a rig
   tsl(o){ return tslRig(o); },   // CARD-TSL THE TRACERS ON THE SNOW: the switch, the casing's switch, the opener, the foe's beam hex, the counts, the live tracers for a rig
   tkh(o){ return tkhRig(o); },   // CARD-TKH TURKEY HUNT (Isaac 10/15): the month pin, the code, the clock, the read
   ffg(){ return ffgRig(); },   // CARD-FFG THE RESCUE STORY'S SETUP: the captive, the page, the camera, the two lines for a rig
