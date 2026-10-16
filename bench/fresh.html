@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"23.99","md5":"ceb9efe5614ebf2f06f12badd3ceb50c","sha":"b475efb69","at":"2026-10-16T04:30:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.00","md5":"9667978e135e0b61722c82e5e6e0fc32","sha":"cabd73c6b","at":"2026-10-16T04:45:12Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -11528,6 +11528,13 @@
   .dhwHowl .dgLegA, .dhwHowl .dgLegB, .dhwHowl .dogHeadG, .dhwHowl .dogEarG { animation:none; }
   .dhwHowl .dfEyes, .dhwHowl .dfBrows { opacity:0; }
   .dhwHowl .dogwagG { animation-duration:2.4s; }
+  /* ═══ css:paw CARD-PAW THE DOGS' PAT LADDER (design/dog-pats-1016/00-CARD-PAW.md; FROM LAURA): the counter over the patted dog (#pawCount.pawcount: the keepy-uppy's .starfloat.run idiom, .tick per pat, .flare at a rung, dropping .run = the starup send-off; the layout rides the CLASS so the send-off keeps it once the id is gone) and the rung's +N★ (.pawfloat). Reduced motion: no pulse, no flare, no glide (the count still changes). ═══ */
+  .starfloat.pawcount { width:120px; margin-left:-60px; text-align:center; font-size:24px; color:#FFF3C4; z-index:8; white-space:nowrap; transition:left .14s linear, top .14s linear; }
+  .starfloat.pawcount i { font-style:normal; color:#E0566F; margin-right:4px; }
+  .starfloat.pawcount.flare { color:#FFE97A; animation:pawflare 0.6s ease-out; }
+  @keyframes pawflare { 0% { transform:scale(1); } 35% { transform:scale(1.8); } 100% { transform:scale(1); } }
+  .starfloat.pawfloat { width:184px; margin-left:-92px; text-align:center; z-index:9; white-space:nowrap; }
+  @media (prefers-reduced-motion: reduce){ .starfloat.pawcount, .starfloat.pawcount.flare { animation:none; transition:none; } }
   /* CARD-HUN HUNTER (design/hunter-dog-1010/00-DESIGN-HUN.md): his room node (#ro-hunter: art to a finger, the router's hunPickBr takes the tap), his bow + hug poses on .dhPose (hunBow / hunHug), the blue
      crayon crosses twinkling round him, THE PLAY's bow on a home dog (hunBowF on his .dhPose: the stand, rocked forward 16° about his hind foot, chest low and tail up wagging; hunClip on .dhFlip keeps the
      front paws above the floor) and on the attic's coyote (hunCyPlay: his sit dips forward, the tail wags); the words; reduced motion stills every one of them (the bow stands still). */
@@ -87675,7 +87682,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -144428,7 +144435,7 @@ function dogLift(el, x, fy, fresh, dl){   // THE ONE SEAT: up into #dogTop over 
   dogZSeatEl(el, fy, fresh, dl);
 }
 function dogHomePick(p){ let hit=null, d9=1e9; for(const br of ['gb','hd']){ const C=DOGH[br]; if(!C || !C.el || C.x===null || !C.el.isConnected) continue; const fy=C.y+38, dx=Math.abs(p.x-C.x); if(dx<48 && p.y>fy-104 && p.y<fy+10 && dx<d9){ hit=br; d9=dx; } } return hit || hunPickBr(p); }   /* CARD-HUN: then Hunter's box ('hu') */   // a finger inside a home dog's box (dogPick's own box on his live seat) is his · CARD-CD BOTH DOGS PAY: two dogs at home stand side by side (their boxes share a strip 26 wide at the rug's seats): a point both boxes hold is the NEARER dog's (the base gave it to the good boy every time, so a pat on the hound paid the good boy); one dog, or a point one box holds alone: the base's answer
-function dogHomeTap(br){ if(br==='hu') return hunTap();   /* CARD-HUN: a tap on Hunter = THE HUNTER HUG */   // a pat on a dog at home: dogTap's grammar — the eater under him (the browser's late click never opens the tile), the happy double-yip, the hop · CARD-CD BOTH DOGS PAY: and the purse (dogHomePay)
+function dogHomeTap(br){ pawPat(br, br==='hu'? 'hu' : 'home');   /* CARD-PAW THE PAT LADDER (Laura): every pat on a dog at home and on Hunter counts */ if(br==='hu') return hunTap();   /* CARD-HUN: a tap on Hunter = THE HUNTER HUG */   // a pat on a dog at home: dogTap's grammar — the eater under him (the browser's late click never opens the tile), the happy double-yip, the hop · CARD-CD BOTH DOGS PAY: and the purse (dogHomePay)
   const C=DOGH[br]; if(!C || !C.el) return;
   dogEat({ x:C.x, y:C.y+38 });
   SFX.yip(); setTimeout(()=>{ const C9=DOGH[br]; if(C9 && C9.el && C9.el.isConnected) SFX.yip(); },150);
@@ -144558,6 +144565,7 @@ function dogTap(){
   if(!hw){ SFX.yip(); setTimeout(()=>{ if(dogVisible()) SFX.yip(); },150);   // the happy double-yip (TG's own beat)
   const g9=document.getElementById('dogPat');
   if(g9){ g9.classList.remove('dogpatA'); void g9.getBoundingClientRect(); g9.classList.add('dogpatA'); } }
+  pawPat(dogLeadBreed(), 'walk');   // CARD-PAW THE PAT LADDER (Laura): the walker's pat counts (today's lead breed), before the day's purse can return
   const room=roomCur();
   if(META.dog.day!==todayStr()){ META.dog.day=todayStr(); META.dog.paid=[]; META.dog.home=[]; }   // CARD-CD: the home purse rolls with it (ONE day, both purses)   // the ledger rolls FIRST — yesterday's paid rooms never mute today's pat
   if(META.dog.paid.indexOf(room)>=0) return;   // a second pat TODAY = the hop and the yips, ZERO stars
@@ -144571,6 +144579,97 @@ function dogTap(){
     st.appendChild(f); setTimeout(()=>{ try{ f.remove(); }catch(e){} }, 1120); }
   setTimeout(()=>{ if(S.mode==='menu'){ if(hw) wfBankChip(); else renderMenu(); } }, 1250);   // CARD-DHW: under the howl the head's chip is written in place (a repaint would end it)   // the header ★ catches up (the piggy's own deferral)
 }
+// ═══ sec:CARD-PAW THE DOGS' PAT LADDER (design/dog-pats-1016/00-CARD-PAW.md; board M2297, built on Maker 1). FROM LAURA (designer), her jumpr guest link 10/16/2026 02:21 UTC, dictated, verbatim:
+// "when tapping the dogs in every room if you tap them 11 times you get 15 stars if you tap them 27 times you get 25 stars if you tap the dogs 33 times you get 50 stars when you tap the dog 101 times you get 102 stars"
+// THE DOGS: every dog that takes a pat in a room: Bilbo and Sandwiches on today's tour (dogTap, after its gate: the gate climb and the fade are no pat) or at home (dogHomeTap) and Hunter (dogHomeTap 'hu', inside his
+// hug too). EACH DOG COUNTS HIS OWN PATS, the same count in every room he stands in (META.paw.n.gb / .hd / .hu). THE RUNGS (PAW_RUNGS) pay once each when his count reaches them, through THE ONE PIPE (starX: Wyatt's
+// CARD-SEM halves a weekday, ⚑ PAW-F1); PAW_DAILY 1 = the counts and the rungs start again every local day (the dogs' own pat purse and the keepy-uppy's ladder are daily; the ledger rolls FIRST). THE COUNTER:
+// ♥ n parked over the patted dog (#pawCount: the keepy-uppy's .starfloat.run idiom, .tick per pat, .flare at a rung, dropping .run = the starup send-off PAW_IDLE_MS after the last pat), riding his live seat;
+// PAW_COUNT 0 = the pays alone. THE RUNG: the flare, the coin (the fanfare at the top rung), +N★ over him, the head's ★ written in place (wfBankChip); the repaint waits for the counter's end and never comes in
+// the attic (Laura's moves are mid-flight there). THE SAVE: a rung = the flag FIRST, the credit SECOND, ONE save; the plain pats are saved when the counter ends (no write per pat). Zero new words, zero
+// server / wire / sw.js bytes. The rig: GVT.paw(). ═══
+const PAW_RUNGS=[[11,15],[27,25],[33,50],[101,102]];   // ⚑ Laura's four: [his pats, the stars as she printed them] (the pay = starX(stars))
+const PAW_DAILY=1;       // ⚑ PAW-Q1: 1 = each dog's count and rungs per LOCAL day · 0 = once ever (one count for life)
+const PAW_COUNT=1;       // ⚑ PAW-Q3: the ♥ n over the patted dog (0 = the pays alone)
+const PAW_IDLE_MS=2600;  // the counter's life after the last pat
+const PAW_UP=104;        // the counter's top over his feet, room units: just over his head (Bilbo and Sandwiches stand 56 to 65 tall; the day's +5★ starts higher, at 128, and rises away)
+const PAW_HU=[74,98];    // Hunter's seat [beside his head, its top over his feet]: he stands 90 tall sitting and 100 in THE HUNTER HUG, whose words, hearts and +5★ fill the air over his head
+const PAW_DOGS=['gb','hd','hu'];   // Bilbo · Sandwiches · Hunter
+const PAWC={ k:null, src:null, room:null, n:0, s:null, seen:0, raf:0, endT:0, dirty:0, rung:0, wx:null, wy:null };   // page-lifetime: the dog the counter rides, his count, his last seat, the frame loop, the end's timer, the unsaved pats, a rung paid this run, the write cache
+function pawLedger(){   // META.paw { day, n:{ gb, hd, hu }, paid:{ gb:[], hd:[], hu:[] } }: born at the first pat (no META_DEFAULT row), junk healed, the day rolled FIRST (the dog's banked trap)
+  let L=META.paw; if(!L || typeof L!=='object' || Array.isArray(L)) L=META.paw={};
+  if(typeof L.day!=='string') L.day='';
+  if(!L.n || typeof L.n!=='object' || Array.isArray(L.n)) L.n={};
+  if(!L.paid || typeof L.paid!=='object' || Array.isArray(L.paid)) L.paid={};
+  if(PAW_DAILY===1 && L.day!==todayStr()){ L.day=todayStr(); L.n={}; L.paid={}; }
+  for(const k of PAW_DOGS){ const v=Math.floor(+L.n[k]); L.n[k]=(v>0 && v<1e7)? v : 0; if(!Array.isArray(L.paid[k])) L.paid[k]=[]; }
+  return L; }
+function pawSeat(k, src){   // his live feet in the room's units (the floats' own frame), or null when he is not standing here: the walker (dogPos), a dog at home (DOGH), Hunter (HUR)
+  try{ if(k==='hu') return (HUR.el && HUR.el.isConnected && HUR.x!=null)? { x:HUR.x, fy:HUR.fy } : null;
+    if(src==='walk'){ if(!dogVisible()) return null; const q=dogPos(); return { x:q.x, fy:q.y }; }
+    const C=DOGH[k]; return (C && C.el && C.el.isConnected && C.x!=null)? { x:C.x, fy:C.y+38 } : null; }catch(e){ return null; } }
+function pawPat(k, src){   // ONE pat on a dog in a room (dogTap after its gate · dogHomeTap): his count + 1, a rung's pay, the counter over him
+  try{ if(PAW_DOGS.indexOf(k)<0 || !META || S.mode!=='menu') return 0;
+    const L=pawLedger(), n=++L.n[k], last=PAW_RUNGS[PAW_RUNGS.length-1][0]; let w9=0, peak=false;
+    for(const r of PAW_RUNGS){ if(n<r[0] || L.paid[k].indexOf(r[0])>=0) continue;
+      L.paid[k].push(r[0]);                                                  // flag FIRST (the wcactus one-time-purse law)…
+      const w=starX(r[1]); META.starBank+=w; META.starsLifetime+=w; w9+=w;   // …credit SECOND: THE ONE STARS PIPELINE (dogTap's line) · 0875 THE ONE PIPE
+      if(r[0]===last) peak=true; }
+    if(w9){ saveMeta(); PAWC.dirty=0; PAWC.rung=1; } else PAWC.dirty=1;    // ONE save at a rung (today's count rides it); a plain pat waits for the counter's end
+    const room=roomCur(), s=pawSeat(k, src);
+    if(PAWC.k!==k || PAWC.room!==room){ PAWC.wx=null; PAWC.wy=null; PAWC.s=null; }   // another dog (or room): the counter snaps to him, never glides across
+    PAWC.k=k; PAWC.src=src; PAWC.room=room; PAWC.n=n; if(s){ PAWC.s=s; PAWC.seen=Date.now(); }
+    if(PAW_COUNT && PAWC.s){ const c=pawCounter(); if(c){ pawWrite(c, n); pawPlace(c, PAWC.s); c.classList.remove('tick','flare'); void c.getBoundingClientRect(); c.classList.add(w9? 'flare' : 'tick'); } }
+    if(w9){ try{ SFX.coin(); if(peak) SFX.fanfare(); }catch(e){} pawFloat(w9, PAWC.s); setTimeout(()=>{ try{ if(S.mode==='menu') wfBankChip(); }catch(e){} }, 1200); }   // the head's ★ in place a beat later (atrPay's line)
+    clearTimeout(PAWC.endT); PAWC.endT=setTimeout(pawEnd, PAW_IDLE_MS);
+    if(PAW_COUNT && !PAWC.raf) PAWC.raf=requestAnimationFrame(pawFollow);
+    return w9; }catch(e){ return 0; } }
+function pawCounter(){ const st=document.getElementById('roomStage'); if(!st) return null;   // re-found by id every frame: a repaint that wiped it brings it back at today's count (the keepy-uppy's self-heal)
+  let c=document.getElementById('pawCount');
+  if(!c){ c=document.createElement('div'); c.id='pawCount'; c.className='starfloat run pawcount'; st.appendChild(c); PAWC.wx=null; PAWC.wy=null; pawWrite(c, PAWC.n); }
+  return c; }
+function pawWrite(c, n){ c.innerHTML='<i>♥</i>'+(n|0); }
+function pawSpot(s){   // the counter's centre-top for his live feet: over the head of Bilbo and Sandwiches; beside Hunter's head (his own side away from the stage's near edge), inside the 960 x 600 stage
+  if(PAWC.k==='hu'){ const d=(s.x>820)? -PAW_HU[0] : PAW_HU[0]; return { x:Math.round(Math.max(44, Math.min(916, s.x+d))), y:Math.round(Math.max(56, s.fy-PAW_HU[1])) }; }
+  return { x:Math.round(Math.max(44, Math.min(916, s.x))), y:Math.round(Math.max(56, s.fy-PAW_UP)) }; }
+function pawPlace(c, s){   // a jump (a new dog, a fresh counter, a warp) snaps, a stroll glides on the dogs' own 0.14 s
+  const q=pawSpot(s), x=q.x, y=q.y;
+  if(x===PAWC.wx && y===PAWC.wy) return;
+  const jump=PAWC.wx===null || Math.abs(x-PAWC.wx)>60 || Math.abs(y-PAWC.wy)>60;
+  if(jump) c.style.transition='none';
+  c.style.left=x+'px'; c.style.top=y+'px';
+  if(jump){ void c.getBoundingClientRect(); c.style.transition=''; }
+  PAWC.wx=x; PAWC.wy=y; }
+function pawFloat(w9, s){ const st=document.getElementById('roomStage'); if(!st || !s) return;   // the rung's +N★ rises from just over the counter
+  const f=document.createElement('div'), q=pawSpot(s); f.className='starfloat big pawfloat'; f.textContent='+'+w9+'★';
+  f.style.left=Math.round(Math.max(92, Math.min(868, q.x)))+'px'; f.style.top=Math.round(Math.max(12, q.y-46))+'px';
+  st.appendChild(f); setTimeout(()=>{ try{ f.remove(); }catch(e){} }, 1120); }
+function pawFollow(){   // the counter rides his live seat each frame while it lives; he left the room (or the menu) = the send-off now
+  PAWC.raf=0; if(!PAWC.k) return;
+  try{ const now=Date.now();
+    if(S.mode!=='menu' || roomCur()!==PAWC.room){ pawEnd(); return; }
+    const s=pawSeat(PAWC.k, PAWC.src);
+    if(s){ PAWC.s=s; PAWC.seen=now; } else if(now-PAWC.seen>500){ pawEnd(); return; }   // a repaint re-mints his node a tick later: a short grace, then he is gone
+    if(PAWC.s){ const c=pawCounter(); if(c) pawPlace(c, PAWC.s); }
+  }catch(e){ return; }
+  PAWC.raf=requestAnimationFrame(pawFollow); }
+function pawEnd(){   // the counter's end: the starup send-off, the unsaved pats saved, the repaint a rung asked for (never in the attic: wfBankChip wrote the head already)
+  clearTimeout(PAWC.endT); PAWC.endT=0; if(PAWC.raf){ cancelAnimationFrame(PAWC.raf); PAWC.raf=0; }
+  const c=document.getElementById('pawCount');
+  if(c){ c.removeAttribute('id'); c.classList.remove('run','tick','flare'); void c.getBoundingClientRect(); setTimeout(()=>{ try{ c.remove(); }catch(e){} }, 1000); }   // dropping .run hands it to starup (the payoff run's send-off)
+  if(PAWC.dirty){ PAWC.dirty=0; try{ saveMeta(); }catch(e){} }
+  const rung=PAWC.rung; PAWC.k=null; PAWC.src=null; PAWC.rung=0; PAWC.wx=null; PAWC.wy=null;
+  if(rung) setTimeout(()=>{ try{ if(S.mode==='menu' && !PAWC.k && roomCur()!=='attic') renderMenu(); }catch(e){} }, 700); }   // the keepy-uppy's KU-B: the full catch-up once the pats are done
+function pawRig(o){ o=o||{};   // GVT.paw: the rig's door (read; {reset:1} forgets the ledger, {end:1} ends the counter now; the pats themselves go through the rooms' own router)
+  if(o.reset){ delete META.paw; saveMeta(); }
+  if(o.end) pawEnd();
+  const c=document.getElementById('pawCount'), lead=(()=>{ try{ return dogLeadBreed(); }catch(e){ return null; } })();
+  return { cv:GVT_CV, rungs:PAW_RUNGS.map(r=>r.slice()), pay:PAW_RUNGS.map(r=>starX(r[1])), daily:PAW_DAILY, show:PAW_COUNT, idle:PAW_IDLE_MS, up:PAW_UP, hu:PAW_HU.slice(),
+    ledger:META.paw? JSON.parse(JSON.stringify(META.paw)) : null, live:PAWC.k? { k:PAWC.k, src:PAWC.src, room:PAWC.room, n:PAWC.n, dirty:PAWC.dirty, rung:PAWC.rung } : null,
+    counter:c? { text:c.textContent, cls:c.className, left:c.style.left, top:c.style.top } : null,
+    seat:{ gb:pawSeat('gb','home'), hd:pawSeat('hd','home'), hu:pawSeat('hu','hu'), walk:lead? pawSeat(lead,'walk') : null, lead:lead } }; }
+setTimeout(()=>{ try{ GVT.paw=pawRig; }catch(e){} }, 0);
+// ═══ end of sec:CARD-PAW ═══
 
 // ═══ 1040 THE DOGS ON THE MAP (FM-GVT-MAP-DOGS-01, design/map-dogs-0915; Wyatt 9/15/2026 23:29 EDT, dictated from his phone: "From the fully zoomed out map of the regions; show where both dogs
 // currently are walking around. It will make for an adorable scene"). THE TERRITORIES showed no dog — the dog is a live node dogPaint seats in the ROOM's belt, and the map paints rooms through roomSVG.
