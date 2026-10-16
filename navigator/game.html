@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.96","md5":"a07dfc89feab0f610559946438d305a5","sha":"06ef567ef","at":"2026-10-16T04:07:13Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.97","md5":"aef7fb0309dca7628caa0f3f68eb2a64","sha":"5d617f36c","at":"2026-10-16T04:12:43Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -56328,6 +56328,11 @@ function stuMax(M){   // everything open, from the game's own tables; a copy of 
   for(const k of ['jv2Ann','sumAnn','smkAnn','tkAnn','efAnn','ebAnn','bkAnn','gtAnn','rpAnn','cannonAnn','hbAnn','fishSeen','tugSeen']) M[k]=1;
   M.jfOwed=[]; M.fresh=[]; M.mvDay=0; M.giftPend=0; M.rfdPend=0;
   M.trc=stuObj(M.trc); M.trc.seen=stuAll(M.trc.seen, (typeof TRC_ALL!=='undefined'? TRC_ALL : TRC_ORDER));   // the LEVEL 100 trophy card told (the trophies stand in the fort's case all the same)
+  M.l100=stuObj(M.l100); M.l100.pick=stuObj(M.l100.pick); for(const k of TRC_ORDER){ if(M.l100.pick[k]!=='d' && M.l100.pick[k]!=='h') M.l100.pick[k]='h'; }   // the LEVEL 100 gifts picked (+1 HP each, the card every class is dealt): no two-option chore on the way in (round 2)
+  M.heroMile=stuObj(M.heroMile); for(const k of HEROES){ const r=stuObj(M.heroMile[k]), due=heroMileDue(RANK_MAX); r.n=Math.max(r.n|0, due); r.ann=Math.max(r.ann|0, due); r.pend=0; r.pq=[]; if(!Array.isArray(r.tk)) r.tk=[]; if(!Array.isArray(r.pk)) r.pk=[];
+    try{ const H=HERO_MILES[k]; if(H && H.hpAt) r.hp=Math.max(r.hp|0, H.hpAt(due)|0); }catch(e){} r.ann=Math.max(r.ann|0, r.n|0); M.heroMile[k]=r; }   // the kings' ten milestones settled (claimed + announced, the banked +HP): no sixty-card parade of crystal-power picks on the way in (round 2; her picks already made stay in tk/pk; a king's powers can be pre-picked on her word)
+  M.pet.rung=stuObj(M.pet.rung); for(const k of PET_ORDER){ const r=stuObj(M.pet.rung[k]); r.n=Math.max(r.n|0, 10); r.pend=0; M.pet.rung[k]=r; }   // every pet's ten rungs claimed (the ATTABOY cards: ten a pet, one a landing): no parade (round 2)
+  M.ecAnn=stuUnion(M.ecAnn, COOP_ELITE_MILES.map(x=>x.lvl|0));   // the ELITE n: TOGETHER! cards told (round 2)
   // THE WIRE: a studio of one (a fresh device id is minted at the boot; nothing leaves anyway)
   M.deviceId=''; M.crew=null; M.fcode=''; M.fPend=''; M.bonds=[]; M.bondNew=[]; M.bondSeen=[]; M.bondWarPend=[]; M.recentAllies=[]; delete M.account; delete M.ngpU;
   return M; }
@@ -87669,7 +87674,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.96';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
