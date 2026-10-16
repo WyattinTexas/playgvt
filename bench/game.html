@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.21","md5":"a0b96c6716c6d566e48f202d554e8906","sha":"ff68908b1","at":"2026-10-16T18:07:35Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.22","md5":"e13482653e6b02fa89f0f0128f2dc612","sha":"acf59e468","at":"2026-10-16T18:13:20Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -87934,7 +87934,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -163650,6 +163650,35 @@ try{ if(typeof bossMold==='function' && !KCT.bm0){ const b0=bossMold; KCT.bm0=b0
 function kctRead(){ const rs=document.getElementById('roomStage'), g=rs? rs.querySelector('#decKingcroak') : null; return { on:KCT.on, live:kctOn(), used:KCT.used, loose:KCT.loose, miss:KCT.miss, n:KCT.n, piv:KCT.piv,
   room:g? { kct:!!g.querySelector('.kct'), armL:g.querySelectorAll('.barmL').length, gunL:g.querySelectorAll('.bgunL').length, armR:g.querySelectorAll('.barmR').length, gunR:g.querySelectorAll('.bgunR').length, hat:g.querySelectorAll('.bhat').length } : null }; }
 // ═══ END CARD-KCT ═══
+// ═══ CARD-ODL · THE PHONE KEEPS THE GAME: HER DRAWINGS MINTED WHEN A PICTURE IS FIRST DRAWN (sec:CARD-ODL; design/phone-memory-1016/00-CARD-ODL.md; FROM LAURA, jumpr guest link 10/16/2026
+// 12:05 EDT, verbatim: "this bug keeps me from playing the game" + her screenshot: the store app's RADIO SILENCE card, "GVTShell 3 · WebContent process terminated 5× inside two minutes" = iOS ended the
+// page's process for its memory, again and again). THE CAUSE (measured in WebKit, the iPhone's engine, by the process's phys_footprint, what iOS counts): CARD-ODE's odeMintAll mints all 358 battlefield
+// pictures in her look at every launch, whether a battle draws them or not, and keeps each as a live SVG document (103k SVG elements against 18k): the title screen 504 MB on v23.91, 848 MB the minute
+// v23.92 landed, 873 MB on v24.11. THE CHANGE: odeMintAll (called once, after buildSprites' rasters land) arms a door on each key of IMG instead: the FIRST read of IMG[k] (a draw) queues odeMint(k),
+// CARD-ODE's own mint of that one key, a few keys a tick; the plain picture draws until hers decodes (CARD-ODE's own swap). A key no draw has read for a minute hands its plain picture back and lets hers
+// go (read again = minted again: lagSpr keeps the string, so a re-mint is the decode). Every picture she sees is the same drawing; only WHEN it is made changes. A coat or gown pick (spriteMint) is
+// CARD-ODE's as before. ?odl=0 = CARD-ODE's mint of every key at boot, as before (?ode=0 / ?lag=0 keep their meaning). odlRead() = the counts.
+var ODL={ on:(function(){ try{ return new URLSearchParams(location.search).get('odl')==='0'? 0 : 1; }catch(e){ return 1; } })(), d:{}, q:[], busy:0, ep:0, doors:0, asks:0, out:0, tick:null, all0:null };
+const ODL_IDLE=12, ODL_BEAT=5000, ODL_SLICE=8;   // a picture unread for 12 beats of 5 s (a minute) goes back to plain · the queue mints for 8 ms a tick (a battle's frames come first)
+function odlOn(){ return ODL.on===1 && typeof odeOn==='function' && odeOn(); }
+function odlStep(){ const t0=Date.now(); while(ODL.q.length && Date.now()-t0<ODL_SLICE){ const k=ODL.q.shift(), d=ODL.d[k]; if(d) d.inq=0; try{ odeMint(k); }catch(e){ ODE.miss++; } } if(ODL.q.length) setTimeout(odlStep,0); else ODL.busy=0; }
+function odlAsk(k,d){ d.asked=1; ODL.asks++; if(d.inq) return; d.inq=1; ODL.q.push(k); if(!ODL.busy){ ODL.busy=1; setTimeout(odlStep,0); } }
+function odlDoor(k){   // IMG[k] becomes a door: a read stamps the beat (and asks for her drawing once), a write keeps the picture (hers = CARD-ODE's swap, anything else = a new plain
+  // picture: the ink flip's buildSprites, a coat or gown pick's spriteMint; the next read asks for her drawing of it again)
+  const pd=Object.getOwnPropertyDescriptor(IMG,k); if(!pd || pd.get || pd.set || !pd.configurable || !pd.value) return false;
+  const d={ raw:pd.value, cur:pd.value, at:ODL.ep, asked:0, inq:0 }; ODL.d[k]=d;
+  Object.defineProperty(IMG,k,{ configurable:true, enumerable:true,
+    get:function(){ d.at=ODL.ep; if(!d.asked) odlAsk(k,d); return d.cur; },
+    set:function(n){ if(n && ODE.mine.has(n)) d.cur=n; else { d.raw=n; d.cur=n; d.asked=0; } } });
+  ODL.doors++; return true; }
+function odlBeat(){ ODL.ep++; const old=ODL.ep-ODL_IDLE;   // her drawings nothing has drawn for a minute let go: the plain picture back, the next read mints again
+  for(const k in ODL.d){ const d=ODL.d[k]; if(d.raw && d.cur!==d.raw && d.at<old){ ODE.mine.delete(d.cur); d.cur=d.raw; d.asked=0; ODL.out++; } } }
+function odlArm(){ const ks=Object.keys(IMG); for(let i=0;i<ks.length;i++) odlDoor(ks[i]); if(!ODL.tick) ODL.tick=setInterval(odlBeat, ODL_BEAT); }
+try{ if(typeof odeMintAll==='function' && !ODL.all0){ ODL.all0=odeMintAll;
+  odeMintAll=function(){ if(!odlOn()) return ODL.all0.apply(this, arguments); ODE.runs++; odlArm(); ODE.t=Date.now(); }; } }catch(e){}   // ODE.t = the doors stand (odeRead's done)
+function odlRead(){ let mint=0, plain=0, asked=0; const keys=[]; for(const k in ODL.d){ const d=ODL.d[k]; if(d.cur!==d.raw){ mint++; keys.push(k); } else plain++; if(d.asked) asked++; }
+  return { on:ODL.on, live:odlOn(), doors:ODL.doors, asks:ODL.asks, asked:asked, mint:mint, plain:plain, out:ODL.out, queue:ODL.q.length, ep:ODL.ep, keys:keys }; }
+// ═══ END CARD-ODL ═══
 // ═══ CARD-IOT · A MUCH LIGHTER LINE WHERE A BODY PART CROSSES A BODY PART OF THE SAME COLOUR (sec:CARD-IOT; design/interior-outline-test-1016/00-CARD-IOT.md; FROM AL, Wyatt's lead
 // designer, jumpr guest link 10/15/2026 21:59 EDT, verbatim: "lets test out a new rule to the outline pass that if the shape is a body part intersecting another body part of the same color it gets a much
 // lighter interior outline. Can we test on the attached image and also the snake from western world. Also lets try one where (with the same rules) theres no interior outline."). Her two figures, THE WIND-UP
