@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.91","md5":"50ef996649dd485191a760c3b9898404","sha":"39aa3188e","at":"2026-10-16T03:37:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.92","md5":"7dc77b4ea1bb0e883fdc4582ba8891a0","sha":"5dd803ab6","at":"2026-10-16T03:40:11Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -87514,7 +87514,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.92';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -162913,6 +162913,54 @@ const LAG_BAND={ n:0, h:0, w:0, g:null };
 function lagRugBand(WD,HT){ if(!lagOn() || S.momRaid || !(WD>0) || !(HT>0)) return; if(LAG_BAND.h!==HT || !LAG_BAND.g){ const g=cx.createLinearGradient(0,0,0,HT); g.addColorStop(0,'rgba(255,244,220,0.16)'); g.addColorStop(0.42,'rgba(255,244,220,0)'); g.addColorStop(0.60,'rgba(30,20,8,0)'); g.addColorStop(1,'rgba(30,20,8,0.24)'); LAG_BAND.g=g; LAG_BAND.h=HT; } LAG_BAND.w=WD; cx.fillStyle=LAG_BAND.g; cx.fillRect(0,0,WD,HT); LAG_BAND.n++; }
 function lagFieldRead(){ return { n:LAG_BAND.n, h:LAG_BAND.h, w:LAG_BAND.w, mode:S.mode, bf:!!S.bf }; }
 // ═══ END CARD-LAG ═══
+// ═══ CARD-ODE · ONE DRAWING PER THING, EVERYWHERE (sec:CARD-ODE; design/one-drawing-1016/00-CARD-ODE.md; FROM LAURA, jumpr guest link 10/15/2026 22:29 EDT, verbatim head: "every character AND
+// every item must look the SAME everywhere in the game ... One drawing per thing, used in every place it shows up: battles at every level, the fort, the rooms and parks ... Example 1: Wyatt and I love King Croak in the
+// fort, but when we played level ~160 it was NOT the same King Croak. The fort's King Croak is the one to keep. Example 2: Dino Park shows two Sarges - my mock Sarge (from my pass 11 painting) and the game's Sarge. Take MY
+// mock Sarge out; only the game's Sarge stays. ... keep an off switch"). ROUND 1:
+// (1) THE BATTLES. Every room, card, the Log and the fort draw a figure through lagSpr (sprURI, realSpr, the four tint builders): her character page's drawing (CARD-OLR's bake). The battlefield's own pictures
+//     IMG[k] were rasterised by buildSprites from the RAW mold, so every hero (King Croak, his aim and firing poses), every boss, every foe out of the tint lists and the undyed Corps GREEN army fought in the old flat
+//     drawing at every level. buildSprites is wrapped: after its rasters land (the boot waits on nothing new), each key's picture is minted again from lagSpr of the very string buildSprites drew (GREEN or TAN, read
+//     back off IMG[k]'s own src) and swapped in at its decode, a few keys a tick; a wide companion (SPR_WIDE) follows its key. spriteMint (one key re-minted) is followed the same way. The pets stay round 35's (petImg).
+// (1b) KING CROAK = THE FORT'S. The fort draws him in his storm stance (kingcroakfire: the half-lidded smirk, the bowler, both irons out); at rest on a field, in a boss fight, on a card or a speaker plate he wore the
+//     plain kingcroak mold (the wide eyes his son Little King Croak keeps: kingcroaklil = that mold). ODE_AS = the drawing that stands in for a key everywhere: IMG.kingcroak is minted from kingcroakfire's drawing (the
+//     same box, the same body pose, the irons where croakMz measures them), and sprURI('kingcroak') hands out kingcroakfire's; his aim poses, his flinch and his firing face stay his own; the son keeps his (the shake
+//     scene's cam-lilc, drawn off his father's key, is handed the son's own picture).
+// (2) HER MOCK SARGE. lagDinoSVG (CARD-LAG's painting of Dino Park) drew her own pacing Sarge (#lag-army) beside the game's Sarge at the DEPLOY flank: cut out of the painting's string, nothing else in it moved.
+// ?ode=0 = all as before (the off switch); ?lag=0 / ?olr=0 keep their own meaning (lagSpr hands the raw string back = nothing to mint). odeRead() = the counts.
+var ODE={ on:(function(){ try{ return new URLSearchParams(location.search).get('ode')==='0'? 0 : 1; }catch(e){ return 1; } })(), minted:0, same:0, skip:0, miss:0, wide:0, runs:0, sarge:0, as:0, keys:{}, mine:new Set() };
+const ODE_AS={ kingcroak:'kingcroakfire' };   // Laura 10/15: "The fort's King Croak is the one to keep."
+function odeOn(){ return ODE.on===1 && typeof lagOn==='function' && lagOn(); }
+function odeMint(k){   // IMG[k]'s own drawing → the same drawing through lagSpr (her page's), swapped in at its decode; false = nothing to do
+  const im=IMG[k]; if(!im || ODE.mine.has(im) || (typeof PET_BOX!=='undefined' && PET_BOX[k])) { ODE.skip++; return false; }
+  const P='data:image/svg+xml;utf8,', src=String(im.src||''); if(src.indexOf(P)!==0){ ODE.skip++; return false; }
+  let full=''; try{ full=decodeURIComponent(src.slice(P.length)); }catch(e){ ODE.miss++; return false; }
+  const a=full.indexOf('>'), z=full.lastIndexOf('</svg>'); if(a<0 || z<a){ ODE.miss++; return false; }
+  const head=full.slice(0,a+1), body=full.slice(a+1,z);
+  let raw=null; try{ raw=amMold(k); }catch(e){ raw=null; } if(typeof raw!=='string'){ ODE.miss++; return false; }
+  const hex=(body===raw.split('currentColor').join(GREEN))? GREEN : (body===raw.split('currentColor').join(TAN))? TAN : null; if(!hex){ ODE.miss++; return false; }
+  const sk=ODE_AS[k] && SPRITES_SRC[ODE_AS[k]]? ODE_AS[k] : k; let v=body; try{ v=(sk===k)? lagSpr(body,k,hex) : lagSpr(amMold(sk).split('currentColor').join(hex),sk,hex); }catch(e){ v=body; } if(typeof v!=='string' || v===body){ ODE.same++; return false; }
+  const nu=new Image(); ODE.mine.add(nu);
+  nu.onload=()=>{ if(IMG[k]!==im) return; IMG[k]=nu; ODE.minted++; ODE.keys[k]=hex; if(typeof SPR_WIDE!=='undefined' && SPR_WIDE[k] && typeof sprWideMint==='function'){ try{ sprWideMint(k, v); ODE.wide++; }catch(e){} } };
+  nu.src=P+encodeURIComponent(head+v+'</svg>'); return true; }
+function odeMintAll(){ if(!odeOn()) return; ODE.runs++; const ks=Object.keys(IMG); let i=0;
+  const step=()=>{ const t0=Date.now(); while(i<ks.length && Date.now()-t0<12){ try{ odeMint(ks[i]); }catch(e){ ODE.miss++; } i++; } if(i<ks.length) setTimeout(step,0); else ODE.t=Date.now(); }; setTimeout(step,0); }
+try{ if(typeof buildSprites==='function' && !ODE.bs0){ const b0=buildSprites; ODE.bs0=b0;
+  buildSprites=function(done){ return b0.call(this, function(){ try{ if(typeof done==='function') return done.apply(this, arguments); } finally { try{ odeMintAll(); }catch(e){} } }); }; } }catch(e){}
+try{ if(typeof spriteMint==='function' && !ODE.sm0){ const m0=spriteMint; ODE.sm0=m0;
+  spriteMint=function(k){ const r=m0.apply(this, arguments); if(odeOn()){ const old=IMG[k]; let n=0; const look=()=>{ if(IMG[k]!==old){ try{ odeMint(k); }catch(e){} } else if(++n<20) setTimeout(look,150); }; setTimeout(look,150); } return r; }; } }catch(e){}
+try{ if(typeof sprURI==='function' && !ODE.su0){ const u0=sprURI; ODE.su0=u0;
+  sprURI=function(k,color,vbox,body){ const as=ODE_AS[k]; if(as && ODE.on===1 && SPRITES_SRC[as] && (body==null || body===SPRITES_SRC[k])){ ODE.as++; return u0.call(this, as, color, vbox||'0 0 140 140'); } return u0.apply(this, arguments); }; } }catch(e){}
+try{ if(typeof shakeCamHTML==='function' && !ODE.sc0){ const c0=shakeCamHTML; ODE.sc0=c0;
+  shakeCamHTML=function(){ const v=c0.apply(this, arguments); if(ODE.on!==1 || typeof v!=='string') return v; const a=v.indexOf('cam-lilc'); if(a<0) return v; const i=v.indexOf('src="',a); if(i<0) return v; const j=v.indexOf('"',i+5); if(j<0) return v;
+    return v.slice(0,i+5)+sprURI('kingcroaklil',null,'0 0 140 140')+v.slice(j); }; } }catch(e){}   // the son keeps his own face (his father's key hands out the fort's now)
+function odeCut(v,id){   // the <g id="…"> group out of an SVG string, balanced (its own nested groups with it); the string as it was when the id is not there
+  const a=v.indexOf('<g id="'+id+'"'); if(a<0) return v; const re=/<g\b[^>]*>|<\/g>/g; re.lastIndex=a; let d=0, m;
+  while((m=re.exec(v))){ if(m[0]==='</g>'){ if(--d===0) return v.slice(0,a)+v.slice(re.lastIndex); } else if(m[0].slice(-2)!=='/>') d++; } return v; }
+try{ if(typeof lagDinoSVG==='function' && !ODE.ld0){ const l0=lagDinoSVG; ODE.ld0=l0;
+  lagDinoSVG=function(){ const v=l0.apply(this, arguments); if(ODE.on!==1 || typeof v!=='string') return v; const c=odeCut(v,'lag-army'); if(c!==v) ODE.sarge++; return c; }; } }catch(e){}
+function odeRead(){ const bg=document.getElementById('parkBg'); return { on:ODE.on, live:odeOn(), minted:ODE.minted, same:ODE.same, skip:ODE.skip, miss:ODE.miss, wide:ODE.wide, runs:ODE.runs, sarge:ODE.sarge, as:ODE.as, keys:Object.keys(ODE.keys).length,
+  done:!!ODE.t, parkSarge:bg? bg.querySelectorAll('#lag-army').length : -1, parkDog:bg? bg.querySelectorAll('#lag-dog').length : -1 }; }
+// ═══ END CARD-ODE ═══
 // ═══ CARD-IOT · A MUCH LIGHTER LINE WHERE A BODY PART CROSSES A BODY PART OF THE SAME COLOUR (sec:CARD-IOT; design/interior-outline-test-1016/00-CARD-IOT.md; FROM AL, Wyatt's lead
 // designer, jumpr guest link 10/15/2026 21:59 EDT, verbatim: "lets test out a new rule to the outline pass that if the shape is a body part intersecting another body part of the same color it gets a much
 // lighter interior outline. Can we test on the attached image and also the snake from western world. Also lets try one where (with the same rules) theres no interior outline."). Her two figures, THE WIND-UP
