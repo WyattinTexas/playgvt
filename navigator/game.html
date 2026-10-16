@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.20","md5":"5f0289c1c49137fd3b7bf2f195c95409","sha":"ee5c743c4","at":"2026-10-16T17:55:55Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.21","md5":"a0b96c6716c6d566e48f202d554e8906","sha":"ff68908b1","at":"2026-10-16T18:07:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -15711,6 +15711,9 @@
   html.pjp-on .fortcard .ros-paint .sh-tag.wear { color:#fff; }   /* WEARING IT in the prices' own white (.sh-tag's #fff, the 80★ beside it): on the ROSTER card the row's stickers wear no paper (--gold / --sticker are the Surplus's variables, never declared on the fort's card), so the gold sticker's dark ink #3A2A14 sat on the card's dark (Isaac: "blending with the background and unreadable") */
   html.pjp-on.ftn-on .fortcard .ros-jars { gap:4px clamp(6px,1.4vw,14px); }   /* ROUND 2 (Isaac 12:56: "space all the bottles out just a tad"): the jars' gap 0.9vw to 1.4vw (his phone 7.7 to 11.9 px, measured by rig/probeGap.mjs: YOURS and WEARING IT on neighbouring jars no longer overlap; the row still one line; the next step up wraps the small old phone's row) */
   html.pjp-on:not(.ftn-on) .fortcard .ros-jars { gap:2px clamp(5px,1vw,8px); }   /* the shipped row (?ftn=0): the same tad */
+  html.pjp-on .fortcard .ros-jars { flex-wrap:nowrap; max-width:100%; }   /* ROUND 3 (Isaac 13:25 "never add another row"): the row never wraps: the jars and the bucket shrink to the line instead (their svg follows: width 100%, height auto) */
+  html.pjp-on .fortcard .ros-jars .sh-jar, html.pjp-on .fortcard .ros-jars .sh-bucket { flex:0 1 auto; min-width:0; }
+  html.pjp-on.ftn-on .fortcard .ros-paint .sh-tag { font-size:calc(clamp(8px,1.2vw,14px) * var(--pjpTag,1)); padding:1px 4px; }   /* the sticker sized by the glass's WIDTH (the row is the glass's width: on his phone the same 10.2 px as 2.6vh, smaller on a squat glass), times pjpFitRow's measure (never two neighbours touching) */
   .mb-card.mbpjp { width:min(94vw,400px); }   /* THE NEW PAINT CARD (rfCard's grammar, three men wide) */
   .mbpjp .mb-band { text-transform:uppercase; }
   .mbpjp .mb-win { width:min(84vw,330px); }
@@ -87931,7 +87934,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -170721,6 +170724,20 @@ function pjpCard(id){ const a=dyeRowOf(id), p=document.getElementById('milePop')
     +'</div>';
   p.classList.remove('hidden');
   SFX.fanfare(); return true; }
+// ROUND 3 (Isaac 13:25: "We definitely don't want it to ever add another row and also it's overlapping on the roster. Make sure that never happens."): the row never wraps (the css above: nowrap, the jars and the bucket shrink to the line), and the stickers are MEASURED on the glass they stand on:
+// after every deal of the ROSTER card (fortDeal, fortSync: the tab, a jar's re-deal; wrapped here, the fort's own functions untouched), once the fonts are in, and on a resize (a turned phone), pjpFitRow shrinks the stickers (--pjpTag, 5 % steps, floor 0.5) until no two neighbours' boxes touch.
+function pjpFitRow(){ const row=document.querySelector('#roomModal .fortcard #rosPaint .ros-jars'); if(!PJP.on || !row) return 0;
+  const tags=[...row.querySelectorAll('.sh-jar .sh-tag')]; if(tags.length<2) return 0;
+  const hit=()=>{ const r=tags.map(t=>t.getBoundingClientRect()); for(let i=1;i<r.length;i++){ const a=r[i-1], b=r[i]; if(Math.min(a.right,b.right)-Math.max(a.left,b.left)>0 && Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>0) return true; } return false; };
+  let k=1; row.style.setProperty('--pjpTag','1');
+  while(hit() && k>0.5){ k=Math.round((k-0.05)*100)/100; row.style.setProperty('--pjpTag',String(k)); }
+  PJP.fit=k; return k; }
+function pjpFitSoon(){ if(!rosPaintStands()) return; pjpFitRow(); try{ requestAnimationFrame(()=>{ if(rosPaintStands()) pjpFitRow(); }); }catch(e){} }   // once now (the layout is in), once on the next frame (the fonts, the images)
+const pjpFortDeal=fortDeal, pjpFortSync=fortSync;
+fortDeal=function(){ const r=pjpFortDeal.apply(this,arguments); pjpFitSoon(); return r; };
+fortSync=function(){ const r=pjpFortSync.apply(this,arguments); pjpFitSoon(); return r; };
+window.addEventListener('resize', ()=>{ clearTimeout(PJP.rz); PJP.rz=setTimeout(pjpFitSoon, 120); });
+try{ if(document.fonts && document.fonts.ready) document.fonts.ready.then(pjpFitSoon); }catch(e){}
 // ROUND 2 (Isaac 12:56): OWNED, the owned jar's sticker, in the six other tongues (the walker reads the sticker's text through the tables, as YOURS before it)
 Object.assign(TR.ar||(TR.ar={}), {"OWNED":"مملوك"});
 Object.assign(TR.ja||(TR.ja={}), {"OWNED":"しょゆう"});
