@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.23","md5":"ca3fac22443f537413968d23bde2255b","sha":"801d60dfd","at":"2026-10-16T18:16:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.24","md5":"0a18bffa76c460ce12aede20f1c6ad43","sha":"7164d4cf6","at":"2026-10-16T18:44:54Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -14627,6 +14627,14 @@
      tenths of its size, centred where it stood); the people seat (.live) keeps its top. html.ffi-on = FFI.on (?ffi=0 = the card as CARD-ITX left it). ═══ */
   html.ffi-on #premPop .mb-card.mbprem { scale:0.9; }
   html.ffi-on #premPop.live .mb-card.mbprem { transform-origin:50% 0; }
+  /* CARD-FFI R4 THE DYNAMIC ISLAND (Isaac 10/16/2026 14:10 EDT on the live build: "Move the transmissions from Sarge in the opening battle like 10 pixels to the right because, on my iPhone 18, it's overlapping with the Dynamic Island. Make sure it's not overlapping anywhere else."): the glass's safe insets as the device reports them (59 pt a side on an iPhone 15 Pro held sideways, 62 on a 16 Pro, 0 where there is no island); the briefing's window (#comms.brief, centred on the glass: its left edge stood 17-35 px in, under a 37-pt island 11-14 pt from the edge) is padded by them and shrinks to fit between; the tour's seats read the same two variables (ffiSafe) */
+  html { --ffi-sal:env(safe-area-inset-left, 0px); --ffi-sar:env(safe-area-inset-right, 0px); }
+  #comms.brief { padding-left:var(--ffi-sal); padding-right:var(--ffi-sar); box-sizing:border-box; }
+  #comms.brief .cm-win { max-width:100%; }
+  html #comms.brief.ttb { padding-left:max(12px, 2vw, var(--ffi-sal)); padding-right:max(12px, 2vw, var(--ffi-sar)); }   /* the tags' briefing (CARD-TTB2: its own padding shorthand) between the insets too */
+  #comms.say .cm-win { margin-left:var(--ffi-sal); }   /* the soundbite's seat (commSayAs: 10 units in from the canvas's left edge, absolute) shifted right by the left inset: its box stood 26 px in */
+  html #comms.brief.reg.stk { padding-left:max(calc((100vw - min(92vw,800px)) / 2), var(--ffi-sal)); }   /* THE INCOMING TRANSMISSION dress (CARD-STK-BOX) centres its full width L through the root's padding-left (34 px at 852): no closer to the glass's edge than the left inset; its window (at most 0.86 L) still ends inside the right inset */
+  @media (min-width:1280px){ html #comms.brief.reg.stk { padding-left:max(calc((100vw - min(84vw,1100px)) / 2), var(--ffi-sal)); } }   /* the desk's own L, the same clamp (0 there) */
   /* 0636 MONETISATION SURFACES: THE STAR POP-UP — the mystery box's card grammar on its own storey (z27 beside #milePop: over
      the shop's z9 and the party sheet's z6; the pitch's z26 never stands under it — the pitch holds a launch and the piggy is
      unreachable beneath it). Card-scoped ONLY (.mbstar): the aisle's own .sh-pkstar / .sh-nacard rows are untouched. */
@@ -87935,7 +87943,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.23';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.24';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -150487,7 +150495,7 @@ function tourSeatPlan(el, win, nm, tabH, h, g, b){
   const G=TOUR_SEAT_GAP, top=el.classList.contains('top'), pi=(b.kind==='pintro'), tb=(b.kind==='tour');   // CARD-FF3 t7: tb = a tour page: its SARGE tab always under the top bar (the seat ON the bar's edge, yB, is the plane's alone)
   const hd=document.querySelector('#roomStage .roomhead'), hr=hd? hd.getBoundingClientRect() : null, bar=(hr && hr.height>0 && hr.bottom<g.sy+g.sh/2)? Math.max(hr.bottom, g.sy) : g.sy+SG_PAD;
   const y0=bar+tabH, yB=bar, y1=Math.min(g.sy+g.sh, g.ih)-SG_PAD;   // the box's highest top (its tab under the top bar) · the last resort's (yB: the box's top ON the bar's edge, its tab in the bar's empty middle, tourSeatTab sliding it past the bar's name, XP bar and chips: the phone's plane at her hold, 3.4x big, where every pixel above her counts) · its lowest bottom (the stage's floor)
-  const c0=g.fx+g.fw+SG_CON_GAP, c1=c0+Math.max(120, Math.min(SG_CON_MAX, Math.max(g.sx+g.sw, g.iw)-SG_PAD-c0));   // the shipped column beside him
+  const c0=g.fx+g.fw+SG_CON_GAP, c1=c0+Math.max(120, Math.min(SG_CON_MAX, Math.max(g.sx+g.sw, g.iw)-Math.max(SG_PAD, ffiSafe('r'))-c0));   /* CARD-FFI R4: the planned column's far edge inside the right inset too */   // the shipped column beside him
   const put=(x0,x1)=>{ win.style.left=x0+'px'; win.style.width=(x1-x0)+'px'; };
   const rest=h.txt.getAttribute('data-rest'); if(rest!=null) h.txt.removeAttribute('data-rest');   // a hidden untyped rest (FF-19) is never measured
   win.style.minHeight=''; h.txt.style.fontSize='';   // CARD-FF3 t7: the plan measures every page at the rule's size (tourSeatFit's smaller size is the seat's own)
@@ -150534,9 +150542,9 @@ function tourSeatFig(){   // (C1 / C2, ⚑ Q3 / Q13) the figure on the STAGE's f
   const was=h? h.tn.nodeValue : null; if(h && b.pages[b.i]!=null) h.tn.nodeValue=b.pages[b.i];   // the page's full text, for the measure
   const nm=win.querySelector('.cm-name'), tabH=nm? nm.getBoundingClientRect().height : 0;   // the SARGE plate rides ABOVE the box's top edge as a tab: the box leaves it room
   win.style.minHeight='';
-  if(el.classList.contains('top')){ const full=iw>sw+1, tw=full? iw : sw, tx=full? 0 : sx, rt=f.classList.contains('rt'); const lo=rt? tx+SG_PAD : fx+fw+SG_CON_GAP, hi=rt? fx-SG_CON_GAP : tx+tw-SG_PAD; const cw=Math.max(120, Math.min(SG_CON_MAX, hi-lo)); win.style.left=(rt? hi-cw : lo)+'px'; win.style.width=cw+'px'; /* CARD-X2: across the top BESIDE the figure's column — from his shoulder to the screen's far edge (a phone's painted side band holds the doubled words; .rt mirrored) — so a tall doubled page never covers him, and the tile he points at (bottom-right) stays clear */ win.style.top=(sy+SG_FLOOR_VH*vh+tabH)+'px'; }   // ⚑ Q7b: the stage's width at its top, at most SG_CON_MAX and centred (a phone = the sheet's 612; a tablet / desk 640 centred, never a 1008 / 1264 px banner)
+  if(el.classList.contains('top')){ const full=iw>sw+1, tw=full? iw : sw, tx=full? 0 : sx, rt=f.classList.contains('rt'); const lo=rt? Math.max(tx+SG_PAD, ffiSafe('l')) : fx+fw+SG_CON_GAP, hi=rt? fx-SG_CON_GAP : Math.min(tx+tw-SG_PAD, iw-ffiSafe('r'));   /* CARD-FFI R4: the .top console's near edge no closer to the glass's edge than the safe inset (THE CLOSE's box ran from x 8 under the island's top end; the plane's to the far edge) */ const cw=Math.max(120, Math.min(SG_CON_MAX, hi-lo)); win.style.left=(rt? hi-cw : lo)+'px'; win.style.width=cw+'px'; /* CARD-X2: across the top BESIDE the figure's column — from his shoulder to the screen's far edge (a phone's painted side band holds the doubled words; .rt mirrored) — so a tall doubled page never covers him, and the tile he points at (bottom-right) stays clear */ win.style.top=(sy+SG_FLOOR_VH*vh+tabH)+'px'; }   // ⚑ Q7b: the stage's width at its top, at most SG_CON_MAX and centred (a phone = the sheet's 612; a tablet / desk 640 centred, never a 1008 / 1264 px banner)
   else {
-    const cx=fx+fw+SG_CON_GAP, cw=Math.max(120, Math.min(SG_CON_MAX, Math.max(sx+sw, iw)-SG_PAD-cx)); /* CARD-X2: the console may run past the stage's right edge into the screen's painted side band (a phone: +112 px of room for the doubled words) */
+    const cx=fx+fw+SG_CON_GAP, cw=Math.max(120, Math.min(SG_CON_MAX, Math.max(sx+sw, iw)-Math.max(SG_PAD, ffiSafe('r'))-cx));   /* CARD-FFI R4: the beside-him console's far edge inside the right inset (a phone held the other way round) */ /* CARD-X2: the console may run past the stage's right edge into the screen's painted side band (a phone: +112 px of room for the doubled words) */
     win.style.left=cx+'px'; win.style.width=cw+'px';
     const wh=win.getBoundingClientRect().height, hy=fy+50/140*fh;
     win.style.top=Math.max(sy+SG_PAD+tabH, Math.min(sy+sh-SG_PAD-wh, hy-wh/2))+'px'; win.style.minHeight=wh+'px';
@@ -151064,6 +151072,11 @@ function ffiCloseRect(sp){   // the lit rect: the fort's part on the card + the 
   if(!(x1>x0 && y1>y0)) return null;
   const P=TOUR_LIT_PAD, E=FFI_LIT_EDGE, W=window.innerWidth, H=window.innerHeight, L=Math.max(E, x0-P), T=Math.max(E, y0-P), R=Math.min(W-E, x1+P), D=Math.min(H-E, y1+P);
   return (R>L && D>T)? { x:L, y:T, w:R-L, h:D-T } : null; }
+// R4 THE DYNAMIC ISLAND (Isaac 10/16/2026 14:10 EDT on the live build: "Move the transmissions from Sarge in the opening battle like 10 pixels to the right because, on my iPhone 18, it's
+// overlapping with the Dynamic Island. Make sure it's not overlapping anywhere else."): the glass's safe insets, as the device reports them (env(safe-area-inset-left/right) through --ffi-sal / --ffi-sar
+// on html; 59 pt on an iPhone 15 Pro held sideways, 62 on a 16 Pro, 0 on a phone with no island and on a desk); the briefing's window is padded by them (css), the tour's seats are bounded by them
+// (tourSeatFig's .top seat and beside-him width, tourSeatPlan's column). A rig sets the two variables on html to play an island phone.
+function ffiSafe(side){ try{ const v=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(side==='r'? '--ffi-sar' : '--ffi-sal')); return (v>0)? v : 0; }catch(e){ return 0; } }
 // N5's companion: the idle beacon (0494d / CARD-ON: after 12 s without a tap a door lights and its pill says DO THE CAMPAIGN) stays dark while a tour hand waits for HIS tap (a stop's door, THE CLOSE's CAMPAIGN):
 // today the glove pressed inside a second, so the two never met; a hand that waits must be the one pointer on the glass
 function ffiBeaconHold(){ return !!(FFI.on && (TOUR.walk || TOUR.owe || FFI.walk || FFI.hint)); }
