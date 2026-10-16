@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.27","md5":"7935c7a123bd3a4d489eea81c52b148d","sha":"2e6648990","at":"2026-10-16T19:32:12Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.28","md5":"c17eeacfbb3a0f0ddedc6aadf4e5f0d9","sha":"c807f6325","at":"2026-10-16T19:37:40Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88273,7 +88273,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.28';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -164030,6 +164030,38 @@ try{ if(typeof odeMintAll==='function' && !ODL.all0){ ODL.all0=odeMintAll;
 function odlRead(){ let mint=0, plain=0, asked=0; const keys=[]; for(const k in ODL.d){ const d=ODL.d[k]; if(d.cur!==d.raw){ mint++; keys.push(k); } else plain++; if(d.asked) asked++; }
   return { on:ODL.on, live:odlOn(), doors:ODL.doors, asks:ODL.asks, asked:asked, mint:mint, plain:plain, out:ODL.out, queue:ODL.q.length, ep:ODL.ep, keys:keys }; }
 // ═══ END CARD-ODL ═══
+// ═══ CARD-ODL-2 · THE PHONE KEEPS THE GAME, ROUND 2: THE DYED SETS MADE WHEN FIRST DRAWN (sec:CARD-ODL-2; design/phone-memory-1016/00-CARD-ODL.md; FROM LAURA, her WhatsApp reply 10/16/2026 15:10 EDT to
+// CARD-ODL's send, verbatim: "It should not happen to anyone"). THE CAUSE (Maker 1's F3): buildFoeTint (IMGT), buildFoeRim (IMGTR), buildUnitTint (IMGU) and buildUnitRim (IMGR) decode EVERY key of their list in a
+// colour the moment that colour is first needed (a seat dealt, a mate, a rival, the nemesis, the zombies): about 70 pictures a colour, 2 to 4 colours a battleground, about +90 MB that stays. Every reader (unitImg's pick,
+// foeImg, foeImgF, oc9Img, olvTanImg, ovfRedImg17/19) reads T[hex][k] and draws the plain picture while one is not decoded (the v1.27 rim law). THE CHANGE: the four builders are REBOUND (the originals kept in ODL2.b0).
+// The new one runs the ORIGINAL builder once under a recorder (for that one synchronous run Image is a fake whose src setter records the string; amMold is wrapped to record the key), so every key's string is the eager
+// builder's own, byte for byte, and no list, box or filter is copied here; then each key of the bucket becomes a DOOR: the first read starts that one decode (undefined until it lands = the shipped fallback), the
+// picture after; a write keeps what is written. No idle release for a dyed picture (a let-go man would flash the factory green mid-battle). ?odl2=0 = the four builders as before. odl2Read() = the counts.
+var ODL2={ on:(function(){ try{ return new URLSearchParams(location.search).get('odl2')==='0'? 0 : 1; }catch(e){ return 1; } })(), b0:{}, d:[], doors:0, asks:0, mint:0, miss:0, runs:0, rec:null };
+function odl2On(){ return ODL2.on===1; }
+function Odl2Fake(){ this._s=''; }   // the recorder's Image: a src write is recorded against the last amMold key; nothing decodes
+Object.defineProperty(Odl2Fake.prototype,'src',{ configurable:true, get:function(){ return this._s; }, set:function(v){ this._s=String(v); if(ODL2.rec) ODL2.rec.push({ k:ODL2.rec.k, src:this._s }); } });
+function odl2Record(b0,hex){   // the original builder run once under the recorder: [{k, src}] in the builder's own order (its lagSpr pass runs as before, memoised; only the decodes are held back)
+  const rec=[]; rec.k=null; ODL2.rec=rec; const I0=window.Image, A0=amMold;
+  try{ window.Image=Odl2Fake; amMold=function(k){ rec.k=k; return A0.apply(this, arguments); }; b0.call(null, hex); }
+  catch(e){ ODL2.miss++; }
+  finally{ window.Image=I0; amMold=A0; ODL2.rec=null; }
+  return rec; }
+function odl2Door(B,k,src){ const d={ k:k, src:src, im:null, asked:0 }; ODL2.d.push(d);
+  Object.defineProperty(B,k,{ configurable:true, enumerable:true,
+    get:function(){ if(d.im) return d.im; if(!d.asked){ d.asked=1; ODL2.asks++; const im=new Image(); im.onload=function(){ d.im=im; ODL2.mint++; }; im.src=d.src; } return undefined; },
+    set:function(v){ d.im=v||null; } });
+  ODL2.doors++; }
+function odl2Build(T,b0,hex){ if(T[hex]) return b0.call(null, hex);   // the bucket stands: the original's own early return
+  const rec=odl2Record(b0,hex); const B=T[hex]; if(!B) return; ODL2.runs++;
+  for(let i=0;i<rec.length;i++){ const r=rec[i]; if(!r.k || !r.src || Object.prototype.hasOwnProperty.call(B,r.k)){ ODL2.miss++; continue; } odl2Door(B,r.k,r.src); } }
+try{ if(typeof buildFoeTint==='function' && !ODL2.b0.ft){ ODL2.b0.ft=buildFoeTint; buildFoeTint=function(hex){ if(!odl2On()) return ODL2.b0.ft.apply(this, arguments); return odl2Build(IMGT, ODL2.b0.ft, hex); }; } }catch(e){}
+try{ if(typeof buildFoeRim==='function' && !ODL2.b0.fr){ ODL2.b0.fr=buildFoeRim; buildFoeRim=function(hex){ if(!odl2On()) return ODL2.b0.fr.apply(this, arguments); return odl2Build(IMGTR, ODL2.b0.fr, hex); }; } }catch(e){}
+try{ if(typeof buildUnitTint==='function' && !ODL2.b0.ut){ ODL2.b0.ut=buildUnitTint; buildUnitTint=function(hex){ if(!odl2On()) return ODL2.b0.ut.apply(this, arguments); return odl2Build(IMGU, ODL2.b0.ut, hex); }; } }catch(e){}
+try{ if(typeof buildUnitRim==='function' && !ODL2.b0.ur){ ODL2.b0.ur=buildUnitRim; buildUnitRim=function(hex){ if(!odl2On()) return ODL2.b0.ur.apply(this, arguments); return odl2Build(IMGR, ODL2.b0.ur, hex); }; } }catch(e){}
+function odl2Read(){ let mint=0, asked=0; for(let i=0;i<ODL2.d.length;i++){ const d=ODL2.d[i]; if(d.im) mint++; if(d.asked) asked++; }
+  return { on:ODL2.on, live:odl2On(), runs:ODL2.runs, doors:ODL2.doors, asks:ODL2.asks, asked:asked, mint:mint, miss:ODL2.miss, bound:!!(ODL2.b0.ft&&ODL2.b0.fr&&ODL2.b0.ut&&ODL2.b0.ur) }; }
+// ═══ END CARD-ODL-2 ═══
 // ═══ CARD-IOT · A MUCH LIGHTER LINE WHERE A BODY PART CROSSES A BODY PART OF THE SAME COLOUR (sec:CARD-IOT; design/interior-outline-test-1016/00-CARD-IOT.md; FROM AL, Wyatt's lead
 // designer, jumpr guest link 10/15/2026 21:59 EDT, verbatim: "lets test out a new rule to the outline pass that if the shape is a body part intersecting another body part of the same color it gets a much
 // lighter interior outline. Can we test on the attached image and also the snake from western world. Also lets try one where (with the same rules) theres no interior outline."). Her two figures, THE WIND-UP
