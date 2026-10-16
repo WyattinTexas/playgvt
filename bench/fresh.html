@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.13","md5":"033fd562a6fd255cd49bef0cda0d804f","sha":"cd4285ef3","at":"2026-10-16T16:40:50Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.14","md5":"e224cbd379537f55a4ba07ebf33bf0ea","sha":"a358eca60","at":"2026-10-16T16:53:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -15700,6 +15700,16 @@
   #roomModal .fortcard .ros-paint .sh-obuy { margin:0 0 6px 4px; padding:clamp(3px,0.8vh,6px) clamp(8px,2vh,14px); font-size:clamp(10px,2.2vh,15px); line-height:1.05; color:#3A2A14; background:linear-gradient(180deg,#FFE08A,#FFD24A 55%,#E9BE4B); font-family:var(--hand); font-weight:bold; letter-spacing:.02em; text-shadow:none; text-transform:none; opacity:1; }   /* the card's own heading inks (the cream, the shadow, the caps) never reach the gold pill */
   #roomModal .fortcard .ros-paint .sh-obuy span, #roomModal .fortcard .ros-paint .sh-obuy small { color:#3A2A14; text-shadow:none; }
   .fortcard .ros-paint .sh-jar.nm-lit { outline:3px solid #FFD24A; outline-offset:2px; border-radius:8px; }   /* CHECK IT OUT! lands here (nmSpot) */
+  /* ═══ CARD-PJP THE PAINT JAR'S WORDS + THE NEW PAINT CARD (design/paint-jar-pop-1016/00-CARD-PJP.md; FROM ISAAC 10/16/2026 by his guest link, jumpr 2308): html.pjp-on (?pjp=0 = the shipped row and the shipped buy) ═══ */
+  html.pjp-on .fortcard .ros-paint .sh-tag.wear { color:#fff; }   /* WEARING IT in the prices' own white (.sh-tag's #fff, the 80★ beside it): on the ROSTER card the row's stickers wear no paper (--gold / --sticker are the Surplus's variables, never declared on the fort's card), so the gold sticker's dark ink #3A2A14 sat on the card's dark (Isaac: "blending with the background and unreadable") */
+  .mb-card.mbpjp { width:min(94vw,400px); }   /* THE NEW PAINT CARD (rfCard's grammar, three men wide) */
+  .mbpjp .mb-band { text-transform:uppercase; }
+  .mbpjp .mb-win { width:min(84vw,330px); }
+  .mbpjp .pjp-men { position:relative; z-index:1; display:flex; align-items:flex-end; justify-content:center; width:100%; height:100%; }
+  .mbpjp .mb-win .pjp-men img { position:relative; flex:0 1 auto; width:auto; height:100%; max-width:38%; margin:0 -3%; object-fit:contain;
+    filter:drop-shadow(0 0 3px rgba(0,0,0,0.85)) drop-shadow(0 5px 4px rgba(0,0,0,0.5)); }   /* .mbrf's own dark rim: a tan or white army never vanishes into the gold rays */
+  .mbpjp .mb-win .pjp-men img.pjp-mgunner { height:84%; z-index:1; }   /* the machine gunner lies behind his gun (his mold is low and wide): a step lower, between the two standing men */
+  @media (prefers-reduced-motion:reduce){ .mbpjp .mb-rays { animation:none; } }
   /* ═══ CARD-FTN (design/first-five-notes-1015/00-CARD-FTN.md, from Wyatt's phone 10/15/2026): H4 the lab's slim console (#ftnSay: #tlfSay's look, seated low: the store's bar, its ✕ and the tile's clock stay in sight) · H6 THE COLOURS BIG ("those colors have to be a lot bigger than that ... much easier on the eyes"): the ROSTER card's paint row on its own band under the header, the jars about twice the size, the names and stickers readable (html.ftn-on; ?ftn=0 = the shipped row) ═══ */
   #ftnSay { position:fixed; left:50%; bottom:max(10px, env(safe-area-inset-bottom, 0px)); z-index:25; pointer-events:none; width:max-content; max-width:min(92vw,860px); box-sizing:border-box; font-family:var(--ui); opacity:0; transform:translate(-50%,10px); transition:opacity 0.24s, transform 0.24s; }
   #ftnSay.in { opacity:1; transform:translate(-50%,0); }
@@ -87784,7 +87794,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.13';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.14';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -150978,6 +150988,7 @@ function surpTutLeg(){   // the leg, read fresh (a buy, the ask, a try, the dept
   const now=Date.now();
   if(surpTutFingers()) SURP.q=now;   // CARD-FF3 t7: a finger down in the store = he is busy: the quiet clock holds (its lift restarts it, surpTutUp)
   if(!SURP.bt && META.dyes.length>SURP.n0) SURP.bt=now;   // the jar is his
+  if(SURP.bt && pjpUp()){ SURP.bt=now; SURP.q=now; return 'wait'; }   // CARD-PJP: THE NEW PAINT CARD stands over the ROSTER card: the demo waits (nothing on the glass, the valve never presses the ✕ under it); the look and the way out start from its OKAY
   if(SHOP_CONFIRM){ SURP.q=now; if(SURP.bt || SHOP_CONFIRM.verb!=='dyeBuy') return 'wait'; SURP.ask=1; return (now-SHOP_CONFIRM.t<LT_POP_MS)? 'pop' : 'yes'; }   // CHECKER ROUND 2 (AW-07 "I want them to pick their color"): an ask standing = he is deciding (asking his dad "can I?"): it HOLDS the quiet clock, read BEFORE it, so the glove never leaves the card's BUY IT! for the store's ✕ behind the card's veil and the valve never shuts the store under the card; the jar's ask = pop, then the glove rests on its BUY IT! (CARD-FF FF-05: the card pops clean); any other ask (another dept, a second jar after the buy): no glove, the card is his
   if(SURP.bt){ if(now-SURP.bt<LT_LOOK_MS) return 'look'; return (SURP.q<=SURP.bt || now-SURP.q>=SURP_QUIET_MS)? 'exit' : 'wait'; }   // bought: the look, then the way out (a touch since = he is busy: the quiet clock first)
   if(SURP.ask){ SURP.ask=0; SURP.no=1; SURP.q=now; }   // the ask shut with no sale (NOT TODAY, the veil): back to pick (05-TOUR-DRAFT stop 4: "NOT TODAY goes back to pick"), the try-on left standing in the mirror, a fresh 10 s on the quiet clock; his next jar tap (surpTutDown) sends the glove to BUY IT! again
@@ -170413,6 +170424,26 @@ function rosPaintStands(){ return !!document.querySelector('#roomModal .fortcard
 function rosPaintSync(){ if(rosPaintStands()) fortSync(); }   // a jar worn, tried, bought or washed: the card re-dealt in place (the rail turns the colour, the stickers move)
 function surpUp(){ return rosPaintStands() && S.mode==='menu'; }   // THE DEMO's host stands (CARD-TL's glove script, moved from the Surplus with the counter)
 // ═══ END CARD-FWR ═══
+// ═══ sec:CARD-PJP THE PAINT JAR'S WORDS + THE NEW PAINT CARD (design/paint-jar-pop-1016/00-CARD-PJP.md; FROM ISAAC, Wyatt's designer, by his guest link 10/16/2026 11:44 EDT, jumpr 2308, verbatim: "the text that signifies what color your army is wearing in the roster section is blending with the background and unreadable. Change it to the same white as the prices next to it. Also after you buy a color, there should be some sort of pop-up that showcases the rifleman, the machine gunner, and the bazooka wearing that color you just bought (to show you you just got it, similar to the way everything else has an amok dialog box). Let's add those two things and push it live.") ═══
+// THE WORDS: the worn jar's WEARING IT sticker on the ROSTER card reads in the prices' own white (the css under html.pjp-on): the row's stickers wear no paper on the fort's card (--gold and --sticker are the Surplus's variables), so the gold sticker's dark ink sat on the card's dark.
+// THE CARD: a jar bought at BUY IT! (UI.dyeBuy's sale, by every door to it: YES, the ticket) deals THE NEW PAINT CARD over the re-dealt ROSTER card on the ceremony host (#milePop): the fort's own purchase card (rfCard: the band, the man on the rays, the line, OKAY) in the paint's
+// shipped words, every one a key x7 already: PAINT & DYE (the counter's own title) · NEW PAINT (utBrow, CARD-UT-B) · THE <COLOUR> ARMY (the row's name) · the RIFLEMAN, the MACHINE GUNNER and the BAZOOKA on the rays in the jar's colour (sprURI: the molds the platoon rail wears,
+// Isaac's three in his order) · the mystery box's paint line (MB_LINES.dye) · OKAY (UI.rfTake: the fort's quiet fold). The tour's paint demo waits while it stands (surpTutLeg), so the demo's look and its way out start from the OKAY. A prize jar, the mystery box's jar and PAINT DAY keep their
+// own cards. No save byte, no wire, no server. ?pjp=0 = the shipped row and the shipped buy.
+const PJP={ on:(function(){ try{ return (new URLSearchParams(location.search).get('pjp')==='0')? 0 : 1; }catch(e){ return 1; } })(), men:['rifleman','mgunner','bazooka'] };   // the switch · the three men Isaac named, in his order
+if(PJP.on) try{ document.documentElement.classList.add('pjp-on'); }catch(e){}   // the sticker's white ink rides html.pjp-on
+function pjpUp(){ return milePopUp() && !!document.querySelector('#milePop .mbpjp'); }   // THE NEW PAINT CARD stands on the ceremony host
+function pjpCard(id){ const a=dyeRowOf(id), p=document.getElementById('milePop'); if(!PJP.on || !a || !p || dyeIsPrize(id)) return false;   // a sold jar only (the camo jar is never sold: the elite ladder hands it with its own card)
+  p.innerHTML='<div class="mb-card mbev mbpjp" data-k="'+a.id+'">'   // every word spoken by t() at the deal (data-notr: the walker neither re-translates nor audits them; hallCard's grammar)
+    +'<span class="mb-band" data-notr>'+escH(t('PAINT & DYE'))+'</span>'
+    +utBrow('paint')+'<h2 class="mb-h" data-notr>'+escH(t(a.name))+'</h2>'
+    +'<span class="mb-win">'+MB_RAYS+'<span class="pjp-men">'+PJP.men.map(k=>'<img class="pjp-'+k+'" src="'+sprURI(k, a.hex)+'" alt="">').join('')+'</span></span>'
+    +'<span class="mb-line" data-notr>'+escH(t(MB_LINES.dye))+'</span>'
+    +'<button type="button" class="mb-take gold" data-notr onclick="UI.rfTake()">'+escH(t('OKAY'))+'</button>'
+    +'</div>';
+  p.classList.remove('hidden');
+  SFX.fanfare(); return true; }
+// ═══ END CARD-PJP ═══
 // ═══ sec:CARD-FWP THE FIREWORKS ROOM PLAYS AN EXAMPLE (design/fireworks-preview-1013/00-CARD-FWP.md; FROM LAURA, WhatsApp 10/13/2026 20:36 EDT, verbatim: "when you click on the fireworks it should show an example in the background.") ═══
 // A tap on a chip of PICK WHAT PLAYS WHEN YOU WIN (STARS or one of the seven, the box owned or not) plays THAT show in the page's own night sky, behind the box and the chips: the ceremony's six shells
 // (fwShells' colour law: a colour's own hex, RAINBOW the six in turn; FW_OFFS's spots; FW_STAG / FW_RISE / FW_LIFE's pace; vflag's canvas painter: the eased climb with its tail, the 14 drooping arms
@@ -182402,6 +182433,7 @@ window.UI = {
     META.starBank-=till(p); META.dyes.push(id); META.dyeOn=id; shopDyeTryClear(); SFX.coin();   // his: the try becomes the real jar
     if(META.dyeOn) buildUnitTint(dyeHex());
     saveMeta(); renderMenu(); shopRefresh(); rosPaintSync();   // CARD-FWR: the sale re-deals the ROSTER card (the jar YOURS and worn, BUY IT! gone)
+    pjpCard(id);   // CARD-PJP (FROM ISAAC 10/16): THE NEW PAINT CARD over the re-dealt ROSTER card: the RIFLEMAN, the MACHINE GUNNER and the BAZOOKA in the jar's colour, OKAY (the card's own read: a sold jar, the switch on)
   },
   // SARGE'S OUTFITS (v2.16) — the dye kit's own grammar: buy = auto-wear,
   // then every tap toggles the piece on/off him. renderMenu because the man
