@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"23.97","md5":"aef7fb0309dca7628caa0f3f68eb2a64","sha":"5d617f36c","at":"2026-10-16T04:12:40Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"23.98","md5":"37dbf6e76e810fcbbc7760c5568251ae","sha":"748ba2866","at":"2026-10-16T04:17:23Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -87674,7 +87674,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.98';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -185850,9 +185850,11 @@ function huvNodeSVG(ci){ const K=(PET_COATS.hunter[ci]||PET_COATS.hunter[0]), ar
   return '<g id="ro-hunter" class="ro-hunter" data-ci="'+ci+'"><defs>'+hunInkDef('hunInkR')+'<clipPath id="hunGround" clipPathUnits="userSpaceOnUse"><rect x="-140" y="-300" width="280" height="341"/></clipPath></defs>'
     +'<g class="dhWalk" style="transform:translate(-300px,-300px)"><g class="huVis"><ellipse cx="0" cy="38" rx="17" ry="4.6" fill="#000" opacity="0.2"/><g class="dgPin dogPat"><g class="dhFlip"><g class="huSpk">'+spk+'</g>'
     +'<g class="dgPin dhPose dogsitB"><g transform="translate(0,6) scale(2)"><g filter="url(#hunInkR)">'+art+'</g></g></g></g></g></g><g class="huPoof">'+pf+'<g class="huPfR">'+px+'</g></g></g></g>'; }
+function huvResume(el){ const cls=(HVR.mode==='out')? 'hunOut' : (HVR.pin? 'hunIn' : null); if(!cls) return; const dl=-Math.max(0, Date.now()-((HVR.mode==='out')? HVR.outAt : HVR.pin))/1000;   // CARD-HFL: a node minted again mid-poof (the room repainted under him: renderMenu) carries the poof on at its own clock (not cut, not from the start)
+  for(const n of el.querySelectorAll('.huVis,.huPf,.huPfR')) n.style.animationDelay=dl.toFixed(3)+'s'; huvPoof(el,cls); }
 function huvPoof(el,cls){ try{ el.classList.remove('hunIn'); el.classList.remove('hunOut'); if(cls) el.classList.add(cls); }catch(e){} }
-function huvBye(el){ HVR.mode='out'; HVR.t=0; HUR.mode='bye'; huvPoof(el,'hunOut'); try{ SFX.wpoof(); }catch(e){} }   // THE POOF OUT ('bye' shuts hunTap's door while he fades)
-function huvDrop(el){ if(el) try{ el.remove(); }catch(e){} hunPlayEnd(); HUR.el=null; HUR.mode='pot'; HUR.cx=null; HUR.cy=null; HUR.cpose=null; HUR.cf=0; HUR.tap=0; }   // the node leaves the DOM; the friend's potter resumes (hunPlayEnd)
+function huvBye(el){ HVR.mode='out'; HVR.t=0; HVR.outAt=Date.now(); HUR.mode='bye'; huvPoof(el,'hunOut'); try{ SFX.wpoof(); }catch(e){} }   // THE POOF OUT ('bye' shuts hunTap's door while he fades)
+function huvDrop(el){ if(el) try{ el.remove(); }catch(e){} hunPlayEnd(); HVR.pin=0; HUR.el=null; HUR.mode='pot'; HUR.cx=null; HUR.cy=null; HUR.cpose=null; HUR.cf=0; HUR.tap=0; }   // the node leaves the DOM; the friend's potter resumes (hunPlayEnd)
 function huvStage(){ try{ const st=document.getElementById('roomStage'); return st? (st.offsetWidth||0) : 0; }catch(e){ return 0; } }   // the stage's width in room px (his spot stays inside it)
 function huvAppear(fr){   // the friend found: his spot HV.far px from him (the open side), facing him; the poof in; the play starts when the puff clears (huvTick's 'in')
   const W=huvStage(); let side=(fr.kind==='cy')? -1 : ((fr.x<(W||1200)/2)? 1 : -1), x=fr.x+side*HV.far; if(W>0 && (x<HV.gap || x>W-HV.gap)){ side=-side; x=fr.x+side*HV.far; }
@@ -185869,10 +185871,10 @@ function huvTick(dt){ try{   // hunRoomTick's room while HV.on (dogTick's 10 Hz;
     const SE=hunSeat(), fr=hunFriend(SE[0]); if(!fr) return; huvAppear(fr); }   // THE POOF IN: the node is minted below, fresh, with the puff
   const ci=petCoatI('hunter')|0;
   if(!el || (el.parentNode!==belt && el.parentNode!==dogTopEl()) || +el.getAttribute('data-ci')!==ci){ if(el) try{ el.remove(); }catch(e){} belt.insertAdjacentHTML('beforeend', huvNodeSVG(ci)); el=document.getElementById('ro-hunter'); HUR.cx=null; HUR.cy=null; HUR.cpose=null; HUR.cf=0;
-    if(HVR.mode==='in' && HVR.t===0){ huvPoof(el,'hunIn'); try{ SFX.wpoof(); setTimeout(()=>{ try{ SFX.arf(); }catch(e){} }, 160); }catch(e){} } }
+    if(HVR.mode==='in' && HVR.t===0){ huvPoof(el,'hunIn'); HVR.pin=now; try{ SFX.wpoof(); setTimeout(()=>{ try{ SFX.arf(); }catch(e){} }, 160); }catch(e){} } else huvResume(el); }
   if(!el) return; HUR.el=el; let pose='dogsitB';
   if(HVR.mode==='in'){ HVR.t+=dt; if(HVR.t>=HV.inT){ HVR.mode='on'; HVR.t=0; if(!hunPlayStart(HUR.x, HUR.fy)) huvBye(el); } }   // the puff clears: the play (no friend after all: the poof out)
-  else if(HVR.mode==='on'){
+  else if(HVR.mode==='on'){ if(HVR.pin && now-HVR.pin>=1000){ huvPoof(el,null); HVR.pin=0; }   // CARD-HFL: the poof in played whole (hunpfr, the longest, is 0.9 s): hunIn comes off (a later re-seat would replay it = the flash)
     if(HUR.tap>now) pose='hunHug';   // THE HUNTER HUG for you (hunTap): he stands where he is
     else if(HUR.mode==='play') pose=hunPlayStep(dt);
     else if(HUR.mode==='back'){ HUR.mode='pot'; HVR.t=0; }   // the play is done: the sit beside his friend ('pot' = hunTap's door)
@@ -185883,11 +185885,12 @@ function huvTick(dt){ try{   // hunRoomTick's room while HV.on (dogTick's 10 Hz;
   if(wk && (HUR.cx!==X || HUR.cy!==Y)){ jump=HUR.cx==null || Math.abs(HUR.cx-X)>60 || Math.abs(HUR.cy-Y)>60; if(jump) wk.style.transition='none'; wk.style.transform='translate('+X+'px,'+Y+'px)'; if(jump){ void wk.getBoundingClientRect(); wk.style.transition=''; } HUR.cx=X; HUR.cy=Y; }
   const f=HUR.f||1, fl=el.querySelector('.dhFlip'); if(fl && HUR.cf!==f){ if(f>0) fl.setAttribute('transform','scale(-1,1)'); else fl.removeAttribute('transform'); HUR.cf=f; }
   const po=el.querySelector('.dhPose'); if(po && HUR.cpose!==pose){ po.setAttribute('class','dgPin dhPose '+pose); HUR.cpose=pose; }
-  if(jump || (HUR.zc=(HUR.zc|0)+1)%3===0) dogLift(el, X, HUR.fy, jump, -HVR.t);
+  if(jump || (HVR.mode==='on' && !HVR.pin && (HUR.zc=(HUR.zc|0)+1)%3===0)) dogLift(el, X, HUR.fy, jump, -HVR.t);   // CARD-HFL (Wyatt 10/15: "Hunter is visibly flashing when he appears"): no depth re-seat while a poof plays (in, out): a re-insert restarts its CSS animations
 }catch(e){} }
 function huvRig(o){ o=o||{};   // GVT.huv: the rig door: { on · odds · wait · stay · roll (force the NEXT die: 1 hit / 0 miss) · show (a showing now) · bye (the poof out now) } + the read
   if(o.on!=null) HV.on=o.on? 1 : 0; if(o.odds!=null) HV.odds=+o.odds; if(o.wait!=null) HV.wait=+o.wait; if(o.stay!=null) HV.stay=+o.stay; if(o.roll!=null) HVR.force=o.roll? 1 : 0; if(o.show) HUR.room=null; if(o.bye && HUR.el && HUR.el.isConnected && HVR.mode==='on') huvBye(HUR.el);
   return { cv:GVT_CV, on:HV.on, odds:HV.odds, mode:HVR.mode, t:+(HVR.t||0).toFixed(2), rolls:HVR.roll|0, hits:HVR.hit|0, el:!!(HUR.el && HUR.el.isConnected), node:!!document.getElementById('ro-hunter'), room:HUR.room, hm:HUR.mode, x:HUR.x, fy:HUR.fy, f:HUR.f, pose:HUR.cpose, cls:(HUR.el && HUR.el.isConnected)? HUR.el.getAttribute('class') : null, ph:HUR.play? HUR.play.ph : null, fr:HUR.play? HUR.play.fr.kind+(HUR.play.fr.br? ':'+HUR.play.fr.br : '') : null, hug:(typeof META!=='undefined' && META && META.hunHug)||'' }; }
+if(typeof renderMenu==='function') renderMenu=(function(f){ return function(){ const r=f.apply(this, arguments); try{ if(HV.on && HUR.el && !HUR.el.isConnected && (HVR.mode==='in' || HVR.mode==='on' || HVR.mode==='out')) huvTick(0); }catch(e){} return r; }; })(renderMenu);   // CARD-HFL: a repaint (renderMenu rebuilds #ychars) took his node and he blinked out till the next 10 Hz tick: he is minted again in the same task (huvResume carries a poof on)
 // ═══ end of sec:CARD-HUV ═══
 buildSprites(()=>{ ready=true;
   // v3.23 (card 03): the review range answers only to its own key — without
