@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.29","md5":"76b4a463527b40d8803a2de227da7178","sha":"6bc0c3a75","at":"2026-10-16T19:44:49Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.30","md5":"62af4bfad5e6b435c1cc18fd2edef9bb","sha":"940a94017","at":"2026-10-16T20:07:34Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -72812,9 +72812,14 @@ function spbSignSVG(k, anim){ const s=Math.min(300/SPB_GW[k], 170/SPB_GH[k]), P=
   return '<svg class="spbtut" viewBox="0 0 360 220" width="300" height="183" aria-hidden="true"><path d="'+d+'" fill="none" stroke="'+hex+'" stroke-opacity=".55" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 9"/>'
     +'<path d="'+d+'" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="'+L+'" stroke-dashoffset="'+(anim? L : 0)+'">'+(anim? '<animate attributeName="stroke-dashoffset" values="'+L+';0;0" keyTimes="0;0.7;1" dur="2.6s" repeatCount="indefinite"/>' : '')+'</path>'
     +'<circle cx="'+P[0].x.toFixed(1)+'" cy="'+P[0].y.toFixed(1)+'" r="9" fill="'+hex+'" stroke="#FFFFFF" stroke-width="3"/></svg>'; }
+function spbTutFilm(k){ const nm='spell-'+k, RM=reducedMotion(), sv=spbSignSVG(k, !RM);   // R4: a recruit's film grammar (premClipHTML): muted, looping, inline; the sign beneath it
+  if(RM) return sv;
+  return '<span class="spbtut-film" style="position:relative;display:inline-block;width:min(66vw,400px);aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#2a1712;vertical-align:middle">'
+    +'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'+sv+'</span>'
+    +'<video class="spbtut-v" muted loop playsinline autoplay preload="auto" disableremoteplayback poster="'+bdPromoSrc(nm+'.jpg')+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><source src="'+bdPromoSrc(nm+'.mp4')+'" type="video/mp4"><source src="'+bdPromoSrc(nm+'.webm')+'" type="video/webm" onerror="this.parentNode.remove()"></video></span>'; }
 function spbTutOpen(k){ const p=document.getElementById('milePop'); if(!p) return;
   p.innerHTML='<div class="mb-card"><span class="mb-band">NEW SPELL!</span><h2 class="mb-h">'+SPB_SP[k].name+'</h2>'
-    +'<span class="mb-win">'+spbSignSVG(k, !reducedMotion())+'</span>'
+    +'<span class="mb-win">'+spbTutFilm(k)+'</span>'   // R4 (Isaac 15:59): the spell's own two-part film, the drawn sign under it
     +'<span class="mb-line">'+SPB_SHAPE[k]+'</span><span class="mb-line">In battle, tap CAST and draw this sign anywhere on the glass.</span>'
     +'<button type="button" class="mb-take gold" onclick="UI.mileTake()">OKAY</button></div>';
   p.classList.remove('hidden'); SFX.fanfare(); }
@@ -88273,7 +88278,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.29';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
