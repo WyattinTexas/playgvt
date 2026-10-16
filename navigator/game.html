@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.15","md5":"cd6836df71839eab5b9b31407ece2b87","sha":"9ba6ecc94","at":"2026-10-16T17:01:13Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.16","md5":"6df5941b5e5f463c873f655cbbe36e18","sha":"3d8c66d44","at":"2026-10-16T17:15:24Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49948,7 +49948,25 @@ const BF_MAPS = [
       cq:cqShipBuild() }) }
 ];
 // CARD-OB THE BENCH (9/25 Wyatt: "Temporarily remove the Starship map."): a map on the bench leaves EVERY deal — the RANDOM draw's pool (bfMapResolve), a remembered or relayed pick of it (falls to the draw), the war table's tray (no chip), UI.wtMap (refused), the room's cycle (UI.roomMap), HQ's computer holder (gaFightCPU → the seat's own default), a party pick string (ptyPickParse), the featured battle's day rotation (featBattle); the row, its art, its strings and its laws stay for its return (a bench, not a retirement — one row out brings it back). Top-level here, before the boot re-point below reads it.
-const BF_BENCH={ starship:1, tundra:1 };   // CARD-FZT: THE FROZEN TUNDRA is the Sunday bell's door, never the War Table's pick   // 9/25 Wyatt: "Temporarily remove the Starship map."
+const BF_BENCH={ starship:1, tundra:1, pbvsea:1, pbvfarm:1, bed:1, open:1 };   /* CARD-BHF (Wyatt 10/16 by phone: "Remove the Seaside Village, the Farm Village, the Bed, and the Open Field map from Battlegrounds temporarily."): THE SEASIDE VILLAGE, THE FARM VILLAGE, THE BED and OPEN FIELD sit out (sec CARD-BHF below; one id out brings a map back) */   // CARD-FZT: THE FROZEN TUNDRA is the Sunday bell's door, never the War Table's pick   // 9/25 Wyatt: "Temporarily remove the Starship map."
+// ═══ CARD-BHF FOUR MAPS SIT OUT + THE HAUNTED LIBRARY IS THE FEATURED BATTLE EVERY OTHER DAY TO HALLOWEEN (sec:bhf; design/bench-halloween-1016/00-BUILD-BHF.md; Wyatt by phone 10/16/2026
+// 12:35 EDT, jumpr 2318, built on Maker 1's lane as M2318), verbatim: "Remove the Seaside Village, the Farm Village, the Bed, and the Open Field map from Battlegrounds temporarily. Make the featured
+// map the Halloween map for every other day for the rest of the month. Make sure that on Halloween and the night before Halloween, it's also the featured map of the day."
+// THE BENCH: pbvsea THE SEASIDE VILLAGE, pbvfarm THE FARM VILLAGE, bed THE BED and open OPEN FIELD sit in BF_BENCH above, so CARD-OB's law takes them out of every deal: the RANDOM draw, the war
+// table's tray, a remembered pick (RANDOM at boot), UI.wtMap, the room's cycle, HQ's computer holder, a party pick string and the featured rotation; the party sheet's map chips (ptyPickerHTML) read
+// the bench now too (THE STARSHIP's chip there was a dead tap). Their rows, art, words and laws stay: one id out of BF_BENCH brings a map back.
+// A ROOM PLAYS THE CARPET IT WAS DEALT: a host on an older build (no bench) can still deal one of the four; while a room launches (coopLaunching) bfMapResolve keeps it (bhfRoomKeep), so every
+// chair fights the same rug (v2.83 LAW 2: one table, the host's) instead of this phone drawing its own. A host on this build never deals one (its own draw skips the bench).
+// THE FEATURED BATTLE: on BHF_FEAT_DAYS (every other day from 10/16 to the 30th, + 10/31 Halloween; the 30th is the night before) featBattle deals THE HAUNTED LIBRARY at the day's own size; on
+// the days between (inside BHF_FEAT_DAYS[0] .. HALLOWEEN_WIN[1]) the rotation skips the library, so the rhythm stays one on, one off. Out of season (11/01, ?pumpkin=0) the library is never dealt
+// (hlbOff) and the rotation is CARD-OB's own. The device's local date (todayStr), like the season's. Zero words, CSS, save keys, server bytes, sw.js. bhfRead() = the rig's read. ═══
+const BHF_IDS=['pbvsea','pbvfarm','bed','open'];   // the four this card benched (BF_BENCH lists them too)
+const BHF_FEAT_DAYS=['2026-10-16','2026-10-18','2026-10-20','2026-10-22','2026-10-24','2026-10-26','2026-10-28','2026-10-30','2026-10-31'];   // ⚑ BHF-Q1: every other day from the card's own day (10/16), the 30th (the night before Halloween) and the 31st (Halloween)
+function bhfFeatDay(){ return !hlbOff('library') && BHF_FEAT_DAYS.indexOf(todayStr())>=0; }   // today's FEATURED BATTLE is THE HAUNTED LIBRARY (never out of season)
+function bhfFeatOff(id){ if(id!=='library') return false; const t=todayStr(); return t>=BHF_FEAT_DAYS[0] && t<HALLOWEEN_WIN[1]; }   // the window: the rotation skips the library (its own days deal it by name)
+function bhfRoomKeep(id){ return BHF_IDS.indexOf(id)>=0 && !!coopLaunching; }   // a room's dealt carpet (an older host's) is played as dealt, never re-drawn here
+function bhfRead(){ return { cv:GVT_CV, bench:Object.keys(BF_BENCH).filter(k=>BF_BENCH[k]), ids:BHF_IDS.slice(), days:BHF_FEAT_DAYS.slice(), today:todayStr(), featDay:bhfFeatDay(), feat:featBattle(), hw:halloweenOn(), pick:META.bfMap }; }   // the rig's read
+// ═══ END CARD-BHF ═══
 // AI difficulty. Economy is IDENTICAL to yours at every tier — the difficulty is
 // decisions, never resources — with ONE named exception, 0417 THE HARD BOT
 // (FM-GVT-HARDBOT-01): a ranked all-CPU 1v1/2v2 against an 85%+/10-game
@@ -87071,7 +87089,7 @@ function bfMap(id){ return BF_MAPS.find(m=>m.id===id)||BF_MAPS[0]; }
 // is born (the host's draw is the truth and rides the existing r.map wire, so
 // 'random' itself never crosses to a guest). Everywhere else it READS as
 // RANDOM (bfMapLabel), never as a fallback map.
-function bfMapResolve(id){ if(BF_BENCH[id] || hlbOff(id)) id='random';   /* CARD-HLB: a pick of THE HAUNTED LIBRARY after 11/01 falls to the draw too (the benched-map law) */   // CARD-OB (9/25 Wyatt: "Temporarily remove the Starship map."): a benched pick — remembered, relayed or typed — falls to the draw; the draw's pool skips the bench
+function bfMapResolve(id){ if((BF_BENCH[id] && !bhfRoomKeep(id)) || hlbOff(id)) id='random';   /* CARD-BHF: a room's dealt carpet (an older host's draw of the four) plays as dealt */   /* CARD-HLB: a pick of THE HAUNTED LIBRARY after 11/01 falls to the draw too (the benched-map law) */   // CARD-OB (9/25 Wyatt: "Temporarily remove the Starship map."): a benched pick — remembered, relayed or typed — falls to the draw; the draw's pool skips the bench
   if(id!=='random') return id; const L=BF_MAPS.filter(m=>!BF_BENCH[m.id] && !hlbBenched(m) && !m.nempark && !m.nemlair && !m.nembank && !m.nemtown && !m.nemfluff && !m.nemgarden); for(const m of BF_MAPS){ if(m.halloween && !hlbBenched(m)) L.push(m); }   /* CARD-HLB: in season the library holds TWO tickets (Wyatt: "a little more often for now since its Haloween"); from 11/01 none */ return L[(Math.random()*L.length)|0].id; }   // 0305 BF-03 (+0346, +0358 the lava claim, +0371 the town claim): an ambush arena is a DOOR, never a draw
 function bfMapLabel(id){ return id==='random'? 'RANDOM' : bfMap(id).name; }
 // v2.41 THE ROOKIE'S FIRST FOUR: lifetime battleground games = the W·L pair
@@ -87795,7 +87813,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -96216,7 +96234,7 @@ function ptyPickerHTML(here){
     // ⚔ VS · SPLIT THE PARTY chip are DELETED (the v1.28 law, not gated): the table's two buttons ARE the format now; the pick grammar
     // stays b:<k>:<map> with k = 1 written (ptyPickParse byte-still — an older member parses it)
     const pk=ptyPickParse('bf');
-    const ids=['random'].concat(WT_MAP_ORDER.filter(id=>!hlbOff(id)));   /* CARD-HLB: the library leaves the party's picker on 11/01 */
+    const ids=['random'].concat(WT_MAP_ORDER.filter(id=>!BF_BENCH[id] && !hlbOff(id)));   /* CARD-BHF: the bench's carpets have no chip on the party sheet either (the war table's CARD-OB grammar; ptyPickParse refused their pick) */   /* CARD-HLB: the library leaves the party's picker on 11/01 */
     const show=PTY.maps? ids : ids.slice(0,6);
     let maps='';
     for(const id of show){
@@ -156434,8 +156452,8 @@ function wtMapIsNew(id){ return WT_NEW_IDS.indexOf(id)>=0 && !(META.mapSeen&&MET
 const FEAT_STARS=30;
 function featBattle(){
   const d=new Date(), s=d.getFullYear()*511+(d.getMonth()+1)*37+d.getDate()*7;
-  const L=WT_MAP_ORDER.filter(id=>!BF_BENCH[id] && !hlbOff(id));   /* CARD-HLB: the library leaves the rotation on 11/01 */   // CARD-OB: the day's rotation runs over the carpets in play (THE STARSHIP benched 9/25)
-  return { map:L[s%L.length], size:1+(((s/13)|0)%4) };
+  const L=WT_MAP_ORDER.filter(id=>!BF_BENCH[id] && !hlbOff(id) && !bhfFeatOff(id));   /* CARD-HLB: the library leaves the rotation on 11/01 */   // CARD-OB: the day's rotation runs over the carpets in play (THE STARSHIP benched 9/25) · CARD-BHF: + the four of 10/16; to Halloween the days between skip the library
+  return { map:bhfFeatDay()? 'library' : L[s%L.length], size:1+(((s/13)|0)%4) };   // CARD-BHF (Wyatt 10/16): THE HAUNTED LIBRARY every other day to the 30th + Halloween (BHF_FEAT_DAYS); the size is the day's own
 }
 function featDone(){ return !!(META.featDays && META.featDays[todayStr()]); }
 // ===== 0387 THE PARTY: the door bubble strip (crewBubbleRow), the presence
