@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.17","md5":"24510ed70ca31f379785fe00d6c5b240","sha":"c12e8ad9a","at":"2026-10-16T17:23:00Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.18","md5":"4ddf042286837c5b1916f0fddf5826ff","sha":"a8a6a60e8","at":"2026-10-16T17:33:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -54208,7 +54208,7 @@ const META_DEFAULT = {
   bomberSeen:0,
   // 0092 THE COMMANDER: the same law — class and blade ownership DERIVED from
   // the record; these bits only remember each reveal was SHOWN, once ever.
-  cmdSeen:0, bladeSeen:0,
+  cmdSeen:0, bladeSeen:0, spbSeen:0,
   cmdKey:0,   // 0621 THE CODES COUNTER: THE COMMANDER by the secret word (cmdOwned reads it beside the record — the comet law: older saves migrate to 0, truthy stands forever)
   // 0509 THE SPEC PICK (0517: 0 UNPICKED → the class default THE DUELIST for
   // owners · −1 reads as unpicked too since 0517a · 1 duel, 2 fear, 3 wall) — read only through
@@ -57233,8 +57233,8 @@ const HP_RANK100={ rifleman:45, mgunner:55, bazooka:42, flame:50, minesweeper:42
 // rank row above owns his growth now and a multiplier on top would compound
 // it. The commander's 10+8 lands the same 18 the ×3 used to buy; the sniper's
 // 0 is deliberate — the long gun buys reach, never plate.
-const SARGE_WPN_HP={ pistol:2, shotgun:3, lightsaber:3, sniper:0, commander:8 };
-const SARGE_WPN_HP100={ pistol:7, shotgun:10, lightsaber:10, sniper:0, commander:10 };   /* CARD-UHB (UHB-Q6): the commander's plate at 100 28 -> 10, so (40 + 10) x CMD.hpMul = 78 (76 on CARD-HPL); levels 0-9 read UHB_PLATE_HPL's 28 curve; the other plates as they are */   // CARD-HPL (HPL-Q6): the plate at the IRON's rank 100 (x3.47 the rank-0 plate; the sniper's 0 stands: the long gun buys reach, never plate); wpnPlateAt walks it
+const SARGE_WPN_HP={ pistol:2, shotgun:3, lightsaber:3, sniper:0, commander:8, spellbook:2 };   /* CARD-SPB: the book wears the sidearm's plate */
+const SARGE_WPN_HP100={ pistol:7, shotgun:10, lightsaber:10, sniper:0, commander:10, spellbook:7 };   /* CARD-SPB */   /* CARD-UHB (UHB-Q6): the commander's plate at 100 28 -> 10, so (40 + 10) x CMD.hpMul = 78 (76 on CARD-HPL); levels 0-9 read UHB_PLATE_HPL's 28 curve; the other plates as they are */   // CARD-HPL (HPL-Q6): the plate at the IRON's rank 100 (x3.47 the rank-0 plate; the sniper's 0 stands: the long gun buys reach, never plate); wpnPlateAt walks it
 const RANK_U_SUMMIT=rankUnits(RANK_MAX);   // ≈24.722 — the normaliser that makes rank 100 land exact
 // the whole-book reader: a class's battleground plastic at a rank. Pure — the
 // GVT.rank rig door quotes it; placeUnit adds the DELTA (bfHpRk below) so the
@@ -72433,11 +72433,117 @@ const SARGE_WEAPONS = {
   // grant walk (sargeLvlGrant — the pistol's own truth) — ownership is the co-op service
   // record's alone, read through cmdOwned()/wkOwned(). Desc is dead data
   // (v1.6.1) kept truthful with rows ×6 (the v1.73 law).
-  commander: { name:'THE CLAYMORE',  unlock:0,  desc:'A steel saber and a wall of muscle — he walks in slow, blocks the first few hits, and swings back hard.' }
+  commander: { name:'THE CLAYMORE',  unlock:0,  desc:'A steel saber and a wall of muscle — he walks in slow, blocks the first few hits, and swings back hard.' },
+  spellbook: { name:'THE SPELLBOOK', unlock:0,  desc:'An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.' }   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): unlock:0 = the Claymore's law (out of the level grant walk; owned by the co-op record through wkOwned -> spbOwned)
 };
 // 'commander' rides LAST so every shipped surface's order is untouched and the
 // new card renders after the saber everywhere it is dealt (once it exists at all).
-const SARGE_ORDER=['pistol','shotgun','sniper','lightsaber','commander'];
+const SARGE_ORDER=['pistol','shotgun','sniper','lightsaber','commander','spellbook'];   // CARD-SPB: THE SPELLBOOK rides last (its tile after the Claymore's on every surface; every shipped order untouched)
+// ===== CARD-SPB THE SPELLBOOK · SARGE'S FIFTH WEAPON, CARD 1: THE BOOK, THE WAND AND THE ORB (design/spellbook-1016/00-DESIGN-SPB.md; the build design/spellbook-build-1016/00-BUILD-SPB.md;
+// FROM ISAAC by his guest link 10/16/2026 11:48 EDT: "a new Sarge weapon that's called the Spellbook. The Spellbook turns Sarge into a wizard and his default attack with that is to shoot magic orbs
+// at the enemies, which do AOE damage similar to the bazooka. The rate of fire is 40% faster and it does 20% less damage than the bazooka." · 12:34 "We're going to change his rate of attack to every
+// 1.75 seconds" · 12:35 "change the left hand to not have an orb but instead have a little wand" · HIS GO 13:04 (WhatsApp 3BEAA614C89DCB9D1732): "Now make it push the spellbook to live. Make it the
+// next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons in terms of progression and upgrades.")
+// THE DOOR: the co-op service record's next rung after THE CLAYMORE'S BLADE (COOP_MILES 95) = co-op level SPB_LVL, owned the Claymore's way (DERIVED from META.coopLevels: retroactive, crossing
+// devices with the record; no unlock field, unlock:0 keeps it out of sargeLvlGrant). Its tile rides LAST in SARGE_ORDER (every shipped surface's order untouched). THE RULES: its own rank track
+// META.sargeUp.spellbook (RANK_MAX, the taper), its tile on the PROMOTION! picker, the outfit's tune, the soul, the crit roll: every door that walks SARGE_ORDER by key takes it as it takes the saber.
+// THE ORB: from his post, a cast every SPB_CD s at the priority man inside SPB_RNG (the bazooka's live reach), no scatter (a wizard aims); it leaves the WAND's tip at SPB_SPD px/s (the rocket's)
+// and BURSTS on the man: EVERY ENEMY within SPB_R (the bazooka's splash) takes the bag's dmg through hurt() (the damage door), NO friendly fire (magic spares green plastic), x1 on machines,
+// the duck does not save him (the burst lands on his own square). dmg = 4.8 + 0.48u = the bazooka's 6 x 0.80 and its promotion curve x 0.80.
+const SPB_LVL=100, SPB_RNG=222, SPB_CD=1.75, SPB_DMG0=4.8, SPB_DMG_PER=0.48, SPB_R=55, SPB_SPD=280, SPB_FLICK=0.24, SPB_HEX='#B45BFF', SPB_LILAC='#E6CFFF';
+function spbOwned(){ return coopBeat(SPB_LVL); }   // the co-op record alone (coopBeat is a const far below: every reader is lazy, the cmdOwned TDZ law)
+// THE CAST: the shared Sarge loop above it has already scanned (TGT, PRIO, the reach x the radio x the tan beam), stamped u.cd off sw.rate, turned him to his man (unitAim) and rolled the crit (cm);
+// vm = the vet / beam / snow multipliers. The mask's wild eye (sw.wild) and THE EYE PATCH (sw.accX) throw the orb wide as they throw every round: it bursts beside the man, on whoever stands there.
+function spbCast(u,best,sw,vm,cm,wdir){
+  const mx=u.x+14*wdir, my=u.y-46;   // THE WAND'S TIP (drawSargeWeapon's spellbook branch: the tip at +14, -46 on the raised fist)
+  let tx=best.x, ty=best.y-18, tgt=best;
+  if((sw.wild && Math.random()<sw.wild) || (sw.accX<1 && Math.random()>=sw.accX)){ const s9=(u.wSide=!u.wSide)? 1 : -1; tx=best.x+s9*(46+Math.random()*24); ty=best.y-18+(Math.random()-0.5)*30; tgt=null; }
+  u.spbT=SPB_FLICK;   // the wand's flick (drawSargeWeapon reads it; the clock runs down below)
+  S.shots.push({ k:'orb', x:mx, y:my, tx, ty, tgt, spd:SPB_SPD, dmg:sw.dmg*vm*cm, R:sw.aoe||SPB_R, src:u, t:0, cr:(cm>1)? 1 : 0 });
+  bfSfx(SFX.snap, u.x, u.y);
+}
+// THE FLIGHT (update's shot loop, its first line): it rides its man (the chest, y-18) while he stands; he gone, it flies on to where he was. 3 s is the leash (a man carried off the rug).
+function spbOrbTick(sh,dt){
+  sh.t+=dt; const g=sh.tgt;
+  if(g){ if(g.dead || g.hp<=0){ sh.tgt=null; } else { sh.tx=g.x; sh.ty=g.y-18; } }
+  const dx=sh.tx-sh.x, dy=sh.ty-sh.y, d=Math.hypot(dx,dy), st=sh.spd*dt;
+  if(d<=st+6 || sh.t>3){ spbBurst(sh); return true; }
+  sh.x+=dx/d*st; sh.y+=dy/d*st;
+  if(!reducedMotion() && ((sh.n=(sh.n|0)+1)%3===0)) S.fx.push({ k:'spbx', m:'mote', x:sh.x, y:sh.y, vx:(Math.random()-0.5)*16, vy:-8-Math.random()*10, t:0, dur:0.36 });   // six sparkles trail it (draw only)
+  return false;
+}
+// THE BURST: every enemy inside R of the man's feet (the house reach margins: + 16 on the mat, + a quarter-and-a-bit of his width on the rug, splash()'s own), never his own army; an aircraft is not
+// on the ground (skyAir) unless the orb was flying at it; a blast is not aimed fire (no trench cover, no target test: splash()'s own walk); the damage through hurt() with Sarge as the shooter (every shield, every ledger, the kill credit).
+function spbBurst(sh){
+  const u=sh.src, bx=sh.tx, by=sh.ty+18, R=sh.R||SPB_R, RM=reducedMotion(), L=u? TGTC(u) : [];
+  let n=0;
+  for(const f of L){ if(!f || f.dead || f.hp<=0 || f.burrow || f.jetT>0 || f.dropT>0) continue;
+    if(f!==sh.tgt && typeof skyAir==='function' && skyAir(f)) continue;
+    const m=S.bf? 16 : ((f.def && f.def.w) || 0)*0.3;
+    if(Math.hypot(f.x-bx,f.y-by)>R+m) continue;
+    hurt(f, sh.dmg, u); n++;
+    S.fx.push({ k:'spbx', m:'hit', x:f.x, y:f.y-18, t:0, dur:0.18 }); }
+  S.fx.push({ k:'ring', x:bx, y:by-6, r:6, R:R, t:0, dur:RM? 0.4 : 0.34, col:SPB_HEX, lw:3 });
+  if(!RM){ S.fx.push({ k:'ring', x:bx, y:by-6, r:4, R:R*0.55, t:0, dur:0.22, col:'#FFFFFF', lw:2 });
+    S.fx.push({ k:'puff', x:bx, y:by-4, t:0, dur:0.4, R:14 });
+    for(let j=0;j<8;j++){ const a=j/8*Math.PI*2+0.2; S.fx.push({ k:'spbx', m:'spark', x:bx, y:by-10, vx:Math.cos(a)*(46+(j%3)*10), vy:Math.sin(a)*(30+(j%2)*12)-10, t:0, dur:0.34 }); } }
+  bfSfx(SFX.wpoof, bx, by);
+  return n;
+}
+// THE PICTURES: the orb (a lilac halo, the violet body, the white core; it swells out of the tip over its first 0.12 s) and the burst's sparkles, motes and white hit flashes.
+function spbDrawOrb(sh){
+  const g=Math.min(1, 0.35+sh.t/0.12*0.65), p=reducedMotion()? 0 : Math.sin(S.t*20+sh.x*0.05)*0.6;
+  cx.save(); cx.globalAlpha=0.28; cx.fillStyle=SPB_LILAC; cx.beginPath(); cx.arc(sh.x,sh.y,(9+p)*g,0,7); cx.fill();
+  cx.globalAlpha=1; cx.fillStyle=SPB_HEX; cx.beginPath(); cx.arc(sh.x,sh.y,5*g,0,7); cx.fill();
+  cx.strokeStyle=SPB_LILAC; cx.lineWidth=1.2; cx.beginPath(); cx.arc(sh.x,sh.y,5*g,0,7); cx.stroke();
+  cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(sh.x-1,sh.y-1,2*g,0,7); cx.fill(); cx.restore();
+}
+function spbFxDraw(e,k){
+  cx.save();
+  if(e.m==='hit'){ cx.globalAlpha=0.7*(1-k); cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(e.x,e.y,9+6*k,0,7); cx.fill(); }
+  else { const x=e.x+e.vx*k*e.dur*2.4, y=e.y+e.vy*k*e.dur*2.4, r=(e.m==='spark'? 3.2 : 2.4)*(1-k*0.5);
+    cx.globalAlpha=0.95*(1-k); cx.strokeStyle=(e.m==='spark')? SPB_HEX : SPB_LILAC; cx.lineWidth=1.5; cx.lineCap='round';
+    cx.beginPath(); cx.moveTo(x-r,y); cx.lineTo(x+r,y); cx.moveTo(x,y-r); cx.lineTo(x,y+r); cx.stroke();
+    cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(x,y,0.9,0,7); cx.fill(); }
+  cx.restore();
+}
+// THE HARDWARE ON THE CARPET (drawSargeWeapon's branch, inside its walk-flip wrap): THE SPELLBOOK open in the forward fist (+9.5, -24.3), 1.5x the round-one book (Isaac 12:34), oxblood covers,
+// cream pages, brass corners, two violet wisps off the pages; THE WAND in the raised fist (+7, -37): walnut, a pale tip, the tip's glow. A cast flicks it forward (u.spbT, SPB_FLICK).
+function spbDrawHands(u){
+  if(u.spbT>0) u.spbT=Math.max(0, u.spbT-1/60);
+  const fk=(u.spbT>0)? Math.sin(Math.PI*(1-u.spbT/SPB_FLICK)) : 0, RM=reducedMotion(), x=u.x, y=u.y;
+  cx.save(); cx.translate(x+12,y-26.4); cx.rotate(-0.24); cx.scale(0.69,0.69); cx.lineJoin='round'; cx.lineCap='round';
+  cx.fillStyle='#7A2E2A'; cx.strokeStyle='rgba(78,28,26,.55)'; cx.lineWidth=0.8;
+  cx.beginPath(); cx.moveTo(-10,-1); cx.quadraticCurveTo(-5,-5,0,-1); cx.quadraticCurveTo(5,-5,10,-1); cx.lineTo(10,7); cx.quadraticCurveTo(5,4,0,7); cx.quadraticCurveTo(-5,4,-10,7); cx.closePath(); cx.fill(); cx.stroke();
+  cx.fillStyle='#F2E8C8';
+  cx.beginPath(); cx.moveTo(-8.6,0); cx.quadraticCurveTo(-4.3,-3.2,0,0); cx.lineTo(0,5.4); cx.quadraticCurveTo(-4.3,2.6,-8.6,5.4); cx.closePath(); cx.fill();
+  cx.beginPath(); cx.moveTo(8.6,0); cx.quadraticCurveTo(4.3,-3.2,0,0); cx.lineTo(0,5.4); cx.quadraticCurveTo(4.3,2.6,8.6,5.4); cx.closePath(); cx.fill();
+  cx.strokeStyle='rgba(154,139,106,.7)'; cx.lineWidth=0.5; cx.beginPath(); cx.moveTo(-6.5,1.6); cx.lineTo(-2.2,0.8); cx.moveTo(-6.5,3.2); cx.lineTo(-2.6,2.4); cx.moveTo(2.2,0.8); cx.lineTo(6.5,1.6); cx.moveTo(2.6,2.4); cx.lineTo(6.5,3.2); cx.stroke();
+  cx.strokeStyle='#C9A227'; cx.lineWidth=0.9; cx.beginPath(); cx.moveTo(-10,-1); cx.lineTo(-8.4,-2.2); cx.moveTo(10,-1); cx.lineTo(8.4,-2.2); cx.moveTo(-10,7); cx.lineTo(-8.4,8.2); cx.moveTo(10,7); cx.lineTo(8.4,8.2); cx.stroke();
+  if(!RM){ const w9=Math.sin(S.t*3+x*0.01); cx.globalAlpha=0.7; cx.strokeStyle=SPB_HEX; cx.lineWidth=0.8; cx.beginPath(); cx.moveTo(-1,-2); cx.quadraticCurveTo(-3+w9,-7,1,-9-w9); cx.moveTo(2,-3); cx.quadraticCurveTo(5-w9,-6,3,-10+w9); cx.stroke(); cx.globalAlpha=1; }
+  cx.restore();
+  cx.save(); cx.translate(x+7,y-37); cx.rotate(0.55*fk); cx.lineCap='round';
+  cx.strokeStyle='rgba(42,26,16,.9)'; cx.lineWidth=2.1; cx.beginPath(); cx.moveTo(-0.6,1.6); cx.lineTo(6.8,-8.3); cx.stroke();
+  cx.strokeStyle='#5A3A20'; cx.lineWidth=1.3; cx.beginPath(); cx.moveTo(-0.6,1.6); cx.lineTo(6.8,-8.3); cx.stroke();
+  cx.strokeStyle='#F2E8C8'; cx.lineWidth=1.3; cx.beginPath(); cx.moveTo(5.7,-6.8); cx.lineTo(6.8,-8.3); cx.stroke();
+  const gl=0.45+0.35*fk+(RM? 0 : 0.12*Math.sin(S.t*6+x*0.02));
+  cx.globalAlpha=gl*0.5; cx.fillStyle=SPB_LILAC; cx.beginPath(); cx.arc(7.1,-8.7,2.8+2.4*fk,0,7); cx.fill();
+  cx.globalAlpha=1; cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(7.1,-8.7,0.9+0.5*fk,0,7); cx.fill();
+  cx.restore();
+}
+// THE CARD at the room (cmdSweep's third rung; the blade card's own grammar on #milePop: band, name, the mold, one line, EQUIP over OKAY) and its once-ever bit META.spbSeen.
+function spbOpen(){
+  const p=document.getElementById('milePop'); if(!p) return;
+  p.innerHTML='<div class="mb-card'+nmCls('wep','spellbook')+'">'
+    +'<span class="mb-band">'+'LEVEL '+(META.lvl|0)+'!'+'</span>'
+    +utBrow('weapon')+'<h2 class="mb-h">THE SPELLBOOK</h2>'
+    +'<span class="mb-win">'+MB_RAYS+'<img src="'+sargeWepURI('spellbook', dyeHex()||undefined)+'" alt=""></span>'
+    +'<span class="mb-line">📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.</span>'
+    +nmDoors('wep','spellbook')
+    +'</div>';
+  p.classList.remove('hidden');
+  SFX.fanfare();
+}
 // THE PISTOL'S RANK — canonical (v1.66). It lives in META.sargeUp.pistol like
 // every other weapon, seeded once from the SARGE unit's rank. One reader, so
 // the picker card, the academy chevron, sargeStats and every future gate
@@ -72564,7 +72670,8 @@ const WEPINFO={
   pistol:    { good:'His sidearm from day one, and it empties a magazine faster than anything else on the field. Every rank speeds it up and reaches a little further.', bad:'Light rounds. It takes more than one to drop a man, and the reach starts short.' },   // 0597 THE WEAPON MANUALS MOVE: the pistol's own manual line (the owned card's door opens it — the pistol is never locked, so 0554f never needed the row)
   shotgun:   { good:'A spray of buckshot that flattens a whole cluster at once, and it spreads wider with rank.', good2:'Up close, every shell hits half again as hard.', bad:'Short reach ('+SG_RNG+'). The enemy has to come close before it bites.' },   // 0907 THE POINT-BLANK LAW (the rider): a second GOOD AT sentence in its own inline <p> — its own dictionary key ×7, the first sentence's rows untouched
   sniper:    { good:'The longest reach on the field ('+SNIPER_RNG+') and a hit like a truck. You hear the crack from the doorway.', bad:'One shot at a time, then a long, slow reload.' },
-  lightsaber:{ good:'Sarge dashes out, carves through everything in reach, then falls back to his post. At rank '+WPN_MILE.sabFullLvl+' the blade blocks '+Math.round(SABER_L20_BLOCK*100)+'% of incoming fire.', bad:'Arm\'s reach only. He rests between dashes, and he never fires a shot.' }
+  lightsaber:{ good:'Sarge dashes out, carves through everything in reach, then falls back to his post. At rank '+WPN_MILE.sabFullLvl+' the blade blocks '+Math.round(SABER_L20_BLOCK*100)+'% of incoming fire.', bad:'Arm\'s reach only. He rests between dashes, and he never fires a shot.' },
+  spellbook: { good:'A magic orb every '+SPB_CD+' seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.', bad:'A little softer than a bazooka, and every orb has to fly there first.' }   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): the locked card's sheet and the manual's lines (the number composed off SPB_CD, the CLASSINFO law)
 };
 // ===== 0092 THE COMMANDER (Wyatt 7/29 verbatim in the commit) — the L20 co-op
 // secret class. Ownership is DERIVED from the co-op service record (the 0091
@@ -72796,7 +72903,7 @@ function csIs(u,n,sw){ if(!u || u.type!=='sarge' || u.dead) return false;
 // is this weapon key in this save's hands' reach? ONE reader for the academy,
 // the picker, the equip gate and the pick gate — the commander's answer is the
 // RECORD's, never sargeUnlocked's (a stray entry there can't unlock a secret).
-function wkOwned(wk){ return wk==='pistol' || (wk==='commander'? cmdOwned()
+function wkOwned(wk){ return wk==='pistol' || (wk==='commander'? cmdOwned() : wk==='spellbook'? spbOwned()
   : (META.sargeUnlocked||[]).indexOf(wk)>=0); }
 // ═══ 0903 NEW COMMANDER FIXES (FM-GVT-NEWCMD-01 design/new-commander-fixes-0902/00-FIXES.md; Wyatt 9/2, verbatim: "You shouldnt need to
 // upgrade sarge in order for him to learn shotgun, sniper rifle, and saber. That should be linked to your account level." · "he just got
@@ -73829,6 +73936,7 @@ function sargeStats(r9){   // CARD-HS (⚑ HS-Q7): + an optional rank — the SA
   // rank 20 hands the full 175 back. aggro is both the launch and the chain
   // radius (one field is both), so shrinking it shrinks the whole hunt.
   if(w==='lightsaber') return outfitTune({ w, r, aggro:(r>=WPN_MILE.sabFullLvl? WPN_MILE.sabFull : WPN_MILE.sabNear)+(esOn()? ES_M*TK_M : 0)+(unarmedOn()? UA_LEAP_M*TK_M : 0), dmg:(7+2.5*u)*so, ...(so>1?{soul:1}:{}), cd:2.1, block:(r>=WPN_MILE.sabFullLvl? SABER_L20_BLOCK : 0) });
+  if(w==='spellbook') return outfitTune({ w, r, rng:SPB_RNG, rate:1/SPB_CD, dmg:(SPB_DMG0+SPB_DMG_PER*u)*so, ...(so>1?{soul:1}:{}), aoe:SPB_R });   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): the orb every 1.75 s (Isaac 12:34), the bazooka's reach, its damage x0.8 on its own curve x0.8, the burst's radius on the bag (an ally's sim reads the wire's)
   // 0092 THE COMMANDER — the slow tank behind a plain steel saber. The bag is
   // SELF-CONTAINED on purpose: blk and aoe ride it so a relayed ally's blocks
   // and blade state come off the WIRE's numbers, never off MY save (the
@@ -79514,6 +79622,8 @@ function tourPoseURI(k){   // 0906 BIG SARGE (C1): the ROOM GUIDE's figure in po
 // render (stateless); no new SVG assets — the molded guns already exist.
 const WEP_CROP={ pistol:'62 24 36 32', pistol2:'62 24 40 56', shotgun:'40 60 76 32', sniper:'40 54 80 36',
                  lightsaber:'66 0 48 62', commander:'66 4 44 58', claymore:'62 -2 52 72', highblade:'66 2 54 76', flameblade:'64 -10 60 90', iceblade:'64 -10 60 90' };   // 0906 THE FLAME BLADE: the crop grows up to the tip flame and the embers (y −10) and out to the last ember (x 124)   // 0488: the rack bubble crops the longer blade + the gold guard (no row = the whole figure in the disc)
+SARGE_ART.spellbook=BASE+'<g stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">'+'<path d="M40 122 L54 96" stroke-width="11"/><path d="M76 118 L58 96" stroke-width="11"/>'+'<path d="M56 96 L58 68" stroke-width="16"/>'+'<path d="M60 72 L76 48" stroke-width="8"/><path d="M58 76 L81 72" stroke-width="8"/></g>'+'<g transform="translate(86 70) rotate(-14) scale(1.5)">'+'<path d="M-10 -1 Q-5 -5 0 -1 Q5 -5 10 -1 L10 7 Q5 4 0 7 Q-5 4 -10 7 z" fill="#7A2E2A" stroke="#4E1C1A" stroke-opacity=".55" stroke-width="0.8" stroke-linejoin="round"/>'+'<path d="M-8.6 0 Q-4.3 -3.2 0 0 L0 5.4 Q-4.3 2.6 -8.6 5.4 z" fill="#F2E8C8"/><path d="M8.6 0 Q4.3 -3.2 0 0 L0 5.4 Q4.3 2.6 8.6 5.4 z" fill="#F2E8C8"/>'+'<path d="M-8.6 0 Q-4.3 -3.2 0 0 L0 2 Q-4.3 -1.2 -8.6 2 z M8.6 0 Q4.3 -3.2 0 0 L0 2 Q4.3 -1.2 8.6 2 z" fill="#FFFBEE" fill-opacity=".7"/>'+'<path d="M-6.5 1.6 L-2.2 0.8 M-6.5 3.2 L-2.6 2.4 M2.2 0.8 L6.5 1.6 M2.6 2.4 L6.5 3.2" stroke="#9A8B6A" stroke-opacity=".7" stroke-width=".5" stroke-linecap="round"/>'+'<path d="M0 -1 L0 7" stroke="#4E1C1A" stroke-opacity=".6" stroke-width=".5"/>'+'<path d="M-10 -1 L-8.4 -2.2 M10 -1 L8.4 -2.2 M-10 7 L-8.4 8.2 M10 7 L8.4 8.2" stroke="#C9A227" stroke-width="0.9" stroke-linecap="round"/>'+'<path d="M-1 -2 Q-3 -7 1 -9 M2 -3 Q5 -6 3 -10" fill="none" stroke="#B45BFF" stroke-opacity=".8" stroke-width=".7" stroke-linecap="round"/></g>'+'<g stroke-linecap="round"><path d="M73.5 51.5 L90 29.5" stroke="#2A1A10" stroke-opacity=".9" stroke-width="3.6"/>'+'<path d="M73.5 51.5 L90 29.5" stroke="#5A3A20" stroke-width="2.2"/><path d="M74.6 50.2 L88.6 31.4" stroke="#8A6238" stroke-opacity=".7" stroke-width=".7"/>'+'<path d="M87.6 32.7 L90 29.5" stroke="#F2E8C8" stroke-width="2.2"/></g>'+'<circle cx="90.6" cy="28.7" r="6" fill="#B45BFF" fill-opacity=".22"/><circle cx="90.6" cy="28.7" r="3.6" fill="#E6CFFF" fill-opacity=".75"/><circle cx="90.6" cy="28.7" r="1.7" fill="#FFFFFF"/>'+'<path d="M95 24 L97.4 24 M96.2 22.8 L96.2 25.2 M84 23.5 L86 23.5 M85 22.5 L85 24.5" stroke="#FFFFFF" stroke-opacity=".9" stroke-width=".9" stroke-linecap="round"/>'+'<g transform="translate(57,50)">'+HEAD+'</g>';   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): THE WIZARD's mold (look/wizard2.svg): the pistol figure, the book at 1.5x in the forward hand, the wand in the raised fist, the helmet kept (no hat, no cape: Isaac 12:34)
+WEP_CROP.spellbook='62 20 44 68'; OF_SEAT.spellbook=[57,50,'A'];   // CARD-SPB: the rack bubble = the book and the wand; the head the pistol mold's (the hats sit where they sit on the pistol)
 function wepGlyphURI(art){ if(art==='unarmed') art='lightsaber';   // 0487: the rack bubble names the SLOT — the hilt and its crystal, never the stance (the switcher's job; a cream-dyed bare figure would be an empty disc)
   return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+(WEP_CROP[art]||'0 0 120 140')+'">'
   +(SARGE_ART[art]||SPRITES_SRC.sarge).split('currentColor').join('#E4D6AE').split('BLADEHEX').join(saberHex())+'</svg>'); }
@@ -87815,7 +87925,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -115936,6 +116046,7 @@ const COOP_MILES=[
   { lvl:85,  kind:'medal',    id:'cml85', mname:'ALMOST THERE, TOGETHER' },
   { lvl:SOUL_LVL, kind:'soul', id:'soul' },
   { lvl:CMD_BLADE_LVL, kind:'weapon', id:'blade' },
+  { lvl:SPB_LVL, kind:'weapon', id:'spellbook' },   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): the next rung after the Claymore's blade
   { lvl:100, kind:'finale',   ref:'co10' }
 ];
 
@@ -117141,6 +117252,7 @@ function endBattle(win){
   // 0092: digit-free on purpose (the v1.29.2 law), and the same sentences card
   // the reveal at the room — one key each, win line and card alike.
   if(plain && cmdDue)   prizes.push({ o:1, t:'THE CLAYMORE', f:'academy', a:'<img src="'+sargeWepURI('commander', dyeHex()||undefined)+'" alt="">' });   // 0552c D5: the ticket; the rite card announces him ONCE (riteFire marks cmdSeen — the double announce dies)
+  if(plain && spbOwned() && !META.spbSeen) prizes.push({ o:7, t:'THE SPELLBOOK', f:'room', a:'<img src="'+sargeWepURI('spellbook', dyeHex()||undefined)+'" alt="">' });   // CARD-SPB: the ticket; cmdSweep cards the book at home (read after the hoisted coopLevels write)
   if(plain && bladeDue) prizes.push({ o:7, t:"THE CLAYMORE'S BLADE", f:'room', a:'<img src="'+sargeWepURI('claymore', dyeHex()||undefined)+'" alt="">' });   // 0552c D5: cmdSweep cards the blade at home
   if(evBattle() && META.ev && META.ev.ann) prizes.push({ o:7, t:(META.ev.last && META.ev.last.rk==='bone')? "THE KING'S HOARD" : 'THE SPOILS OF THE INVASION', f:'room', a:evTicketArt() });   // 0906 THE KING'S HOARD (cell C4): the Rex night's ticket wears the hoard's name · 0569 D4.f: the ticket (evCard's own art), digit-free (the v1.29.2 law); the full card is evSweep's, on the first step back into the room (the 0373 ceremony law)
   // 0121: digit-free on purpose (the v1.29.2 law) — the same sentence cards
@@ -117658,7 +117770,7 @@ const TEX_FG={ on:1,
   lose:2.0, win:2.5,           // the fades home (B3 brings the real ends)
   sidearm:{ rng:110, rate:1.0, dmg:0.6 }   // an unarmed class on the roof (the sweeper) carries a sidearm here
 };
-const TEX_SW={ pistol:{ rng:108, rate:PISTOL_RATE, dmg:1.5 }, shotgun:{ rng:92, rate:1.1, dmg:1.2, cone:1 }, sniper:{ rng:300, rate:0.45, dmg:6 }, lightsaber:{ rng:46, rate:1.3, dmg:3, melee:1 }, commander:{ rng:56, rate:0.9, dmg:4, melee:1 } };   // Sarge by his iron
+const TEX_SW={ pistol:{ rng:108, rate:PISTOL_RATE, dmg:1.5 }, shotgun:{ rng:92, rate:1.1, dmg:1.2, cone:1 }, sniper:{ rng:300, rate:0.45, dmg:6 }, lightsaber:{ rng:46, rate:1.3, dmg:3, melee:1 }, commander:{ rng:56, rate:0.9, dmg:4, melee:1 }, spellbook:{ rng:170, rate:1/SPB_CD, dmg:4.8 } };   /* CARD-SPB: the train's Sarge with the book */   // Sarge by his iron
 const TEX_TANROW={ tanrifle:{ hp:60, rng:198, cd:2.6, dmg:1 }, tanmg:{ hp:90, rng:161, cd:3.4, burst:3, gap:0.14, dmg:0.6 }, officer:{ hp:110, rng:170, cd:4.2, dmg:1, pot:1 }, jeep:{ hp:160, rng:0, cd:0, dmg:0 }, tansarge:{ hp:80, rng:44, cd:3.2, dmg:1, boss:1 } };   // CARD-TRN-B3: the Tan Sarge's row (his saber's reach; the swing knocks a man flat)   // the Tan's own rows in the set's scale (the campaign's reaches; the pools against a rank-1 squad's 13 damage a second)
 const TEX_TAN=[ [],   // the caboose: the squad's own car
   [ { t:'tanrifle', x:140 }, { t:'tanmg', x:268 } ],                                 // 1 the crate car: behind the crates (cover soaks rounds: flank)
@@ -119345,6 +119457,7 @@ function update(dt){
             if(!RM) S.shake=Math.max(S.shake,0.22);
             setTimeout(()=>{ try{ bfSfx(SFX.buck,u.x,u.y); }catch(e9){} }, 90);   // the double report — SFX only, zero sim state, RM keeps both bangs (information)
           }
+        } else if(sw.w==='spellbook'){ spbCast(u,best,sw,vm,cm,wdir);   // CARD-SPB: THE ORB off the wand's tip (the clock, the scan, the aim and the crit are the shared loop's above)
         } else if(sw.w==='sniper'){
           // ONE HEAVY ROUND CLEAR ACROSS THE CARPET — and the whole room should
           // know it. Star flash off the barrel tip, a fat tracer with a white-hot
@@ -119779,6 +119892,7 @@ function update(dt){
   // it lands through foeSplash (knocks greens, no blame), never splash()
   for(let i=S.shots.length-1;i>=0;i--){
     const sh=S.shots[i];
+    if(sh.k==='orb'){ if(spbOrbTick(sh,dt)) S.shots.splice(i,1); continue; }   // CARD-SPB: THE ORB's flight and its burst (never the magnet's, never the duck's)
     if(!S.bf && (sh.k==='rocket' || sh.k==='lob') && !sh.cbx && magShot(sh,dt)){ S.shots.splice(i,1); continue; }   // OC-8 THE MAGNET JEEP: YOUR rocket, bomb or grenade in flight inside the magnet's reach swings onto its grille and STICKS — it never bursts (false on every rug without a live magnet: S.magOn)
     if(sh.k==='rocket'){ if(sh.hsm) hsmSteer(sh);   /* CARD-HSM: the seeker re-aims the missile at its machine every frame of the flight */
       const dx=sh.tx-sh.x, dy=(sh.ty-14)-sh.y, d=Math.hypot(dx,dy);
@@ -126226,6 +126340,7 @@ function draw(){
   ccnB6Outline();   // CARD-CCN-B6 (§3.8): a channeled man's shots keep their own look over a slight orange outline (the +2 made visible)
   ccnB7Outline();   // CARD-CCN-B7 (§3.8, his Volley note): a surged man's shots keep their own look over a slight silver outline
   for(const sh of S.shots){
+    if(sh.k==='orb'){ spbDrawOrb(sh); continue; }   // CARD-SPB: THE ORB in flight
     if(sh.k==='rocket'){ if(rbOf(sh)){ rbDrawRocket(sh); hsmNose(sh); /* CARD-HSM: the red-hot nose on a missile */ } else { cx.fillStyle='#333'; cx.beginPath(); cx.arc(sh.x,sh.y,sh.big?7:sh.papa?6:4,0,7); cx.fill(); } }   // CARD-RB: a tube's rocket is drawn as a rocket; the tank's round keeps its dot   // 1178 CARD-NM: BIG PAPA's rocket reads fat too (6 — a scale, not new art)   // 0242: the BIG ONE reads fat in the air
     else if(sh.k==='pcbub'){ drawSprite('fbubble',sh.x,sh.y+16,36,0,Math.sin(S.t*4+sh.x*0.01)*0.06,IMG.fbubble); }   // 1027 CARD-ML-A3 THE BUBBLE in flight — the pond's own shimmer sphere
     else if(sh.k==='lightarrow'){ if(sh.t<0) continue;   // 0947e THE LIGHT ARROW · 1213 CARD-LA2 THE OCARINA CUT: a thin bright shaft, a blazing starburst head (a halo, four long rays turning, four short, a white core), a tapering trail of light behind (three nested wedges), the gold key (blue when thrown back); reduced motion = the shaft + a still star, no trail
@@ -126287,7 +126402,8 @@ function draw(){
     const k=e.t/e.dur;
     if(e.k==='tracer'){ tslCase(cx,e,k); cx.globalAlpha=(1-k)*(e.a||1); cx.strokeStyle=e.col||'#FFF3C4'; cx.lineWidth=e.w||2.5; cx.beginPath(); cx.moveTo(e.x1,e.y1); cx.lineTo(e.x2,e.y2); cx.stroke(); cx.globalAlpha=1; }
     if(e.k==='pcpnote') pcpNoteDraw(e,k);   // CARD-PCP: THE GOLDEN NOTE
-    if(e.k==='frbzap') frbZapDraw(e,k);   // CARD-HL4 FRANKENSTEIN'S BOLT: the blue arc from his neck to the man it shocks
+    if(e.k==='frbzap') frbZapDraw(e,k);
+    if(e.k==='spbx') spbFxDraw(e,k);   // CARD-SPB: the orb's motes, the burst's sparks and hit flashes   // CARD-HL4 FRANKENSTEIN'S BOLT: the blue arc from his neck to the man it shocks
     if(e.k==='rope'){   // 0340: Jane's hook-shot line — taut from the eave, gone as she lands (0433: no pusher tonight — the sky rope is retired at janeIn; 0438's cinematic cut re-anchors it from a DRAWN eave)
       cx.save(); cx.globalAlpha=0.85*(1-k);
       cx.strokeStyle='#C9A06A'; cx.lineWidth=2.6; cx.lineCap='round';
@@ -129248,6 +129364,7 @@ function drawSargeWeapon(u){
     cx.beginPath(); cx.moveTo(gx+18.4+rx,gy-32.5+ry); cx.lineTo(gx+19+rx,gy-29.8+ry); cx.stroke();
     cx.fillStyle='#d8d8d8'; cx.beginPath(); cx.arc(gx+34.8,gy-34.6,0.9,0,7); cx.fill();                      // bead sight
   }
+  else if(w==='spellbook') spbDrawHands(u);   // CARD-SPB: the book in the forward fist, the wand in the raised one (flicked on a cast)
   else if(w==='sniper'){
     // the long rifle — and its KICK: for a beat after a shot the barrel rocks
     // back and up, trailing smoke off the muzzle. You can see he just touched one off.
@@ -148961,6 +149078,7 @@ function crlMile(m){   // one COOP_MILES row (the campaign's hundred): the game'
   const k=m.kind, id=m.id, lvl=m.lvl|0, hex=()=>(dyeHex()||undefined), r={ lvl, kind:k, id:id||m.ref||'', name:'', line:'', card:'', pic:()=>CRL_GIFT, big:null, won:coopBeat(lvl) };
   if(k==='medal'){ const i=crlMedalIdx(m); r.name=t(m.mname); r.line=tf('A MEDAL IN %1', t('SHOULDER TO SHOULDER')); r.card=t('Beat level '+lvl+' of the campaign with a real commander beside you'); r.pic=()=>crlBadge(id, i, 'cml'); }
   else if(k==='decor'){ const d=DECOR_INFO[id]||{}; r.name=t(d.name||id); r.line=t(d.tag||''); r.card=t(d.sub||''); r.pic=()=>crlSafe(()=>lg3Pic('decor', id)); }
+  else if(k==='weapon' && id==='spellbook'){ r.name=t(SARGE_WEAPONS.spellbook.name); r.card=t('📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.'); r.pic=()=>'<img src="'+crlSafe(()=>sargeWepURI('spellbook', hex()))+'" alt="">'; }   // CARD-SPB: the book's own name, card line and mold
   else if(k==='weapon'){ const blade=id==='blade'; r.name=t(blade? "THE CLAYMORE'S BLADE" : SARGE_WEAPONS.commander.name); r.card=t(blade? "⚔ THE CLAYMORE'S BLADE. His sword grows into a mighty claymore!" : '⚔ SECRET CLASS UNLOCKED: THE CLAYMORE reports to the Training Academy!'); r.pic=()=>'<img src="'+crlSafe(()=>sargeWepURI(blade? 'claymore' : 'commander', hex()))+'" alt="">'; }
   else if(k==='unit'){ const bmb=id==='bomber'; r.name=t(bmb? 'THE BOMBER' : (crlSafe(()=>UDEF[id].name)||id)); r.line=t('JOINS THE FORCE'); r.card=t(bmb? 'SECRET UNIT UNLOCKED: THE BOMBER reports to the shop!' : 'JOINS THE FORCE'); r.pic=()=>bmb? '<img src="'+crlSafe(()=>sprURI('bomber', hex(), BMB_VB))+'" alt="">' : (crlSafe(()=>lg3Pic('man', id)) || CRL_GIFT); }   // the bomber: the level-50 card's own name, line and box (bmbOpen)
   else if(k==='soul'){ r.name=t('THE SOUL OF A SOLDIER'); r.card=t('✦ THE SOUL OF A SOLDIER AWAKENS. A once-ever gift waits in your room!'); r.pic=()=>crlSafe(()=>soulMarkSVG()); }
@@ -175928,9 +176046,9 @@ function fhRackArt(){
   v+='<rect x="'+P[0]+'" y="'+P[1]+'" width="'+P[2]+'" height="'+P[3]+'" fill="'+FELT+'" stroke="'+R.hem+'" stroke-width="1.2"/>';
   v+='<rect x="'+L[0]+'" y="'+L[1]+'" width="'+L[2]+'" height="'+L[3]+'" rx="1.5" fill="'+DARKW+'" stroke="'+INK+'" stroke-width="1.2"/>';
   v+='<rect x="'+B[0]+'" y="'+B[1]+'" width="'+B[2]+'" height="'+B[3]+'" rx="2" fill="'+WOOD+'" stroke="'+INK+'" stroke-width="1.4"/>';
-  v+=SARGE_ORDER.filter(wkOwned).map(wk=>{ const q=R.irons[wk]; return '<rect x="'+(q[0]+q[2]/2-3).toFixed(2)+'" y="'+(B[1]+B[3]-4)+'" width="6" height="4" fill="'+INK+'" opacity=".8" data-fh="slot"/>'; }).join('');   // the five slot notches on the beam, one over each iron's centre
-  v+=SARGE_ORDER.filter(wk=>!wkOwned(wk)).map(wk=>fhPegArt(R.irons[wk], B, wk, INK)).join('');   // CARD-FF2 AW-13: an empty slot = its notch + two empty hooks (more to collect), never a grey iron
-  const iron=wk=>{ const own=wkOwned(wk); if(!own) return ''; const art=sargeArtW(wk), q=R.irons[wk], x=q[0], y=q[1], w=q[2], h=q[3], rot=!!R.rot[wk], cx=x+w/2, cy=y+h/2;
+  v+=SARGE_ORDER.filter(wk=>wkOwned(wk) && R.irons[wk]).map(wk=>{ const q=R.irons[wk];   /* CARD-SPB: an iron with no seat on the rack (THE SPELLBOOK) is not on the rack */ return '<rect x="'+(q[0]+q[2]/2-3).toFixed(2)+'" y="'+(B[1]+B[3]-4)+'" width="6" height="4" fill="'+INK+'" opacity=".8" data-fh="slot"/>'; }).join('');   // the five slot notches on the beam, one over each iron's centre
+  v+=SARGE_ORDER.filter(wk=>!wkOwned(wk) && R.irons[wk]).map(wk=>fhPegArt(R.irons[wk], B, wk, INK)).join('');   /* CARD-SPB: the five seats' own hooks */   // CARD-FF2 AW-13: an empty slot = its notch + two empty hooks (more to collect), never a grey iron
+  const iron=wk=>{ const own=wkOwned(wk); if(!own || !R.irons[wk]) return '';   /* CARD-SPB: no seat, no iron */ const art=sargeArtW(wk), q=R.irons[wk], x=q[0], y=q[1], w=q[2], h=q[3], rot=!!R.rot[wk], cx=x+w/2, cy=y+h/2;
     const attrs=' data-fh="iron" data-k="'+wk+'" data-box="'+[x,y,w,h].join()+'"'+(wk===eq? ' data-eq="1"' : ' opacity=".8"');   // CARD-EB: no ghost branch — an unowned iron never reaches here (absent above)
     const img=rot? '<g transform="rotate(-90 '+cx+' '+cy+')" data-rot="1">'+fhImg(fhWepURI(art,FELT),cx-h/2,cy-w/2,h,w,attrs)+'</g>' : fhImg(fhWepURI(art,FELT),x,y,w,h,attrs);   // a long gun: its level crop drawn h wide × w tall about the slot's centre, then turned −90° — it stands muzzle-up inside the upright box (the bench's blade trick, the other way round)
     return (own && wk===eq? '<rect x="'+(x-5)+'" y="'+(y-5)+'" width="'+(w+10)+'" height="'+(h+10)+'" rx="6" fill="#FFD24A" opacity=".3" data-fh="ironglow"/>' : '')+img+(own && wk===eq? '<rect x="'+(x-3)+'" y="'+(y-3)+'" width="'+(w+6)+'" height="'+(h+6)+'" rx="4" fill="none" stroke="#FFD24A" stroke-width="2.6" opacity=".95"/>' : ''); };   // 0947's glow + ring on the one in hand, as on the bench
@@ -176839,7 +176957,7 @@ function heroesHTML(){ const dye=dyeHex()||undefined, hsel=heroSel(); let h=''; 
   return h; }
 function fhWrackHTML(){
   const eq=META.sargeWeapon||'pistol';
-  return '<div class="sh-wrack fh-wrack">'+SARGE_ORDER.filter(wk=>wk!=='commander' || cmdOwned()).map(wk=>{ const sab=(wk==='lightsaber');   // 0912-4 THE ROSTER IS THE SQUAD: the locked irons stand on the rack too (the arsenal's lock cards moved here) — a dark bubble with the lock, its tap = the iron's own sheet with the lock line (UI.fortIron's unowned branch: the clack + UI.wepInfo — the bench's law); an unowned Commander is absent (0092)
+  return '<div class="sh-wrack fh-wrack">'+SARGE_ORDER.filter(wk=>(wk!=='commander' || cmdOwned()) && (wk!=='spellbook' || spbOwned())).map(wk=>{ const sab=(wk==='lightsaber');   // 0912-4 THE ROSTER IS THE SQUAD: the locked irons stand on the rack too (the arsenal's lock cards moved here) — a dark bubble with the lock, its tap = the iron's own sheet with the lock line (UI.fortIron's unowned branch: the clack + UI.wepInfo — the bench's law); an unowned Commander is absent (0092)
     if(!wkOwned(wk)) return '<button type="button" class="sh-wep lk" id="fhwep-'+wk+'" data-wep="'+wk+'" data-own="0" onclick="UI.fortIron(\''+wk+'\')"><img src="'+wepGlyphURI(wk)+'" alt=""><i>'+gly('lock')+'</i></button>';
     return '<button type="button" class="sh-wep'+(wk===eq?' eq':'')+(sab?' sab':'')+'" id="fhwep-'+wk+'" data-wep="'+wk+'"'+(sab?' style="--sab:'+saberHex()+'"':'')+' onclick="UI.fortWep(\''+wk+'\')"><img src="'+wepGlyphURI(sargeArtW(wk))+'" alt=""></button>'; }).join('')+'</div>'+fhWrackCapHTML(eq)+(eq==='commander' && cmdOwned()? '<button type="button" class="mbtn alt fh-philbtn" onclick="UI.fortPhilOpen()">PHILOSOPHIES</button>' : '')+(eq==='lightsaber' && sabHasSaber() && !sabRiteOwed()? '<button type="button" class="mbtn alt fh-philbtn" onclick="UI.fortCrystalOpen()">CRYSTALS</button>' : '');   // 0912-4: the saber in hand carries its CRYSTALS button — the crystal case any time (the PHILOSOPHIES button's twin; the rite first while the free pick is owed)   // 0912-3 SARGE'S EQUIPMENT cell 3: the commander in hand carries his PHILOSOPHIES button (⚑ Q2: the picker any time)   // 0947: the caption under the rack — the iron in hand named, IN HAND, its rank row
 }
@@ -176854,7 +176972,7 @@ function fhWrackHTML(){
 // byte-still. THE SPECKS: the old rack's pictures wore the figure's own rule (.fh-stage img, scale 1/3) and were drawn at a third of their size; no picture but the figure stands in
 // the stage now. fhWrackHTML and fhWrackCapHTML are no longer called by this card (the Surplus's own rack shopWrackHTML is untouched).
 const WEP_ALONE={ pistol:[0,'64.55 28.55 30.4 25.65'], pistol2:[0,'64.55 28.55 35.4 49.65'], shotgun:[0,'37.8 64.55 75.65 25.15'], sniper:[0,'38.8 59.55 80.65 29.65'],
-  lightsaber:[34,'68.05 19.3 64.15 39.9'], commander:[34,'65.55 27.8 58.4 29.15'], claymore:[34,'56.3 22.3 79.15 39.15'], highblade:[34,'54.55 29.05 82.65 42.9'], flameblade:[34,'48.3 28.8 97.65 43.15'], iceblade:[34,'48.3 29.05 89.65 42.9'] };   // art → [the turn about the hand (80, 48): a blade lies at a slant, the iron's own inked box + 1.2] (measured on a raster: design/equipment-fullscreen-1005/eqf/logs/alone.json)
+  lightsaber:[34,'68.05 19.3 64.15 39.9'], commander:[34,'65.55 27.8 58.4 29.15'], claymore:[34,'56.3 22.3 79.15 39.15'], highblade:[34,'54.55 29.05 82.65 42.9'], flameblade:[34,'48.3 28.8 97.65 43.15'], iceblade:[34,'48.3 29.05 89.65 42.9'], spellbook:[0,'64 20 40 66'] };   /* CARD-SPB: the book and the wand */   // art → [the turn about the hand (80, 48): a blade lies at a slant, the iron's own inked box + 1.2] (measured on a raster: design/equipment-fullscreen-1005/eqf/logs/alone.json)
 const EQ_ALONE={};   // art|crystal → the picture (a deal asks for five; the strip is one parse each)
 function wepAloneURI(art){ if(art==='unarmed') art='lightsaber';   // the slot's own law (wepGlyphURI 0487): the hilt and its crystal, never the stance
   const row=WEP_ALONE[art], src=SARGE_ART[art]; if(!row || !src) return wepGlyphURI(art);   // an art with no measured box keeps the bubble's crop (never a blank card)
@@ -176875,7 +176993,7 @@ function eqIronHTML(wk){ const eq=META.sargeWeapon||'pistol', own=wkOwned(wk), s
     +((own && wk===eq)? '<span class="fh-pflag">IN HAND</span>' : '')
     +'<span class="eq-ipic"><img src="'+wepAloneURI(sargeArtW(wk))+'" alt=""></span><span class="eq-in">'+wd.name+'</span>'
     +(own? '<span class="eq-il">'+acRankHTML('w',wk,r)+'</span>' : '<span class="eq-il" data-notr>'+gly('lock')+' '+escH(tf('LEVEL %1', wd.unlock))+'</span>')+'</button>'; }   // an owned iron: its rank row (acRankHTML, the caption's own line) · a locked one: the lock and the level that opens it, in the player's tongue by tf (the key LEVEL %1 stands x7; a glyph beside a text node is not a key the write hook finds, so the line is written translated and marked data-notr)
-function eqIronsHTML(){ const L9=SARGE_ORDER.filter(wk=>wk!=='commander' || cmdOwned());   // an unowned Commander is absent (0092)
+function eqIronsHTML(){ const L9=SARGE_ORDER.filter(wk=>(wk!=='commander' || cmdOwned()) && (wk!=='spellbook' || spbOwned()));   // an unowned Commander is absent (0092)
   return '<div class="eq-irons" data-n="'+L9.length+'" style="--eq-n:'+L9.length+'">'+L9.map(eqIronHTML).join('')+'</div>'; }
 function eqCapHTML(wk){ const wd=SARGE_WEAPONS[wk]||SARGE_WEAPONS.pistol;   // under him, one line: the iron in hand named, its ⓘ, the blade's own button (the flag and the rank ride the iron's card)
   return '<div class="fh-wcap eq-cap" data-fh="wcap" data-wk="'+wk+'"><b>'+wd.name+'</b>'+soulChip('w',wk)+wepDoorHTML(wk)
@@ -176942,7 +177060,7 @@ function gstTap(k){ if(GST_KEYS.indexOf(k)<0) return false; try{ audio(); }catch
 let EQT_VIEW='all';   // 'all' | 'wep' | an OUTFIT_SLOTS key: the page the open quarters show; never saved
 const EQT_MARK={ wep:'pistol', head:'helmet', face:'mustache', chest:'vest', trim:'belt', hands:'pilotgloves', legs:'cargopants', feet:'boots', socks:'luckysocks' };   // each tab's little picture: the pistol alone, a rail's first piece
 function eqtTypes(){ return [{ v:'wep', w:'WEAPONS' }].concat(OUTFIT_SLOTS.map(g=>({ v:g.key, w:g.rule, g:g }))); }   // the types in the shelves' order
-function eqtIrons(){ return SARGE_ORDER.filter(wk=>wk!=='commander' || cmdOwned()); }   // the irons the WEAPONS row deals (eqIronsHTML's own list)
+function eqtIrons(){ return SARGE_ORDER.filter(wk=>(wk!=='commander' || cmdOwned()) && (wk!=='spellbook' || spbOwned())); }   // the irons the WEAPONS row deals (eqIronsHTML's own list)
 function eqtShown(ids){ return ids.filter(id=>!!shopOutfitHTML(id,'UI.fortOutfit')); }   // the pieces a rail deals (the hidden-prize law returns '' for the rest)
 function eqtRail(g){ return eqtShown(OUTFIT_ORDER.filter(id=>g.ids.indexOf(id)>=0)); }
 function eqtHas(v){ if(v==='all' || v==='wep') return true; const g=OUTFIT_SLOTS.find(g9=>g9.key===v); return !!g && eqtRail(g).length>0; }   // a rail with no card today has no tab
@@ -177082,7 +177200,7 @@ function afqTentArt(hex,ink){   // SARGE'S QUARTERS: a little olive-drab wall te
   v+=dmwWallArt(Q,D,INK);   // CARD-DMW (Dylan 10/11): the rail + the three hangers out; the three gear sets mounted on the display wall
   v+='<g data-fh="afqshelf"><rect x="'+(D[0]+8)+'" y="'+(Q.shelf-19)+'" width="'+(D[2]-D[0]-16)+'" height="19" fill="#D8C9A0" stroke="#B9A77A" stroke-width="1"/><rect x="'+(D[0]+4)+'" y="'+Q.shelf+'" width="'+(D[2]-D[0]-8)+'" height="5" rx="1.5" fill="'+WOOD+'" stroke="'+INK+'" stroke-width="1.1"/><path d="M'+(D[0]+16)+' '+(Q.shelf+5)+' v6 M'+(D[2]-16)+' '+(Q.shelf+5)+' v6" stroke="'+DARKW+'" stroke-width="3"/>';   // THE SHELF + HIS WEAPONS (SARGE_ORDER west → east; one he does not own = an empty brass cradle)
   const gw=Q.gun[0], gh=Q.gun[1];
-  SARGE_ORDER.forEach((wk,i)=>{ const cx=Q.guns[i], own=wkOwned(wk);
+  SARGE_ORDER.forEach((wk,i)=>{ if(Q.guns[i]==null) return;   /* CARD-SPB: the shelf's five seats (THE SPELLBOOK has none yet) */ const cx=Q.guns[i], own=wkOwned(wk);
     v+=own? '<g data-fh="afqgun" data-k="'+wk+'">'+fhImg(fhWepURI(sargeArtW(wk),'#D8C9A0'),cx-gw/2,Q.shelf-gh-1,gw,gh,' data-fh="afqgunimg"')+'</g>'
       : '<g data-fh="afqgun" data-k="'+wk+'" data-own="0"><path d="M'+(cx-9)+' '+(Q.shelf-5)+' v3 a3 3 0 0 0 6 0 v-3 M'+(cx+3)+' '+(Q.shelf-5)+' v3 a3 3 0 0 0 6 0 v-3" fill="none" stroke="#C9A35A" stroke-width="1.4" stroke-linecap="round"/></g>'; });
   v+='</g>';
@@ -177473,7 +177591,7 @@ function pkTierSet(el,kind,key,r){
 // aligned-footer law — one small line, never prose); the VETERAN pill names its two buys. ⚑ Q13 percent + the tease (the
 // alternative = plain words: HITS HARDER). The ledger, the pick, the beat, telPick, nextMile, rankTeaseHTML, the manual, the bag:
 // byte-still. Every line below walks the l10n hook (the {0} keys) or is composed through tf on a data-notr node (the tease).
-const WEP_DMG_RANK={ shotgun:[1.1,0.35], sniper:[9,3], lightsaber:[7,2.5] };   // the bag's own dmg ladders, MIRRORED for the label (sargeStats: dmg:(1.1+0.35*u) · (9+3*u) · (7+2.5*u); the commander reads CMD.dmg0/dmgPer live) — staticUT pins the bag's literals to this table, batteryUT proves the bag's dmg = wepDmgAt at the save's rank
+const WEP_DMG_RANK={ shotgun:[1.1,0.35], sniper:[9,3], lightsaber:[7,2.5], spellbook:[SPB_DMG0,SPB_DMG_PER] };   /* CARD-SPB: the orb's ladder (sargeStats: 4.8+0.48u) */   // the bag's own dmg ladders, MIRRORED for the label (sargeStats: dmg:(1.1+0.35*u) · (9+3*u) · (7+2.5*u); the commander reads CMD.dmg0/dmgPer live) — staticUT pins the bag's literals to this table, batteryUT proves the bag's dmg = wepDmgAt at the save's rank
 function wepDmgAt(wk,r){ const u=rankUnits(r|0); if(wk==='commander') return CMD.dmg0+CMD.dmgPer*u; const s=WEP_DMG_RANK[wk]; return s? s[0]+s[1]*u : null; }
 const WEP_MILE_NAME={ shotgun:'THE CHARGE', sniper:'THE LONG BARREL', lightsaber:'THE FULL BLADE' };   // the weapon story's own names (mnWepStory) at the rung nextMile teases; the pistol's two rungs are named in pkTeaseText
 function rankGain(kind,key,r){   // what the NEXT rank buys — { pct, hp, noun } or null at the cap. noun: dmg · heal (the medic — medHealPS rides upMulR) · rate (the pistol — pistolRate)
@@ -178125,6 +178243,7 @@ const RITE_LINE={
   shotgun:   'SARGE CAN USE THE SHOTGUN NOW. Equip it at the Training Academy!',
   sniper:    'SARGE CAN USE THE SNIPER RIFLE NOW. Equip it at the Training Academy!',
   lightsaber:'SARGE CAN USE THE SABER NOW, and his first blade colour is on the house!',
+  spellbook: 'SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!',   // CARD-SPB
   tank2:     'THE V2 TANK rolls into your motor pool. It takes the heavy tank\'s slot, quicker on the gun and the tracks!'   // 0547
 };
 // the ladder's announce order. Each entry derives OWNED from the record, deals
@@ -179964,6 +180083,9 @@ function cmdSweep(){
   if(bladeOwned() && !META.bladeSeen){ META.bladeSeen=1; saveMeta();
     if(S.mode==='menu') renderMenu();
     cmdOpen(true); return true; }
+  if(spbOwned() && !META.spbSeen){ META.spbSeen=1; saveMeta();   // CARD-SPB: THE SPELLBOOK's card, the co-op record's next rung (the blade's own door: once ever, whichever door opens first)
+    if(S.mode==='menu') renderMenu();
+    spbOpen(); return true; }
   return false;
 }
 function cmdOpen(blade){
@@ -182653,6 +182775,7 @@ const MN_SCENES={
       else if(w==='shotgun'){ const S=[0.7]; mnSprite(c,mnImg('sarge'),MN_FX,MN_GY,54,MN_IDLE(now)+mnKick(p,S,0.3,0.08)); const k=mnAt(p,0.7,0.3), mx=MN_FX+34, my=MN_GY-34;
         if(k>=0){ c.globalAlpha=(1-k)*0.5; c.fillStyle='#FFE39A'; c.beginPath(); c.moveTo(mx,my); c.arc(mx,my,80*(0.5+0.5*k),-0.36,0.36); c.closePath(); c.fill(); c.globalAlpha=1; mnFlash(c,mx,my,10,k,0); } }
       else if(w==='sniper'){ const S=[0.8]; mnSprite(c,mnImg('sarge'),MN_FX,MN_GY,54,MN_IDLE(now)+mnKick(p,S,0.25,0.07)); const k=mnAt(p,0.8,0.22); if(k>=0){ mnTracer(c,MN_FX+30,MN_GY-36,166,MN_GY-40,(1-k)); mnFlash(c,MN_FX+30,MN_GY-36,9,k,0); } }
+      else if(w==='spellbook'){ mnSprite(c,mnImg('sarge'),MN_FX,MN_GY,54,MN_IDLE(now)); const k=mnAt(p,0.5,0.6); if(k>=0){ const ox=MN_FX+14+120*k, oy=MN_GY-46+14*k; c.globalAlpha=0.3; c.fillStyle=SPB_LILAC; c.beginPath(); c.arc(ox,oy,8,0,7); c.fill(); c.globalAlpha=1; c.fillStyle=SPB_HEX; c.beginPath(); c.arc(ox,oy,4.5,0,7); c.fill(); } const kb=mnAt(p,1.1,0.45); if(kb>=0) mnRing(c,MN_FX+134,MN_GY-32,5,30,kb,SPB_HEX); }   // CARD-SPB: the orb, then its burst
       else { const S=[0.4,0.62,0.84,1.06,1.28,1.5], pair=pistolRank()>=WPN_MILE.pistolLvl; mnSprite(c,mnImg('sarge'),MN_FX,MN_GY,54,MN_IDLE(now)+mnKick(p,S,0.12,0.035));
         S.forEach((t0,i)=>{ const k=mnAt(p,t0,0.14); if(k<0) return; const hip=pair && (i%2===1), mx=MN_FX+(hip?16.5:16), my=MN_GY-(hip?30.7:41); mnTracer(c,mx,my,mx+100,my-2,(1-k)*0.9); mnFlash(c,mx,my,6,k,0); }); } } },
   minesweeper:{ T:3.0, f(c,p,now,still){ const S=[0.4,1.15,1.9]; mnShadow(c,MN_FX,MN_GY,15); mnSprite(c,mnImg('minesweeper'),MN_FX,MN_GY,54,MN_IDLE(now)+mnKick(p,S,0.2,0.08));
@@ -182813,6 +182936,12 @@ const MN_WEP={
       if(full){ const kb=mnAt(p,1.05,0.28), bx=sx+30, by=MN_GY-36; if(kb>=0){ c.globalAlpha=0.85; c.strokeStyle='#C9B48A'; c.lineWidth=2; c.beginPath(); c.moveTo(168,MN_GY-40); c.lineTo(168+(bx-168)*kb,MN_GY-40+(by-MN_GY+40)*kb); c.stroke(); c.globalAlpha=1; }   // the tan round comes back at him…
         const kr=mnAt(p,1.3,0.3); if(kr>=0) mnRing(c,bx,by,4,18,kr,saberHex()); } } }   // …and dies on the blade: the parry (SABER_L20_BLOCK's coin, shown as the block)
 };
+MN_WEP.spellbook={ T:3.0, f(c,p,now,still){ const M=[124,138,152], tb=1.05, kd=mnAt(p,tb,0.7);   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): the orb off the wand's tip, the burst on the cluster (every man inside it goes over)
+  M.forEach(m=>mnFoe(c,m,(still || p<tb)? -1 : (kd<0? 1 : kd),now,still,mnIn(p,still)));
+  mnShadow(c,MN_FX,MN_GY,15); mnSprite(c,mnImgW('spellbook'),MN_FX,MN_GY,54,(still? 0 : MN_IDLE(now)));
+  if(still) return;
+  const ko=mnAt(p,0.5,0.55); if(ko>=0){ const sx=MN_FX+14, sy=MN_GY-46, tx=138, ty=MN_GY-28, ox=sx+(tx-sx)*ko, oy=sy+(ty-sy)*ko; c.globalAlpha=0.3; c.fillStyle=SPB_LILAC; c.beginPath(); c.arc(ox,oy,8,0,7); c.fill(); c.globalAlpha=1; c.fillStyle=SPB_HEX; c.beginPath(); c.arc(ox,oy,4.5,0,7); c.fill(); c.fillStyle='#FFFFFF'; c.beginPath(); c.arc(ox-1,oy-1,1.8,0,7); c.fill(); }
+  const kb=mnAt(p,tb,0.5); if(kb>=0){ mnPuff(c,138,MN_GY-24,22,kb,SPB_LILAC); mnRing(c,138,MN_GY-24,5,34,kb,SPB_HEX); } } };
 // THE UPGRADE STORY — [rank, line] per rung of the iron, every number off the consts through tf's %n slots (the keys carry NO digits)
 function mnWepStory(wk){ const M=WPN_MILE;
   if(wk==='pistol') return [[M.pistolLvl, tf('AT RANK %1: THE SECOND IRON. He draws a second pistol and fires %2 times as fast.', M.pistolLvl, M.pistolRateMul)],
@@ -183816,7 +183945,7 @@ const BWH_BIRDS={   // ⚑ BWH-Q6: one bird a floor (ROOM_ORDER), each easy to t
   attic:   { k:'owl',        s:1.06, back:'#D3A04F', wing:'#C48F44', head:'#D3A04F', face:'#F7F2E7', disc:'#C9A06A', belly:'#F6EFE2', tail:'#B98840', beak:'#E9D3AE', leg:'#EADBC2', eye:'#241A12', owl:1 }
 };
 const BWH_PERCH={   // the free hand by the art id the room's Sarge wears (sargeArtW): [x, the hand's top, facing: +1 east / -1 west, OUT along his arm (a bird facing him hid his face: his hand is a head's width from it)] on the 120 x 140 art box (an arm is a stroke 8 wide, round caps: its end is the hand)
-  pistol:[81,68.8,1], pistol2:[69,70.6,1], shotgun:[88,70.4,1], sniper:[92,67.2,1], lightsaber:[38,66.4,-1], unarmed:[92,60.4,1], commander:[38,66.4,-1],
+  pistol:[81,68.8,1], pistol2:[69,70.6,1], spellbook:[81,66,1], shotgun:[88,70.4,1], sniper:[92,67.2,1], lightsaber:[38,66.4,-1], unarmed:[92,60.4,1], commander:[38,66.4,-1],
   claymore:[70,58.6,1], highblade:[73.4,66.8,1], iceblade:[73.4,66.8,1], flameblade:[73.4,66.8,1], co_d:[34,50.6,-1] };
 let BWV=null;   // THE VISIT (the theater, never the truth): { room, kind, on:'sarge'|'whistle', ph:'in'|'perch'|'out'|'gone', el, t0, dur, P:[4 points], s0, s1, fx, x, y, d0, tr0, raf, idle, beat, sash, rm }
 let BWH_RIM={};   // the soft rims: a fill's own shade (the pass's pkoShade), kept
@@ -186469,7 +186598,20 @@ try{ if(META.dyeOn) buildUnitTint(dyeHex()); }catch(e){}
 requestAnimationFrame(frame);
 
 // ================= DEBUG API =================
+Object.assign(TR["ja"]||(TR["ja"]={}), {"THE SPELLBOOK":"まほうの ほん","An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.":"ふるい まほうの ほんと ちいさな つえ。まとまった てきに はじける まほうの たまを なげる。バズーカより はやくて、すこし よわい。","A magic orb every {0} seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.":"{0}びょうごとに まほうの たまを うち、まとまった てきに はじける。ランクが あがるほど つよくなり、みかたは けっして こがさない。","A little softer than a bazooka, and every orb has to fly there first.":"バズーカより すこし よわく、たまは まず とんで いかないと あたらない。","📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.":"📖 まほうの ほんが トレーニングアカデミーに やってきた！サージは まとまった てきに はじける まほうの たまを なげる。","SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!":"サージは これから まほうの ほんが つかえる！トレーニングアカデミーで そうびしよう"});   // CARD-SPB THE SPELLBOOK: the weapon's words, ja
+Object.assign(TR["ko"]||(TR["ko"]={}), {"THE SPELLBOOK":"마법서","An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.":"오래된 마법서와 작은 지팡이. 무리 전체에 터지는 마법 구슬을 던져. 바주카보다 빠르고 조금 약해.","A magic orb every {0} seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.":"{0}초마다 마법 구슬이 무리 전체에 터져. 계급이 오를수록 더 세지고, 아군은 절대 그을리지 않아.","A little softer than a bazooka, and every orb has to fly there first.":"바주카보다 조금 약하고, 구슬은 먼저 날아가야 맞아.","📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.":"📖 마법서가 훈련소에 등장! 사지가 무리 전체에 터지는 마법 구슬을 던져.","SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!":"이제 사지가 마법서를 쓸 수 있어! 훈련소에서 장착해"});   // CARD-SPB THE SPELLBOOK: the weapon's words, ko
+Object.assign(TR["zh-Hans"]||(TR["zh-Hans"]={}), {"THE SPELLBOOK":"魔法书","An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.":"一本古老的魔法书和一根小魔杖。他扔出的魔法球会在一整群敌人中炸开，比火箭筒快，但稍弱一点。","A magic orb every {0} seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.":"每{0}秒一颗魔法球，在一整群敌人中炸开。每升一级都更痛，而且从不伤到自己人。","A little softer than a bazooka, and every orb has to fly there first.":"比火箭筒稍弱，而且每颗魔法球都得先飞过去。","📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.":"📖 魔法书来到训练学院啦！萨吉会扔出在一整群敌人中炸开的魔法球。","SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!":"萨吉现在能用魔法书了！去训练学院装备上"});   // CARD-SPB THE SPELLBOOK: the weapon's words, zh-Hans
+Object.assign(TR["de"]||(TR["de"]={}), {"THE SPELLBOOK":"DAS ZAUBERBUCH","An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.":"Ein altes Zauberbuch und ein kleiner Zauberstab. Er wirft Zauberkugeln, die auf einer ganzen Gruppe platzen: schneller als eine Bazooka und etwas schwächer.","A magic orb every {0} seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.":"Alle {0} Sekunden eine Zauberkugel, die auf einer ganzen Gruppe platzt. Jeder Rang macht sie stärker, und seine eigenen Männer versengt sie nie.","A little softer than a bazooka, and every orb has to fly there first.":"Etwas schwächer als eine Bazooka, und jede Kugel muss erst hinfliegen.","📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.":"📖 DAS ZAUBERBUCH meldet sich in der Ausbildungsakademie! Sarge wirft Zauberkugeln, die auf einer ganzen Gruppe platzen.","SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!":"SARGE KANN JETZT DAS ZAUBERBUCH BENUTZEN. Rüste es in der Akademie aus!"});   // CARD-SPB THE SPELLBOOK: the weapon's words, de
+Object.assign(TR["ru"]||(TR["ru"]={}), {"THE SPELLBOOK":"КНИГА ЗАКЛИНАНИЙ","An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.":"Старая книга заклинаний и маленькая волшебная палочка. Он бросает волшебные шары, которые взрываются на целой группе: быстрее базуки и чуть слабее.","A magic orb every {0} seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.":"Волшебный шар каждые {0} секунды взрывается на целой группе. Каждый ранг делает его сильнее, и своих он никогда не обжигает.","A little softer than a bazooka, and every orb has to fly there first.":"Чуть слабее базуки, и каждому шару сначала надо долететь.","📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.":"📖 КНИГА ЗАКЛИНАНИЙ прибыла в учебку! Сардж бросает волшебные шары, которые взрываются на целой группе.","SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!":"ТЕПЕРЬ САРДЖ МОЖЕТ ПОЛЬЗОВАТЬСЯ КНИГОЙ ЗАКЛИНАНИЙ. Возьми её в Учебке!"});   // CARD-SPB THE SPELLBOOK: the weapon's words, ru
+Object.assign(TR["es"]||(TR["es"]={}), {"THE SPELLBOOK":"EL LIBRO DE HECHIZOS","An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.":"Un viejo libro de hechizos y una varita pequeña. Lanza orbes mágicos que estallan sobre todo un grupo: más rápido que una bazuca y un poco más suave.","A magic orb every {0} seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.":"Un orbe mágico cada {0} segundos que estalla sobre todo un grupo. Cada rango lo hace más fuerte, y nunca quema a sus propios hombres.","A little softer than a bazooka, and every orb has to fly there first.":"Un poco más suave que una bazuca, y cada orbe tiene que volar hasta allí primero.","📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.":"📖 ¡EL LIBRO DE HECHIZOS llega a la Academia! Sarge lanza orbes mágicos que estallan sobre todo un grupo.","SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!":"¡SARGE YA PUEDE USAR EL LIBRO DE HECHIZOS! Equípalo en la Academia"});   // CARD-SPB THE SPELLBOOK: the weapon's words, es
+Object.assign(TR["ar"]||(TR["ar"]={}), {"THE SPELLBOOK":"كتاب التعاويذ","An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.":"كتاب تعاويذ قديم وعصا سحرية صغيرة. يرمي كرات سحرية تنفجر على مجموعة كاملة، أسرع من البازوكا وأخف قليلًا.","A magic orb every {0} seconds that bursts on a whole cluster. Every rank makes it hit harder, and it never scorches his own men.":"كرة سحرية كل {0} ثانية تنفجر على مجموعة كاملة. كل رتبة تجعلها أقوى، ولا تحرق رجاله أبدًا.","A little softer than a bazooka, and every orb has to fly there first.":"أخف قليلًا من البازوكا، وعلى كل كرة أن تطير إلى هدفها أولًا.","📖 THE SPELLBOOK reports to the Training Academy! Sarge throws magic orbs that burst on a whole cluster.":"📖 كتاب التعاويذ يلتحق بأكاديمية التدريب! سارج يرمي كرات سحرية تنفجر على مجموعة كاملة.","SARGE CAN USE THE SPELLBOOK NOW. Equip it at the Training Academy!":"يستطيع سارج استخدام كتاب التعاويذ الآن. جهّزه في أكاديمية التدريب!"});   // CARD-SPB THE SPELLBOOK: the weapon's words, ar
 window.GVT = {
+  spb(o){ o=o||{}; if(o.own){ META.coopLevels=(META.coopLevels||[]).filter(n=>n!==SPB_LVL).concat([SPB_LVL]); saveMeta(); } if(o.equip){ META.sargeWeapon='spellbook'; saveMeta(); } if(o.rank!=null){ META.sargeUp.spellbook=o.rank|0; saveMeta(); }   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): the rig door (read; own/equip/rank for a rig only)
+    const sw=sargeStats(), su=S.units? S.units.find(q=>q.type==='sarge' && !q.dead) : null, us=su? unitSargeStats(su) : null;
+    return { cv:GVT_CV, order:SARGE_ORDER.slice(), lvl:SPB_LVL, owned:spbOwned(), wk:wkOwned('spellbook'), seen:META.spbSeen|0, w:META.sargeWeapon, bag:sw, unit:us, rank:META.sargeUp.spellbook|0,
+      cfg:{ rng:SPB_RNG, cd:SPB_CD, dmg0:SPB_DMG0, dmgPer:SPB_DMG_PER, r:SPB_R, spd:SPB_SPD }, mile:COOP_MILES.filter(m=>m.id==='spellbook').map(m=>({ lvl:m.lvl, kind:m.kind })),
+      orbs:(S.shots||[]).filter(q=>q.k==='orb').map(q=>({ x:Math.round(q.x), y:Math.round(q.y), tx:Math.round(q.tx), ty:Math.round(q.ty), dmg:+q.dmg.toFixed(3), R:q.R, tgt:q.tgt? q.tgt.id : null })),
+      art:!!SARGE_ART.spellbook, crop:WEP_CROP.spellbook||null, seat:OF_SEAT.spellbook||null }; },
   xpl(){ const e=document.getElementById('fsiSay'); return { on:FSI.on, cand:FSI.cand, first:Object.assign({}, fsiLedger()), area:(fsiArea()||[null])[0], busy:fsiBusy(), up:!!(e && e.classList.contains('in')), txt:e? ((e.querySelector('.fsi-txt')||{}).textContent||'') : '', seat:e? e.className : '', ms:FSI_MS, cards:Object.keys(XPL_CARDS), lines:ORDER_XPL }; },   // CARD-XPL SARGE'S ONE-LINERS: the rig's door (design/section-explainers-1016)
   ftn(o){ return ftnRig(o); },   // CARD-FTN THE FIRST FIVE, HIS THREE NOTES: the switch, the chain, the legs, the ledgers for a rig
   tkh(o){ return tkhRig(o); },   // CARD-TKH TURKEY HUNT (Isaac 10/15): the month pin, the code, the clock, the read
