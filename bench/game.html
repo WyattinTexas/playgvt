@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.94","md5":"e1de0d2800efab589cd76def9af810f4","sha":"90e8f82b5","at":"2026-10-16T03:52:56Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.95","md5":"73c6013211bdd6f3dcca451daa1d9213","sha":"21887b000","at":"2026-10-16T03:56:38Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -14213,7 +14213,15 @@
      road, the ★ balance and the buttons never move; the name is never uppercased (the board's own law for a typed name) */
   .roomhead .rh-name { flex:0 1 auto; min-width:0; max-width:46%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; }
   .roomhead .rh-nm { text-transform:none; }
-  .roomhead .rh-pen { font-size:.78em; margin-left:.35em; opacity:.85; }   /* CARD-PN THE PENCIL (jumpr 1236; Wyatt 9/22 N13): the drawn pencil (gly('pen') — the leaderboard's own glyph, the head's ink through currentColor) beside the name on a FRESH save, from its first frame till the first tap of the name or a rename; smaller than the letters (.78em of the head's 19 px), no pulse, no pill, no words; inside the name's own button, so its tap is the name's */
+  .roomhead .rh-pen { font-size:.78em; margin-left:.35em; opacity:.85; }
+  /* ═══ CARD-STU THE STUDIO (design/studio-1016): the head's STUDIO chip (before the ★ balance) + the leave card ═══ */
+  .rh-stu { margin-left:10px; flex:0 0 auto; font:inherit; font-weight:900; font-size:.72em; letter-spacing:.12em; color:#1A1A0F; background:#FFD97A; border:2px solid #8A6A1E; border-radius:999px; padding:3px 10px; cursor:pointer; line-height:1.2; }
+  .stu-ask { position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.62); }
+  .stu-card { background:#1E2416; border:3px solid #FFD97A; border-radius:18px; padding:18px 20px; width:min(440px,92vw); box-sizing:border-box; text-align:center; color:#F3EBD2; box-shadow:0 10px 40px rgba(0,0,0,.6); }
+  .stu-card h3 { margin:0 0 8px; color:#FFD97A; letter-spacing:.14em; font-size:1.1em; }
+  .stu-card p { margin:0 0 12px; font-size:.86em; line-height:1.4; letter-spacing:.04em; }
+  .stu-btn { display:block; width:100%; margin:8px 0 0; padding:12px 10px; border-radius:12px; border:2px solid #8A6A1E; background:#FFD97A; color:#1A1A0F; font:inherit; font-weight:900; letter-spacing:.1em; cursor:pointer; }
+  .stu-btn.stay { background:#2A3322; color:#F3EBD2; border-color:#4A6B35; }   /* CARD-PN THE PENCIL (jumpr 1236; Wyatt 9/22 N13): the drawn pencil (gly('pen') — the leaderboard's own glyph, the head's ink through currentColor) beside the name on a FRESH save, from its first frame till the first tap of the name or a rename; smaller than the letters (.78em of the head's 19 px), no pulse, no pill, no words; inside the name's own button, so its tap is the name's */
   .xp-next { position:absolute; right:6px; top:0; height:100%; line-height:13px; font-size:12px; letter-spacing:0.1em; color:#D9A544;
     white-space:nowrap; text-shadow:0 1px 0 #000; pointer-events:none; font-weight:bold; }
   @media (max-width:640px){ .xp-next { display:none; } }
@@ -16226,6 +16234,20 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
 <script>
 'use strict';
 window.onerror = function(m, s, l){ var e=document.getElementById('err'); e.style.display='block'; e.textContent='ERR: '+m+' @'+l; document.title='ERR:'+m; };
+// ═══ CARD-STU-HOOK THE STUDIO'S SHELF (design/studio-1016; board J53; FROM AL 10/16/2026 01:27 UTC: "can my Green Vs Tan account have access to worlds / characters / pets / treasures so that I can
+// see everything in the game?"): while the studio flag stands (localStorage 'gvtStudio' = '1', raised by the code word STUDIO at Sarge's Surplus, lowered by the same word or the head's STUDIO chip), every
+// gvt_* key the game reads or writes lands on a second shelf ('stu.' + the key): her own army's save is never read nor written in there. One hook on Storage.prototype, seated before the game's first read
+// (the 180 storage calls all go through getItem/setItem/removeItem: no bracket access, no clear/key/length); sessionStorage untouched; the raw methods kept on __stuRaw for the studio's own door (sec CARD-STU).
+// An engine without Storage = no hook, no studio. The flag is read ONCE a load (window.__stuOn): the door reloads the page on every crossing.
+(function(){ try{ var P=window.Storage && Storage.prototype; if(!P || !P.getItem) return; var g=P.getItem, s=P.setItem, r=P.removeItem, on=false;
+  P.__stuRaw={ g:g, s:s, r:r }; try{ on=(g.call(window.localStorage,'gvtStudio')==='1'); }catch(e){ on=false; }
+  window.__stuOn=on; if(!on) return;
+  var k9=function(k){ k=String(k); return (k.indexOf('gvt_')===0)? 'stu.'+k : k; }, L=function(o){ try{ return o===window.localStorage; }catch(e){ return false; } };
+  P.getItem=function(k){ return g.call(this, L(this)? k9(k) : k); };
+  P.setItem=function(k,v){ return s.call(this, L(this)? k9(k) : k, v); };
+  P.removeItem=function(k){ return r.call(this, L(this)? k9(k) : k); };
+}catch(e){} })();
+// ═══ END CARD-STU-HOOK
 // AIR tundra-roundrect (10/8/2026): canvas roundRect arrived in iOS Safari 16 / Chrome 99. On an older phone an unguarded
 // cx.roundRect threw every frame (a player's Battle of the Frozen Tundra froze under "cx.roundRect is not a function", the
 // turrets' guns). One fallback for every call site: arcTo corners, radii as a number or a [r] / [tl,tr,br,bl] list.
@@ -53122,6 +53144,7 @@ function ncb15Tune(){ let sM=1, dM=1;   // the march (sM) and the armor (dM) the
 const OF_NUTCROWN='<path d="M -12 -2 L -13 -16 L -6.5 -9 L 0 -20 L 6.5 -9 L 13 -16 L 12 -2 Z" fill="#F2C14E" stroke="#B8902A" stroke-width="0.6" stroke-linejoin="round"/><rect x="-12.5" y="-5" width="25" height="4" rx="1" fill="#E0A82E"/><circle cx="0" cy="-10" r="2.6" fill="#E86A86"/><circle cx="-7" cy="-7.5" r="1.6" fill="#B57EDC"/><circle cx="7" cy="-7.5" r="1.6" fill="#7FC8F8"/><circle cx="0" cy="-20" r="1.6" fill="#FBF7F0"/><circle cx="-13" cy="-16" r="1.4" fill="#FBF7F0"/><circle cx="13" cy="-16" r="1.4" fill="#FBF7F0"/>';
 (function(){ const id='nutcrown'; if(OUTFIT_ORDER.indexOf(id)<0) OUTFIT_ORDER.push(id); OUTFIT_INFO[id]={ name:'THE SUGAR PLUM CROWN' }; OUTFIT_EARN_RAID[id]={ k:'ncbsw', t:'e' };   // never sold, hidden till owned (no generic grant reads k:'ncbsw': ncbSweetsPrize deals it)
   const g=OUTFIT_SLOTS.find(s=>s.key==='head'); if(g && g.ids.indexOf(id)<0){ g.ids.push(id); OUTFIT_EXCL[id]=g.ids.filter(i=>i!==id); for(const i of g.ids){ if(i===id) continue; const x=OUTFIT_EXCL[i]; if(x && x.indexOf(id)<0) x.push(id); } } })();
+(function(){ for(const id of ['tkhhat','tkhapron','tkhboots']){ if(OUTFIT_ORDER.indexOf(id)<0) OUTFIT_ORDER.push(id); } })();   // CARD-STU (found building THE STUDIO, 10/15): CARD-TKH's TURKEY HUNT set joined OUTFIT_ORDER AFTER the loader (TKH_OF's rows, sec CARD-TKH), and the loader keeps only OUTFIT_ORDER's ids: a won turkey hat, apron or boots died at the next boot. The load whitelist here, before the loader, like every other set's; CARD-TKH's own rows still fill the names, the rungs and the slots (their indexOf guard). ⚑ STU-F4 told to the TKH card.
 function chPatchU(f){ for(const s of S.units){ if(s===f || s.type!=='sarge' || s.dead || (S.bf && (s.side!==f.side || s.dropT>0)) || !sargeOfU(s,'champpatch')) continue; if(Math.hypot(s.x-f.x,s.y-f.y)<=CH_R) return s; } return null; }   // a living Sarge wearing THE GRAND CHAMPION'S PATCH inside 8 m of this man, on his side — never the man himself
 function chSpare(f){   // THE CHAMPION'S GRACE: the blow that would kill him is turned ONCE a life (the caller leaves him at 1 hp / one pip short) — Sarge never (the troops around him, Wyatt's words)
   if(!f || f.chSaved || f.dead || f.type==='sarge') return false; const s=chPatchU(f); if(!s) return false;
@@ -56234,6 +56257,111 @@ const NET='https://nationgame.live/gvt';
 // an unhandled rejection. This is also where a 429 lands, unchanged.
 const NET_OFF={ ok:false, status:0, json:()=>Promise.resolve({ok:false, err:'offline'}) };
 function netFetch(u, o){ if(!netAllowed()) return Promise.resolve(NET_OFF); return fetch(u, o).then(r=>{ sigUp(); return r; }, e=>{ sigDown(); throw e; }); }   // 1097 THE OPEN DOOR: the ONE door reports the line's health to the signal chip — the callers' road byte-what-it-was (r passed through, the rejection re-thrown)
+// ═══ CARD-STU THE STUDIO (design/studio-1016; board J53, lane gvt-p2; FROM AL, lead designer, the jumpr guest link 10/16/2026 01:27 UTC, verbatim: "can my Green Vs Tan account have access to
+// worlds / characters / pets / treasures so that I can see everything in the game?"). THE STUDIO is a SECOND SAVE on this device with everything open: every campaign rung to the ladder's top with
+// three stars, every room, park, raid tier and king, every soldier and hero at rank 100, every weapon, crystal, part, outfit, vehicle, pet, treasure, wallpaper, jar and laser, the codes' doors standing,
+// 99,999 ★ — HER OWN ARMY UNTOUCHED. The door = the code word STUDIO at Sarge's Surplus (codeRedeem, the GARDEN grammar: never spent); the same word again, or the STUDIO chip in the room's head
+// (the leave card: BACK TO MY ARMY / STAY), walks her back. How: the hook at the top of this script (CARD-STU-HOOK) reads localStorage 'gvtStudio'; while it stands every gvt_* key the game touches
+// lands on 'stu.'+key. stuEnter copies her army (the live META, deep) — or the studio's own save from her last visit (her studio picks stay) — maxes it (stuMax, from the game's own tables), writes it
+// RAW to stu.gvt_meta, copies her device's once-flags (gvt_* beside gvt_meta: the films she has seen stay seen) on the first entry only, raises the flag and reloads; stuLeave lowers it and reloads
+// (the studio save stays for the next visit). THE WIRE IS DOWN in the studio: netFetch (THE ONE DOOR) answers NET_OFF (nothing of the studio reaches HQ: no sync, no board row, no squad, no telemetry;
+// the studio's device id is minted fresh and never sent), navigator.sendBeacon swallows HQ's URLs. renderMenu's tail seats the chip; evToast says it once a load. Still dealt in the studio, by design
+// (content to see): a hero at rank 100 is owed his ten milestone PICKS (her powers to choose), the SOUL rite's one choice, the first-time films that device has not seen. ⚑ STU-Q0 (Maker 1's question,
+// REC yes): the word ships in plain text like the team's six. ⚑ STU-F1: the five lines are English only. Zero server, zero sw.js, zero words-table rows.
+let STU_HELLO=0;
+function stuOn(){ return !!window.__stuOn; }
+function stuRaw(){ try{ return (window.Storage && Storage.prototype && Storage.prototype.__stuRaw) || null; }catch(e){ return null; } }   // the hook's untouched getItem/setItem/removeItem (null = no hook on this engine: no studio)
+function stuUnion(a,b){ const o=Array.isArray(a)? a.slice() : []; for(const x of (b||[])){ if((typeof x==='string' || typeof x==='number') && o.indexOf(x)<0) o.push(x); } return o; }
+function stuAll(o,keys,v){ o=(o && typeof o==='object' && !Array.isArray(o))? o : {}; for(const k of keys) o[k]=(v===undefined)? 1 : v; return o; }
+function stuObj(o){ return (o && typeof o==='object' && !Array.isArray(o))? o : {}; }
+function stuMax(M){   // everything open, from the game's own tables; a copy of hers in, the studio's out (nothing of hers is taken away: every list grows, every flag rises)
+  const U=stuUnion, top=campTop();
+  // THE LADDER
+  M.campaign=Math.max(M.campaign|0, top); M.levelStars=stuObj(M.levelStars); const L1=[], L2=[], L3=[];
+  for(let i=1;i<=top;i++){ M.levelStars['l'+i]=3; (i<=100? L1 : i<=200? L2 : L3).push(i); }
+  M.coopLevels=U(M.coopLevels, L1); M.coopElite=U(M.coopElite, L2); M.coopThird=U(M.coopThird, L3); M.crownV2=1;
+  M.lvl=Math.max(M.lvl|0, 100); M.xp=0; M.pendingPicks=0; M.starBank=Math.max(M.starBank|0, 99999); M.starsLifetime=Math.max(M.starsLifetime|0, 99999);
+  // THE ROSTER: every soldier and hero, rank 100, the once-cards dealt
+  const units=U(U(U(TRAY_ORDER, HEROES), LAB_FAM.filter(k=>k!=='bfjeep' && k!=='bftank')), ['medic','grenadier','spy','dogfighter','jane','princess']);
+  M.unlocked=U(M.unlocked, units); M.spy=1; M.spySeen=1; M.up=stuObj(M.up); for(const k of units) M.up[k]=RANK_MAX;
+  M.premiered=stuAll(M.premiered, units); M.mbox=stuAll(M.mbox, units.map(k=>'u:'+k).concat(SARGE_ORDER.map(w=>'w:'+w))); M.stripeSeen=U(M.stripeSeen, Object.keys(STRIPE_MARKS));
+  // SARGE: the weapons, the crystals, the gear, the commander's key
+  M.sargeUnlocked=U(M.sargeUnlocked, ['shotgun','sniper','lightsaber']); M.sargeSeen=U(M.sargeSeen, SARGE_ORDER); M.cmdKey=1; M.sargeUp=stuObj(M.sargeUp); for(const w of SARGE_ORDER) M.sargeUp[w]=RANK_MAX;
+  M.wpnMile=stuAll(M.wpnMile, SARGE_ORDER.concat(['sab5','sg5','saber2','ultpistol','ultshotgun','ultsniper','ultcommander'])); M.wpnMile.pm=99;
+  M.sabColOwned=U(M.sabColOwned, SABER_COLORS.map(c=>c.hex).concat([SILVER_HEX])); M.sabColFree=false; if(!M.saberColor) M.saberColor=SABER_COLORS[0].hex;
+  M.riteSeen=U(M.riteSeen, ['g:jetpack','u:commando','v:tank2','w:commander','w:lightsaber']);
+  M.bomberSeen=1; M.cmdSeen=1; M.bladeSeen=1; M.cmdoSeen=1; M.soulSeen=1; M.highBlade=1; M.sumTk=1; M.ovfGens=1; M.ovfMedal=1;
+  M.gearUnlocked=U(M.gearUnlocked, ['jetpack']); M.gearSeen=U(M.gearSeen, ['jetpack']); M.jetLvl=7; M.jv2Lvl=7; M.jv3Lvl=7; M.jetEng=1; M.jetV2=1; M.jetV3=1;
+  M.lens=1; M.lensFree=1; M.lensAnn=1; M.lensDemo=1; M.lasso=1; M.hookAttic=1; M.whorse=1;
+  // THE MOTOR POOL
+  M.vehOwned=U(M.vehOwned, ['bfjeep','bftank','jeep2','jeep3','tank2','tank3','dogfighter2']); M.vehUp=stuObj(M.vehUp); M.vehUp.bfjeep=VEH_TIERS; M.vehUp.bftank=VEH_TIERS; M.vehEng=U(M.vehEng, ['bfjeep','bftank']); M.vehGift=1;
+  // THE BENCH + THE LAB, THE FOOTLOCKER, THE PETS
+  const parts=U(U(U(ENH_ORDER, Object.keys(ENH_COST)), Object.keys(TROPHY_IDS)), Object.keys(LAB_GOO));
+  M.enh=stuObj(M.enh); M.enh.own=U(M.enh.own, parts); if(!Array.isArray(M.enh.on)) M.enh.on=[];
+  M.lab=stuObj(M.lab); M.lab.seen=U(M.lab.seen, parts); M.lab.told=U(M.lab.told, parts); M.lab.done=U(M.lab.done, parts); if(!((M.lab.tut|0)>=2)) M.lab.tut=2; M.lab.job=null; M.lab.due=0;
+  M.outfit=stuObj(M.outfit); M.outfit.own=U(M.outfit.own, OUTFIT_ORDER); if(!Array.isArray(M.outfit.wear)) M.outfit.wear=[]; M.outfitSeen=U(M.outfitSeen, OUTFIT_ORDER); M.rackSeen=U(M.rackSeen, OUTFIT_ORDER);
+  M.pet=stuObj(M.pet); M.pet.own=stuAll(M.pet.own, PET_ORDER); M.pet.seen=stuAll(M.pet.seen, PET_ORDER); M.pet.xp=stuAll(M.pet.xp, PET_ORDER, PET_XP_CAP); M.pet.mig=2; if(typeof M.pet.sel!=='string') M.pet.sel='';
+  // THE HOUSE: the rooms, the treasures, the wallpapers, the paint
+  M.rooms=stuObj(M.rooms); M.rooms.own=U(M.rooms.own, ['backyard','winter','rooftop']); if(typeof M.rooms.cur!=='string') M.rooms.cur='bedroom'; M.atticCode=1; M.byGift=1;
+  const dec=U(U(U(U(U(U(DECOR_ORDER, DECOR_EARN_ORDER), DECOR_BOSS), DECOR_HALLOW), DECOR_XMAS), ['gmyfig','gmypumpkin','tkhcorn']), Object.keys(DECOR_INFO));
+  M.decor=stuObj(M.decor); M.decor.own=U(M.decor.own, dec); if(!Array.isArray(M.decor.off)) M.decor.off=[];
+  M.decor.wall=stuObj(M.decor.wall); M.decor.wall.own=U(M.decor.wall.own, WPAP_ORDER); M.decor.wall.ann=U(M.decor.wall.ann, WPAP_ORDER); M.decor.wall.seen=U(M.decor.wall.seen, WPAP_ORDER);
+  M.decorSeen=U(M.decorSeen, dec); M.rdecSeen=U(M.rdecSeen, dec); M.stockSeen=U(M.stockSeen, TREASURE_ROAD.map(r=>r.id)); M.stockNew=''; M.stockGlow=0; M.bankTier=BANK_TIERS.length; M.emg=true; M.fw=true;
+  M.chest=stuObj(M.chest); M.chest.nw=[]; M.hw={ at:HW_SET.length, cap:1 }; M.xmas={ n:25, at:todayStr() }; M.sgbGift=2;   // the study globe stays (the gift's take-back returns at 2)
+  M.dyes=U(M.dyes, ARMIES.map(a=>a.id).concat(ELITE_DYES.map(d=>d.id))); M.lasers=U(M.lasers, LASER_COLORS.map(a=>a.id).concat(['slug']));
+  M.goldKey=1; M.goldKeySeen=1; M.silverKey=1; M.silverKeySeen=1; M.bronzeKey=1; M.bronzeKeySeen=1; M.teddyKey=1; M.teddyKeySeen=1; M.moonKey=1; M.nutKey=1; M.turkeyKey=1; M.skyKey=1; M.gmyKey=1; M.harpDoor=1; M.teddyHarp=1;
+  // THE WORLDS: the parks' doors and ladders, the raids' tiers, the codes' doors
+  M.moonCode=1; M.parkMoon=1; M.teddyDeed=1; M.parkTeddy=1; M.parkTeddySeen=1; M.parkYeti=1; M.parkDino=1; M.xmasCode=1; M.nutsCode=1; M.gobbleCode=1; M.skyCode=1; M.iceRite=1; M.boneRite=1; M.wmap=1; M.wmapSeen=1;
+  M.parks=stuObj(M.parks); const PT={ yeti:50, dino:50, western:50, teddy:50, moon:50, nut:20, turkey:20 };
+  for(const id in PT){ const p=stuObj(M.parks[id]); if(!Array.isArray(p.rp) && (!p.rp || typeof p.rp!=='object')) p.rp={}; p.lv=Math.max(p.lv|0, PT[id]); p.stars=p.stars|0; p.pd=p.pd|0; p.pd2=p.pd2|0; M.parks[id]=p; }
+  for(const k of ['ice','bone','croak','palace','fields','caves','sky','chess','sweets']) M[k]=stuAll(M[k], ['e','m','h','g']); M.ice.u=1; M.bone.u=1; M.caves.eyes=1; M.chess.seen=1;
+  M.nemPark=1; M.nemBank=1; M.nemY50=1; M.nemD50=1; M.nemW20=1; M.nemT20=1; M.nemM20=1; M.yeti50=1; M.moon50=1; M.turkey20=1; M.nut20=1; M.iceMegaAnn=1; M.croakMegaAnn=1; M.boneMegaAnn=1; M.teddyMegaAnn=1; M.iclAnn=1;
+  M.landLit=U(M.landLit, ROOM_ORDER.filter(r=>r!=='bedroom'));
+  // THE BOSSES' WALL
+  M.mom=Object.assign({ since:'', done:0 }, stuObj(M.mom), { done:1, silver:1, gold:1 }); M.robo=Object.assign({}, stuObj(M.robo), { done:1, elite:1, gold:1 }); M.larson=Object.assign({}, stuObj(M.larson), { done:1, silver:1, gold:1, mega:1 });
+  M.nemesis=Object.assign({ w:0, l:0, st:0 }, stuObj(M.nemesis), { silver:1, gold:1 }); if(!((M.nemesis.w|0)>0)) M.nemesis.w=1;
+  M.capture=Object.assign({}, stuObj(M.capture), { on:0, done:1 }); M.capture2=Object.assign({}, stuObj(M.capture2), { on:0, done:1 });
+  M.oc12={ cut:{ 226:1, 227:1, 228:1, 229:1 }, seen:{ 225:1, 230:1 }, spoil:1 }; M.olvBlue=1; M.olvSuit=15;
+  // THE TOUR AND THE FIRST-TIME CARDS: a veteran's, told
+  M.tour=TOUR_DONE; M.tourV=1; M.tourEnd=1; M.planeIn=1; M.labBeat=1; M.surpTut=1; M.gearTut=1; M.namePen=1; M.opener=1; M.ciDone=1; M.dragHints=9; M.safeSeen=1; M.advMapSeen=1; M.srmSeen=1; M.pickSeen=1; M.sdnSeen=true; M.dinoSarge=1; M.dfCard=1; M.v2Card=1;
+  M.comms=Object.assign({ camp:1, bf:1 }, stuObj(M.comms), { camp:1, bf:1 });
+  for(const k of ['jv2Ann','sumAnn','smkAnn','tkAnn','efAnn','ebAnn','bkAnn','gtAnn','rpAnn','cannonAnn','hbAnn','fishSeen','tugSeen']) M[k]=1;
+  M.jfOwed=[]; M.fresh=[]; M.mvDay=0; M.giftPend=0; M.rfdPend=0;
+  M.trc=stuObj(M.trc); M.trc.seen=stuAll(M.trc.seen, (typeof TRC_ALL!=='undefined'? TRC_ALL : TRC_ORDER));   // the LEVEL 100 trophy card told (the trophies stand in the fort's case all the same)
+  // THE WIRE: a studio of one (a fresh device id is minted at the boot; nothing leaves anyway)
+  M.deviceId=''; M.crew=null; M.fcode=''; M.fPend=''; M.bonds=[]; M.bondNew=[]; M.bondSeen=[]; M.bondWarPend=[]; M.recentAllies=[]; delete M.account; delete M.ngpU;
+  return M; }
+function stuEnter(opt){ opt=opt||{}; const R=stuRaw(); if(!R || stuOn()) return null;   // the word on her own shelf: the studio's save made (or re-maxed), the flag raised, the page reloaded
+  let M=null; try{ const prev=JSON.parse(R.g.call(localStorage,'stu.gvt_meta')||'null'); if(prev && prev.v===1) M=prev; }catch(e){ M=null; }
+  const first=!M; if(!M){ try{ M=JSON.parse(JSON.stringify(META)); }catch(e){ M=null; } } if(!M || M.v!==1) return null;
+  try{ stuMax(M); }catch(e){ return null; }
+  if(first){ try{ const keys=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && k.indexOf('gvt_')===0 && k!=='gvt_meta') keys.push(k); }
+    for(const k of keys){ const v=R.g.call(localStorage, k); if(v!=null) R.s.call(localStorage, 'stu.'+k, v); } }catch(e){} }
+  try{ R.s.call(localStorage, 'stu.gvt_meta', JSON.stringify(M)); R.s.call(localStorage, 'gvtStudio', '1'); }catch(e){ return null; }
+  if(!opt.noReload) setTimeout(()=>{ try{ location.reload(); }catch(e){} }, 900);
+  return M; }
+function stuLeave(opt){ opt=opt||{}; const R=stuRaw(); if(!R) return false; try{ R.s.call(localStorage, 'gvtStudio', '0'); }catch(e){ return false; }   // the flag lowered (the studio save stays for her next visit), the page reloaded onto her own shelf
+  try{ stuAskClose(); }catch(e){} if(!opt.noReload) setTimeout(()=>{ try{ location.reload(); }catch(e){} }, 500); return true; }
+function stuChipMount(){ if(!stuOn()) return; const hd=document.querySelector('#roomStage .roomhead'); if(!hd || hd.querySelector('.rh-stu')) return;   // the head's sign, before the ★ balance
+  const b=document.createElement('button'); b.type='button'; b.className='rh-stu'; b.setAttribute('data-notr',''); b.textContent='STUDIO'; b.onclick=function(){ stuAskOpen(); };
+  const pig=hd.querySelector('#rhPig'); if(pig) hd.insertBefore(b, pig); else hd.appendChild(b);
+  if(!STU_HELLO){ STU_HELLO=1; setTimeout(()=>{ try{ evToast(t('THE STUDIO IS OPEN. EVERYTHING IS YOURS TO SEE.')); }catch(e){} }, 600); } }
+function stuAskOpen(){ if(document.getElementById('stuAsk')) return; const d=document.createElement('div'); d.id='stuAsk'; d.className='stu-ask'; d.setAttribute('data-notr','');
+  d.innerHTML='<div class="stu-card"><h3>'+escH(t('THE STUDIO'))+'</h3><p>'+escH(t('EVERYTHING IN THE GAME IS OPEN HERE. YOUR OWN ARMY IS SAFE ON ITS OWN SHELF.'))+'</p>'
+    +'<button type="button" class="stu-btn" onclick="stuLeave()">'+escH(t('BACK TO MY ARMY'))+'</button><button type="button" class="stu-btn stay" onclick="stuAskClose()">'+escH(t('STAY IN THE STUDIO'))+'</button></div>';
+  d.addEventListener('click', ev=>{ if(ev.target===d) stuAskClose(); }); document.body.appendChild(d); try{ SFX.blip(); }catch(e){} }
+function stuAskClose(){ const d=document.getElementById('stuAsk'); if(d) d.remove(); }
+function stuRead(){ const R=stuRaw(); let flag=null, shelf=0; try{ flag=R? R.g.call(localStorage,'gvtStudio') : null; shelf=R? String(R.g.call(localStorage,'stu.gvt_meta')||'').length : 0; }catch(e){}   // the rig's read (no game caller)
+  return { cv:GVT_CV, on:stuOn(), hook:!!R, flag, shelf, camp:META.campaign|0, top:campTop(), lvl:META.lvl|0, stars:META.starBank|0, units:(META.unlocked||[]).length, pets:PET_ORDER.filter(petOwns).length, petsOf:PET_ORDER.length,
+    parts:ENH_ORDER.filter(enhOwns).length, partsOf:ENH_ORDER.length, outfits:OUTFIT_ORDER.filter(outfitOwns).length, outfitsOf:OUTFIT_ORDER.length, decor:Object.keys(DECOR_INFO).filter(decOwns).length, decorOf:Object.keys(DECOR_INFO).length,
+    parks:['yeti','dino','western','teddy','moon','nut','turkey'].filter(parkDoorOpen), rooms:ROOM_ORDER.filter(roomOwns), heroes:HEROES.filter(unitOwned), cmd:cmdOwned(), blade:bladeOwned(), third:thirdOn(), xmas:xmasLive(), chip:!!document.querySelector('.rh-stu'), dev:META.deviceId,
+    miss:{ outfits:OUTFIT_ORDER.filter(id=>!outfitOwns(id)), decor:Object.keys(DECOR_INFO).filter(id=>!decOwns(id)), pets:PET_ORDER.filter(k=>!petOwns(k)), parts:ENH_ORDER.filter(id=>!enhOwns(id)) } }; }
+const stuNet0=netFetch;
+netFetch=function(u,o){ return stuOn()? Promise.resolve(NET_OFF) : stuNet0(u,o); };   // THE WIRE IS DOWN in the studio: THE ONE DOOR answers as HQ answers when it is busy (every caller's offline path)
+const stuRender0=renderMenu;
+renderMenu=function(){ const r=stuRender0.apply(this, arguments); try{ stuChipMount(); }catch(e){} return r; };   // the head is rebuilt by every render: the chip re-seated each time
+if(stuOn()){ try{ const sb0=navigator.sendBeacon? navigator.sendBeacon.bind(navigator) : null; navigator.sendBeacon=function(u,b){ return (String(u).indexOf(NET)===0)? true : (sb0? sb0(u,b) : false); }; }catch(e){} }   // the beacons to HQ (tel, odf, the room's away/leave/poll) swallowed
+// ═══ END CARD-STU
 // ═══ 1097 THE OPEN DOOR (FM-GVT-OPEN-DOOR-01; Wyatt 9/18/2026 21:11 by phone, verbatim: "Some players were unable to get past the press start
 // screen today. Let's make sure that players can get past it. Even if there's no internet connection, they should still be able to go in there.
 // Data doesn't get saved, and they're kind of warned that they won't be able to play until they get an internet connection, but we don't want to
@@ -73370,6 +73498,7 @@ function codeRedeem(){
   const inp=document.getElementById('shCodeIn'); if(!inp) return;
   const word=codeNorm(inp.value);
   if(!word){ shopDeny('shCodeCase'); return; }                                                                   // an empty tap: the case shakes, nothing said
+  if(word==='STUDIO'){ inp.value=''; try{ inp.blur(); }catch(e){} if(!stuRaw()){ codeSay(t('NO SUCH CODE. CHECK THE SPELLING AND TRY AGAIN'),'no'); shopDeny('shCodeCase'); return; } const back9=stuOn(); codeSay(t(back9? 'BACK TO YOUR OWN ARMY\u2026' : 'THE STUDIO IS OPEN\u2026'),'yes'); SFX.fanfare(); codeShut(1); evToast(t(back9? 'BACK TO YOUR OWN ARMY\u2026' : 'THE STUDIO IS OPEN\u2026')); if(back9) stuLeave(); else stuEnter(); return; }   // CARD-STU THE STUDIO (FROM AL 10/16/2026 01:27 UTC: "can my Green Vs Tan account have access to worlds / characters / pets / treasures so that I can see everything in the game?"): a second save shelf on this device with everything open (sec CARD-STU); the same word again = back to her own army; never spent (the GARDEN grammar)
   if(word==='GARDEN'){ inp.value=''; try{ inp.blur(); }catch(e){} codeSay(t("THE GARDEN GATE OPENS\u2026"),'yes'); SFX.fanfare(); codeShut(1); META.moonCode=1; saveMeta(); if(S.mode==='menu') renderMenu(); openParkScene('moon'); wtToast(t("THE GARDEN GATE OPENS\u2026")); return; }   // 0981 THE CHROME SEATS (THE MENU AUDIT §2.8): the gold line lands on the hub as its toast — codeSay's copy goes into a case that closes in the same tick   // 0947a: the code opens THE MOON GARDEN HUB (the park screen) and stamps the dev door the palace door reads (META.moonCode) — 0951's `openRaidScene('palace')` moved behind the oak doors at the top of the stairs (UI.palaceTap)   // 0951 THE DARK DOOR (Wyatt 9/11: "let us access it by type 'Garden' in the code room"): the palace lobby, until the Garden's own gate exists — never spent, nothing taken
   if(word==='ROOF'){ inp.value=''; try{ inp.blur(); }catch(e){} codeSay(t("THE SKY FORTRESS IS OVERHEAD\u2026"),'yes'); SFX.fanfare(); codeShut(1); META.skyCode=1; saveMeta(); if(roomCur()!=='rooftop') roomSwitch('rooftop'); if(S.mode==='menu') renderMenu(); openRaidScene('sky'); wtToast(t("THE SKY FORTRESS IS OVERHEAD\u2026")); return; }   // CARD-SF (Wyatt: "we can get there with the code 'Roof'"): the door's key (META.skyCode — raidDoorKey reads it), the walk up to the roof, the lobby; never spent (the GARDEN grammar)
   if(word==='NUTS' && NCB.on){ inp.value=''; try{ inp.blur(); }catch(e){} codeSay(t("NUTCRACKER\u2019S BALL IS OPEN\u2026"),'yes'); SFX.fanfare(); codeShut(1); META.nutsCode=1; saveMeta(); if(S.mode==='menu') renderMenu(); openParkScene('nut'); wtToast(t("NUTCRACKER\u2019S BALL IS OPEN\u2026")); return; }   // CARD-NCB (Dylan 10/11: "Let's use code NUTS to make this available in the game"): the flag the park door and the box's theatre read (ncbOpen), the walk straight into the ballroom; never spent (the GARDEN grammar)
@@ -87540,7 +87669,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.94';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.95';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
