@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.30","md5":"62af4bfad5e6b435c1cc18fd2edef9bb","sha":"940a94017","at":"2026-10-16T20:07:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.31","md5":"568befd06fa5ce81dd9cb8cf55cbf7ea","sha":"0e6c3c26b","at":"2026-10-16T20:17:12Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -59030,6 +59030,32 @@ function drwuPlay(cont){
   return v;
 }
 // ═══ end CARD-DRW ═══
+// ═══ CARD-DMT DINO-MIGHT (sec:CARD-DMT; design/dino-might-1016/00-CARD-DMT.md; FROM DYLAN by the jumpr guest link 10/16/2026 18:53 UTC: "60 second cut scene. Sarge is driving through the jungle in his jeep. Alongside him is the flamethrower unit. They make there way through the dense jungle while suddenly they hear a loud thump! They both look at each other. Sarge and the flamethrower get out of the jeep and walk around the jungle. They step out into a clearing while the Dino park music begins to play. They hear another thump and pause. Suddenly, king Rex bursts through the other end of the clearing. The flamethrower kicks on his torch to let out a small burst of flames. Cut to king Rex, who unleashes a huge burst of flames that slightly singe the flamethrower. Flamethrower stands there in dibelief. Sarge pull out his saber and says "get behind me". Many thumps are heard now as fifty little dinosaurs pop out behind king Rex. At the next instance, various members of sarges squad come into focus in the same clearing. Both forces stare at one another and then a roar is heard from king Rex. Sarge cries aloud "Charge!" And all forces head towards one another. End scene. Title this, "Dino-Might""): the 60 s film dmt-dinomight.mp4 (DINO PARK's own painting and plant pieces for the jungle, Sarge's molds, THE FLAMETHROWER's and the jeep's sprites, KING REX as the game draws him, the little dinos, the squad, the game's SFX, DINO PARK's and the lair's own beds)
+// plays ONCE per device the first time KING REX'S LAIR's lobby would open (openRaidScene with RAID_CUR 'bone', after the door's own key gate: the bronze key and the volcano rite; the volcano's tap, the map's pin and a party's walk all come through it): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the lobby as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
+// Reduced motion skips it. Seen = localStorage gvt_dmt (never the save; no storage = never shown). ═══
+const DMTU={ key:'gvt_dmt', src:'dmt-dinomight.mp4', poster:'dmt-dinomight.jpg' };
+function dmtuSeen(){ try{ return localStorage.getItem(DMTU.key)==='1'; }catch(e){ return true; } }
+function dmtuMark(){ try{ localStorage.setItem(DMTU.key,'1'); }catch(e){} }
+function dmtuDue(){ return !document.getElementById('dmtuFilm') && !document.getElementById('drwuFilm') && !document.getElementById('mdyuFilm') && !document.getElementById('snduFilm') && !document.getElementById('stmuFilm') && S.mode==='menu' && !reducedMotion() && !dmtuSeen(); }
+function dmtuPlay(cont){
+  dmtuMark();
+  const d=document.createElement('div'); d.id='dmtuFilm'; d.setAttribute('data-notr','1');
+  d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center';
+  const v=document.createElement('video'); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.playsInline=true; v.preload='auto';
+  v.poster=bdPromoSrc(DMTU.poster); v.muted=!soundOn; v.src=bdPromoSrc(DMTU.src);
+  v.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';
+  const x=document.createElement('button'); x.type='button'; x.className='dmtuX'; x.setAttribute('aria-label','close'); x.setAttribute('data-notr','1');
+  x.style.cssText='position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 14px);width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,0.75);background:rgba(0,0,0,0.55);color:#fff;font:bold 24px/44px Arial,sans-serif;padding:0;cursor:pointer;z-index:2';
+  x.insertAdjacentHTML('beforeend','&#10005;');
+  let done=false;
+  const end=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} d.remove(); snduHush(false); try{ if(cont) cont(); }catch(e){} };
+  v.addEventListener('ended',end); v.addEventListener('error',end);
+  x.addEventListener('click',e=>{ e.stopPropagation(); end(); });
+  d.appendChild(v); d.appendChild(x); document.body.appendChild(d); snduHush(true);
+  try{ const p=v.play(); if(p&&p.catch) p.catch(()=>{ v.muted=true; try{ const q=v.play(); if(q&&q.catch) q.catch(end); }catch(e){ end(); } }); }catch(e){ end(); }
+  return v;
+}
+// ═══ end CARD-DMT ═══
 // THE SERVE ITSELF: the daily raid's own battlefield 1v1, his way. Rides
 // startBattlefield whole (random map draw, seat plan, director, briefing law,
 // rookie gate — a save with ten raid wins can never still be a rookie), then
@@ -88278,7 +88304,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -160798,6 +160824,7 @@ function openRaidScene(id){
   if(RAID_CUR!=='palace' && !raidDoorKey(RAID_CUR) && !ptyGuestRaid(RAID_CUR)) return;   // 0951: the palace has no key and no door yet — the code GARDEN is its only way in   // 0902 cell 1 THE FOLLOWER RIDES THE LEADER'S KEY: a member walking to the party's throne enters as a guest (nothing granted; pnGuestHome closes it when the party goes)   // 0588: the key predicate lives in raidDoorKey (the same line, lifted) · 0526: THE PILLOW FIELDS' key is TEDDY PARK's 20-rung clear on the ONE name (fieldsOpenFor)   // the key gates HOSTING (D6) — the scene never opens keyless, each door on its OWN key (0340: the hideout's key is the 20-rung clear itself)
   if(RAID_CUR==='ice' && mdyuDue()){ mdyuPlay(()=>openRaidScene(id)); return; }   // CARD-MDY (FROM DYLAN 10/16): THE ICE CASTLE's first open comes after MAYDAY ON THE WINTER FIELD, once per device (the key gate above stands first)
   if(RAID_CUR==='croak' && drwuDue()){ drwuPlay(()=>openRaidScene(id)); return; }   // CARD-DRW (FROM DYLAN 10/16): KING CROAK'S HIDEOUT's first open comes after THE DRAW, once per device (the key gate above stands first)
+  if(RAID_CUR==='bone' && dmtuDue()){ dmtuPlay(()=>openRaidScene(id)); return; }   // CARD-DMT (FROM DYLAN 10/16): KING REX'S LAIR's first open comes after DINO-MIGHT, once per device (the key gate above stands first)
   safeOnce();   // v3.60 (0297): a raid door is a campaign-family multiplayer door
   document.getElementById('raidscene').classList.remove('hidden');   // unhide FIRST — partyLive counts me while open (the v3.10 law)
   RAID_WARN9=0;   // 1164: the lone-commander warning re-arms at every lobby open (spoken once per open — never a wall)
