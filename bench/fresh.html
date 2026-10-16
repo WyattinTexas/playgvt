@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"23.90","md5":"14f89f8a86cf7dfd17ffda15cbc640f5","sha":"07fa17e80","at":"2026-10-16T03:24:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"23.91","md5":"50ef996649dd485191a760c3b9898404","sha":"39aa3188e","at":"2026-10-16T03:37:35Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -61444,6 +61444,7 @@ function rcDrive(f,dt,sp,gx,gy,zig){ const D=RC8, fn=rcFunnel(f,gx), pad=(f.rcSq
   if(f.rcSq>0){ f.rcSq-=dt; if(f.rcSq<=0) f.rcSq=0; }
   if(f.rcGk!==gk || f.rcBest==null || gd<f.rcBest-1){ f.rcGk=gk; f.rcBest=gd; f.rcStall=0; } else { f.rcStall=(f.rcStall||0)+dt; if(f.rcStall>2.5){ f.rcSq=3; f.rcStall=0; f.rcBest=null; } }
   f.squeeze=f.rcSq>0; }
+function rcRimSeat(f,D){ const e=W-72-D.spinR; if(f.rcCx<=e) return; f.rcCx=e; f.rcA=Math.acos(Math.max(-1,Math.min(1,(f.x-e)/D.spinR))); f.rcCy=foeBandY(f.y)-Math.sin(f.rcA)*D.spinR*0.6; }   // CARD M2291 THE RIM SEAT (Wyatt's phone 10/16 on level 257: "The enemy tanks walk onto the screen and then just rubberband back off the screen and do it over and over"): a tank cut within one circle of the walk-on line (its driver fell while it was still walking on, so rcTick cut it the first frame it was in, just under W-70; or a hijack ran out at the rim) drew its circle back over that line, and the walk-on branch, first in rcTick's order, walked it west every frame the circle had carried it east: the rubberband, for the rest of its life, on every rung with R/C tanks (213 · 214 · 232 · 257 · 298). The circle now sits wholly west of the line (2 px clear) and starts where the tank stands (the angle off its x, the centre's y off its own: no jump); a tank cut further in keeps its circle exactly as before
 function rcTick(f,dt){ if(S.bf) return; const D=RC8, sp=f.def.spd*(f.spdMul||1)*fzWalk(f)*petChillX(f)*petPoisonX(f), RV=S.cfg.terrain.river;
   if(f.def.rcDrv){   // THE CONTROLLER: he walks to his stand-off line at the back of their side and stops (the remote in his raised hand — rcDrawDriver)
     if(f.rcSx==null){ f.rcSx=W-D.standX-((f.foN|0)%3)*28; f.rcSt='walk'; }
@@ -61453,7 +61454,7 @@ function rcTick(f,dt){ if(S.bf) return; const D=RC8, sp=f.def.spd*(f.spdMul||1)*
   if(f.rcHiT>0){ rcHijack(f,dt,sp); return; }
   if(f.x>=W-70){ if(dt>0){ f.x-=sp*dt; rcStamp(f,-1); } return; }   // the walk-on: straight in off the rim
   if(!f.rcSpin && !rcDriverOf(f)) rcCut(f);
-  if(f.rcSpin){ if(f.rcCx==null){ f.rcCx=Math.max(f.x, T.x+LEAK_R+2*D.spinR+10)+D.spinR; f.rcCy=foeBandY(f.y); f.rcA=Math.PI; } if(dt<=0) return;   // THE SPIN: a tight circle from where it stood (never into the toy box's reach — a cut tank never leaks)
+  if(f.rcSpin){ if(f.rcCx==null){ f.rcCx=Math.max(f.x, T.x+LEAK_R+2*D.spinR+10)+D.spinR; f.rcCy=foeBandY(f.y); f.rcA=Math.PI; rcRimSeat(f,D); } if(dt<=0) return;   // THE SPIN: a tight circle from where it stood (never into the toy box's reach — a cut tank never leaks; never back over the walk-on line — rcRimSeat)
     f.rcA+=D.spinW*dt; const px=f.x; f.x=f.rcCx+Math.cos(f.rcA)*D.spinR; f.y=foeBandY(f.rcCy+Math.sin(f.rcA)*D.spinR*0.6); rcStamp(f,(f.x-px)>0? 1 : -1); return; }
   if(dt<=0) return;   // DRIVEN: the zig-zag advance at twice a tank's pace (the robot's walk, on treads) — over the planks, then for the toy box; its cannon is the tank's own (the shipped branch)
   if(RV && f.x<=RV.x-4) f.crossed=true;
@@ -64422,7 +64423,7 @@ function olvHoldsWalker(f){ return !!(f.def && f.def.wk7 && (f.wkPlant || f.wkFa
 const CP7={ every:10, hum:3, first:2.0, cap:4, hpX:0.5, perGen:2, genHpX:0.7 };   // the copier's clock and tray for the tanks · hpX = a print's bar over the row's · perGen/genHpX = copies of copies
 CP_SPEC[OLV7.cp]=Object.assign({}, CP, { of:'rctank', every:CP7.every, hum:CP7.hum, first:CP7.first, cap:CP7.cap, hpX:CP7.hpX });   // 257's copier: it prints the R/C tank with no original; its copies stand when it breaks (they are driven machines now)
 function olvGiant7(L,dt){ let drv=null; for(const o of S.foes){ if(o.def && o.def.rcDrv && o.link===OLV7.rc && !o.rcGone && !o.dead && o.hp>0){ drv=o; break; } }
-  for(const f of S.foes){ if(!f.def || !f.def.rcTank || !(f.cpGen>0) || f.rc7) continue; f.rc7=1; const n=L.prints++, g=Math.min(CP.genMax, 1+Math.floor(n/CP7.perGen)); f.cpGen=g;   /* THE ONE REMOTE: the driver, his tank and every print carry NO link stamp (rcDriverOf pairs by an EQUAL link: undefined is undefined), so a print finds the driver on its first tick and is never cut; the copier alone carries its CP_SPEC link */ if(g>1){ f.hp=f.hpMax=Math.max(1,Math.round(f.hpMax*Math.pow(CP7.genHpX,g-1))); }   // a fresh print: the driver's link (the remote drives it), its generation by the copier's count
+  for(const f of S.foes){ if(!f.def || !f.def.rcTank || !(f.cpGen>0) || f.rc7) continue; f.rc7=1; f.link=OLV7.rc; const n=L.prints++, g=Math.min(CP.genMax, 1+Math.floor(n/CP7.perGen)); f.cpGen=g;   /* THE ONE REMOTE: the print takes the rung's remote link (OLV7.rc, the one olvRungB7's driver and tanks carry) the frame it steps off the tray (this pass runs after the foes loop and a print's first rcTick is the next frame's), so rcDriverOf finds the driver on that tick, the remote drives it, and a steal hijacks it with the original. CARD M2291: shipped without this stamp while the rung stamped its driver and tanks, every print was cut on its first tick (SIGNAL LOST at the tray: never driven, never hijacked); the copier alone keeps its CP_SPEC link */ if(g>1){ f.hp=f.hpMax=Math.max(1,Math.round(f.hpMax*Math.pow(CP7.genHpX,g-1))); }   // a fresh print: the driver's link (the remote drives it), its generation by the copier's count
     L.printLog.push([+S.t.toFixed(2), f.id, g, +f.hpMax.toFixed(1), drv? drv.id : null]); if(L.printLog.length>40) L.printLog.shift(); }
   { const Z=oc8L(); if(Z && Z.steals>(L.steals|0)){ L.steals=Z.steals; olvB7Log(L,['steal', +S.t.toFixed(2), S.foes.filter(o=>o.def && o.def.rcTank && o.rcHiT>0).length]); } } }   // the hijack's count (the shipped ledger's own)
 // ---- 258 SARGE DID HIS HOMEWORK (plain-authored; its own rug): THE CHARGER (OC-11's cart) with a dome and jet troopers on ONE cable (the group link OLV7.feed: chrLink plugs a gadget of its own link FIRST, wherever it stands). olvFeed is
@@ -87513,7 +87514,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
