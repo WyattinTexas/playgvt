@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.98","md5":"37dbf6e76e810fcbbc7760c5568251ae","sha":"748ba2866","at":"2026-10-16T04:17:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"23.99","md5":"ceb9efe5614ebf2f06f12badd3ceb50c","sha":"b475efb69","at":"2026-10-16T04:30:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -4554,6 +4554,7 @@
   #travelMap, #travelMap *, #travelMap *::before, #travelMap *::after { box-sizing:border-box; }
   #travelMap, #travelMap * { -webkit-tap-highlight-color:rgba(0,0,0,0); }
   #travelMap.pre { visibility:hidden; pointer-events:none; }
+  html:not(.pbf-off) #travelMap.pre { background:transparent; } html:not(.pbf-off) #travelMap.pre .tm-wrap > svg.tm-lay { will-change:auto; }   /* CARD-PBF (Wyatt 10/16, his phone: "The whole room flashes an opaque black for about one frame the first time you click the airplane to fly somewhere"): the map MOUNTED at the tap waits hidden for 2 s; the only opaque near-black surface the tap creates was its ground (#241B12, the whole screen) and its three will-change layers. Hidden, it now has neither (nothing to show for a frame over the room); both are born at .up, under the clouds' full cover. ?pbf=0 = as before */
   #travelMap .sh-bar { justify-content:center; }
   #travelMap .tm-wrap { --tmpad:clamp(4px,1vh,10px); position:relative; flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; padding:0 0 var(--tmpad); }
   #travelMap .tm-wrap svg { display:block; width:100%; height:auto; max-height:100%; }
@@ -87674,7 +87675,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.98';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -147303,6 +147304,7 @@ function f12Arm(){ if(!F12.mo && typeof MutationObserver==='function'){ F12.mo=n
     for(const id of ['travelMap','toyshop']){ const el=document.getElementById(id); if(el) F12.mo.observe(el, { attributes:true, attributeFilter:['class'] }); } }
   f12Sync(); }
 f12Arm();
+try{ if(/[?&]pbf=0(&|$)/.test(location.search)) document.documentElement.classList.add('pbf-off'); }catch(e){}   // CARD-PBF's off switch (the hidden map's ground + layers as before)
 // ═══ CARD-AM 1223 THE ADVENTURE MAP (design/notes-0923-map/01-DESIGN-AM.md; Wyatt 9/23/2026 21:43 EDT, his phone, verbatim: "Adventure map: Players will be able to open it in-game and see all the cool things they can do. Hey, what's next?
 // What should they be doing? Since the game is pretty open-world, then go wherever you please … Cool ways to show and introduces different bosses and parks. Different units you'll fight against. A true adventures guide … Making friends
 // along the way. Suggesting multiple commanders at times"): A READER of the game's state on the travel desk's OWN paper — kind:'adventure' on the same mount (one cost profile TMAP.ms, the same three svgs, the same lag law, the same
