@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.86","md5":"5030ed4caa25ab474d72605caaf67269","sha":"307d4098e","at":"2026-10-16T02:48:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"23.87","md5":"e10c695a4897130265d6e556227e6943","sha":"956248e41","at":"2026-10-16T02:56:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -87495,7 +87495,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='23.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='23.87';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -126216,7 +126216,7 @@ function draw(){
       cx.globalAlpha=0.22; cx.fillStyle='#000';
       cx.beginPath(); cx.ellipse(p.x, p.y+6, p.v2? 74 : 44, p.v2? 12 : 9, 0, 0, 7); cx.fill(); cx.globalAlpha=1;   // the shadow racing the rug (CARD-MCV2: the V2's is wider)
       if(p.v2){ const im9=v2Img(p.hex); drawSprite('bomber', p.x, p.y-(p.down? (p.alt!=null? p.alt : BMB_ALT) : BMB_ALT)+bob, (im9 && im9!==IMG.bomber)? BMB_V2_W : 96, 0, 0.55*dk9, im9, p.dir<0); }   // CARD-MCV2 THE V2 BOMBER: the Big Bomber's own frame in the owner's colour (authored nose +x, westbound mirrored)
-      else drawSprite('bomber', p.x, p.y-(p.down? (p.alt!=null? p.alt : BMB_ALT) : BMB_ALT)+bob, 96, 0, 0.55*dk9, null, p.dir<0);   // CARD-DF2: a shot-down bomber sinks to the carpet, nose over
+      else drawSprite('bomber', p.x, p.y-(p.down? (p.alt!=null? p.alt : BMB_ALT) : BMB_ALT)+bob, 96, 0, 0.55*dk9, bmcImg(p.mine? p.hex : null), p.dir<0);   // CARD-DF2: a shot-down bomber sinks to the carpet, nose over
     }
     for(const b of p.bombs){ const k=b.t/BMB_FALL;
       cx.globalAlpha=0.30; cx.fillStyle='#000';
@@ -130880,6 +130880,17 @@ function drawScBtn(){
     cx.fillText(Math.ceil(cd), x+bw/2, y+bh/2+9);
   }
 }
+// ═══ CARD-BMC THE BOMBER WEARS YOUR COLOUR (design/bomber-colour-1016; board J49, lane gvt-p3; Wyatt's phone 10/16/2026 01:56, verbatim: "The bomber is currently coming up as
+// green in the bottom-right icon, but my character is tan, so the icon needs to be the appropriate color that you are."). The tray's BOMBER card (CARD-BSL, the last seat) and your own
+// V1 bomber over the field drew IMG.bomber, the factory-green raster, whatever colour your army wears, while every other card on the tray wears your dye (unitImg). Both now draw
+// the same mold dyed in your colour through sprURI (the platoon garage's own bomber picture). No dye, or the Corps' GREEN = null = IMG.bomber, the old draw byte for byte; one
+// frame of the old raster while the dyed one decodes (v2Img's law). The V2 bomber already flew in its owner's colour (v2Img). ?bmc=0 = before (this load only).
+const BMC_ON=(()=>{ try{ return !/[?&]bmc=0(&|$)/.test(location.search); }catch(e){ return true; } })();
+const BMC_IMG={};
+function bmcImg(hex){ if(!BMC_ON || !hex || hex===GREEN) return null; let im=BMC_IMG[hex]; if(!im){ im=BMC_IMG[hex]=new Image(); im.src=sprURI('bomber', hex); }
+  return (im.complete && im.naturalWidth>0)? im : null; }   // null = drawSprite's own IMG.bomber
+function bmcRead(){ return { on:BMC_ON, hex:dyeHex(), made:Object.keys(BMC_IMG), ready:Object.keys(BMC_IMG).filter(h=>BMC_IMG[h].complete && BMC_IMG[h].naturalWidth>0) }; }   // the rig's read (no game caller)
+// ═══ END CARD-BMC
 // CARD-BSL THE BOMBER TAKES A SLOT (Wyatt 10/10/2026: "take the bomber off being a button. He's just going to be a regular slot on the bottom, and he works the same way"): the right-edge rung is gone; the bomber is the LAST CARD on the bottom tray (the battleground's and the raid's), wearing the
 // tray's own grammar (solid slab, the plane, the price bottom right, the name on top; 0.35 dim while the purse is short or a sortie of yours flies). It works the
 // same: one tap calls the sortie (bmbCall; the tap door reads btnRects.bmb, the card's rect), a tap that cannot clacks. Never dragged: it never was a unit.
@@ -130893,7 +130904,7 @@ function drawBmbBtn(x,y,bw,bh,K){
   cx.fillStyle= on? '#26281F':'#1A1B15';   // CARD-FF FF-24: the tray's solid slab, both states
   rr(x,y,bw,bh,10); cx.fill();
   cx.globalAlpha= on? 1 : 0.35;
-  drawSprite('bomber', x+bw/2-4*K, y+bh-29*K, Math.min(bw-14, 66*K), 0, 0, null, false);   // the plane, nose right, over the price
+  drawSprite('bomber', x+bw/2-4*K, y+bh-29*K, Math.min(bw-14, 66*K), 0, 0, bmcImg(dyeHex()), false);   // the plane, nose right, over the price
   cx.globalAlpha=1;
   cx.textAlign='center';
   cx.font=cf('bold '+Math.round(17*K)+'px');
