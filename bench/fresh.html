@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.25","md5":"0c82273cbe63d2132401dd332954f268","sha":"710ae86cf","at":"2026-10-16T19:07:36Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.26","md5":"91ae866d686e3f78dd3088429014ff2c","sha":"3d88b2ba4","at":"2026-10-16T19:18:22Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88255,7 +88255,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.25';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -99049,7 +99049,7 @@ function startBattlefield(mapId,diffOverride,teamSize,plan,rivX){
   const hard=gaCpu || (!diffOverride && !coopLaunching && !rookie && (team===1||team===2)
     && riv.id!=='nemesis' && seats.every(st=>!st.human||st.me) && hardBotDue(team));
   if(hard) diff='hard';
-  for(const st of seats){ st.purse=BF_START; st.tagT=0; st.mir=(st.team==='you');
+  for(const st of seats){ st.purse=BF_START*ffiOpPurse(st); st.tagT=0; st.mir=(st.team==='you');   /* CARD-FFI R5: the Tan seat's opening purse x1.5 in the opener (OP_ARM is the door's word while this match is minted) */
     buildUnitTint(st.hex);
     if(map.ground==='snow'||map.ground==='deck'){ buildUnitRim(st.hex); buildUnitRim(GREEN); }   // both armies, on white (0303: the pale deck is light ground too)
     // every commander but you draws his Sarge's weapon out of the crate, once,
@@ -103512,7 +103512,7 @@ function bfTick(dt){
   // faster — symmetric, so it never reads as the computer cheating.
   const otm=bf.ot?2:1;
   const boost={ you:(my<th?1.25:1), foe:(th<my?1.25:1) };
-  const inc=(BF_AI[bf.ai.diff]||{}).inc||1;        // the one visible handicap: enemy passive ticks slower on lower tiers
+  const inc=((BF_AI[bf.ai.diff]||{}).inc||1)*ffiOpInc(bf);        // the one visible handicap: enemy passive ticks slower on lower tiers · CARD-FFI R5 (Isaac 10/16 14:36): in the opener the Tan's drip x1.5 (fifty percent more men walk on)
   // ===== v2.43 THE DIRECTOR: the game reads the tide and works the gas =====
   // (Wyatt 8/5, the CPU speaking: "Hey, we're winning right now. Let's ease
   // off the gas... we're losing right now. Let's pick up the gas.") The
@@ -103683,7 +103683,7 @@ OpponentBrain.prototype.setDiff=function(diff){ if(BF_AI[diff]){ this.diff=diff;
 OpponentBrain.prototype.tick=function(dt){ this.cd-=dt; return this.cd<=0; };
 OpponentBrain.prototype.decide=function(view,budget){
   if(this.cd>0) return [];
-  this.cd=this.d.every;
+  this.cd=this.d.every/ffiOpRate();   // CARD-FFI R5: in the opener the Tan brain decides half again as often (its men are the lesser of its money and its decisions)
   const mine=view.units.filter(u=>u.side==='foe'), theirs=view.units.filter(u=>u.side==='you');
   const own=mine.filter(u=>u.seat===view.mySeat);        // the men THIS purse bought
   // one Sarge per player, not per team — and for ten seconds after he goes over,
@@ -103787,7 +103787,7 @@ OpponentBrain.prototype.pickSpot=function(type,theirs,mine,view){
   const ours=(mine||[]).filter(u=>u.dropT<=0);
   let focusY=WORLD_H/2;
   if(this.d.focus==='center'){
-    focusY=110+Math.random()*(WORLD_H-230);                 // easy just picks a lane at random
+    focusY=ffiOpLaneY(this, 110+Math.random()*(WORLD_H-230));                 // easy just picks a lane at random · CARD-FFI R5: in the opener the two halves of the field in turn (the top bridge, the bottom bridge), so the action spreads
   } else if(live.length){
     let best=null, bs=-1e9;
     for(const e of live){
@@ -151390,6 +151390,15 @@ function ffiCloseRect(sp){   // the lit rect: the fort's part on the card + the 
 // on html; 59 pt on an iPhone 15 Pro held sideways, 62 on a 16 Pro, 0 on a phone with no island and on a desk); the briefing's window is padded by them (css), the tour's seats are bounded by them
 // (tourSeatFig's .top seat and beside-him width, tourSeatPlan's column). A rig sets the two variables on html to play an island phone.
 function ffiSafe(side){ try{ const v=parseFloat(getComputedStyle(document.documentElement).getPropertyValue(side==='r'? '--ffi-sar' : '--ffi-sal')); return (v>0)? v : 0; }catch(e){ return 0; } }
+// R5 THE TUTORIAL'S BALANCE (Isaac 10/16/2026 14:36 EDT on the live build: "increase the number of Tan troops put down by 50% and then make sure they're more spread out so there's more action"): THE OPENER ALONE
+// (S.bf.opener, THE CROSSING, the Tan seat a rookie brain). The Tan's passive income x FFI_OP_INC (bfTick's handicap line: the rookie's 1.5 becomes 2.25 there), and the brain's lane pick takes the field's
+// two halves in turn (the top bridge, the bottom bridge) instead of one random lane. His "Sarge 18 instead of 36" is NOT here: CARD-OBX (Wyatt 10/4: "double damage ... in the first tutorial battleground.
+// So the battle ends faster.") stands until his word (FFI-W8). ?ffi=0 = both stand down.
+const FFI_OP_INC=1.5;   // the Tan's money and decisions in the opener, x (his 50 %): the opening purse, the drip, the brain's cadence
+function ffiOpInc(bf){ return (FFI.on && bf && bf.opener)? FFI_OP_INC : 1; }   // bfTick: the Tan's passive drip
+function ffiOpRate(){ return (FFI.on && S.bf && S.bf.opener)? FFI_OP_INC : 1; }   // OpponentBrain.decide: the cadence (every / this)
+function ffiOpPurse(st){ return (FFI.on && (typeof OP_ARM!=='undefined') && OP_ARM && st && st.team!=='you')? FFI_OP_INC : 1; }   // startBattlefield's seats: the Tan seat's opening purse (the match is being minted: S.bf is not yet; OP_ARM is the opener's door)
+function ffiOpLaneY(brain, y0){ if(!(FFI.on && S.bf && S.bf.opener && brain)) return y0; brain.ffiK=(brain.ffiK|0)+1; const half=(WORLD_H-230)/2; return (brain.ffiK%2)? 110+Math.random()*half : 110+half+Math.random()*half; }   // the top half, the bottom half, in turn (the shipped random spread inside each)
 // N5's companion: the idle beacon (0494d / CARD-ON: after 12 s without a tap a door lights and its pill says DO THE CAMPAIGN) stays dark while a tour hand waits for HIS tap (a stop's door, THE CLOSE's CAMPAIGN):
 // today the glove pressed inside a second, so the two never met; a hand that waits must be the one pointer on the glass
 function ffiBeaconHold(){ return !!(FFI.on && (TOUR.walk || TOUR.owe || FFI.walk || FFI.hint)); }
