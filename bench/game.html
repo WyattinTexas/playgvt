@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.16","md5":"6df5941b5e5f463c873f655cbbe36e18","sha":"3d8c66d44","at":"2026-10-16T17:15:21Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.17","md5":"24510ed70ca31f379785fe00d6c5b240","sha":"c12e8ad9a","at":"2026-10-16T17:23:00Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -15703,6 +15703,8 @@
   .fortcard .ros-paint .sh-jar.nm-lit { outline:3px solid #FFD24A; outline-offset:2px; border-radius:8px; }   /* CHECK IT OUT! lands here (nmSpot) */
   /* ═══ CARD-PJP THE PAINT JAR'S WORDS + THE NEW PAINT CARD (design/paint-jar-pop-1016/00-CARD-PJP.md; FROM ISAAC 10/16/2026 by his guest link, jumpr 2308): html.pjp-on (?pjp=0 = the shipped row and the shipped buy) ═══ */
   html.pjp-on .fortcard .ros-paint .sh-tag.wear { color:#fff; }   /* WEARING IT in the prices' own white (.sh-tag's #fff, the 80★ beside it): on the ROSTER card the row's stickers wear no paper (--gold / --sticker are the Surplus's variables, never declared on the fort's card), so the gold sticker's dark ink #3A2A14 sat on the card's dark (Isaac: "blending with the background and unreadable") */
+  html.pjp-on.ftn-on .fortcard .ros-jars { gap:4px clamp(6px,1.4vw,14px); }   /* ROUND 2 (Isaac 12:56: "space all the bottles out just a tad"): the jars' gap 0.9vw to 1.4vw (his phone 7.7 to 11.9 px, measured by rig/probeGap.mjs: YOURS and WEARING IT on neighbouring jars no longer overlap; the row still one line; the next step up wraps the small old phone's row) */
+  html.pjp-on:not(.ftn-on) .fortcard .ros-jars { gap:2px clamp(5px,1vw,8px); }   /* the shipped row (?ftn=0): the same tad */
   .mb-card.mbpjp { width:min(94vw,400px); }   /* THE NEW PAINT CARD (rfCard's grammar, three men wide) */
   .mbpjp .mb-band { text-transform:uppercase; }
   .mbpjp .mb-win { width:min(84vw,330px); }
@@ -87813,7 +87815,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -170471,6 +170473,14 @@ function pjpCard(id){ const a=dyeRowOf(id), p=document.getElementById('milePop')
     +'</div>';
   p.classList.remove('hidden');
   SFX.fanfare(); return true; }
+// ROUND 2 (Isaac 12:56): OWNED, the owned jar's sticker, in the six other tongues (the walker reads the sticker's text through the tables, as YOURS before it)
+Object.assign(TR.ar||(TR.ar={}), {"OWNED":"مملوك"});
+Object.assign(TR.ja||(TR.ja={}), {"OWNED":"しょゆう"});
+Object.assign(TR.ko||(TR.ko={}), {"OWNED":"소유"});
+Object.assign(TR['zh-Hans']||(TR['zh-Hans']={}), {"OWNED":"已拥有"});
+Object.assign(TR.de||(TR.de={}), {"OWNED":"GEKAUFT"});
+Object.assign(TR.ru||(TR.ru={}), {"OWNED":"КУПЛЕНО"});
+Object.assign(TR.es||(TR.es={}), {"OWNED":"COMPRADO"});
 // ═══ END CARD-PJP ═══
 // ═══ sec:CARD-FWP THE FIREWORKS ROOM PLAYS AN EXAMPLE (design/fireworks-preview-1013/00-CARD-FWP.md; FROM LAURA, WhatsApp 10/13/2026 20:36 EDT, verbatim: "when you click on the fireworks it should show an example in the background.") ═══
 // A tap on a chip of PICK WHAT PLAYS WHEN YOU WIN (STARS or one of the seven, the box owned or not) plays THAT show in the page's own night sky, behind the box and the chips: the ceremony's six shells
@@ -171581,7 +171591,7 @@ function shopJarHTML(a){
   return '<button type="button" class="sh-jar'+(on?' wearing':'')+(tr?' trying':'')+'" id="shjr-'+a.id+'" style="--jarhex:'+a.hex+'" onclick="UI.dye(\''+a.id+'\')">'
     +jarSVG(a.hex,st)
     +(st==='sealed'? '<span class="sh-tag">'+dyePrice()+'★</span>'
-      : st==='owned'? '<span class="sh-tag own">YOURS</span>'
+      : st==='owned'? '<span class="sh-tag own">'+(PJP.on? 'OWNED' : 'YOURS')+'</span>'   // CARD-PJP ROUND 2 (Isaac 12:56: "Let's change that to say owned"): OWNED, a key x7 (the sec); ?pjp=0 = YOURS
       : '<span class="sh-tag wear">WEARING IT</span><img class="sh-wearer" src="'+sprURI('rifleman',a.hex)+'" alt="">')
     +'<span class="sh-jn">'+a.id+'</span></button>';
 }
