@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.11","md5":"ba2b22a0df572fce84013a2c3ded254b","sha":"11747aff8","at":"2026-10-16T16:18:31Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.12","md5":"dccffd86e9a1c59785c0f613c8e29b84","sha":"2592ad30d","at":"2026-10-16T16:35:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -77200,6 +77200,45 @@ function fpnProbe(){ const a=S.ftAim, sg=S.units.find(u=>u.type==='sarge' && fpn
   return { cv:GVT_CV, aim:a? { on:a.on|0, moved:!!a.moved, n:(a.ink||[]).length, L:Math.round(a.L||0), nib:a.on? [Math.round(a.fx),Math.round(a.fy)] : null, t:Math.round(ccnNow()-(a.on? a.d0 : a.t0)) } : null, slow:S.slowmo, cd:+(S.tkCd||0).toFixed(2),
     live:F? { q:F.q.length, up:F.up, v:Math.round(F.v||0), ran:Math.round(F.ran), rings:F.rings, pat:F.pat.length, dead:F.dead.length, x:Math.round(sg.x), y:Math.round(sg.y) } : null, last:S.fpnLast||null,
     fires:(S.fires||[]).filter(p=>p.ftEn).length, big:(S.fires||[]).filter(p=>p.ftEn && p.r>RFT.fr+0.5).length, maxR:Math.max(0,...(S.fires||[]).filter(p=>p.ftEn).map(p=>p.r)), FPN }; }
+// ═══ CARD-FTZ · THE FIRE TRAIL ZOOMS ON SARGE, THE LINE STARTS FROM HIM (sec:CARD-FTZ; design/fire-zoom-1016/00-CARD-FTZ.md; FROM SKYLAR, jumpr guest link 10/16/2026 12:05 EDT, verbatim: "for the red saber fire line ability  when you click on the red saber ability we need it to zoom in on sarge similar to how it zooms in when you use the teal ability. Then after clicking on the ability it lets you draw the red line starting from sarge.") ═══
+// THE ZOOM: every press of red A (ftPress, MY Sarge) pushes the camera in on him at teal's own 1.2x (CCN.mom.teal.z, ccnCam's grammar: 0.15 s in, 0.35 s out), HELD while the pen is in hand (the armed wait and the drawing), out at the lift (ftzWatch: the pen gone = the hold ends).
+//   Reduced motion, CFC, the chess breakout, a cutscene, a pan or a pinch = no zoom (ccnCam stands aside on its own). A finger through the zoom lands where it points (evPosW -> ccnUnCam).
+// THE CLICK ARMS THE PEN (ftUp): a tap on red A (press + lift, never moved) no longer fires the Z at once: the pen waits for a finger (a red ring pulsing at his feet, ftzOver). The next finger on the field starts the ink AT SARGE (fpnStart at his own spot),
+//   then the nib follows the finger (DRAG_OFF above it, ftMove's law): CARD-FPN's pen from there (the 4 s, the chase, the fire, the ring of fire, the word, the wire). Press-and-drag off the button = the pen as before (now zoomed).
+//   While armed: a second tap on the crystal button = the quick Z · 4 s with no finger = the Z (ftArm's clock: never a wasted crystal) · another HUD button = the pen put away (no cast, no cooldown) and that press goes on · the mouse's hover draws nothing.
+// Presentation and input only: no die, no number, no word, no save byte, no wire change (the cast word is FPN's 'p;x,y' with his own spot), no server or sw byte. ?ftz=0 = as before. ftzRead() = the rig's read.
+var FTZ={ on:(function(){ try{ return new URLSearchParams(location.search).get('ftz')==='0'? 0 : 1; }catch(e){ return 1; } })(), hold:10, ringR:30, log:[] };
+function ftzOn(){ return !!FTZ.on; }
+function ftzLog(a){ if(FTZ.log.length<200) FTZ.log.push([+(+S.t||0).toFixed(2)].concat(a)); }
+function ftzCam(a){ if(!a || !a.u) return; const u=a.u, z=(CCN.mom && CCN.mom.teal && CCN.mom.teal.z) || 1.2;   // teal's own push (the ignition's 1.2x), on him
+  if(ccnCam(u.x,u.y-30,z,FTZ.hold)){ a.zm=CCN_CAM.m; ftzLog(['cam',Math.round(u.x),Math.round(u.y),z]); } else ftzLog(['cam-skip']);
+  ftzWatch(a); }
+function ftzWatch(a){ setTimeout(()=>{ if(S.ftAim===a) return ftzWatch(a); ftzOut(a); }, CCN.poll); }   // the wall clock: the pen out of hand (the lift, the 4 s, a void, a new battle) = the zoom eases out
+function ftzOut(a){ const M=CCN_CAM.m; if(!M || !a.zm || M!==a.zm) return; const el=(ccnNow()-M.t0)/1000; if(el<CCN.easeIn) M.t0-=(CCN.easeIn-el)*1000; M.hold=Math.max(0,Math.min(M.hold,(ccnNow()-M.t0)/1000-CCN.easeIn)); a.zm=null; ftzLog(['out']); }   // ccnCam9 eases it out from here (0.35 s)
+function ftzArmed(){ const a=S.ftAim; return !!(a && a.arm && !a.on); }
+function ftzVoid(a,why){ if(S.ftAim!==a) return; S.ftAim=null; if(a.sl && CCN_SL===a.sl) ccnSlowBack('ftz'); ftzLog(['void',why]); }   // the pen put away: no cast, no cooldown (the zoom eases out through ftzWatch)
+function ftzDown(a,e){ const u=a.u; if(!u || u.dead || S.units.indexOf(u)<0){ ftzVoid(a,'gone'); return; }
+  a.moved=true; const ok=fpnStart(a,{ x:u.x, y:u.y }); if(!ok){ ftzLog(['start-fail']); return; }   // THE FIRST MARK = HIS OWN SPOT: the line starts from Sarge (fpnStart: tkFire, the cooldown, the word to the room)
+  const w=evPosW(e), n=ftClampP(w.x,w.y-DRAG_OFF); a.fx=n.x; a.fy=n.y; fpnInk(a,n); ftzLog(['down',Math.round(n.x),Math.round(n.y)]); }   // the nib where the finger is (DRAG_OFF above it): the ink runs out of him to it
+try{ if(typeof ftPress==='function' && !FTZ.p0){ const p0=ftPress; FTZ.p0=p0; ftPress=function(p,w,slot2){ const ok=p0.apply(this,arguments); if(ok && ftzOn() && S.ftAim) ftzCam(S.ftAim); return ok; }; } }catch(e){}
+try{ if(typeof ftUp==='function' && !FTZ.u0){ const u0=ftUp; FTZ.u0=u0; ftUp=function(){ const a=S.ftAim;   // THE CLICK: a lift that never moved arms the pen instead of the Z
+    if(ftzOn() && a && !a.on && !a.moved && !a.arm && a.u && !a.u.dead && S.mode==='play'){ a.arm=1; a.t0=ccnNow(); if(a.sl && CCN_SL===a.sl) a.sl.end=a.t0+RFT.slowT*1000; ftzLog(['arm']); return true; }   // the 4 s to start drawing run from the click (the solo 0.3x with them)
+    return u0.apply(this,arguments); }; } }catch(e){}
+try{ if(typeof ftMove==='function' && !FTZ.m0){ const m0=ftMove; FTZ.m0=m0; ftMove=function(){ if(ftzArmed()) return true; return m0.apply(this,arguments); }; } }catch(e){}   // armed: no ink until a finger goes down (the mouse's hover never draws)
+try{ if(typeof fpnOver==='function' && !FTZ.o0){ const o0=fpnOver; FTZ.o0=o0; fpnOver=function(RM){ o0.apply(this,arguments); ftzOver(RM); }; } }catch(e){}
+function ftzOver(RM){ const a=S.ftAim; if(!a || !a.arm || a.on || !a.u || a.u.dead) return; const u=a.u, ph=RM? 0.5 : (ccnNow()%900)/900, R=FTZ.ringR;   // THE WAIT: a red ring pulsing at his feet, "draw from here"
+  cx.save(); cx.lineCap='round'; cx.globalAlpha=0.35; cx.fillStyle=CCN.red.hex; cx.beginPath(); cx.ellipse(u.x,u.y+3,R*0.8,R*0.8*0.36,0,0,7); cx.fill();
+  cx.globalAlpha=0.95; cx.strokeStyle=CCN.red.hex; cx.lineWidth=3; cx.beginPath(); cx.ellipse(u.x,u.y+3,R,R*0.36,0,0,7); cx.stroke();
+  if(!RM){ const r2=R*(1+0.7*ph); cx.globalAlpha=0.85*(1-ph); cx.strokeStyle='#FFE0D8'; cx.lineWidth=2.2; cx.beginPath(); cx.ellipse(u.x,u.y+3,r2,r2*0.36,0,0,7); cx.stroke(); }
+  cx.restore(); }
+window.addEventListener('pointerdown', e=>{ const a=S.ftAim; if(!a || !a.arm || a.on || !ftzOn() || e.target!==cv || e.isPrimary===false || S.mode!=='play') return;   // ahead of every canvas listener: the armed pen takes the next finger
+  const p=evPos(e); if(typeof chinBand==='function' && chinBand(p)) return;
+  const own=btnRects[a.slot2? 'tk2' : 'tk'];
+  if(own && inRect(p.x,p.y,own)){ e.stopImmediatePropagation(); ftzLog(['tap2']); ftGo('tap2'); return; }   // the second tap on the crystal = the quick Z
+  for(const k in btnRects){ if(inRect(p.x,p.y,btnRects[k])){ ftzVoid(a,'btn:'+k); return; } }   // another button: the pen put away, the press goes on
+  e.stopImmediatePropagation(); try{ audio(); }catch(x){} ftzDown(a,e); }, { capture:true });
+function ftzRead(){ const a=S.ftAim, M=CCN_CAM.m; return { cv:GVT_CV, on:FTZ.on, arm:a? (a.arm|0) : 0, pen:a? (a.on|0) : 0, cam:{ on:CCN_CAM.on|0, z:+(CCN_CAM.z||1).toFixed(3), m:M? { fx:Math.round(M.fx), fy:Math.round(M.fy), z:M.z, hold:+M.hold.toFixed(2), mine:!!(a && a.zm===M) } : null }, ink0:(a && a.ink && a.ink[0])? [Math.round(a.ink[0].x),Math.round(a.ink[0].y)] : null, log:FTZ.log.slice(-20).map(r=>r.slice(1).join(':')) }; }
+// ═══ END CARD-FTZ ═══
 // ═══ CARD-CCN-B4 THE CRYSTAL CINEMA: GREEN (sec:CARD-CCN-B4; design/crystal-cinema-1009/00-DESIGN-CCN.md §4 GREEN, GREEN A, GREEN B + §3.8, the record 04-BUILD-CCN-B4.md) ═══ Wyatt 10/10/2026 ~00:20 EDT on Maker 1, verbatim: "Looking amazing. Let's set these live.Add to the jumpr queue." (build 4 of 8; B1's const CCN carries the grammar)
 // GHOST WALK, THEN FRENZY (every green cast: mine, a partner's, the AI captains', Nemesis's):
 //   THE TELL: green leaves and motes spin up from his feet. THE VANISH: he dissolves into green motes from the feet up (0.25 s), and while hidden a faint heat-haze outline the player can still see wobbles round him (never drawn on a hidden
@@ -87745,7 +87784,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
