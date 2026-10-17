@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.40","md5":"566482b9c92880ca71c5221ba1e16694","sha":"a539652dc","at":"2026-10-17T02:26:09Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.41","md5":"42e6431d3ea20f55bbfc13bfdddffcd3","sha":"9ec587da7","at":"2026-10-17T02:31:17Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -59083,6 +59083,32 @@ function dmtuPlay(cont){
   return v;
 }
 // ═══ end CARD-DMT ═══
+// ═══ CARD-LNG THE LONG NIGHT (sec:CARD-LNG; design/long-night-1016/00-CARD-LNG.md; FROM DYLAN by the jumpr guest link 10/17/2026 01:32 UTC: "Can we run a design pass on a 60 second cinematic in which we introduce survival mode. I am thinking we have a wide frame rear view of Sarge on the walkway of Fort Green looking out into a dark night sky while torches are beside him. Troops gathering up along the causeways. In the distance, a red saber appears. Flares fire from inside the fort to illuminate the exterior and we see Nemesis leading an attack with a massive force on fort green. As troops are clashing at the walls, green paratroopers are dropped from planes above behind enemy lines. Cut to sarge still atop the fort and he says as his helmet tilts slightly…”This is gonna be a long night…”"): the 60 s film lng-longnight.mp4 (Sarge's mold, the squad's sprites in the army's green and the Tan's, NEMESIS by nwkArt with his red blade, the toy warplane, the gauntlet's torch, Fort Green's wall in the fort's own grammar, the game's SFX, NEMESIS's own bed)
+// plays ONCE per device the first time SURVIVAL MODE would open (hsvGo: every horde door, the saved run first: the war table's ★ SURVIVAL MODE, the ENDLESS code, the world rank's PLAY): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error starts the run as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
+// Reduced motion skips it. Seen = localStorage gvt_lng (never the save; no storage = never shown). ═══
+const LNGU={ key:'gvt_lng', src:'lng-longnight.mp4', poster:'lng-longnight.jpg' };
+function lnguSeen(){ try{ return localStorage.getItem(LNGU.key)==='1'; }catch(e){ return true; } }
+function lnguMark(){ try{ localStorage.setItem(LNGU.key,'1'); }catch(e){} }
+function lnguDue(){ return !document.getElementById('lnguFilm') && !document.getElementById('dmtuFilm') && !document.getElementById('drwuFilm') && !document.getElementById('mdyuFilm') && !document.getElementById('snduFilm') && !document.getElementById('stmuFilm') && S.mode==='menu' && !reducedMotion() && !lnguSeen(); }
+function lnguPlay(cont){
+  lnguMark();
+  const d=document.createElement('div'); d.id='lnguFilm'; d.setAttribute('data-notr','1');
+  d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center';
+  const v=document.createElement('video'); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.playsInline=true; v.preload='auto';
+  v.poster=bdPromoSrc(LNGU.poster); v.muted=!soundOn; v.src=bdPromoSrc(LNGU.src);
+  v.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';
+  const x=document.createElement('button'); x.type='button'; x.className='lnguX'; x.setAttribute('aria-label','close'); x.setAttribute('data-notr','1');
+  x.style.cssText='position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 14px);width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,0.75);background:rgba(0,0,0,0.55);color:#fff;font:bold 24px/44px Arial,sans-serif;padding:0;cursor:pointer;z-index:2';
+  x.insertAdjacentHTML('beforeend','&#10005;');
+  let done=false;
+  const end=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} d.remove(); snduHush(false); try{ if(cont) cont(); }catch(e){} };
+  v.addEventListener('ended',end); v.addEventListener('error',end);
+  x.addEventListener('click',e=>{ e.stopPropagation(); end(); });
+  d.appendChild(v); d.appendChild(x); document.body.appendChild(d); snduHush(true);
+  try{ const p=v.play(); if(p&&p.catch) p.catch(()=>{ v.muted=true; try{ const q=v.play(); if(q&&q.catch) q.catch(end); }catch(e){ end(); } }); }catch(e){ end(); }
+  return v;
+}
+// ═══ end CARD-LNG ═══
 // THE SERVE ITSELF: the daily raid's own battlefield 1v1, his way. Rides
 // startBattlefield whole (random map draw, seat plan, director, briefing law,
 // rookie gate — a save with ten raid wins can never still be a rookie), then
@@ -73927,7 +73953,7 @@ function hsvParkPost(P){   // a signed-in run: HQ v127 plants the wave so far, t
     if(d && d.ok){ const M=hrdMine(); M.up=Math.max(M.up|0, d.best|0); HRDB.t=0; saveMeta(); }
     else if(d && d.err==='run'){ const Q=hsvPark(); if(Q && Q.run===P.run){ Q.run=''; saveMeta(); } }   // HQ no longer holds the ticket: the run continues, its flag waits on this phone
   }).catch(()=>{}); }
-function hsvGo(){ const P=hsvPark(); if(P) hsvResume(P); else hrdStart(); return true; }   // every horde door: the saved run first
+function hsvGo(){ if(lnguDue()){ lnguPlay(hsvGo); return true; }   /* CARD-LNG (FROM DYLAN 10/16): SURVIVAL MODE's first open comes after THE LONG NIGHT, once per device (the film's end, its ✕ or a load error = this door again, seen) */ const P=hsvPark(); if(P) hsvResume(P); else hrdStart(); return true; }   // every horde door: the saved run first
 function hsvResume(P){
   META.hrdPark=null; saveMeta();   // the continued run is the live run now (it saves again between waves)
   hrdStart(P);
@@ -88343,7 +88369,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.40';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.41';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
