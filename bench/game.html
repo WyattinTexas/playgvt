@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.45","md5":"7698967ca41890d56d2f933de250220a","sha":"30aee21dc","at":"2026-10-17T03:09:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.46","md5":"f357b49cca6c1278a7b007ea5e919a5b","sha":"91f7a673d","at":"2026-10-17T03:14:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -14649,6 +14649,46 @@
   #premPop .mbprem.itx.pgi-tight .itx-head { padding-top:0.4em; padding-bottom:0.32em; }
   @media (min-width:1280px){ #premPop .mbprem.itx .itx-head { font-size:clamp(14px,1.1vw,18px); } }   /* the desk: the window's header at its desk em */
   @media (prefers-reduced-motion: reduce){ #premPop .mb-card.mbprem.ftu.itx { animation:none; } #premPop .stk-dot, #premPop .stk-sig i, #premPop .cm-roll, #premPop .cm-scan { animation:none; } #premPop .stk-flash.on { animation:none; opacity:0; } }   /* the belt (the JS deals no roll, no scanlines on the film and no flash under reduce): the card appears as it stands */
+  /* ═══ CARD-ITA THE FIRST-TIME CARD ARRIVES LIKE AN INCOMING TRANSMISSION (design/transmission-arrival-1016/00-DESIGN-ITA.md; Wyatt 10/16/2026 ~22:12 EDT at the Go Machine: "it should come in like an incoming transmission … its height starts at zero and it expands out like an incoming message").
+     Every rule scoped .ita (itaOpen deals it at premOpen, on a dressed card alone); ?ita=0 on a device = the card as CARD-ITX left it. Only transforms and opacities move (the compositor's work): the layout, premFit's measure (offsets and scroll
+     heights, never a transform) and the card's last frame are CARD-ITX's. Every arrival clock is a literal here and in ITA (sec CARD-ITA): they MUST agree (the rig reads both): the line's beat 50 ms, the open 380, the rows settled at 750, the film's
+     frame at 530, the fold 200, the reduced-motion fade 200. THE REVIEW'S CHANGES (§4 of the record): the wash falls fast after the line's beat, CARD-ITX's flash is off under the arrival (the wash is the bloom), the rows 40 ms earlier, the fold snaps. .ita-done (a tap mid-arrival, a rig) takes every arrival animation OFF (animation-name none), so each row stands in its stylesheet state = the end state, in every engine. The wash and the rows
+     name the card's own class chain (.mb-card.mbprem.itx.ita) so they outrank CARD-ITX's child rule (every child position:relative, z 2). ═══ */
+  #premPop.ita-in { animation:itaVeil 0.26s ease-out both; }   /* THE SIGNAL: the veil's colour comes in (from clear; the people seat's none stays none) */
+  @keyframes itaVeil { from { background-color:rgba(10,8,5,0); } }
+  #premPop.ita-out { animation:itaVeilOut 0.2s ease-in both; pointer-events:none; }   /* THE CLOSE: the veil lifts; the field has the finger from the tap, as before */
+  #premPop.ita-out * { pointer-events:none; }
+  @keyframes itaVeilOut { to { background-color:rgba(10,8,5,0); } }
+  #premPop .mb-card.mbprem.ftu.itx.ita { transform-origin:50% 50%; animation:itaOpen 380ms cubic-bezier(.2,.7,.2,1) 50ms both; }   /* THE OPEN, his idea: from a line at its own middle to full height (over CARD-ITX's itxIn) */
+  @keyframes itaOpen { from { transform:scaleY(0.02); } to { transform:none; } }
+  #premPop .mb-card.mbprem.itx.ita > .ita-line { position:absolute; left:0; top:0; right:0; bottom:0; z-index:4; pointer-events:none; border-radius:8px; background:repeating-linear-gradient(180deg, rgba(0,0,0,0.38) 0 1px, rgba(0,0,0,0) 1px 3px), linear-gradient(180deg, rgba(191,227,154,0.55), rgba(220,238,190,0.92) 50%, rgba(191,227,154,0.55)); animation:itaWash 430ms linear both; }   /* THE WASH: the thin bright line (the whole card at scaleY 0.02 under it), scanlined, fading as the glass fills */
+  @keyframes itaWash { 0%, 12% { opacity:1; } 40% { opacity:0.32; } 70% { opacity:0.1; } 100% { opacity:0; } }   /* R2: bright for the line's beat alone, then the glass fills in fast */
+  #premPop .mb-card.mbprem.itx.ita > .itx-flash.on { animation:none; opacity:0; }   /* R1: CARD-ITX's phosphor flash stays off under the arrival (the wash is the bloom; the flash muddied the rows as they tuned in) */
+  #premPop .mb-card.mbprem.itx.ita .itx-head, #premPop .mb-card.mbprem.itx.ita .mb-band, #premPop .mb-card.mbprem.itx.ita .mb-h, #premPop .mb-card.mbprem.itx.ita .mb-line, #premPop .mb-card.mbprem.itx.ita .prem-row > .prem-clip, #premPop .mb-card.mbprem.itx.ita .prem-row > canvas.mnport, #premPop .mb-card.mbprem.itx.ita .mb-take { animation:itaRow 140ms ease-out var(--ita-d) both; }   /* THE MESSAGE TUNES IN: each row fades in at its beat (opacity alone: a transform on a row would count toward the card's scroll height and fool premFit) */
+  @keyframes itaRow { from { opacity:0; } to { opacity:1; } }
+  #premPop .mbprem.ita .itx-head { --ita-d:300ms; }
+  #premPop .mbprem.ita .mb-band { --ita-d:390ms; }
+  #premPop .mbprem.ita .mb-h { --ita-d:430ms; }
+  #premPop .mbprem.ita .mb-line { --ita-d:470ms; }
+  #premPop .mbprem.ita .prem-row > .prem-clip, #premPop .mbprem.ita .prem-row > canvas.mnport { --ita-d:530ms; }
+  #premPop .mbprem.ita .mb-take { --ita-d:610ms; }
+  #premPop .mb-card.mbprem.itx.ita .prem-pent { transform-origin:50% 50%; animation:itaGrow 200ms cubic-bezier(.2,.7,.2,1) 530ms both; }   /* THE CHART grows out of its centre (a scale under 1 never adds to the card's scroll height) */
+  @keyframes itaGrow { from { opacity:0; transform:scale(0.6); } to { opacity:1; transform:none; } }
+  #premPop .mbprem.ita .stk-sig i { transform-origin:50% 100%; animation:itaBar 120ms cubic-bezier(.2,.7,.2,1) var(--ita-d) both; }   /* THE BARS CLIMB one after another (a transform from the foot: the fourth bar's own flicker, an opacity, is untouched) */
+  #premPop .mbprem.ita .stk-sig i:nth-child(1) { --ita-d:300ms; } #premPop .mbprem.ita .stk-sig i:nth-child(2) { --ita-d:360ms; } #premPop .mbprem.ita .stk-sig i:nth-child(3) { --ita-d:420ms; }
+  #premPop .mbprem.ita .stk-sig i:nth-child(4) { --ita-d:480ms; animation:itaBar 120ms cubic-bezier(.2,.7,.2,1) var(--ita-d) both, stkSig 2.3s steps(1,end) infinite; }
+  @keyframes itaBar { from { transform:scaleY(0); } to { transform:none; } }
+  #premPop .mb-card.mbprem.ftu.itx.ita.ita-done { animation-name:none; }   /* A TAP MID-ARRIVAL (itaFinish): every arrival animation off = the card at its end state at once (the stylesheet's own opacity 1, transform none); the fold's and the veil's clocks below still run */
+  #premPop .mb-card.mbprem.itx.ita.ita-done .itx-head, #premPop .mb-card.mbprem.itx.ita.ita-done .mb-band, #premPop .mb-card.mbprem.itx.ita.ita-done .mb-h, #premPop .mb-card.mbprem.itx.ita.ita-done .mb-line, #premPop .mb-card.mbprem.itx.ita.ita-done .prem-row > .prem-clip, #premPop .mb-card.mbprem.itx.ita.ita-done .prem-row > canvas.mnport, #premPop .mb-card.mbprem.itx.ita.ita-done .mb-take, #premPop .mb-card.mbprem.itx.ita.ita-done .prem-pent, #premPop .mb-card.mbprem.itx.ita.ita-done .stk-sig i, #premPop .mb-card.mbprem.itx.ita.ita-done > .ita-line, #premPop .mb-card.mbprem.itx.ita.ita-done > .itx-flash.on { animation-name:none; }
+  #premPop .mb-card.mbprem.itx.ita.ita-done .stk-sig i:nth-child(4) { animation:stkSig 2.3s steps(1,end) infinite; }   /* the fourth bar keeps its flicker */
+  #premPop .mb-card.mbprem.itx.ita.ita-done > .ita-line { opacity:0; }
+  #premPop .mb-card.mbprem.itx.ita.ita-done > .itx-flash.on { opacity:0; }
+  #premPop .mb-card.mbprem.ftu.itx.ita.ita-out { animation:itaFold 0.2s linear 0s both; }   /* THE CLOSE: the glass snaps back to its line (110 ms, R4), the line holds a beat (50 ms) and blinks out (40 ms); half the open */
+  @keyframes itaFold { 0% { transform:none; opacity:1; animation-timing-function:cubic-bezier(.5,0,.85,.4); } 55% { transform:scaleY(0.02); opacity:1; } 80% { transform:scaleY(0.02); opacity:1; } 100% { transform:scaleY(0.02); opacity:0; } }
+  #premPop .mb-card.mbprem.itx.ita.ita-out > .ita-line { animation:itaWashOut 0.2s ease-in 0s both; }   /* the wash rises as the glass folds: the picture collapses into a bright line */
+  @keyframes itaWashOut { 0% { opacity:0; } 55% { opacity:1; } 100% { opacity:1; } }
+  #premPop .mb-card.mbprem.ftu.itx.ita-rm { animation:itaFade 0.2s ease-out both; }   /* REDUCED MOTION: a plain fade, no opening (over CARD-ITX's animation:none, a step more specific); the close at once as before */
+  @keyframes itaFade { from { opacity:0; } to { opacity:1; } }
   /* ═══ CARD-FFI N2 THE FIRST TIME CARD, 10 % SMALLER (FROM ISAAC by his guest link, jumpr 2307, 10/16/2026; design/first-five-isaac-1016/00-DESIGN-FFI.md), verbatim: "For the first time on the field dialog box, it's going off
      the screen a little bit so let's shrink the entire box by 10%." The game draws under the iPhone's rounded corners and its island (viewport-fit=cover) and the card stood 96 % of the width and 98 % of the height: its rim,
      its header row and its corners ran under them. THE WHOLE BOX at 0.9 (the scale property: it rides with the card's own open, itxIn or mbpop; the layout and CARD-PGI's fit are untouched, so the card is the card it was at nine
@@ -80965,30 +81005,32 @@ function premOpen(k){
   itxDress(p.querySelector('.mb-card.mbprem'));   // CARD-ITX (Wyatt by phone 10/15/2026 20:17 EDT: "For the one-time pop-ups, make sure we use the same 'Incoming Transmission' background and UI aesthetic"): the card in Sarge's window's dress (the tube, the header row, the plate, the frame, the open), before premFit makes its room (sec CARD-ITX)
   if(!clip && chart){ const pt=p.querySelector('.prem-pent'), cv9=p.querySelector('canvas.mnport'), h=pt? pt.offsetHeight : 0; if(cv9 && h>MN_H){ const sc=h/MN_H; cv9.setAttribute('data-sc', String(sc)); cv9.width=Math.round(MN_W*MN_DPR*sc); cv9.height=Math.round(MN_H*MN_DPR*sc); cv9.style.width=Math.round(MN_W*sc)+'px'; cv9.style.height=h+'px'; } }   // CARD-FTU: a class with a chart and no film (a hero; Sarge until his film): the living portrait at the row's height, drawn at that scale (data-sc, the audition's own way), never the stamp beside a big chart
   PREM.up=k; PREM.freeze=ppl? 0 : 1; PREM.t0=performance.now(); PREM.cv=p.querySelector('canvas.mnport'); PREM.n++; PREM.play=0;   // CARD-FTU: play = the film has run a frame on this card (premClipRun)
+  itaOpen(p, k);   // CARD-ITA THE ARRIVAL (Wyatt at the Go Machine 10/16/2026 ~22:12 EDT: "it should come in like an incoming transmission … its height starts at zero and it expands out like an incoming message"): the card opens from a line at its middle, the rows tune in, GOT IT last; the guard counts from the card fully open (sec CARD-ITA; css:ita)
   { const sv=p.querySelector('.prem-pent .us-pent'); if(sv){ try{ usFit(sv); }catch(e){} } }   // CARD-FTU: the chart's words fit as the sheet's do (a long word on two lines, then a smaller face; the icons seated after the measure) — before premFit measures the card
   premFit();   // CARD-PGI: GOT IT whole and inside the screen on every phone (sec:pgi)
   if(!ppl){ try{ draw(); }catch(e){} }   // the frozen frame shows the man who just landed (the drop happened between two frames)
   { const v=p.querySelector('video.prem-v'); if(v){ premPlay(v); premClipCut(v, PREM_CLIP[k].end); } }   // CARD-FF2 AW-06: the clip plays, muted as a PROPERTY (the lab's autoplay law), and loops at its cut   // CARD-FTU: through premPlay — labVidPlay's law + THE REFUSAL ROAD (a phone that will not start it keeps the poster and marks the frame; a tap on the picture starts it)
   requestAnimationFrame(()=>{ if(PREM.up===k) premFit(); });   // CARD-PGI: the next frame's re-fit
   mnPortrait(k, null, PREM.cv);   // the loop runs on the card's canvas and dies the frame the canvas leaves the document (the manual is never open mid-fight, so MN_ANIM's one-at-a-time law holds)
-  if(ppl && PREM_HOLD_MS>0) PREM.timer=setTimeout(()=>{ PREM.timer=0; premClose(); }, PREM_HOLD_MS);   // over people the card folds itself; a solo fight waits for the tap
+  if(ppl && PREM_HOLD_MS>0) PREM.timer=setTimeout(()=>{ PREM.timer=0; premClose(1); }, PREM_HOLD_MS);   // over people the card folds itself; a solo fight waits for the tap   // CARD-ITA: through the close's fold
 }
-function premClose(){   // the tap (or the fold): hide, end the portrait's loop if it is ours, let a frozen fight's held timers go, deal the next card owed
+function premClose(fold){   // the tap (or the fold): hide, end the portrait's loop if it is ours, let a frozen fight's held timers go, deal the next card owed   // CARD-ITA: fold = GOT IT's road (the glass folds, the DOM hidden after); no argument (a door, premClear) hides at once
   const p=document.getElementById('premPop'); if(!PREM.up && !(p && !p.classList.contains('hidden'))) return false;
   if(PREM.timer){ clearTimeout(PREM.timer); PREM.timer=0; }
   if(PREM.cv && MN_ANIM.cv===PREM.cv){ if(MN_ANIM.raf) cancelAnimationFrame(MN_ANIM.raf); MN_ANIM.raf=0; MN_ANIM.cv=null; MN_ANIM.sc=null; }
   const froze=PREM.freeze; PREM.up=null; PREM.freeze=0; PREM.cv=null;
-  if(p){ p.classList.add('hidden'); p.classList.remove('live'); p.innerHTML=''; }
+  if(p && !itaOut(p, !fold)){ p.classList.add('hidden'); p.classList.remove('live','ita-in','ita-out','ita-done'); p.innerHTML=''; }   // CARD-ITA: the fold hides the DOM after its 200 ms (the state is reset above: the fight resumes at the tap as before); a door hides at once
   if(froze) qtLateFire();   // the crate's KO beat, held with its remainder — the 0719 seat's own release road
-  if(PREM.q.length) setTimeout(premNext, 120);   // the next card owed, a beat later (never two at once)
+  if(PREM.q.length) setTimeout(premNext, 120+itaWait());   // the next card owed, a beat later (never two at once)   // CARD-ITA: after the fold
   return true;
 }
 function premClear(){ PREM.q.length=0; if(PREM.wt){ clearTimeout(PREM.wt); PREM.wt=0; } premClose(); }   /* CARD-FF2 AW-06: + the landing wait */   // every door out of a battle (hideAllOverlays, reset): nothing owed carries over (a card queued but never dealt keeps its ledger — 0904's own law for the queue; CARD-PF: the coach's hold is gone, nothing is ever held)
 function premTap(e){   // a tap ANYWHERE closes it: over a solo fight the tap is consumed (the backdrop stood over the field — never a drag off the tray under the card), over people the drop lands under it   // CARD-FTU: 0904's document-level capture listener, named; + the held film's tap
   if(!PREM.up) return;
+  if(itaTap(e)) return;   // CARD-ITA: a tap during the arrival finishes it at once and never closes the card (eaten over a solo fight); the guard counts from there
   if(performance.now()-PREM.t0<PREM_GUARD_MS){ if(PREM.freeze) e.stopPropagation(); return; }   // CARD-FF5 THE GUARD: a tap inside the card's first 200 ms never closes it (his 0.2 s); over a solo fight it is eaten as the closing tap would be
   const held=premHeld(e); if(held){ premPlay(held); if(PREM.freeze) e.stopPropagation(); return; }   // CARD-FTU THE REFUSAL ROAD: a film the phone would not start by itself starts on the tap (a user gesture); the card stays for the next tap
-  const froze=PREM.freeze; SFX.blip(); premClose();
+  const froze=PREM.freeze; SFX.blip(); premClose(1);   // CARD-ITA: GOT IT (or the tap anywhere) folds the glass
   if(froze) e.stopPropagation();
 }
 document.addEventListener('pointerdown', premTap, true);
@@ -81056,6 +81098,52 @@ function itxRig(){ const c=document.querySelector('#premPop .mb-card.mbprem'), h
   return { on:ITX.on, n:ITX.n, tube:TUBEFX.on, up:PREM.up, dressed:!!(c&&c.classList.contains('itx')), head:hd? hd.textContent : null, headR:R(hd), card:R(c), layers:c? c.querySelectorAll('.itx-tube .cm-tubel').length : 0, roll:!!(c&&c.querySelector('.itx-tube .cm-roll')),
     scan:!!(c&&c.querySelector('.prem-clip .itx-scan')), flash:!!(c&&c.querySelector('.itx-flash')), bg:c? getComputedStyle(c).backgroundImage.slice(0,80) : null, rim:c? getComputedStyle(c).borderTopColor : null }; }
 // ═══ END CARD-ITX ═══
+// ═══ CARD-ITA THE FIRST-TIME CARD ARRIVES LIKE AN INCOMING TRANSMISSION (FROM THE GO MACHINE 10/16/2026 22:30 EDT, card 4 of THE FIRST FIVE MINUTES NOTES 10/16; design/transmission-arrival-1016/00-DESIGN-ITA.md). WYATT 10/16 ~22:12 EDT,
+// voice, verbatim: "For all of the first-time-on-the-field-playing screens, please run a design pass to make the experience of this screen appearing less jarring. Currently, it just appears, and that's not in the spirit of the game. Since it's an
+// incoming transmission, it should come in like an incoming transmission. Whether that means its height starts at zero and it expands out like an incoming message, that's probably the way we do it." + "Let's go with that on a design pass. After you
+// make that, review it, and if you have any recommendations, go with those and set it to live." THE ARRIVAL (css:ita, every move a transform or an opacity on the compositor; the layout, premFit's measure and the card's last frame are CARD-ITX's,
+// untouched): the veil's colour in 260 ms; the card a thin bright scanlined line at its own middle (scaleY 0.02 under a phosphor wash) that OPENS to full height 50 -> 430 ms (the window's own ease), the wash fading into the glass, CARD-ITX's flash off
+// under it (the wash is the bloom); the header row at 300 with the four bars climbing 300/360/420/480; the rows fade in 140 ms each: the band 390, the name 430, the line 470, the picture and the chart (growing from its centre) 530, GOT IT 610, settled 750.
+// THE FILM plays from the deal inside the drop's own gesture as before (the refusal road untouched) and is rewound to its first frame the moment its frame tunes in, so its start is never missed. A TAP MID-ARRIVAL finishes it at once (.ita-done:
+// every arrival animation off, every row in its stylesheet state = the end) and never closes the card; THE GUARD (CARD-FF5's 200 ms) counts from the card fully open: its rows settled (PREM.t0 = the deal + 750), or from a finish-tap. THE CLOSE: the state resets at the tap exactly as before (the fight
+// resumes, qtLateFire, the next card owed), the glass folds back to its line and blinks out (200 ms), the veil lifts, #premPop takes no pointer meanwhile; the DOM is hidden and emptied after the fold. A door out (premClear) hides at once. Reduced
+// motion: a plain 200 ms fade, no opening, no fold. ITA.on 1 for everyone; ?ita=0 = a device's way back (localStorage gvt_ita '0': the card as CARD-ITX left it), ?ita=1 clears it; ITX off (?itx=0) = no dress and no arrival. itaRig() for a rig
+// (read-only). The CSS's delays and these dials MUST agree (the rig reads both). Zero server bytes, zero wire, zero save keys, zero new words, no sound (⚑ ITA-Q1).
+const ITA={ on:(function(){ try{ const m=/[?&]ita=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_ita','0'); else localStorage.removeItem('gvt_ita'); } return localStorage.getItem('gvt_ita')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  open:380, delay:50, settle:750, film:530, out:200, rm:200,   // ⚑ the dials (ms): the open's length and its wait (the line's beat), the rows settled, the film's frame's beat, the fold, the reduced-motion fade
+  n:0, k:null, t:0, len:0, tm:0, fold:0 };   // n = arrivals dealt this page · k = the card arriving · t = when it was dealt · len = the arrival's length (0 once finished) · tm = the film's rewind timer · fold = the fold's hide timer
+function itaOpen(p, k){   // at the deal (premOpen, after PREM.t0 is set): the arrival's classes and clocks on the card just dealt; false = no arrival (off, no dress)
+  if(!ITA.on || !p) return false; const c=p.querySelector('.mb-card.mbprem'); if(!c || !c.classList.contains('itx')) return false;
+  itaStop(); p.classList.remove('ita-out','ita-done'); const now=performance.now(); ITA.k=k; ITA.n++; ITA.t=now;
+  if(reducedMotion()){ c.classList.add('ita-rm'); ITA.len=ITA.rm; PREM.t0=now+ITA.rm; return true; }   // a plain fade, no opening, no wash; the guard from the fade's end
+  c.classList.add('ita'); p.classList.add('ita-in');
+  const w=document.createElement('div'); w.className='ita-line'; w.setAttribute('aria-hidden','true'); c.appendChild(w);   // the wash: the thin bright line at scaleY 0.02, fading as the glass fills (position absolute, over the flash, under nothing: it is gone by the full open)
+  ITA.len=ITA.settle; PREM.t0=now+ITA.settle;   // THE GUARD counts from the card fully open (its rows settled)
+  ITA.tm=setTimeout(function(){ ITA.tm=0; itaFilm(); }, ITA.film);   // the film from its first frame as its frame tunes in
+  return true; }
+function itaFilm(){ const p=document.getElementById('premPop'), v=p && p.querySelector('video.prem-v'); if(!v || !ITA.k || PREM.up!==ITA.k) return; if(PREM.play && v.currentTime>0.04){ try{ v.currentTime=0; }catch(e){} } }   // running and past its first frame: rewound under its frame still dark (a seek on the file's first keyframe); not yet running = it starts from 0 by itself, or waits held
+function itaDone(){ return !ITA.k || !ITA.len || performance.now()-ITA.t>=ITA.len; }   // the arrival is over (or there was none)
+function itaFinish(){   // a tap mid-arrival (or a rig): the card at its end state at once; the guard counts 200 ms from here
+  if(itaDone()) return false; const p=document.getElementById('premPop'), c=p && p.querySelector('.mb-card.mbprem');
+  if(c) c.classList.add('ita-done'); if(p) p.classList.add('ita-done');   // every arrival animation off: the card at its end state
+  if(ITA.tm){ clearTimeout(ITA.tm); ITA.tm=0; } itaFilm(); ITA.len=0; PREM.t0=performance.now(); return true; }
+function itaTap(e){ if(!PREM.up || !ITA.k || PREM.up!==ITA.k || itaDone()) return false; itaFinish(); if(PREM.freeze && e && e.stopPropagation) e.stopPropagation(); return true; }   // premTap's first read: a tap during the arrival finishes it and is eaten over a solo fight (as the closing tap would be); never a close
+function itaOut(p, now){   // premClose's hide: THE FOLD (the glass collapses to its line and blinks out, the veil lifts; the DOM hidden after) = true; false = hide at once (a door, reduced motion, no arrival, a fold already running)
+  if(ITA.tm){ clearTimeout(ITA.tm); ITA.tm=0; } ITA.k=null; ITA.len=0;
+  if(!ITA.on || now || !p || p.classList.contains('hidden')){ itaStop(); return false; }
+  const c=p.querySelector('.mb-card.mbprem'); if(!c || !c.classList.contains('ita') || c.classList.contains('ita-out') || reducedMotion()){ itaStop(); return false; }
+  c.classList.add('ita-done'); c.classList.add('ita-out'); p.classList.add('ita-done'); p.classList.add('ita-out');
+  ITA.fold=setTimeout(function(){ ITA.fold=0; if(PREM.up) return; p.classList.add('hidden'); p.classList.remove('live','ita-in','ita-out','ita-done'); p.innerHTML=''; }, ITA.out+20);   // a card dealt meanwhile (the next owed) owns the box: premOpen rebuilt it
+  return true; }
+function itaStop(){ if(ITA.tm){ clearTimeout(ITA.tm); ITA.tm=0; } if(ITA.fold){ clearTimeout(ITA.fold); ITA.fold=0; } ITA.k=null; ITA.len=0; }   // the clocks off (a door, a new deal over a fold)
+function itaWait(){ return ITA.fold? ITA.out+20 : 0; }   // premClose: the next card owed waits the fold out
+function itaRig(){ const p=document.getElementById('premPop'), c=p && p.querySelector('.mb-card.mbprem'), cs=e=>e? getComputedStyle(e) : null, row=sel=>{ const e=c && c.querySelector(sel); const s=cs(e); return s? { op:+(+s.opacity).toFixed(3), an:s.animationName, dl:s.animationDelay, du:s.animationDuration, tf:s.transform } : null; };
+  const v=c && c.querySelector('video.prem-v'), sc=c? cs(c) : null;   // read-only: the switch, the dials, the arrival's state, every row's computed animation
+  return { on:ITA.on, n:ITA.n, k:ITA.k, len:ITA.len, since:ITA.k? Math.round(performance.now()-ITA.t) : null, done:itaDone(), dials:{ open:ITA.open, delay:ITA.delay, settle:ITA.settle, film:ITA.film, out:ITA.out, rm:ITA.rm },
+    up:PREM.up, t0:Math.round(PREM.t0-performance.now()), pop:p? p.className : null, card:c? c.className : null, cardAn:sc? { an:sc.animationName, du:sc.animationDuration, dl:sc.animationDelay, tf:sc.transform, origin:sc.transformOrigin } : null,
+    rows:{ head:row('.itx-head'), band:row('.mb-band'), name:row('.mb-h'), line:row('.mb-line'), clip:row('.prem-clip'), port:row('.prem-row > canvas.mnport'), pent:row('.prem-pent'), take:row('.mb-take'), line2:row('.ita-line'), flash:row('.itx-flash'), bar4:row('.stk-sig i:nth-child(4)') },
+    film:v? { t:+v.currentTime.toFixed(3), paused:v.paused, play:PREM.play } : null, fold:!!ITA.fold, tm:!!ITA.tm }; }
+// ═══ END CARD-ITA ═══
 // ═══ CARD-PGI GOT IT IS NEVER CUT OFF: THE PREMIERE CARDS ON THE SMALLEST PHONE (⚑ ULF-Q10, design/premiere-gotit-1001/00-BUILD-PGI.md; WYATT'S STANDING RULE 9/29,
 // his third time: "CONTINUE is NEVER cut off on a phone, on any level"). At 375 tall (and 360) CARD-X2's doubled card is squeezed to the screen's height and a two-
 // or three-line sentence pushed GOT IT under the card's clipped edge (in ar / ja / zh its words left the screen). premFit measures the card the moment it shows (and
@@ -88370,7 +88458,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.45';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.46';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
