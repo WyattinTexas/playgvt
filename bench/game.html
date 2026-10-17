@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.41","md5":"42e6431d3ea20f55bbfc13bfdddffcd3","sha":"9ec587da7","at":"2026-10-17T02:31:15Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.42","md5":"3e8ec6e078c49f588c0eed01e89f9803","sha":"487e1b046","at":"2026-10-17T02:35:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88369,7 +88369,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.41';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.42';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -99886,10 +99886,10 @@ function pbmSegCircle(x1,y1,x2,y2,ex,ey,r){   // the segment against a circle: t
   q=Math.sqrt(q); const t=(-b-q)/(2*a); if(t<0||t>1) return null;
   return { x:x1+dx*t, y:y1+dy*t, t:t };
 }
-let pbmCovT=null, pbmCovN=-1, pbmCovL=[];   // the cover list, kept per terrain and rock count (one filter when the rug or its rocks change; empty on every map without a cov row, so the rules below cost a few compares)
-function pbmCovers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.rocks){ pbmCovL=[]; return pbmCovL; } if(T!==pbmCovT || T.rocks.length!==pbmCovN || PBM.dirty){ pbmCovT=T; pbmCovN=T.rocks.length; pbmCovL=T.rocks.filter(rk=>rk.cov); pbmTwT=null; PBM.dirty=0; } return pbmCovL; }
-let pbmTwT=null, pbmTwN=-1, pbmTwL=[];   // the towers, the same way (the props with art 'pblook')
-function pbmTowers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.props){ pbmTwL=[]; return pbmTwL; } if(T!==pbmTwT || T.props.length!==pbmTwN || PBM.dirty){ pbmTwT=T; pbmTwN=T.props.length; pbmTwL=T.props.filter(p=>p.art==='pblook'); pbmCovT=null; PBM.dirty=0; } return pbmTwL; }
+let pbmCovT=null, pbmCovN=-1, pbmCovL=[], pbmCovG=-1, PBM_GEN=0;   // the cover list, kept per terrain and rock count (one filter when the rug or its rocks change; empty on every map without a cov row, so the rules below cost a few compares) · CARD-DFR (10/16): + the generation PBM.dirty bumps
+function pbmCovers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.rocks){ pbmCovL=[]; return pbmCovL; } if(PBM.dirty){ PBM.dirty=0; PBM_GEN++; } if(T!==pbmCovT || T.rocks.length!==pbmCovN || pbmCovG!==PBM_GEN){ pbmCovT=T; pbmCovN=T.rocks.length; pbmCovG=PBM_GEN; pbmCovL=T.rocks.filter(rk=>rk.cov); } return pbmCovL; }   // CARD-DFR THE DESERT'S FRAME RATE (Wyatt 10/16: "Every second felt like three seconds"): this list and the towers' no longer clear each other's key. They did (pbmTwT=null / pbmCovT=null on every re-filter), and bfCanTarget asks them in turn, so on a map with rocks AND props (WESTERN LAND) both were re-filtered on EVERY target check, men x men a step; a dirty flag now bumps PBM_GEN and each list re-reads its rows once
+let pbmTwT=null, pbmTwN=-1, pbmTwL=[], pbmTwG=-1;   // the towers, the same way (the props with art 'pblook')
+function pbmTowers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.props){ pbmTwL=[]; return pbmTwL; } if(PBM.dirty){ PBM.dirty=0; PBM_GEN++; } if(T!==pbmTwT || T.props.length!==pbmTwN || pbmTwG!==PBM_GEN){ pbmTwT=T; pbmTwN=T.props.length; pbmTwG=PBM_GEN; pbmTwL=T.props.filter(p=>p.art==='pblook'); } return pbmTwL; }   // CARD-DFR: keyed by its own rows + PBM_GEN (see pbmCovers)
 function pbmTowerAt(x,y){ const L=pbmTowers(); for(let i=0;i<L.length;i++){ const p=L[i]; if(Math.hypot(x-p.x,y-p.y)<(p.r||PBM.look)) return p; } return null; }
 function pbmTall(o){ return !!(o && (o.boss || (o.def && (o.def.boss || o.def.vehicle || o.def.fly)) || o.skyDrop)); }   // too tall to hide behind a toy, too tall to hide: a tank, a boss, a body in the air
 function pbmBetween(x1,y1,x2,y2,hx,hy){   // the first cover piece between two points on the floor, or null. A man (hx,hy) pressed to a SMALL piece (one circle, no grp) leans out past it, never through it at a man pressed to its far side; a grp piece (a house, a wall, the book spine) is never fired through by anyone
@@ -101552,6 +101552,7 @@ function applyDeploy(seat,type,x,y,relay){
     // that commander served their ten seconds on their own clock — take their
     // word for it and clear ours, rather than argue with them over the lag
     if(type==='sarge') st.sargeCd=0;
+    if(!st.human && !st.me && dfrOn()) st.purse=Math.max(0,(st.purse||0)-cost);   // CARD-DFR THE PURSE: a computer's placement relayed from the referee spends its purse on THIS screen too (a guest's computers banked every drip and pour unspent, and a v135 hand-off woke the new referee's brains on the hoard); never a refusal: the referee's word stands
   }
   else {
     // SARGE'S TEN SECONDS (v1.25) — the local gate, in with the purse and the
@@ -184608,6 +184609,34 @@ let last=0, ready=false;
 // screens only tightens the lockstep. ⚑ Wyatt's cell: SIM_STEPS_MAX 4 (alt 3).
 const SIM_STEP_S=0.05, SIM_STEPS_MAX=4, SIM_CATCH_S=SIM_STEP_S*SIM_STEPS_MAX;
 const FRAME_STATS={ frames:0, steps:0, multi:0, maxSteps:1, lagS:0 };   // the rig's window (GVT.frameStats): play frames · sim steps · frames that sub-stepped · the widest frame · wall seconds the cap let slip
+// ═══ CARD-DFR THE DESERT'S FRAME RATE (sec:CARD-DFR; design/desert-lag-1016/00-CARD-DFR.md; from Maker 1, account B, lane card M2325). FROM WYATT by phone 10/16/2026 20:35 EDT, verbatim: "Battle of the Desert just finished, and we played it, but it needs to run at 30 FPS the whole time, no exception. It can't be a laggy game. We can't slow it down. It was quite laggy. Every second felt like three seconds. Investigate why this issue has come up, and then let's write documentation about it. We'll review it, and then we'll go with the recommendations to fix it, and then we'll fix it. You have full permission to go in with a fix implementation."
+// THE CAUSE (the record's §2): a desert's pace is its REFEREE's (COOP.host runs every computer's brain, his beacon's clock overwrites every guest's, his census rows walk the computers' men on every screen), and a frame past 0.2 s ran the war below wall time (0559 C's cap: four 0.05 s steps a frame). Tonight the frames ran long: the figures' pictures (CARD-IOT r2's masks, v24.02; CARD-BDR's cure), twelve armies fielding again (server v135), the cover lists re-filtered on every target check (CARD-PBM-0; cured at pbmCovers), every man drawn every frame.
+// THE GUARD, a battleground's alone (S.bf; a campaign fight, a park, the menus stand byte-what-they-were). G1 + G2 change nothing a player wins or loses: the same 0.05 s steps, the same pictures:
+//   G1 THE WAR KEEPS WALL TIME: the catch-up's cap is DFR.catchS 0.6 s (twelve 0.05 s steps; the shipped four always run first); a step past the fourth runs only while this frame's steps have used under DFR.room of the frame's own gap (a slow PICTURE leaves the main thread waiting: the war catches up inside that wait; a slow SIM refuses the spiral). Same steps, same sizes: the sim integrates as ever.
+//   G2 THE STEADY 30: a field that cannot hold 60 (half the drawn frames of a DFR.win window over 20 ms) draws 30 a second for the rest of the battle (CARD-ODV-B's own half-skip: even pacing, half the picture work a second).
+//   NOT A PIXEL NOTCH: fewer canvas dots were measured and rejected (the record's §3.4: WebKit 29.6 fps at full density vs 26.3 at 0.6 of it, interleaved in one war; Chrome the same): the frame's cost is per PICTURE (the SVG masks of every man), not per pixel; CARD-BDR's bitmaps are that cure.
+// THE PURSE (applyDeploy's relay branch): a computer chair's relayed placement debits its purse on every screen, as the referee's own placement does on his (it never did: a guest's computers banked every drip and pour unspent, so a v135 hand-off woke the new referee's brains on the whole hoard: a man every 0.9 s from every computer chair until it ran out).
+// ?dfr=0 = all of it off (remembered on the device: gvt_dfr; ?dfr=1 forgets it) · GVT.dfr() = the rig's read. Zero server, save, wire or word bytes. ═══
+var DFR={ on:(function(){ try{ const q=/[?&]dfr=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dfr','0'); else localStorage.removeItem('gvt_dfr'); } return localStorage.getItem('gvt_dfr')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  catchS:0.6, room:0.4, win:2000, slow60:20, settle:1500,
+  bf:null, half:0, t:[], g:[], hold:0, extra:0, cut:0, log:[] };   // var on purpose (CARD-ODV-B's grammar): applyDeploy reads dfrOn() wherever it runs, never a TDZ
+function dfrOn(){ return !!(DFR && DFR.on); }
+function dfrCatchS(){ return (dfrOn() && S.bf)? DFR.catchS : SIM_CATCH_S; }   // G1: the most war one frame may carry (the shipped SIM_CATCH_S off a battleground)
+function dfrSpent(t9, gap, left, d9){ if(performance.now()-t9<=DFR.room*gap*1000){ DFR.extra++; return false; } FRAME_STATS.lagS+=left*d9; FRAME_STATS.steps-=left; DFR.cut++; return true; }   // G1: a step past the fourth runs only in the frame's room; the rest of the gap is the war's loss, counted in lagS as the cap's always was
+function dfrHalf(){ return dfrOn() && !!S.bf && DFR.half===1 && DFR.bf===S.bf; }   // G2: this battle draws 30 a second
+function dfrTick(ts, gap){
+  if(!dfrOn() || S.mode!=='play' || !S.bf) return;
+  if(DFR.bf!==S.bf){ DFR.bf=S.bf; DFR.half=0; DFR.t.length=0; DFR.g.length=0; DFR.hold=ts+DFR.settle; return; }   // a new battle: full speed, a breath before the first vote
+  if(DFR.half || ts<DFR.hold || S.evHold) return;   // G2 is one step a battle (NO YO-YO: voted once, it stands to the whistle) · the hold (the desert's wait for the bell) is a still field: never a vote
+  const ms=gap*1000; if(!(ms>0) || ms>250) return;   // a hidden span or a stall never votes
+  DFR.t.push(ts); DFR.g.push(ms); while(DFR.t.length && ts-DFR.t[0]>DFR.win){ DFR.t.shift(); DFR.g.shift(); }
+  if(DFR.g.length<12 || ts-DFR.t[0]<DFR.win*0.9) return;   // a whole window first
+  let slow=0; for(let i=0;i<DFR.g.length;i++) if(DFR.g[i]>DFR.slow60) slow++;
+  if(slow*2<DFR.g.length) return;
+  DFR.t.length=0; DFR.g.length=0; DFR.half=1; DFR.log.push({ at:+(+S.t||0).toFixed(1), step:'30' });   // G2
+}
+setTimeout(()=>{ try{ if(window.GVT && !GVT.dfr) GVT.dfr=()=>({ on:DFR.on, half:dfrHalf()? 1 : 0, dpr:cvDpr(), catchS:dfrCatchS(), extra:DFR.extra, cut:DFR.cut, log:DFR.log.slice(), frames:Object.assign({}, FRAME_STATS) }); }catch(e){} }, 0);   // the rig's read (read-only)
+// ═══ end of sec:CARD-DFR ═══
 // ═══ CARD-HLT-B THE PARTY CATCHES UP (Wyatt 10/10 14:09, a library party: a seat put away for a globe challenge came back to "a different instance": no action live, no drops, everyone standing still, then a lone WIN). frame() pays back one capped frame (SIM_CATCH_S) and drops the rest of a long gap: a solo fight is frozen anyway (qtFreezes), but a fight WITH COMPANY ran the rest of the battle that many seconds behind the party. Now a fight with company (S.coop, never a battleground) OWES the dropped span and pays it back in the same 0.05 s steps, a few ms a frame (muted: half a minute of war in a second is no sound), until this sim stands level with the party again. ═══
 const COOP_OWE={ max:150, steps:40, ms:24 };   // the most a seat can owe (the server holds an away seat 45 s, a hidden-worker browser 150 s) · steps a frame · the frame's budget in ms
 let COOP_OWE_S=0, COOP_OWE_K=null;   // the owed seconds · the battle they are owed to (S is new each battle)
@@ -185512,10 +185541,11 @@ function frame(ts){
   if(ts-MS_SYNC_T>500){ MS_SYNC_T=ts; msPauseSync(); }   // 0974: the living paintings' overlays pause under a covering panel / a hidden tab (one class write when the answer changes)
   if((qtHeld() && qtFreezes()) || premFrozen()){ last=ts; return; }   // 0904 THE PREMIERE CARD: a SOLO fight under the card stands still on this same seat (never QT.held — the music plays on; the next frame's gap is one frame, no catch-up) · 0719 THE FROZEN FIGHT (Wyatt 9/2: "Yes in campaign; no in Battlefields or Raid/pvp events"): a solo campaign fight put away ticks NOTHING — no sim, no wall clock, no draw (where a platform runs rAF hidden at all)
   if(QT.skip){ QT.skip=0; last=ts; return; }        // ...and the first frame back reads the hidden span as NO gap: every clock resumes from the moment it left. A battlefield, a raid, a party fight and the room run as today — one capped catch-up frame (0559 C)
-  if(S.mode==='play' && odvTier()>=1 && odvHalfSkip(ts)) return;   // CARD-ODV-B: 30 drawn frames a second in a fight at tier >= 1 — this rAF stands aside WITHOUT touching last, so the next frame's gap covers both and 0559 C takes it (SIM_STEP_S 0.05: one step of ~33 ms)
+  if(S.mode==='play' && (odvTier()>=1 || dfrHalf()) && odvHalfSkip(ts)) return;   // CARD-DFR G2: + a battleground that cannot hold 60 · CARD-ODV-B: 30 drawn frames a second in a fight at tier >= 1 — this rAF stands aside WITHOUT touching last, so the next frame's gap covers both and 0559 C takes it (SIM_STEP_S 0.05: one step of ~33 ms)
   const gap=(ts-last)/1000||0.016; last=ts; gvTick(ts, gap);   // 1162z THE FRAME RATE: the menus' sampler (the governor + the meter) reads the gap the loop already has
   odfFrame(ts, gap);   // CARD-ODV-FIELD: the speed counts read the same gap (per screen kind; nothing is sent from here)
   if(S.mode==='play') odvDynTick(ts, gap);   // CARD-ODV-B: the dynamic notch's vote (moves only with window.GVT_AUTO or ?odvdyn=1)
+  dfrTick(ts, gap);   // CARD-DFR G2: a battleground's vote
   const dt=Math.min(SIM_STEP_S,gap);   // the per-frame wall-clock tick every clock below reads — byte-what-it-was
   if(S.hitStop>0) S.hitStop=Math.max(0,S.hitStop-dt);   // drains on the WALL clock, so it always lets go
   if(S.vflag) vflagTick(dt);                            // the victory flag rides the same wall clock (v1.47)
@@ -185537,10 +185567,11 @@ function frame(ts){
     // 0559 C: g ≤ one step = ONE step of the gap (byte-what-it-was); longer =
     // ≤ SIM_STEPS_MAX equal steps under the cap; the 2 % slack keeps a device
     // sitting exactly on 20 fps at one step
-    const g9=Math.min(SIM_CATCH_S,gap), n9=Math.max(1,Math.min(SIM_STEPS_MAX,Math.ceil(g9/SIM_STEP_S-0.02))), d9=g9/n9;
-    FRAME_STATS.frames++; FRAME_STATS.steps+=n9; if(n9>1) FRAME_STATS.multi++; if(n9>FRAME_STATS.maxSteps) FRAME_STATS.maxSteps=n9; if(gap>SIM_CATCH_S) FRAME_STATS.lagS+=gap-SIM_CATCH_S;
+    const c9=dfrCatchS(), g9=Math.min(c9,gap), n9=Math.max(1,Math.min(Math.round(c9/SIM_STEP_S),Math.ceil(g9/SIM_STEP_S-0.02))), d9=g9/n9;   // CARD-DFR G1: a battleground's cap is DFR.catchS (SIM_CATCH_S everywhere else: byte-what-it-was)
+    FRAME_STATS.frames++; FRAME_STATS.steps+=n9; if(n9>1) FRAME_STATS.multi++; if(n9>FRAME_STATS.maxSteps) FRAME_STATS.maxSteps=n9; if(gap>c9) FRAME_STATS.lagS+=gap-c9;
     if(ftnHolds()) ftnHeldStep(); else   // CARD-FTN H1 (Wyatt's phone 10/15/2026 18:00 EDT, jumpr 2268: "make sure that the unit in play isn't moving"): the opener's lesson page holds the WHOLE sim (no step), the beat's own machines tick
-    for(let i9=0;i9<n9;i9++){ if(S.mode!=='play' || S.evHold) break;
+    for(let i9=0,t9=performance.now();i9<n9;i9++){ if(S.mode!=='play' || S.evHold) break;
+      if(i9>=SIM_STEPS_MAX && dfrSpent(t9, gap, n9-i9, d9)) break;   // CARD-DFR G1: past the shipped four, only inside the frame's room
       update(d9*S.speed*S.slowmo*slow); }   // dial × KO-beat × coach/hit-stop — three knobs, never one variable (v1.93)
     if(S.bf && S.bf.panL===1) S.bf.panT=(S.bf.panT||0)+dt;   // CARD-PAN: the pan glove's wall clock (the coach's grammar)
     if(coach){ coach.t+=dt;
