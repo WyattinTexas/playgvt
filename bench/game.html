@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.52","md5":"0c0505ca84c17a07c61e3f7a8c8927d2","sha":"a6ee8a9b6","at":"2026-10-18T00:54:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.53","md5":"bf899571ae1e3d5693c345eea42ec221","sha":"06eeab8d5","at":"2026-10-18T00:58:53Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -59152,6 +59152,32 @@ function lnguPlay(cont){
   return v;
 }
 // ═══ end CARD-LNG ═══
+// ═══ CARD-FIF FORTRESS, IN FLIGHT (sec:CARD-FIF; design/fortress-in-flight-1017/00-CARD-FIF.md; FROM DYLAN by the jumpr guest link 10/17/2026 23:43 UTC: "60 second cinematic cut scene for the sky fortress. Main Home Screen music playing. Sarge is flying in his plane with a “V” shaped formation behind him of dogfighter units. Suddenly a cloud formation ahead of them begins to come into focus. As they get closer, it isn’t a cloud formation at all. It’s a giant plane, “The Sky Fortress”. Sarge calls for the squad over the radio “Defensive positions, we have tangos coming in from every direction!” We see numerous enemy dogfighters swarm sarges’ ranks and chaos begins! Sarge calls over the radio “Bring in the big boys!”. Suddenly Three Green Bomber units appear on the horizon flanked by numerous green dogfighters. “This should even the odds” says sarge. End scene. Let’s title this “Fortress, in flight”."): the 60 s film fif-fortressinflight.mp4 (Sarge's toy warplane at the head of a V of THE DOGFIGHTER, THE SKY FORTRESS = the Big Bomber's own mold breaking out of her cloud, the Tan Air Corps' fighters and THE RED TAIL, three V2 BOMBERS in the army's green, the sky fight's chute, the comm window, the game's SFX, the game's own main theme)
+// plays ONCE per device the first time THE SKY FORTRESS's lobby would open (openRaidScene with RAID_CUR 'sky', after the door's own key gate: open to every player since CARD-SFO; the moored Fortress over THE ROOFTOP, the map's pin and a party's walk all come through it): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the lobby as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
+// Reduced motion skips it. Seen = localStorage gvt_fif (never the save; no storage = never shown). ═══
+const FIFU={ key:'gvt_fif', src:'fif-fortressinflight.mp4', poster:'fif-fortressinflight.jpg' };
+function fifuSeen(){ try{ return localStorage.getItem(FIFU.key)==='1'; }catch(e){ return true; } }
+function fifuMark(){ try{ localStorage.setItem(FIFU.key,'1'); }catch(e){} }
+function fifuDue(){ return !document.getElementById('fifuFilm') && !document.getElementById('lnguFilm') && !document.getElementById('dmtuFilm') && !document.getElementById('drwuFilm') && !document.getElementById('mdyuFilm') && !document.getElementById('snduFilm') && !document.getElementById('stmuFilm') && S.mode==='menu' && !reducedMotion() && !fifuSeen(); }
+function fifuPlay(cont){
+  fifuMark();
+  const d=document.createElement('div'); d.id='fifuFilm'; d.setAttribute('data-notr','1');
+  d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center';
+  const v=document.createElement('video'); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.playsInline=true; v.preload='auto';
+  v.poster=bdPromoSrc(FIFU.poster); v.muted=!soundOn; v.src=bdPromoSrc(FIFU.src);
+  v.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';
+  const x=document.createElement('button'); x.type='button'; x.className='fifuX'; x.setAttribute('aria-label','close'); x.setAttribute('data-notr','1');
+  x.style.cssText='position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 14px);width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,0.75);background:rgba(0,0,0,0.55);color:#fff;font:bold 24px/44px Arial,sans-serif;padding:0;cursor:pointer;z-index:2';
+  x.insertAdjacentHTML('beforeend','&#10005;');
+  let done=false;
+  const end=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} d.remove(); snduHush(false); try{ if(cont) cont(); }catch(e){} };
+  v.addEventListener('ended',end); v.addEventListener('error',end);
+  x.addEventListener('click',e=>{ e.stopPropagation(); end(); });
+  d.appendChild(v); d.appendChild(x); document.body.appendChild(d); snduHush(true);
+  try{ const p=v.play(); if(p&&p.catch) p.catch(()=>{ v.muted=true; try{ const q=v.play(); if(q&&q.catch) q.catch(end); }catch(e){ end(); } }); }catch(e){ end(); }
+  return v;
+}
+// ═══ end CARD-FIF ═══
 // ═══ CARD-HST HOP, SKIP AND A THUMP (sec:CARD-HST; design/hop-skip-thump-1017/00-CARD-HST.md; FROM DYLAN by the jumpr guest link 10/17/2026 23:30: "60 second cinematic for Princes Croaks palace entrance. Classical music playing softly. Sarge and his troops are walking around a luxurious pond in the center of the palace. … Suddenly, a long tongue comes out and snatches a rifleman. … The pond lights go off for a second. Sarge says stay calmn in the darkness. The light come back on and Princess croak is seated on her throne. The gnome statues are statues no more! … "My Father warned me of you…Sergeant." … "It's not easy being green, Princess. I think we can both agree on that. Do what you must, but know that I shall do the same." … "I look forward to it…Gnomes, ATTACK!" A brief melee begins. end scene. Title this: "Hop, skip and a thump""): the 60 s film hst-hopskip.mp4 (PRINCESS CROAK'S PALACE's own painting in the dark, its pond's lamps lit; Sarge's mold and the squad's sprites; PRINCESS CROAK's frames on a new throne; the gnomes' molds and the painting's guards as stone statues, then awake; her own song, the Arabesque, ARB_M4A; the game's SFX)
 // plays ONCE per device the first time PRINCESS CROAK'S PALACE's lobby would open (openRaidScene with RAID_CUR 'palace', after the doors' own gates: UI.palaceTap's palaceOpenFor at the oak doors, the map pin's raidDoorKey; a party's walk comes through it too): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the lobby as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
 // Reduced motion skips it. Seen = localStorage gvt_hst (never the save; no storage = never shown). ═══
@@ -88499,7 +88525,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.52';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.53';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -161181,6 +161207,7 @@ function openRaidScene(id){
   if(RAID_CUR==='croak' && drwuDue()){ drwuPlay(()=>openRaidScene(id)); return; }   // CARD-DRW (FROM DYLAN 10/16): KING CROAK'S HIDEOUT's first open comes after THE DRAW, once per device (the key gate above stands first)
   if(RAID_CUR==='bone' && dmtuDue()){ dmtuPlay(()=>openRaidScene(id)); return; }   // CARD-DMT (FROM DYLAN 10/16): KING REX'S LAIR's first open comes after DINO-MIGHT, once per device (the key gate above stands first)
   if(RAID_CUR==='palace' && hstuDue()){ hstuPlay(()=>openRaidScene(id)); return; }   // CARD-HST (FROM DYLAN 10/17): PRINCESS CROAK'S PALACE's first open comes after HOP, SKIP AND A THUMP, once per device (the doors' own gates stand first: palaceOpenFor at the oak doors, raidDoorKey at the map's pin)
+  if(RAID_CUR==='sky' && fifuDue()){ fifuPlay(()=>openRaidScene(id)); return; }   // CARD-FIF (FROM DYLAN 10/17): THE SKY FORTRESS's first open comes after FORTRESS, IN FLIGHT, once per device (the key gate above stands first)
   safeOnce();   // v3.60 (0297): a raid door is a campaign-family multiplayer door
   document.getElementById('raidscene').classList.remove('hidden');   // unhide FIRST — partyLive counts me while open (the v3.10 law)
   RAID_WARN9=0;   // 1164: the lone-commander warning re-arms at every lobby open (spoken once per open — never a wall)
