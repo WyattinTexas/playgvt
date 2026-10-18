@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.56","md5":"d4a9cad49fca090e250123b49381dd4b","sha":"81740f0ad","at":"2026-10-18T02:28:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.57","md5":"334d0ceade2408c36c961b9a1a7e7fcb","sha":"c25264cff","at":"2026-10-18T03:08:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88525,7 +88525,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.56';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.57';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -143469,6 +143469,7 @@ function roomSVG0(){
   // (the MEDAL CASE that stood at the shelf's right end hangs in FORT GREEN's MEDALS tab now — the slot is bare plank, ⚑ Q15)
   // the bed (the bedroom's) — the bear fort rides inside it
   +(roomCur()==='bedroom'? bedSVG()+hwHatSVG()+xmHatSVG()+cardinalSVG(nt) : '')   // 0904 PART TWO: the cardinal's visits on the sill's east end (day only), over the sill, under the plane
+  +(roomCur()==='bedroom'? bcrRoomSVG() : '')   // CARD-BCR (FROM DYLAN 10/17): THE BOOKCASE and THE ROCKING CHAIR on the right wall (CARD-EXR's east run, x 1000-1416): after the bed, before the chest, the tiles and every toy; '' when off, under the map's pin, or before sec:CARD-BCR stands
   // ═══ THE THREE TILES on the rug ═══
   // CAMPAIGN: the toy box (0656: the ELITE FORCES box past L100 — the same seat, the same tap); 0904's arch at its bottom-left and
   // (THE PATROL paints after the toys since CARD-PTZ — see the line above the ship)
@@ -143555,6 +143556,11 @@ const ROOM_SPOTS=[
   // AFTER the wall's row so it lies OVER the wall's door (which covered the lamp: a tap on it opened the wallpaper picker) and UNDER every later door, anchor, pill and the dogs
   // (dogPick runs first in the router and DOGCLK eats his click: a dog over the fixture keeps his click). Night only (due) — by day the row does not exist. No mv, no pill, no label. ═══
   { id:'nlite', x:904, y:166, w:26, h:34, due:()=>roomCur()==='bedroom' && !MAPPIN && roomNight(), act:()=>nlTap() },   // CARD-HT3: the plate 910..924 × 161..183 + 6 a side (⚑ HT3-Q2: the teddy's anchor 850,196 takes its lowest 4 px — the dome and the plate's upper half are the switch); was 693,122 36×46
+  // ═══ CARD-BCR (FROM DYLAN 10/17; sec:CARD-BCR): THE BOOKCASE and THE ROCKING CHAIR on the right wall (CARD-EXR's east run). The bookcase opens THE TROPHY CASE, the chair rocks. Each box = its art (the
+  // cornice's lip to the plinth's shadow · the crest to the runners), in literal numbers (this table is built before the sec stands); bedroom only, never under the map's pin, off with ?bcr=0. No mv (fixed
+  // furniture: no id, no drag, no pill); dealt after the wall's door (they win the band's strip from it); a toy's anchor, dealt after every row, wins its own tap over them. ═══
+  { id:'bookcase', x:988, y:62, w:240, h:274, due:()=>bcrDue(), act:()=>bcrCaseTap() },
+  { id:'rocker', x:1244, y:194, w:172, h:190, due:()=>bcrDue(), act:()=>bcrRockTap() },
   // ═══ 0904 THE LOOP ROW — THE THREE TILES on the rug: FIXED architecture (out of every rdrag family — rdragPick never answers for a
   // row; toys and men still drag), each 270×186 at LR_TILE, each with its pill at the tile's foot (y 556), each in the idle
   // beacon's set (ROOM_BEACON + RAID_DOOR: the campaign and the battlefield breathe; the raid tile only while an invader is unbeaten).
@@ -155807,6 +155813,100 @@ function trcProbe(){ const M=trcM(), B=e=>{ if(!e) return null; const b=e.getBou
   return { cv:GVT_CV, order:TRC_ORDER.slice(), all:TRC_ALL.slice(), wpn:TRC_WPN.map(k=>[k, trcLv(k), trcName(k)]), ga:[trcLv(TRC_GA), META.tv|0, trcName(TRC_GA)],   /* CARD-TGF */ scroll:sh? [Math.round(sh.scrollLeft), sh.scrollWidth-sh.clientWidth, sh.clientWidth] : null, nav:[nv('l'), nv('r')], got:trcGot(), l100:trcL100(), cell:JSON.parse(JSON.stringify(M)), isNew:trcNew(), page:TRC.page, k:TRC.k, chain:TRC.chain, err:TRC.err, rolls:Object.keys(TRC.rolls),
     door:B(document.getElementById('fhTrc')), plank:B(document.querySelector('#fhTrc .fh-pill')), cab:B(document.querySelector('#fortBg [data-trc="cab"]')), figs:Array.from(document.querySelectorAll('#fortBg [data-trc="fig"]')).map(e=>e.dataset.k), ring:!!document.querySelector('#fortBg .trc-ring'),
     seats:Array.from(document.querySelectorAll('#trcPage .trc-seat')).map(e=>[e.dataset.k, e.classList.contains('dim')? 0 : 1, !!e.querySelector('.trc-no')]), rows:Array.from(document.querySelectorAll('#trcPage .trc-row')).map(e=>[e.classList.contains('me')? 2 : e.classList.contains('open')? 0 : 1, e.querySelector('span').textContent]) }; }
+// ═══ sec:CARD-BCR THE BOOKCASE AND THE ROCKING CHAIR ON THE BEDROOM'S RIGHT WALL (FROM DYLAN, the jumpr guest link 10/18/2026 01:22 UTC = 10/17 21:22 EDT, jumpr 2336, built on Maker 1's lane as M2336;
+// design/bedroom-bookcase-1017/00-CARD-BCR.md). Dylan, verbatim: "Can we run a design pass to add a bookcase on the right wall of the bedroom for players to display their trophies etc.? I'd also like to add a
+// wooden rocking chair in the right corner of the room as well please. Thank you." Dylan's live switch (Wyatt 10/8) builds it live; the look goes to Dylan as the pass's pictures.
+// THE RIGHT WALL is CARD-EXR's east run (Wyatt 10/11: "allow the player to scroll to the right"): the bed meets the board's east edge (960) and nothing stood past it. x 960-1451 is on every glass the run reaches
+// (the iPad and the desk end at 1451, the phones near 1780), and x 960-1131 shows at home on his phone (the band). Both pieces stand inside 1451, so every player who slides right sees them whole.
+// THE BOOKCASE (x 1000-1216, its cornice's lip at 66, its plinth's foot at 328 on the floor): walnut, a brass plate TROPHIES on the frieze (CARD-PLQ-B's plate and engraving and the shelf signs' fit:
+//   t('TROPHIES') x7, zero new words), four shelves. The top three stand THE PLAYER'S TROPHIES, four to a shelf: the Trophy Case's own (trcGot() in its order, then the HORDE SEASON flags), each a gold figure
+//   (trcFigURI; the cabinet's gilding for a hero, an iron, the torch, a flag) on a walnut plinth under its own small light. Books fill every place a trophy does not (seeded spines: the same books every
+//   paint); the bottom shelf is books. No trophy yet: the top shelf keeps one stand waiting in its middle. A tap opens THE TROPHY CASE (UI.trcOpen: the whole screen, every seat, the rolls; its ✕ comes back here).
+// THE ROCKING CHAIR (its runners on the floor at x 1250-1416, its crest near 198): honey oak in a 3/4 turn, facing into the room, a green cushion. A tap rocks it: SFX.creak ("the rockers, back and forth")
+//   and a damped sway about the runners' foot, 2.9 s; reduced motion keeps the creak alone. A tap while it sways is let be.
+// Both stand in the room's own svg right after the bed: every toy, man, dog and the patrol paint over them, and a toy's anchor wins its tap. They go through the room's style-guide pass (flat fills and dark rims
+//   here: sgpSVG softens and panels them) and the still room pictures them (CARD-DLG; the sway wakes the chair first: dlgHold). ?bcr=0 on the address keeps them off on a device (the room as it was); ?bcr=1 clears it.
+// Where the room never shows past the bed (reduced motion: xrBand 0, the band is the wings' mirrored floor) they are not painted and deal no door. An iPhone before iOS 18 keeps the band but not the slide: the
+//   bookcase's west part shows at the right edge and opens the case. A paint before this sec stands (the boot's first) leaves them out (bcrDue answers false) and the next paint has them. Zero save keys, zero words, zero server, zero sw.js. ═══
+const BCR={ on:(function(){ try{ const q=/[?&]bcr=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bcr','0'); else localStorage.removeItem('gvt_bcr'); } return localStorage.getItem('gvt_bcr')==='0'? 0 : 1; }catch(e){ return 1; } })(),   // ON for everyone; ?bcr=0 a device key turns it off, ?bcr=1 clears it (FHG's gate)
+  X0:1000, X1:1216, SIDE:12, LIP:66, FR:90, IN0:122, BOARDS:[170,224,270], BOARD:6, BASE:308, FOOT:328, SLOTS:4, CAP:12,   // the bookcase: the carcass, its sides, the cornice's lip, the frieze (the plate), the inside, the three shelves' tops, the plinth, its foot; four places a shelf, twelve trophies at most (the case holds every one)
+  RX:1316, RY:374, RD:[30,-12], rockMs:2900, rockDeg:6, rockPer:0.96 };   // the rocking chair: its runners' foot (the sway's pivot), the far side's offset (the 3/4 turn), the sway's length, swing and beat
+const BCR_WOOD={ body:'#9C6A3C', dark:'#7A5130', lit:'#B98352', back:'#5E3E22', ink:'#4A2F17', shelf:'#A87445', edge:'#D9A86E', plinth:'#3E2716', brass:'#D6AE52' };   // walnut: rich, never pale (the guide's rule 4)
+const BCR_BOOKS=['#B5443A','#3E6FA8','#4F8A4A','#D8A33A','#7A4E9A','#2F8C8A','#C9693A','#8B2F3A','#E6D7B5','#46607E'];   // the spines
+const BCR_OAK={ wood:'#B97A3E', far:'#8C5A2B', lit:'#D49A58', ink:'#5A3615', cush:'#5E8A45', cushL:'#82AC62', cushInk:'#33531F' };   // the chair: honey oak, its far side in shade, the seat's top in the light; the cushion in the army's green
+const BCR_ROCK={ raf:0, t0:0, a:0, n:0 };   // the sway in flight: its frame, its start, its angle now, how many this session
+function bcrOn(){ return BCR.on===1; }
+function bcrDue(){ try{ return roomCur()==='bedroom' && !MAPPIN && bcrOn() && xrBand()>0; }catch(e){ return false; } }   // the bedroom alone, never under the map's pin, and only where the room shows past the bed (xrBand: under reduced motion the band is the wings' mirrored floor, so nothing paints and no door is dealt there); asked before this sec stands: false
+function bcrN(v){ return +(+v).toFixed(1); }
+function bcrR(x,y,w,h,f){ return '<rect x="'+bcrN(x)+'" y="'+bcrN(y)+'" width="'+bcrN(w)+'" height="'+bcrN(h)+'" '+f+'/>'; }
+function bcrHash(a,b,c){ let h=(a*73856093)^(b*19349663)^(c*83492791); h=Math.imul(h^(h>>>13), 1274126177); return ((h^(h>>>16))>>>0)/4294967296; }   // the books' dice: the same spines every paint
+function bcrList(){ const L=trcGot().map(k=>[k, trcFigURI(k), HEROES.indexOf(k)>=0 || trcIsW(k) || trcIsG(k)]); const H=Array.isArray(META.hrdTro)? META.hrdTro : [];
+  if(H.length){ const u=hrdTroURI(); H.forEach(r=>L.push(['hrd:'+String(r[0]), u, true])); } return L.slice(0, BCR.CAP); }   // the case's trophies in its own order, the horde's flags after them: [key, the figure, gilded]
+function bcrBooks(x,y,w,hMax,s,k){ let o='', cx=x+1;   // a run of spines standing on y across x..x+w
+  for(let i=0;i<9 && cx<x+w-5;i++){ const bw=5+Math.floor(bcrHash(s,k,i)*4.5), bh=Math.min(hMax, Math.round(hMax*0.62+bcrHash(k,i,s)*hMax*0.36)), col=BCR_BOOKS[Math.floor(bcrHash(i,s,k)*BCR_BOOKS.length)], ww=Math.min(bw, x+w-cx-0.5); if(ww<4) break;
+    const b=bcrR(cx,y-bh,ww,bh,'fill="'+col+'" stroke="#2E1C10" stroke-width="1.2"')+(bcrHash(k,s,i)>0.35? bcrR(cx+0.8,y-bh+4,ww-1.6,2.2,'fill="#F3DFA6" opacity="0.8"') : '');   // the spine and, on most, its gilt band
+    if(i>1 && cx+ww+9>=x+w && bcrHash(s,i,7)>0.45){ o+='<g transform="rotate(-14 '+bcrN(cx)+' '+y+')">'+b+'</g>'; break; }   // the last of a run leans on its neighbour
+    o+=b; cx+=ww+0.6; }
+  return o; }
+function bcrTrophy(t,cx,y,fh){ const fw=Math.round(fh*1.05);   // a trophy standing on y: its light on the back, the walnut plinth with its brass, the gold figure
+  return '<ellipse cx="'+bcrN(cx)+'" cy="'+bcrN(y-fh*0.55)+'" rx="'+bcrN(fw*0.62)+'" ry="'+bcrN(fh*0.56)+'" fill="#FFD98A" opacity="0.13"/>'
+    +bcrR(cx-13,y-6,26,6,'fill="'+BCR_WOOD.plinth+'" stroke="#21140A" stroke-width="1"')+bcrR(cx-6,y-4.4,12,2.2,'fill="'+BCR_WOOD.brass+'"')
+    +'<image data-bcr="fig" data-k="'+escH(t[0])+'" href="'+t[1]+'" x="'+bcrN(cx-fw/2)+'" y="'+bcrN(y-6-fh)+'" width="'+fw+'" height="'+fh+'" preserveAspectRatio="xMidYMax meet"'+(t[2]? ' filter="url(#bcrGild)"' : '')+'/>'; }
+function bcrStand(cx,y){ return bcrR(cx-15,y-7,30,7,'fill="'+BCR_WOOD.plinth+'" stroke="#21140A" stroke-width="1"')+bcrR(cx-7,y-5.2,14,2.4,'fill="'+BCR_WOOD.brass+'"'); }   // the stand waiting for the first trophy
+function bcrPlateSVG(){   // TROPHIES on the frieze: the shelf signs' own plate, size and fit (signLayout; signFit re-reads it by data-sign), seated by one translate (the plate's top on the frieze)
+  const L=signLayout(t('TROPHIES'), 150, signPt(), SIGN_LADDER), cap=+(L.pt*0.72).toFixed(1), w=+Math.max(SIGN_MINW, L.w*1.03+2*SIGN_PAD).toFixed(1), h=+(8+cap).toFixed(1), cx=(BCR.X0+BCR.X1)/2, x=+(cx-w/2).toFixed(1);
+  return '<g transform="translate(0,'+(BCR.FR+2-PLQ_TOP)+')" data-sign="bcr" data-run="'+(w-2*SIGN_PAD).toFixed(1)+'" data-ladder="'+SIGN_LADDER.join(',')+'" pointer-events="none">'+plqPlateSVG(x, w, SIGN_TOP+h)+plqTextSVG(cx, +(SIGN_TOP+4+cap).toFixed(1), L, 0)+'</g>'; }
+function bcrCaseSVG(){ const B=BCR, W=BCR_WOOD, x0=B.X0, x1=B.X1, w=x1-x0, ix0=x0+B.SIDE, ix1=x1-B.SIDE, iw=ix1-ix0, sw=iw/B.SLOTS, S=[B.BOARDS[0],B.BOARDS[1],B.BOARDS[2],B.BASE], C=[B.IN0,B.BOARDS[0]+B.BOARD,B.BOARDS[1]+B.BOARD,B.BOARDS[2]+B.BOARD], L=bcrList();   // S: where things stand · C: each place's ceiling
+  let v='<g id="ro-bookcase"><defs><filter id="bcrGild" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.42 0.70 0.14 0 0.10  0.34 0.57 0.11 0 0.04  0.11 0.19 0.04 0 0  0 0 0 1 0"/></filter></defs>'   // the cabinet's own gilding (trcCabArt)
+    +'<ellipse cx="'+bcrN((x0+x1)/2)+'" cy="'+B.FOOT+'" rx="'+bcrN(w/2+12)+'" ry="7" fill="#000" opacity="0.18"/>'   // its shadow on the floor
+    +bcrR(x0,B.FR-4,w,B.BASE-B.FR+4,'fill="'+W.body+'" stroke="'+W.ink+'" stroke-width="2.5"')   // the carcass
+    +bcrR(ix0,B.IN0,iw,B.BASE-B.IN0,'fill="'+W.back+'" stroke="'+W.ink+'" stroke-width="1.5"')   // the back, in its own shade
+    +bcrR(ix0,B.IN0,7,B.BASE-B.IN0,'fill="#000" opacity="0.16"');   // the window's light comes from the west: the inside's west side in shade
+  for(let i=0;i<4;i++) v+=bcrR(ix0,C[i],iw,6,'fill="#000" opacity="0.2"');   // the shade under each ceiling
+  for(const b of B.BOARDS) v+=bcrR(ix0-1,b,iw+2,B.BOARD,'fill="'+W.shelf+'" stroke="'+W.ink+'" stroke-width="1.4"')+'<path d="M'+ix0+' '+bcrN(b+0.9)+' H'+ix1+'" stroke="'+W.edge+'" stroke-width="1.2" opacity="0.9"/>';   // the three shelves, their lit front edge
+  v+=bcrR(x0-8,B.LIP,w+16,7,'fill="'+W.lit+'" stroke="'+W.ink+'" stroke-width="2"')+bcrR(x0-4,B.LIP+7,w+8,13,'fill="'+W.body+'" stroke="'+W.ink+'" stroke-width="2"')+bcrR(x0-1,B.LIP+20,w+2,4,'fill="'+W.dark+'" stroke="'+W.ink+'" stroke-width="1.2"');   // the cornice: the lip, the crown, the cove
+  v+=bcrR(x0-4,B.BASE,w+8,B.FOOT-B.BASE,'fill="'+W.dark+'" stroke="'+W.ink+'" stroke-width="2.5"')+bcrR(x0+6,B.BASE+6,w-12,B.FOOT-B.BASE-10,'fill="#5E3E22" opacity="0.55"');   // the plinth on the floor, its kick panel
+  let n=0;
+  for(let s=0;s<4;s++){ const y=S[s], hc=y-C[s];
+    for(let k=0;k<B.SLOTS;k++){ const sx=ix0+k*sw;
+      if(s<3 && n<L.length){ v+=bcrTrophy(L[n++], sx+sw/2, y, hc-10); continue; }
+      if(s===0 && !L.length && (k===1 || k===2)){ if(k===1) v+=bcrStand(ix0+iw/2, y); continue; }   // no trophy yet: the top shelf's middle keeps a stand waiting
+      v+=bcrBooks(sx+0.5, y, sw-1, hc-3, s, k); } }
+  return v+bcrPlateSVG()+'</g>'; }
+function bcrRockerSVG(){ const B=BCR, O=BCR_OAK, dx=B.RD[0], dy=B.RD[1], T=(x,y)=>bcrN(x)+','+bcrN(y), P=(d,f)=>'<path d="'+d+'" '+f+'/>';
+  const FAR='fill="'+O.far+'" stroke="'+O.ink+'" stroke-width="2"', NEAR='fill="'+O.wood+'" stroke="'+O.ink+'" stroke-width="2.2"';
+  const runner=(ox,oy,f)=>P('M'+T(-66+ox,-9.9+oy)+' Q'+T(-3+ox,9+oy)+' '+T(60+ox,-8.2+oy)+' Q'+T(67+ox,-10+oy)+' '+T(65+ox,-16+oy)+' L'+T(60+ox,-15.2+oy)+' Q'+T(-3+ox,2+oy)+' '+T(-66+ox,-16.9+oy)+' Q'+T(-71+ox,-13.5+oy)+' '+T(-66+ox,-9.9+oy)+' Z', f);   // a runner: its foot an arc that meets the floor at x 0, its back tip curled up
+  const leg=(ox,oy,f)=>bcrR(-47+ox,-53+oy,8,45,f);   // a front leg, from the runner up to the seat
+  const stile=(ox,oy,f)=>P('M'+T(29+ox,-7+oy)+' L'+T(37+ox,-7+oy)+' L'+T(37+ox,-56+oy)+' L'+T(52+ox,-150+oy)+' L'+T(43+ox,-151+oy)+' L'+T(29+ox,-56+oy)+' Z', f);   // a back leg rising into its stile, leaning back
+  let v='<g id="ro-rocker"><ellipse cx="'+(B.RX+8)+'" cy="'+(B.RY+1)+'" rx="76" ry="7" fill="#000" opacity="0.18"/>'   // its shadow on the floor (it stays: the chair sways over it)
+    +'<g transform="translate('+B.RX+','+B.RY+')"><g class="bcr-rock">';   // the sway's own group: its origin is the runners' foot (bcrRockGo turns it about 0,0)
+  v+=runner(dx,dy,FAR)+leg(dx,dy,FAR)+stile(dx,dy,FAR);   // the far side first
+  for(const k of [0.25,0.5,0.75]) v+=P('M'+T(34+dx*k-1.7,-58+dy*k)+' L'+T(46+dx*k-1.7,-142+dy*k)+' L'+T(46+dx*k+1.7,-142+dy*k)+' L'+T(34+dx*k+1.7,-58+dy*k)+' Z', 'fill="'+O.wood+'" stroke="'+O.ink+'" stroke-width="1.4"');   // the back's three spindles
+  v+=P('M'+T(40,-140)+' Q'+T(47+dx/2,-166+dy/2)+' '+T(55+dx,-154+dy)+' L'+T(55+dx,-143+dy)+' Q'+T(47+dx/2,-153+dy/2)+' '+T(41,-129)+' Z', NEAR);   // the crest rail over them
+  v+=P('M'+T(-54,-58)+' L'+T(40,-58)+' L'+T(40+dx,-58+dy)+' L'+T(-54+dx,-58+dy)+' Z', 'fill="'+O.lit+'" stroke="'+O.ink+'" stroke-width="2"')+bcrR(-54,-58,94,9,NEAR);   // the seat: its top in the light, its near edge
+  v+=P('M'+T(-46,-60)+' Q'+T(-49,-69)+' '+T(-40+dx*0.15,-70+dy*0.15)+' L'+T(28+dx*0.85,-70+dy*0.85)+' Q'+T(37+dx,-68+dy)+' '+T(30+dx,-60+dy)+' L'+T(32,-60)+' Z', 'fill="'+O.cush+'" stroke="'+O.cushInk+'" stroke-width="1.8"')
+    +P('M'+T(-40,-65)+' L'+T(26+dx*0.8,-65+dy*0.8), 'stroke="'+O.cushL+'" stroke-width="2.4" stroke-linecap="round" opacity="0.9"');   // the green cushion and its light
+  v+=leg(0,0,NEAR)+stile(0,0,NEAR)
+    +P('M'+T(-50,-86)+' Q'+T(-6,-94)+' '+T(44,-100)+' L'+T(45,-93)+' Q'+T(-6,-87)+' '+T(-48,-80)+' Z', NEAR)+bcrR(-47,-84,6,27,NEAR)   // the near arm rail and its post
+    +'<circle cx="-50" cy="-84" r="4.8" fill="'+O.wood+'" stroke="'+O.ink+'" stroke-width="2"/><circle cx="-50" cy="-84" r="1.6" fill="'+O.ink+'" opacity="0.7"/>'   // the arm's scroll
+    +runner(0,0,NEAR);   // the near runner, over the joints
+  return v+'</g></g></g>'; }
+function bcrRoomSVG(){ try{ return bcrDue()? bcrCaseSVG()+bcrRockerSVG() : ''; }catch(e){ return ''; } }   // roomSVG0's line: the two pieces, or nothing (off, another floor, the map's pin, or a paint before this sec stands)
+function bcrCaseTap(){ try{ if(tourLive() || milePopUp()) return; }catch(e){} UI.trcOpen(); }   // the bookcase: THE TROPHY CASE on the whole screen
+function bcrRockEl(){ return document.querySelector('#roomStage > svg #ro-rocker .bcr-rock'); }
+function bcrRockTap(){ try{ if(tourLive() || milePopUp()) return; }catch(e){} if(BCR_ROCK.raf) return; audio(); try{ SFX.creak(); }catch(e){} if(reducedMotion()) return; bcrRockGo(); }   // the chair: the creak and the sway (reduced motion: the creak alone)
+function bcrRockGo(){ const R=BCR_ROCK; if(R.raf) cancelAnimationFrame(R.raf); try{ dlgHold('rocker', BCR.rockMs+400); }catch(e){} R.t0=performance.now(); R.n++;   // the still room shows the live chair first
+  const step=now=>{ R.raf=0; const el=bcrRockEl(); if(!el){ R.t0=0; R.a=0; return; } const t=Math.max(0, (now-R.t0)/1000), T=BCR.rockMs/1000;   // a repaint mid-sway: the fresh chair stands still
+    if(t>=T){ el.removeAttribute('transform'); R.t0=0; R.a=0; return; }   // no trace: the chair's node ends byte-what-it-was
+    R.a=BCR.rockDeg*Math.sin(2*Math.PI*t/BCR.rockPer)*Math.pow(1-t/T, 1.2); el.setAttribute('transform', 'rotate('+R.a.toFixed(2)+')'); R.raf=requestAnimationFrame(step); };
+  R.raf=requestAnimationFrame(step); }
+function bcrRig(o){ o=o||{}; if(o.on!=null) BCR.on=o.on? 1 : 0; if(o.rock) bcrRockGo(); if(o.tap==='case') bcrCaseTap(); if(o.tap==='rocker') bcrRockTap();   // THE RIG DOOR (GVT.bcr): the switch, a sway, a tap; the state
+  const svg=document.querySelector('#roomStage > svg'), el=bcrRockEl(), safe=f=>{ try{ return f(); }catch(e){ return null; } };
+  return { on:BCR.on, due:bcrDue(), list:safe(()=>bcrList().map(t=>t[0])), got:safe(()=>trcGot().length), caseEl:!!(svg && svg.querySelector('#ro-bookcase')), rockerEl:!!(svg && svg.querySelector('#ro-rocker')),
+    figs:svg? svg.querySelectorAll('#ro-bookcase [data-bcr="fig"]').length : 0, rock:{ on:!!BCR_ROCK.raf, a:+BCR_ROCK.a.toFixed(2), n:BCR_ROCK.n, tr:el? el.getAttribute('transform') : null },
+    rows:ROOM_SPOTS.filter(r=>r.id==='bookcase' || r.id==='rocker').map(r=>[r.id, r.x, r.y, r.w, r.h, r.due? !!r.due() : true]) }; }
+setTimeout(()=>{ try{ if(window.GVT) GVT.bcr=bcrRig; }catch(e){} }, 0);
+// ═══ END CARD-BCR ═══
 // ── THE SIDE: the legend (nothing picked) or the country's plaque (ONE button) ──
 function glSide(){
   const el=document.getElementById('glSide'); if(!el) return;
