@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.67","md5":"2e39aab8c6bb1bb330cf45a1109e9108","sha":"efa57804d","at":"2026-10-19T16:32:11Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.68","md5":"81aff30d7f157251e9600341dfd9be95","sha":"08b2aa6fc","at":"2026-10-19T16:36:52Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88670,7 +88670,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -184823,6 +184823,40 @@ function tsnRig(o){ if(o && o.on!==undefined) TSN.on=o.on? 1 : 0;   // the rig d
   const bf=S.bf, t=S.cfg&&S.cfg.terrain;
   return { cv:GVT_CV, on:TSN.on, opener:!!(bf&&bf.opener), mapId:bf? bf.mapId : null, ground:t? (t.ground||'') : null, rivers:t? (t.rivers||[]).map(r=>({ x:r.x, w:r.w, bridges:(r.bridges||[]).map(b=>b.y) })) : null,
     rocks:t? (t.rocks||[]).map(r=>({ x:r.x, y:r.y, r:r.r, art:r.art||'', chain:r.chain||'' })) : null, flakes:(t&&t.flakes)? t.flakes.length : 0, duck:!!(t&&t.riverDuck), light:(typeof lightField==='function')? !!lightField() : null }; }
+// ═══ CARD-APT ACTIVE PLAY TIME + THE RUSH CLUSTERS (sec:CARD-APT; design/tutorial-active-play-1019/00-BUILD-APT.md; WYATT by phone 10/19/2026 12:03 EDT through the jumpr remote (card 2351), verbatim: "Please make the following
+// modification to the tutorial battlefields level. We're going to create a new variable, and it's going to be called active play time. Active play time is ticking when the user is able to play units. Active play time is not
+// ticking when tutorials are up, Sarge is talking, or things are paused. That's what active play time is. When active play time is less than 10, if the player has played 3 or more units, we will spawn 2 set clusters. We will
+// trigger a sequence of spawns, 3 clusters in total: Cluster 1 spawns at A on this map that I sent you. Cluster 1 is 2 machine guns and 1 medic. Cluster 2 is 3 riflemen. They spawn at B. They spawn 4 seconds after cluster 1.
+// Please implement live into the game"; his screenshot = the opener on his glass with A and B drawn in red on the Tan's half, right of the spill, between the two snow mounds).
+// THE OPENER ALONE (S.bf.opener: a brand-new save's first battle, THE CROSSING on the snow). ACTIVE PLAY TIME (bf.apt.t, seconds on the sim's own step): it ticks on the frames the field runs for the player, the frames
+// bfTick runs on (update's own gates hold it under Sarge's briefing pages, the tags and toy-box beat and its glides, the leak page and the first-drop prompt; the frame loop never steps it under the pause sheet, a premiere
+// card or the lesson hold), and not while Sarge's soundbite window stands (COMM.say), a premiere card is up, the HQ sheet is open or the match is decided. THE UNITS PLAYED (bf.apt.n): MY seat's drops that landed
+// (applyDeploy handed back a man; a relayed order never counts; the opener is solo). THE TRIGGER: the drop that makes it APT.N (3) or more while bf.apt.t < APT.T (10) arms the sequence, once a battle. Cluster 1 lands
+// on the next running frame at A (two M. GUNNERs in front, a MEDIC behind), cluster 2 APT.GAP (4) seconds of ACTIVE play later at B (three RIFLEMEN). Every man is the Tan seat's own through placeUnit's foe road (the
+// rookie weakness, the drop, the march), with the computer's landing ring and blip; no purse is spent. A and B = his picture mapped to the field by the spill, the two bridges and the two mounds: A (1550,237), B (1595,369);
+// the points mirror if MY side is ever the right one. ?apt=0 on a device = nothing of this (remembered in the device key gvt_apt; ?apt=1 back). Zero words, zero save keys, zero server bytes, zero sw.js, zero css.
+// The two wraps at load (bfTick, applyDeploy): no existing line changed.
+var APT={ on:(function(){ try{ const q=/[?&]apt=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_apt','0'); else localStorage.removeItem('gvt_apt'); } return localStorage.getItem('gvt_apt')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  T:10, N:3, GAP:4, A:[1550,237], B:[1595,369], old:{}, err:0 };   // T = the window (seconds of active play) · N = the units played · GAP = cluster 2 this many active seconds after cluster 1 · A, B = his two spots, world units
+const APT_WAVES=[ { at:0, k:'A', men:[['mgunner',-26,-20],['mgunner',-26,20],['medic',24,0]] }, { at:APT.GAP, k:'B', men:[['rifleman',-24,-22],['rifleman',-24,22],['rifleman',22,0]] } ];   // at = active seconds after the trigger · men = [type, dx, dy] about the spot (dx < 0 = toward OUR box: the Tan marches left)
+function aptOn(){ return APT.on===1; }
+function aptSt(bf){ bf=bf||S.bf; if(!bf || !bf.opener) return null; return bf.apt || (bf.apt={ t:0, n:0, fired:0, at:null, k:0, since:0, log:[] }); }   // the battle's own ledger, minted at the first read (the opener alone; never saved, never relayed)
+function aptLive(bf){ bf=bf||S.bf; return !!(bf && bf.opener && S.mode==='play' && !bf.resolved && !bf.ending && !COMM.brief && !COMM.say && !(typeof PREM!=='undefined' && PREM && PREM.up) && !(typeof HQS!=='undefined' && HQS && HQS.on) && !(typeof ttbHolds==='function' && ttbHolds()) && !(typeof ffrHolds==='function' && ffrHolds()) && !(typeof ftnHolds==='function' && ftnHolds())); }   // the player can play a unit: the field runs for him (update's own holds read here too, so the rig's read says what the frame does), Sarge is not talking, nothing stands over the glass, the match is on
+function aptTick(dt){ const bf=S.bf, A=aptSt(bf); if(!A || !aptLive(bf)) return; A.t+=dt;
+  if(A.fired && A.k<APT_WAVES.length){ A.since+=dt; while(A.k<APT_WAVES.length && A.since>=APT_WAVES[A.k].at){ aptSpawn(bf, A, APT_WAVES[A.k]); A.k++; } } }
+function aptPlayed(seat){ const bf=S.bf, A=aptSt(bf); if(!A || seat!==bfMySeat()) return; A.n++; if(!A.fired && A.n>=APT.N && A.t<APT.T){ A.fired=1; A.at=+A.t.toFixed(3); A.since=0; A.k=0; } }   // the trigger, once a battle: the Nth drop inside the window arms the sequence; cluster 1 lands on the next running frame
+function aptSpawn(bf, A, w){ const me=bfMyTeam(), side=(me==='you')? 'foe' : 'you', si=bf.seats.findIndex(st=>st && st.team===side), c=APT[w.k], dir=(side==='foe')? 1 : -1, cx=(side==='foe')? c[0] : WORLD_W-c[0], cy=c[1]; let n=0;
+  for(const m of w.men){ const x=Math.round(cx+m[1]*dir), y=Math.round(cy+m[2]); const u=placeUnit(m[0], x, y, side, si>=0? si : undefined); if(!u) continue; n++;
+    S.fx.push({ k:'ring', x, y:y-6, r:56, R:15, t:0, dur:0.55, col:'rgba(230,140,110,0.95)' }); }   // the computer's own landing ring (applyDeploy's)
+  bfSfx(SFX.blip, cx, cy); A.log.push({ k:w.k, t:+A.t.toFixed(2), n }); }
+function aptRig(o){ o=o||{}; const bf=S.bf, A=aptSt(bf); if(o.on!==undefined) APT.on=o.on? 1 : 0; if(o.reset && A){ A.t=0; A.n=0; A.fired=0; A.at=null; A.k=0; A.since=0; A.log=[]; } if(o.t!=null && A) A.t=+o.t;   // the rig door: { on } flips the gate (the wraps stand as loaded); { reset }, { t } set this battle's ledger; { fire } arms the sequence by hand
+  if(o.fire && A && !A.fired){ A.fired=1; A.at=+A.t.toFixed(3); A.since=0; A.k=0; }
+  return { cv:GVT_CV, on:APT.on, T:APT.T, N:APT.N, GAP:APT.GAP, A:APT.A.slice(), B:APT.B.slice(), opener:!!(bf&&bf.opener), live:aptLive(bf), st:A? { t:+A.t.toFixed(3), n:A.n, fired:A.fired, at:A.at, k:A.k, since:+A.since.toFixed(3), log:A.log.slice() } : null, age:bf? +(+bf.age||0).toFixed(3) : null, err:APT.err, wraps:Object.keys(APT.old) }; }
+if(aptOn()) try{
+  APT.old.bfTick=bfTick; bfTick=function(dt){ APT.old.bfTick.apply(this, arguments); try{ aptTick(dt); }catch(e){ APT.err++; } };   // the clock + the sequence on the sim's own step (bfTick's dt: the dial, the KO beat and the hit-stop scale it as they scale the battle clock)
+  APT.old.applyDeploy=applyDeploy; applyDeploy=function(seat,type,x,y,relay){ const u=APT.old.applyDeploy.apply(this, arguments); try{ if(u && !relay && S.bf && S.bf.opener) aptPlayed(u.seat); }catch(e){ APT.err++; } return u; };   // a unit played: MY seat's landed drop (the finger's drop, the tap's flight)
+}catch(e){ APT.err++; }
+// ═══ END CARD-APT ═══
 let OP_ARM=0;              // the door's word to startBattlefield (session-only): the S.bf mint reads it once
 function startOpener(){ OP_ARM=1; try{ startBattlefield(OPENER_MAP, null, 1, null, ARMIES.find(a=>a.id==='tan')||ARMIES[2]); } finally { OP_ARM=0; } }   // ⚑ Q2: THE TAN ARMY every time
 function titleClickEat(){   // CARD-FF FF-09 THE RETURN VISIT'S PRESS START (BH-ROOKIE-02): the door opens the ROOM inside the tap's pointerdown, so that tap's own CLICK (a touch's click is aimed where the finger lifts) landed on whatever door of the new room lay under the thumb: the wall's WALLPAPERS, a shelf, a rug tile, and Sarge's campaign line never came. That ONE click is eaten (tourClickEat's grammar), its clock started when the finger LIFTS (a slow thumb outlasts a 400 ms clock from the press); a NEW pointerdown disarms it, so the kid's next tap is his own
@@ -188748,6 +188782,7 @@ window.GVT = {
   fzb(o){ return fzbRig(o); },   // CARD-FZB's rig door: FUZZIES + the SHOT-CLAW (see sec:CARD-FZB)
   otp(o){ return otpRig(o); },   // CARD-OTP's rig door: { hour, t } (see sec:CARD-OTP)
   xbi(o){ return xbiRig(o); },
+  apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   night(v){ NW_PIN=(v===undefined||v===null)? null : (v? 1 : 0); if(roomOpenNow()) renderMenu(); return { pin:NW_PIN, night:roomNight(), from:NW_NIGHT[0], to:NW_NIGHT[1], tick:!!NW_TICK }; },   // 0904 PART TWO rig door: pin the night (1 · 0 · null = the clock) and repaint the open room   // 0584 rig door: pin the NEXT flight (1 loop · 0 plain · null = the dice)   // 0568 D11 rig door — read-only (next = the PURE read; the pin is never consumed here)
   dogFreeze(on){ DOGRIG.frozen=on?1:0; DOG_LAST=0; return DOGRIG.frozen; },
