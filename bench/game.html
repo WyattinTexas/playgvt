@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.62","md5":"99eafc29165b3ceacaf83dbe5ea94954","sha":"677291d1a","at":"2026-10-19T03:18:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.63","md5":"745f8743695b87a8aa1a4c682c7b13d2","sha":"905059bdf","at":"2026-10-19T03:29:44Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88628,7 +88628,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.62';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.63';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -178348,6 +178348,19 @@ function outfitterHTML(){
   Promise.resolve().then(()=>{ try{ eqSeat(); }catch(e){} try{ eqtSeat(); }catch(e){} });   /* CARD-EQT: + the row's seat (the ✕'s room, the shown tab in view) */   // CARD-EQF: the seat is read once the card stands (after roomModal's write, before the paint)
   return h;
 }
+// ═══ CARD-EQR · THE EQUIPPED RING, 25 % MORE (sec:CARD-EQR; design/equipped-ring-1018/00-CARD-EQR.md; FROM SKYLAR, jumpr guest link 10/19/2026 02:40 UTC, verbatim: "When you look at your current load out for Sarge, it highlights what you currently have equipped on Sarge in a green outline. The green outline needs to be more pronounced, right now it’s hard to see what you currently have equipped. Maybe 25% more pronounced green outline on what you have currently equipped.") ═══
+// SARGE'S QUARTERS lights what he has on in the bench's green (#8FBF63): the iron in hand (.eq-iron.eq, CARD-EQF: a 2.5 px ring inside the card + a 12 px glow at .5) and every piece he wears (.sh-ofit.worn, v2.16: a 2 px ring, no glow at all: the hardest to see).
+// NOW ONE RING FOR BOTH, the iron's own made EQR.k stronger (1.25 = Skylar's 25 %): the ring 2.5 → 3.125 px, the glow 12 → 15 px, its strength .5 → .625. The worn pieces wear that same ring (so a hat reads as plainly as the gun in hand);
+// the TRY-ON (.sh-ofit.trying, CARD-HL: "the worn look + a 2 px dashed ring in the sticker's red") keeps wearing the worn look under its red dashes; the saber's ring in its crystal (.eq-iron.eq.sab) grows the same: 3.125 px, its glow 13 → 16.25 px.
+// Paint only, one <style> after the page's own: a box-shadow never moves a box (no card, shelf or seat moves; the IN HAND tag, the red dashes, the cards' cream untouched), no save byte, no word, no wire, no server or sw byte.
+// ?eqr=0 = the ring as it was (no style laid). One dial: EQR.k (1.5 = 50 % more, 1 = as it was). eqrRead() = the rig's read.
+var EQR={ on:(function(){ try{ return new URLSearchParams(location.search).get('eqr')==='0'? 0 : 1; }catch(e){ return 1; } })(), k:1.25, ring:2.5, glow:12, a:0.5, sab:13, rgb:'143,191,99' };   // the base numbers = CARD-EQF's ring on the iron in hand
+function eqrCSS(){ const k=EQR.k, n=v=>+v.toFixed(3), r=n(EQR.ring*k), g=n(EQR.glow*k), a=n(Math.min(1,EQR.a*k)), s=n(EQR.sab*k);
+  return '.eq-iron.eq, .sh-ofit.worn, .sh-ofit.trying { box-shadow:0 4px 9px rgba(0,0,0,.5), inset 0 0 0 '+r+'px rgb('+EQR.rgb+'), 0 0 '+g+'px rgba('+EQR.rgb+','+a+'); }'   // the card's own drop shadow first (as shipped), then the ring, then the glow
+    +'\n.eq-iron.eq.sab { box-shadow:0 4px 9px rgba(0,0,0,.5), inset 0 0 0 '+r+'px var(--sab), 0 0 '+s+'px var(--sab); }'; }   // the saber's crystal: its own colour, the same width (its glow is the crystal at full strength: only the reach grows)
+(function(){ try{ if(!EQR.on) return; const st=document.createElement('style'); st.id='eqrCss'; st.textContent=eqrCSS(); document.head.appendChild(st); }catch(e){} })();   // laid after every sheet of the page, so the same selectors win by order alone
+function eqrRead(){ const st=document.getElementById('eqrCss'); return { on:EQR.on, k:EQR.k, laid:!!st, css:st? st.textContent : '', eq:Array.prototype.map.call(document.querySelectorAll('#roomModal .eq-iron.eq, #roomModal .sh-ofit.worn, #roomModal .sh-ofit.trying'), e=>({ id:e.id, sh:getComputedStyle(e).boxShadow })) }; }
+// ═══ END CARD-EQR ═══
 // ═══ 0943 CELL H — THE CRYSTAL ASK ON THE PICK (Wyatt 9/10/2026 ~22:05, verbatim: "when you select the saber, it's going to have to ask you what
 // color you want, or colors if you have the level 50 upgrade. Also, for the commander, when you hit commander, it should ask you the same thing."):
 // the saber AND the commander's blade ask the colour on the outfitter's rack — THE CRYSTAL CARD over the yard in the fort's own card grammar: the
