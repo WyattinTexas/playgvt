@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.73","md5":"d92f56e8bc8da7131d227903b6ea06d7","sha":"ece8b0c79","at":"2026-10-19T18:20:14Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.74","md5":"e656e90565e78c81409732c940b66336","sha":"a8f8ef85a","at":"2026-10-19T18:33:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88677,7 +88677,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.73';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -184732,6 +184732,100 @@ function hauBfPose(u,im,flip){
 function hauBfRc(u){ return isCroakU(u)? croakRc(u) : 0; }   // the croak kings' volley kick (the campaign's cmdoRecoil(u)+croakRc(u)); 0 on every other figure
 function hauRig(){ const m=document.querySelector('#roomModal .rmcard.hau'), cv=m && m.querySelector('canvas.hau-cv'), r=q=>{ const e=m && m.querySelector(q); if(!e) return null; const b=e.getBoundingClientRect(); return [Math.round(b.left),Math.round(b.top),Math.round(b.width),Math.round(b.height)]; };   // the rig's read (no game caller)
   return { cv:GVT_CV, k:HAU.k, open:!!m, port:{ box:r('canvas.hau-cv'), live:!!cv && MN_ANIM.cv===cv, sc:MN_ANIM.sc===(HAU_SC[HAU.k]||MN_HERO[HAU.k]), fixed:!!HAU_SC[HAU.k] }, card:m? (b9=>[Math.round(b9.left),Math.round(b9.top),Math.round(b9.width),Math.round(b9.height)])(m.getBoundingClientRect()) : null, pent:r('.us-pent'), words:r('.hau-words'), x:r('.rmx'), heads:m? m.querySelectorAll('.hau-head').length : 0, snd:(HAU_SND[HAU.k]||[]).map(q=>q[1]) }; }
+// ═══ CARD-HSL THE HERO SELECT: ONE SCREEN, ONE BUTTON (sec:CARD-HSL; design/hero-select-1019/00-BUILD-HSL.md; FROM WYATT'S PHONE by the jumpr remote 10/19/2026 13:46 EDT (17:46:41 UTC), two screenshots, verbatim: "We have two images attached here. They're for the hero select. We want to remove the second image here. The second image is the one without the animations, and it's kind of just a really ugly screen. We really only need the first screen, but what we're missing is a nice, sexy button that we can push to set as your hero that you're running with. Please run a design pass for this adjustment to our screen and removal of the other, and ship to live.") ═══
+// THE LAW: one screen. The fort's HEROES door (FORT_TABS 'heroes': UI.fort -> fortDeal) dealt THE CAROUSEL CARD (heroesHTML: the crumb, HEROES, capDuoHTML's TWO HEROES switch, the snap track whose centred
+// portrait took command by itself, a tap = his page) = his second picture. Now the door opens THE HEROES' AUDITION PAGE (CARD-HAU: hauOpen, his first picture) on the hero in command (or the just-won hero
+// TAKE ME TO THE FORT points at, JF_SPOT), and the page's command seat (.hau-cmd, the foot of the side column) carries THE BUTTON: an owned hero not in command = TAKE COMMAND, the side column's width, 46 px,
+// the hero's own colour (the page's HAU_WORLD accent) on a tonal panel with a darker outline and a breathing glow; the tap = UI.heroCmd (the one writer of META.heroSel, as shipped) and the box becomes THE STAMP
+// in place (a gold star, IN COMMAND in his colour, the slam) while the stage's lamp flares; the strip's head of the hero in command wears a gold star, a fresh (NEW!) hero's head a gold dot. THE TWO HEROES
+// switch (CARD SC / CARD-SO, only once Sarge is home: capSt().done) rides under the button as one small line (the pill-switch, SARGE IN CHARGE or the lead IN CHARGE FREE + CHANGE + the running mate at his
+// cost); CHANGE = the shipped WHO TAKES COMMAND? heads as a card over the words column; every word a shipped key. The page's ✕ = the yard (UI.closeModal), or the ROSTER card when the page came from its HEROES
+// tab. At load it WRAPS fortDeal, hauOpen, UI.hsBack, UI.heroCmd, UI.capDuo, UI.capDuoChange and UI.capDuoPick; no existing line changed; the carousel's code stays (HSL.on 0 = ?hsl=0 on a device, kept in
+// gvt_hsl; ?hsl=1 clears it = the shipped screens). Zero words, zero save keys, zero server bytes, zero sw.js. The css = the style node hslCss, appended at load. Rig door: GVT.hsl().
+var HSL={ on:(function(){ try{ const m=/[?&]hsl=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_hsl','0'); else localStorage.removeItem('gvt_hsl'); } return localStorage.getItem('gvt_hsl')==='0'? 0 : 1; }catch(e){ return 1; } })(), from:null, lock:0, opens:0, cmds:0, err:0, old:{} };   // the switch · where the page came from · the door's own open in flight · counts · errors caught · the wrapped originals
+function hslOn(){ return !!HSL.on; }
+function hslPage(){ return document.querySelector('#roomModal .rmcard.hau'); }   // the audition page standing (null = not)
+function hslPick(){ const j=JF_SPOT; JF_SPOT=null; if(j && HEROES.indexOf(j)>=0 && unitOwned(j)) return j; const s=heroSel(); if(s) return s; const o=heroesOwned(); return o.length? o[0] : HEROES[0]; }   // the hero the door opens on: the just-won hero TAKE ME TO THE FORT points at (consumed here, as hcarInit consumed it), else the hero in command, else the first owned, else the first king (every hero has a page: the unowned show the earn line)
+function hslOpen(){ HSL.from=null; HSL.lock=1; HSL.opens++; try{ UI.classInfo(hslPick()); } finally { HSL.lock=0; } return true; }
+function hslHue(k){ const W=(typeof HAU_WORLD!=='undefined' && HAU_WORLD[k])? HAU_WORLD[k] : null; return (W && W.a)? W.a : '#E8C25A'; }   // the hero's own page colour (the stage's accent; the words column does not inherit the stage's var, so the seat carries it)
+function hslCmdHTML(k){ const on=k===heroSel();   // THE BUTTON / THE STAMP for an owned hero (an unowned hero keeps the page's own earn line)
+  return '<div class="hsl-cmd" data-notr>'+(on? '<div class="hsl-in"><i>★</i><b>'+escH(t('IN COMMAND'))+'</b></div>' : '<button type="button" class="hsl-take" onclick="UI.heroCmd(\''+k+'\')"><b>'+escH(t('TAKE COMMAND'))+'</b></button>')+'</div>'; }
+function hslDuoHTML(){ const c=capSt(); if(!c.done) return '';   // THE TWO HEROES STRIP: only once Sarge is home (the rescue's done flag); the carousel head's own pieces in one small line (capDuoHTML's grammar: the switch, the lead, the mate)
+  const on=!!c.duo, pr=on? capPair() : null, lead=pr? pr.lead : null, mate=pr? pr.second : null;
+  let h='<div class="hsl-duo'+(on? ' on' : '')+'" data-on="'+(on? 1 : 0)+'" data-notr><button type="button" class="hsl-sw" onclick="UI.capDuo()"><b>'+escH(t('TWO HEROES'))+'</b><i class="hsl-st">'+escH(t(on? 'ON' : 'OFF'))+'</i></button>';
+  if(on && lead) h+='<span class="hsl-lead" data-k="'+lead+'"><img alt="" src="'+capHeroURI(lead, false)+'"><b>'+escH(t(heroName(lead)))+'</b> '+escH(t('IN CHARGE'))+' <em class="free">'+escH(t('FREE'))+'</em></span><button type="button" class="hsl-chg" onclick="UI.capDuoChange()">'+escH(t('CHANGE'))+'</button>';
+  if(on && lead && mate && mate!==heroSel()) h+='<span class="hsl-mate" data-k="'+mate+'"><img alt="" src="'+capHeroURI(mate, false)+'"><b>'+escH(t(heroName(mate)))+'</b> <em>'+COSTS[mate]+'</em></span>';   // the running mate named only when he is not the hero in command (the stamp and the star say who that is; the lead in command = the next owned rides, named here)
+  if(!on) h+='<span class="hsl-lead hsl-sarge" data-k="sarge"><img alt="" src="'+sargeWepURI('sarge', capHex(), undefined, COMM_PORT_VB)+'"><b>'+escH(t('SARGE'))+'</b> '+escH(t('IN CHARGE'))+'</span>';
+  return h+'</div>'; }
+function hslPickHTML(){ const c=capSt(); if(!c.done || !c.duo || !CAP_DUO_PICK) return ''; const lead=capPair().lead;   // CHANGE: the shipped WHO TAKES COMMAND? heads as a card over the words column (a tap beside it closes it through the same latch)
+  return '<div class="hsl-pickbk" data-notr onclick="UI.capDuoChange()"><div class="hsl-pick" onclick="event.stopPropagation()"><b>'+escH(t('WHO TAKES COMMAND?'))+'</b><div class="hsl-prow">'+capCands().map(k=>'<button type="button" class="hsl-ph'+(k===lead? ' on' : '')+'" data-k="'+k+'" onclick="UI.capDuoPick(\''+k+'\')"><img alt="" src="'+capHeroURI(k, false)+'"><b>'+escH(t(heroName(k)))+'</b></button>').join('')+'</div></div></div>'; }
+function hslHeads(){ const m=hslPage(); if(!m) return; const s=heroSel(); m.querySelectorAll('.hau-head').forEach(b=>{ const k=b.dataset.hero; b.classList.toggle('cmd', !!s && k===s); b.classList.toggle('fresh', unitOwned(k) && freshIs('hero',k)); }); }   // the gold star on the hero in command, the gold dot on a fresh hero
+function hslDress(k, slam){ const m=hslPage(); if(!m) return false; const w=m.querySelector('.hau-words'), row=m.querySelector('.hau-row'), seat=m.querySelector('.hau-cmd'); if(!w || !row) return false;
+  const own=unitOwned(k), nbp=m.querySelectorAll('.us-bp').length; row.classList.toggle('hsl-wide', nbp>=2);   // two or more blueprints: the side column widens (the pentagon gives), so the parts stand in the row instead of over the name and off the glass
+  if(own && seat){ const b=seat.querySelector('.mn-take, .mnflag'); if(b) seat.innerHTML=''; }   // an owned hero's plain seat (the small button or the bare words) empties: THE BUTTON stands below the row; an unowned hero keeps the page's earn line
+  let foot=w.querySelector('.hsl-foot'); if(!foot){ foot=document.createElement('div'); foot.className='hsl-foot'; foot.setAttribute('data-notr',''); row.insertAdjacentElement('afterend', foot); } foot.style.setProperty('--hau', hslHue(k));
+  setHTML(foot, (own? hslCmdHTML(k) : '')+hslDuoHTML()); foot.classList.toggle('hidden', !foot.firstChild);
+  const old=m.querySelector('.hsl-pickbk'); if(old) old.remove(); const ph=hslPickHTML(); if(ph){ const t9=document.createElement('div'); setHTML(t9, ph); while(t9.firstChild) w.appendChild(t9.firstChild); }
+  if(slam){ const st=foot.querySelector('.hsl-in'); if(st) st.classList.add('slam'); const sp=m.querySelector('.hau-stage'); if(sp){ sp.classList.remove('hsl-flare'); void sp.offsetWidth; sp.classList.add('hsl-flare'); } }
+  hslHeads(); return true; }
+function hslCmdWrite(k){ if(!hslPage()) return false; HSL.cmds++; return hslDress(HAU.k, HAU.k===k); }   // after TAKE COMMAND: the page's own hero's seat re-dressed (the stamp slams in when he is the one), the strip and the stars follow; no re-deal
+function hslDuoWrite(){ if(!hslPage()) return false; return hslDress(HAU.k, false); }
+function hslRig(o){ o=o||{}; if(o.on!=null){ HSL.on=o.on? 1 : 0; } if(o.open){ try{ hslOpen(); }catch(e){ HSL.err++; } }   // the rig door (GVT.hsl): { on:0|1 } flips the switch for this page's life; { open:1 } = the door's own open
+  const m=hslPage(), q=s9=>m? m.querySelector(s9) : null, box=e=>{ if(!e) return null; const b=e.getBoundingClientRect(); return [Math.round(b.left),Math.round(b.top),Math.round(b.width),Math.round(b.height)]; };
+  const tk=q('.hsl-take'), st=q('.hsl-in'), du=q('.hsl-duo'), pk=q('.hsl-pickbk'), w=q('.hau-words'), sd=q('.hau-side'), ld=q('.hsl-lead'), mt=q('.hsl-mate'), ct=q('.hsl-foot'), rw=q('.hau-row');
+  return { on:HSL.on, from:HSL.from, k:m? HAU.k : null, page:!!m, car:!!document.getElementById('hcar'), fort:fortStands(), sel:heroSel(), spot:JF_SPOT, opens:HSL.opens, cmds:HSL.cmds, err:HSL.err, hue:ct? ct.style.getPropertyValue('--hau') : null, side:box(sd), foot:box(ct), row:box(rw), words:box(w), nbp:m? m.querySelectorAll('.us-bp').length : 0, wide:!!(rw && rw.classList.contains('hsl-wide')), seat:(e=>e? (e.textContent||'').trim().slice(0,40) : null)(q('.hau-cmd')),
+    take:tk? { box:box(tk), text:(tk.textContent||'').trim(), anim:getComputedStyle(tk).animationName, bg:getComputedStyle(tk).backgroundImage.slice(0,40) } : null, stamp:st? { box:box(st), text:(st.textContent||'').trim(), slam:st.classList.contains('slam') } : null,
+    duo:du? { on:du.dataset.on, text:(du.textContent||'').replace(/\s+/g,' ').trim(), lead:ld? ld.dataset.k : null, mate:mt? mt.dataset.k : null, box:box(du) } : null, pick:pk? { heads:[...pk.querySelectorAll('.hsl-ph')].map(b=>b.dataset.k+(b.classList.contains('on')? '*' : '')) } : null,
+    heads:m? [...m.querySelectorAll('.hau-head')].map(b=>b.dataset.hero+(b.classList.contains('on')? '!' : '')+(b.classList.contains('cmd')? '*' : '')+(b.classList.contains('fresh')? '+' : '')) : null, over:w? w.scrollHeight-w.clientHeight : null, spill:w? [...w.querySelectorAll('*')].filter(e=>{ const b=e.getBoundingClientRect(); return b.width>0 && b.right>innerWidth+1; }).length : null,
+    wraps:{ fortDeal:fortDeal!==HSL.old.fortDeal && !!HSL.old.fortDeal, hauOpen:hauOpen!==HSL.old.hauOpen && !!HSL.old.hauOpen, hsBack:UI.hsBack!==HSL.old.hsBack && !!HSL.old.hsBack, heroCmd:UI.heroCmd!==HSL.old.heroCmd && !!HSL.old.heroCmd, capDuo:UI.capDuo!==HSL.old.capDuo && !!HSL.old.capDuo, capDuoChange:UI.capDuoChange!==HSL.old.capDuoChange && !!HSL.old.capDuoChange, capDuoPick:UI.capDuoPick!==HSL.old.capDuoPick && !!HSL.old.capDuoPick } };
+}
+HSL.old.fortDeal=fortDeal; fortDeal=function(tab){ if(tab==='heroes' && hslOn()){ try{ hslOpen(); }catch(e){ HSL.err++; } return; } return HSL.old.fortDeal.apply(this, arguments); };   // the wrap: the HEROES door = the page (the carousel card is not dealt); every other tab, and HSL off, = the shipped deal
+HSL.old.hauOpen=hauOpen; hauOpen=function(k){ if(hslOn() && !HSL.lock && !hslPage()) HSL.from=(fortStands() && FORT_TAB==='roster')? 'roster' : null; const r=HSL.old.hauOpen.apply(this, arguments); if(hslOn()){ try{ hslDress(k, false); }catch(e){ HSL.err++; } } return r; };   // the wrap: where the page came from, read before the open (the ROSTER card standing = back there; a step between heroes keeps it; the door's own open set null), then the seat dressed
+HSL.old.hsBack=UI.hsBack; UI.hsBack=function(ev){ if(!hslOn()) return HSL.old.hsBack.apply(this, arguments); if(ev && ev.target!==ev.currentTarget) return; SFX.blip(); const f=HSL.from; HSL.from=null; if(f==='roster') UI.fort('roster'); else UI.closeModal(); };   // the wrap: the ✕ and the backdrop = the yard (the carousel card's own ✕ did the same), or the ROSTER card when the page came from its HEROES tab
+HSL.old.heroCmd=UI.heroCmd; UI.heroCmd=function(k){ const r=HSL.old.heroCmd.apply(this, arguments); if(hslOn()){ try{ hslCmdWrite(k); }catch(e){ HSL.err++; } } return r; };   // the wrap: the shipped write (the save, the snap, the yard, the platoon), then the stamp in place
+HSL.old.capDuo=UI.capDuo; UI.capDuo=function(){ const r=HSL.old.capDuo.apply(this, arguments); if(hslOn()){ try{ hslDuoWrite(); }catch(e){ HSL.err++; } } return r; };
+HSL.old.capDuoChange=UI.capDuoChange; UI.capDuoChange=function(){ const r=HSL.old.capDuoChange.apply(this, arguments); if(hslOn()){ try{ hslDuoWrite(); }catch(e){ HSL.err++; } } return r; };
+HSL.old.capDuoPick=UI.capDuoPick; UI.capDuoPick=function(k){ const r=HSL.old.capDuoPick.apply(this, arguments); if(hslOn()){ try{ hslDuoWrite(); }catch(e){ HSL.err++; } } return r; };   // the wraps: the shipped verbs (the flip + save, the row's latch, capPick), then the strip re-rendered in place (the shipped re-deal finds no fort card under the page and deals nothing)
+(function(){ const st=document.createElement('style'); st.id='hslCss'; st.textContent=[   // css:hsl: THE BUTTON, THE STAMP, THE STRIP (full-width rows under the pentagon row), the pick card, the heads' marks, the wide row for many parts (the hau's own rules stand; the base's reduced-motion rule for .hau stills every animation here)
+  '.hau .hsl-foot { flex:none; display:flex; flex-direction:column; gap:5px; margin-top:6px; min-width:0; }',
+  '.hau .hsl-foot.hidden { display:none; }',
+  '.hau .hsl-cmd { display:block; min-width:0; }',
+  '.hau .hsl-take, .hau .hsl-in { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-width:0; box-sizing:border-box; min-height:46px; margin:0; padding:8px 12px; border-radius:13px; font:inherit; font-weight:900; font-size:clamp(1rem, 2.6vw, 1.3rem); letter-spacing:.14em; line-height:1.1; text-transform:uppercase; text-align:center; white-space:normal; overflow-wrap:anywhere; }',
+  '.hau .hsl-take { border:2px solid rgba(0,0,0,.5); background:linear-gradient(180deg, rgba(255,255,255,.36), rgba(255,255,255,.08) 46%, rgba(0,0,0,.16)), var(--hau, #E8C25A); color:#141810; text-shadow:0 1px 0 rgba(255,255,255,.35); cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; box-shadow:0 4px 0 rgba(0,0,0,.45), 0 0 18px 1px var(--hau, #E8C25A); animation:hslBreath 1.8s ease-in-out infinite; transition:transform .08s; }',
+  '.hau .hsl-take:active { transform:translateY(2px) scale(.985); box-shadow:0 2px 0 rgba(0,0,0,.45), 0 0 30px 8px var(--hau, #E8C25A); animation:none; }',
+  '.hau .hsl-take b, .hau .hsl-in b { font-weight:900; }',
+  '.hau .hsl-in { border:2px solid var(--hau, #E8C25A); background:rgba(0,0,0,.38); color:var(--hau, #E8C25A); box-shadow:inset 0 0 16px rgba(0,0,0,.45), 0 0 12px -2px var(--hau, #E8C25A); }',
+  '.hau .hsl-in i { font-style:normal; color:#FFD24A; font-size:1.15em; line-height:1; text-shadow:0 0 6px rgba(255,210,74,.6); }',
+  '.hau .hsl-in.slam { animation:hauSlam .45s cubic-bezier(.2,1.6,.4,1) both; }',
+  '.hau .hau-stage.hsl-flare::after { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 50% 88%, var(--hau) 0%, rgba(0,0,0,0) 62%); opacity:0; animation:hslFlare .75s ease-out both; }',
+  '@keyframes hslBreath { 0%, 100% { box-shadow:0 4px 0 rgba(0,0,0,.45), 0 0 12px 0 var(--hau, #E8C25A); } 50% { box-shadow:0 4px 0 rgba(0,0,0,.45), 0 0 28px 6px var(--hau, #E8C25A); } }',
+  '@keyframes hslFlare { 0% { opacity:.6; } 100% { opacity:0; } }',
+  '.hau .hsl-duo { display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px; min-width:0; margin:0; padding:3px 7px; border-radius:10px; background:rgba(0,0,0,.28); font-size:.68rem; letter-spacing:.05em; line-height:1.2; color:#F4EFDC; }',
+  '.hau .hsl-sw { display:inline-flex; align-items:center; gap:6px; margin:0; padding:2px 7px; border-radius:9px; border:1.5px solid rgba(255,255,255,.22); background:rgba(255,255,255,.08); color:#F4EFDC; font:inherit; font-size:.68rem; font-weight:800; letter-spacing:.08em; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }',
+  '.hau .hsl-sw i { font-style:normal; font-size:.6rem; padding:1px 7px; border-radius:7px; background:#6b6f62; color:#141810; font-weight:900; }',
+  '.hau .hsl-duo.on .hsl-sw { border-color:#7FA35C; } .hau .hsl-duo.on .hsl-sw i { background:#7FA35C; }',
+  '.hau .hsl-lead, .hau .hsl-mate { display:inline-flex; align-items:center; gap:5px; min-width:0; white-space:nowrap; }',
+  '.hau .hsl-lead img, .hau .hsl-mate img { width:20px; height:20px; object-fit:contain; flex:none; }',
+  '.hau .hsl-lead b, .hau .hsl-mate b { color:#FFF3C4; }',
+  '.hau .hsl-duo em { font-style:normal; font-weight:800; padding:0 5px; border-radius:6px; background:rgba(255,255,255,.12); color:#FFF3C4; } .hau .hsl-duo em.free { background:#7FA35C; color:#141810; }',
+  '.hau .hsl-chg { margin:0; padding:1px 7px; border-radius:8px; border:1.5px solid rgba(255,255,255,.28); background:transparent; color:#F4EFDC; font:inherit; font-size:.62rem; font-weight:800; letter-spacing:.08em; cursor:pointer; touch-action:manipulation; }',
+  '.hau .hsl-pickbk { position:absolute; inset:0; z-index:8; display:flex; align-items:center; justify-content:center; padding:12px; box-sizing:border-box; background:rgba(0,0,0,.6); }',
+  '.hau .hsl-pick { max-width:100%; box-sizing:border-box; padding:10px 12px; border-radius:14px; border:2px solid #E8C25A; background:#1b2016; box-shadow:0 8px 30px rgba(0,0,0,.6); }',
+  '.hau .hsl-pick > b { display:block; margin:0 0 8px; font-size:.78rem; letter-spacing:.1em; color:#E8C25A; text-align:center; }',
+  '.hau .hsl-prow { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }',
+  '.hau .hsl-ph { display:flex; flex-direction:column; align-items:center; gap:2px; width:62px; margin:0; padding:4px 2px; border:2px solid transparent; border-radius:10px; background:rgba(255,255,255,.08); color:#F4EFDC; font:inherit; cursor:pointer; touch-action:manipulation; }',
+  '.hau .hsl-ph.on { border-color:#E8C25A; background:rgba(232,194,90,.16); }',
+  '.hau .hsl-ph img { width:40px; height:40px; object-fit:contain; pointer-events:none; } .hau .hsl-ph b { font-size:.55rem; letter-spacing:.03em; text-align:center; line-height:1.1; }',
+  '.hau .hau-head { position:relative; }',
+  '.hau .hau-head.cmd::after { content:"★"; position:absolute; right:3px; bottom:1px; font-size:11px; line-height:1; color:#FFD24A; text-shadow:0 0 3px #000, 0 0 2px #000, 0 1px 0 #000; }',
+  '.hau .hau-head.fresh::before { content:""; position:absolute; top:2px; right:3px; width:7px; height:7px; border-radius:50%; background:#FFD24A; box-shadow:0 0 3px #000; }',
+  '.rmcard.hau .hau-row.hsl-wide .us-pent { width:min(50%, calc(100% - 196px)) !important; }',
+  '.rmcard.hau .hau-row.hsl-wide .us-bps .us-bp, .rmcard.hau .hau-row.hsl-wide .us-bps.many .us-bp { grid-template-columns:54px 1fr !important; gap:6px !important; }',
+  '.rmcard.hau .hau-row.hsl-wide .us-bps .bp.ink, .rmcard.hau .hau-row.hsl-wide .us-bps.many .bp.ink { width:54px !important; height:36px !important; padding:4px !important; }',
+  '.rmcard.hau .hau-row.hsl-wide .us-bps { gap:4px !important; } .rmcard.hau .hau-row.hsl-wide .us-bpn { font-size:.66rem; line-height:1.1; } .rmcard.hau .hau-row.hsl-wide .us-st { font-size:.66rem; line-height:1.15; } .rmcard.hau .hau-row.hsl-wide .us-go { margin-top:1px !important; padding:2px 6px !important; font-size:.62rem !important; line-height:1.15; }',
+  '@media (max-width:760px) { .hau .hsl-take, .hau .hsl-in { font-size:.95rem; letter-spacing:.1em; min-height:42px; padding:6px 10px; } .rmcard.hau .hau-row.hsl-wide .us-bps .us-bp, .rmcard.hau .hau-row.hsl-wide .us-bps.many .us-bp { grid-template-columns:48px 1fr !important; } }'
+].join('\n'); document.head.appendChild(st); })();
+// ═══ END CARD-HSL ═══
 // ═══ CARD-US THE UNIT SHEET, SIMPLIFIED (jumpr 1247e-1b; design/unit-sheet-0925/00-BUILD-US.md; Wyatt 9/25/2026 16:21, verbatim: "run a design pass on the unit full breakdown from inside the fort. I'm realizing that these need to be simplified:
 // just very basic, way less reading, way less of this extra stuff. What it needs to do is tell you: How much health he has · How much he hits for · How fast he attacks · How fast he moves · What his crit percentage is. That's it … They'd rather look at a chart
 // than text or a bar. As for the upgrades … it should probably just show the blueprints of what those are and then how you can go to Floop's Lab to learn it" · 18:45 his four words: "Instead of 'hits,' it says 'damage.' Instead of 'rate,' it says 'attack
@@ -189110,6 +189204,7 @@ window.GVT = {
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
+  hsl(o){ return hslRig(o); },   // CARD-HSL: the hero select ({ on }, { open }) + the read (the page, the seat, the strip, the heads, the wraps)
   mpp(o){ return mppRig(o); },   // CARD-MPP: the master's plaque pops ({ on }, { tick }) + the read (the armed beat, the stage, the fresh plate, the wraps)
   night(v){ NW_PIN=(v===undefined||v===null)? null : (v? 1 : 0); if(roomOpenNow()) renderMenu(); return { pin:NW_PIN, night:roomNight(), from:NW_NIGHT[0], to:NW_NIGHT[1], tick:!!NW_TICK }; },   // 0904 PART TWO rig door: pin the night (1 · 0 · null = the clock) and repaint the open room   // 0584 rig door: pin the NEXT flight (1 loop · 0 plain · null = the dice)   // 0568 D11 rig door — read-only (next = the PURE read; the pin is never consumed here)
   dogFreeze(on){ DOGRIG.frozen=on?1:0; DOG_LAST=0; return DOGRIG.frozen; },
