@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.96","md5":"c445f4dd84cbc9ada08cea12a576b4bc","sha":"4e4188bf8","at":"2026-10-19T22:13:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.97","md5":"88da2ea960c8d178bae83c54b861714d","sha":"0e2e55085","at":"2026-10-19T22:38:54Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88804,7 +88804,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.96';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -185497,6 +185497,40 @@ if(aptOn()) try{
   APT.old.applyDeploy=applyDeploy; applyDeploy=function(seat,type,x,y,relay){ const u=APT.old.applyDeploy.apply(this, arguments); try{ if(u && !relay && S.bf && S.bf.opener) aptPlayed(u.seat); }catch(e){ APT.err++; } return u; };   // a unit played: MY seat's landed drop (the finger's drop, the tap's flight)
 }catch(e){ APT.err++; }
 // ═══ END CARD-APT ═══
+// ═══ CARD-BAL BALANCE: THE TAN'S REACH IN THE CAMPAIGN + THE SIXTH DROP IN THE OPENER (sec:CARD-BAL; design/balance-tan-rush-1019/00-DESIGN-BAL.md; FROM ISAAC by WhatsApp 10/19/2026 15:58 EDT (3BE971D740A9A956ED38, jumpr 2380), verbatim:
+// "All right a couple of balancing changes: - Let's increase the tan army's engagement range to be 5% less than the player's army. (For all the campaign) - We're going to add another benchmark so that if the player
+// places 6 units within the first 10 seconds, another cluster spawns. This cluster is a sarge, a bazooka, and a rifleman. (Only tutorial)").
+// PART 1 THE TAN'S REACH, the campaign alone (balCamp: a rung of the ladder, S.levelN above 0 with the Tan's crate on the rug, solo or a party, OVERCHARGED's rungs too; never the battleground or the opener, a park, a raid,
+// the fort's horde): every tan gun with a green twin (BAL_TWIN) reads BAL.X (0.95) times the twin's base cell (UDEF) in place of its own row's rng, through frng (the one reach every tan trigger, halt-to-aim, cone, breath and
+// cannon reads): the rifle 198 -> 188.1, the M. gunner and the crawler 161 -> 182.4, the bazooka 150 -> 210.9, the grenadier 150 -> 142.5, the flame 85 -> 80.75, the commando 152 -> 167.2. The tan radio's aura (rngAura), an authored
+// stamp (rngX) and the elite rifle's additive gift (rngAdd) ride on top as they do today. The mortar, the outlaw shotgun and sniper, the blades (tansarge's saber, tancommander's sword) and every row without a twin
+// stand (BAL-Q2..Q4); every other carpet reads what it reads today.
+// PART 2 THE SIXTH DROP, the opener alone, on CARD-APT's own count and clock (installed only while CARD-APT is on): the drop that makes it BAL.N6 (6) units played while the active clock reads under APT.T (10) arms
+// cluster 3, once a battle (A.f6, A.at6); it lands on the next RUNNING frame at C (1640,303) through aptSpawn (placeUnit's foe road, the Tan seat, the computer's landing ring and blip, no purse): a SARGE in front
+// (the rookie seat's service pistol), a BAZOOKA and a RIFLEMAN a step behind. ?apt=0 turns CARD-APT off and this part with it.
+// ?bal=0 on a device = nothing of this card (the device key gvt_bal; ?bal=1 back). Zero words, zero save keys, zero server bytes, zero sw.js, zero css. The three wraps at load (frng, aptPlayed, aptTick) and one key on
+// APT (C): no existing line changed.
+var BAL={ on:(function(){ try{ const q=/[?&]bal=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bal','0'); else localStorage.removeItem('gvt_bal'); } return localStorage.getItem('gvt_bal')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  reach:1, six:1, X:0.95, N6:6, C:[1640,303], old:{}, err:0 };   // reach / six = the two parts (rig dials, no device key each) · X = the tan's share of the twin's reach · N6 = the sixth drop · C = cluster 3's spot, world units
+const BAL_TWIN={ tanrifle:'rifleman', tanmg:'mgunner', crawler:'mgunner', tanbazooka:'bazooka', tangrenadier:'grenadier', tanflame:'flame', tancommando:'commando' };   // the tan guns and their green twins (the base cells of UDEF); the crawler is the prone M. gunner (his row copies tanmg's numbers at load)
+const BAL_WAVE={ at:0, k:'C', men:[['sarge',-28,0],['bazooka',24,-22],['rifleman',24,22]] };   // cluster 3: the Sarge in front, the bazooka and the rifleman a step behind (dx < 0 = toward OUR box: the Tan marches left)
+function balOn(){ return BAL.on===1; }
+function balCamp(){ return !S.bf && (S.levelN|0)>0 && !S.park && !S.raid && !S.hrd && !!S.tanBase; }   // the campaign's carpet: a rung of the ladder with the Tan's crate on it
+function balTwinRng(f){ const d=f && f.def, tw=d && BAL_TWIN[f.type]; if(!tw || !(d.rng>0)) return 0; const u=UDEF[tw]; return (u && u.rng>0 && u.rng<9000)? u.rng*BAL.X : 0; }   // the twin's cell times BAL.X; 0 = no twin, the row stands
+function balReach(f, r){ if(!BAL.reach || !balCamp()) return r; const t=balTwinRng(f); if(!t) return r; return r+(t-f.def.rng)*(f.rngAura||1)*(f.rngX||1); }   // the base term swapped for the twin's share; the aura, the stamp and the additive gift as they were
+function balSix(A){ if(!BAL.six || !A || A.f6 || !(A.n>=BAL.N6) || !(A.t<APT.T)) return; A.f6=1; A.at6=+A.t.toFixed(3); }   // the sixth drop inside the window arms cluster 3, once a battle
+function balTick(bf, A){ if(!BAL.six || !A || !A.f6 || A.k6 || !aptLive(bf)) return; A.k6=1; aptSpawn(bf, A, BAL_WAVE); }   // cluster 3 on the next running frame (APT's own spawn: the Tan seat, the ring, the blip, the log row k 'C')
+function balRig(o){ o=o||{}; if(o.on!==undefined) BAL.on=o.on? 1 : 0; if(o.reach!==undefined) BAL.reach=o.reach? 1 : 0; if(o.six!==undefined) BAL.six=o.six? 1 : 0;   // the rig door: { on } flips the gate (the wraps stand as loaded); { reach }, { six } the two parts
+  const bf=S.bf, A=(typeof aptSt==='function')? aptSt(bf) : null;
+  const foes=(S.foes||[]).filter(f=>f && f.def && !f.dead).map(f=>({ id:f.id, t:f.type, x:Math.round(f.x), y:Math.round(f.y), rng:+frng(f).toFixed(2), row:+(f.def.rng||0), twin:+balTwinRng(f).toFixed(2), add:+(f.rngAdd||0), aura:+(f.rngAura||1).toFixed(3) }));
+  return { cv:GVT_CV, on:BAL.on, reach:BAL.reach, six:BAL.six, X:BAL.X, N6:BAL.N6, C:BAL.C.slice(), camp:balCamp(), lvl:S.levelN|0, bf:!!bf, opener:!!(bf&&bf.opener), st:A? { n:A.n, t:+A.t.toFixed(3), fired:A.fired, f6:A.f6|0, at6:(A.at6==null)? null : A.at6, k6:A.k6|0, log:A.log.slice() } : null, foes, err:BAL.err, wraps:Object.keys(BAL.old) }; }
+if(balOn()) try{
+  BAL.old.frng=frng; frng=function(f){ const r=BAL.old.frng.apply(this, arguments); try{ return balReach(f, r); }catch(e){ BAL.err++; return r; } };   // PART 1: the one reach every tan trigger reads
+  if(typeof aptOn==='function' && aptOn() && typeof aptPlayed==='function' && typeof aptTick==='function'){ APT.C=BAL.C.slice();   // PART 2 rides CARD-APT: its count's door and its clock's door (the wrapped bfTick calls aptTick by name)
+    BAL.old.aptPlayed=aptPlayed; aptPlayed=function(seat){ BAL.old.aptPlayed.apply(this, arguments); try{ const A=aptSt(S.bf); if(A && seat===bfMySeat()) balSix(A); }catch(e){ BAL.err++; } };
+    BAL.old.aptTick=aptTick; aptTick=function(dt){ BAL.old.aptTick.apply(this, arguments); try{ const bf=S.bf; balTick(bf, aptSt(bf)); }catch(e){ BAL.err++; } }; }
+}catch(e){ BAL.err++; }
+// ═══ END CARD-BAL ═══
 // ═══ CARD-MCL · MASTER COLLECTOR (sec:CARD-MCL; design/master-collector-1019/00-CARD-MCL.md; from Maker 1, account B, lane card M2356). FROM WYATT by phone 10/19/2026 13:41 EDT (the jumpr remote, card 2356), verbatim:
 // "If you get all of the stuffed animals from Fuzzies: If you have the complete collection, you should be given the Master Collector achievement. That comes with a one-time buff to one of your units with 1% crit
 // chance, and you can pick from any of your units. Brust is the only player that currently has all of these stuffed animals, so be sure that existing players like him are given it upon logging in." ═══
@@ -190244,6 +190278,7 @@ window.GVT = {
   otp(o){ return otpRig(o); },   // CARD-OTP's rig door: { hour, t } (see sec:CARD-OTP)
   xbi(o){ return xbiRig(o); },
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
+  bal(o){ return balRig(o); },   // CARD-BAL: THE TAN'S CAMPAIGN REACH + THE SIXTH DROP, the rig door ({ on, reach, six }) + the read (see sec:CARD-BAL)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
   mfs(o){ return mfsRig(o); },   // CARD-MFS: Mom's fight on the whole glass, the bedroom behind her ({ on } · { room } · { K } · { wallDrop }) + the read (VW, the camera, the canvas's box and store, the bake, her state, the toys, the stomps and kicks, the wraps)
