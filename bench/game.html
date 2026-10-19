@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.72","md5":"29773a0d786e0e1b587da6ac3977f890","sha":"6f85e4c9a","at":"2026-10-19T17:53:26Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.73","md5":"d92f56e8bc8da7131d227903b6ea06d7","sha":"ece8b0c79","at":"2026-10-19T18:20:14Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88677,7 +88677,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.72';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.73';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -153929,6 +153929,54 @@ function mgpRig(o){ o=o||{}; if(o.sync) mgpSync(); const el=document.getElementB
     row:el? Array.from(el.querySelectorAll('.mgp-pl')).map(e=>{ const a=e.querySelector('[data-mst]'); return { c:e.dataset.c, on:e.classList.contains('on'), owed:e.classList.contains('owed'), art:a? a.getAttribute('data-mst') : null, ray:!!e.querySelector('.mgp-ray'), box:R(e) }; }) : [],
     x:Q('#glScr .gl-x'), q:Q('#glScr .gl-q'), top:Q('#glScr .gl-top') }; }
 // ═══ end of sec:CARD-MGP ═══
+// ═══ CARD-MPP THE MASTER'S PLAQUE POPS (sec:CARD-MPP; design/master-plaque-pops-1019/00-CARD-MPP.md; FROM WYATT'S PHONE by the jumpr remote 10/19/2026 13:42 EDT (17:42:45 UTC), jumpr 2357, with four screenshots: the globe at PARAGUAY, the MASTER OF SOUTH AMERICA stage, the gift rite, the HANG IT card; verbatim: "When you currently claim a full continent, like you just won the battle and you just claim South America, for instance, it needs to pop up automatically. The South America plaque should pop up, right? It shouldn't just go back to the global map and wait. That's what it currently does. The master of South America should pop up, right? That's green, and then you can buff your guy. The way it currently flows is that when you back out to the main menu, you see, "Your squad took all of South America. Nice, congrats." I have all these images attached here. That can still exist, but upon getting that final puzzle piece of the continent, it should pop up just to feel like I did it. Boom. It's here, and now it's gold. Run a design pass for this, and then go with your recommended ship to life.") ═══
+// THE READ: a fight for a country lands ON THE GLOBE turned to that country (CARD-GBK); HQ's next beat paints the land (glAdopt) and stamps my new plaque (mstAdopt: META.master[c] = { t, crew, unit:null, seen:0 }),
+// which turned the bar's plate gold (mgpSync) and nothing more; THE MASTER CARD (HANG IT) and the gift rite waited for the next arrival home (the ceremony chain's mstSweep). THE CHANGE: with THE GLOBE open and
+// quiet, a stamped plaque whose MASTER CARD has not dealt (seen 0), whose gift waits (unit null) and which has not popped this session deals the continent's STAGE (mstCard: the full-bleed MASTER OF %1 with
+// THE GIFT WAITS + GIVE IT) over the parked globe, MPP_MS after the tick saw it (the squad's colour and %1 IS YOURS! land first; the toast folds at the pop): mgpTap's own grammar without the tap (mgpWatch,
+// mgpPark, mstCard), so GIVE IT opens the rite, and the ✕, "not yet" or FOREVER bring the globe back turned to the same land (the watcher, mgpResume); at that return the new plate on the bar POPS once
+// (mpp-new: a scale through 1.3 with a gold glow, 1.1 s; nothing under reduced motion). The land just fought comes first (GL_DATA.cont of GL.back's cc), else the world's order. A card standing on the globe
+// (the pay sheet, a party card, a knock, a ceremony card, a rite, a room card) delays it to the next quiet tick; a stamp under the verdict or in the room pops at the next globe open; once a session per
+// continent (MPP.did). THE MASTER CARD at the next arrival home stands as it was (his word: "That can still exist"), and it stands IN THE ROOM: mstSweep never deals it under or behind the open globe
+// (the rite's close ran the chain under the reopened globe, CARD-MGP's F7, where the landing's held tail could overwrite it at the close with seen already stamped); the debt is kept (MPP.owe) and the
+// first quiet tick after the globe closes runs the chain (ceremonyNext), so the card deals on a free host. At load it WRAPS glTick500 (the original, then the owed card, then mppTick), mgpResume (the
+// original; the fresh plate's pop when it brought the globe back) and mstSweep (refused while the globe is open or parked, the debt kept); no existing line changed. MPP.on 0 (?mpp=0 on a device, kept in
+// gvt_mpp; ?mpp=1 clears it) = the shipped globe: the plate turns gold, nothing pops, the MASTER CARD as shipped. Zero words, zero save keys, zero server bytes, zero sw.js; the css (mpp-new) stands in its
+// own style element seated at load. Rig door: GVT.mpp().
+var MPP={ on:(function(){ try{ const m=/[?&]mpp=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_mpp','0'); else localStorage.removeItem('gvt_mpp'); } return localStorage.getItem('gvt_mpp')==='0'? 0 : 1; }catch(e){ return 1; } })(), did:{}, t:0, c:null, fresh:null, owe:0, oweN:0, pops:0, plates:0, err:0, old:{} };   // the switch · popped this session · the armed beat · its continent · the plate owed its pop · the MASTER CARD owed in the room (+ its tries) · counts · errors caught · the wrapped originals
+const MPP_MS=1400;   // the beat between the tick that saw the stamp (the land painted, %1 IS YOURS! said) and the stage's deal
+function mppOn(){ return !!MPP.on; }
+function mppQuiet(){ try{ return !!(GL.open && !MGP.park && S.mode==='menu' && !S.bf && !BFQ && !coopLaunching && !GL.fighting && !GL.card && !milePopUp() && !mstRiteIsOpen() && !document.querySelector('#roomModal .rmback')); }catch(e){ return false; } }   // the globe up with nothing standing on it or under it
+function mppNext(){ try{ const M=META.master; if(!M) return null; const w=MASTERS.map(m=>m[0]).filter(c=>M[c] && !M[c].seen && !M[c].unit && !MPP.did[c]); if(!w.length) return null;
+  const b=GL.back, pc=(b && b.cc && GL_DATA.cont)? GL_DATA.cont[b.cc] : null; return (pc && w.indexOf(pc)>=0)? pc : w[0]; }catch(e){ return null; } }   // the plaque owed its pop: the land just fought first, else the world's order
+function mppTick(){ if(!mppOn() || MPP.t || !GL.open) return false; const c=mppNext(); if(!c || !mppQuiet()) return false; MPP.c=c; MPP.t=setTimeout(()=>{ MPP.t=0; mppPop(); }, MPP_MS); return true; }   // glTick500's seat: arm the beat once
+function mppOwed(){ try{ const M=META.master; return !!(M && MASTERS.some(m=>M[m[0]] && !M[m[0]].seen)); }catch(e){ return false; } }   // a plaque whose MASTER CARD has not dealt
+function mppOwe(){ if(!MPP.owe) return false; try{ if(GL.open || MGP.park || S.mode!=='menu' || S.bf || milePopUp() || mstRiteIsOpen() || document.querySelector('#roomModal .rmback')) return false; }catch(e){ return false; }
+  if(!mppOwed()){ MPP.owe=0; MPP.oweN=0; return false; } if(++MPP.oweN>240){ MPP.owe=0; MPP.oweN=0; return false; }   // dealt by another road, or two minutes of a chain that never reaches its seat: the next landing's chain deals it (seen 0)
+  try{ ceremonyNext(); }catch(e){ MPP.err++; } return true; }   // the MASTER CARD refused under the globe deals in the room: the chain run at the first quiet tick after the close (mstSweep's wrap clears the debt)
+function mppPop(){ const c=mppNext(); MPP.c=null; if(!c || !mppOn() || !mppQuiet()) return false;   // the globe left or a card stands: the next quiet tick arms again
+  MPP.did[c]=1; MPP.fresh=c; MPP.pops++;
+  try{ const tg=document.getElementById('glToastG'); if(tg){ tg.classList.add('hidden'); clearTimeout(GL.toastT); } }catch(e){}   // %1 IS YOURS! has been read: the stage says the bigger news
+  try{ mgpWatch(); mgpPark(); mstCard(c); if(!document.querySelector('#roomModal .rmback')) mgpResume(); }catch(e){ MPP.err++; try{ mgpResume(); }catch(e2){} return false; }   // mgpTap's grammar without the tap and the blip (the stage's own sounds open it)
+  return true; }
+function mppPlate(){ const c=MPP.fresh; if(!c) return false; MPP.fresh=null; const el=document.querySelector('#glMgp .mgp-pl[data-c="'+c+'"]'); if(!el) return false; el.classList.remove('mpp-new'); void el.offsetWidth; el.classList.add('mpp-new'); MPP.plates++; return true; }   // the new plate pops once at the globe's return
+function mppCss(){ if(document.getElementById('mppCss')) return false; const st=document.createElement('style'); st.id='mppCss';
+  st.textContent='.mgp-pl.mpp-new{ animation:mppNew 1.1s cubic-bezier(.2,1.4,.4,1) 1 both; z-index:2; }'
+    +'@keyframes mppNew{ 0%{ transform:scale(.35); filter:drop-shadow(0 0 0 rgba(255,214,74,0)); } 55%{ transform:scale(1.3); filter:drop-shadow(0 0 14px rgba(255,232,130,.95)); } 100%{ transform:scale(1); filter:drop-shadow(0 0 4px rgba(255,214,74,.5)); } }'
+    +'@media (prefers-reduced-motion: reduce){ .mgp-pl.mpp-new{ animation:none; } }';
+  (document.head||document.documentElement).appendChild(st); return true; }
+function mppRig(o){ o=o||{}; if(o.on!=null) MPP.on=o.on? 1 : 0; if(o.tick){ try{ mppTick(); }catch(e){ MPP.err++; } }   // the rig door (GVT.mpp): { on:0|1 } flips the switch for this page's life; { tick:1 } = mppTick now
+  const el=document.querySelector('#glMgp .mgp-pl.mpp-new'); let an=null; try{ an=el? document.getAnimations().filter(a=>a.effect && a.effect.target===el).map(a=>({ name:a.animationName, st:a.playState })) : []; }catch(e){ an=null; }
+  const sb=document.querySelector('#roomModal .msa-body'), tg=document.getElementById('glToastG');
+  return { on:MPP.on, ms:MPP_MS, did:Object.assign({}, MPP.did), armed:!!MPP.t, c:MPP.c, fresh:MPP.fresh, owe:MPP.owe, oweN:MPP.oweN, owed:mppOwed(), pops:MPP.pops, plates:MPP.plates, err:MPP.err, next:mppNext(), quiet:mppQuiet(), newPlate:el? el.dataset.c : null, anims:an, css:!!document.getElementById('mppCss'),
+    stage:sb? sb.dataset.c : null, give:!!document.querySelector('#roomModal [onclick*="UI.mstGive("]'), park:MGP.park, open:!!GL.open, sel:GL.sel, toast:!!(tg && !tg.classList.contains('hidden')),
+    wraps:{ glTick500:glTick500!==MPP.old.glTick500 && !!MPP.old.glTick500, mgpResume:mgpResume!==MPP.old.mgpResume && !!MPP.old.mgpResume, mstSweep:mstSweep!==MPP.old.mstSweep && !!MPP.old.mstSweep } };
+}
+MPP.old.glTick500=glTick500; glTick500=function(){ const r=MPP.old.glTick500.apply(this, arguments); try{ mppOwe(); mppTick(); }catch(e){ MPP.err++; } return r; };   // the wrap: the globe's half-second tick, then the owed card in the room, then the pop's arm
+MPP.old.mgpResume=mgpResume; mgpResume=function(){ const r=MPP.old.mgpResume.apply(this, arguments); if(r===true && MPP.fresh){ try{ mppPlate(); }catch(e){ MPP.err++; } } return r; };   // the wrap: the globe back from behind the stage = the new plate's pop
+MPP.old.mstSweep=mstSweep; mstSweep=function(){ if(mppOn() && (GL.open || MGP.park)){ if(mppOwed()) MPP.owe=1; return false; } const r=MPP.old.mstSweep.apply(this, arguments); MPP.owe=0; MPP.oweN=0; return r; };   // the wrap: THE MASTER CARD never deals under or behind the globe; the debt is kept for the room
+try{ mppCss(); }catch(e){ MPP.err++; }
+// ═══ END CARD-MPP ═══
 // ═══ CARD-MSA THE MASTERS' STAGE: ANTARCTICA (board J35, lane gvt; design/masters-stage-1009/00-BUILD-MSA.md; Wyatt 10/9/2026 20:23 EDT by phone, dictated, verbatim: "Can we bring to life each of our
 // plaques, like we did with the new recruit screens? ... Starting with Antarctica, we want to have our plaque looking beautiful and in front of a frozen, mountainous land with penguins made from the shape
 // store, some sliding on their bellies. Snow falling, maybe even King Yeti's there. Yeah, definitely King Yeti. King Yeti is definitely there, and start from there. Utilize the shape store for the
@@ -189062,6 +189110,7 @@ window.GVT = {
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
+  mpp(o){ return mppRig(o); },   // CARD-MPP: the master's plaque pops ({ on }, { tick }) + the read (the armed beat, the stage, the fresh plate, the wraps)
   night(v){ NW_PIN=(v===undefined||v===null)? null : (v? 1 : 0); if(roomOpenNow()) renderMenu(); return { pin:NW_PIN, night:roomNight(), from:NW_NIGHT[0], to:NW_NIGHT[1], tick:!!NW_TICK }; },   // 0904 PART TWO rig door: pin the night (1 · 0 · null = the clock) and repaint the open room   // 0584 rig door: pin the NEXT flight (1 loop · 0 plain · null = the dice)   // 0568 D11 rig door — read-only (next = the PURE read; the pin is never consumed here)
   dogFreeze(on){ DOGRIG.frozen=on?1:0; DOG_LAST=0; return DOGRIG.frozen; },
   dogStep(s){ if(!DOGT) dogArm(); let r=Math.max(0,+s||0);
