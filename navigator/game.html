@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.68","md5":"81aff30d7f157251e9600341dfd9be95","sha":"08b2aa6fc","at":"2026-10-19T16:36:55Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"24.69","md5":"2ae04b09f53de29bd3e9dd241f779c65","sha":"4bdf69fcf","at":"2026-10-19T16:40:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88670,7 +88670,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -185917,6 +185917,89 @@ function ppvLadder(){ const out={ men:{}, heroes:{}, irons:{}, sarge:{} }, R=[0,
   for(const k of US_MEN) out.men[k]=row('u',k); for(const k of HEROES) out.heroes[k]=row('u',k); out.sarge=row('u','sarge'); for(const wk of SARGE_ORDER) if(wkOwned(wk)) out.irons[wk]=row('w',wk); return out; }
 PPV.read=ppvRead; PPV.five=ppvFive; PPV.ladder=ppvLadder; PPV.open9=ppvOpen; PPV.close=ppvClose; PPV.go=ppvGo;
 // ═══ END CARD-PPV ═══
+// ═══ CARD-TBO · THE TREASURE BOX OVERHAUL, SLICE 1: THE ROOM'S OWN THINGS LEAVE THE CHEST (sec:CARD-TBO; design/treasure-box-overhaul-1019/00-DESIGN-TBO.md; FROM ISAAC, one of Wyatt's designers, by the
+// jumpr guest link 10/19/2026 11:52 EDT (card 2350), verbatim: "let's run a new design pass for the treasure box overhaul system. First things first we're going to take out any of the things in the toy box
+// that change the look of the room completely, such as the rug, the rave lights, or anything that has a massive impact on the room. We're going to put that in the same section as the wallpapers and the
+// curtains, just room customizables completely."; his go on the pass by WhatsApp 12:17 EDT, verbatim: "Push it live"). THE LAW: what dresses the ROOM lives on one card, DECORATE; what stands IN the room lives in
+// THE TREASURE CHEST. THE ELEVEN that move: the ten rugs (RUG_SKINS: the floor, wall to wall) and THE RAVE LIGHTS (six beams over the whole wall). THE CHEST: they leave ALL and SHOP (chestShows says no), the
+// RUGS land empties so its tab goes (ctlHas), n FOR SALE drops by what moved, every other card byte-what-it-was; the foot's door reads DECORATE (was WALLPAPERS) and wears a NEW! chip while a moved thing waits
+// new. DECORATE = the wallpapers card with four pages, WALLPAPERS · CURTAINS · RUGS · LIGHTS (+ the season's tab last, in season); the row slides sideways under a finger (CARD-CTL's grammar for the chest's land
+// row: one line, the far edge fading, the shown tab slid into view). THE RUGS page: the ten in the wallpapers' own card grammar (three across, the real swatch, the name): the one on the floor wears the gold ring
+// + ON THE FLOOR; an owned one its art alone (the tap lays it on the bedroom's floor: the chest's own switch, rugSolo, 0905 ⚑ Q15); a for-sale one its price sticker (the tap = the chest's own buy ask, the same
+// confirm card; bought = laid at once); a rug not yet on the road's shelf the chest's lock line; a rug the mystery box gave wears NEW! (the chest's own ledger, closed when the page shows it). THE LIGHTS page:
+// THE RAVE LIGHTS at 625★; owned, the card IS the switch: LIGHTS ON / LIGHTS OFF (raveTap; the emitter's own tap in the room still works). The road's signs follow: TAKE ME THERE and the chest's door with a
+// moved thing waiting new land on DECORATE's page on the card (chestSpot's own ring). Nothing moves in the save, the census (DECOR_ORDER: THE FULL FLOOR / QUARTERS, CHEST_CAP, the mystery box) or the wire.
+// ?tbo=0 on a device = the chest and the card as shipped (remembered in the device key gvt_tbo; ?tbo=1 back). Five words ×7 tongues (LIGHTS · DECORATE · ON THE FLOOR · LIGHTS ON · LIGHTS OFF), one style node,
+// zero save keys, zero server bytes, zero sw.js. At load it WRAPS, each once, the shipped function kept as TBO.old.<name>: chestShows, chestHTML, chestOpen, chestSpot, wpapHTML, wpapOpen, wpapSync, UI.wpapOpen,
+// UI.wpapTab, UI.decorBuy; no existing line changed.
+var TBO={ on:(function(){ try{ const q=/[?&]tbo=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tbo','0'); else localStorage.removeItem('gvt_tbo'); } return localStorage.getItem('gvt_tbo')==='0'? 0 : 1; }catch(e){ return 1; } })(), lights:['rave'], old:{}, err:0, buys:0, log:[] };
+function tboOn(){ return TBO.on===1; }
+function tboMoved(id){ return tboOn() && (rugIs(id) || TBO.lights.indexOf(id)>=0); }   // a thing that dresses the ROOM (a rug = the floor, a light = the wall): DECORATE's, never the chest's
+function tboPage(id){ return rugIs(id)? 'rugs' : 'lights'; }
+function tboIds(page){ return page==='rugs'? RUG_SKINS.slice() : page==='lights'? TBO.lights.slice() : []; }
+function tboPageIs(k){ return k==='rugs' || k==='lights'; }
+function tboRugOn(id){ return rdecList('bedroom').indexOf(id)>=0; }   // a rug's floor is the bedroom's (0905 ⚑ Q15: its card works the BEDROOM's list wherever you stand)
+function tboNewIs(id){ return chestNew().indexOf(id)>=0; }   // the chest's own NEW! ledger (a box gift, a road rung's stock card) read on DECORATE's pages
+function tboNewWaiting(){ return chestNew().filter(tboMoved); }   // the moved things waiting new: the lid's mark and the foot's chip call for them till a page shows them
+function tboSeeNew(page){ const fresh=tboIds(page).filter(tboNewIs); if(!fresh.length) return; for(const id of fresh) chestNewDrop(id); saveMeta(); if(S.mode==='menu') renderMenu(); }   // the page painted them: the chips close, the lid's mark and the foot's chip go with the ledger (chestOpen's own law)
+function tboOut(id){   // a bought thing goes out at once (the pass's picture: a wallpaper hangs the moment it is bought; the chest's wait-till-asked is for toys): a rug on the bedroom's floor, one rug at a time; the lights up and on
+  const l=META.rdec.bedroom||(META.rdec.bedroom=[]); if(l.indexOf(id)<0) l.push(id); if(rugIs(id)) rugSolo(l, id); if(TBO.lights.indexOf(id)>=0 && META.raveOff) delete META.raveOff;
+  chestNewDrop(id); if(Array.isArray(META.rdecSeen) && META.rdecSeen.indexOf(id)<0) META.rdecSeen.push(id); }
+function tboTabHTML(k, w, on, id){ return '<button type="button" class="wpap-tab'+(on? ' on' : '')+'" id="'+id+'" onclick="UI.wpapTab(\''+k+'\')">'+w+'</button>'; }
+function tboHeadHTML(){ const ks=wpapSeasons(), c=(WPAP_TAB==='curt'), z=(WPAP_TAB==='season'), r=(WPAP_TAB==='rugs'), g=(WPAP_TAB==='lights');   // the shipped head's grammar + two pages; the season's tab last
+  return '<div class="tc-head wpap-head" id="wpapHead"><span class="wpap-tabs tbo-tabs">'+tboTabHTML('wall','WALLPAPERS',!(c||z||r||g),'wpapTabWall')+tboTabHTML('curt','CURTAINS',c,'wpapTabCurt')+tboTabHTML('rugs','RUGS',r,'wpapTabRugs')+tboTabHTML('lights','LIGHTS',g,'wpapTabLights')
+    +(ks.length? tboTabHTML('season',WPAP_SEASON_NAME[ks[0]],z,'wpapTabSeason') : '')+'</span><span class="tc-count" id="wpapStars">'+META.starBank+'★</span></div>'; }
+function tboRugCardHTML(id){ const own=decOwns(id), on=own && tboRugOn(id), st=trStocked(id), sale=!own && st, lock=!own && !st, inf=DECOR_INFO[id], cost=DECOR_COST[id]|0;   // the wallpapers' card grammar (wpapCardHTML): the ring + the stamp on the one in use, the sticker, the chest's lock line, the NEW! chip; id shdcc-<id> so the chest's own deny and chestSpot find it
+  return '<div class="sh-dbox"><button type="button" class="sh-dec wpap-c tbo-c tbo-rug'+(own? ' own' : '')+(on? ' on' : '')+(lock? ' lock' : '')+'" id="shdcc-'+id+'" onclick="UI.tboPick(\''+id+'\')">'
+    +(tboNewIs(id)? '<span class="sh-new">NEW!</span>' : '')+'<span class="sh-dwin">'+decShopArt(id)+'</span><span class="sh-dn">'+inf.name+'</span>'
+    +(lock? '<span class="sh-dlk">'+gly('lock')+' IN STOCK AT COMMANDER LEVEL '+trLvl(id)+'</span>' : '')
+    +(on? '<span class="sh-dstamp">ON THE FLOOR</span>' : sale? '<span class="sh-dprice'+((META.starBank|0)<cost? ' shpoor' : '')+'">'+cost+'★</span>' : '')+'</button></div>'; }
+function tboLightOn(id){ return decOwns(id) && decorOn(id) && !META.raveOff; }   // up on the wall and switched on
+function tboLightCardHTML(id){ const own=decOwns(id), on=tboLightOn(id), st=trStocked(id), sale=!own && st, lock=!own && !st, inf=DECOR_INFO[id], cost=DECOR_COST[id]|0;
+  return '<div class="sh-dbox"><button type="button" class="sh-dec wpap-c tbo-c tbo-light'+(own? ' own' : '')+(on? ' on' : '')+(lock? ' lock' : '')+'" id="shdcc-'+id+'" onclick="UI.tboPick(\''+id+'\')">'
+    +(tboNewIs(id)? '<span class="sh-new">NEW!</span>' : '')+'<span class="sh-dwin">'+decShopArt(id)+'</span><span class="sh-dn">'+inf.name+'</span>'
+    +(lock? '<span class="sh-dlk">'+gly('lock')+' IN STOCK AT COMMANDER LEVEL '+trLvl(id)+'</span>' : '')
+    +(own? '<span class="sh-dstamp'+(on? '' : ' off')+'">'+(on? 'LIGHTS ON' : 'LIGHTS OFF')+'</span>' : sale? '<span class="sh-dprice'+((META.starBank|0)<cost? ' shpoor' : '')+'">'+cost+'★</span>' : '')+'</button></div>'; }
+function tboGridHTML(){ return '<div class="wpap-grid tbo-grid">'+tboIds(WPAP_TAB).map(WPAP_TAB==='rugs'? tboRugCardHTML : tboLightCardHTML).join('')+'</div>'; }
+function tboSeat(){ try{ const r=document.querySelector('#roomModal .wpap-tabs.tbo-tabs'), t9=r && r.querySelector('.wpap-tab.on'); if(!r || !t9) return; const a=t9.offsetLeft-r.offsetLeft, b=a+t9.offsetWidth; if(a<r.scrollLeft+8 || b>r.scrollLeft+r.clientWidth-34) r.scrollLeft=Math.max(0, a-Math.round((r.clientWidth-t9.offsetWidth)/2)); }catch(e){} }   // the shown tab slid into view (ctlSeat's grammar)
+function tboOpenPage(page){ shopCardClose(); WPAP_TAB=page; xbeWpapFrom(); roomModal(wpapHTML(), 'medalhall wpapcard', xbeWpapBk()); tboSeat(); tboSeeNew(page); }   // the shipped wpapOpen's lines for a page of this card's
+function tboRead(){ const r={ on:TBO.on, err:TBO.err, buys:TBO.buys, wraps:Object.keys(TBO.old), moved:RUG_SKINS.concat(TBO.lights).filter(tboMoved), tab:WPAP_TAB, waiting:tboNewWaiting(), floor:rdecList('bedroom').slice(), raveOff:META.raveOff|0, stars:META.starBank, log:TBO.log.slice(-20) };
+  try{ r.chest={ stands:chestStands(), gallery:CHEST_GALLERY().filter(chestShows).length, sale:chestSaleN(), tabs:[...document.querySelectorAll('#tcTabs .tc-tab')].map(b=>b.textContent.trim()), foot:[...document.querySelectorAll('#roomModal .tc-foot button')].map(b=>b.textContent.replace(/\s+/g,' ').trim()), cards:document.querySelectorAll('#roomModal .tc-grid .sh-dec').length }; }catch(e){}
+  try{ r.page={ stands:wpapStands(), tabs:[...document.querySelectorAll('#roomModal .wpap-tabs .wpap-tab')].map(b=>b.textContent.trim()+(b.classList.contains('on')? '*' : '')), cards:[...document.querySelectorAll('#roomModal .wpap-grid .sh-dec')].map(b=>({ id:b.id, on:b.classList.contains('on'), own:b.classList.contains('own'), lock:b.classList.contains('lock'), stamp:(b.querySelector('.sh-dstamp')||{}).textContent||'', price:(b.querySelector('.sh-dprice')||{}).textContent||'', nw:!!b.querySelector('.sh-new'), fresh:b.classList.contains('fresh') })) }; }catch(e){}
+  return r; }
+if(tboOn()) try{
+  for(const L9 of [['ar',{"LIGHTS":"الأضواء","DECORATE":"زيّن الغرفة","ON THE FLOOR":"على الأرض","LIGHTS ON":"الأضواء مضاءة","LIGHTS OFF":"الأضواء مطفأة"}],
+    ['ja',{"LIGHTS":"ライト","DECORATE":"もようがえ","ON THE FLOOR":"ゆかに しいてる","LIGHTS ON":"ライト オン","LIGHTS OFF":"ライト オフ"}],
+    ['ko',{"LIGHTS":"조명","DECORATE":"꾸미기","ON THE FLOOR":"바닥에 깔려 있어","LIGHTS ON":"조명 켜짐","LIGHTS OFF":"조명 꺼짐"}],
+    ['zh-Hans',{"LIGHTS":"灯光","DECORATE":"装饰房间","ON THE FLOOR":"铺在地上","LIGHTS ON":"灯已开","LIGHTS OFF":"灯已关"}],
+    ['de',{"LIGHTS":"LICHTER","DECORATE":"DEKORIEREN","ON THE FLOOR":"AUF DEM BODEN","LIGHTS ON":"LICHT AN","LIGHTS OFF":"LICHT AUS"}],
+    ['ru',{"LIGHTS":"СВЕТ","DECORATE":"УКРАСИТЬ","ON THE FLOOR":"НА ПОЛУ","LIGHTS ON":"СВЕТ ВКЛЮЧЁН","LIGHTS OFF":"СВЕТ ВЫКЛЮЧЕН"}],
+    ['es',{"LIGHTS":"LUCES","DECORATE":"DECORAR","ON THE FLOOR":"EN EL SUELO","LIGHTS ON":"LUCES ENCENDIDAS","LIGHTS OFF":"LUCES APAGADAS"}]]) Object.assign(TR[L9[0]]||(TR[L9[0]]={}), L9[1]);   // the five words ×7 (CARD-XPL-2's grammar; ⚑ TBO-F11 drafts, no native review)
+  { const st=document.createElement('style'); st.id='tboCss'; st.textContent=
+    '.rmcard.wpapcard .wpap-tabs.tbo-tabs{ flex:1 1 auto; min-width:0; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; padding:8px 34px 8px 2px; margin:-8px 0 -8px -2px; -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent); mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent); }'
+    +'.rmcard.wpapcard .wpap-tabs.tbo-tabs::-webkit-scrollbar{ display:none; } .rmcard.wpapcard .tbo-tabs .wpap-tab{ flex:0 0 auto; } .rmcard.wpapcard #wpapStars{ flex:0 0 auto; }'
+    +'#tcWpap{ position:relative; } #tcWpap .tbo-fnew{ top:-9px; left:auto; right:-10px; }';   // the row slides (CARD-CTL's grammar); the foot's chip rides the button's top right corner
+    document.head.appendChild(st); }
+  TBO.old.chestShows=chestShows; chestShows=function(id){ return !tboMoved(id) && TBO.old.chestShows(id); };   // the chest: never a moved thing (ALL, SHOP, the lands, the sale count, the new-toy spot)
+  TBO.old.chestHTML=chestHTML; chestHTML=function(){ const h=TBO.old.chestHTML(); return h.replace('onclick="UI.wpapOpen()">WALLPAPERS</button>', 'onclick="UI.wpapOpen()">DECORATE'+(tboNewWaiting().length? '<span class="sh-new tbo-fnew">NEW!</span>' : '')+'</button>'); };   // the foot's door: the whole family's word; a chip while a moved thing waits new
+  TBO.old.chestOpen=chestOpen; chestOpen=function(){ const keep=tboNewWaiting(); TBO.old.chestOpen(); if(keep.length){ for(const id of keep) chestNewAdd(id); saveMeta(); if(S.mode==='menu') renderMenu(); } };   // the chest's open closes its own ledger (its paint, with the foot's chip, comes first), never a moved thing's: that one waits for DECORATE's page (chestShows keeps it off the open's own spot)
+  TBO.old.chestSpot=chestSpot; chestSpot=function(id){ if(tboMoved(id) && (!wpapStands() || WPAP_TAB!==tboPage(id))) tboOpenPage(tboPage(id)); return TBO.old.chestSpot(id); };   // TAKE ME THERE for a moved thing lands on its page (the card scrolled into view, the fresh ring)
+  TBO.old.wpapHTML=wpapHTML; wpapHTML=function(){ if(tboPageIs(WPAP_TAB)) return tboHeadHTML()+tboGridHTML(); const h=TBO.old.wpapHTML(); const cut='★</span></div>'; const i=h.indexOf(cut); return (i>=0)? tboHeadHTML()+h.slice(i+cut.length) : h; };   // the shipped pages under the four-page head
+  TBO.old.wpapOpen=wpapOpen; wpapOpen=function(tab){ if(tboPageIs(tab)){ tboOpenPage(tab); return; } const r=TBO.old.wpapOpen(tab); tboSeat(); return r; };
+  TBO.old.wpapSync=wpapSync; wpapSync=function(){ TBO.old.wpapSync(); tboSeat(); };
+  TBO.old.uiWpapOpen=UI.wpapOpen; UI.wpapOpen=function(){ const w=tboNewWaiting()[0]; if(!w) return TBO.old.uiWpapOpen.call(UI); audio(); SFX.blip(); tboOpenPage(tboPage(w)); try{ TBO.old.chestSpot(w); }catch(e){} };   // the chest's DECORATE door: a moved thing waiting new = its page, on its card
+  TBO.old.uiWpapTab=UI.wpapTab; UI.wpapTab=function(k){ if(!tboPageIs(k)) return TBO.old.uiWpapTab.call(UI, k); if(!wpapStands()) return; SFX.blip(); if(WPAP_TAB===k) return; WPAP_TAB=k; wpapSync(); const sc=document.querySelector('#roomModal .rmback'); if(sc) sc.scrollTop=0; tboSeeNew(k); };
+  TBO.old.uiDecorBuy=UI.decorBuy; UI.decorBuy=function(id, g9){ const own0=decOwns(id); const r=TBO.old.uiDecorBuy.call(UI, id, g9); const bought=!own0 && decOwns(id);   // the chest's own switch, ask, deny and till; a moved thing BOUGHT on DECORATE goes out at once with the chest's own unboxing sounds
+    if(tboMoved(id) && bought){ TBO.buys++; tboOut(id); saveMeta(); if(S.mode==='menu') renderMenu(); if(wpapStands()){ SFX.thock(); setTimeout(()=>SFX.coin(), 120); if(rugIs(id)) setTimeout(()=>{ try{ if(decorOn(id)) decorReact(id); }catch(e){} }, 620); } }
+    if(wpapStands() && (own0 || bought)) wpapSync(); return r; };   // the page re-dealt after the switch or the buy alone: never after the ask opened (the confirm card rides the panel's backdrop, a repaint would wipe it) or a deny
+  UI.tboPick=function(id){ if(!tboMoved(id)) return; audio();   // a card on DECORATE's pages
+    if(decOwns(id)){ if(rugIs(id)){ UI.decorBuy(id, 'c'); return; }   // a rug: the chest's own switch (laid on the bedroom's floor, one at a time; laid again = rolled up)
+      if(decorOn(id)){ raveTap(); wpapSync(); return; }   // a light up on the wall: the switch (LIGHTS ON / LIGHTS OFF; the emitter's own tap does the same)
+      tboOut(id); saveMeta(); renderMenu(); wpapSync(); SFX.blip(); return; }   // a light owned but put away: up and on
+    UI.decorBuy(id, 'c'); };   // for sale: the chest's own ask (the confirm card; the deny shake on this card; the till)
+}catch(e){ TBO.err++; try{ TBO.log.push(String(e && e.message || e).slice(0,160)); }catch(e2){} }
+setTimeout(()=>{ try{ if(window.GVT && !GVT.tbo) GVT.tbo=tboRead; }catch(e){} }, 0);   // the rig's read door, on or off
+// ═══ END CARD-TBO ═══
 // ═══ CARD-DLG THE CLUTTERED ROOM COSTS NOTHING · DLG-A THE STILL ROOM, the bedroom (design/decor-load-1009/BUILD-DLG-A.md; the pass 00-DESIGN-DLG.md §4–§5, §8.1). Wyatt 10/9/2026 on Maker 1, verbatim: "if somebody has a ton of decorations out, we prevent the game from lagging and heating up ... a player will be rewarded for having a bunch of decorations out, and it doesn't heat up their phone or lag or anything. They just have a cluttered room, and they like it that way." His go 10/10/2026 19:00 EDT: "Do it. Plan it out. Execute to the best of your ability." (DLG-Q1..Q6 at their RECs)
 // THE CAUSE (CARD-DCH's measure, re-read by the pass): the room is ONE svg, and one moving thing anywhere in it repaints the whole room; a full floor is 11,000 vector nodes under two drop-shadow filters a toy (every toy out: a slow phone's main thread 99.6 %, the iPhone's painter 11.8 G instructions a second).
 // THE CURE (the industry's static batch + sleeping objects): after every paint each unit of the room that is not awake is painted ONCE into its own picture (its paint read from the live page and inlined, its css transforms as the engine's own resolved matrix,
