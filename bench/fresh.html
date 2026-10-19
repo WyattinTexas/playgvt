@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.85","md5":"6124cc4b9be50f7ad1f32577fb9c892f","sha":"2172cf396","at":"2026-10-19T19:58:53Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.86","md5":"7772f396062429b83e084eed1bbf9eed","sha":"0404a3672","at":"2026-10-19T20:06:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88740,7 +88740,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -185629,6 +185629,36 @@ function mclRig(o){ o=o||{};   // THE RIG DOOR (GVT.mcl): the shelf ({ own:'all'
     n:S.mclN|0, err:MCL.err, tm:!!MCL.tm, fz:(META.fz===undefined)? 'none' : { done:(META.fz && META.fz.done)|0 }, rsa:RSA_KEYS.indexOf('mcl')>=0,
     rite:(el && !el.classList.contains('hidden'))? { h1:(el.querySelector('.so-h1')||{}).textContent||null, sub:(el.querySelector('.so-sub')||{}).textContent||null, conf:(el.querySelector('.so-conf')||{}).textContent||null, cards:el.querySelectorAll('.so-grid .so-card').length, go:!!el.querySelector('.so-go'), later:!!el.querySelector('.so-later'), champ:!!el.querySelector('.so-champ') } : null,
     wraps:{ critChance:w('critChance'), seyX:w('seyX'), usCrit:w('usCrit'), rsaGrants:w('rsaGrants'), rsaLands:w('rsaLands'), checkAch:w('checkAch') } }; }
+// ── CARD-MCL ROUND 2 · THE PLUSH GIFT FROM HQ (Wyatt on Discord 10/19/2026 ~15:10 EDT, his reply to the landing's note that Brust's cloud copy was two plushies short, verbatim: "give it to Tanner and
+// fill in his missing 2."; Tanner = the player Brust, uid 305613be3129c3e8; design/master-collector-1019/00-CARD-MCL.md §7). HQ's gift road (server v45: the operator plants {uid, stars, note} by
+// POST /gvt/adm/gift; the oldest unclaimed gift rides the owner's next /gvt/sync reply as {gift:{id,stars,note}}; the client latches giftLast and answers /gvt/gift/claim) with a TYPED NOTE, the decor
+// gift's grammar (1011y, decor:<id>): `fz:<id>[,<id>...]` = the named plushies of THE BIG PAW go on the shelf (fzbLed's seat: an empty slot takes the plush, an owned slot keeps its count; an id the client
+// does not know is dropped, and a note with no known id is the star gift it always was, DG-1's law). A shelf so filled runs the bar's own completion at once (fzbComplete: ALL OF THEM's stars through the
+// one pipe, the SHOT-CLAW, the latch; its banner and float are the bar's and stay there): the bar's own road pays only when a FRESH plush lands, so a shelf HQ filled would otherwise never be paid.
+// Then the medal (checkAch) and the rite at the quiet room (mclgArm: the room's quiet polled every 250 ms for 20 s; a room never quiet = showMenuTail's chain at the next landing). The gift card stays
+// folded (the rite is the ceremony); the plant's star (the door's floor is 1) is the ticket, not banked. The id is latched and claimed as every gift (a lost claim re-delivers the same id; the latch
+// answers it again and hands nothing twice). Any other note = the shipped giftAdopt, byte for byte. ?mcl=0 = no wrap (the note prints raw on the star card, a plain gift). Zero words, zero save keys,
+// zero server bytes. The rig door GVT.mclg.
+var MCLG={ re:/^fz:([a-z0-9_,]{2,200})$/, wait:250, max:20000, tm:0, n:0, last:null, err:0 };
+function mclgIds(note){ const m=MCLG.re.exec(String(note||'').trim()); if(!m) return null; const ids=fzbIds(), out=[]; for(const k of m[1].split(',')) if(k && ids.indexOf(k)>=0 && out.indexOf(k)<0) out.push(k); return out.length? out : null; }   // the named plushies the client knows; null = not this road
+function mclgFill(ids){ const L=fzbLed(); let n=0; for(const k of ids) if(!L.own[k]){ L.own[k]=1; n++; } return n; }   // the shelf: an empty slot takes the plush, an owned slot keeps its count
+function mclgArm(){ if(MCLG.tm) return false; const t0=Date.now();
+  const tick=()=>{ MCLG.tm=0; try{ if(!mclOwed() || mclRiteIsOpen() || Date.now()-t0>MCLG.max) return; if(S.mode!=='menu' || !roomQuiet()){ MCLG.tm=setTimeout(tick, MCLG.wait); return; } mclRiteOpen(); }catch(e){ MCLG.err++; } };
+  MCLG.tm=setTimeout(tick, MCLG.wait); return true; }   // the rite at the quiet room; a room never quiet in 20 s = the next landing's chain
+function mclgTake(g){   // the plush gift, whole: the latch, the shelf, the claim, the bar's completion, the medal, the rite
+  const id=g.id|0, ids=mclgIds(g.note); if(!(id>0) || !ids) return false;
+  if(id<=(META.giftLast|0)){ giftClaim(id); return false; }   // the shipped latch: banked already, the claim was lost, answer it again, hand nothing
+  META.giftLast=id; const n=mclgFill(ids); const d0=fzbLed().done|0; saveMeta(); giftClaim(id);
+  let paid=false; try{ if(!d0 && fzbAll()){ fzbComplete(); paid=!!(fzbLed().done|0); } }catch(e){ MCLG.err++; }   // the bar's own completion (the stars, the SHOT-CLAW, the latch), outside the bar: its banner, float and syncs are guarded on the bar's own elements
+  try{ checkAch(); }catch(e){ MCLG.err++; } saveMeta();
+  MCLG.n+=n; MCLG.last={ id:id, ids:ids, n:n, paid:paid, t:Date.now() };
+  if(S.mode==='menu'){ try{ renderMenu(); }catch(e){} mclgArm(); }   // the bank repainted; the rite at the quiet room
+  return true; }
+if(mclLive()){ MCL.old.giftAdopt=giftAdopt; giftAdopt=function(d){ const g=d&&d.ok&&d.gift; if(g && mclgIds(g.note)) return mclgTake(g); return MCL.old.giftAdopt.apply(this, arguments); }; }   // the wrap, once: a plush note = this road; every other gift as shipped
+function mclgRig(o){ o=o||{}; let took=null; if(o.gift) took=giftAdopt({ ok:true, gift:o.gift }); if(o.arm) mclgArm(); const L=(META.fz && typeof META.fz==='object')? fzbLed() : { own:{}, done:0 }, mp=document.getElementById('milePop');   // THE RIG DOOR (GVT.mclg): { gift:{id,stars,note} } = HQ's reply as the sync hands it, { arm }, { note } = the read of a note; then the read
+  return { cv:GVT_CV, on:MCL.on, wrap:!!MCL.old.giftAdopt && giftAdopt!==MCL.old.giftAdopt, took:took, ids:(o.note!==undefined)? mclgIds(o.note) : null, count:mclCount(), goal:fzbIds().length, done:L.done|0, shotclaw:!!enhOwns('shotclaw'), stars:META.starBank|0,
+    giftLast:META.giftLast|0, giftPend:META.giftPend|0, giftNote:META.giftNote||'', has:mclHas(), owed:mclOwed(), open:mclRiteIsOpen(), key:mclKey(), n:MCLG.n, last:MCLG.last, tm:!!MCLG.tm, err:MCLG.err,
+    milePop:!!(mp && !mp.classList.contains('hidden')), band:(mp && mp.querySelector('.mb-band'))? mp.querySelector('.mb-band').textContent : null, line:(mp && mp.querySelector('.mb-line'))? mp.querySelector('.mb-line').textContent : null, decor:(META.decor && Array.isArray(META.decor.own))? META.decor.own.slice() : [] }; }
 // ═══ END CARD-MCL ═══
 let OP_ARM=0;              // the door's word to startBattlefield (session-only): the S.bf mint reads it once
 function startOpener(){ OP_ARM=1; try{ startBattlefield(OPENER_MAP, null, 1, null, ARMIES.find(a=>a.id==='tan')||ARMIES[2]); } finally { OP_ARM=0; } }   // ⚑ Q2: THE TAN ARMY every time
@@ -190048,6 +190078,7 @@ window.GVT = {
     return { set:DECOR_HALLOW.slice(), own:DECOR_HALLOW.filter(decOwns), out:DECOR_HALLOW.filter(decorOn), cap:CHEST_CAP, allN:DECOR_ALL_N, on:halloweenOn(), night:roomNight(), led:(META.hw? { at:META.hw.at, cap:META.hw.cap } : null), due:hwDue(), next:hwNext(), step:HW_STEP, rung:hwRung(), capStars:HW_CAP_STARS }; },   // 1110 BUILD B: + the ledger · due · the next gift · the step
   fzb(o){ return fzbRig(o); },   // CARD-FZB's rig door: FUZZIES + the SHOT-CLAW (see sec:CARD-FZB)
   mcl(o){ return mclRig(o); },   // CARD-MCL's rig door: MASTER COLLECTOR ({ own, ach, gift, check, open, pick, take, later, done }) + the read (see sec:CARD-MCL)
+  mclg(o){ return mclgRig(o); },   // CARD-MCL R2's rig door: THE PLUSH GIFT FROM HQ ({ gift:{id,stars,note}, arm, note }) + the read (see sec:CARD-MCL, ROUND 2)
   otp(o){ return otpRig(o); },   // CARD-OTP's rig door: { hour, t } (see sec:CARD-OTP)
   xbi(o){ return xbiRig(o); },
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
