@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.74","md5":"e656e90565e78c81409732c940b66336","sha":"a8f8ef85a","at":"2026-10-19T18:33:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.75","md5":"a5bc34377aa0104cb2aaf194a685ae1d","sha":"ee5c6d8ea","at":"2026-10-19T18:35:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88677,7 +88677,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -140523,6 +140523,26 @@ const DECOR_SPOTS={
 };
 for(const r of HW_SET) DECOR_SPOTS[r.id]=r.spot;
 for(const r of XM_SET) DECOR_SPOTS[r.id]=r.spot;   // CARD-XMAS-02: the Christmas zones from their table   // 1109 THE HALLOWEEN TREASURES: the twenty zones from the table (the drag base + the tap)
+// ═══ CARD-RCS THE WIND-UP RACECAR OFF THE CAMPAIGN BOX (sec:CARD-RCS; design/racecar-seat-1019/00-DESIGN-RCS.md; FROM ISAAC, one of Wyatt's designers, by his guest link 10/19/2026 13:46 EDT, verbatim: "let's move the toy race car so it is not underneath the campaign button. It could be on the right side of it. Sometimes when players go to click the campaign, they click on the race car."; HIS GO by WhatsApp 14:25 EDT: "Push it live").
+// THE READ: racecarSVG parks THE WIND-UP RACECAR at translate(166,574) and its tap zone DECOR_SPOTS.racecar at 126..210 x 548..596: the foot of the CAMPAIGN box on the rug's lower band (the box's door 60..330 x 392..578, its CAMPAIGN · LV n pill 88..301 x 555..590, the rug's three plinth doors wall to wall).
+// The car's picture is hidden under the pill but for its key and the driver's helmet; the door (z 2) and the pill (z 4) lie over the car's anchor, but a finger a hair BELOW the pill finds the car (dspot-racecar), which zooms off instead of the campaign opening. The toys were seated before the plinths were.
+// THE CHANGE: the car parks at the box's RIGHT SHOULDER on the rug's top band, nose east: translate(392,362) (the ink 350..436 x 334..388) and its tap zone at 350,338 (84 x 48 as shipped): over no door and no pill (the box's door ends x 330, the piggy's and the map's doors start y 392, the STRANGE BOOK pill x 495).
+// At load it sets the two numbers of DECOR_SPOTS.racecar and WRAPS racecarSVG (the same markup, the park's translate swapped; the lap, the smoke pops, the key's wiggle and the drag ride the group as shipped: the car laps FROM wherever it parks); no existing line changed. A dragged car keeps its drag (rpT rides on top of the park).
+// RCS.on 0 (?rcs=0 on a device, kept in gvt_rcs; ?rcs=1 clears it) = the old seat, both numbers. Zero words, zero css, zero save keys, zero server bytes, zero sw.js. Rig door: GVT.rcs().
+var RCS={ on:(function(){ try{ const m=/[?&]rcs=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_rcs','0'); else localStorage.removeItem('gvt_rcs'); } return localStorage.getItem('gvt_rcs')==='0'? 0 : 1; }catch(e){ return 1; } })(), NEW:{ tx:392, ty:362, x:350, y:338 }, OLD:{ tx:166, ty:574, x:126, y:548 }, parks:0, err:0, old:{} };   // the switch · the two seats (the park's translate, the tap zone's corner) · parks swapped · errors
+function rcsOn(){ return !!RCS.on; }
+function rcsSeat(){ const s=rcsOn()? RCS.NEW : RCS.OLD; try{ DECOR_SPOTS.racecar.x=s.x; DECOR_SPOTS.racecar.y=s.y; }catch(e){ RCS.err++; } return s; }   // the tap zone follows the switch (w 84, h 48 as shipped); decorSpots reads it at every paint
+function rcsRig(o){ o=o||{}; if(o.on!=null){ RCS.on=o.on? 1 : 0; rcsSeat(); try{ if(S.mode==='menu') renderMenu(); }catch(e){ RCS.err++; } }   // the rig door (GVT.rcs): { on:0|1 } flips the switch for this page's life and repaints the room
+  const el=document.getElementById('decRacer'), m=el? /translate\(([-\d.]+),([-\d.]+)\)/.exec(el.getAttribute('transform')||'') : null, a=document.getElementById('dspot-racecar');
+  return { on:RCS.on, spot:{ x:DECOR_SPOTS.racecar.x, y:DECOR_SPOTS.racecar.y, w:DECOR_SPOTS.racecar.w, h:DECOR_SPOTS.racecar.h }, park:m? [+m[1], +m[2]] : null, anchor:a? [parseFloat(a.style.left), parseFloat(a.style.top)] : null, parks:RCS.parks, err:RCS.err, wrapped:racecarSVG!==RCS.old.racecarSVG && !!RCS.old.racecarSVG };
+}
+rcsSeat();
+RCS.old.racecarSVG=racecarSVG; racecarSVG=function(){   // the wrap: the shipped markup with the park's translate swapped when the switch is on (the one place the car's park is written)
+  let s=RCS.old.racecarSVG.apply(this, arguments);
+  if(rcsOn()){ const k='translate('+RCS.OLD.tx+','+RCS.OLD.ty+') scale(0.88)'; if(s.indexOf(k)>=0){ s=s.replace(k, 'translate('+RCS.NEW.tx+','+RCS.NEW.ty+') scale(0.88)'); RCS.parks++; } else RCS.err++; }
+  return s;
+};
+// ═══ END CARD-RCS ═══
 function decorSpots(){
   let s=hwSpotsUnder()+xmSpotsUnder();   // CARD-XMAS-02: the Christmas zones after the Halloween's   // 1109 THE HALLOWEEN TREASURES: the twenty zones FIRST — after every box (the wallpaper door wpap is the whole wall — a zone before the boxes would be dead under it), before every census toy's zone (a toy in front wins the tap)
   for(const id in DECOR_SPOTS){
@@ -189204,6 +189224,7 @@ window.GVT = {
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
+  rcs(o){ return rcsRig(o); },   // CARD-RCS: the wind-up racecar's seat off the campaign box ({ on }) + the read (the park, the tap zone, the wrap)
   hsl(o){ return hslRig(o); },   // CARD-HSL: the hero select ({ on }, { open }) + the read (the page, the seat, the strip, the heads, the wraps)
   mpp(o){ return mppRig(o); },   // CARD-MPP: the master's plaque pops ({ on }, { tick }) + the read (the armed beat, the stage, the fresh plate, the wraps)
   night(v){ NW_PIN=(v===undefined||v===null)? null : (v? 1 : 0); if(roomOpenNow()) renderMenu(); return { pin:NW_PIN, night:roomNight(), from:NW_NIGHT[0], to:NW_NIGHT[1], tick:!!NW_TICK }; },   // 0904 PART TWO rig door: pin the night (1 · 0 · null = the clock) and repaint the open room   // 0584 rig door: pin the NEXT flight (1 loop · 0 plain · null = the dice)   // 0568 D11 rig door — read-only (next = the PURE read; the pin is never consumed here)
