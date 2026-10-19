@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.89","md5":"3d365b30d25921cf44a11eb5511caa89","sha":"08fdbd96e","at":"2026-10-19T20:28:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.90","md5":"9d030d7855fa91558cf0012d23c93a79","sha":"35eec0dc7","at":"2026-10-19T20:49:20Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88740,7 +88740,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.89';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -152359,6 +152359,34 @@ TRO.old.tourSeat=tourSeat; tourSeat=function(){   // the wrap: the whole dim is 
   return TRO.old.tourSeat.apply(this, arguments);
 };
 // ═══ END CARD-TRO ═══
+// ═══ CARD-TFT THE FINAL TOUCH: SARGE'S LAST LINE NEVER OPENS ANOTHER DOOR (sec:CARD-TFT; design/tutorial-final-touch-1019/00-CARD-TFT.md; FROM WYATT'S PHONE by the jumpr remote 10/19/2026 13:07 EDT (17:07:15 UTC), jumpr 2355, built on Maker 1 (M2355), dictated by Wispr Flow, verbatim: "The final touch in the tutorial: at the end of the tutorial, when you're clicking through for Sarge, even if the player touches something like Bear Park, that touch shouldn't count if the dialogue's still going on (unless it's to the specific area he wants you in). For instance, right now, in that final line, I'm clicking an area of the screen just to continue the lines. I clicked on Bear Park to just continue the lines, but it actually brought me into Bear Park, which is not what we want.") ═══
+// THE LEAK (measured on v24.71 with real touches, rig/probeTFT.mjs): THE CLOSE ("That's all you need to know for now, soldier. Now let's get after it.", CAMPAIGN lit) folds on the PRESS of the tap that reads it (tourWinDown -> commAdvance -> tourRead -> tourFinish), and the room is
+// the kid's at that instant: META.tour 5 ends THE LINE (tourLineOn reads tourDue) and CARD-TFH R2b put no walk after it. While the page stands a tap ON a door is already the soft no (tourWinDown); two taps got through it:
+// (1) THE READ TAP'S OWN CLICK, aimed where the finger lifts: tourClickEat eats it for 400 ms counted from the press, so a press held longer clicked the door under the finger once the window was gone (on the phone his console lies over the Surplus, the World Ranks cup, the TV and
+// FORT GREEN, his figure over the BATTLEFIELD; BEAR PARK wherever a glass puts it under them); (2) THE NEXT TAP of a kid still clicking through: BEAR PARK opened (THE BEAR BARRICADE for a rookie) a quarter second after the line.
+// THE FIX, at THE CLOSE's read alone (tourFinish, wrapped): (1) THE LAST TAP IS EATEN WHOLE: titleClickEat (CARD-FF FF-09's eater: its clock starts when the finger LIFTS, a new press disarms it) on top of tourClickEat's 400 ms; (2) THE LINE HOLDS A BEAT PAST THE CLOSE: for TFT.holdMs
+// THE LINE stands as it does between the tour's stops (tourLineOn true): a tap on the room is the soft no (the thock), never its door; the settings gear stays live (TW-B); a tap pressed in the beat is held whole (its click eaten however late the finger lifts); the door he pointed at stays his: CAMPAIGN answers through its own door (tourSeatLive), as a tap ON it did on
+// the typed page (ffiCloseGo, untouched). Then the room is his (the plane, the BATTLEFIELD, CAMPAIGN, BEAR PARK): CARD-TFH R2b's law. The tour's stops, the plane's pages and the next landings' beats keep their own lines, untouched.
+// At load it WRAPS tourFinish, tourLineOn and tourSeatLive; no existing line changed. TFT.on 0 (?tft=0 on a device, kept in gvt_tft; ?tft=1 clears it) = the close as shipped. Zero words, zero css, zero save keys, zero server bytes, zero sw.js. Rig door: GVT.tft() (tftRig).
+var TFT={ on:(function(){ try{ const m=/[?&]tft=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_tft','0'); else localStorage.removeItem('gvt_tft'); } return localStorage.getItem('gvt_tft')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  holdMs:800, until:0, door:null, ptr:new Set(), arms:0, eats:0, held:0, err:0, old:{} };   // the switch · ⚑ TFT-Q1 the beat THE LINE holds past the close (ms: a click-through's next tap lands a quarter to half a second after the line; his figure's slide-out is 350, the tour's own gap between stops 600; a look at the room and a choice take longer) · the beat's end (Date.now) · the door he pointed at (CAMPAIGN under CARD-FFI's dress, none on a close with no light) · the fingers down now (pointer ids) · closes armed · eaters armed (a close read by a press) · room taps held in the beat · errors caught · the wrapped originals
+function tftOn(){ return !!TFT.on; }
+function tftHolds(){ return !!(TFT.on && TFT.until && Date.now()<TFT.until && S.mode==='menu' && !COOP && !S.coop && roomCur()==='bedroom'); }   // the beat past THE CLOSE, at home (a door that opened over the room ends the room's part of it: the scene's own seats are never the room's)
+function tftArm(){ TFT.until=Date.now()+TFT.holdMs; TFT.door=(FFI.on && FFI.closeLit)? TE_DOOR : null; TFT.arms++; if(TFT.ptr.size){ TFT.eats++; titleClickEat(); } }   // THE CLOSE read: the beat starts, the door he pointed at is noted (CAMPAIGN while THE CLOSE's page lit it: FFI.closeLit, read before the shipped close clears it; a close with no light points at nothing); read by a press (a finger down now: always, but for a rig's GVT.commAdv) its own click is eaten whenever the finger lifts (a new press is his own tap)
+function tftDown(e){ TFT.ptr.add(e.pointerId); if(!tftHolds()) return; const t=e.target; if(tourSeatOf(t) && !tourSeatLive(t)){ TFT.held++; titleClickEat(); } }   // the finger down (the window's capture pass: the read's press is seen before the root's own handler reads the page) · a room tap THE LINE held in the beat (tourLineDown's soft no) is held WHOLE: its click is eaten whenever the finger lifts, the beat over or not (Chrome delivers the click of a prevented press; WebKit withholds it) · the count for the rig
+function tftUp(e){ TFT.ptr.delete(e.pointerId); }
+window.addEventListener('pointerdown', tftDown, true); window.addEventListener('pointerup', tftUp, true); window.addEventListener('pointercancel', tftUp, true);
+function tftRig(o){ o=o||{}; if(o.on!=null) TFT.on=o.on? 1 : 0; if(o.holdMs!=null) TFT.holdMs=+o.holdMs||0;   // the rig door (GVT.tft): { on:0|1 } flips the switch for this page's life, { holdMs } the beat
+  return { on:TFT.on, holdMs:TFT.holdMs, holding:tftHolds(), left:TFT.until? Math.max(0, TFT.until-Date.now()) : 0, door:TFT.door, down:TFT.ptr.size, arms:TFT.arms, eats:TFT.eats, held:TFT.held, err:TFT.err, tour:META.tour|0, line:tourLineOn(),
+    wraps:{ tourFinish:!!TFT.old.tourFinish && tourFinish!==TFT.old.tourFinish, tourLineOn:!!TFT.old.tourLineOn && tourLineOn!==TFT.old.tourLineOn, tourSeatLive:!!TFT.old.tourSeatLive && tourSeatLive!==TFT.old.tourSeatLive } }; }
+TFT.old.tourFinish=tourFinish; tourFinish=function(){   // the wrap: THE CLOSE's read (tourRead's last branch, on the press of the tap that read it) arms the beat and the eater first, then the shipped close
+  if(TFT.on){ try{ tftArm(); }catch(e){ TFT.err++; } }
+  return TFT.old.tourFinish.apply(this, arguments);
+};
+TFT.old.tourLineOn=tourLineOn; tourLineOn=function(){ return TFT.old.tourLineOn.apply(this, arguments) || tftHolds(); };   // the wrap: THE LINE stands through the beat past THE CLOSE (tourLineDown's soft no, tourLineClick's swallow; tourOwnDoor owes no door there)
+TFT.old.tourSeatLive=tourSeatLive; tourSeatLive=function(t){ if(TFT.old.tourSeatLive.apply(this, arguments)) return true; return !!(TFT.door && tftHolds() && !TFT.old.tourLineOn() && t && t.closest && t.closest('#rspot-'+TFT.door+', #rtag-'+TFT.door)); };   // the wrap: in the beat the door he pointed at answers (his point, Wyatt's "unless it's to the specific area he wants you in"); never while another beat holds the line (the plane's late fly-in after an old save's close: PINTRO)
+setTimeout(()=>{ try{ if(window.GVT && !GVT.tft) GVT.tft=tftRig; }catch(e){} }, 0);   // the rig door, hung once GVT stands (this section loads before it)
+// ═══ END CARD-TFT ═══
 // ═══ CARD-HGT THE HANGAR'S TAIL CUT (sec:CARD-HGT; design/hangar-tail-cut-1019/00-CARD-HGT.md; FROM LAURA by her jumpr guest link 10/19/2026 14:17 EDT (18:15:40 UTC), passing on WYATT'S note with his screenshot of THE HANGAR's store, verbatim: "He does NOT want everything from the magnifying glass down: take out the magnifying glass, the 'PICK IT UP, GO SNOOPING!' card and everything below them on this screen. Save the magnifying glass idea for later - park it (off), do not delete it.") ═══
 // THE READ: THE HANGAR's store (CARD-LCH, STORES.hangar) deals ONE department, shopMotorHTML = THE MOTOR POOL: the bays, the wooden rail, then the tail = shopGearTailHTML (the PIGGY BANK UPGRADES rail till it is maxed + shopLensHTML, THE MAGIC LENS: the 300★ crate #shlens from campaign 10,
 // the owner's stand #shLensStand PICK IT UP. GO SNOOPING! whose grab lifts the flying glass #shLensFly) and the wide wrapper .sh-decbig.sh-emgbig round shopEmgHTML (THE EMERGENCY PACKAGE card #shpk-emg). The same section is the ?lch=0 Surplus's.
