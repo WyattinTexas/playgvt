@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.63","md5":"745f8743695b87a8aa1a4c682c7b13d2","sha":"905059bdf","at":"2026-10-19T03:29:44Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"24.64","md5":"56a165899e18764b6324cd09920ed78e","sha":"9cd232443","at":"2026-10-19T03:48:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88628,7 +88628,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.63';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.64';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -164897,6 +164897,31 @@ if(lfsOn()) try{
     return v.indexOf(o)<0? v : v.split(o).join('<g transform="'+A.shoe+'">'+lfsImg('shoeAir')+'</g><circle id="wlMouthM" cx="'+A.mouth[0]+'" cy="'+A.mouth[1]+'" r="0.1" fill="none"/>'); };   // the shoe rises on the line by its collar (the line ties at #wlMouthM)
 }catch(e){ LFS.err++; }
 // ═══ END CARD-LFS ═══
+// ═══ CARD-LCB · THE CHUM BUCKET STAYS OUT (sec:CARD-LCB; design/chum-bucket-out-1018/00-CARD-LCB.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026), her WhatsApp through the jumpr
+// guest link 10/18/2026 23:10 EDT (card 2345), verbatim: "the chum bucket is not out so I cannot connect all three, the shoe, fishing pole and bucket."). THE READ: in her set (CARD-LFS) the bucket stood
+// beside the pole only while the hook was BARE: dip the pole in it and the bait rode the hook, the bucket folded away, the pole stood on its forked stick, until an awesome catch spent the bait (CARD PF: the
+// betta, the goldfish, the seahorse). The lake has no such fish and a pond whose fish is home takes none, so a hook baited there kept its worm for good and the bucket never came back: her three could never
+// stand together again. NOW, with her set on: THE CHUM BUCKET STANDS BESIDE THE POLE WHENEVER IT IS OUT (owned, not put away in the chest, not taken by the invader), baited or not: the pole leans on it,
+// the shoe stands in front of it, one shared shadow (her "fishing set - shoe in front"). The hook is the game's own: the pole dipped in the bucket baits it once (the bait law), the awesome catch spends the
+// bait; a second dip while the hook is baited only rocks the bucket (the thump) and the pole goes back to the bank; the puddle's bucket keeps its tap spot meanwhile. ?lcb=0 on a device = the bucket folds
+// away as before (remembered; ?lcb=1 back). Her set off (?lfs=0) = the game's own pail law, untouched. Zero words, zero save keys (gvt_lcb is a device key like gvt_lfs), zero server bytes, zero sw.js, zero css.
+var LCB={ on:(function(){ try{ const q=/[?&]lcb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_lcb','0'); else localStorage.removeItem('gvt_lcb'); } return localStorage.getItem('gvt_lcb')==='0'? 0 : 1; }catch(e){ return 1; } })(), dips:0, old:{}, err:0 };
+function lcbOn(){ return LCB.on===1 && typeof lfsOn==='function' && lfsOn(); }
+function lcbPailIn(P, x, y, ap){ return !!P && x>=P.x-ap && x<=P.x+P.w+ap && y>=P.y-ap && y<=P.y+P.h+ap; }   // a point on the bucket's box (room units), with an apron
+function lcbRead(){ const r={ on:LCB.on, lfs:(typeof LFS!=='undefined')? LFS.on : null, dips:LCB.dips, err:LCB.err, wraps:Object.keys(LCB.old) }; try{ r.baited=META.baited? 1 : 0; r.bait=decorOn('bait')? 1 : 0; r.room=roomCur(); }catch(e){} return r; }
+// THE WRAPS (only while her set and this card are on: ?lcb=0 or ?lfs=0 leaves every one of these functions as it was)
+if(lcbOn()) try{
+  LCB.old.lfsState=lfsState; lfsState=function(pole){ const st=LCB.old.lfsState.apply(this, arguments); st.bucket=decorOn('bait'); return st; };   // THE BUCKET OUT: owned and out, baited or not (the hook's state no longer folds it away)
+  LCB.old.wlUp=wlUp; wlUp=function(e){ if(WLDRAG.on && WLDRAG.moved && META.baited && decorOn('bait') && wlHit('pkBait')){ WLDRAG.on=0; wlHome(); LCB.dips++; UI.decorTap('bait'); return; } return LCB.old.wlUp.apply(this, arguments); };   // THE SECOND DIP at a park: the bucket rocks (the thump), the pole home; no second bait, no cast
+  LCB.old.bfishDrop=bfishDrop; bfishDrop=function(base, dx, dy, fp){ const B=LFS.box.western, P=B && B.pail;
+    if(P && bfishRodDue() && META.baited && decorOn('bait') && Math.hypot(dx,dy)>=LFS_MOVE){ const ap=Math.max(8, bfishPadU()/2), cx=base.x+base.w/2+dx, cy=base.y+base.h/2+dy; if((fp && lcbPailIn(P,fp.x,fp.y,ap)) || lcbPailIn(P,cx,cy,ap)){ rdragApply('bfrod', 0, 0); LCB.dips++; UI.bfishPailTap(); return; } }   // THE SECOND DIP at the puddle (the base's half-thumb apron, CARD-LFS's twitch guard)
+    return LCB.old.bfishDrop.apply(this, arguments); };
+  LCB.old.lakeDrop=lakeDrop; lakeDrop=function(base, dx, dy){ const B=LFS.box.winter, P=B && B.pail;
+    if(P && wfLive() && META.baited && decorOn('bait')){ const cx=base.x+base.w/2+dx, cy=base.y+base.h/2+dy; if(lcbPailIn(P,cx,cy,8)){ rdragApply('lakerod', 0, 0); LCB.dips++; lfsPailTap(); return; } }   // THE SECOND DIP at the lake (CARD-LFS's own 8-unit apron)
+    return LCB.old.lakeDrop.apply(this, arguments); };
+  LCB.old.bfishSpots=bfishSpots; bfishSpots=function(){ let s=LCB.old.bfishSpots.apply(this, arguments); const B=LFS.box.western, P=B && B.pail; if(P && bfishRodDue() && META.baited && decorOn('bait') && s.indexOf('dspot-bfpail')<0) s+=lfsSpot('dspot-bfpail', P, 'UI.bfishPailTap()'); return s; };   // the puddle's bucket keeps its tap spot while the hook is baited (the base's spot stands down with its pail)
+}catch(e){ LCB.err++; }
+// ═══ END CARD-LCB ═══
 // ═══ CARD-GPP GNOME PARK ON EVERY PHONE (board J2; Wyatt's go 10/2/2026 14:23 EDT on CARD-DSK's ⚑ DSK-F1): the four glowing toadstools on the lawn's front edge (TOAD_XY 94 · 500 · 1100 · 1506) are Merlin's door,
 // tapped right to left. THE CROP LAW slices a phone at 1.9:1 and wider, so an 18:9 phone (720 x 360 = 2.0:1) saw x 150..1450 and lost both outer toadstools whole (Merlin out of reach), and his own 19.5:9 phone
 // (2.17:1) showed them half past the glass. THE FRAME NOW, Gnome Park's hub alone: a phone's glass between 1.9:1 and GPP_SPAN:650 (2.277:1) shows the painting's x 60..1540 (the four toadstools' pads whole, 58..1542)
