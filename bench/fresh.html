@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.75","md5":"a5bc34377aa0104cb2aaf194a685ae1d","sha":"ee5c6d8ea","at":"2026-10-19T18:35:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.76","md5":"53d4a37680f7fac50d6de52577dde380","sha":"c2613358a","at":"2026-10-19T18:41:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88677,7 +88677,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.76';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -152114,6 +152114,38 @@ TRO.old.tourSeat=tourSeat; tourSeat=function(){   // the wrap: the whole dim is 
   return TRO.old.tourSeat.apply(this, arguments);
 };
 // ═══ END CARD-TRO ═══
+// ═══ CARD-HGT THE HANGAR'S TAIL CUT (sec:CARD-HGT; design/hangar-tail-cut-1019/00-CARD-HGT.md; FROM LAURA by her jumpr guest link 10/19/2026 14:17 EDT (18:15:40 UTC), passing on WYATT'S note with his screenshot of THE HANGAR's store, verbatim: "He does NOT want everything from the magnifying glass down: take out the magnifying glass, the 'PICK IT UP, GO SNOOPING!' card and everything below them on this screen. Save the magnifying glass idea for later - park it (off), do not delete it.") ═══
+// THE READ: THE HANGAR's store (CARD-LCH, STORES.hangar) deals ONE department, shopMotorHTML = THE MOTOR POOL: the bays, the wooden rail, then the tail = shopGearTailHTML (the PIGGY BANK UPGRADES rail till it is maxed + shopLensHTML, THE MAGIC LENS: the 300★ crate #shlens from campaign 10,
+// the owner's stand #shLensStand PICK IT UP. GO SNOOPING! whose grab lifts the flying glass #shLensFly) and the wide wrapper .sh-decbig.sh-emgbig round shopEmgHTML (THE EMERGENCY PACKAGE card #shpk-emg). The same section is the ?lch=0 Surplus's.
+// THE CUT: from the magnifying glass down, nothing: shopLensHTML answers '' while the lens is cut (the law's own "nothing below campaign 10" face: no crate, no stand, so no flying glass either), the package's wrapper is cut out of shopMotorHTML's string by the exact text the original deals; the PIGGY BANK UPGRADES rail
+// stands (above the glass). nmSurpAt answers null for 'lens' and 'emg' while cut, so no card offers CHECK IT OUT! to a shelf that is gone (nmDoors stands on OKAY alone). PARKED, NOT DELETED: every line of the lens (lensArt, shopLensHTML, UI.lensBuy, UI.lensGrab, the fly, lensScan, the secrets; the free lens at
+// campaign 30 and the bedroom's floor glass) and of the package (shopEmgHTML, UI.emgBuy, the power in the fight, the mystery box's grant) is byte-still: HGT.cut.lens / HGT.cut.emg (1 = cut from the garage) bring either back by one number. At load it WRAPS shopMotorHTML, shopLensHTML and nmSurpAt; no existing
+// line changed. HGT.on 0 (?hgt=0 on a device, kept in gvt_hgt; ?hgt=1 clears it) = the tail as shipped: the lens and the package back. Zero words, zero css, zero save keys, zero server bytes, zero sw.js. Rig door: GVT.hgt().
+var HGT={ on:(function(){ try{ const m=/[?&]hgt=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_hgt','0'); else localStorage.removeItem('gvt_hgt'); } return localStorage.getItem('gvt_hgt')==='0'? 0 : 1; }catch(e){ return 1; } })(), cut:{ lens:1, emg:1 }, calls:{ motor:0, emgCut:0, lens:0, door:0 }, err:0, old:{} };   // the switch · THE PARKED SEATS (1 = cut from the garage's tail, 0 = back on it) · the wraps' counts · errors caught · the wrapped originals
+const HGT_EMG_OPEN='<div class="sh-decbig sh-emgbig">';   // the package's wide wrapper, the exact text shopMotorHTML deals round shopEmgHTML (a button of spans: no div inside, so the first </div> after it is its own)
+function hgtOn(){ return !!HGT.on; }
+function hgtCut(k){ return hgtOn() && !!HGT.cut[k]; }   // is this thing (lens | emg) cut from the garage's tail right now
+function hgtRig(o){ o=o||{}; if(o.on!=null){ HGT.on=o.on? 1 : 0; } if(o.lens!=null){ HGT.cut.lens=o.lens? 1 : 0; } if(o.emg!=null){ HGT.cut.emg=o.emg? 1 : 0; }   // the rig door (GVT.hgt): { on:0|1 } the switch, { lens:0|1 } { emg:0|1 } the parked seats, for this page's life
+  const q=k=>{ try{ return !!document.querySelector(k); }catch(e){ return null; } }, m=document.getElementById('shMotor'), l=m? m.lastElementChild : null;
+  return { on:HGT.on, cut:{ lens:HGT.cut.lens, emg:HGT.cut.emg }, calls:{ motor:HGT.calls.motor, emgCut:HGT.calls.emgCut, lens:HGT.calls.lens, door:HGT.calls.door }, err:HGT.err,
+    wraps:{ shopMotorHTML:shopMotorHTML!==HGT.old.shopMotorHTML && !!HGT.old.shopMotorHTML, shopLensHTML:shopLensHTML!==HGT.old.shopLensHTML && !!HGT.old.shopLensHTML, nmSurpAt:nmSurpAt!==HGT.old.nmSurpAt && !!HGT.old.nmSurpAt },
+    dom:{ store:SHOP.store, open:shopIsOpen(), motor:!!m, stand:q('#shLensStand'), crate:q('#shlens'), lensSlot:q('#shMotor .sh-declens'), fly:q('#shLensFly'), emg:q('#shpk-emg'), emgBig:q('#shMotor .sh-emgbig'), bank:q('#shMotor .sh-bank'), rail:q('#shMotor .sh-rail'), bays:m? m.querySelectorAll('.sh-bays > *').length : 0, last:l? (l.id||String(l.className||l.tagName)) : null },
+    doors:{ lens:nmSurpAt('lens','lens'), emg:nmSurpAt('emg','emg'), jet:nmSurpAt('jet','jet'), ride:nmSurpAt('ride','bfjeep') } };
+}
+HGT.old.shopMotorHTML=shopMotorHTML; shopMotorHTML=function(){   // the wrap: THE MOTOR POOL's own string with the package's wide wrapper cut out while the package is cut (found by the exact text the original deals; absent = nothing to cut)
+  let h=HGT.old.shopMotorHTML.apply(this, arguments); HGT.calls.motor++;
+  if(hgtCut('emg') && typeof h==='string'){ try{ const i=h.indexOf(HGT_EMG_OPEN); if(i>=0){ const j=h.indexOf('</div>', i+HGT_EMG_OPEN.length); if(j>=0){ h=h.slice(0,i)+h.slice(j+6); HGT.calls.emgCut++; } } }catch(e){ HGT.err++; } }
+  return h;
+};
+HGT.old.shopLensHTML=shopLensHTML; shopLensHTML=function(){   // the wrap: no slot at all while the lens is cut (no crate, no stand; the shipped law's own face below campaign 10), else the shipped slot
+  HGT.calls.lens++; if(hgtCut('lens')) return '';
+  return HGT.old.shopLensHTML.apply(this, arguments);
+};
+HGT.old.nmSurpAt=nmSurpAt; nmSurpAt=function(k,id){   // the wrap: a cut thing has no shelf to walk to (no CHECK IT OUT! door, no landing); every other thing's answer as shipped
+  HGT.calls.door++; if((k==='lens' && hgtCut('lens')) || (k==='emg' && hgtCut('emg'))) return null;
+  return HGT.old.nmSurpAt.apply(this, arguments);
+};
+// ═══ END CARD-HGT ═══
 // ═══ 1207 CARD-WW-SPOON THE SPOON-FED START (FM-GVT-LAB-WOOD-SPOON-01; design/lab-wood-0923/cards/CARD-WW-SPOON.md + 10-BUILD-SP.md; jumpr 1207) ═══
 // Wyatt 9/23/2026 (the rulings sheet, R1, verbatim): "We really want these guys to be spoon-fed when they start the game, so let's have the flow go where they're literally force-fed to go into the shop and only upgrade the bazooka. Every other class or case is grayed out with the lock logo over it, except for the heroes case being locked out with a golden lock over it to show this is the mecha. They're guided through the shop, given the exact amount of currency they need to upgrade the bazooka, and then forced to do that. That way, they have an example of where to go throughout the rest of the game." + RU-Q2 REC: the tutorial's first research ≈ 60 s while he watches; the ½ h ladder starts with the SECOND part.
 // THE TOUR'S LAB STOP = "stop 1a": between the barracks (stop 0) and the Surplus (stop 1), on its OWN ledger META.lab.tut (0 = not yet · 1 = dealt, the stars given · 2 = done through the tutorial · 3 = never his: a save with a sold part, a job or the lab opened before this card) and its own sentinel index LT_I through tourDoor (THE LAST BEAT's TE_I idiom), so META.tour keeps its meaning on every save (a fifth index would re-deal THE CLOSE for every veteran healed to 5)
@@ -189224,6 +189256,7 @@ window.GVT = {
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
+  hgt(o){ return hgtRig(o); },   // CARD-HGT: THE HANGAR'S TAIL CUT, the rig door ({ on }, { lens }, { emg }) + the read (the wraps, the tail's dom, the doors)
   rcs(o){ return rcsRig(o); },   // CARD-RCS: the wind-up racecar's seat off the campaign box ({ on }) + the read (the park, the tap zone, the wrap)
   hsl(o){ return hslRig(o); },   // CARD-HSL: the hero select ({ on }, { open }) + the read (the page, the seat, the strip, the heads, the wraps)
   mpp(o){ return mppRig(o); },   // CARD-MPP: the master's plaque pops ({ on }, { tick }) + the read (the armed beat, the stage, the fresh plate, the wraps)
