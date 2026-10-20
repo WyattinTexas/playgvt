@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.97","md5":"88da2ea960c8d178bae83c54b861714d","sha":"0e2e55085","at":"2026-10-19T22:38:51Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.98","md5":"bff38915df5fb4f8eeb6c64656b0fc2c","sha":"b6a6204b5","at":"2026-10-20T02:01:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -58000,7 +58000,7 @@ function ckHpFrac(u){   // the king's bar as a fraction — campaign GRIT (1 −
 }
 function ckSpawn(k,u,dx,dy){   // one companion beside the king through placeUnit (the def copy, the march kit, the BF side/seat — never a cost, never the wire): behind him on his own facing, on his lane
   const west=!!(S.bf && u.side==='foe');
-  const WW=S.bf? WORLD_W : W, HH=S.bf? H : WORLD_H;   // the fire loop's own bounds (its WX local = WORLD_W on the battleground)
+  const WW=S.bf? WORLD_W : W, HH=(S.bf && !DCN.on)? H : WORLD_H;   // the fire loop's own bounds (its WX local = WORLD_W on the battleground)   /* CARD-DCN THE TALL MAT: the height is the mat's own WORLD_H on both carpets (1200 on WESTERN LAND = THE DESERT, THE FROZEN TUNDRA, the hill village, the bank, the high-noon claim; H on every flat mat, byte-what-it-was there): H pulled every companion of a king placed below 576 up onto the 576 line */
   const x=Math.max(30, Math.min(WW-30, u.x-(west? -dx : dx))), y=Math.max(40, Math.min(HH-24, u.y+dy));
   const c=S.bf? placeUnit(k,x,y,u.side,u.seat) : placeUnit(k,x,y);
   if(!c) return null;
@@ -88804,7 +88804,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='24.98';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -108932,12 +108932,54 @@ function kbAllyBrain(u,dt){   // the units loop's door for the court's own brain
   if(hbsRide(u,P)) return false;   // CARD-HBS: THE RIDE ENDS AT THE BOX (the horseman at the crate's ring with nobody on the carpet: campUnitStep's siege owns him)
   kbAllyRideStep(u,dt,P); u.marching=false; return true;
 }
+// ═══ CARD-DCN THE DESERT'S CANNONS (design/desert-cannons-1019/00-RECORD.md; jumpr 2386, built on Maker 1 as M2386; Wyatt 10/19/2026 by phone, verbatim: "In the battle for the desert, when we
+// summoned Emperor Bear, he only summoned two artillery. We had the mod in Floop's lab turned on for heavy artillery, so all the cannons should have shown up, not just two."). MEASURED on v24.97
+// (probeDC through the desert's own door bdJoin; rank 70 + HEAVY ARTILLERY = SIX guns at his birth): (1) THE TALL MAT: ckSpawn clamped a courtier's height at the FLAT mat's H−24 = 576 on every
+// battleground, but WESTERN LAND (the desert) is two carpets tall (WORLD_H 1200): an Emperor dropped on its south half had every gun pulled up onto the 576 line, the six on TWO spots (60 and 130
+// behind him); (2) THE TRAIN'S LINE: the court's seats never asked the ground, and the desert's rail runs right behind Team 1's front (the west leg at x 230, the chord, the dip): an Emperor dropped
+// just in front of it had the battery and the first pair seated ON the rails, and the train ran them over (trainKill) the first time it came by; (3) a seat past the march's own band (y 74 …
+// WORLD_H−96) or inside a rock was pulled or pushed onto its neighbour's spot on the first step. THE FIX: ckSpawn's height = the mat's own WORLD_H (H on every flat mat: byte-what-it-was there;
+// every companion through that door gains it), and the court's seats move as ONE block (dcnFit: the formation kept, so two guns never share a spot) by the smallest step that puts every seat on
+// the king's own ground: inside the drop door's box (prfMap), on ground the drop door takes (canPlace's terrain rows: water, rocks, a wrecking ball's beat, pits, the roof's gaps) and with no band
+// of the train's line (TRK_BAN) on it or between it and him. Deterministic (the terrain, his spot, the seats: zero dice, never another man's position), so a relayed Emperor's copy seats the same
+// court on every screen (the twin-sim law). The battleground only (the campaign's court byte-what-it-was); nothing found within DCN.max steps = the seats as drawn (ckSpawn's clamp as ever).
+// Zero save, wire, server or css bytes. ═══
+const DCN={ on:1, step:8, max:24 };   // ⚑ the switch (0 = v24.97: the seats as drawn, the battleground's height read as the flat mat's 600) · the block's step in px · its reach in steps (a disc of 24 × 8 = 192 px)
+let DCN_GRID=null;   // the block's tries, nearest first: every (i, j) inside the disc of DCN.max steps, by i² + j², ties toward his front (i < 0) then up (j < 0)
+function dcnGrid(){ const M=DCN.max|0; if(DCN_GRID && DCN_GRID.m===M) return DCN_GRID.g; const g=[]; for(let i=-M;i<=M;i++) for(let j=-M;j<=M;j++){ const r=i*i+j*j; if(r>0 && r<=M*M) g.push([i,j,r]); } g.sort((a,b)=>(a[2]-b[2]) || (a[0]-b[0]) || (a[1]-b[1])); DCN_GRID={ m:M, g }; return g; }
+function dcnXY(u,dx,dy){ const west=!!(S.bf && u.side==='foe'); return [u.x-(west? -dx : dx), u.y+dy]; }   // ckSpawn's own seat arithmetic, before its clamp
+function dcnSegSeg(ax,ay,bx,by,cx,cy,dx,dy){ const o=(px,py,qx,qy,rx,ry)=>(qx-px)*(ry-py)-(qy-py)*(rx-px), d1=o(cx,cy,dx,dy,ax,ay), d2=o(cx,cy,dx,dy,bx,by), d3=o(ax,ay,bx,by,cx,cy), d4=o(ax,ay,bx,by,dx,dy);
+  if(((d1>0 && d2<0) || (d1<0 && d2>0)) && ((d3>0 && d4<0) || (d3<0 && d4>0))) return 0;
+  return Math.min(segDist(ax,ay,cx,cy,dx,dy), segDist(bx,by,cx,cy,dx,dy), segDist(cx,cy,ax,ay,bx,by), segDist(dx,dy,ax,ay,bx,by)); }   // the least distance between the segments AB and CD (0 when they cross)
+function dcnGround(x,y){ const T=S.cfg.terrain;   // the drop door's own TERRAIN rows (canPlace's battleground branch, row for row), never its side or its neighbours: the court must seat alike on every screen
+  for(const rv of (T.rivers||[])){ if(rv.dry) continue; if(x>rv.x-16 && x<rv.x+rv.w+16 && y>(rv.y0!=null?rv.y0:56)-16 && y<(rv.y1!=null?rv.y1:WORLD_H-56)+16) return false; }
+  for(const rk of (T.rocks||[])){ if(Math.hypot(rk.x-x,rk.y-y)<rk.r+14) return false; }
+  for(const p of (T.ponds||[])){ const nx=(x-p.x)/(p.rx+12), ny=(y-p.y)/(p.ry+12); if(nx*nx+ny*ny<1) return false; }
+  for(const bl of (T.balls||[])){ if(Math.abs(x-bl.x)<bl.r+16 && y>bl.y0-bl.r-16 && y<bl.y1+bl.r+16) return false; }
+  for(const p of (T.pits||[])){ if(Math.hypot(p.x-x,p.y-y)<p.r+14) return false; }
+  for(const g of (T.gaps||[])){ if(Math.abs(x-g.x)<g.w/2+14 && y>g.y0-14 && y<g.y1+14) return false; }
+  return true; }
+function dcnFit(u,st){   // THE KING'S OWN GROUND: the court's ONE shift [sdx, sdy] in ckSpawn's terms (sdx < 0 = toward his front, on either bench) for the seats st = [[type, dx, dy, …], …]
+  if(!DCN.on || !S.bf || !u || !st.length || !S.cfg || !S.cfg.terrain) return [0,0];
+  const B=prfMap(), T=S.cfg.terrain; let r0=0; for(const s of st) r0=Math.max(r0, Math.hypot(s[1],s[2]));
+  const rl=(T.rail && T.rail.ban) || [], R9=r0+DCN.max*DCN.step*Math.SQRT2+TRK_BAN+1, sg=[]; let kd=1e9;   // the line's segments within his court's whole reach (a seat is at most r0 + the block's walk from him), and his own distance from the line
+  for(const pl of rl){ const P=pl.pts||[]; for(let i=0;i<P.length-1;i++){ const d=segDist(u.x,u.y,P[i][0],P[i][1],P[i+1][0],P[i+1][1]); if(d<kd) kd=d; if(d<R9) sg.push(P[i],P[i+1]); } }
+  const ok=(x,y)=>{ if(x<B.x0 || x>B.x1 || y<B.y0 || y>B.y1 || !dcnGround(x,y)) return false;   // the drop door's box (the march's own band: a seat past it is pulled onto its neighbour's spot) and its ground
+    for(let i=0;i<sg.length;i+=2){ const a=sg[i], b=sg[i+1]; if((kd>=TRK_BAN? dcnSegSeg(u.x,u.y,x,y,a[0],a[1],b[0],b[1]) : segDist(x,y,a[0],a[1],b[0],b[1]))<TRK_BAN) return false; }   // off the line's band AND nothing of it between him and the seat (a gun never starts its march across the rails); a king somehow inside the band himself asks the seat alone
+    return true; };
+  const fits=(sx,sy)=>st.every(s=>{ const p=dcnXY(u,s[1]+sx,s[2]+sy); return ok(p[0],p[1]); });
+  if(fits(0,0)) return [0,0];
+  for(const c of dcnGrid()){ const sx=c[0]*DCN.step, sy=c[1]*DCN.step; if(fits(sx,sy)){ tdLog(u,'dcn',[sx,sy]); return [sx,sy]; } }
+  return [0,0]; }
+// ═══ END CARD-DCN ═══
 function kbCourtSpawn(k,u,dx,dy,col){ const c=ckSpawn(k,u,dx,dy); if(!c) return null; c.kbOf=u.id; c.kbGait0=c.gait; ckArrive(c,col); tdLog(u,'court',k); return c; }   // one courtier beside the Emperor (ckSpawn: placeUnit, the lane, ckGift off the loss books) + the arrive ring
 function kbCourtIn(u){   // ONE DOOR at his spawn (§3.2): the guard's file (a battalion of four at 70 — THE GUARD GROWS) behind him in a column, the battery on his flanks 60 px behind; the horseman waits on the kills (kbEmpTick)
   if(u.kbCourt) return 0; u.kbCourt=1;
   const tk=kbTkOf(u); let n=0; const ha9=haOn(u);   /* CARD-HA HEAVY ARTILLERY: this Emperor's court is all guns (haOn: the ownership ladder) */   // 0910 REV 2: the list by ownership — a relayed Emperor's court spawns beside his copy on THIS screen too (the token; the ally sees the royalist troops)
-  if(tk.indexOf('guard')>=0 || tk.indexOf('guard2')>=0){ const nG=(tk.indexOf('guard2')>=0)? KB_ROY_BAT_ALLY : KB_ROY_FILE_ALLY; for(let i=0;i<nG;i++){ if(ha9){ const s9=haSeat(i); if(haArm(kbCourtSpawn('kbcannon',u,s9[0],s9[1],KB_ALLY_SLEEVE))) n++; }   /* CARD-HA: a CANNON for every guard, at the cannon seats behind the battery's row, armed twice over (the gold ring) */ else if(kbCourtSpawn('kbguard',u,36*(i+1),((i%2)? 1 : -1)*10*((i>>1)+1),KB_ALLY_SLEEVE)) n++; } }
-  if(tk.indexOf('battery')>=0){ for(let i=0;i<KB_BAT_N_ALLY;i++){ const c9=kbCourtSpawn('kbcannon',u,60,(i? 1 : -1)*44, ha9? KB_ALLY_SLEEVE : '#ffffff'); if(c9){ n++; if(ha9) haArm(c9); } } }   /* CARD-HA: the battery's two armed twice over under the part (the gold ring); stock otherwise, byte-what-it-was */
+  const st9=[];   /* CARD-DCN: the court's seats counted out FIRST (the type, ckSpawn's dx/dy, the arrive ring's colour, HEAVY ARTILLERY's arming); dcnFit moves them as ONE block onto the king's own ground, then they spawn in the order they always did */
+  if(tk.indexOf('guard')>=0 || tk.indexOf('guard2')>=0){ const nG=(tk.indexOf('guard2')>=0)? KB_ROY_BAT_ALLY : KB_ROY_FILE_ALLY; for(let i=0;i<nG;i++){ if(ha9){ const s9=haSeat(i); st9.push(['kbcannon',s9[0],s9[1],KB_ALLY_SLEEVE,1]); }   /* CARD-HA: a CANNON for every guard, at the cannon seats behind the battery's row, armed twice over (the gold ring) */ else st9.push(['kbguard',36*(i+1),((i%2)? 1 : -1)*10*((i>>1)+1),KB_ALLY_SLEEVE,0]); } }
+  if(tk.indexOf('battery')>=0){ for(let i=0;i<KB_BAT_N_ALLY;i++) st9.push(['kbcannon',60,(i? 1 : -1)*44, ha9? KB_ALLY_SLEEVE : '#ffffff', ha9? 1 : 0]); }   /* CARD-HA: the battery's two armed twice over under the part (the gold ring); stock otherwise, byte-what-it-was */
+  { const sh9=dcnFit(u,st9); for(const s9 of st9){ const c9=kbCourtSpawn(s9[0],u,s9[1]+sh9[0],s9[2]+sh9[1],s9[3]); if(c9){ n++; if(s9[4]) haArm(c9); } } }   /* CARD-DCN: one spawn loop: each seat + the block's shift ([0,0] wherever the seats as drawn already stand on his ground: every flat mat away from its edges, the campaign) */
   if(ha9 && n) haTell(u);   /* CARD-HA: HEAVY ARTILLERY! once at the court's birth (HA-Q6) */
   if(!S.bf || heroMine(u) || u.coopHM){ if(u.kbLine==null) u.kbLine=(Math.random()<0.5)? 1 : 0; commSayAs(bearSpeaker(), u.kbLine? 'Bon appétit!' : 'EN GARDE!', {rank:3,hz:KB_HZ});   /* CARD-BLE #73 */ }   // 1001 THE COURT ON EVERY FIELD (⚑ CF-Q4): on the mat a HUMAN's copy alone speaks — mine, or a relayed chair whose 'kb:' token rode; a computer's / a mirror captain's Emperor keeps quiet (Croak's law); the campaign path byte-what-it-was   // 0941 THE PLAY LINE (Wyatt 9/10: "he should either say 'En garde' or 'Together we march!' 50/50"): the same door, the same card, the same hold; the court line retired from the play quip (its rows stay)   // 0910 REV 2: a mirror's king keeps quiet (Croak's law)
   return n;
