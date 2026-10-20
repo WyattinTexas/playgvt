@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.07","md5":"b7bd396381f2f8edb87080e6a80562de","sha":"8e27ccd7b","at":"2026-10-20T04:36:17Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.08","md5":"cb247e2fc8949833934006e5ff65c3f6","sha":"59afe0bbe","at":"2026-10-20T05:10:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -57081,6 +57081,7 @@ function netSync(){
         // keys it knows (the soul-field precedent), v25 clamps it monotonic
         // + capped + floored and the ADVENTURE ladder ranks it
         adv:advCount(),
+        adst:adwLine(),   // CARD-ADW: THE AD STATE ON THE WIRE, one short line (<= 96 chars; a v137 box reads only the keys it knows, v138 latches it per player, never on the board)
         advv:5, advo:advCount523(),   // CARD-MBA: 5 = + THE MISSION BOARD's four orders (601 tops; a v136 box takes the number as sent, a v131..v135 box clamps 597) · CARD-ASP2: 4 = five parks + 47 cells (597 tops; a v131 box takes the number as sent, an older box clamps 523); advo = the 523-law count of the SAME save, HQ's fold is baseline · v17.76 (CARD-AOC) THE COUNT'S STYLE: 3 = the campaign leg runs to THIRD_MAX (300) — a v102 box takes the number as sent (clamped at its cap 523); a v74 .. v101 box reads 3 as at least 2 and clamps 423 (rollback-safe, monotonic); v10.98 (1127): 2 = the leg runs to ELITE_TOP, HQ adds the third leg it sees itself; a client that sends no key is an older one and HQ adds the Elite leg too
         // 0442: THE BOSS WALL RIDES THE WIRE — one compact digit string off
         // the same ledgers the 0441 rings read (wrWallBW, wall order + ROBO
@@ -88895,7 +88896,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -187293,6 +187294,44 @@ const MSB={ on:(function(){ try{ const q=/[?&]msb=([01])/.exec(location.search||
   M.advSweep=sweep;
 })();
 // ═══ END CARD-MBA ═══
+// ═══ CARD-ADW · THE AD STATE ON THE WIRE (sec:CARD-ADW; design/ad-adventure-audit-1019/cards/CARD-ADW-ad-state-on-the-wire.md + 00-CARD-AAU.md §1/§STATUS CP4; jumpr 2398, board J12): CARD-AAU could prove from HQ that Zorgy Bababa's break was DUE for 34 games and that his party-mate's phone paid, but not why HIS phone showed nothing: the MAX SDK's state and the gate's own verdict live only on the phone. Now ONE short line rides /sync (adst) and HQ v138 keeps it per player (players.adst, latched as sent, printable ASCII, never on the board): the next "why no ad" is one query. ZERO behaviour change (the gate, the shows, the cadence byte-what-they-were), zero words, zero screen.
+//   THE LINE (<= 96 chars): "p=<provider's first letter: m max · p placeholder> ok=<MAXA.ok> i=<an interstitial loaded> r=<a rewarded loaded> s=<sends this session> b=<the ad bridge> t=<the age track's first letter> h=<the torch held> g=<adGames> n=<adNext> k=<the last gate's verdict 0/1> w=<WHY the last gate refused> z=<the last show's result>".
+//   WHY, read OUTSIDE squadAdGate by a wrapper, right before it runs, in the gate's own order: steam · free (adFree) · torch (GA.hold) · cradle (adNewbie) · live (a show up) · notdue (the lifetime clock: adGames < adNext) · plc (the provider is the placeholder: the SDK never answered init on this phone) · latch (the clock is due and the SDK is real, but neither the squad clock nor the solo clock fires: no squad latch, the session's free game, or this verdict already paid) · paid (META.paidEver) · cap (AD_SESS_CAP) · gap (AD_MIN_GAP_MIN) · ok (a break was asked for). z (telAd's arm): shown · nofill · '-' (none yet).
+//   A reader on the box: SELECT name, adst FROM players WHERE name=?. The rig: GVT.adw() = { line, why, res, brk, calc }.
+let ADW={ why:'-', res:'-', brk:'-', t:0 };
+function adwWhy(){ try{
+  if(STEAM_SHELL) return 'steam';
+  if(adFree()) return 'free';
+  if(GA.hold) return 'torch';
+  if(adNewbie()) return 'cradle';
+  let live=false; try{ live=!!AD; }catch(e){} if(live) return 'live';
+  if(!((META.adGames|0)>=(META.adNext|0))) return 'notdue';
+  if(ADS.provider==='placeholder') return 'plc';
+  const sq=!!((S.bf&&S.bf.sqAdT)||(S.sq&&S.sq.sqAdT));
+  const due= sq && AD_SQUAD_EVERY>0 && ADQ.squad>0 && ADQ.sqPaid!==ADQ.squad && (AD_SQUAD_LIFE? (META.adGames|0)>=META.adNext : (ADQ.squad%AD_SQUAD_EVERY)===0);
+  const soloDue= !sq && AD_SOLO_POST===1 && ADQ.games>AD_FREE_GAMES && AD_SOLO_MAX>0 && (META.adGames|0)>=META.adNext && ADQ.soloPaid!==ADQ.games;
+  if(!(due||soloDue)) return 'latch';
+  if(META.paidEver) return 'paid';
+  if(!(MAXA.sess<AD_SESS_CAP)) return 'cap';
+  if(MAXA.lastShow && (Date.now()-MAXA.lastShow)<AD_MIN_GAP_MIN*60000) return 'gap';
+  return 'ok';
+}catch(e){ return 'err'; } }
+function adwLine(){ try{
+  let p='-', ok='-', it='-', rw='-', s='-', b='-', h='-';
+  try{ p=String(ADS.provider||'-').charAt(0); }catch(e){}
+  try{ ok=MAXA.ok?1:0; it=MAXA.int?1:0; rw=MAXA.rew?1:0; s=MAXA.sess|0; }catch(e){}
+  try{ b=ADS_BRIDGE?1:0; }catch(e){}
+  try{ h=GA.hold?1:0; }catch(e){}
+  const tr=String((META&&META.adTrack)||'-').charAt(0);
+  let w='-', z='-', k='-'; try{ w=ADW.why; z=ADW.res; k=ADW.brk; }catch(e){}
+  return String('p='+p+' ok='+ok+' i='+it+' r='+rw+' s='+s+' b='+b+' t='+tr+' h='+h+' g='+(META.adGames|0)+' n='+(META.adNext|0)+' k='+k+' w='+w+' z='+z).replace(/[^ -~]/g,'?').slice(0,96);
+}catch(e){ return '-'; } }
+(function(){
+  const g0=squadAdGate; squadAdGate=function(launch){ try{ ADW.why=adwWhy(); ADW.t=Date.now(); }catch(e){ ADW.why='err'; } const r=g0.apply(this,arguments); try{ ADW.brk=(AD_LAST&&AD_LAST.brk)?1:0; }catch(e){} return r; };   // the verdict exit's gate: the why BEFORE it decides, its verdict after (AD_LAST is stamped inside it, synchronously)
+  const t0=telAd; telAd=function(kind,r){ try{ if(kind==='int') ADW.res=(r&&r.displayed)?'shown':'nofill'; }catch(e){} return t0.apply(this,arguments); };   // the show's result (the ruler's own arm)
+  setTimeout(function(){ try{ if(window.GVT && !GVT.adw) GVT.adw=function(){ return { line:adwLine(), why:ADW.why, res:ADW.res, brk:ADW.brk, calc:adwWhy() }; }; }catch(e){} }, 0);
+})();
+// ═══ END CARD-ADW ═══
 // ═══ CARD-MSB-B2 · THE MISSION BOARD, ORDER 3: WIN THE BATTLE OF THE DESERT → THREE TIMES THE RATING (sec:CARD-MSB-B2; design/mission-board-1019/build-b2/00-BUILD-B2.md; jumpr 2391, J9; WYATT by phone 10/19/2026 20:48 EDT on the Mission Board's design pass (jumpr 2387), verbatim: "If you win the Battle of the Desert, you get an additional rating, so you get three times the normal rating if you win." + "We'll then throw that into the jumpr queue for implementation, right after going with your recommended changes. We'll push to live and see how it is.") ═══
 //   1 · HQ's WORD (server v136): on the night whose date is Order 3 (the same loop as B1: MSB_DAY0 + MSB_ORDERS, one constant pair in two files, move them together), a WINNER's first POST /gvt/bd/claim books the night THREE times on the NIGHTS pillar (the base through the daily lift as every night, the two extra steps paid at once) and answers ord 3 · x3 1 · nx 3 · xd (the extra) · full · lvx; its delta = the whole night (about +0.25 where a night pays +0.08). A NIGHTS pillar that cannot take three steps answers full 1 + lvx 3: the desert's promotions ×3 instead (BD_LEVELS 5 → 15; 🟨 MSB-Q6).
 //   2 · THE CLAIM (bdClaim wrapped, after its own handler ran): a reply with x3 → today's Order-3 row done + paid { k:'x3', d, xd, lvx, full, lvl } (B1's bdSpoils wrap marked it done at the verdict; the window reads paid); lvx 3 → BD_LEVELS × (lvx − 1) more promotions poured ONCE (xpAward, src desert; bd.last.lvl = 15, so the ceremony card's tally says +15 LEVELS); the verdict's spoils chip (if still on the glass) and the ceremony card's rating line read x3 THE ORDER'S RATING (+0.25), or x3 THE ORDER'S PROMOTIONS (+15 LEVELS).
