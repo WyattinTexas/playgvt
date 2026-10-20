@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"24.99","md5":"2c3801de9479110c8423c21eb78ec20d","sha":"d09a352db","at":"2026-10-20T03:10:43Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.00","md5":"dcc7c5e3553bb020fd2101963608304c","sha":"0b7df99b5","at":"2026-10-20T03:22:10Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -5674,6 +5674,18 @@
 @keyframes rauStamp { from { transform:rotate(-6deg) scale(2); opacity:0; } to { transform:rotate(-6deg) scale(1); opacity:1; } }
 @media (prefers-reduced-motion: reduce) { .rau-slide *, .rau-slide { animation-duration:.001s !important; animation-iteration-count:1 !important; } .rau-track { transition:none; } .rf-body.rau { transition:none; } .rau-slide.buying .rau-scene::after, .rau-slide.buying .rau-man, .rau-slide.rf-salute .rau-man img, .rau-slide.deny .rau-buy { animation:none !important; } .rau-nav svg { transition:none; } }
 @supports not (offset-path: path('M0 0')) { .rau-slide .gre-nade { display:none !important; } }   /* an engine without motion paths: no grenade in flight (the burst still lands) */
+/* ═══ CARD-RUP THE RESCUED MAN'S UNLOCK POPUP (design/recruit-unlock-1019/00-CARD-RUP.md): the fort's audition card for ONE man (every rule above is his: the stage, the flare, the entrance, the unboxing, the stamp).
+   Its seat is #rupHost, a top-level sibling (the fort's card rode #roomModal, inside the room's wrapper, hidden under a verdict): the four #roomModal rules of the audition's card, word for word, in that seat, over the
+   battle's glass and the verdict's layer (z10, held hidden) and under the reward card (#milePop z27). ENLIST carries no price sticker here, so it breathes a slow gold glow till the tap (the fort's box had its price to
+   say "tap me"); the breath stops for the unboxing and under reduced motion. */
+#rupHost .rmback { padding:0; overflow:hidden; background:#0d0b08; z-index:24; }
+#rupHost .rmcard.rau-card { position:fixed; inset:0; width:auto; max-width:none; margin:0; padding:0; border:0; border-radius:0; background:#0d0b08; overflow:hidden; }
+#rupHost .rmcard.rau-card > .ftbody { position:absolute; inset:0; margin:0; }
+#rupHost .rmcard.rau-card > .rmx { position:fixed; z-index:30; top:var(--rau-xt, calc(env(safe-area-inset-top,0px) + 6px)); right:var(--rau-xr, calc(env(safe-area-inset-right,0px) + 10px)); width:var(--rau-xs,40px); height:var(--rau-xs,40px); padding:0; border-radius:50%; border:3px solid #f1d9b8; background:radial-gradient(circle at 40% 35%, #d2533f, #9c2c20); color:#fff; font-size:calc(var(--rau-xs,40px) * .55); line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 rgba(0,0,0,.4); }
+.rf-body.rup .rup-go { animation:rup_breathe 1.8s 1.4s ease-in-out infinite; }
+@keyframes rup_breathe { 0%,100% { transform:none; box-shadow:0 5px 0 #8a5b16, 0 10px 18px rgba(0,0,0,.4), 0 0 0 0 rgba(246,198,79,0); } 50% { transform:scale(1.05); box-shadow:0 5px 0 #8a5b16, 0 10px 18px rgba(0,0,0,.4), 0 0 22px 6px rgba(246,198,79,.55); } }
+.rf-body.rup .rau-slide.buying .rup-go { animation:none; }
+@media (prefers-reduced-motion: reduce) { .rf-body.rup .rup-go { animation:none; } }
   #fhHot-recruits .fh-pill { width:min-content; word-break:keep-all; padding-left:0.35em; padding-right:0.35em; letter-spacing:0.04em; }   /* the wall's third plaque sits tight under its rack: the door is 84 units (the one free span of the back wall) - min-content keeps a two-word sign on TWO lines when fhSignFit lifts the max-width at the floor (the board grows to the longest WORD, never to the phrase; keep-all: a CJK / Korean word is never cut per glyph); fhRecruitSign nudges it east of PROMOTIONS' sign in the tongues where the word is wider than the door */
   .mbrf .mb-win img { filter:drop-shadow(0 0 3px rgba(0,0,0,0.85)) drop-shadow(0 5px 4px rgba(0,0,0,0.5)); }   /* the dark rim of the pack's own step-out man - a tan or white army never vanishes into the rays */
   /* 0365: FIVE cards on the peg now (four figures + the loaner) — the width
@@ -55377,7 +55389,7 @@ const RSC={ T:4.6, T0:3.3, per:0.05, rise:0.5, hop:0.62, sayAt:0.95, dx:-96, dy:
 function rscLvl(k){ const r=RSC_ROAD.find(r9=>r9.t===k); return r? r.n : 0; }   // the rung that hands this man over (0 = not a rescue)
 function rscName(k){ let it=null; try{ it=SHOP_ITEMS.find(s9=>s9.t===k); }catch(e){} return (it && it.name) || (UDEF[k] && UDEF[k].name) || ''; }   // the pegboard's word for him (x7 since the Surplus)
 function rscGive(){ const got=[]; if(!Array.isArray(META.unlocked)) META.unlocked=[]; for(const r of RSC_ROAD){ if((META.campaign|0)>=r.n && META.unlocked.indexOf(r.t)<0){ META.unlocked.push(r.t); got.push(r.t); } } return got; }   // every rung on the record pays its man, once (raw META fields only: the boot heal reads this before the tables below it exist)
-function rscGrant(prizes){ let got=[]; try{ got=rscGive(); for(const k of got) prizes.push({ o:1, t:rscName(k), f:'force', a:'<img src="'+sprURI(k, dyeHex()||undefined)+'" alt="">' }); }catch(e){} return got.length; }   // the verdict's door: the man + his JOINS THE FORCE ticket, at the commando's rank (o 1: a man who joins leads the win's ticket) (the verdict's own checkAch + saveMeta carry him)
+function rscGrant(prizes){ let got=[]; try{ got=rscGive(); for(const k of got) prizes.push({ o:1, t:rscName(k), f:'force', a:'<img src="'+sprURI(k, dyeHex()||undefined)+'" alt="">' }); }catch(e){} try{ if(got.length) RUP.due={ ks:got.slice(), cfg:S.cfg }; }catch(e){} return got.length; }   /* CARD-RUP: the men just handed over wait for the verdict's foot (rupHold: their unlock popup, the first screen) */   // the verdict's door: the man + his JOINS THE FORCE ticket, at the commando's rank (o 1: a man who joins leads the win's ticket) (the verdict's own checkAch + saveMeta carry him)
 function rscRow(){ if(S.bf || S.rival || S.momRaid || S.park || S.tex || (S.raid && S.raid.cfg===S.cfg) || hrdOn()) return null; const n=S.levelN|0; return RSC_ROAD.find(r9=>r9.n===n) || null; }   // the plain campaign alone (endBattle's last branch)
 function rscArm(v, foeWin){ try{ if(!v || foeWin || !S.tanBase) return; const r=rscRow(); if(!r || (META.campaign|0)>=r.n) return; let n9=60; try{ n9=String(TXT(r.say)).length; }catch(e9){} const T9=Math.max(RSC.T, RSC.T0+RSC.per*n9); v.rsc={ k:r.t, say:r.say, t0:v.dur, T:T9, pop:0, land:0, said:0 }; v.dur+=T9; }catch(e){} }   // the FIRST win of a rescue rung (the record still under it as the flag starts); the scene is as long as his line reads in this tongue
 function rscTick(v){ const R=v.rsc, e=v.t-R.t0; if(e<0) return;
@@ -55394,7 +55406,7 @@ function rscDraw(v){ const R=v.rsc, P=rscAt(v); if(!P) return; const im=unitImg(
   if(P.ph==='stand'){ cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(P.x, v.y+RSC.dy+2, 15, 4, 0, 0, Math.PI*2); cx.fill(); }
   drawSprite(R.k, P.x, P.y, unitW(R.k), 0, 0, im, true);   // your own man's mold in the army's colour, facing the men who freed him
   cx.restore(); }
-function rscSweep(){ try{ if(!Array.isArray(META.rscOwed) || !META.rscOwed.length) return false; const k=META.rscOwed.shift(); if(!META.rscOwed.length) delete META.rscOwed; saveMeta(); if(!rscLvl(k) || !unitOwned(k)) return false; if(S.mode==='menu') renderMenu(); return !!rfCard(k); }catch(e){ return false; } }   // the back pay's card, cleared AT the deal (the pet card's ledger law), one a landing
+function rscSweep(){ try{ if(!Array.isArray(META.rscOwed) || !META.rscOwed.length) return false; const k=META.rscOwed.shift(); if(!META.rscOwed.length) delete META.rscOwed; saveMeta(); if(!rscLvl(k) || !unitOwned(k)) return false; if(S.mode==='menu') renderMenu(); return rupRoom(k) || !!rfCard(k); }catch(e){ return false; } }   /* CARD-RUP: the fort's NEW RECRUITS screen for him, then its ADDED TO YOUR ARSENAL card (rupRoom); ?rup=0 = the card alone */   // the back pay's card, cleared AT the deal (the pet card's ledger law), one a landing
 (function(){ try{ const got=rscGive(); if(got.length) META.rscOwed=(Array.isArray(META.rscOwed)? META.rscOwed : []).concat(got); }catch(e){} })();   // THE BACK PAY: a save already past a rung owns its men on every boot (a co-op or sign-in raised record meets it here); each owes its card at the room
 // 0481 THE BAKER RIFLE'S BACK PAY — the flamestrike grammar, campaign
 // edition: a save whose campaign ledger already stands at L100 owns the
@@ -87578,7 +87590,7 @@ function resSceneBeat(F, n){ const bt=F.list[n]||{}, ow=F.ow, cl=F.el.classList,
     else if(ow.foil){ if(n===1) later(()=>{ SFX.thock(); }, 900); }
     else if(n===1) SFX.snap(); else if(n===2) SFX.clack(); else if(n===3) later(()=>{ SFX.snap(); }, 1050); }catch(e){}
   if(bt.a) F.timer=setTimeout(()=>{ if(CAP_SC===F && F.beat===n) capSceneNext(); }, RM? Math.max(CAP_DWELL, 900) : bt.a); }
-function hideAllOverlays(){ telPickOut('door'); shakeTeardown();   // 0624 D1: the picker torn down with picks still owed = 'upx' (read BEFORE the hide below)   // SH-01: the dance dies at every door — music hard-stopped, held juice handed to the xpTeardown right after (which clears it, the pristine navigation law)
+function hideAllOverlays(){ telPickOut('door'); shakeTeardown(); rupTeardown();   /* CARD-RUP: the unlock popup dies at every door (no reveal; its held pour handed back for the xpTeardown below) */   // 0624 D1: the picker torn down with picks still owed = 'upx' (read BEFORE the hide below)   // SH-01: the dance dies at every door — music hard-stopped, held juice handed to the xpTeardown right after (which clears it, the pristine navigation law)
   xpTeardown();   // a ceremony must never survive into the next screen
   winFaceClear();                           // ...nor the campaign win's face (0552c: its timers, its classes, its tap listener)
   commClear();                              // ...and neither may a comm window (v1.41)
@@ -88818,7 +88830,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='24.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -118265,7 +118277,7 @@ function endBattle(win){
   capRescue();   // OC-4 THE RESCUE: AFTER the bank too — his fall on 205 with the capture standing closes the latch (done=1: Sarge, the toy in its old spot, the one-hero law come home by construction) and pays the once-ever purse; the scene is owed to CONTINUE
   oc12Win();   // OC-12 THE FACTORY: AFTER the bank too — a win of 226–229 latches its cable cut, a win of 225 or 230 owes its beat to CONTINUE (once ever), the spoils come home; every other verdict returns at once
   nxFill(plain);   // OC-13 THE NEXT-UP CARD: AFTER the bank (the ladder is written) — on the plain campaign's win of a third-hundred rung the strip under the stars names what is coming (the next new enemy, the next boss, black silhouettes); every other verdict leaves it empty; it writes nothing on the save
-  if(!olvSceneTake() && !ovfSceneTake17() && !ovfSceneTake19()) pantheonCheck();   /* CARD-OVF-B19 THE ENDING holds 300's sheet (once ever, after the bank) */   /* CARD-OVF-B17 THE TURN holds 299's sheet (once ever, after the bank and the tease) */   /* CARD-OLV-B5 THE SCENE holds 250's sheet first (once ever, after the bank); the dance waits for the next win */   // SH-01 THE PANTHEON — win-only by construction (the loss branch returned above), AFTER every grant+save
+  if(!olvSceneTake() && !ovfSceneTake17() && !ovfSceneTake19() && !rupHold()) pantheonCheck();   /* CARD-RUP: a rescued man's unlock popup holds the sheet first (after the bank; rupEnd gives it back, then the dance's check) */   /* CARD-OVF-B19 THE ENDING holds 300's sheet (once ever, after the bank) */   /* CARD-OVF-B17 THE TURN holds 299's sheet (once ever, after the bank and the tease) */   /* CARD-OLV-B5 THE SCENE holds 250's sheet first (once ever, after the bank); the dance waits for the next win */   // SH-01 THE PANTHEON — win-only by construction (the loss branch returned above), AFTER every grant+save
   if(evBattle()) evVerdictTeardown();   // 0484: a room is one bell — the party does not survive the verdict (after every grant + the squad XP; the exit taps land on the room)
 }
 
@@ -177447,7 +177459,7 @@ function recruitsHTML(){   // CARD-RAU: the fort's NEW RECRUITS card = THE AUDIT
 function rauInsets(b){ let I=RAU.ov; if(!I){ const cs=getComputedStyle(b), n9=v=>parseFloat(v)||0; I={ t:n9(cs.paddingTop), r:n9(cs.paddingRight), b:n9(cs.paddingBottom), l:n9(cs.paddingLeft) }; }   // the safe-area insets off the root's own padding (env() must lay out to resolve: 0395's lesson); ov = a rig's glass (rauRig), as CHIN.ov
   if(b.clientWidth>b.clientHeight && I.t>=40) return { t:0, r:Math.max(I.r, I.t), b:Math.min(I.b, 21), l:Math.max(I.l, I.t), turned:1 };   // A SIDEWAYS GLASS THAT STILL REPORTS AN UPRIGHT PHONE'S INSETS (his phone 10/5: top 62, bottom 34 at 874 x 402, LSL-F5; v16.46 dealt it 0.76 under a 62 px band): no sideways glass has an island over its top, so the island's inset is read at the SIDES (where the island now is) and the home bar's is the sideways 21
   return I; }
-function rauFit(){ const b=document.querySelector('#roomModal .rf-body.rau'), st=b && b.querySelector('.rau-stage'); if(!st) return false;   // CARD-RA2: seat the scene on the glass (the frame inside the safe area, the picture to every edge)
+function rauFit(){ const b=rupStage() /* CARD-RUP: the audition's body in either seat (#roomModal: the fort's card · #rupHost: the rescue's popup) */, st=b && b.querySelector('.rau-stage'); if(!st) return false;   // CARD-RA2: seat the scene on the glass (the frame inside the safe area, the picture to every edge)
   const W=b.clientWidth, H=b.clientHeight; if(!W || !H) return false;
   const I=rauInsets(b), fl=I.turned? I.b+EDGE_PAD : Math.max(I.b, chinPx()||0), FW=RAU_F.x1-RAU_F.x0, FH=RAU_F.y1-RAU_F.y0;   // fl = the fingers' floor: the home bar's band (0395 THE CHIN), never under the inset
   const sw=Math.max(40, W-I.l-I.r), sh=Math.max(40, H-I.t-fl), k=Math.min(sw/FW, sh/FH);
@@ -177457,7 +177469,7 @@ function rauFit(){ const b=document.querySelector('#roomModal .rf-body.rau'), st
   st.style.transform='translate('+ox.toFixed(2)+'px,'+oy.toFixed(2)+'px) scale('+k.toFixed(5)+')';
   const u=v=>v.toFixed(2)+'px', put=(n9,v)=>st.style.setProperty(n9, u(v));
   put('--gx0',g.x0); put('--gy0',g.y0); put('--gw',g.w); put('--gh',g.h); put('--sx0',g.sx0); put('--sx1',g.sx1); put('--sy0',g.sy0); put('--sy1',g.sy1);
-  const m=document.getElementById('roomModal'), xs=Math.max(36, Math.min(60, 40*k)), xk=xs/40;   // the ✕ rides the stage's scale (40 px on his phone, never under a finger's 36), on the safe corner
+  const m=b.closest('#rupHost')||document.getElementById('roomModal'), xs=Math.max(36, Math.min(60, 40*k)), xk=xs/40;   // the ✕ rides the stage's scale (40 px on his phone, never under a finger's 36), on the safe corner (CARD-RUP: on the seat the body stands in)
   m.style.setProperty('--rau-xs', xs.toFixed(1)+'px'); m.style.setProperty('--rau-xt', (I.t+6*xk).toFixed(1)+'px'); m.style.setProperty('--rau-xr', (I.r+10*xk).toFixed(1)+'px');
   put('--bx', g.sx1-(20*xk+xs)/k);   // the piggy's chip ends 10 short of the ✕
   const tr=st.querySelector('.rau-track'), sl=st.querySelectorAll('.rau-slide');
@@ -177473,16 +177485,16 @@ function rauFit(){ const b=document.querySelector('#roomModal .rf-body.rau'), st
     const fz=rauFl(s9.dataset.k); if(fz.fit) try{ fz.fit(s9, k); }catch(e){} });
   return true; }
 function rauHush(){ RAU.tid.forEach(clearTimeout); RAU.tid=[]; }
-function rauGo(i, tap){ const b=document.querySelector('#roomModal .rf-body.rau'); if(!b) return false; const sl=b.querySelectorAll('.rau-slide'); if(!sl.length) return false;
+function rauGo(i, tap){ const b=rupStage(); if(!b) return false;   /* CARD-RUP: either seat */ const sl=b.querySelectorAll('.rau-slide'); if(!sl.length) return false;
   i=(i+sl.length)%sl.length; if(tap){ try{ audio(); }catch(e){} }
   const was=RAU.cur; if(was>=0 && sl[was]) sl[was].classList.remove('on');
   sl.forEach((q9,j)=>q9.classList.toggle('near', j===i || (was>=0 && j>=Math.min(was,i) && j<=Math.max(was,i))));   // CARD-RA2: only the man on stage is painted, and while the track slides, the men it passes (four full-glass pictures off the glass cost every frame; WebKit's rig also dropped a corner of the glass with all five painted)
-  clearTimeout(RAU.nt); RAU.nt=setTimeout(()=>{ try{ if(rfStands()) document.querySelectorAll('#roomModal .rau-slide').forEach((q9,j)=>q9.classList.toggle('near', j===RAU.cur)); }catch(e){} }, 700);
+  clearTimeout(RAU.nt); RAU.nt=setTimeout(()=>{ try{ if(rupLive()) (rupStage()||document).querySelectorAll('.rau-slide').forEach((q9,j)=>q9.classList.toggle('near', j===RAU.cur)); }catch(e){} }, 700);
   RAU.cur=i; b.querySelector('.rau-track').style.transform='translateX('+(-RAU.pitch*i).toFixed(2)+'px)';
   const s=sl[i]; void s.offsetWidth; s.classList.add('on');
   b.querySelectorAll('.rau-pip').forEach((p9,j)=>p9.classList.toggle('on', j===i));
   const k=s.dataset.k, f=rauFl(k); b.style.background=f.base||'#0d0b08';
-  rauHush(); (RAU_SFX[k]||[]).forEach(([ms,nm])=>RAU.tid.push(setTimeout(()=>{ try{ if(rfStands() && RAU.cur===i && SFX[nm]) SFX[nm](); }catch(e){} }, ms)));   // Q3 a: his beat, only while he is still on the stage
+  rauHush(); (RAU_SFX[k]||[]).forEach(([ms,nm])=>RAU.tid.push(setTimeout(()=>{ try{ if(rupLive() && RAU.cur===i && SFX[nm]) SFX[nm](); }catch(e){} }, ms)));   // Q3 a: his beat, only while he is still on the stage
   if(f.enter) try{ f.enter(s); }catch(e){}   // CARD-RA2: a flare with a living part (THE FLAME's fire) starts it as he steps up; its loop ends itself once he has left the stage or his card is gone
   return true; }
 function rauStep(d){ return rauGo(RAU.cur+d, 1); }
@@ -177860,6 +177872,84 @@ function rfSalute(t){   // an OWNED pack's tap on the fort's card: his small sal
   pk.classList.remove('rf-salute'); void pk.offsetWidth; pk.classList.add('rf-salute');
   setTimeout(()=>{ try{ pk.classList.remove('rf-salute'); }catch(e){} }, 620); return true;
 }
+// ═══ CARD-RUP THE RESCUED MAN'S UNLOCK POPUP (design/recruit-unlock-1019/00-CARD-RUP.md; Wyatt by phone 10/19/2026 21:37 EDT, dictated, verbatim: "When you unlock the medic, the first screen you should get is the
+// unlock medic popup screen that we used to use in the fort. Currently, it just proceeds and says you got the medic. Instead of making it fun, opening it up, and showing off our cool animations, for each of the unlocks,
+// make sure that we show the animation correctly.") ═══
+// THE FIRST SCREEN: the win that hands a rescued man over (rscGrant writes RUP.due) holds the verdict's sheet at endBattle's foot (rupHold: the dance's own hold, shakeShow's and olvSceneTake's: the sheet hidden in the
+// same tick, its count stopped, the XP pour and the kindness chip held) and deals the fort's NEW RECRUITS screen for HIM: CARD-RAU's audition slide alone on the whole glass (the fort's own markup, CSS and RAU_FLARE: his
+// stage, his animation, his sound beat, his name slammed in), RECRUIT n OF 5 by his rung on the road, ENLIST with no price. ENLIST (or a tap on him) = the fort's unboxing (rfUnlockBeat's: the thock, .buying for
+// FH_RECRUITS.MS: the light, his jump, the gold rays), then the card re-dealt with him ENLISTED ✓ and the fort's own ADDED TO YOUR ARSENAL card over it (rfCard, its fanfare). Its OKAY deals the next man (a jumped rung
+// can hand over two) or gives the sheet back (revealVerdict again, the stars counted from the top, the pour, then the dance's check). The ✕ = straight back to the sheet (he is in the army already).
+// THE BACK PAY (rscSweep, a save already past a rung): the same screen at the room, one man a landing. A navigation tears it down clean (hideAllOverlays). THE HOST: #rupHost, a top-level sibling (the fort's card rode
+// #roomModal, which lives inside the room's own wrapper and is hidden under a verdict); rauFit and rauGo find the audition's body in either seat (rupStage). Nothing is sold, nothing new is saved: zero words (every label
+// is a shipped key x7), zero save keys, zero wire. ?rup=0 = the shipped verdict (the ticket alone) and the shipped back pay (the card alone).
+var RUP={ on:(function(){ try{ const m=/[?&]rup=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_rup','0'); else localStorage.removeItem('gvt_rup'); } return localStorage.getItem('gvt_rup')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  due:null, q:[], k:null, ctx:'', held:null, rev:0, promo:0, vk:0, beat:0, tid:0, log:[], err:0 };   // the switch · the men the last grant handed over (+ its battle) · the men still to come · the man on stage · 'win' (the verdict's sheet held) | 'room' (the back pay) · the held pour · the sheet was up · the stars' sound rule · the count was stopped · the unboxing's latch · its timer · the rig's read
+function rupOn(){ return !!RUP.on; }
+function rupStands(){ return !!document.querySelector('#rupHost .rf-body.rup'); }
+function rupStage(){ return document.querySelector('#roomModal .rf-body.rau') || document.querySelector('#rupHost .rf-body.rau'); }   // the audition's body: the fort's card (#roomModal) or this popup (#rupHost)
+function rupLive(){ return rfStands() || rupStands(); }   // an audition stands (rauGo's own guards: his sound beat, the 'near' tidy)
+function rupHost(){ let h=document.getElementById('rupHost'); if(!h){ h=document.createElement('div'); h.id='rupHost'; document.body.appendChild(h); } return h; }
+function rupHTML(k, own){   // CARD-RAU's slide for ONE man (recruitsHTML's own markup and classes, so the fort's CSS, rauFit, rauGo and his RAU_FLARE all play as they did): no arrows, no strip, no piggy, no price
+  const it=SHOP_ITEMS.find(s9=>s9.t===k); if(!it) return '';
+  const dye=dyeHex()||undefined, f=rauFl(k), i=RSC_ROAD.findIndex(r9=>r9.t===k), n=RSC_ROAD.length;
+  let man=sprURI(k, dye); if(f.mold) try{ const b9=f.mold(); if(b9) man=sprURI(k, dye, undefined, b9); }catch(e){}   // CARD-RA3: a flare may dress its man for the stage (THE FLAME without his mold's nozzle wedges)
+  return '<div class="ftbody" data-tab="rup"><div class="rf-body rau rup"><i class="rau-probe"></i><div class="rau-stage"><div class="rau-track">'
+    +'<section class="rau-slide'+(own?' own':'')+'" data-k="'+k+'" style="--accent:'+(f.accent||it.band)+';--band:'+it.band+(it.ink? ';--bandink:'+it.ink : '')+';background:'+(f.base||'#0d0b08')+'"><div class="rau-scene">'
+    +'<div class="rau-bg">'+(f.bg||'')+'</div><div class="rau-light"></div><div class="rau-floor"></div><div class="rau-back">'+(f.back||'')+'</div>'
+    +'<div class="rau-man" onclick="rupEnlist()"><img src="'+man+'" alt="" draggable="false"></div><div class="rau-front">'+(f.front||'')+'</div>'
+    +'<div class="rau-info"><div class="rau-kick">RECRUIT '+(i+1)+' OF '+n+'</div><div class="rau-series">GREEN ARMY · SHELF SERIES</div>'
+    +'<h2 class="rau-name"><span>'+it.name+'</span></h2><div class="rau-tag" data-notr>'+rauTag(it.tag)+'</div>'
+    +'<div class="rau-cta">'+(own? '<span class="rau-stamp">ENLISTED ✓</span>' : '<button type="button" class="rau-buy rup-go" onclick="rupEnlist()">ENLIST</button>')+'</div>'
+    +'</div></div></section></div>'
+    +'<div class="rau-top"><span class="rau-t">NEW RECRUIT</span></div></div></div></div>'; }
+function rupPaint(k, own){ const h=rupHTML(k, own); if(!h) return false;
+  rupHost().innerHTML='<div class="rmback" onclick="rupX(event)"><div class="rmcard medalhall rau-card rup-card" onclick="event.stopPropagation()"><button class="rmx" onclick="rupX()">✕</button>'+h+'</div></div>';   // roomModal's own markup (the audition's full-bleed card, the ✕ floating in its corner) in this popup's seat; the ✕ is this popup's own door
+  const b=document.querySelector('#rupHost .rf-body.rup'); if(!b) return false;
+  rauStyle(); RAU.start=0; RAU.n=1; RAU.cur=0; rauFit(); RAU.cur=-1;   // rauStart's own seat (the scene fitted to the glass before he steps up), without its swipe: there is one man
+  try{ if(RAU.ro) RAU.ro.disconnect(); RAU.ro=null; const pr=b.querySelector('.rau-probe'); if(pr && window.ResizeObserver){ RAU.ro=new ResizeObserver(()=>{ if(rupLive()) rauFit(); }); RAU.ro.observe(pr); } }catch(e){}   // an inset that changes with no resize (WKWebView) re-seats the scene
+  return rauGo(0); }   // HIS ENTRANCE: the light, the step up, the name's slam, his flare's own animation and his sound beat (RAU_SFX)
+function rupDeal(k){ RUP.k=k; RUP.beat=0; clearTimeout(RUP.tid); RUP.tid=0; if(RUP.log.length<40) RUP.log.push({ k, ctx:RUP.ctx, cv:GVT_CV }); return rupPaint(k, 0); }
+function rupHold(){ const D=RUP.due; RUP.due=null;   // endBattle's foot, after the bank: true = the popup took the verdict's sheet (it gives it back at its end)
+  const q=(D && D.cfg===S.cfg && Array.isArray(D.ks))? D.ks.filter(k=>rscLvl(k) && unitOwned(k) && SHOP_ITEMS.some(s9=>s9.t===k)) : [];
+  if(!rupOn() || !q.length || S.mode!=='win' || RUP.ctx) return false;
+  Object.assign(RUP, { ctx:'win', q:q.slice(1), held:null, rev:0, promo:0, vk:0 });   // written first, so the give-back undoes exactly what was held, whatever fails below
+  try{
+    kawHold(); if(XPJ_PEND){ clearTimeout(XPJ_PEND); XPJ_PEND=0; RUP.held=XPJ_A; RUP.promo=(XPJ_A && (XPJ_A.promos|0)>0)? 1 : 0; } VD_XPH=0;   // the dance's own hold (shakeShow): the pour scheduled this tick waits
+    vdKill(); RUP.vk=1;   // the stars' count stops before its first beat (it runs again from the top on the give-back)
+    const wEl=document.getElementById('win'); if(wEl && !wEl.classList.contains('hidden')){ wEl.classList.add('hidden'); RUP.rev=1; }   // the sheet re-hidden in the same tick as the foot's reveal, zero paint between
+    if(rupDeal(q[0])) return true;
+  }catch(e){ RUP.err++; }
+  rupEnd(false); return false; }   // FAIL-OPEN: a popup that cannot build never holds a verdict (the sheet back at once; the foot's own dance check runs)
+function rupRoom(k){   // THE BACK PAY's seat (rscSweep, one man a landing): the same screen at the room; false = not dealt (rscSweep deals the shipped card)
+  if(!rupOn() || RUP.ctx || !rscLvl(k) || !unitOwned(k) || !SHOP_ITEMS.some(s9=>s9.t===k)) return false;
+  try{ RUP.ctx='room'; RUP.q=[]; if(rupDeal(k)) return true; }catch(e){ RUP.err++; }
+  rupEnd(false); return false; }
+function rupEnlist(){ const s=document.querySelector('#rupHost .rf-body.rup .rau-slide'); if(!s || RUP.beat || s.classList.contains('own')) return false; RUP.beat=1;   // ONCE a man: the fort's unboxing (rfUnlockBeat's own beat), nothing sold (no coin, no till)
+  try{ audio(); SFX.thock(); }catch(e){}
+  s.classList.add('buying'); clearTimeout(RUP.tid); RUP.tid=setTimeout(rupLand, reducedMotion()? 120 : FH_RECRUITS.MS); return true; }
+function rupLand(){ RUP.tid=0; if(!rupStands() || !RUP.k) return false;   // rfUnlockBeat's land: the card re-dealt in place with him ENLISTED ✓ (the fort's fortSync), the fort's reward card over it
+  rupPaint(RUP.k, 1);
+  if(!rfCard(RUP.k)){ rupOk(); return false; }
+  const b=document.querySelector('#milePop .mbrf .mb-take'); if(b) b.setAttribute('onclick', 'rupOk()');   // its OKAY walks this popup on: the next man, or the sheet back
+  return true; }
+function rupOk(){ try{ SFX.blip(); }catch(e){} mileFold(); clearTimeout(RUP.tid); RUP.tid=0;
+  if(RUP.q.length) return rupDeal(RUP.q.shift());
+  rupEnd(true); return true; }
+function rupX(ev){ if(ev && ev.target!==ev.currentTarget) return; try{ SFX.blip(); }catch(e){} if(document.querySelector('#milePop .mbrf')) mileFold(); RUP.q=[]; rupEnd(true); }   // the ✕: straight back (he is in the army already)
+function rupDown(){ clearTimeout(RUP.tid); RUP.tid=0; rauHush(); try{ if(RAU.ro) RAU.ro.disconnect(); RAU.ro=null; }catch(e){} const h=document.getElementById('rupHost'); if(h && h.firstChild) h.innerHTML=''; }   // the stage down (his flare's loop ends itself: its canvas has left the page)
+function rupEnd(dance){ const ctx=RUP.ctx, held=RUP.held, rev=RUP.rev, promo=RUP.promo, vk=RUP.vk;
+  Object.assign(RUP, { ctx:'', q:[], k:null, held:null, rev:0, promo:0, vk:0, beat:0 }); rupDown();
+  if(ctx!=='win') return;
+  if(rev) revealVerdict('win', true);   // a RE-reveal: the face this verdict built stands (winFaceClear runs on a fresh reveal only)
+  if(held) xpQueue(held);   // the juice runs AFTER the popup, as after the dance
+  if(vk) vdCount(!!promo);   // the stars count from the top, as on a fresh sheet (and the pour waits for the points again: AW-16)
+  try{ kawAfter(); }catch(e){}
+  if(dance) pantheonCheck(); }   // the foot's own last door, deferred to here
+function rupTeardown(){ if(!RUP.ctx) return; const held=RUP.held; Object.assign(RUP, { ctx:'', q:[], k:null, held:null, rev:0, promo:0, vk:0, beat:0 }); rupDown();   // hideAllOverlays' seat: a navigation mid-popup tears it down clean (no reveal: every overlay is leaving; the man is on the save)
+  if(document.querySelector('#milePop .mbrf')) mileFold(); if(held) xpQueue(held); try{ kawAfter(); }catch(e){} }   // the held juice handed back for the xpTeardown right after it (the pristine navigation law)
+function rupRig(){ const s=document.querySelector('#rupHost .rf-body.rup .rau-slide'), p=document.getElementById('milePop'); return { cv:GVT_CV, on:RUP.on, ctx:RUP.ctx, k:RUP.k, q:RUP.q.slice(), beat:RUP.beat, stands:rupStands(), slide:s? { k:s.dataset.k, on:s.classList.contains('on'), own:s.classList.contains('own'), buying:s.classList.contains('buying') } : null, card:!!(p && !p.classList.contains('hidden') && p.querySelector('.mbrf')), log:RUP.log.slice(), err:RUP.err }; }   // the rig's read (no game caller)
+try{ addEventListener('resize', ()=>{ if(rupStands()) rauFit(); }); }catch(e){}   // the glass turned or resized: the scene re-seated (the fort card's own listener reads its own seat)
 // THE WALL — MEDALS (the shelf's retired caseArt ×0.85 on the wall's left, the count on a small plate — subtle: heroes don't brag) and
 // PROMOTIONS = THE RANK WALL beside it: a dark plaque in a brass frame carrying THE FOUR TIERS as badges (his picture's grammar — a shield
 // with the tier's metal and one to four gold stars), the threshold in digits under each, the owned men who reached each tier under it as
