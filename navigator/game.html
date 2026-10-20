@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.00","md5":"dcc7c5e3553bb020fd2101963608304c","sha":"0b7df99b5","at":"2026-10-20T03:22:13Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.01","md5":"653527e9a1fef522af4550b8ed7ee4ca","sha":"ee8065687","at":"2026-10-20T03:29:24Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -72370,7 +72370,7 @@ const FDEF = {
   // the call every 8 s = every wasp dives at once, the needle = two hits in a row on her → one 3-pip sting). `wqueen`, not `queen`: 0907's `queen` is the QUEEN GNOME (card 05's princess).
   angler:   { hp:60, spd:26, bounty:80,  leak:4, w:110, boss:true, rod:{r:480, wind:0.8, reel:220, cd:7, lineHp:3}, stomp:{r:84, dmg:2}, shroom:{r:28, cloudR:56, cloudT:3, poison:0.5, poisonT:6, max:2, sprout:9} },
   toadstool:{ hp:1,  spd:0,  bounty:0,   leak:0, w:48,  mine:1 },
-  wqueen:   { hp:90, spd:30, bounty:100, leak:4, w:104, boss:true, fly:1, lay:{cd:6, cap:2}, call:{cd:8}, needle:{hits:2, pips:3} },
+  wqueen:   { hp:180, spd:30, bounty:100, leak:4, w:104, boss:true, fly:1, lay:{cd:6, cap:2}, call:{cd:8}, needle:{hits:2, pips:3}, assault:{cd:5, first:0} },   // CARD-QWF (Wyatt 10/19 23:02): her bar doubled (90 -> 180); assault = her own sting run on a clock (qwAssaultTick in gnQueenTick: the first the frame she is on the carpet, then every cd s; the needle's pips); the shield off the carpet (hurt), the court (gnFairyTick), the swarm (qwSwarmTick), her nests fall with her (foeFell)
   princess: { hp:160, spd:24, bounty:400, leak:8, w:120, rng:400, boss:true, harp:{shotCd:2.4, pips:2, halt:240, back:80, killR:84, tell:0.12, hopT:0.3, hopPx:80, arrowT:2.0, arrowN:3, arrowDy:120, arrowSpd:900, arrowHw:56, arrowLen:160, arrowGap:0.08, arrowBack:0.25, dim:0.55} },   // 0947e THE PALACE RAID (card 05): PRINCESS CROAK — `harp` = her brain flag (updateFoePrincess; the king's `croak` reads are his alone); the ⚑ dials of the card's §7 live on the row
   pfrog:    { hp:4,  spd:0,  bounty:10, leak:1, w:44, pounce:{aggro:150, leap:460, swing:0.9, pips:1, cap:1, cd:2.0}, tongue:{r:56, pips:1, cd:2} },   // 0947e THE POND FROG (raid-only — nixed from the campaign, Wyatt 9/11 ~4:50 pm): the cub's pounce with THE SPLAT as a pip + the bowl-over (a row-gated branch; cap 1 / cd 2 — the capless chain splatted a 3-grit man dead in 2.7 s on the rig), THE TONGUE 2 m
   tcannon: { hp:10, spd:18, bounty:24, leak:2, w:88, elite:true, rng:400, minRng:120, fireCd:3.6, cotton:{spd:190, r:24, range:760, wind:0.5, splashR:40} },   // 0586: fireCd → TEDDY_GUN_CD 3.0 and cotton.splashR → TEDDY_GUN_R 50 are RE-DEALT at load (the consts line at PARK_BASE_HP; the literals here are the pre-0586 cells) · §3.11 THE POP-CANNON CREW — the stego row VERBATIM with the boulder bag re-read as a LOBBED COTTON BALL (cannonTick: the tube park at 400, the 0.5 s wind = the spring compresses, the lob, foeSplash's knock at splashR 40); under 120 a statue (tanPick's minRng — the blind spot); ×0.7 faster inside the General's aura
@@ -88830,7 +88830,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -101360,6 +101360,7 @@ function bfSfx(fn,x,y){ if(bfVis(x,y)) fn(); }
 // combustion stub by construction (both come through hurt with a type:'flame' source); the counter table's snow terms live in counterDmg, fenced.
 const FLAME_SNOW_X=3;
 function hurt(f,dmg,src,fire9){ if(f.trk && trkTurn(f)) return; dmg*=sqlArmX(f); dmg*=hunHugX(f);   /* CARD-HUN THE HUNTER HUG: a hugged man takes half (0.4 from THE WARM HUG) */   /* CARD-SQL L8 THE SQUAD PANTS on the mat: every hit on a squad man x0.91 */ dmg*=olvSightX(f,dmg,src,fire9); dmg*=olvVisorX12(f,src,fire9); dmg*=gmyWrapFireX(f,fire9); /* CARD-HL4 THE MUMMY WRAPS: fire x2 on a wrapped Sarge */ ovfHatHit19(src,f);   /* CARD-OVF-B19 THE SNIPER'S HAT: MY Sarge's landed round hands his reload back at once (three in a row at most) */   /* CARD-OVF-B12 ROBO'S VISOR: your men's rounds on a machine land a quarter harder while Sarge wears it (x1 for every other round) */   /* CARD-OLV-B7 THE SKEET SIGHT: a carrying rifleman's round on anything in the air lands at SK7.x (x1 for every other round) */ if(f.olvH && !S.bf && olvHurt(f,dmg,src,fire9)) return;   /* CARD-OLV-B1: a dull pad takes nothing · 232 the bullet lands on the dock in front of the driver · 235 his three hits */   /* CARD-TRK THE TRENCH KIT: the mat's intake door turns for a man under the rug too */   // 0906 THE FLAME BLADE: fire9 = this beat is FIRE (every fire caller passes 1 — the breath lanes, fsTick's patches, the flame licks, the combustion popcorn; nothing else does)
+  if(!S.bf && f.def && f.def.lay && qwShield(f,src)) return;   // CARD-QWF THE SHIELD: THE QUEEN WASP off the carpet (x >= W-10) takes nothing and counts nothing (Wyatt: "invulnerable until she comes on the screen"); a ring at the rim
   if(S.bf && f.side && (f.jetT>0||f.falling||f.dropT>0||f.hlbAir)) return;   /* CARD-HLB: + a man a bat carries (he cannot be shot; the bat can) */   /* AIR SPC: + a man still in his drop-in (Wyatt 10/8: "they should be invulnerable and untargetable until they fully land in"; aimed fire already skipped him via bfEnemies, area did not) */   // airborne (v1.39) — and v2.76's fallers — untouchable on the battlefield too
   if(f.jhs) return;   /* CARD-JHS JANE'S HOOKSHOT: on the chain she takes nothing (the air law), either carpet */
   if(fire9 && f.def && (f.def.fly || f.skyDrop) && !hrtS3Grd(f)) return;   /* CARD-HRT-S3: THE WRECK on the roof burns */   // CARD-SF THE AIR LAW: the flame's cone, the breath lanes and the patches burn the roof, never the sky (area never asks bfCanTarget — this is the sky's one exemption on the fire lane)
@@ -107342,12 +107343,12 @@ function gnNestTick(f,dt){
 function gnFairyTick(f,dt){
   const hv=f.def.hover, bb=f.def.bubble; if(f.mendT>0) f.mendT-=dt;
   let front=null; for(const o of S.foes){ if(o===f || o.dead || o.def.fly || o.def.nest || o.def.bubbleOf || o.def.mine) continue; if(!front || o.x<front.x) front=o; if(o.hp<o.hpMax && Math.hypot(o.x-f.x,o.y-f.y)<f.def.healR) f.mendT=0.3; }
-  const tx=front? Math.min(W-40, front.x+hv.leash) : W-60, ty=front? front.y : f.y;
+  const q9=qwQueen(); const tx=q9? Math.min(W-40, q9.x+hv.leash) : front? Math.min(W-40, front.x+hv.leash) : W-60, ty=q9? q9.y : front? front.y : f.y;   // CARD-QWF THE COURT: with the queen on the rug a fairy keeps beside HER
   const dx=tx-f.x, dy=ty-f.y, d=Math.hypot(dx,dy); if(d>4){ const sp=Math.min(60*dt,d); f.x+=dx/d*sp; f.y+=dy/d*sp*0.6; }
   if(f.blowT>0){ f.blowT-=dt; if(f.blowT<=0){ const u=f.blowU; f.blowU=null; if(u && !u.dead && !u.big){ const b=spawnFoe('fbubble', f.x-18, foeBandY(f.y), null, false); if(b){ b.tgt=u; b.fairy=f; b.hp=b.hpMax=1; /* ONE hp whatever the rung's hpMul — a green round pops it */ } bfSfx(SFX.twink,f.x,f.y); } } return; }
   f.bubbleCd=(f.bubbleCd==null? bb.cd*0.4 : f.bubbleCd)-dt; if(f.bubbleCd>0) return;
   if(f.bigId!=null){ let alive=false; for(const o of S.foes){ if(o.id===f.bigId && !o.dead){ alive=true; break; } } if(alive) return; f.bigId=null; }   // one live big man per fairy
-  let pick=null; for(const o of S.foes){ if(o===f || o.dead || o.boss || o.big || o.def.fly || o.def.nest || o.def.bubbleOf || o.def.hover || o.def.mine) continue; if(!pick || o.x<pick.x) pick=o; }
+  let pick=null; for(const o of S.foes){ if(o===f || o.dead || o.boss || o.big || o.def.fly || o.def.nest || o.def.bubbleOf || o.def.hover || o.def.mine) continue; if(q9 && !(o.def.swoop && o.def.sting)) continue; if(!pick || o.x<pick.x) pick=o; }   // CARD-QWF THE COURT: with the queen on the rug the bubble goes to a BEE (a wasp or a hornet): BIG, x4 hp, dives x1.5 as often
   if(!pick) return;
   f.blowU=pick; f.blowT=bb.blow; f.bubbleCd=bb.cd;
 }
@@ -107429,6 +107430,7 @@ function gnQueenTick(f,dt){
   if(f.layCd<=0){ f.layCd=ly.cd; let n=0; for(const o of S.foes){ if(o.queenOf===f && !o.dead) n++; } if(n<ly.cap && f.x<W-20){ const m=spawnFoe('wnest', f.x+10, foeBandY(f.y+6), null, false); if(m){ m.queenOf=f; m.nestCd=1.5; } f.layT=0.5; bfSfx(SFX.thock,f.x,f.y); S.fx.push({k:'ring',x:f.x,y:f.y-6,r:6,R:30,t:0,dur:0.4,col:'#D9D4C7'}); } }
   if(f.callCd<=0){ f.callCd=cl.cd; f.callT=0.6; for(const o of S.foes){ if(o!==f && !o.dead && o.def.swoop && o.def.sting && o.swoopState!=='dive' && o.swoopState!=='stall'){ o.swoopCd=0; o.gnCall=1; } } bfSfx(SFX.screech,f.x,f.y); S.fx.push({k:'ring',x:f.x,y:f.y-50,r:10,R:90,t:0,dur:0.6,col:'#FFF4C8'}); }
   if(f.needleN>=nd.hits && f.needleU && !f.needleU.dead){ f.qState='out'; f.needleU9=f.needleU; f.qHome={x:f.x,y:f.y}; f.needleN=0; bfSfx(SFX.swish,f.x,f.y); }
+  qwAssaultTick(f,dt);   // CARD-QWF THE ASSAULT: her own sting run on a clock (the needle's 'out' flight), the first the frame she is on the carpet
 }
 function gnJabTick(f,dt){
   const jb=f.def.jab; if(f.shT>0) f.shT-=dt;
@@ -119517,6 +119519,7 @@ function update(dt){
     // TARGETABLE: a lift is a predicament, not a shelter.
     if(f.def.rod){ gnAnglerTick(f,dt); if(f.anSeat && !f.falling){ if(dt>0){ f.vx=0; f.vy=0; } f.airB=0; continue; } }   // 0947d THE ANGLER: seated for the cast / the reel = planted (the held line's grammar, boss included)
     if(f.def.lay){ gnQueenTick(f,dt); if((f.qState==='out'||f.qState==='back') && !f.falling){ if(dt>0){ f.vx=0; f.vy=0; } continue; } }   // 0947d THE QUEEN WASP: the needle's flight owns her feet
+    if(f.def.swoop && f.def.sting && !f.boss && !f.falling && qwSwarmTick(f,dt)){ if(dt>0){ f.vx=0; f.vy=0; } continue; }   // CARD-QWF THE SWARM: with the queen on the rug a gliding bee flies in her cluster (true = the cluster owns his feet this frame; a dive is the shipped machine's)
     if(f.kyHeldT>0){ f.kyHeldT-=dt;
       if(!f.boss && !f.falling && !f.shv){ if(dt>0){ f.vx=0; f.vy=0; } f.airB=0; continue; } }
     // 0559 B · NO BULLET SPONGES: a foe held at the sliver for a word (pendDie
@@ -123182,6 +123185,7 @@ function foeFell(f,u){
       else S.fx.push({k:'fallen', type:f.type, img:(f.type==='kingyeti'&&IMG.kingyetiko)||((f.def.sting||f.def.rod||f.def.lay||f.def.harp)&&IMG[f.type+'fall'])||foeCmdImg(f), w:f.def.w*(f.big?2:1),   // 0522: foeImgF — THE NEMESIS falls in his own dye
                  x:f.x, y:f.y, t:0, dur:RM?0.4:1.1, rot:(f.def.vehicle?3.14:undefined)});
       if(f.type==='wnest') gnNestBurst(f);   // 0947c THE BURST: the nest tears open and every wasp it released dies
+      if(f.def.lay) qwNestsFall(f);   // CARD-QWF: her nests fall with her (each bursts its wasps): a nest nobody can reach must never wall the clear (rung 50's "nothing happened")
       if(f.def.rod){ if(f.hookU) anFree(f); for(const o of S.foes.slice()){ if(o.shroomOf===f && !o.dead){ o.hp=0; foeFell(o,null); } } }   // 0947d THE ANGLER falls: the man on his line goes free, his standing toadstools burst (a mine out of every rifle's reach must never wall the clear)
       fzShatter(f);   // 0735 THE SHATTER: a frozen man's fall (the rime never rides the corpse — it is drawn on the living alone)
       if(TEDDY_CAST[f.type]) teddyDie(f);   // 0523 TEDDY PARK: a plush deflates and POOFS (the tdie fx replaces the toy's tip-and-melt pushed above); the General's fall opens THE PATS
@@ -161073,7 +161077,7 @@ function parkCfgMoon(n){
   if(m<=19) moonDrill(m, wv, G, NM[m-1], !!MPARK_BEATS[n] || n===50);   // 1014 THE GARDEN'S DRILL: every rung 1–19 (and the deep rungs that ride their bodies) is a FIGHT of three to five waves (a boss rung keeps two drill waves before its boss) on its own cast — the sisters' shape; the summit 20 is byte-what-it-was
   const beats=(n===50)? ['angler','wqueen'] : (MPARK_BEATS[n]? [MPARK_BEATS[n]] : []);   // 1014: 50 = THE ANGLER and THE QUEEN WASP both; 30 / 40 from the table
   for(const beat of beats)   // 0947d THE THREE FIGHTS: the muster, then the piece card + the boss's own wave (the dino/teddy grammar) — THE ANGLER walks on with two slingers, THE QUEEN WASP with three wasps (she lays her own nests)
-  wv.push({ name:BOSSDEF[beat].wave, boss:beat, groups:[ {f:'boss',t:beat,n:1,e:'right',at:0} ].concat(beat==='angler'? [ G('line','gslinger',2,'right-bottom',3.0) ] : [ G('guerrilla','wasp',3,'right-top',2.5) ]) });
+  wv.push({ name:BOSSDEF[beat].wave, boss:beat, groups:[ {f:'boss',t:beat,n:1,e:'right',at:0} ].concat(beat==='angler'? [ G('line','gslinger',2,'right-bottom',3.0) ] : [ G('guerrilla','wasp',4,'right-top',2.5), FAIRY(n>=40? 3 : 2,'right',1.5) ]) });   // CARD-QWF THE COURT: THE QUEEN WASP walks on with four wasps and her fairies (three on the deep rungs 40 and 50, two at 15), who bubble her bees BIG (gnFairyTick)
   return cfg;
 }
 // ═══ CARD-NCB NUTCRACKER'S BALL (FROM DYLAN, the jumpr guest link 10/11/2026 21:14 EDT: "Let's make a design pass for a twenty level them park in the Christmas box called 'Nutcrackers Ball'."; 22:11 EDT on WhatsApp: "This is amazing. Let's use code 'NUTS' to make this available in the game."). Slice 1 (NCB-1 of design/nutcrackers-ball-1011/00-DESIGN-NCB.md §5): THE SIXTH PARK, id 'nut', twenty rungs. The door = THE CODE NUTS at Sarge's Surplus (META.nutsCode, never spent) + the toy theatre in the Christmas box's hall (xmBallSVG, the poke xmBallHot) while the code stands; the hub = NCB_HUB in the parks' own chrome; the fights = THE MOUSE KING'S ARMY: the Tan's own infantry rows (their numbers untouched) DRAWN as mice through foeImg (nutImg: tanrifle PIP · tanshotgun THE NEEDLE LANCERS · tanflame THE PEPPER SHAKER · tanmg/crawler THE SPOOL GUNNER · tanmortar THE CHEESE CATAPULT · tansniper THE KING'S OWN WHISKERS · tansarge THE MOUSE KING at rung 20). Rung n plays as campaign L 20 -> 80 (NCB_L0, the 0278j law). Solo only this slice (parkPlay skips the crew door for 'nut'). NCB.on 0 = before (no door, no code, no skins). Later cards: the four beats, the hanky drop, the prizes, the ballroom floor, the music (NCB-2..4).
@@ -185677,6 +185681,46 @@ if(balOn()) try{
     BAL.old.aptTick=aptTick; aptTick=function(dt){ BAL.old.aptTick.apply(this, arguments); try{ const bf=S.bf; balTick(bf, aptSt(bf)); }catch(e){ BAL.err++; } }; }
 }catch(e){ BAL.err++; }
 // ═══ END CARD-BAL ═══
+// ═══ CARD-QWF THE QUEEN WASP'S FINALE (sec:CARD-QWF; design/queen-wasp-finale-1019/00-CARD-QWF.md; FROM WYATT'S PHONE 10/19/2026 23:02 EDT, jumpr remote, verbatim: "Level 50 of Gnome Park. Nothing happened after we defeated
+// Queen Wasp. She also should be invulnerable until she comes on the screen. Let's double her health and let her immediately start attacking units. She should also have fairies with her to make her fellow bees bigger and swarm
+// like a big cluster, a big assault helping her out."). THE FINDING: her nests (wnest, laid at her feet, queenOf) outlived her, kept releasing wasps, and S.foes never emptied: no clear, no flag, no verdict.
+// THE SHIELD (qwShield, hurt()'s head): off the carpet (x >= W-10) nothing lands on her and nothing counts; a white ring at the rim says so. THE ASSAULT (qwAssaultTick, gnQueenTick's hover branch): the frame she is on the carpet,
+// then every assault.cd s, she picks the nearest green at any range and flies the needle's own 'out' run (QW_DASH, the needle's pips, the bowl-over, back to her post). HER NESTS FALL WITH HER (qwNestsFall, foeFell: the angler's
+// own law for his toadstools; each nest's fall bursts its wasps). THE COURT (gnFairyTick): with a queen alive on the rug a fairy keeps beside HER and bubbles only a BEE (a wasp or a hornet): BIG. THE SWARM (qwSwarmTick at update()'s
+// held line): a gliding bee flies to his seat in her cluster (a golden-angle ring about her, turning slowly, never past W-30), the glide's own clocks ticking; the dive starts there on the shipped terms (aggro 260, or any range on
+// her call) and stays updateFoeSwoop's; after the pass he flies back to her. No queen on the rug = the shipped glide. Zero words, zero css, zero save keys, zero server, zero sw.js.
+var QWF={ v:1, err:0 };
+const QW_SWARM_SPD=200;   // a bee's flight to his seat in the cluster, px/s (the march's glide 78, the dive 520)
+function qwQueen(){ let q=null; for(const o of S.foes){ if(o.def && o.def.lay && !o.dead && o.hp>0 && !(o.x<-40)){ if(!q || o.x<q.x) q=o; } } return q; }   // the westmost live queen (null = no court, no swarm)
+function qwSeat(f,q){ const k=f.id|0, a=k*2.39996+S.t*0.6, r=56+((k*7)%3)*26; return { x:Math.min(W-30, q.x+Math.cos(a)*r*1.25), y:foeBandY(q.y+Math.sin(a)*r*0.7) }; }   // his seat: a golden-angle ring about her, turning
+function qwShield(f,src){ if(f.dead || !(f.x>=W-10)) return false;
+  if(!(f.qShT>0)){ f.qShT=0.12; S.fx.push({k:'ring',x:Math.min(f.x,W-8),y:f.y-44,r:4,R:20,t:0,dur:0.25,col:'#E6F4FF'}); } return true; }   // true = off the carpet: the round is turned (a ring at the rim, throttled)
+function qwNestsFall(f){ for(const o of S.foes.slice()){ if(o.queenOf===f && !o.dead && o.type==='wnest'){ o.hp=0; foeFell(o,null); } } }   // her nests fall with her; each nest's own fall bursts its wasps (gnNestBurst)
+function qwAssaultTick(f,dt){ const a=f.def.assault; if(f.qShT>0) f.qShT-=dt; if(!a || S.bf) return;
+  if(f.qAtk==null) f.qAtk=+(a.first||0);
+  if(f.qState!=='hover' || !(f.x<W-10) || f.falling) return;
+  f.qAtk-=dt; if(f.qAtk>0) return;
+  const u=gnNearGreen(f,1e4); if(!u){ f.qAtk=0.5; return; }
+  f.qAtk=a.cd; f.qState='out'; f.needleU9=u; f.qHome={x:f.x,y:f.y}; f.needleN=0; bfSfx(SFX.swish,f.x,f.y); S.fx.push({k:'ring',x:f.x,y:f.y-44,r:6,R:40,t:0,dur:0.3,col:'#FFD24A'}); }   // the needle's own 'out' run, on her clock
+function qwSwarmTick(f,dt){ if(S.bf || f.swoopState==='dive' || f.swoopState==='stall') return false;
+  const q=qwQueen(); if(!q) return false;
+  const wb=f.def.swoop; if(f.sAlt==null) f.sAlt=1;
+  f.swoopCd=(f.swoopCd||0)-dt; if(!wb.stall && S.gnHum) f.swoopCd-=dt; if(f.swoopSting>0) f.swoopSting-=dt; f.sAlt=Math.min(1,f.sAlt+dt*1.6);   // the glide's own clocks (updateFoeSwoop's, which the held line's continue skips)
+  if(dt>0){ const s=qwSeat(f,q), dx=s.x-f.x, dy=s.y-f.y, d=Math.hypot(dx,dy), sp=QW_SWARM_SPD*dt*(f.spdMul||1); if(d>sp){ f.x+=dx/d*sp; f.y+=dy/d*sp; } else { f.x=s.x; f.y=s.y; } }
+  if(f.swoopCd<=0 && f.x<W-10){ const m=foeSaberNext(f, f.gnCall? 1e4 : wb.aggro); f.gnCall=0;   // the dive on the shipped terms: a green inside aggro, or any range on her call (once)
+    if(m){ const ex=m.x-f.x, ey=m.y-f.y, e=Math.hypot(ex,ey)||1; f.swoopDir={x:ex/e,y:ey/e}; f.swoopRun=e+110; f.swoopHit={};
+      if(wb.stall>0){ f.swoopState='stall'; f.stallT=wb.stall; S.fx.push({k:'ring',x:f.x,y:f.y-40,r:6,R:34,t:0,dur:wb.stall,col:'#FFF4C8'}); bfSfx(SFX.thump,f.x,f.y); }
+      else { f.swoopState='dive'; bfSfx(SFX.swish,f.x,f.y); } } }
+  return true; }   // true = the cluster owns his feet this frame
+function qwfRig(o){ o=o||{}; const q=qwQueen();
+  const bees=S.foes.filter(f=>f.def && f.def.swoop && f.def.sting && !f.dead).map(f=>({ id:f.id, t:f.type, x:Math.round(f.x), y:Math.round(f.y), st:f.swoopState||'glide', big:f.big|0, hp:f.hp, d:q? Math.round(Math.hypot(f.x-q.x,f.y-q.y)) : null }));
+  const fairies=S.foes.filter(f=>f.def && f.def.hover && !f.dead).map(f=>({ id:f.id, x:Math.round(f.x), y:Math.round(f.y), bigId:(f.bigId==null)? null : f.bigId, blow:+(f.blowT||0).toFixed(2), cd:+(f.bubbleCd||0).toFixed(2), d:q? Math.round(Math.hypot(f.x-q.x,f.y-q.y)) : null }));
+  const nests=S.foes.filter(f=>f.type==='wnest' && !f.dead).map(f=>({ id:f.id, x:Math.round(f.x), y:Math.round(f.y), hp:f.hp, ofQ:!!(q && f.queenOf===q) }));
+  const types={}; for(const f of S.foes) if(!f.dead) types[f.type]=(types[f.type]|0)+1;
+  return { cv:GVT_CV, W:W, queen:q? { id:q.id, x:Math.round(q.x), y:Math.round(q.y), hp:q.hp, hpMax:q.hpMax, st:q.qState||null, on:q.x<W-10, atk:(q.qAtk==null)? null : +q.qAtk.toFixed(2), lay:+(q.layCd||0).toFixed(2), call:+(q.callCd||0).toFixed(2), sh:+(q.qShT||0).toFixed(2) } : null,
+    bees:bees, fairies:fairies, nests:nests, types:types, foes:S.foes.length, queue:S.queue.length, wave:S.wave|0, waves:(S.cfg&&S.cfg.waves)? S.cfg.waves.length : 0, waveActive:!!S.waveActive, cleared:!!S.cleared, mode:S.mode, park:S.park? S.park.id+':'+S.park.n : null,
+    row:{ hp:FDEF.wqueen.hp, assault:FDEF.wqueen.assault||null }, swarmSpd:QW_SWARM_SPD, err:QWF.err }; }
+// ═══ END CARD-QWF ═══
 // ═══ CARD-MCL · MASTER COLLECTOR (sec:CARD-MCL; design/master-collector-1019/00-CARD-MCL.md; from Maker 1, account B, lane card M2356). FROM WYATT by phone 10/19/2026 13:41 EDT (the jumpr remote, card 2356), verbatim:
 // "If you get all of the stuffed animals from Fuzzies: If you have the complete collection, you should be given the Master Collector achievement. That comes with a one-time buff to one of your units with 1% crit
 // chance, and you can pick from any of your units. Brust is the only player that currently has all of these stuffed animals, so be sure that existing players like him are given it upon logging in." ═══
@@ -190776,6 +190820,7 @@ window.GVT = {
   xbi(o){ return xbiRig(o); },
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
   bal(o){ return balRig(o); },   // CARD-BAL: THE TAN'S CAMPAIGN REACH + THE SIXTH DROP, the rig door ({ on, reach, six }) + the read (see sec:CARD-BAL)
+  qwf(o){ return qwfRig(o); },   // CARD-QWF: THE QUEEN WASP'S FINALE, the rig read (the queen, her bees, her court, her nests; see sec:CARD-QWF)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
   mfs(o){ return mfsRig(o); },   // CARD-MFS: Mom's fight on the whole glass, the bedroom behind her ({ on } · { room } · { K } · { wallDrop }) + the read (VW, the camera, the canvas's box and store, the bake, her state, the toys, the stomps and kicks, the wraps)
