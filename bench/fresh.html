@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.06","md5":"1169b79eef8b91ce3f57bf9b1feba60d","sha":"bf1d6d7de","at":"2026-10-20T04:22:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.07","md5":"b7bd396381f2f8edb87080e6a80562de","sha":"8e27ccd7b","at":"2026-10-20T04:36:17Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -57081,7 +57081,7 @@ function netSync(){
         // keys it knows (the soul-field precedent), v25 clamps it monotonic
         // + capped + floored and the ADVENTURE ladder ranks it
         adv:advCount(),
-        advv:4, advo:advCount523(),   // CARD-ASP2: 4 = five parks + 47 cells (597 tops; a v131 box takes the number as sent, an older box clamps 523); advo = the 523-law count of the SAME save, HQ's fold is baseline · v17.76 (CARD-AOC) THE COUNT'S STYLE: 3 = the campaign leg runs to THIRD_MAX (300) — a v102 box takes the number as sent (clamped at its cap 523); a v74 .. v101 box reads 3 as at least 2 and clamps 423 (rollback-safe, monotonic); v10.98 (1127): 2 = the leg runs to ELITE_TOP, HQ adds the third leg it sees itself; a client that sends no key is an older one and HQ adds the Elite leg too
+        advv:5, advo:advCount523(),   // CARD-MBA: 5 = + THE MISSION BOARD's four orders (601 tops; a v136 box takes the number as sent, a v131..v135 box clamps 597) · CARD-ASP2: 4 = five parks + 47 cells (597 tops; a v131 box takes the number as sent, an older box clamps 523); advo = the 523-law count of the SAME save, HQ's fold is baseline · v17.76 (CARD-AOC) THE COUNT'S STYLE: 3 = the campaign leg runs to THIRD_MAX (300) — a v102 box takes the number as sent (clamped at its cap 523); a v74 .. v101 box reads 3 as at least 2 and clamps 423 (rollback-safe, monotonic); v10.98 (1127): 2 = the leg runs to ELITE_TOP, HQ adds the third leg it sees itself; a client that sends no key is an older one and HQ adds the Elite leg too
         // 0442: THE BOSS WALL RIDES THE WIRE — one compact digit string off
         // the same ledgers the 0441 rings read (wrWallBW, wall order + ROBO
         // sixth); v31 right-pads and per-char MAXes it against the stored
@@ -88895,7 +88895,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -170828,10 +170828,12 @@ const ADV_CELLS=[
   ()=> META.nemM20?1:0,                             // THE GARDEN CLAIM — THE MOON GARDEN rung 20 (0947d)
   ...['palace','caves','sky','chess','gmy'].flatMap(k=>['e','m','h','g'].map(d=>()=>(META[k]&&META[k][d])?1:0)),   // 20 boss tiers — PRINCESS CROAK'S PALACE · THE ICE CAVES · THE SKY FORTRESS · THE CHESS SET · THE HAUNTED LIBRARY × e/m/h/g (the same guarded read as the sixteen above)
   ()=> (META.ice&&META.ice.u)?1:0,                  // ULTRA YETI — the ice's fifth tier
-  ()=> (META.bone&&META.bone.u)?1:0                 // ULTRA REX — the bone's fifth tier
+  ()=> (META.bone&&META.bone.u)?1:0,                // ULTRA REX — the bone's fifth tier
+  // ═══ CARD-MBA THE MISSION BOARD'S ORDERS ARE ADVENTURE (design/ad-adventure-audit-1019/00-CARD-AAU.md §3; Wyatt by phone 10/19/2026 23:09 EDT, verbatim: "each of the new dailies added to the mission board should also count as one adventure point, though you only game them once, and their point value is not repeatable"): the loop's four orders (CARD-MSB: A LEVEL WITH A FRIEND · EMPEROR BEAR · THE DESERT · KING CROAK ON MEGA), each ONE cell, won ONCE EVER (META.msbAdv[k], written by sec:CARD-MBA the first time order k is DONE; a later day's same order pays nothing more). APPENDED, never reordered; a literal four on purpose (a fifth order = a fifth cell here AND ADV_CAP 602 at HQ FIRST); server v136's ADV_CAP quotes 601 FIRST
+  ...[1,2,3,4].map(k=>()=>(META.msbAdv&&META.msbAdv[k])?1:0)   // THE MISSION BOARD's four orders, once ever
 ];
 const ADV_PARKS=['yeti','dino','western','teddy','moon'];   /* CARD-ASP2: + GNOME PARK (parks.moon, fifty rungs, 0947a) */  // the boot normalizer builds all four every boot; reads guarded anyway (0555: BEAR PARK's fifty joins)
-const ADV_MAX=THIRD_MAX+ADV_PARKS.length*50+ADV_CELLS.length;   // 597 since CARD-ASP2 (five parks + 47 cells; server v131) · 269 as shipped · 323 since 0555 · 423 since v10.98 (1127: the campaign leg runs to ELITE_TOP) · 523 since v17.76 (CARD-AOC: the leg runs to THIRD_MAX, the third hundred's 300) — DERIVED, the "one moves, both move" contract (server v102 quotes 523)
+const ADV_MAX=THIRD_MAX+ADV_PARKS.length*50+ADV_CELLS.length;   // 601 since CARD-MBA (five parks + 51 cells: + THE MISSION BOARD's four orders; server v136) · 597 since CARD-ASP2 (five parks + 47 cells; server v131) · 269 as shipped · 323 since 0555 · 423 since v10.98 (1127: the campaign leg runs to ELITE_TOP) · 523 since v17.76 (CARD-AOC: the leg runs to THIRD_MAX, the third hundred's 300) — DERIVED, the "one moves, both move" contract (server v102 quotes 523)
 function advCount(){
   let n=Math.max(0, Math.min(THIRD_MAX, META.campaign|0));              // the linear campaign ladder to the third hundred's top (v17.76, CARD-AOC: OVERCHARGED 201–300 count too; v10.98, 1127: ELITE FORCES 101–200 — the GIANT BANANA's 100 was the first)
   for(const id of ADV_PARKS){ const p=(META.parks&&META.parks[id])||{};
@@ -187268,6 +187270,29 @@ const MSB={ on:(function(){ try{ const q=/[?&]msb=([01])/.exec(location.search||
   try{ if(fortSceneOpen()) renderFortScene(); }catch(e){}
 })();
 // ═══ END CARD-MSB ═══
+// ═══ CARD-MBA · THE MISSION BOARD'S ORDERS ARE ADVENTURE (sec:CARD-MBA; design/ad-adventure-audit-1019/00-CARD-AAU.md §3; jumpr 2398, board J12; WYATT by phone 10/19/2026 23:09 EDT, verbatim: "each of the new dailies added to the mission board should also count as one adventure point, though you only game them once, and their point value is not repeatable."):
+//   each of the loop's MSB_ORDERS orders is ONE cell of ADV_CELLS (ADV_MAX 597 -> 601; server v136 quotes 601 FIRST, the one-moves-both-move law), won ONCE EVER: META.msbAdv[k]=1 the first time order k is DONE (CARD-MSB's own row META.msb = {dk, done, seen, paid}: done on a day whose order is k = MSB.dayOf(dk)), never again (a later day's same order, a replay, pays nothing more).
+//   THE MARK lands at the three verdict seams CARD-MSB wraps (sqGameTick · olvTrophyWin · bdSpoils), wrapped again here so it runs AFTER CARD-MSB's wrappers (and after any later card's that marks an order done), at boot, and on a slow sweep every 7 s (one property read; an order a sibling card marks done lands too); then saveMeta + a netSync (its own 15 s guard) carries the count (advv 5).
+//   ?msb=0 (CARD-MSB off) = no MSB.dayOf = no mark, no error. Zero words, zero screen, zero server bytes here (the server is build-mba-srv: ADV_CAP 601, the re-base at the new full mark, adv_from_save + the four cells). GVT.adv names the cells msb1..msb4; MSB.adv() + MSB.advSweep() are the rigs' read + door. ⚑ AAU-Q3: a "+1 ADVENTURE" line in the order's REWARD window is CARD-MSB's own sec (not touched here).
+(function(){ let M; try{ M=MSB; }catch(e){} if(!M || typeof M!=='object') return;
+  const MBA={ n:0, log:[] };
+  function sweep(){ try{
+      const m=META.msb; if(!m || typeof m!=='object' || !m.done || typeof M.dayOf!=='function') return 0;
+      const k=M.dayOf(m.dk)|0; if(k<1 || k>MSB_ORDERS) return 0;
+      if(!META.msbAdv || typeof META.msbAdv!=='object') META.msbAdv={};
+      if(META.msbAdv[k]) return 0;
+      META.msbAdv[k]=1; MBA.n++; MBA.log.push('won:'+k+':'+m.dk); if(MBA.log.length>12) MBA.log.shift();
+      saveMeta(); try{ netSync(); }catch(e){}
+      return 1;
+    }catch(e){ try{ MBA.log.push('err:'+String(e).slice(0,80)); }catch(e2){} return 0; } }
+  const s0=sqGameTick; sqGameTick=function(){ const r=s0.apply(this,arguments); sweep(); return r; };            // the verdict raise (ORDER 1's seam)
+  const w0=olvTrophyWin; olvTrophyWin=function(){ const r=w0.apply(this,arguments); sweep(); return r; };         // every win's ticket strip (ORDERS 2 and 4's seam)
+  const b0=bdSpoils; bdSpoils=function(){ const r=b0.apply(this,arguments); sweep(); return r; };                 // the desert's night result (ORDER 3's seam)
+  setTimeout(sweep, 0); setInterval(sweep, 7000);                                                                  // boot + the slow sweep
+  M.adv=function(){ return { won:Object.assign({}, META.msbAdv||{}), n:MBA.n, log:MBA.log.slice(), cells:[1,2,3,4].map(function(k){ return (META.msbAdv&&META.msbAdv[k])? 1 : 0; }) }; };
+  M.advSweep=sweep;
+})();
+// ═══ END CARD-MBA ═══
 // ═══ CARD-MSB-B2 · THE MISSION BOARD, ORDER 3: WIN THE BATTLE OF THE DESERT → THREE TIMES THE RATING (sec:CARD-MSB-B2; design/mission-board-1019/build-b2/00-BUILD-B2.md; jumpr 2391, J9; WYATT by phone 10/19/2026 20:48 EDT on the Mission Board's design pass (jumpr 2387), verbatim: "If you win the Battle of the Desert, you get an additional rating, so you get three times the normal rating if you win." + "We'll then throw that into the jumpr queue for implementation, right after going with your recommended changes. We'll push to live and see how it is.") ═══
 //   1 · HQ's WORD (server v136): on the night whose date is Order 3 (the same loop as B1: MSB_DAY0 + MSB_ORDERS, one constant pair in two files, move them together), a WINNER's first POST /gvt/bd/claim books the night THREE times on the NIGHTS pillar (the base through the daily lift as every night, the two extra steps paid at once) and answers ord 3 · x3 1 · nx 3 · xd (the extra) · full · lvx; its delta = the whole night (about +0.25 where a night pays +0.08). A NIGHTS pillar that cannot take three steps answers full 1 + lvx 3: the desert's promotions ×3 instead (BD_LEVELS 5 → 15; 🟨 MSB-Q6).
 //   2 · THE CLAIM (bdClaim wrapped, after its own handler ran): a reply with x3 → today's Order-3 row done + paid { k:'x3', d, xd, lvx, full, lvl } (B1's bdSpoils wrap marked it done at the verdict; the window reads paid); lvx 3 → BD_LEVELS × (lvx − 1) more promotions poured ONCE (xpAward, src desert; bd.last.lvl = 15, so the ceremony card's tally says +15 LEVELS); the verdict's spoils chip (if still on the glass) and the ceremony card's rating line read x3 THE ORDER'S RATING (+0.25), or x3 THE ORDER'S PROMOTIONS (+15 LEVELS).
@@ -191496,7 +191521,8 @@ window.GVT = {
   adv(){ const cells={}; const names=['nemPark','nemY50','nemD50','nemW20','nemRoom','nemBank',
       'ice_e','ice_m','ice_h','ice_g','bone_e','bone_m','bone_h','bone_g',
       'croak_e','croak_m','croak_h','croak_g','fields_e','fields_m','fields_h','fields_g','mom',
-      'nemT20','nemM20','palace_e','palace_m','palace_h','palace_g','caves_e','caves_m','caves_h','caves_g','sky_e','sky_m','sky_h','sky_g','chess_e','chess_m','chess_h','chess_g','gmy_e','gmy_m','gmy_h','gmy_g','ice_u','bone_u'];   // CARD-ASP2: the 24 appended names, in ADV_CELLS' own order   // v10.98 (1127): the 23 names in ADV_CELLS' own order (the four fields tiers were unnamed — fields_e read as mom, the rest c19…c22)
+      'nemT20','nemM20','palace_e','palace_m','palace_h','palace_g','caves_e','caves_m','caves_h','caves_g','sky_e','sky_m','sky_h','sky_g','chess_e','chess_m','chess_h','chess_g','gmy_e','gmy_m','gmy_h','gmy_g','ice_u','bone_u',
+      'msb1','msb2','msb3','msb4'];   // CARD-MBA: THE MISSION BOARD's four orders (META.msbAdv[k]), in ADV_CELLS' own order   // CARD-ASP2: the 24 appended names, in ADV_CELLS' own order   // v10.98 (1127): the 23 names in ADV_CELLS' own order (the four fields tiers were unnamed — fields_e read as mom, the rest c19…c22)
     ADV_CELLS.forEach((c,j)=>{ let v=0; try{ v=c()?1:0; }catch(e){} cells[names[j]||('c'+j)]=v; });
     const legs={ camp:Math.max(0,Math.min(THIRD_MAX,META.campaign|0)),
       parks:ADV_PARKS.map(id=>{ const p=(META.parks&&META.parks[id])||{}; return Math.max(0,Math.min(parkLevels(id),p.lv|0)); }) };
