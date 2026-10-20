@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.11","md5":"046ec1cdcac93ff89565c7c00383b9d3","sha":"ad986d375","at":"2026-10-20T23:34:52Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.12","md5":"0a9ad2608be992a0bae0163aa460e98d","sha":"b1079d1ac","at":"2026-10-20T23:48:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80336,9 +80336,19 @@ function djsSavPass(dt){
 function rollCritQuiet(u){ return Math.random() < critChance(u); }   // a heal's crit: his own odds, never the handlebar's tag
 // ── THE DISCO JUMPSUIT: once a battle, at a moment drawn between 40 and 60 s, MY Sarge dances: DUR s of x2 march, x2 attack speed, x2 crit chance; every 10th hit on him bounces back to its shooter (a count, never a coin: every screen agrees);
 // a disco ball hangs over him with its lights on the rug, the disco plays (the music switch's), and a partner's screen hangs the ball over him too (the 'dsc' word: n = his seat in a room, id = his cid; zero server bytes).
-const DJS_D={ units:null, age:0, at:null, left:0, done:false, sg:null, last:0, hear:[] };
-function djsMySarge(){ for(const u of S.units){ if(u.type!=='sarge' || u.dead || u.coopBy) continue; if(S.bf && u.seat!==bfMySeat()) continue; return u; } return null; }
-function djsPass(dt){ const D=DJS_D; D.last=performance.now();
+const DJS_D={ units:null, age:0, at:null, left:0, done:false, sg:null, last:0, hear:[], held:false };   // CARD-DIG: held = the lights hold with the time left while he is out of the game
+// ═══ CARD-DIG THE DISCO WAITS FOR HIM (FROM LAURA by the jumpr guest link, sent 10/20/2026 23:09:52 UTC, jumpr 2405; built on Maker 1 as M2405; design/disco-in-game-1020/00-CARD-DIG.md), her words verbatim: "the disco jumpsuit should remain the timing rules, but he has to be in game for however, long the disco rave lights go on" ═══
+// THE TIMING RULES STAY: one disco a battle, its moment drawn between DJS.suit.at0 and at1 s, DJS.suit.dur s of lights, the x2s and the bounce as CARD-DJS built them. HE HAS TO BE IN THE GAME FOR ALL OF IT: (1) the window's clock runs on the BATTLE: in the campaign from
+// wave 1's horn (or the first foe on the rug: CARD-DSF dsfPre's own reading of "waiting for the battle"), so a suited Sarge dancing the disco finger while the kid still reads the tray gets no disco at 40 s of waiting; a battleground fights from its first frame. (2) The disco
+// starts only when MY Sarge stands IN THE GAME (djsInGame: alive, landed, on the rug: not dropping in from the sky, not off the edge, not in the bat's claws; a man in the kid's hand or on a jet pack is still in the fight). (3) The lights burn only while he is: if he
+// leaves mid-disco (SARGE DOWN, carried off), the ball, the beams, the song, the x2s and the partner's ball HOLD with the seconds left (DJS_D.held), and the moment he is back in the game (the re-placed Sarge after his clock, the same man set down) the disco picks up
+// where it left off over him: the song from its own second, the 'dsc' word again with the seconds left, a new man gets DISCO! over his head again, until his DUR s of lights are spent. The fight's end still ends it. The rack's words are the same words (the rule reads true).
+// ?dig=0 = HEAD's disco (djsPass0: the clock from the level's open, a fall ends the disco for good); DIG.horn 0 = the window's clock from the level's open as before (the lights still wait for him). Zero words, css, META, server or shell bytes.
+var DIG={ on:(function(){ try{ const q=/[?&]dig=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dig','0'); else localStorage.removeItem('gvt_dig'); } return localStorage.getItem('gvt_dig')==='0'? 0 : 1; }catch(e){ return 1; } })(), horn:1 };
+function djsInGame(u){ return !!(u && u.type==='sarge' && !u.dead && !(u.dropT>0) && !u.falling && !u.hlbAir && S.units.indexOf(u)>=0); }   // CARD-DIG: in the game = alive, landed, on the rug
+function djsBattleOn(){ if(!DIG.horn || S.bf) return true; if((S.wave|0)!==0 || S.waveActive) return true; return !!(S.foes && S.foes.some(f=>f && !f.dead)); }   // CARD-DIG: the campaign's battle is on from wave 1's horn or the first foe on the rug (dsfPre's own three signals); a battleground from its first frame
+function djsMySarge(){ for(const u of S.units){ if(u.type!=='sarge' || u.dead || u.coopBy) continue; if(S.bf && u.seat!==bfMySeat()) continue; if(DIG.on && !djsInGame(u)) continue; /* CARD-DIG: only a Sarge IN THE GAME */ return u; } return null; }
+function djsPass0(dt){ const D=DJS_D; D.last=performance.now();   // CARD-DIG: HEAD's disco, whole (?dig=0): the clock from the level's open, a fall ends the disco for good
   if(D.units!==S.units){ D.units=S.units; D.age=0; D.at=null; D.left=0; D.done=false; D.sg=null; D.hear=[]; djsSongStop(); }
   if(D.left>0){ D.left-=dt; const sg=D.sg; if(sg && !sg.dead) sg.djsT=Math.max(0,D.left);
     if(D.left<=0 || !sg || sg.dead || (S.bf && (S.bf.resolved || S.bf.ending))){ D.left=0; if(sg) sg.djsT=0; djsSongStop(); } return; }
@@ -80349,6 +80359,24 @@ function djsPass(dt){ const D=DJS_D; D.last=performance.now();
   D.done=true; D.left=DJS.suit.dur; D.sg=sg; sg.djsT=D.left; sg.djsN=0;
   if(S.floats) S.floats.push({x:sg.x, y:sg.y-84, txt:'DISCO!', t:0, col:'#FF7AD9'});
   djsSongPlay(); djsSend(sg); }
+// CARD-DIG THE DISCO WAITS FOR HIM: the window's clock reads the battle; the disco starts when he stands in the game; the lights hold while he is out and pick up over him when he is back, until his DUR s are spent
+function djsPass(dt){ if(!DIG.on) return djsPass0(dt); const D=DJS_D; D.last=performance.now();
+  if(D.units!==S.units){ D.units=S.units; D.age=0; D.at=null; D.left=0; D.done=false; D.sg=null; D.hear=[]; D.held=false; djsSongStop(); }
+  if(D.left>0){
+    if(S.bf && (S.bf.resolved || S.bf.ending)){ D.left=0; if(D.sg) D.sg.djsT=0; D.held=false; djsSongStop(); return; }   // the fight's end ends it, as ever
+    const sg=djsInGame(D.sg)? D.sg : djsMySarge();   // the same man in the game, or the man back in it (the re-placed Sarge after SARGE DOWN)
+    if(!sg){ if(!D.held){ D.held=true; if(D.sg) D.sg.djsT=0; djsSongStop(); djsSend(D.sg, 0, 1); } return; }   // he left the game: the lights HOLD with the seconds left (the ball, the beams, the song, the x2s, the partner's ball)
+    if(D.held || sg!==D.sg){ const fresh=(sg!==D.sg); D.held=false; D.sg=sg; if(fresh){ sg.djsN=0; if(S.floats) S.floats.push({x:sg.x, y:sg.y-84, txt:'DISCO!', t:0, col:'#FF7AD9'}); } djsSongPlay(DJS.suit.dur-D.left); djsSend(sg, D.left); }   // he is back: the disco picks up where it left off, over him
+    D.left-=dt; sg.djsT=Math.max(0,D.left);
+    if(D.left<=0){ D.left=0; sg.djsT=0; djsSongStop(); } return; }
+  if(D.done || !outfitOn('discosuit')) return;
+  if(D.at==null){ D.at=DJS.suit.at0+Math.random()*(DJS.suit.at1-DJS.suit.at0); djsSongMake(); }
+  if(!djsBattleOn()) return;   // the window's clock reads the battle, never the wait before the kid calls wave 1
+  D.age+=dt; if(D.age<D.at) return; if(S.bf && (S.bf.resolved || S.bf.ending)) return;
+  const sg=djsMySarge(); if(!sg) return;   // the moment has come: the disco starts the moment he stands in the game
+  D.done=true; D.left=DJS.suit.dur; D.sg=sg; D.held=false; sg.djsT=D.left; sg.djsN=0;
+  if(S.floats) S.floats.push({x:sg.x, y:sg.y-84, txt:'DISCO!', t:0, col:'#FF7AD9'});
+  djsSongPlay(0); djsSend(sg, D.left); }
 function djsMoveMul(u){ return (u && u.djsT>0)? DJS.suit.spd : 1; }
 function djsRateMul(u){ return (u && u.djsT>0)? DJS.suit.as : 1; }
 function djsCritMul(u){ return (u && u.djsT>0)? DJS.suit.crit : 1; }
@@ -80357,14 +80385,14 @@ function djsRefl(f,src,dmg){ if(!(f && f.djsT>0 && src && !src.dead && !TK_REFL 
   tkDeflPop(f,src); TK_REFL=true; try{ hurt(src,dmg,f); }finally{ TK_REFL=false; } return true; }
 function djsReflC(u,src){ if(!(u && u.djsT>0 && src && !src.dead && src.hp!=null && !TK_REFL)) return false; u.djsN=(u.djsN|0)+1; if(u.djsN%DJS.suit.refl!==0) return false;
   tkDeflPop(u,src); TK_REFL=true; try{ hurt(src,TK_BLUE_REFL_C,u); }finally{ TK_REFL=false; } return true; }
-function djsSend(sg){ try{ if(!S.coop || typeof coopSend!=='function') return; const cm={ k:'dsc', w:DJS.suit.dur }; if(roomBattle()) cm.n=sg.seat|0; else if(sg.cid) cm.id=sg.cid; else return; coopSend(cm); }catch(e){} }
+function djsSend(sg,w,off){ try{ if(!sg || !S.coop || typeof coopSend!=='function') return; const cm={ k:'dsc', w:(off? 0.5 : (w>0? +(+w).toFixed(2) : DJS.suit.dur)) }; if(off) cm.off=1; if(roomBattle()) cm.n=sg.seat|0; else if(sg.cid) cm.id=sg.cid; else return; coopSend(cm); }catch(e){} }   // CARD-DIG: w = the seconds left (a resume sends the rest); off = the hold (an older partner reads w 0.5 as 1 s and lets go)
 function djsHear(cm){ let u=null;
   if(typeof cm.n==='number'){ if(!roomBattle() || (cm.n|0)===bfMySeat()) return; const st=cm.n|0; u=S.units.find(v=>v.type==='sarge' && (v.seat|0)===st && !v.dead); }
   else if(cm.id){ u=S.units.find(v=>v.cid===cm.id && !v.dead); if(u && !u.coopMods && !u.coopBy) return; }
-  if(!u) return; const w=Math.max(1,Math.min(30,+cm.w||DJS.suit.dur)); DJS_D.hear=DJS_D.hear.filter(h=>h.u!==u); DJS_D.hear.push({ u, t0:S.t, dur:w }); }
+  if(!u) return; if(cm.off){ DJS_D.hear=DJS_D.hear.filter(h=>h.u!==u); return; } /* CARD-DIG: the hold word drops the partner's ball */ const w=Math.max(1,Math.min(30,+cm.w||DJS.suit.dur)); DJS_D.hear=DJS_D.hear.filter(h=>h.u!==u); DJS_D.hear.push({ u, t0:S.t, dur:w }); }
 // the ball and its lights (draw, after the over-figures pass, in the rug's own space): hung over the dancer, slowly turning; six colored beams sweep the rug and a ring of light spots dances round his feet
 function djsOver(){ const D=DJS_D; if(D.left>0 && performance.now()-D.last>400) djsSongStop();
-  const list=[]; if(D.left>0 && D.sg && !D.sg.dead) list.push([D.sg, DJS.suit.dur-D.left, D.left]);
+  const list=[]; if(D.left>0 && !D.held /* CARD-DIG: no ball while the lights hold */ && D.sg && !D.sg.dead) list.push([D.sg, DJS.suit.dur-D.left, D.left]);
   if(D.hear.length){ D.hear=D.hear.filter(h=>h.u && !h.u.dead && S.t-h.t0<h.dur && S.units.indexOf(h.u)>=0); for(const h of D.hear) list.push([h.u, S.t-h.t0, h.dur-(S.t-h.t0)]); }
   for(const [u,el,rem] of list) djsBall(u.x, u.y, el, rem); }
 const DJS_COL=['#FF4FD8','#4FD8FF','#FFE24F','#7CFF4F','#FF8A3D','#B47CFF'];
@@ -80402,8 +80430,8 @@ function djsSongMake(){ const Z=DJS_SONG; if(Z.buf || Z.busy) return; const OC=w
     let ok=false; const fin=buf=>{ if(ok) return; ok=true; Z.buf=buf; Z.busy=false; };
     oc.oncomplete=e=>fin(e.renderedBuffer); const p=oc.startRendering(); if(p && p.then) p.then(fin, ()=>{ Z.busy=false; });
   }catch(e){ Z.busy=false; } }
-function djsSongPlay(){ const Z=DJS_SONG; djsSongStop(); if(!(soundOn && META.themeOn && !(typeof msmHush==='function' && msmHush()))) return; if(!Z.buf){ djsSongMake(); return; }
-  try{ const ac=audio(); if(!ac) return; const s=ac.createBufferSource(), g=ac.createGain(); s.buffer=Z.buf; g.gain.value=0.42; s.connect(g).connect(ac.destination); s.start(); Z.src=s; Z.g=g; s.onended=()=>{ if(Z.src===s){ Z.src=null; Z.g=null; } };
+function djsSongPlay(off){ const Z=DJS_SONG; djsSongStop(); if(!(soundOn && META.themeOn && !(typeof msmHush==='function' && msmHush()))) return; if(!Z.buf){ djsSongMake(); return; }   // CARD-DIG: off = the loop's own second to pick up from (a resume), 0 or nothing = the top
+  try{ const ac=audio(); if(!ac) return; const s=ac.createBufferSource(), g=ac.createGain(); s.buffer=Z.buf; const o9=Math.max(0,Math.min(Math.max(0,Z.buf.duration-0.1),+off||0)); if(o9>0){ g.gain.setValueAtTime(0.0001,ac.currentTime); g.gain.linearRampToValueAtTime(0.42,ac.currentTime+0.15); } else g.gain.value=0.42; s.connect(g).connect(ac.destination); s.start(0,o9); Z.src=s; Z.g=g; s.onended=()=>{ if(Z.src===s){ Z.src=null; Z.g=null; } };
     clearInterval(Z.dog); Z.dog=setInterval(()=>{ if(!Z.src){ clearInterval(Z.dog); return; } if(performance.now()-DJS_D.last>600 || S.mode!=='play') djsSongStop(); },300); }catch(e){} }   // the watchdog: a paused or finished fight hushes the disco
 function djsSongStop(){ const Z=DJS_SONG; if(!Z.src) return; try{ const ac=audio(); Z.g.gain.setTargetAtTime(0,ac.currentTime,0.08); Z.src.stop(ac.currentTime+0.4); }catch(e){} Z.src=null; Z.g=null; }
 // ── the words on the rack (lensLines2's head)
@@ -80414,7 +80442,7 @@ function djsLens(id){ const p=lensPct;
   if(id==='discosuit') return ['+'+p(DJS.suit.def)+'% armor', 'chest and legs in one piece', 'DISCO! once a battle, between '+DJS.suit.at0+' and '+DJS.suit.at1+' s: '+DJS.suit.dur+' s of double speed, attack speed and CRIT chance', (100/DJS.suit.refl)+'% of hits bounce back during the disco'];
   return null; }
 // the rig's door
-setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.djs={ D:DJS, st:DJS_D, song:DJS_SONG, main:djsMain, shade:djsShadeHex, art:DJS_ART, pass:djsPass, refl:djsRefl, rs:DJS_RS, rsvPass, rsvLosing, savCrit:djsSavCrit }; }catch(e){} },0);   // GVT stands later in the page
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.djs={ D:DJS, st:DJS_D, song:DJS_SONG, main:djsMain, shade:djsShadeHex, art:DJS_ART, pass:djsPass, refl:djsRefl, rs:DJS_RS, rsvPass, rsvLosing, savCrit:djsSavCrit, inGame:djsInGame, battleOn:djsBattleOn, dig:DIG, pass0:djsPass0 /* CARD-DIG */ }; }catch(e){} },0);   // GVT stands later in the page
 // ═══ CARD-DJS ends ═══
 // ═══ CARD-DSF THE DISCO JUMPSUIT'S SPARKLES + THE DISCO FINGER (board J112, lane gvt-p4; Wyatt by phone 10/11/2026 16:33 UTC, jumpr remote) ═══
 // His words, verbatim: "The disco jumpsuit needs sparkles always glistening around him and while waiting for the battle to start, does the disco finger classic disco move"
@@ -88910,7 +88938,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
