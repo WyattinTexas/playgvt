@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.08","md5":"cb247e2fc8949833934006e5ff65c3f6","sha":"59afe0bbe","at":"2026-10-20T05:10:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.09","md5":"6fae0983d9acc048df39c06161175113","sha":"c726d8248","at":"2026-10-20T16:13:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88896,7 +88896,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.09';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -187332,6 +187332,46 @@ function adwLine(){ try{
   setTimeout(function(){ try{ if(window.GVT && !GVT.adw) GVT.adw=function(){ return { line:adwLine(), why:ADW.why, res:ADW.res, brk:ADW.brk, calc:adwWhy() }; }; }catch(e){} }, 0);
 })();
 // ═══ END CARD-ADW ═══
+// ═══ CARD-ADH · THE GAME GOES QUIET UNDER A REAL AD (sec:CARD-ADH; design/ad-audio-hush-1020/00-CARD-ADH.md; Wyatt 10/20/2026 11:47 EDT by phone (the jumpr remote's stamp 15:47:50 UTC, Wispr Flow), verbatim: "Currently, the audio for rewarded ads isn't working, and you can just hear the music from our app through the rewarded video."; board J1).
+// THE CAUSE ON HEAD: a real show (maxShow: the TV's rewarded after ROLL IT, the verdict exit's interstitial) posts {cmd:'show'} to the store app and the page PLAYS ON under the SDK's own screen: every bed is a BufferSource on the one AudioContext, the page stays VISIBLE under the ad's view controller (no visibilitychange, so 0719's put-away never fires), and CARD-AU's 'playback' session keeps WebKit's audio unit up. The phone hears the bedroom's theme (or the place's bed) through the ad's video, and the ad's own player comes up against an audio client that never stood down: the polite players start muted.
+// THE FIX: a real show is a PUT-AWAY of the sound, by the ad's own hand (0719's hold, nothing new under it): maxShow wrapped = after the base's own fill check (no fill = no show = nothing to hush), qtHold('ad') BEFORE the post (the running context suspended: every bed, the theme, the dance, every SFX; audio() answers null while held; the session asks 'ambient' while the ad has the stage), the post itself held ADH_LEAD ms (maxPost wrapped) so the audio unit is down before the SDK's video starts; the show's promise settling (the result from didHide / didFail, or the never-displayed belt) = qtRelease('ad') = 0719's return road (the resume, the proof, the medic, the knock), run BEFORE the caller's own launch (the next level, the menu, the TV's grant).
+// THE PUT-AWAY SEAM UNDER AN AD: a hide during the hold is nothing (qtHold's own law); a RETURN while the ad still stands keeps the hold (qtRelease wrapped: deferred while the ad has the stage); an ad that ends while the page is hidden leaves the hold to takeOut's own release. TWO BELTS: a pointerdown reaching the page ADH_TAP_MS after the send = the ad is gone (it covers the whole screen) = the release; a creative reaching the screen (maxOnCreative) with no hold standing = the hold again. Zero words, zero css, zero META, zero server, zero shell bytes (ADH-F1: the store app's own belt is a store build). GVT.adh() = the rigs' read.
+let ADH_ON=1;           // the dial: 0 = HEAD by trace (every wrapper hands straight through)
+let ADH_LEAD=400;       // ms the show's post waits behind the hold, so WebKit's audio unit is down before the ad's video starts (0 = the post at once, as HEAD) (DIAL, ⚑ ADH-Q1)
+let ADH_TAP_MS=2000;    // the belt: a pointerdown this long after the send releases the hold (the ad covers the screen: a tap reaching the page means it is gone) (DIAL)
+const ADH={ on:0, t0:0, n:0, rel:0, held:0, def:0, kind:'', log:[] };   // on = the ad has the stage · t0 = the send · n / rel = holds / releases · held = this hold took 0719's · def = put-away releases deferred under the ad · log = the last releases' whys
+function adhOn(){ return !!(ADH_ON && ADH.on); }
+function adhHold(kind){ try{
+  if(!ADH_ON || ADH.on) return false;
+  ADH.on=1; ADH.n++; ADH.t0=Date.now(); ADH.kind=String(kind||''); ADH.def=0;
+  ADH.held=qtHold('ad')? 1 : 0;   // 0719's hold: the running context suspended, every bed and every SFX quiet, audio() null while it stands
+  sfxSession();                   // the session asks 'ambient' while the ad has the stage (the wrapper below): the category goes with the sound
+  return true;
+}catch(e){ return false; } }
+function adhRelease(why){ try{
+  if(!ADH.on) return false;
+  ADH.on=0; ADH.rel++; ADH.log.push(String(why||'')); if(ADH.log.length>8) ADH.log.shift();
+  if(document.hidden) return true;   // the page is away: the hold is the put-away's now, and takeOut's own release brings the sound back on the return
+  if(qtHeld()) qtRelease('ad');      // 0719's return road: the resume, sfxWake (the session's own type back), the proof, the medic, the knock
+  return true;
+}catch(e){ return false; } }
+(function(){
+  const m0=maxShow; maxShow=function(kind){
+    const intish=(kind==='int');
+    if(!ADH_ON || !MAXA.ok || (intish?!MAXA.int:!MAXA.rew)) return m0.apply(this,arguments);   // the base's own no-fill road: nothing shows, nothing to hush
+    adhHold(kind);
+    const p=m0.apply(this,arguments);
+    try{ p.then(function(){ adhRelease('result'); }, function(){ adhRelease('result'); }); }catch(e){}   // the first then on the show's promise: the sound comes back BEFORE the caller's launch
+    return p;
+  };
+  const p0=maxPost; maxPost=function(m){ if(adhOn() && m && m.cmd==='show' && ADH_LEAD>0){ setTimeout(function(){ p0(m); }, ADH_LEAD); return; } return p0.apply(this,arguments); };   // the post waits ADH_LEAD behind the hold (the pend and the never-displayed belt are the base's, armed already)
+  const c0=maxOnCreative; maxOnCreative=function(d){ const r=c0.apply(this,arguments); try{ if(ADH_ON && d && !ADH.on){ for(const k in MAXA.pend){ const q=MAXA.pend[k]; if(q && q.kind===d.kind){ adhHold(d.kind); break; } } } }catch(e){} return r; };   // a creative on the screen with no hold standing (a tap released it early): the hold again
+  const r0=qtRelease; qtRelease=function(why){ if(adhOn() && why!=='ad'){ ADH.def++; return false; } return r0.apply(this,arguments); };   // the put-away seam's release while the ad still stands: deferred (the ad's end releases)
+  const s0=sfxSession; sfxSession=function(){ if(adhOn()){ try{ const s=navigator.audioSession; if(!s) return false; if(s.type!=='ambient') s.type='ambient'; return true; }catch(e){ return false; } } return s0.apply(this,arguments); };   // 'ambient' while the ad has the stage; the release's sfxWake asks the base's own type back
+  window.addEventListener('pointerdown', function(){ try{ if(adhOn() && Date.now()-ADH.t0>=ADH_TAP_MS) adhRelease('tap'); }catch(e){} }, {capture:true, passive:true});
+  setTimeout(function(){ try{ if(window.GVT && !GVT.adh) GVT.adh=function(){ return { on:ADH.on, n:ADH.n, rel:ADH.rel, held:ADH.held, def:ADH.def, kind:ADH.kind, qt:qtHeld()?1:0, ac:AC? AC.state : null, lead:ADH_LEAD, tap:ADH_TAP_MS, log:ADH.log.slice() }; }; }catch(e){} }, 0);
+})();
+// ═══ END CARD-ADH ═══
 // ═══ CARD-MSB-B2 · THE MISSION BOARD, ORDER 3: WIN THE BATTLE OF THE DESERT → THREE TIMES THE RATING (sec:CARD-MSB-B2; design/mission-board-1019/build-b2/00-BUILD-B2.md; jumpr 2391, J9; WYATT by phone 10/19/2026 20:48 EDT on the Mission Board's design pass (jumpr 2387), verbatim: "If you win the Battle of the Desert, you get an additional rating, so you get three times the normal rating if you win." + "We'll then throw that into the jumpr queue for implementation, right after going with your recommended changes. We'll push to live and see how it is.") ═══
 //   1 · HQ's WORD (server v136): on the night whose date is Order 3 (the same loop as B1: MSB_DAY0 + MSB_ORDERS, one constant pair in two files, move them together), a WINNER's first POST /gvt/bd/claim books the night THREE times on the NIGHTS pillar (the base through the daily lift as every night, the two extra steps paid at once) and answers ord 3 · x3 1 · nx 3 · xd (the extra) · full · lvx; its delta = the whole night (about +0.25 where a night pays +0.08). A NIGHTS pillar that cannot take three steps answers full 1 + lvx 3: the desert's promotions ×3 instead (BD_LEVELS 5 → 15; 🟨 MSB-Q6).
 //   2 · THE CLAIM (bdClaim wrapped, after its own handler ran): a reply with x3 → today's Order-3 row done + paid { k:'x3', d, xd, lvx, full, lvl } (B1's bdSpoils wrap marked it done at the verdict; the window reads paid); lvx 3 → BD_LEVELS × (lvx − 1) more promotions poured ONCE (xpAward, src desert; bd.last.lvl = 15, so the ceremony card's tally says +15 LEVELS); the verdict's spoils chip (if still on the glass) and the ceremony card's rating line read x3 THE ORDER'S RATING (+0.25), or x3 THE ORDER'S PROMOTIONS (+15 LEVELS).
