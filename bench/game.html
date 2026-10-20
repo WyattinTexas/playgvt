@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.10","md5":"d9835e33b02e3dfbe13b68851bfd9f42","sha":"f0fbb20d8","at":"2026-10-20T21:48:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.11","md5":"046ec1cdcac93ff89565c7c00383b9d3","sha":"ad986d375","at":"2026-10-20T23:34:52Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -88910,7 +88910,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.10';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -187405,6 +187405,56 @@ function bbnFill(){ try{
   setTimeout(function(){ try{ if(window.GVT && !GVT.bbn) GVT.bbn=function(){ return { on:BBN_ON, done:BBN.done, filled:BBN.filled, keys:BBN.keys.slice(), stamped:BBN.stamped, bnm:Object.assign({}, BBN_BNM) }; }; }catch(e){} }, 0);
 })();
 // ═══ END CARD-BBN ═══
+// ═══ CARD-PDL · THE PARTY'S DANCE, EVERYBODY SEEN (sec:CARD-PDL; design/party-dance-laura-1020/00-CARD-PDL.md; Laura 10/20/2026 19:10 EDT by her guest link, with her picture of the KING YETI show, verbatim: "Wyatt put this in a long time ago, but when you are playing with another player and you receive a message like this, you should also see the person that you are playing with team or their Sarge. It shouldn't just be my purple team."; her live switch is ON (Wyatt 10/11); board J1).
+// TODAY: shakeCast (0985 THE PARTY'S DANCE, Wyatt 9/13) lines up MY standing men first, then the allies' men round-robin, and cuts the line at DANCERS_MAX (10). A commander with ten men standing fills every seat alone and the friend never reaches the stage: her picture (ten purple dancers, the friend absent). On the battleground the teammates' figures wear factory plastic and the same cut runs in S.units order.
+// THE PASS: every commander on the winning side is SEEN. The line = my Sarge, then each ally's Sarge (commander order), then the men ROUND-ROBIN by commander, mine first, under the same cap. An ally's figure wears its owner's own colour (the campaign: coopHex, the seat map, toy blue, as 0985; the battleground: the seat's hex through unitHex, the carpet's one resolver), never my wardrobe (the plain mold in their dye; my Sarge alone dresses through menuSargeURI). The first ally's Sarge takes the first front-row seat (0985's hoist in shakeBuild reads the hex). Nobody else standing = HEAD's cast exactly (the solo stage byte-the-same). The cap, the pad law, shakeBuild, shakeDancerURI, the words: untouched. PDL_ON 0 (or ?pdl=0 on the URL) = HEAD by trace. GVT.pdl() = the rigs' read.
+let PDL_ON=1;   // the dial: 0 = HEAD by trace (the shipped shakeCast answers)
+try{ if(/[?&]pdl=0(&|$)/.test(location.search)) PDL_ON=0; }catch(e){}
+const PDL={ n:0, last:null };   // n = casts this sec built · last = the last line's owners (me, or the owner's hex), the rigs' read
+function pdlOwner(u){   // whose figure, as the round-robin key: me, an ally's commander id, a computer's bot+ix, a battleground seat s+seat (HEAD's own tests for MINE)
+  if(S.bf) return (((u.seat|0)===bfMySeat())&&!u.coopBy)? 'me' : 's'+(u.seat|0);
+  if(!u.coopBy) return 'me';
+  return (u.coopBy==='bot')? 'bot'+(u.botIx|0) : String(u.coopBy);
+}
+function pdlHex(u){   // the owner's own colour: a battleground seat through unitHex (the one resolver); a campaign ally through 0985's chain
+  if(S.bf){ try{ return unitHex(u)||null; }catch(e){ return null; } }
+  return u.coopHex||(COOP&&COOP.seatHex&&COOP.seatHex[String(u.coopBy)])||'#5B84C4';
+}
+function pdlCast(){   // the line, or null when nobody but me stands (HEAD's cast then)
+  const by={}, ord=[], tm=S.bf? bfMyTeam() : null;
+  for(const u of S.units){
+    if(u.dead) continue;
+    if(S.bf && u.side!==tm) continue;
+    const k=pdlOwner(u);
+    if(!by[k]){ by[k]=[]; ord.push(k); }
+    by[k].push(u);
+  }
+  const mi=ord.indexOf('me'); if(mi>0){ ord.splice(mi,1); ord.unshift('me'); }   // mine first
+  if(ord.length<2) return null;
+  const ent=function(u){ const my=(pdlOwner(u)==='me'); const e={t:u.type,my:my?1:0}; if(!my){ const h=pdlHex(u); if(h) e.hex=h; } return e; };
+  const line=[];
+  for(const k of ord){ const i=by[k].findIndex(function(u){ return u.type==='sarge'; }); if(i>=0){ line.push(ent(by[k][i])); by[k].splice(i,1); } }   // every commander's Sarge first, mine first
+  for(let r=0, more=true; more; r++){ more=false; for(const k of ord){ if(r<by[k].length){ line.push(ent(by[k][r])); more=true; } } }   // then the men, round-robin by commander
+  return line;
+}
+(function(){
+  const c0=shakeCast;
+  shakeCast=function(){
+    if(!PDL_ON) return c0.apply(this,arguments);
+    let line=null; try{ line=pdlCast(); }catch(e){ line=null; }
+    if(!line) return c0.apply(this,arguments);   // nobody else standing (or any fault): HEAD's cast exactly
+    PDL.n++; PDL.last=line.map(function(e){ return e.my? 'me' : e.hex; });
+    let mine=line.filter(e=>SPRITES_SRC[e.t]).slice(0,DANCERS_MAX);   // the shipped cap and filter, line for line
+    if(!mine.some(e=>e.t==='sarge'&&e.my)) mine=mine.slice(0,DANCERS_MAX-1);   // a seat kept for the pad's soloist when my Sarge is not standing: YOUR Sarge always answers muster, never an ally's in his place
+    const pad=[];
+    if(!mine.some(e=>e.t==='sarge'&&e.my)) pad.push({t:'sarge',my:1});   // the soloist always answers muster: YOUR Sarge
+    const fill=['rifleman','mgunner','bazooka','flame']; let fi=0;
+    while(mine.length+pad.length<DANCERS_MIN){ pad.push({t:fill[fi%4],my:1}); fi++; }
+    return { mine:mine, pad:pad.slice(0, Math.max(0, DANCERS_MAX-mine.length)) };
+  };
+  setTimeout(function(){ try{ if(window.GVT && !GVT.pdl) GVT.pdl=function(){ return { on:PDL_ON, n:PDL.n, last:PDL.last? PDL.last.slice() : null }; }; }catch(e){} }, 0);
+})();
+// ═══ END CARD-PDL ═══
 // ═══ CARD-MSB-B2 · THE MISSION BOARD, ORDER 3: WIN THE BATTLE OF THE DESERT → THREE TIMES THE RATING (sec:CARD-MSB-B2; design/mission-board-1019/build-b2/00-BUILD-B2.md; jumpr 2391, J9; WYATT by phone 10/19/2026 20:48 EDT on the Mission Board's design pass (jumpr 2387), verbatim: "If you win the Battle of the Desert, you get an additional rating, so you get three times the normal rating if you win." + "We'll then throw that into the jumpr queue for implementation, right after going with your recommended changes. We'll push to live and see how it is.") ═══
 //   1 · HQ's WORD (server v136): on the night whose date is Order 3 (the same loop as B1: MSB_DAY0 + MSB_ORDERS, one constant pair in two files, move them together), a WINNER's first POST /gvt/bd/claim books the night THREE times on the NIGHTS pillar (the base through the daily lift as every night, the two extra steps paid at once) and answers ord 3 · x3 1 · nx 3 · xd (the extra) · full · lvx; its delta = the whole night (about +0.25 where a night pays +0.08). A NIGHTS pillar that cannot take three steps answers full 1 + lvx 3: the desert's promotions ×3 instead (BD_LEVELS 5 → 15; 🟨 MSB-Q6).
 //   2 · THE CLAIM (bdClaim wrapped, after its own handler ran): a reply with x3 → today's Order-3 row done + paid { k:'x3', d, xd, lvx, full, lvl } (B1's bdSpoils wrap marked it done at the verdict; the window reads paid); lvx 3 → BD_LEVELS × (lvx − 1) more promotions poured ONCE (xpAward, src desert; bd.last.lvl = 15, so the ceremony card's tally says +15 LEVELS); the verdict's spoils chip (if still on the glass) and the ceremony card's rating line read x3 THE ORDER'S RATING (+0.25), or x3 THE ORDER'S PROMOTIONS (+15 LEVELS).
