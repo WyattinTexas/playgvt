@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.17","md5":"5fc97063756108d58df0f2fbbb9673df","sha":"2d83c2e0c","at":"2026-10-21T16:52:49Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.18","md5":"380296cb3e635c73222f9057e0f2f565","sha":"8dcef6579","at":"2026-10-21T16:58:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89010,7 +89010,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -123191,6 +123191,7 @@ function noteKill(u,f){
   { const gw=(u && u.type==='sarge')? ((awayU(u) || dlyCapU(u))? (u.gsT||0)>0 : ((S.gsT||0)>0 && killIsMine(u))) : false;   /* CARD-DLY: the deadly guardian banks inside his own window */   // 0393: the away captain's kills inside HIS OWN window bank onto HIM (plate pips restore, else gold blocks — enhU's away branch answers the plate)
     if(gw && enhU(u,'guardianshotgun') && unitSargeStats(u).w==='shotgun') gsBank(u); }
   if(!f || !killIsMine(u)) return;
+  jsxKill(u);   // CARD-JSX JANE'S REAL YEE-HAW: MY Jane's tenth kill of the battle (10, 20, 30 ...) speaks his recording + her gold float (the aviators' own gate: killIsMine above)
   // 0915 THE AVIATORS (Wyatt 9/15: "+2 Dogtags when Sarge gets a Kill"): a kill landed by MY OWN Sarge with the shades on drops OF_AV_TAGS dog tags into the battle purse — the
   // top hat's pour's own seat and float (S.plastic, the '+n' in the faucet's cream; per-sim: an ally's shades pay on HIS sim through his own outfitOn), only on a live field
   // (S.mode==='play'); killIsMine above keeps allies', bots' and other seats' kills out; every other figure and every undressed save byte-what-it-was.
@@ -162979,9 +162980,67 @@ function janeCameoOut(){
   S.floats.push({x:u.x, y:u.y-96, txt:'YEE-HAW!', t:0, col:'#FFD24A'});
   S.fx.push({k:'jexit', x1:u.x, y1:u.y, x2:u.x+430, y2:-90, w:unitW('jane'), img:IMG.janezip||unitImg('jane',u), t:0, dur:0.85});   // 0434: she leaves the way she arrived — the zip pose on the line (the exit still flies off-screen: Wyatt's standing flag, the entrance card ruled the entrance)
   S.fx.push({k:'ring', x:u.x, y:u.y-10, r:6, R:30, t:0, dur:0.4, col:'#C9A06A'});
-  SFX.snap();
+  jsxVoice('bye', SFX.snap);   // CARD-JSX JANE'S REAL YEE-HAW: his recording where the snap fired (the snap stands in while the file is not decoded, on a device that cannot decode it, and at ?jsx=0)
   S.units.splice(i,1);
 }
+// ═══ CARD-JSX · JANE'S REAL YEE-HAW (board M2416, built on Maker 1's lane; design/jane-sfx-1021/00-CARD-JSX.md; Wyatt typed on Maker 1 10/21/2026 ~11:55 EDT, verbatim: "Replace Jane's current yeehaw with this sound effect, and we can also use this sound effect every time Jane gets 10 kills in a battle. /Users/maker1/Documents/Jane_Sfx.wav")
+// THE SOUND: his own recording (Jane_Sfx.wav, 1.79 s: a held high "YEE", a breath, a falling "HAW"), SERVED beside index.html as jane-yeehaw.m4a on both mirrors (CARD-RVH's road: never embedded; connect-src 'self' allows it; sw.js lets it pass; the wav stays in the kit's src/).
+//   Fetched ONCE a session at her first need (jsxWarm: a 'jane' placed by placeUnit, which the rung-10 cameo's janeIn goes through), decoded once (the callback form every WebKit understands: naYeeDecode's law), kept as a buffer; played through the game's one context (soundOn, audio(): the put-away hold, the resume), a BufferSource + its own gain at JSX.vol, ONE slot (a new play stops the one before: the Yeti's law).
+// TWO SEATS: (1) THE GOODBYE (janeCameoOut, card 0355): the voice where SFX.snap() fired; the 'YEE-HAW!' float, the zip and the ring exactly as shipped. No buffer yet, no decoder on this device, no file, ?jsx=0: the shipped snap. (2) TEN KILLS (noteKill, after the killIsMine guard: the aviators' seat): a 'jane' unit's kills in THIS battle at a multiple of JSX.kills (10, 20, 30 ...; u.kills is per battle: S.units=[] at the battle door, placeUnit molds kills:0; u.jsxAt latches the milestone)
+//   speak the same voice + the goodbye's own gold 'YEE-HAW!' float over her head, on MY sim only (killIsMine: never an ally's, a bot's or another chair's Jane; a party's sims each speak for their own), only on a live field (S.mode==='play'), everywhere she fights (⚑ JSX-Q1: the campaign, the parks, the raids, the battlegrounds), at most one voice per JSX.gap s (a burst of kills: one voice, the rest held: JSX.held);
+//   the goodbye always speaks and ends a kill voice still running. No buffer at a milestone: the float alone (no snap), the fetch asked again.
+// THE SWITCH: ?jsx=0 (a device key gvt_jsx; ?jsx=1 clears it) = the snap at the goodbye and no kill-count voice, byte for byte the shipped fight. Dials: JSX.kills 10 · JSX.gap 2 (s) · JSX.vol 0.4 (the file peaks at -1.3 dBTP: -9.3 dBFS on the wire, a hair over the game's other recorded voices (the Yeti's roar -11.6, the ducky -11.8, the plaque's whoop -11.2) so she carries over the victory fanfare's square tones at 0.065; ⚑ JSX-Q2).
+//   Zero words (the float's key stands in TR_DATA x7), zero css, zero save keys, zero server bytes, zero sw.js bytes. Rig door: GVT.jsx() (jsxRig: the switch, the dials, the ledger, the log).
+const JSX_SRC='jane-yeehaw.m4a';   // the served file, beside index.html
+var JSX={ on:(function(){ try{ const m=/[?&]jsx=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_jsx','0'); else localStorage.removeItem('gvt_jsx'); } return localStorage.getItem('gvt_jsx')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  kills:10, gap:2, vol:0.4,   // the dials: the milestone, the least time between two voices (s), her gain on the SFX chain
+  buf:null, bytes:null, busy:0, dead:0, src:null, lastAt:-1e9, last:null,   // the buffer · the fetched file · a fetch in flight · this device cannot decode it (the session) · the live source · the last play's wall clock (ms) · the last play's seat
+  warm:0, fetched:0, decoded:0, n:0, fb:0, held:0, miles:0, err:0, log:[] };   // the ledger (the rig's read): warm asks, fetches, decodes, plays, fallbacks (the snap), voices held by the gap, milestones reached, errors, the last 40 events
+function jsxOn(){ return !!JSX.on; }
+function jsxLog(k,o){ try{ if(JSX.log.length>=40) JSX.log.shift(); JSX.log.push(Object.assign({ k, at:+(performance.now()/1000).toFixed(3), ac:(AC && AC.state!=='closed')? +AC.currentTime.toFixed(3) : null, t:(S && S.t!=null)? +(+S.t).toFixed(2) : null }, o||{})); }catch(e){} }
+function jsxWarm(){ try{   // her first need in the session: the file fetched once, decoded once; a device with no decoder, or a decode that fails: JSX.dead, the snap stands in for the session; no file (no signal): the next need asks again
+  if(!JSX.on || JSX.buf || JSX.busy || JSX.dead) return; JSX.warm++;
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!OAC){ JSX.dead=1; jsxLog('dead',{ why:'no OfflineAudioContext' }); return; }
+  const dec=u8=>{ try{ let done=false;
+    const fin=buf=>{ if(done) return; done=true; JSX.buf=buf; JSX.decoded++; jsxLog('decoded',{ s:+buf.duration.toFixed(3), sr:buf.sampleRate, ch:buf.numberOfChannels }); };
+    const no=e=>{ if(done) return; done=true; JSX.dead=1; jsxLog('dead',{ why:'decode: '+String(e&&e.message||e).slice(0,60) }); };
+    const p=new OAC(1,1,44100).decodeAudioData(u8.slice().buffer, fin, no); if(p && p.catch) p.catch(()=>{});   // a copy: the decode detaches what it is handed, the session keeps the bytes (RVH's law)
+  }catch(e){ JSX.dead=1; jsxLog('dead',{ why:'decode threw' }); } };
+  if(JSX.bytes){ dec(JSX.bytes); return; }
+  JSX.busy=1;
+  fetch(JSX_SRC).then(r=>{ if(!r.ok) throw new Error('jsx '+r.status); return r.arrayBuffer(); }).then(ab=>{ JSX.busy=0; JSX.bytes=new Uint8Array(ab); JSX.fetched++; jsxLog('fetched',{ bytes:ab.byteLength }); dec(JSX.bytes); })
+    .catch(e=>{ JSX.busy=0; JSX.err++; jsxLog('nofile',{ why:String(e&&e.message||e).slice(0,60) }); });
+}catch(e){ JSX.err++; } }
+function jsxVoice(why,fb){   // her voice through the SFX chain; fb = the shipped call when the voice cannot speak (the goodbye's snap; null = nothing). Returns 'play' | 'fb' | 'mute' | 'off' | 'none' | 'err'
+  if(!JSX.on){ if(fb) fb(); return 'off'; }
+  if(!JSX.buf){ jsxWarm(); JSX.fb++; jsxLog('fb',{ why, dead:JSX.dead }); if(fb) fb(); return 'fb'; }
+  if(!soundOn){ jsxLog('mute',{ why }); return 'mute'; }   // the mute switch: nothing speaks (tone's own first line)
+  const ac=audio(); if(!ac){ jsxLog('none',{ why }); return 'none'; }   // the put-away hold, or no context on this road
+  try{ const t0=ac.currentTime;
+    if(JSX.src){ try{ JSX.src.stop(); }catch(e){} JSX.src=null; }
+    const s=ac.createBufferSource(), g=ac.createGain(); s.buffer=JSX.buf; g.gain.value=JSX.vol;
+    s.connect(g).connect(ac.destination); s.start(t0);
+    s.onended=()=>{ try{ s.disconnect(); g.disconnect(); }catch(e){} if(JSX.src===s) JSX.src=null; jsxLog('ended',{ why }); };
+    JSX.src=s; JSX.n++; JSX.last=why; JSX.lastAt=performance.now(); jsxLog('play',{ why, vol:JSX.vol, s:+JSX.buf.duration.toFixed(3), state:ac.state });
+    return 'play';
+  }catch(e){ JSX.err++; JSX.fb++; jsxLog('err',{ why, e:String(e&&e.message||e).slice(0,60) }); if(fb) try{ fb(); }catch(e2){} return 'err'; } }
+function jsxKill(u){ try{   // noteKill's seat (after killIsMine): a 'jane' unit's kills in this battle at a multiple of JSX.kills, on a live field: the goodbye's own float + the voice, at most one voice per JSX.gap s
+  if(!JSX.on || !u || u.type!=='jane' || S.mode!=='play') return;
+  const k=u.kills|0, K=Math.max(1,JSX.kills|0); if(k<=0 || k%K) return;
+  if(u.jsxAt===k) return; u.jsxAt=k; JSX.miles++;   // one voice per milestone
+  if(performance.now()-JSX.lastAt<JSX.gap*1000){ JSX.held++; jsxLog('held',{ k }); return; }   // the burst law: the voice before is still fresh; no second one stacked on it (the float waits with it)
+  if(S.floats) S.floats.push({ x:u.x, y:u.y-96, txt:'YEE-HAW!', t:0, col:'#FFD24A' });
+  jsxVoice('kills:'+k, null);
+}catch(e){ JSX.err++; } }
+function jsxRig(o){ o=o||{}; if(o.on!=null) JSX.on=o.on? 1 : 0; for(const k of ['kills','gap','vol']) if(o[k]!=null) JSX[k]=+o[k]; if(o.warm) jsxWarm(); if(o.reset){ JSX.lastAt=-1e9; JSX.held=0; JSX.miles=0; JSX.n=0; JSX.fb=0; JSX.log.length=0; }   // the rig door (GVT.jsx): { on:0|1 } the switch for this page's life, { kills, gap, vol } the dials, { warm:1 } the fetch now, { reset:1 } the ledger's counters
+  const j=S.units? S.units.filter(q=>q.type==='jane' && !q.dead).map(q=>({ id:q.id, kills:q.kills|0, at:q.jsxAt|0, emgV:q.emgV|0, mine:killIsMine(q) })) : [];
+  return { cv:GVT_CV, on:JSX.on, key:(function(){ try{ return localStorage.getItem('gvt_jsx'); }catch(e){ return null; } })(), src:JSX_SRC, kills:JSX.kills, gap:JSX.gap, vol:JSX.vol,
+    buf:JSX.buf? { s:+JSX.buf.duration.toFixed(4), sr:JSX.buf.sampleRate, ch:JSX.buf.numberOfChannels } : null, bytes:JSX.bytes? JSX.bytes.length : 0, busy:JSX.busy, dead:JSX.dead, live:!!JSX.src,
+    warm:JSX.warm, fetched:JSX.fetched, decoded:JSX.decoded, n:JSX.n, fb:JSX.fb, held:JSX.held, miles:JSX.miles, err:JSX.err, last:JSX.last, lastAt:JSX.lastAt>0? +(JSX.lastAt/1000).toFixed(3) : null,
+    ac:AC? { state:AC.state, t:+AC.currentTime.toFixed(3), sr:AC.sampleRate } : null, sound:soundOn, mode:S.mode, janes:j, log:JSX.log.slice() }; }
+(function(){ try{ const p0=placeUnit; placeUnit=function(type){ const u=p0.apply(this, arguments); if(type==='jane' && JSX.on) jsxWarm(); return u; }; }catch(e){ JSX.err++; } })();   // the wrap: her first placement (the deploy's, the cameo's janeIn) asks for the file; no existing line of placeUnit changed
+setTimeout(()=>{ try{ if(window.GVT && !GVT.jsx) GVT.jsx=jsxRig; }catch(e){} }, 0);   // the rig door, hung once GVT stands (this section loads before it)
+// ═══ END CARD-JSX ═══
 // ═══ 1032 CARD-PM-A · THE FACEOFF — the palace raid's cutscene (design/princess-0908/00-DESIGN.md §13; Wyatt: "a true faceoff"; ⚑ PM-A-Q5 the four drafts verbatim — "go with your rec"): after DEPLOY, before the first piece, over the
 // field — four cards on the briefing's own grammar (the sim held under it, every tap swallowed by the card), the window re-dealt per card: SARGE's console card ↔ HER speaker card (princessSpeaker). A card types, holds
 // PC_FACE_HOLD s on the wall clock and deals the next by itself; a tap mid-type completes the line, a tap on a typed card skips to the next (the theater skip law — nobody ever waits on it). While she speaks the camera rides
