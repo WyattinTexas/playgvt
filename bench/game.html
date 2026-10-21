@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.20","md5":"134408b74fc7cccede0a7ba45f808bb3","sha":"f606148d6","at":"2026-10-21T17:09:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.21","md5":"49cbfd1ba03aac4720d1b12d39394d4c","sha":"a8fbdf5ee","at":"2026-10-21T18:26:25Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89081,7 +89081,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -187097,6 +187097,67 @@ function fnxRead(){ const q=s=>Array.from(document.querySelectorAll(s)), R=e=>{ 
     fxr:(typeof FXR==='object')? { x:+(+FXR.x||0).toFixed(1), e:+(+FXR.e||0).toFixed(1) } : null, ledgers:{ sargeSeen:(META.sargeSeen||[]).slice(), gearSeen:(META.gearSeen||[]).slice(), rackSeen:(META.rackSeen||[]).length }, log:FNX.log.slice(-30) }; }
 setTimeout(()=>{ try{ if(window.GVT && !GVT.fnx) GVT.fnx=fnxRead; }catch(e){} }, 0);
 // ═══ END CARD-FNX ═══
+// ═══ CARD-FNO · THE "!" LEAVES WHEN ITS BOX IS OPENED (sec:CARD-FNO; design/fort-news-open-1021/00-CARD-FNO.md; FROM DYLAN, jumpr guest link 10/21/2026 17:11 UTC = 13:11 EDT, jumpr 2419, built on Maker 1 as M2419, verbatim: "Can we remove the exclamation indicators once you open any of the cues for new gear? It seems to be lingering even after a clicktrough.")
+// WHAT HE MET (CARD-FNX as shipped, v24.65, its FNX-Q1 REC): a box's "!" (SARGE'S QUARTERS · HEROES · PETS in the yard, THE HANGAR's plank and the wooden arrow) stood until EVERY new thing under it had been tapped; a king's or a pet's stood until he took command or the heel. A click through the box and back
+//   left the "!" standing, and the shelf's FORT GREEN ⚔NEW with it. Skylar's own words had asked for the open: "When the player clicks on the box that has the exclamation point, the exclamation point/notification goes away."
+// THE RULE NOW: OPENING THE BOX FINDS WHAT IS IN IT. The tap that deals SARGE'S QUARTERS, HEROES or PETS (fortDeal, whichever door: the yard's sign, a deep link) or opens THE HANGAR's store from the yard (lchHangarTap) writes everything new under that box found: the irons into sargeSeen, the pieces into rackSeen, the jet pack
+//   into gearSeen (FNX's own ledgers, at the quarters' paint's OLD write moment), a NEW! king or pet into META.fnxFound ('hero:k' / 'pet:k'; his NEW! chip and META.fresh untouched: the chip's own rule, his switch drops it). The box's "!" and its red board go at that tap (the signs re-dealt under the card, the plank's "!" and the
+//   arrow lifted); the shelf's FORT GREEN ⚔NEW goes the moment the last box with news is opened. INSIDE THE OPENED BOX, FOR THIS VISIT ONLY, the new things still wear their "!" (Skylar's second sentence: the player sees WHAT was new), each going on its own tap as before (fnxTap, heroCmd, petTap); the visit ends when the
+//   box closes (the card, or the store), and the next open shows them plain. A box without news opens as before.
+// Presentation + the write moment; ONE new save key (META.fnxFound, a flat array of strings, the fresh/riteSeen grammar, born empty, pruned of marks whose NEW! is gone); no word, no server byte, no sw.js byte. ?fno=0 = a device key (gvt_fno) for CARD-FNX's rule byte for byte (the card's tap alone clears); ?fno=1 clears
+//   the key. GVT.fno = the rig's read. With CARD-FNX off (?fnx=0) this section does nothing.
+var FNO={ on:(function(){ try{ const q=/[?&]fno=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_fno','0'); else localStorage.removeItem('gvt_fno'); } return localStorage.getItem('gvt_fno')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  visit:null, inside:0, dealing:0, log:[] };
+function fnoOn(){ return !!(FNO.on && typeof FNX==='object' && FNX && FNX.on); }
+function fnoLog(a){ if(FNO.log.length<120) FNO.log.push(a); }
+function fnoFound(){ return Array.isArray(META.fnxFound)? META.fnxFound : []; }   // the fort's own ledger for the things whose NEW! mark belongs to another rule (a king's, a pet's: META.fresh)
+function fnoFoundIs(k,id){ return fnoFound().indexOf(k+':'+id)>=0; }
+function fnoPrune(a){ return a.filter((x,i)=>{ const j=x.indexOf(':'); return j>0 && a.indexOf(x)===i && freshIs(x.slice(0,j), x.slice(j+1)); }); }   // a mark whose NEW! is gone (he took command, the heel) leaves the ledger: it stays small
+// ── THE VISIT: the box on the glass and what was new in it when it opened (its badges ride this, not the ledgers)
+function fnoLive(){ const v=FNO.visit; if(!v) return false; if(FNO.dealing>0) return true;
+  if(v.box==='hangar') return shopIsOpen() && SHOP.store==='hangar';
+  return fortStands() && FORT_TAB===v.box; }
+function fnoVisit(){ return fnoLive()? FNO.visit : null; }
+function fnoBoxNews(box){ const n={ box:box, irons:[], pieces:[], gear:[], heroes:[], pets:[] };   // read OUTSIDE (FNO.inside 0): the ledgers' truth, what the box's sign shows
+  if(box==='outfitter'){ n.irons=fnxIrons(); n.pieces=fnxPieces(); } else if(box==='heroes') n.heroes=fnxHeroes(); else if(box==='pets') n.pets=fnxPets(); else if(box==='hangar') n.gear=fnxGear(); else return null;
+  return n; }
+function fnoWrite(n){ let w=0; const add=(a,v)=>{ if(a.indexOf(v)<0){ a.push(v); w++; } };
+  if(n.irons.length){ if(!Array.isArray(META.sargeSeen)) META.sargeSeen=[]; n.irons.forEach(id=>add(META.sargeSeen,id)); }
+  if(n.pieces.length){ if(!Array.isArray(META.rackSeen)) META.rackSeen=[]; n.pieces.forEach(id=>add(META.rackSeen,id)); }
+  if(n.gear.length){ if(!Array.isArray(META.gearSeen)) META.gearSeen=[]; n.gear.forEach(id=>add(META.gearSeen,id)); }
+  if(n.heroes.length || n.pets.length){ if(!Array.isArray(META.fnxFound)) META.fnxFound=[]; n.heroes.forEach(k=>add(META.fnxFound,'hero:'+k)); n.pets.forEach(k=>add(META.fnxFound,'pet:'+k)); META.fnxFound=fnoPrune(META.fnxFound); }
+  if(w) saveMeta(); return w; }
+function fnoOpen(box){   // THE OPEN: a visit begins, and everything new under the box is written found (a re-deal of the standing box, a tab or a pet at heel, keeps the visit going)
+  if(!fnoOn()) return null; const v=FNO.visit; if(v && v.box===box && fnoLive()) return v;
+  const n=fnoBoxNews(box); if(!n) return null; FNO.visit=n; const w=fnoWrite(n); fnoLog('open:'+box+':'+w+':'+(n.irons.length+n.pieces.length+n.gear.length+n.heroes.length+n.pets.length)); return n; }
+function fnoAfterOpen(a0){ try{   // after the deal: the signs re-dealt under the card, the plank's "!" and the arrow lifted when THE HANGAR's news is found, the shelf's FORT GREEN ⚔NEW the moment the last box is opened
+  fnxSignsSync(); const g=document.querySelector('#fortBg .fnx-g[data-fnx="gear:jetpack"]'); if(g && !fnxGear().length) g.remove(); fnxCueSync();
+  if(a0 && !fortNews() && S.mode==='menu') renderMenu();
+}catch(e){ fnoLog('after-err:'+String(e && e.message || e).slice(0,80)); } }
+function fnoWrapIn(fn){ return function(){ FNO.inside++; try{ return fn.apply(this,arguments); } finally{ FNO.inside--; } }; }   // inside a box's paint or a card's tap the readers answer the visit
+// ── THE WRAPS (at load, the CARD-FTS grammar: each once, the shipped function kept as FNO.<x>0)
+try{ if(typeof fnxIrons==='function' && !FNO.i0){ const i0=fnxIrons; FNO.i0=i0; fnxIrons=function(){ const v=(fnoOn() && FNO.inside>0)? fnoVisit() : null; return v? v.irons.slice() : i0.apply(this,arguments); }; } }catch(e){}
+try{ if(typeof fnxPieces==='function' && !FNO.p0){ const p0=fnxPieces; FNO.p0=p0; fnxPieces=function(){ const v=(fnoOn() && FNO.inside>0)? fnoVisit() : null; return v? v.pieces.slice() : p0.apply(this,arguments); }; } }catch(e){}
+try{ if(typeof fnxGear==='function' && !FNO.g0){ const g0=fnxGear; FNO.g0=g0; fnxGear=function(){ const v=(fnoOn() && FNO.inside>0)? fnoVisit() : null; return v? v.gear.slice() : g0.apply(this,arguments); }; } }catch(e){}
+try{ if(typeof fnxHeroes==='function' && !FNO.h0){ const h0=fnxHeroes; FNO.h0=h0; fnxHeroes=function(){ if(!fnoOn()) return h0.apply(this,arguments); const v=(FNO.inside>0)? fnoVisit() : null;
+    if(v){ const s=heroSel(); return v.heroes.filter(k=>freshIs('hero',k) && k!==s); } return h0.apply(this,arguments).filter(k=>!fnoFoundIs('hero',k)); }; } }catch(e){}   // inside: the visit's kings still NEW! and not in command; outside: the unfound
+try{ if(typeof fnxPets==='function' && !FNO.e0){ const e0=fnxPets; FNO.e0=e0; fnxPets=function(){ if(!fnoOn()) return e0.apply(this,arguments); const v=(FNO.inside>0)? fnoVisit() : null;
+    if(v){ const s=petSel(); return v.pets.filter(k=>freshIs('pet',k) && k!==s); } return e0.apply(this,arguments).filter(k=>!fnoFoundIs('pet',k)); }; } }catch(e){}
+try{ if(typeof fnxCard==='function' && !FNO.c0){ FNO.c0=fnxCard; fnxCard=fnoWrapIn(FNO.c0); } }catch(e){}   // the cards' and the tabs' badges: the visit's
+try{ if(typeof fnxIs==='function' && !FNO.s0){ FNO.s0=fnxIs; fnxIs=fnoWrapIn(FNO.s0); } }catch(e){}   // a card's tap (fnxTap, heroCmd, petTap) and fnxAfter's sweep: the visit's
+try{ if(typeof fnxTabNews==='function' && !FNO.n0){ FNO.n0=fnxTabNews; fnxTabNews=fnoWrapIn(FNO.n0); } }catch(e){}
+try{ if(typeof shopJetHTML==='function' && !FNO.j0){ FNO.j0=shopJetHTML; shopJetHTML=fnoWrapIn(FNO.j0); } }catch(e){}   // the crate's "!" in THE HANGAR's store: the visit's
+try{ if(typeof fnxSee==='function' && !FNO.w0){ const w0=fnxSee; FNO.w0=w0; fnxSee=function(k,id){ const v=fnoOn()? fnoVisit() : null;
+    if(v){ const a=k==='iron'? v.irons : k==='piece'? v.pieces : k==='gear'? v.gear : null; if(a){ const i=a.indexOf(id); if(i>=0) a.splice(i,1); } } return w0.apply(this,arguments); }; } }catch(e){}   // the card's own tap: that one thing leaves the visit (its "!" goes, the others stay)
+try{ if(typeof fortDeal==='function' && !FNO.d0){ const d0=fortDeal; FNO.d0=d0; fortDeal=function(tab){ if(!fnoOn() || FNX_AREAS.indexOf(tab)<0) return d0.apply(this,arguments);
+    const a0=fortNews(), v=fnoOpen(tab); FNO.dealing++; let r; try{ r=d0.apply(this,arguments); } finally{ FNO.dealing--; } if(v) fnoAfterOpen(a0); return r; }; } }catch(e){}   // SARGE'S QUARTERS · HEROES · PETS: the deal is the open
+try{ if(typeof lchHangarTap==='function' && !FNO.t0){ const t0=lchHangarTap; FNO.t0=t0; lchHangarTap=function(){ if(!fnoOn() || !LCH.on || S.mode!=='menu' || shopIsOpen()) return t0.apply(this,arguments);   // the door's own refusals first (its own line)
+    const a0=fortNews(), v=fnoOpen('hangar'); FNO.dealing++; let r; try{ r=t0.apply(this,arguments); } finally{ FNO.dealing--; } if(v) fnoAfterOpen(a0); return r; }; } }catch(e){}   // THE HANGAR's door from the yard: the open
+try{ if(Array.isArray(META.fnxFound)){ const f=fnoPrune(META.fnxFound); if(f.length!==META.fnxFound.length) META.fnxFound=f; } }catch(e){}   // at load: the ledger pruned (saved at the next write)
+function fnoRead(){ const v=FNO.visit; return { cv:GVT_CV, on:FNO.on, live:fnoOn(), visit:v? { box:v.box, irons:v.irons.slice(), pieces:v.pieces.slice(), gear:v.gear.slice(), heroes:v.heroes.slice(), pets:v.pets.slice(), live:fnoLive() } : null,
+  found:fnoFound().slice(), fresh:(Array.isArray(META.fresh)? META.fresh : []).slice(), inside:FNO.inside, dealing:FNO.dealing, news:{ irons:fnxIrons(), pieces:fnxPieces(), gear:fnxGear(), heroes:fnxHeroes(), pets:fnxPets() }, any:fortNews(), log:FNO.log.slice(-30) }; }
+setTimeout(()=>{ try{ if(window.GVT && !GVT.fno) GVT.fno=fnoRead; }catch(e){} }, 0);
+// ═══ END CARD-FNO ═══
 // ═══ CARD-FBW · THE FORT'S BACK WALL (sec:CARD-FBW; design/fort-back-wall-1019/00-DESIGN-FBW.md; FROM ISAAC by the jumpr guest link 10/19/2026 11:32 EDT, jumpr 2347, verbatim: "moving the trophies and medals parts to the right side of the wall above the hangar and getting rid of the door completely. For the first 25 levels of the campaign we're going to add 5 missing posters for each of the troops unlocked throughout those first 25 levels. Upon unlocking each and saving them, they kind of check off as found. After level 25 ... those boards will disappear and then it'll serve as a placeholder for future storylines ... get rid of the shelf with the 5 soldiers"; the design pass built on Maker 1 (air/m1-2347), landed and built by J7; HIS GO 12:32 EDT, verbatim: "Let's make it clickable so when you click on the thing it'll make it bigger and open up that box. After you make that change just go ahead and push it to live") ═══
 //   1 · THE SEATS: TROPHIES stays where Wyatt hung it (CARD-TRW, 10/9; TRC_SEAT untouched); MEDALS moves to the doorless tower's face at the wall's right end (where the gate was: FH_SEATS.medals + AFQ.med, once at load after afqMove laid Al's layout) because the board takes its old spot; the game's own art and door, only its seat moves. Isaac's A (both over Dylan's hangar, one on each shoulder) is built here too (FBW.A, FBW.overHangar=1: the yard paints them past its east edge and the field's svg carries their clones mirrored back, fhgInto's grammar) and proved in the kit, but Dylan's word on his field (⚑ FBW-W2, 10/19 12:48 EDT: "leave the trophy and medals where they were previously placed. Looks awkward with the hangar arc") keeps it OFF until he and Isaac agree (or Wyatt says).
 //   2 · THE GATE GOES: the gatehouse's seven gate pieces are not shown (after every layout; its tower, courses, banner and pennant stay); by night its glow, its spill on the wash and its fan on the floor go with it.
