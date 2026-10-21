@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.34","md5":"d257bc1f210157c6970ddf927d1d8f22","sha":"aeeed75fa","at":"2026-10-21T21:42:55Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.35","md5":"3efbc4c82d47f04c72d729907554622f","sha":"d88191910","at":"2026-10-21T21:52:30Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -59742,6 +59742,32 @@ function hstuPlay(cont){
   return v;
 }
 // ═══ end CARD-HST ═══
+// ═══ CARD-SMG STRANGE MAGIC (sec:CARD-SMG; design/strange-magic-1021/00-CARD-SMG.md; FROM DYLAN by the jumpr guest link 10/21/2026 15:33 EDT: "60 second cinematic cut scene for the “Strange Book” levels when you first open the tab. Open with sarge in a haunted library. Only lights are by torches on the walls. Spooky sounds are heard echoing gently. Sarge walks slowly through the library towards a floating purple book by the back wall. Sarge finally reaches it and the pages burst open! The book sucks sarge inside of it and he is suddenly transported to a spooky mansion ballroom with zombies and witches and vampires, bats, werewolves and wizards! They all start to dance around him to Halloween style music. Sarge reaches for his radio but it doesn’t work in this dimension. Cut back to the library where some of sarges units are following his trail. They come up to the book and call out out for him. Suddenly the book sucks them in as well! Next thing you know, sarge and his men form a circle and sarge says “Be prepared for whatever else comes at us squad!” The spooky characters stop dancing and converge on sarge and his men! End scene. Title this, “Strange Magic”."): the 60 s film smg-strangemagic.mp4 (the library's own night walls by torchlight, the floating purple book, the mansion ballroom and its dancers: the men in the zombie green, the bedroom's witch, the library's bats, new vampires, werewolves and wizards; Sarge's mold and the squad's sprites; the game's comm window; the kit's own waltz) + its poster smg-strangemagic.jpg at the root (bdPromoSrc), the seventh Dylan film in CARD-ENF's grammar.
+// plays ONCE per device the first time THE HAUNTED LIBRARY's lobby would open (openRaidScene with RAID_CUR 'gmy', after the door's own key gate: the bedroom's STRANGE BOOK, the map's pin and a party's walk all come through it): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the lobby as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
+// Reduced motion skips it. Seen = localStorage gvt_smg (never the save; no storage = never shown). ═══
+const SMGU={ key:'gvt_smg', src:'smg-strangemagic.mp4', poster:'smg-strangemagic.jpg' };
+function smguSeen(){ try{ return localStorage.getItem(SMGU.key)==='1'; }catch(e){ return true; } }
+function smguMark(){ try{ localStorage.setItem(SMGU.key,'1'); }catch(e){} }
+function smguDue(){ return !document.getElementById('smguFilm') && !document.getElementById('enfuFilm') && !document.getElementById('fifuFilm') && !document.getElementById('hstuFilm') && !document.getElementById('lnguFilm') && !document.getElementById('dmtuFilm') && !document.getElementById('drwuFilm') && !document.getElementById('mdyuFilm') && !document.getElementById('snduFilm') && !document.getElementById('stmuFilm') && S.mode==='menu' && !reducedMotion() && !smguSeen(); }
+function smguPlay(cont){
+  smguMark();
+  const d=document.createElement('div'); d.id='smguFilm'; d.setAttribute('data-notr','1');
+  d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center';
+  const v=document.createElement('video'); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.playsInline=true; v.preload='auto';
+  v.poster=bdPromoSrc(SMGU.poster); v.muted=!soundOn; v.src=bdPromoSrc(SMGU.src);
+  v.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';
+  const x=document.createElement('button'); x.type='button'; x.className='smguX'; x.setAttribute('aria-label','close'); x.setAttribute('data-notr','1');
+  x.style.cssText='position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 14px);width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,0.75);background:rgba(0,0,0,0.55);color:#fff;font:bold 24px/44px Arial,sans-serif;padding:0;cursor:pointer;z-index:2';
+  x.insertAdjacentHTML('beforeend','&#10005;');
+  let done=false;
+  const end=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} d.remove(); snduHush(false); try{ if(cont) cont(); }catch(e){} };
+  v.addEventListener('ended',end); v.addEventListener('error',end);
+  x.addEventListener('click',e=>{ e.stopPropagation(); end(); });
+  d.appendChild(v); d.appendChild(x); document.body.appendChild(d); snduHush(true);
+  try{ const p=v.play(); if(p&&p.catch) p.catch(()=>{ v.muted=true; try{ const q=v.play(); if(q&&q.catch) q.catch(end); }catch(e){ end(); } }); }catch(e){ end(); }
+  return v;
+}
+// ═══ end CARD-SMG ═══
 // THE SERVE ITSELF: the daily raid's own battlefield 1v1, his way. Rides
 // startBattlefield whole (random map draw, seat plan, director, briefing law,
 // rookie gate — a save with ten raid wins can never still be a rookie), then
@@ -89183,7 +89209,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -162516,6 +162542,7 @@ function openRaidScene(id){
   if(RAID_CUR==='bone' && dmtuDue()){ dmtuPlay(()=>openRaidScene(id)); return; }   // CARD-DMT (FROM DYLAN 10/16): KING REX'S LAIR's first open comes after DINO-MIGHT, once per device (the key gate above stands first)
   if(RAID_CUR==='palace' && hstuDue()){ hstuPlay(()=>openRaidScene(id)); return; }   // CARD-HST (FROM DYLAN 10/17): PRINCESS CROAK'S PALACE's first open comes after HOP, SKIP AND A THUMP, once per device (the doors' own gates stand first: palaceOpenFor at the oak doors, raidDoorKey at the map's pin)
   if(RAID_CUR==='sky' && fifuDue()){ fifuPlay(()=>openRaidScene(id)); return; }   // CARD-FIF (FROM DYLAN 10/17): THE SKY FORTRESS's first open comes after FORTRESS, IN FLIGHT, once per device (the key gate above stands first)
+  if(RAID_CUR==='gmy' && smguDue()){ smguPlay(()=>openRaidScene(id)); return; }   // CARD-SMG (FROM DYLAN 10/21): THE HAUNTED LIBRARY's first open (the bedroom's STRANGE BOOK) comes after STRANGE MAGIC, once per device (the key gate above stands first)
   safeOnce();   // v3.60 (0297): a raid door is a campaign-family multiplayer door
   document.getElementById('raidscene').classList.remove('hidden');   // unhide FIRST — partyLive counts me while open (the v3.10 law)
   RAID_WARN9=0;   // 1164: the lone-commander warning re-arms at every lobby open (spoken once per open — never a wall)
