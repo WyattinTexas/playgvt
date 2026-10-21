@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.14","md5":"5cabe66e508c5582eab1a12765ac97ef","sha":"d2da6c45f","at":"2026-10-21T01:53:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.15","md5":"6ca5864fcbeb4cbf670b1f30be546719","sha":"976bd1f0e","at":"2026-10-21T04:34:38Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -75923,12 +75923,12 @@ function dfRows(p){ const V=dfbSpan(p), east=(p.boxDir>0); let n=0, sy=0; for(co
   const bot9=S.bf? WORLD_H-30 : FOE_BOT; if(!n){ p.oval=V; return; } const my=sy/n, lo=DF_TOP+DF_ALT, hi=bot9-DF_ROW_OFF*0.5, r0=Math.max(lo,Math.min(hi,my-DF_ROW_OFF)); p.oval={ x0:V.x0, x1:V.x1, y0:Math.round(r0), y1:Math.round(Math.max(r0+60,Math.min(hi,my+DF_ROW_OFF))) }; }   // the north row never lifts the body under the HUD (DF_TOP); the two rows never fold into one
 function dfLedger(){ return S.dfLog||(S.dfLog={ launched:0, strafes:0, rounds:0, kills:0, hits:0, miss:0, by:{}, downs:[] }); }   // the rig's read: what flew, what it fired, who hit it, who downed it
 function dfById(id){ if(S.dfs) for(const p of S.dfs){ if(p.id===id) return p; } return null; }
-function dfLaunch(x,y,mine,o){ o=o||{}; if(!S.dfs) S.dfs=[]; const side=S.bf? (o.side||bfMyTeam()) : null, seat=S.bf? ((o.seat!=null)? o.seat|0 : bfMySeat()) : null, V=dfOval(side), hp=(o.hp>0)? Math.min(99,+o.hp) : dfHpMax()+((mine && bondWarOn())? BOND_WAR.hp : 0) /* CARD-OCR-B6: MY plane's bar +2 while the war gift stands (the word carries n) */, spd=(o.spd>0)? Math.max(DF_SPD,Math.min(Math.round(DF_SPD*ENG_MUL),o.spd|0)) : dfSpd();   // CARD-DF2: THE SIDE AND THE SEAT on the battlefield (the bomber's own two fields); the bar and the pace the garage gave it (a relayed plane's off the wire, bounded at the reader)
+function dfLaunch(x,y,mine,o){ o=o||{}; if(!S.dfs) S.dfs=[]; const side=S.bf? (o.side||bfMyTeam()) : null, seat=S.bf? ((o.seat!=null)? o.seat|0 : bfMySeat()) : null, V=dfOval(side), hp=(o.hp>0)? Math.min(99,+o.hp) : dfHpMax()+(mine? BOND_WAR.hp*bondWarStack() : 0) /* CARD-OCR-B6: MY plane's bar +2 while the war gift stands (the word carries n); CARD-BWS: × the stack */, spd=(o.spd>0)? Math.max(DF_SPD,Math.min(Math.round(DF_SPD*ENG_MUL),o.spd|0)) : dfSpd();   // CARD-DF2: THE SIDE AND THE SEAT on the battlefield (the bomber's own two fields); the bar and the pace the garage gave it (a relayed plane's off the wire, bounded at the reader)
   const eb9=S.bf? (S.bf.base? S.bf.base[side==='you'? 'foe' : 'you'] : null) : S.tanBase, boxDir=(eb9 && eb9.x<(S.bf? WORLD_W : W)/2)? -1 : 1;   // the enemy's end of the oval (the box's side)
   const p={ id:(S.dfN=(S.dfN|0)+1), own:(o.own!=null)? String(o.own) : 'me', mine:!!mine, side:side, seat:seat, type:'dogfighter', def:UDEF.dogfighter, hex:o.hex||null, gx:x, gy:y, alt:0, x:x, y:y, dir:(boxDir>0)? 1 : -1, hd:(boxDir>0)? 0 : Math.PI, boxDir:boxDir, hunt:null, lane:(y<(V.y0+V.y1)/2)? 0 : 1, cd:DF_CD*0.6, t:0, spd:spd,
     bank:0, altT:DF_ALT, spdMul:1, spdNow:spd, st:null, stT:0, wpDir:(boxDir>0)? 1 : -1, wing:0, wingBox:0, roll:null, rollA:0, splitCd:0, splitDir:0,   // CARD-DF3-A THE MOVEMENT: the bank (rad, signed) · the wanted height, the pace by attitude · the state (null = the take-off; then patrol · hunt · split) · the leg's way on the oval · the wingover's clock and its box turn · the roll (dodge | victory) and the split's half roll · the split's clock and way
     runCd:DF_RUN_CD*0.3, run:null,   // CARD-DF3-B THE STRAFING RUN: the run's clock (the first run soon after the take-off, as the shipped strafe's own 0.6 × DF_CD) and the run in progress (the line's direction and its clock, the round count, the men raked)
-    hp:hp, hpMax:hp, dmg:(o.dmg>0)? Math.min(50,+o.dmg) : +(dfDmg()+(mine? pglDmg()+(bondWarOn()? BOND_WAR.dmg : 0) /* CARD-OCR-B6: MY plane's round +2, flat (the word carries r) */ : 0)).toFixed(3) /* CARD-GGB PILOT GLOVES: MY plane's round +3 while Sarge wears them (the launch carries the number to a friend: r) */, base:V, oval:V, v2:!!(o.v2 || (mine && df2Owned())) /* CARD-OCR-B2: the face it flies: mine by the save, a friend's by the word (dfRelay) */, shots:0, airShots:0, boxShots:0, rounds:0, kills:0, hits:0, laps:0, down:null, by:null, gone:false, wob:((x*7+y*3)|0)%6 };   // gx · gy = the SHADOW on the carpet, alt = the height over it, x · y = the BODY in the air (what a gun aims at: the Corps' own grammar); hd = the heading (live in every state)
+    hp:hp, hpMax:hp, dmg:(o.dmg>0)? Math.min(50,+o.dmg) : +(dfDmg()+(mine? pglDmg()+BOND_WAR.dmg*bondWarStack() /* CARD-OCR-B6: MY plane's round +2, flat (the word carries r); CARD-BWS: × the stack */ : 0)).toFixed(3) /* CARD-GGB PILOT GLOVES: MY plane's round +3 while Sarge wears them (the launch carries the number to a friend: r) */, base:V, oval:V, v2:!!(o.v2 || (mine && df2Owned())) /* CARD-OCR-B2: the face it flies: mine by the save, a friend's by the word (dfRelay) */, shots:0, airShots:0, boxShots:0, rounds:0, kills:0, hits:0, laps:0, down:null, by:null, gone:false, wob:((x*7+y*3)|0)%6 };   // gx · gy = the SHADOW on the carpet, alt = the height over it, x · y = the BODY in the air (what a gun aims at: the Corps' own grammar); hd = the heading (live in every state)
   p.src={ type:'dogfighter', def:UDEF.dogfighter, x:x, y:y, df:1, side:side, seat:seat };   // the strafe's shooter as hurt() reads one: a STUB (the bomber's law: no kills field, so no tally moves; never in S.units); on the battlefield it carries the side and the seat the bounty pays
   dfRows(p); S.dfs.push(p); dfLedger().launched++; bfSfx(SFX.prop,x,y); S.fx.push({k:'ring',x:x,y:y-6,r:10,R:46,t:0,dur:0.5,col:'rgba(191,227,154,0.9)'}); return p; }
 function dfDrop(x,y){ if(!dfOwned() || /* CARD-SKC NO LIMIT: the dfAloft() gate retired */ S.plastic<COSTS.dogfighter || (S.bf && (S.bf.resolved || S.bf.ending || !!(S.cfg && S.cfg.terrain && S.cfg.terrain.cq)))){ SFX.clack(); return null; }   // MY finger's drop (dropNew's seat): the purse, the launch, the word to a friend, the first time's card   // CARD-DF2: on the battlefield too (never on THE STARSHIP; never past the whistle)
@@ -88952,7 +88952,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.14';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -90377,7 +90377,7 @@ function coopPlaceCmd(u, bot, bi, re){
   // every build's ENH filter drops it from coopMods. concat builds a fresh
   // array, so enhWire's own is never mutated.
   if(soulIs('u',u.type)) cm.mo=(cm.mo||[]).concat('sl');
-  if(u.bondWar) cm.mo=(cm.mo||[]).concat('bw');   // CARD-OCR-B6: THE WAR GIFT's token rides the same seat (the 'sl' law: CMD_KEYS carries no new word; an old client's ENH filter drops it and sims him stock)
+  if(u.bondWar) cm.mo=(cm.mo||[]).concat(bondWarToks(u.bondWar));   // CARD-OCR-B6: THE WAR GIFT's token rides the same seat (the 'sl' law: CMD_KEYS carries no new word; an old client's ENH filter drops it and sims him stock); CARD-BWS: 'bw2' beside it on a stack of two
   // 0100 THE ENGINE's marker rides the same 'sl' seat — the campaign emg
   // loaner is the only vehicle this relay ever carries, and an old client's
   // ENH filter drops the token with zero errors (accepted divergence, R6).
@@ -96888,34 +96888,57 @@ const BOND_CODE_RE=/^[A-Z2-9]{6}$/;
 // THE GIFT: while a WAR-bonded friend sits at my table (S.bond latched at the two launch edges + the roster ∩ META.bonds with w, never an AVOIDed seat: the bond's own rooms, OCR-Q12: a campaign level, a raid, a park, a battlefield room, an event night, a PvP room) EVERY unit of mine lands with +2 HP and lands +2 damage a round: Sarge's irons, the men, the heroes, the machines, the plane. The +75 % XP stays (bondMul).
 // THE SEATS: the stamp u.bondWar=1 at MY placement (coopPlaced on the campaign; placeUnit's battleground branch for my chair), the hp +2 as THE LAST flat word (the battleground's hpMax at the placement; the campaign's grit through gritCap, read live), the damage +2 FLAT AFTER EVERY MULTIPLIER (CARD-MST's seat: the men's and Sarge's sum in update(), the four kings' own functions, Jane's burst; the plane's bar and round at dfLaunch, crossing on its own word's n and r): a rifleman's round reads 0.9 → 2.9 at rank 0 and 3.12 → 5.12 at rank 100 (the design's §3), never (0.9+2) × the rank (OCR-B6-F1).
 // THE WIRE (the twin law): the token 'bw' rides INSIDE mo on the placement word (coopPlaceCmd + roomPlaced: the 'sl' seat; CMD_KEYS unchanged, zero server bytes); every receiver re-stamps a relayed copy off it (coopApply · coopRedress · roomDressUnit · roomRedress) and sims the same man; an old client's ENH filter drops the token and sims him stock (the design's F3, the accepted drift class).
-const BOND_WAR={ hp:2, dmg:2, lvl:250 };   // ⚑ OCR-Q11 his literal +2 / +2 · OCR-Q1 the rung
-function bondWar(uid){ uid=String(uid||''); return !!uid && (META.bonds||[]).some(r=>r && String(r.u)===uid && r.w); }   // the pair carries THE WAR FLAG (HQ's echo, or the verdict's own write while the post is stashed)
-function bondWarOn(){ if(!S.bond || !COOP || !Array.isArray(COOP.members)) return false; for(const m of COOP.members){ if(!m || !m.uid || (m.seat|0)===(COOP.seat|0)) continue; const u=String(m.uid); if(!avoidHas(u) && bondWar(u)) return true; } return false; }   // a war-bonded friend at THIS table (S.bond = the bond's own latch; the roster is the lobby's; read at the placement and the verdict)
-function bondWarDmg(u){ return (u && u.bondWar)? BOND_WAR.dmg : 0; }   // the flat +2 on a stamped figure's landed round (mine by the stamp at placement, a friend's by the token)
-function bondWarHp(u){ return (u && u.bondWar)? BOND_WAR.hp : 0; }   // the campaign's grit (gritCap's last word); the battleground's hpMax lands at the placement doors
+// ═══ CARD-BWS THE BOND OF FRIENDSHIP STACKS (design/bond-stack-1020/00-BUILD-BWS.md; jumpr 2404, built on Maker 1 as M2404; Wyatt by phone 10/20/2026 22:57 EDT, verbatim: "Bond of friendship should stack. Currently its not stacking. So for instance getting bond of friendship from the daily & the co-op reward should be +4 hp and damage. You cant get the same bond of friendship more than once however") ═══
+// THE ROADS: a pair's war flag w is now a MASK of the roads that bonded them: 1 = THE CO-OP REWARD (250 NEMESIS RETURNS beaten with the friend, CARD-OCR-B6) · 2 = ORDERS FROM HQ (Order 1 PLAY A LEVEL WITH A FRIEND, CARD-MSB-B1). Each road pays +2 HP / +2 damage ONCE per pair (the same road again changes nothing: ALREADY YOURS); both roads = +4 / +4. A row flagged before this card (w:1, by either road) reads as ONE road, the co-op's (the Day-1 heal below re-files Order 1's). HQ keeps the mask (POST /gvt/bond/war {src: coop | hq | refile}, this card's server half; the sync echo's w carries it back, both sides); a client before this card reads w as true and pays +2 (the accepted drift class, OCR-B6-F3's twin).
+// THE TABLE: the gift at my table = the STRONGEST pair among the war-bonded friends seated (bondWarStack = the max over the pairs, never a sum across friends: CARD-BF's one-object law; ⚑ BWS-Q1); the stamp u.bondWar = that count (1 or 2); every +2 seat below multiplies by it (bondWarDmg · bondWarHp · the plane · the chip · the sheet · the welcome · the float). THE WIRE: 'bw2' rides beside 'bw' on the placement word when the stack is 2 (bondWarToks; a receiver before this card sims +2 off 'bw' alone: OCR-B6-F3's drift class). THE STASH: a post's key is uid (the co-op road) · uid:h (HQ's road) · uid:r (the heal's re-filing); HQ's answer carries the row's mask.
+const BOND_WAR={ hp:2, dmg:2, lvl:250 };   // ⚑ OCR-Q11 his literal +2 / +2 A ROAD (CARD-BWS: × the roads the pair holds) · OCR-Q1 the rung
+const BOND_WAR_SRC={ coop:1, hq:2 };   // CARD-BWS THE ROADS (the bits of a row's w): the 250 co-op reward · ORDERS FROM HQ's Order 1
+const BOND_WAR_ALL=BOND_WAR_SRC.coop|BOND_WAR_SRC.hq;
+function bondWarMask(w){ return (w===true)? BOND_WAR_SRC.coop : ((+w|0)&BOND_WAR_ALL); }   // CARD-BWS: a row's w as the roads' mask (a save's old true / 1 = one road, the co-op's; anything else clipped to the roads known)
+function bondWarCnt(w){ let m=bondWarMask(w), n=0; while(m){ n+=m&1; m>>=1; } return n; }   // CARD-BWS: how many roads a row holds (0, 1, 2) = the pair's stack
+function bondWarN(uid){ uid=String(uid||''); if(!uid) return 0; const r=(META.bonds||[]).find(r=>r && String(r.u)===uid); return r? bondWarCnt(r.w) : 0; }   // CARD-BWS: the pair's stack off the glass
+function bondWarStack(){ if(!S.bond || !COOP || !Array.isArray(COOP.members)) return 0; let n=0; for(const m of COOP.members){ if(!m || !m.uid || (m.seat|0)===(COOP.seat|0)) continue; const u=String(m.uid); if(avoidHas(u)) continue; n=Math.max(n, bondWarN(u)); } return n; }   // CARD-BWS: the gift at THIS table = the strongest war-bonded friend seated, never an AVOIDed seat (the max over the pairs, never a sum; S.bond = the bond's own latch; read at the placement and the verdict)
+function bondWarKey(uid,bit){ return String(uid)+((bit===BOND_WAR_SRC.hq)? ':h' : ((bit==='refile')? ':r' : '')); }   // CARD-BWS: a stashed post's key: uid (the co-op road) · uid:h (ORDERS FROM HQ) · uid:r (the Day-1 heal's re-filing)
+function bondWarKeyUid(k){ return String(k||'').split(':')[0]; }
+function bondWarKeySrc(k){ const s=String(k||'').split(':')[1]||''; return s==='h'? 'hq' : (s==='r'? 'refile' : 'coop'); }   // the road a stashed key names, as the wire spells it
+function bondWarTok(mo){ if(!Array.isArray(mo)) return 0; let n=0; for(const m of mo){ if(m==='bw') n=Math.max(n,1); else if(typeof m==='string' && /^bw[2-9]$/.test(m)) n=Math.max(n,+m.slice(2)); } return n; }   // CARD-BWS: the stack off a word's tokens ('bw' = one road; 'bw2' beside it = two; a word from a client before this card carries 'bw' alone)
+function bondWarToks(n){ n=n|0; return n<=0? [] : (n===1? ['bw'] : ['bw','bw'+Math.min(9,n)]); }   // CARD-BWS: the tokens for a stack ('bw' always, so a receiver before this card sims +2)
+function bondWarEcho(w, uid){ const p=bondWarPend(uid); let m=bondWarMask(w); if((p&8) && m===BOND_WAR_SRC.coop) m=BOND_WAR_SRC.hq; return m|(p&BOND_WAR_ALL); }   // CARD-BWS: HQ's echoed flag read beside the stash: a stashed road rides on top till HQ answers; a stashed re-filing turns the old single flag into HQ's road
+function bondWarHeal(){   // CARD-BWS THE DAY-1 HEAL, once per Order-1 row (META.bwHeal = the row's day key): a glass whose ORDERS FROM HQ Order 1 was paid by a client before this card (META.msb.paid = {k:'bond', f, u:[uids]}: the pairs, and whether the flag was new then) files that road with HQ: the flag stood before (f 0) = the 250 road + HQ's road now (+4); the flag was new then (f 1) = HQ's road alone, re-filed (the same +2). A row that already carries HQ's road is left alone; a pair the glass no longer lists is skipped; nothing to file = nothing written. ⚑ BWS-Q3
+  const m=META.msb, p=(m && typeof m==='object')? m.paid : null; if(!p || typeof p!=='object' || p.k!=='bond' || !Array.isArray(p.u) || !p.u.length) return false;
+  if(META.bwHeal===String(m.dk)) return false; META.bwHeal=String(m.dk);
+  let n=0; for(const u0 of p.u){ const uid=String(u0||'').slice(0,32); if(!uid) continue; const row=(META.bonds||[]).find(r=>r && String(r.u)===uid); if(!row) continue; const w=bondWarMask(row.w); if(w&BOND_WAR_SRC.hq) continue;
+    if(!Array.isArray(META.bondWarPend)) META.bondWarPend=[];
+    if(p.f){ if(w!==BOND_WAR_SRC.coop) continue; row.w=BOND_WAR_SRC.hq; const k9=bondWarKey(uid,'refile'); if(META.bondWarPend.indexOf(k9)<0) META.bondWarPend.push(k9); n++; }
+    else { row.w=w|BOND_WAR_SRC.hq; const k9=bondWarKey(uid,BOND_WAR_SRC.hq); if(META.bondWarPend.indexOf(k9)<0) META.bondWarPend.push(k9); n++; } }
+  return n>0; }
+function bondWar(uid){ return bondWarN(uid)>0; }   // the pair carries THE WAR FLAG on any road (HQ's echo, or the verdict's own write while the post is stashed)   /* CARD-BWS: off the stack */
+function bondWarOn(){ return bondWarStack()>0; }   // a war-bonded friend at THIS table (S.bond = the bond's own latch; the roster is the lobby's; read at the placement and the verdict)   /* CARD-BWS: off the stack */
+function bondWarDmg(u){ return (u && u.bondWar)? BOND_WAR.dmg*(u.bondWar|0) : 0; }   // the flat +2 A ROAD on a stamped figure's landed round (CARD-BWS: the stamp = the stack; mine by the stamp at placement, a friend's by the token)
+function bondWarHp(u){ return (u && u.bondWar)? BOND_WAR.hp*(u.bondWar|0) : 0; }   // the campaign's grit (gritCap's last word; CARD-BWS: +2 a road); the battleground's hpMax lands at the placement doors
 function bondWarLand(u){   // MY man lands with the gift (the campaign: coopPlaced; the battleground: placeUnit's my-chair word): the stamp, the battleground's +2 plastic (placed THIS tick: hp===hpMax), the tell ONCE a fight over the first man (dtpSay's grammar: a raw key, the floats translate); idempotent
-  if(!u || u.bondWar) return !!(u && u.bondWar); if(!bondWarOn()){ u.bondWar=0; return false; }
-  u.bondWar=1; if(u.hpMax){ u.hpMax+=BOND_WAR.hp; u.hp=u.hpMax; }
-  if(!(S.bwN|0) && S.floats) S.floats.push({x:u.x,y:u.y-70,txt:'+'+BOND_WAR.hp+' HP · +'+BOND_WAR.dmg+' DAMAGE',t:0,col:'#FFD24A'}); S.bwN=(S.bwN|0)+1;
+  if(!u || u.bondWar) return !!(u && u.bondWar); const n9=bondWarStack(); if(!n9){ u.bondWar=0; return false; }   /* CARD-BWS: the stack at this table */
+  u.bondWar=n9; if(u.hpMax){ u.hpMax+=BOND_WAR.hp*n9; u.hp=u.hpMax; }
+  if(!(S.bwN|0) && S.floats) S.floats.push({x:u.x,y:u.y-70,txt:'+'+(BOND_WAR.hp*n9)+' HP · +'+(BOND_WAR.dmg*n9)+' DAMAGE',t:0,col:'#FFD24A'}); S.bwN=(S.bwN|0)+1;
   return true; }
-function bondWarRelay(u, cm, hp){ if(!u) return false; const on=!!(cm && Array.isArray(cm.mo) && cm.mo.indexOf('bw')>=0); u.bondWar=on? 1 : 0; if(on && hp && u.hpMax){ u.hpMax+=BOND_WAR.hp; u.hp=u.hpMax; } return on; }   // a relayed copy off the token (raw read before the ENH filter, the coopSoul law); hp = placed THIS tick (never on a re-dress)
-function bondWarRow(uid, nm){   // the pair's row on the glass gains THE WAR FLAG (found or made: the claim's own grammar); the welcome owed once per bond; the post stashed; says whether the flag is new here
-  uid=String(uid||'').slice(0,32); if(!uid) return false; if(!Array.isArray(META.bonds)) META.bonds=[];
-  let row=META.bonds.find(r=>r && String(r.u)===uid); const fresh=!(row && row.w);
+function bondWarRelay(u, cm, hp){ if(!u) return false; const n9=(cm && Array.isArray(cm.mo))? bondWarTok(cm.mo) : 0; u.bondWar=n9; if(n9 && hp && u.hpMax){ u.hpMax+=BOND_WAR.hp*n9; u.hp=u.hpMax; } return n9>0; }   /* CARD-BWS: the stack off 'bw' + 'bw2' */   // a relayed copy off the token (raw read before the ENH filter, the coopSoul law); hp = placed THIS tick (never on a re-dress)
+function bondWarRow(uid, nm, bit){   // the pair's row on the glass gains THE ROAD's bit (CARD-BWS: found or made, the claim's own grammar; the co-op road when none is named); the welcome owed once per bond; the post stashed under the road's key; says whether THIS road is new here
+  uid=String(uid||'').slice(0,32); if(!uid) return false; if(!Array.isArray(META.bonds)) META.bonds=[]; bit=(bit===BOND_WAR_SRC.hq)? BOND_WAR_SRC.hq : BOND_WAR_SRC.coop;
+  let row=META.bonds.find(r=>r && String(r.u)===uid); const fresh=!(row && (bondWarMask(row.w)&bit));
   if(!row){ row={ u:uid, n:String(nm||'A COMMANDER').slice(0,18) }; META.bonds.push(row); }
-  row.w=1;
-  if(!Array.isArray(META.bondWarPend)) META.bondWarPend=[]; if(META.bondWarPend.indexOf(uid)<0) META.bondWarPend.push(uid);
+  row.w=bondWarMask(row.w)|bit;
+  if(!Array.isArray(META.bondWarPend)) META.bondWarPend=[]; { const k9=bondWarKey(uid,bit); if(META.bondWarPend.indexOf(k9)<0) META.bondWarPend.push(k9); }
   if(!Array.isArray(META.bondNew)) META.bondNew=[]; if(!Array.isArray(META.bondSeen)) META.bondSeen=[];
   if(META.bondSeen.indexOf(uid)<0 && META.bondNew.indexOf(uid)<0) META.bondNew.push(uid);
   return fresh; }
-function bondWarPend(uid){ uid=String(uid||''); return !!uid && Array.isArray(META.bondWarPend) && META.bondWarPend.indexOf(uid)>=0; }
-function bondWarPost(uid){   // THE POST: /gvt/bond/war {device, uid} (server v99): HQ flags the pair's row (both sides read it), bonds them via 'war' when no row stood
-  return netFetch(NET+'/bond/war',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device:META.deviceId, uid:String(uid||''), cv:GVT_CV})}).then(r=>r.json()); }
+function bondWarPend(uid){ uid=String(uid||''); if(!uid || !Array.isArray(META.bondWarPend)) return 0; let m=0; for(const k of META.bondWarPend){ if(bondWarKeyUid(k)!==uid) continue; const s=bondWarKeySrc(k); if(s==='hq') m|=BOND_WAR_SRC.hq; else if(s==='coop') m|=BOND_WAR_SRC.coop; else m|=8; } return m; }   // CARD-BWS: the roads this glass still owes HQ for the pair (8 = a re-filing); 0 = nothing stashed (false, as before)
+function bondWarPost(uid, src){   // THE POST: /gvt/bond/war {device, uid, src} (server v99; CARD-BWS: + src = coop | hq | refile, the road): HQ ORs the road into the pair's row (both sides read the mask), bonds them via 'war' when no row stood
+  return netFetch(NET+'/bond/war',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({device:META.deviceId, uid:String(uid||''), src:String(src||'coop'), cv:GVT_CV})}).then(r=>r.json()); }
 function bondWarTick(){   // the stash → HQ, one at a time, at the verdict and on the sync's heels (my uid exists by then): HQ's verdict clears it either way (ok · self · bad uid · no such · full); silence keeps it for the next sync (bondClaimTick's law)
   if(!Array.isArray(META.bondWarPend) || !META.bondWarPend.length) return; if(bondWarTick.busy) return; bondWarTick.busy=1;
-  const uid=String(META.bondWarPend[0]);
-  bondWarPost(uid).then(r=>{ bondWarTick.busy=0;
-    if(r && (r.ok || r.err==='self' || r.err==='bad uid' || r.err==='no such' || r.err==='full')){ META.bondWarPend=META.bondWarPend.filter(u=>u!==uid); if(r.ok && r.friend && r.friend.uid){ const row=(META.bonds||[]).find(q=>q && String(q.u)===String(r.friend.uid)); if(row) row.w=1; } try{ saveMeta(); }catch(e){} bondWarTick(); }
+  const key=String(META.bondWarPend[0]), uid=bondWarKeyUid(key), src=bondWarKeySrc(key);   /* CARD-BWS: the key names the road */
+  bondWarPost(uid, src).then(r=>{ bondWarTick.busy=0;
+    if(r && (r.ok || r.err==='self' || r.err==='bad uid' || r.err==='no such' || r.err==='full' || r.err==='bad src')){ META.bondWarPend=META.bondWarPend.filter(k=>k!==key); if(r.ok && r.friend && r.friend.uid){ const row=(META.bonds||[]).find(q=>q && String(q.u)===String(r.friend.uid)); if(row){ const hw=('war' in r)? bondWarMask(r.war) : BOND_WAR_SRC.coop; row.w=bondWarEcho(hw, row.u); } } try{ saveMeta(); }catch(e){} bondWarTick(); }   /* CARD-BWS: HQ's answer carries the row's mask (an HQ before this card answers 1: the glass follows HQ) */
   }).catch(()=>{ bondWarTick.busy=0; }); }
 function bondMul(){ return S.bond? BOND_MUL : 1; }
 function bondHas(uid){ uid=String(uid||''); return !!uid && (META.bonds||[]).some(r=>r && String(r.u)===uid); }
@@ -96928,15 +96951,15 @@ function bondMate(){   // the first OTHER seat at this launch whose uid is bonde
   }
   return null;
 }
-function bondGlyph(){ return S.bond? '<i class="wkx bond" data-notr>'+gly('bond')+'+75%'+(bondWarOn()? ' XP · +'+BOND_WAR.hp+' HP · +'+BOND_WAR.dmg+' DMG' : '')+'</i>' : ''; }   /* CARD-OCR-B6: +75% XP · +2 HP · +2 DMG while the war gift stands */   // the chip beside the XP tile (wkGlyph's grammar)
+function bondGlyph(){ const n9=S.bond? bondWarStack() : 0; return S.bond? '<i class="wkx bond" data-notr>'+gly('bond')+'+75%'+(n9? ' XP · +'+(BOND_WAR.hp*n9)+' HP · +'+(BOND_WAR.dmg*n9)+' DMG' : '')+'</i>' : ''; }   /* CARD-OCR-B6: +75% XP · +2 HP · +2 DMG while the war gift stands; CARD-BWS: × the stack (+4 · +4 on both roads) */   // the chip beside the XP tile (wkGlyph's grammar)
 function bondShareText(){ return TXT('Join me in Green vs Tan! We share THE BOND OF FRIENDSHIP: +75% XP when we fight together.'); }   // translated AT COMPOSITION (the v1.29.2 law — navigator.share never touches a DOM setter)
 function bondAdopt(d){   // HQ's echo: my code + the list; a uid new to both ledgers is owed the welcome (the SENDER's side learns here)
   if(!d || !d.ok) return;
   let dirty=false;
   if(typeof d.fcode==='string' && BOND_CODE_RE.test(d.fcode) && META.fcode!==d.fcode){ META.fcode=d.fcode; dirty=true; }
   if(Array.isArray(d.bonds)){
-    const rows=d.bonds.filter(r=>r && typeof r.u==='string' && r.u).map(r=>{ const o={ u:String(r.u).slice(0,32), n:String(r.n||'A COMMANDER').slice(0,18) }; if(r.w || bondWarPend(o.u)) o.w=1; return o; }).slice(0,100);   /* CARD-OCR-B6: THE WAR FLAG rides HQ's echo (v99); a pair whose post is still stashed keeps the glass's flag till HQ answers */
-    for(const u9 of (META.bondWarPend||[])){ if(!rows.some(r=>r.u===u9)){ const o9=(META.bonds||[]).find(r=>r && String(r.u)===u9); if(o9) rows.push({ u:o9.u, n:o9.n, w:1 }); } }   // CARD-OCR-B6: a pair bonded in war on this glass that HQ's list lacks (the post still stashed) stays on the list till HQ answers
+    const rows=d.bonds.filter(r=>r && typeof r.u==='string' && r.u).map(r=>{ const o={ u:String(r.u).slice(0,32), n:String(r.n||'A COMMANDER').slice(0,18) }; { const w9=bondWarEcho(r.w, o.u); if(w9) o.w=w9; } return o; }).slice(0,100);   /* CARD-OCR-B6: THE WAR FLAG rides HQ's echo (v99); a pair whose post is still stashed keeps the glass's flag till HQ answers; CARD-BWS: the roads' mask, the stashed roads on top */
+    for(const k9 of (META.bondWarPend||[])){ const u9=bondWarKeyUid(k9); if(!rows.some(r=>r.u===u9)){ const o9=(META.bonds||[]).find(r=>r && String(r.u)===u9); if(o9 && !rows.some(r=>r.u===o9.u)) rows.push({ u:o9.u, n:o9.n, w:bondWarMask(o9.w)||BOND_WAR_SRC.coop }); } }   /* CARD-BWS: the key names the pair; its mask kept */   // CARD-OCR-B6: a pair bonded in war on this glass that HQ's list lacks (the post still stashed) stays on the list till HQ answers
     if(JSON.stringify(rows)!==JSON.stringify(META.bonds||[])){ META.bonds=rows; dirty=true; }
     for(const r of rows){ if(META.bondSeen.indexOf(r.u)<0 && META.bondNew.indexOf(r.u)<0){ META.bondNew.push(r.u); dirty=true; } }
   } else if(typeof d.fcode==='string' && (META.bonds||[]).length && !(META.bondWarPend||[]).length /* CARD-OCR-B6: a pair's post still stashed holds the list */){ META.bonds=[]; dirty=true; }   // a v76 reply with no list = none stand (every one asleep or none ever) — the glass follows HQ
@@ -97013,7 +97036,7 @@ function bondSweep(){   // the welcome, once per bond, both sides: ONE card at t
   partyPopShow('bond',
     '<div class="pp-card pp-bond" data-notr><div class="pp-mark">'+gly('bond')+'</div>'
     +'<div class="pp-head">'+tf('YOU AND %1 SHARE THE BOND OF FRIENDSHIP', escH(nm))+'</div>'
-    +'<div class="pp-sub">'+escH(t('+75% XP WHEN YOU FIGHT TOGETHER')+(row.w? ' · '+t('+'+BOND_WAR.hp+' HP · +'+BOND_WAR.dmg+' DAMAGE') : ''))+'</div>'   /* CARD-OCR-B6: a pair bonded in war reads the war gift too */
+    +'<div class="pp-sub">'+escH(t('+75% XP WHEN YOU FIGHT TOGETHER')+(bondWarCnt(row.w)? ' · '+t('+'+(BOND_WAR.hp*bondWarCnt(row.w))+' HP · +'+(BOND_WAR.dmg*bondWarCnt(row.w))+' DAMAGE') : ''))+'</div>'   /* CARD-OCR-B6: a pair bonded in war reads the war gift too; CARD-BWS: × the pair's roads */
     +'<button type="button" class="pp-big" onclick="partyPopClear();bondSweep()">OK</button></div>');
   SFX.horn();
   return true;
@@ -97085,7 +97108,7 @@ function ptyRowsHTML(here){
     return '<div class="pts-row'+(mine?' me':'')+(lit?' lit':'')+((!mine&&(m.dk|0)>0)?' dark':'')+(armed?' armed':'')+'" id="ptsrow-'+seat+'" data-notr>'
       +'<i style="background:'+escH(String(hex))+'"></i>'
       +'<div class="pts-nm"><span class="pts-sq'+(sq?'':' none')+'">'+escH(String(sq||t('NO SQUAD')).toUpperCase().slice(0,18))+'</span>'
-      +'<span class="pts-name">'+((!mine&&m.uid&&bondHas(m.uid))? '<i class="pts-bond">'+gly('bond')+'</i>' : '')+((L&&m.host)? PTY_LEAD_GLYPH+' ':'')+escH(String(nm).slice(0,14))+(mine? ' · '+escH(t('YOU')):'')+'</span>'+((!mine&&m.uid&&bondWar(m.uid))? '<span class="pts-bwar">'+escH(t('THE BOND OF FRIENDSHIP')+' · '+t('+'+BOND_WAR.hp+' HP · +'+BOND_WAR.dmg+' DAMAGE'))+'</span>' : '')+'</div>'   /* CARD-OCR-B6: the gold line under a war-bonded friend's name */
+      +'<span class="pts-name">'+((!mine&&m.uid&&bondHas(m.uid))? '<i class="pts-bond">'+gly('bond')+'</i>' : '')+((L&&m.host)? PTY_LEAD_GLYPH+' ':'')+escH(String(nm).slice(0,14))+(mine? ' · '+escH(t('YOU')):'')+'</span>'+((!mine&&m.uid&&bondWar(m.uid))? '<span class="pts-bwar">'+escH(t('THE BOND OF FRIENDSHIP')+' · '+t('+'+(BOND_WAR.hp*bondWarN(m.uid))+' HP · +'+(BOND_WAR.dmg*bondWarN(m.uid))+' DAMAGE'))+'</span>' : '')+'</div>'   /* CARD-OCR-B6: the gold line under a war-bonded friend's name; CARD-BWS: × the pair's roads */
       +'<span class="pts-st'+(want?' want':'')+'">'+st+'</span>'
       // 0588 M2 THE PASS WINDOW: inside it KICK · BLOCK step aside for ONE gold LEADER chip per other row (three chips crush the
       // phone name to 0 px — measured); none on a DARK chair (⚑ D8 — handing the helmet to a quiet phone strands the party)
@@ -99118,7 +99141,7 @@ function roomPlaced(seat,type,x,y,para,kit9){   // 1022z THE TORCH FIGHT'S ENEMY
     // lane's worst case reaches 25 with the four new seats; the clamp's
     // first-24 keep must never eat sl/ve/mrN/lz (receivers index, order-free).
     if(soulIs('u',type)) cm.mo=(cm.mo||[]).concat('sl');   // 0093: the mo-carried Soul marker (the campaign door's own law — CMD_KEYS has no 'sl')
-    if(bondWarOn()) cm.mo=(cm.mo||[]).concat('bw');   // CARD-OCR-B6: THE WAR GIFT's token on MY room word (the place word and the kit word alike; the stamp placeUnit laid on the man this tick read the same table)
+    { const n9=bondWarStack(); if(n9) cm.mo=(cm.mo||[]).concat(bondWarToks(n9)); }   // CARD-OCR-B6: THE WAR GIFT's token on MY room word (the place word and the kit word alike; the stamp placeUnit laid on the man this tick read the same table); CARD-BWS: 'bw2' beside it on a stack of two
     if(vehKind(type)) cm.vh=vehHP(type)|0;
     { const tk9=tkdTok(type); if(tk9) cm.mo=(cm.mo||[]).concat(tk9); }   /* CARD-TKD: my tank's plates ride the room word beside 've' (zero new wire words; an old build's ENH filter drops it) */
     if(vehKind(type) && vehEng(type)) cm.mo=(cm.mo||[]).concat('ve');   // 0100 THE ENGINE rides INSIDE mo (the 'sl' law); old builds drop it at their ENH filter
@@ -187289,7 +187312,7 @@ const MSB={ on:(function(){ try{ const q=/[?&]msb=([01])/.exec(location.search||
   function verdict1(){ if(!S.coop || !COOP || S.bf || coopHumans()<2) return; if(S.raid && S.raid.void) return; if(S.mode!=='win' && S.mode!=='lose') return;   // ORDER 1: a level played to its verdict with a friend (a quit never reaches endBattle; the battleground's verdict is endBattlefield's)
     if(!clockOK()) return; const m=row(); if(m.done || dayOf(m.dk)!==1) return;
     const ms=mates(); if(!ms.length) return;
-    let fresh=0; for(const mt of ms){ if(bondWarRow(mt.u, mt.n)) fresh++; }   // THE BOND OF FRIENDSHIP's war row, both sides (each seat's own verdict writes its own save), the welcome owed once per bond
+    let fresh=0; for(const mt of ms){ if(bondWarRow(mt.u, mt.n, BOND_WAR_SRC.hq)) fresh++; }   // THE BOND OF FRIENDSHIP's war row, both sides (each seat's own verdict writes its own save), the welcome owed once per bond; CARD-BWS: ORDERS FROM HQ's road (fresh = this road is new for the pair: it stacks on the 250 road)
     const nm=ms.map(function(mt){ return mt.n.toUpperCase().slice(0,14); }).join(' · ');
     m.done=1; m.paid={ k:'bond', n:nm, f:fresh? 1 : 0, u:ms.map(function(mt){ return mt.u; }) }; try{ saveMeta(); }catch(e){} try{ bondWarTick(); }catch(e){}
     M.v1={ cfg:S.cfg, n:nm, f:fresh? 1 : 0 }; M.log.push('o1:'+nm+':'+(fresh? 'new' : 'had')); }
@@ -190815,12 +190838,13 @@ THIRD_PRIZES[BOND_WAR.lvl]=n=>{   // CARD-OCR-B6 THE BOND OF FRIENDSHIP's WAR GI
   if(!COOP || !Array.isArray(COOP.members)) return null;
   const mates=[]; for(const m of COOP.members){ if(!m || !m.uid || (m.seat|0)===(COOP.seat|0)) continue; const u=String(m.uid).slice(0,32); if(avoidHas(u)) continue; mates.push({ u:u, n:String(m.name||'A COMMANDER').slice(0,18) }); }
   if(!mates.length) return null;
-  let fresh=0; for(const mt of mates){ if(bondWarRow(mt.u, mt.n)) fresh++; }
+  let fresh=0; for(const mt of mates){ if(bondWarRow(mt.u, mt.n, BOND_WAR_SRC.coop)) fresh++; }   /* CARD-BWS: the co-op road (fresh = this road is new for the pair: it stacks on ORDERS FROM HQ's) */
   try{ saveMeta(); }catch(e){} bondWarTick();
   const nm=mates.map(mt=>mt.n.toUpperCase().slice(0,14)).join(' · ');
   return { t:'THE BOND OF FRIENDSHIP', f:fresh? 'bond' : 'own', a:'<span class="ocr-pic bond">'+gly('bond')+'</span>', s:tf('WITH %1', nm)+' · '+t('+2 HP AND +2 DAMAGE WHILE YOU TWO FIGHT TOGETHER.') }; };
 // CARD-OCR-B1 THE THIRD HUNDRED'S BOOT HEAL: a save whose ledger stands stamped at a rung (its own win, or the sync's union) and whose rung's THIRD_PRIZES function exists is paid once (META.tprz); every prize card registers ABOVE this line
 (function(){ if(thirdHeal()) saveMeta(); })();
+(function(){ try{ if(bondWarHeal()) saveMeta(); }catch(e){} })();   // CARD-BWS THE DAY-1 HEAL: an Order-1 row paid by a client before this card files its road with HQ once (the post rides the next sync's heels, bondWarTick); nothing to file = nothing written
 // 0578 THE SUMMIT'S BOOT HEAL (D3) — the Baker's grammar: a save whose campaign ledger already stands at 100+ (a veteran of the
 // summit, or a co-op sync-raised ledger) with no summit ticket yet is handed its ONE ticket here, once (sumTk latches; the counter
 // climbs +1 — never =1, the 190 ticket stays), and sumSweep deals the celebration at the next landing. Sits behind the elite
@@ -192167,7 +192191,7 @@ window.GVT = {
   foParty(k){ return foParty(k); },
   bond(){ return { cv:GVT_CV, fcode:META.fcode||'', fPend:META.fPend||'', bonds:(META.bonds||[]).slice(), bondNew:(META.bondNew||[]).slice(), bondSeen:(META.bondSeen||[]).slice(), sBond:S.bond||null, mul:bondMul(), pop:(typeof PTY_POP!=='undefined')? PTY_POP : null, mate:bondMate() }; },   // CARD-BF: the rig's read-only door
   bondClaim(code){ return bondClaim(String(code||'')); },   // CARD-BF: the real claim path (a promise of HQ's reply)
-  bondWar(){ const G9=u=>{ try{ return (!S.bf)? +gritCap(u).toFixed(2) : null; }catch(e){ return null; } }; return { cv:GVT_CV, war:Object.assign({},BOND_WAR), on:bondWarOn(), sBond:S.bond||null, pend:(META.bondWarPend||[]).slice(), rows:(META.bonds||[]).map(r=>({u:r.u,n:r.n,w:r.w|0})), foot:VD_FOOT.bond, prize:typeof THIRD_PRIZES[BOND_WAR.lvl], bwN:S.bwN|0, floats:(S.floats||[]).map(f=>f.txt), units:S.units.filter(u=>!u.dead).map(u=>({ id:u.id, type:u.type, by:(u.coopBy==null)? null : String(u.coopBy), seat:(u.seat==null)? null : u.seat, bw:u.bondWar|0, hp:u.hp, hpMax:u.hpMax, grit:G9(u), dmg:bondWarDmg(u) })) }; },   // CARD-OCR-B6: the rig's read-only door
+  bondWar(){ const G9=u=>{ try{ return (!S.bf)? +gritCap(u).toFixed(2) : null; }catch(e){ return null; } }; return { cv:GVT_CV, war:Object.assign({},BOND_WAR), src:Object.assign({},BOND_WAR_SRC), on:bondWarOn(), stack:bondWarStack(), heal:META.bwHeal||null, sBond:S.bond||null, pend:(META.bondWarPend||[]).slice(), rows:(META.bonds||[]).map(r=>({u:r.u,n:r.n,w:bondWarMask(r.w),k:bondWarCnt(r.w)})), foot:VD_FOOT.bond, prize:typeof THIRD_PRIZES[BOND_WAR.lvl], bwN:S.bwN|0, floats:(S.floats||[]).map(f=>f.txt), units:S.units.filter(u=>!u.dead).map(u=>({ id:u.id, type:u.type, by:(u.coopBy==null)? null : String(u.coopBy), seat:(u.seat==null)? null : u.seat, bw:u.bondWar|0, hp:u.hp, hpMax:u.hpMax, grit:G9(u), dmg:bondWarDmg(u) })) }; },   // CARD-OCR-B6: the rig's read-only door
   bondWarRow(uid,nm){ const f=bondWarRow(uid,nm); saveMeta(); return f; },   // CARD-OCR-B6: the rig's write (the verdict's own call)
   bondWarTick(){ bondWarTick(); return (META.bondWarPend||[]).slice(); },   // CARD-OCR-B6: the rig's post (the real path to HQ, a stub answers in the kit)
   bondShareText(){ return bondShareText()+' '+BOND_LINK+String(META.fcode||''); },   // CARD-BF: the share's composed line + link
