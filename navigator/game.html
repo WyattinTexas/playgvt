@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.18","md5":"380296cb3e635c73222f9057e0f2f565","sha":"8dcef6579","at":"2026-10-21T16:58:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.19","md5":"d9811b39d012476e178b7f9c956413c8","sha":"f84cebce0","at":"2026-10-21T17:03:18Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -55449,6 +55449,46 @@ function lsvRig(){ const ids=['thegrab','fullsquad'], m=f=>ids.reduce((o,id)=>{ 
     prem:{ bfjeep:!!PREM_CLIP.bfjeep, cut:Object.keys(LSV.prem) }, calls:Object.assign({},LSV.calls), err:LSV.err, count:enhOwnCount(), owned:(META.enh.own||[]).length,
     wraps:{ enhU:enhU!==LSV.old.enhU, trophyGrant:trophyGrant!==LSV.old.trophyGrant, olvGrabWin:olvGrabWin!==LSV.old.olvGrabWin, avmTell:avmTell!==LSV.old.avmTell } }; }
 // ═══ END CARD-LSV ═══
+// ═══ CARD-SPS THE SPELLBOOK ON THE SHELF, ALL OF IT (sec:CARD-SPS; design/spellbook-shelved-1021/00-CARD-SPS.md; jumpr 2417, built on Maker 1 as M2417; WYATT on Maker 1 10/21/2026 ~12:15 EDT, typed, verbatim: "Shelf the spellbook. We might bring it in later, but currently, all aspects of the spellbook should be shelved, including Floop's lab. It's on lock at 70. Everything regarding it") ═══
+// THE READ: THE SPELLBOOK is Sarge's fifth weapon (CARD-SPB from Isaac 10/16: the book, the wand, the orb; CARD-SPB-BUILD card 2: the four spells and the CAST pad; CARD-SLA: the spells in FLOOP'S LAB's SPELLBOOK ROOM). Its door is COMMANDER LEVEL 75 (SARGE_WEAPONS.spellbook.unlock = SPB_LVL = 75, Isaac's R2; ⚑ SPS-Q1: Wyatt said 70, the code reads 75; shut either way while shelved).
+// Shelved whole and temporarily, the LSV way (sec CARD-LSV above): one switch, nothing deleted, owners keep every record. TWO LISTS leave at load: (1) THE FOUR SPELLS (SPS.ids: EARTHQUAKE, TSUNAMI, BLACK HOLE, TEDDY BOMB) leave ENH_ORDER HERE, after the save's own enh normaliser and after CARD-LSV's cut, so every
+// owner keeps them (META.enh.own / on untouched) and every reader of the list deals the game without them: the SPELLBOOK ROOM has no part left, so it is not rendered (no door, no map pip: labSecs), the research board, the unit sheets, the box, the pools, the READY pops, the vial rack, the wire, the buy / flip / pick doors (labSold), the medals' numbers taken at load
+// below (THE FULL BENCH's goal, ARSENAL_ALL). lsvShelved is widened to answer yes for them, so CARD-LSV's own wraps hold the spells the way they hold THE GRAB (enhU, trophyGrant, avmTell, enhOwnCount, lsvPremCut). (2) THE WEAPON: 'spellbook' leaves SARGE_ORDER in spsSargeCut (one line after the soul's save normaliser: the first line past SARGE_ORDER's TDZ that may cut it
+// without nulling a 'w:spellbook' soul, forever is forever), so every surface that walks the list deals Sarge's five irons: the PROMOTION! picker, SARGE'S QUARTERS' tiles, the fort's rack and shelf, the soul's pool, the rank medals, riteList (no LEVEL card, no THE SPELLBOOK IS YOURS moment) and sargeLvlGrant (never handed over while shelved; a save past the door gets it the day the shelf opens).
+// THE HAND: a save with the book equipped boots on the PISTOL (plrHand's own law for an iron he cannot hold, ⚑ SPS-Q2) and META.spsHand remembers what the shelf put in his hand, so the return puts the book back if he never changed it. THE ALARM: an owner who never saw the book's tile is marked as having seen it (the quarters' own blanket mark, else the fort's ⚔NEW
+// would ring for a tile that is not there), META.spsNew remembers, the return takes the mark off again. Those two bits are the only save fields this card writes; META.sargeUnlocked, META.sargeUp.spellbook, META.spbTut, META.riteSeen, META.soul stand as they are.
+// THE DOORS: wkOwned('spellbook') answers no (the one reader every bag, hand, rack, rite and door clamps through), spbOwned no (the spells' own ledger), spbKnown no (no CAST rung, no pad, no cast, no judge: spbRung, spbSarge, spbReady, spbGuides all read it), spbTutDue null and spbTutSweep false (no NEW SPELL card, no lab replay), spbStartGrant false (the two starting spells are not granted).
+// THE PAID RESEARCH: a research of BLACK HOLE or TEDDY BOMB he already paid for (the job on the bench, a parked sheet, a built part) lands here first, as the landing would (owned and fitted; CARD-FL's gag armed on it healed), so labSync can never drop it. No refunds (LSV-Q2's answer stands).
+// THE SWITCH: SPS.on 0 (?sps=0 on a device, kept in gvt_sps; ?sps=1 clears it) = the book, the spells, the room, the door, the tutorial and the fight as shipped. Zero words, zero css, zero server bytes, zero sw.js, zero films (the eight on disk stay, unused). Rig door: GVT.sps().
+var SPS={ on:(function(){ try{ const m=/[?&]sps=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_sps','0'); else localStorage.removeItem('gvt_sps'); } return localStorage.getItem('gvt_sps')==='0'? 0 : 1; }catch(e){ return 1; } })(), wk:'spellbook', ids:['earthquake','tsunami','blackhole','teddy'], at:{}, seat:-1, paid:[], hand:null, seen:0, calls:{ shelved:0, wk:0, own:0, known:0, tut:0, sweep:0, grant:0 }, err:0, old:{} };   // the switch · the weapon's key · THE SHELF (a word out = that spell back on the bench) · their seats on ENH_ORDER before the cut · the book's seat on SARGE_ORDER · the paid research landed at the cut · what the shelf put in his hand · the alarm mark · the wraps' counts · errors caught · the wrapped originals
+function spsOn(){ return !!SPS.on; }
+function spsShelved(id){ return spsOn() && SPS.ids.indexOf(id)>=0; }   // is this spell on the shelf right now
+(function(){ if(!spsOn()) return; try{ const L=META.lab, E=META.enh;   // THE PAID RESEARCH, before the cut (META.lab and META.enh are the normalisers' fresh objects)
+  const give=id=>{ if(E.own.indexOf(id)<0){ E.own.push(id); if(E.on.indexOf(id)<0) E.on.push(id); enhExclude(id); SPS.paid.push(id); } };   // labLand's own law: owned and fitted at once
+  if(L && E && L.job && SPS.ids.indexOf(L.job)>=0){ give(L.job); L.job=null; L.due=0; L.span=0; if(L.boom===2) L.boom=1; }   // the job on the bench; the gag armed on it = CARD-FL's healed veteran (no boom, no wreck)
+  if(L && E && Array.isArray(L.park)){ const p9=L.park.filter(q=>!(Array.isArray(q) && SPS.ids.indexOf(q[0])>=0)); if(p9.length!==L.park.length){ L.park.forEach(q=>{ if(Array.isArray(q) && SPS.ids.indexOf(q[0])>=0) give(q[0]); }); if(p9.length) L.park=p9; else delete L.park; } }   // a parked sheet (paid, waiting)
+  if(L && E && Array.isArray(L.done)){ const d9=L.done.filter(id=>SPS.ids.indexOf(id)<0); if(d9.length!==L.done.length){ L.done.forEach(id=>{ if(SPS.ids.indexOf(id)>=0) give(id); }); L.done=d9; } }   // a built part not yet his (the older bench's state)
+  const at=SPS.ids.map(id=>[id, ENH_ORDER.indexOf(id)]).filter(p=>p[1]>=0).sort((a,b)=>b[1]-a[1]); for(const p of at){ SPS.at[p[0]]=p[1]; ENH_ORDER.splice(p[1],1); } }catch(e){ SPS.err++; } })();   // THE CUT (once, at load): the highest seat first, so each seat read is the one CARD-LSV's cut left
+SPS.old.lsvShelved=lsvShelved; lsvShelved=function(id){ if(spsShelved(id)){ SPS.calls.shelved++; return true; } return SPS.old.lsvShelved(id); };   // the widening: a shelved spell is a shelved part to every LSV wrap (enhU, trophyGrant, avmTell, enhOwnCount, lsvPremCut)
+SPS.old.wkOwned=wkOwned; wkOwned=function(wk){ if(wk===SPS.wk && spsOn()){ SPS.calls.wk++; return false; } return SPS.old.wkOwned(wk); };   // the wrap: the book is an iron he cannot hold (plrHand, sargeStats, ultWk, the rack, the quarters, the picker, riteList, the lab's door, the outfit sets)
+SPS.old.spbOwned=spbOwned; spbOwned=function(){ if(spsOn()){ SPS.calls.own++; return false; } return SPS.old.spbOwned(); };   // the wrap: the spells' own ledger reads no (spbKnown, spbTutHas, spbStartGrant); the record itself stands
+SPS.old.spbKnown=spbKnown; spbKnown=function(k){ if(spsOn()){ SPS.calls.known++; return false; } return SPS.old.spbKnown(k); };   // the wrap: no spell is known (no CAST rung, no pad, no cast, no fizzle, no guide)
+SPS.old.spbTutDue=spbTutDue; spbTutDue=function(){ if(spsOn()){ SPS.calls.tut++; return null; } return SPS.old.spbTutDue(); };   // the wrap: no NEW SPELL card is due
+SPS.old.spbTutSweep=spbTutSweep; spbTutSweep=function(){ if(spsOn()){ SPS.calls.sweep++; return false; } return SPS.old.spbTutSweep(); };   // the wrap: the menu's sweep deals no spell card and grants nothing
+SPS.old.spbStartGrant=spbStartGrant; spbStartGrant=function(){ if(spsOn()){ SPS.calls.grant++; return false; } return SPS.old.spbStartGrant(); };   // the wrap: the two starting spells are not granted while shelved (an owner keeps his)
+function spsSargeCut(){ try{ const own=SPS.old.spbOwned();   // the line after the soul's save normaliser (SARGE_ORDER is past its TDZ there; the soul's choice has already been judged with the book on the list, so 'w:spellbook' is never nulled)
+  if(spsOn()){ const i=SARGE_ORDER.indexOf(SPS.wk); if(i>=0){ SPS.seat=i; SARGE_ORDER.splice(i,1); }   // THE WEAPON'S CUT: off every surface that walks the list
+    if(META.sargeWeapon===SPS.wk){ META.sargeWeapon='pistol'; META.spsHand='pistol'; SPS.hand='pistol'; }   // THE HAND: the pistol (⚑ SPS-Q2), remembered for the return
+    if(own && Array.isArray(META.sargeSeen) && META.sargeSeen.indexOf(SPS.wk)<0){ META.sargeSeen.push(SPS.wk); META.spsNew=1; SPS.seen=1; } }   // THE ALARM: no ⚔NEW for a tile that is not there (the quarters' blanket mark, remembered for the return)
+  else { if(META.spsHand && META.sargeWeapon===META.spsHand && own){ META.sargeWeapon=SPS.wk; SPS.hand=SPS.wk; } if(META.spsHand!==undefined) delete META.spsHand;   // THE RETURN: the book back in the hand it left, if he never changed it
+    if(META.spsNew){ const j=Array.isArray(META.sargeSeen)? META.sargeSeen.indexOf(SPS.wk) : -1; if(j>=0) META.sargeSeen.splice(j,1); delete META.spsNew; } } }catch(e){ SPS.err++; } }   // THE RETURN: the NEW chip back on the tile
+function spsRig(){ const ids=SPS.ids, m=f=>ids.reduce((o,id)=>{ try{ o[id]=f(id); }catch(e){ o[id]=null; } return o; },{}), g=f=>{ try{ return f(); }catch(e){ return null; } };   // the rig door (GVT.sps): the read, no writes
+  return { cv:GVT_CV, on:SPS.on, wk:SPS.wk, ids:ids.slice(), at:Object.assign({},SPS.at), seat:SPS.seat, paid:SPS.paid.slice(), hand:SPS.hand, seen:SPS.seen, n:ENH_ORDER.length, order:m(id=>ENH_ORDER.indexOf(id)), own:m(enhOwns), sw:m(enhOn), shelved:m(spsShelved), lsv:m(lsvShelved), sold:m(labSold),
+    sarge:{ order:SARGE_ORDER.slice(), has:SARGE_ORDER.indexOf(SPS.wk), wk:wkOwned(SPS.wk), owned:spbOwned(), rec:SPS.old.spbOwned(), w:META.sargeWeapon||null, hand:g(plrHand), bag:g(()=>sargeStats().w), rank:(META.sargeUp&&META.sargeUp[SPS.wk])|0, spsHand:META.spsHand||null, spsNew:META.spsNew|0, seenIt:(META.sargeSeen||[]).indexOf(SPS.wk)>=0, lvl:SPB_LVL, unlock:SARGE_WEAPONS[SPS.wk].unlock, soul:META.soul||null, news:g(fortNews) },
+    spells:{ known:g(spbKnownList), tut:g(spbTutDue), ledger:(META.spbTut||[]).slice(), rung:g(spbRung) },
+    calls:Object.assign({},SPS.calls), err:SPS.err, count:g(enhOwnCount), owned:((META.enh&&META.enh.own)||[]).length,
+    wraps:{ lsvShelved:lsvShelved!==SPS.old.lsvShelved, wkOwned:wkOwned!==SPS.old.wkOwned, spbOwned:spbOwned!==SPS.old.spbOwned, spbKnown:spbKnown!==SPS.old.spbKnown, spbTutDue:spbTutDue!==SPS.old.spbTutDue, spbTutSweep:spbTutSweep!==SPS.old.spbTutSweep, spbStartGrant:spbStartGrant!==SPS.old.spbStartGrant } }; }
+// ═══ END CARD-SPS ═══
 // 0489 THE SPOILS' LEDGER (§9.2): META.ev is NESTED — rebuilt fresh at load exactly like
 // enh above (the v1.22 law: an older profile must never write into META_DEFAULT's own
 // object): the week latch, the counts, the last spoils (the ceremony's copy), the blade
@@ -74699,6 +74739,7 @@ function soulChip(kind,id){ return soulIs(kind,id)? '<span class="acsoul">✦ SO
 const SOUL_EXTRA=['spy','kingyeti','kingrex','medic','kingcroak','jane','kingbear','princess','grenadier'];   // 1027 CARD-ML-A3: PRINCESS CROAK rides the validator (soulPool deals ownedUnits — forever is forever)   // 0556: KING BEAR rides the validator too (soulPool deals ownedUnits)   // 0372: the outlaw king rides the widened validator (the 0365 lane) · 0446: jane too — soulPool() deals ownedUnits, and her splice puts her there (forever is forever)
 if(META.soul!=null){ const m=/^([uw]):(.+)$/.exec(String(META.soul));
   if(!m || (m[1]==='u'? (TRAY_ORDER.indexOf(m[2])<0 && SOUL_EXTRA.indexOf(m[2])<0) : SARGE_ORDER.indexOf(m[2])<0)) META.soul=null; }
+spsSargeCut();   // CARD-SPS: THE SPELLBOOK off SARGE_ORDER (its last seat) and out of his hand (the pistol, META.spsHand), the alarm mark (META.spsNew); or, off the shelf, both handed back. After the soul's normaliser on purpose: a 'w:spellbook' soul is never nulled (forever is forever)
 // ===== 0545 THE PICK AT THE SUMMIT — THE GENERAL'S FAVOR (FM-GVT-GIFTS-01 §2 ·
 // elite 200; Wyatt: "the player gets 1 upgrade to 1 particular unit; they can
 // choose any unit, exclusding sarge. That unit gets Forever +1 HP and +1
@@ -89010,7 +89051,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -191611,6 +191652,7 @@ window.GVT = {
   hsl(o){ return hslRig(o); },   // CARD-HSL: the hero select ({ on }, { open }) + the read (the page, the seat, the strip, the heads, the wraps)
   mpp(o){ return mppRig(o); },   // CARD-MPP: the master's plaque pops ({ on }, { tick }) + the read (the armed beat, the stage, the fresh plate, the wraps)
   lsv(o){ return lsvRig(o); },   // CARD-LSV: TWO INVENTIONS ON THE SHELF, the read (the switch, the ids and their seats, the paid research, owned / fitted / sold, the first-time films, the wraps and their counts)
+  sps(o){ return spsRig(o); },   // CARD-SPS: THE SPELLBOOK ON THE SHELF, the read (the switch, the four spells and their seats, the book's seat, the hand, the paid research, owned / fitted / sold, the wraps and their counts)
   night(v){ NW_PIN=(v===undefined||v===null)? null : (v? 1 : 0); if(roomOpenNow()) renderMenu(); return { pin:NW_PIN, night:roomNight(), from:NW_NIGHT[0], to:NW_NIGHT[1], tick:!!NW_TICK }; },   // 0904 PART TWO rig door: pin the night (1 · 0 · null = the clock) and repaint the open room   // 0584 rig door: pin the NEXT flight (1 loop · 0 plain · null = the dice)   // 0568 D11 rig door — read-only (next = the PURE read; the pin is never consumed here)
   dogFreeze(on){ DOGRIG.frozen=on?1:0; DOG_LAST=0; return DOGRIG.frozen; },
   dogStep(s){ if(!DOGT) dogArm(); let r=Math.max(0,+s||0);
