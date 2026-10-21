@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.40","md5":"847c8f3695e28ec937c1ff8b341d22af","sha":"ed685b4c1","at":"2026-10-21T22:31:06Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.41","md5":"696ce5315264b40faba90d506e6b8b2d","sha":"22a13439b","at":"2026-10-21T22:34:28Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89462,7 +89462,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.40';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.41';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -139297,6 +139297,34 @@ function atrPlay(id){ if(id && (id==='needleup' || !atrRecOk(id))) return; if(AT
 function atrStop(){ UI.closeModal(); ATP.rec='needleup'; atrRecKeep(); atpRecSet(); atpRecGo(); }   // STOP THE MUSIC = the game's own NEEDLE UP, remembered like any pick
 try{ ATX_ACT.record=atrRecord; }catch(e){}   // her row and the pad open the crate
 try{ const id9=META.atrRec; if(atrRecOk(id9)) ATP.rec=id9; }catch(e){}   // the boot: the attic's record as the kid left it (a record no longer in reach: the room's own song)
+// ═══ CARD-CWK · THE COYOTE WALKS IN LAURA'S STYLE TOO (FROM LAURA by the jumpr guest link, sent 10/21/2026 16:33 EDT, verbatim: "coyote is still old version of drawing during animation", with her
+// screenshot: the attic at night, the coyote mid-floor on his wander in the old ink; design/attic-coyote-walk-1021/00-CARD-CWK.md). THE CAUSE: her attic coyote is four drawings (sleep · sit · lie · walk,
+// her boards, CARD-ATC); the room's style pass (CARD-SGL's sgpPass over the room string: her outline rule 0.6x at .55 in a shade of the fill + the tonal panels) reached three and FROZE the walk: Scout
+// the pet (CARD-CYP) was molded from this very walk drawing, so its tail path is a unit mold's signature (sgpSigs) and the pass keeps an inlined mold as painted (the working rule's point 4, for Al's
+// figures). So he sat in her style and got up in the old ink: the night wander, the patched roof's trips, the day's walk after the sun. THE FIX: atticFloorSVG wrapped at load: the walk pose's own string
+// goes through the same pass FIRST, the signature freeze lifted for it alone (lagSpr's way at the dye), inside its place's transform so the panels' size rule reads the same scene units as his sitting
+// pose; the room's pass then meets its frozen range already in her style and leaves it (the pass is idempotent). ?sgp=0 (her pass off) = the old drawing everywhere, as before; ?cwk=0 (this card off) =
+// the walk as it was. Zero words, zero css, zero save keys, zero server bytes. ⚑ CWK-Q2: Scout the PET in a fight (the pets' own sprite path) is not this card's.
+const CWK={ on:(function(){ try{ const q=/[?&]cwk=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cwk','0'); else localStorage.removeItem('gvt_cwk'); } return localStorage.getItem('gvt_cwk')==='0'? 0 : 1; }catch(e){ return 1; } })(), n:0, memo:{} };
+function cwkOn(){ return CWK.on===1 && typeof sgpOn==='function' && sgpOn() && typeof SGP_SCREENS==='object' && !!SGP_SCREENS['room-attic'] && typeof sgpPass==='function'; }
+function cwkWalk(s){   // the attic's painted string with the walk pose in her style (the pose's own pass, the freeze lifted); the string as it came when the card or her pass is off
+  if(!cwkOn() || typeof s!=='string') return s;
+  const i=s.indexOf("<g id='atx-pose-walk'"); if(i<0) return s;
+  const re=/<\/?g\b[^>]*>/g; re.lastIndex=i; let d=0, m, j=-1;
+  while((m=re.exec(s))){ if(m[0].charAt(1)==='/') d--; else if(m[0].charAt(m[0].length-2)!=='/') d++; if(d<=0){ j=m.index+m[0].length; break; } }
+  if(j<0) return s;
+  const raw=s.slice(i,j), pi=s.lastIndexOf("<g id='atx-coy-place'", i), pm=pi>=0? /transform='([^']*)'/.exec(s.slice(pi, s.indexOf('>',pi)+1)) : null, tf=pm? pm[1] : '';
+  const key=tf+'|'+raw.length, M=CWK.memo[key]; let v;
+  if(M && M.raw===raw) v=M.v;
+  else { const keep=SGP_SIG; SGP_SIG={};   // no mold signature freezes HER drawing here (the room's own pass keeps its freeze for the figures)
+    try{ v=sgpPass('<g transform="'+tf+'">'+raw+'</g>','room-attic'); }catch(e){ v=null; } finally{ SGP_SIG=keep; }
+    if(v){ if(v.indexOf(SGP_DEFS)===0) v=v.slice(SGP_DEFS.length); const a=v.indexOf('>'), b=v.lastIndexOf('</g>'); v=(a>=0 && b>a)? v.slice(a+1,b) : null; }
+    if(!v || v.indexOf("<g id='atx-pose-walk'")!==0) return s;
+    CWK.memo[key]={ raw:raw, v:v }; CWK.n++; }
+  return s.slice(0,i)+v+s.slice(j); }
+if(typeof atticFloorSVG==='function'){ const cwkFloor0=atticFloorSVG; atticFloorSVG=function(){ const s=cwkFloor0.apply(this,arguments); try{ return cwkWalk(s); }catch(e){ return s; } }; }   // the wrap: the attic's painter, then the walk pose in her style
+function cwkRead(){ try{ const n=function(id){ const e=document.getElementById(id); return e? e.querySelectorAll('.sgp').length : -1; }; return { on:cwkOn(), n:CWK.n, walk:n('atx-pose-walk'), sit:n('atx-pose-sit'), lie:n('atx-pose-lie'), sleep:n('atx-pose-sleep') }; }catch(e){ return { err:String(e).slice(0,80) }; } }   // the rigs' read
+// ═══ END CARD-CWK ═══
 function roomFloorSVG(){
   const r=roomCur();
   if(r==='attic') return atticFloorSVG();   // CARD-ATC THE ATTIC (Laura's design pass + Wyatt 9/30: "only if players use the code ATTIC. In Sarge's Surplus"): LAURA's attic — day or night by atticNight(), patched by the missing plank (the table above)
