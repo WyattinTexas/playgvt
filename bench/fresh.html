@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.24","md5":"1c1e83b6b61e15ef832e93b145fd6380","sha":"c3c80f65a","at":"2026-10-21T19:54:05Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.25","md5":"d9994190756ac835a165011292c14658","sha":"568490282","at":"2026-10-21T20:08:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89124,7 +89124,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.24';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.25';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -189231,6 +189231,58 @@ const MSBK={ on:(function(){ try{ const q=/[?&]msbk=([01])/.exec(location.search
       if(o.fire) Q.fire(o.fire.k, o.fire.n===undefined? 1 : o.fire.n, o.fire.x||null); if(o.paint) repaint(); return read(); }; }catch(e){} }, 0);
 })();
 // ═══ END CARD-MSB-C2 ═══
+// ═══ CARD-SGC · SARGE CRISP: EVERY TALKING SARGE ON THE YARD'S OWN INK ROAD, AND ONE SARGE IN FORT GREEN (sec:CARD-SGC; design/sarge-crisp-1021/00-DESIGN-SGC.md; FROM WYATT, typed on Maker 1 10/21/2026 ~16:00 EDT, verbatim: "When Sarge
+// appears on the screen, he's currently looking blurry. This is when you click on the toy box and he salutes, as well as throughout the intro tutorial when he appears. He just seems like he's at a lower resolution than the rest of the assets. We need
+// him crisp and looking good with those beautiful outlines lines that Laura and Al have worked on. Add this to the jumpr queue and execute push live. Lastly, during the tutorial, you can see that Sarge is on the left of the quarters, continuing the
+// tutorial, but he looks like a small little alien. Let's run a design pass for that to fix him up so he can look real nice and sharp, just like the rest of the screen. Also, make sure that Sarge is not appearing in two places at once while he is
+// showing you Fort Green.").
+// THE CAUSE (the pass's §1, measured on Maker 1): tourFigURI (CARD-FF2 AW-09) sent every talking Sarge through ff2ShadeURI = amHand's ink + cmpFX's FINISH, an SVG filter round the whole figure (feGaussianBlur, the specular rim light, the diffuse
+// rim shade, feTurbulence grain); WebKit (every iPhone and iPad) rasterises that filter soft and low: the ink ring and the shade bands come out smeared (the Laplacian sharpness at the yard's size on a phone at 3x: the finish 67, the hand 841; the
+// bedroom's big figure: 40 vs 208). The yard's own drill Sarge by the gun rack takes ftxPostURI -> ftxHandURI, the same mold, ink and dye with no finish, and is crisp.
+// THE ROAD: tourFigURI(k) answers ftxHandURI(outfitDress(TOUR_POSES[k]||TOUR_POSES.salute,'sarge'), FF2_POSE_INK[k]||AM_MOLDS.sarge, dyeHex()) while the men's ink is on (AM_INK_ON): the ink ring (AM_R.INK), the far limb's shade, the torso's
+// band, the arm's light, the dye and the crystal stay; only cmpFX's rim light, rim shade and grain leave the figure. Every seat follows at once (tourFigNode's #tourFig: the toy box's welcome and salute, the intro console, the bedroom tour, the next
+// pose preloaded; fttBuild's #fttFig: the fort tour and the gear lesson, its three stacked imgs): one road, so a cross-fade never mixes a finished and an unfinished frame. Ink off (?amink=0) = tourPoseURI as shipped. ff2ShadeURI stays for
+// mirrorSargeURI (the Surplus mirror) and the comm portrait (SGC-Q1, REC keep). Nothing drawn changes: SPRITES_SRC.sarge, TOUR_POSES, TOUR_LIMBS, amHand, AM_R, FF2_POSE_INK byte-still.
+// ONE SARGE: from fttBuild to fttFold the yard's drill Sarge is OFF HIS POST: his station wrapper (#fortBg .fd-man[data-station="sarge"], fhStationsWrap's: his nod wrapper .fd-sarge and his shadow ellipse moved in with him) wears .sgc-away,
+// the two at opacity 0 over .3 s (at once under reduced motion) as the tour's figure fades in; a repaint of the yard mid-visit (renderFortScene) is re-dressed by fttTick; the roam engine's Sarge beats skip while he is away (FD.beat on his figure,
+// FD.cls's fd-nod, the pieces that deal him: pushups, nap), counted in SGC.skipped. fttFold takes the class off: he fades back at the rack. A veteran's yard (no tour: FTT never built) gets nothing: no class, no style, byte-still. SGC-Q3: the
+// figure folds only with the fort today, so the return at fttFold is the fort's close.
+// ?sgc=0 on a device = nothing of this (the device key gvt_sgc: the finish on the tour figures and both Sarges, as shipped); ?sgc=1 back. GVT.sgc(o): { on } · { away } · the read. Zero words, zero save keys, zero server bytes, zero sw.js.
+// Seven wraps at load (tourFigURI, fttBuild, fttFold, fttTick, FD.beat, FD.cls, FD.pieceCast) and one style element (#sgcCss): no existing line changed.
+var SGC={ on:(function(){ try{ const q=/[?&]sgc=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_sgc','0'); else localStorage.removeItem('gvt_sgc'); } return localStorage.getItem('gvt_sgc')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  away:0, skipped:0, log:[], err:0, finish:null, PIECES:{ pushups:1, nap:1 } };   // the switch (FHG's grammar) · the drill Sarge off his post · his beats skipped while away (+ the last few) · errors swallowed · the shipped road (ff2ShadeURI's, kept for the dial) · the pieces that deal him
+function sgcOn(){ return SGC.on===1; }
+function sgcSkip(w){ SGC.skipped++; if(SGC.log.length<40) SGC.log.push([Math.round(performance.now()), w]); }
+function sgcCss(){ if(document.getElementById('sgcCss')) return; const st=document.createElement('style'); st.id='sgcCss';   // the dress, hung the first time he steps off his post: a veteran's yard never loads it
+  st.textContent='#fortBg.sgc-live .fd-man[data-station="sarge"]>.fd-sarge, #fortBg.sgc-live .fd-man[data-station="sarge"]>ellipse { transition:opacity .3s; } #fortBg .fd-man[data-station="sarge"].sgc-away>.fd-sarge, #fortBg .fd-man[data-station="sarge"].sgc-away>ellipse { opacity:0; } #fortBg .fd-man[data-station="sarge"].sgc-away .fd-sarge.fd-nod { animation:none; } @media (prefers-reduced-motion:reduce){ #fortBg.sgc-live .fd-man[data-station="sarge"]>.fd-sarge, #fortBg.sgc-live .fd-man[data-station="sarge"]>ellipse { transition:none; } }';
+  document.head.appendChild(st); }
+function sgcPost(){   // the drill Sarge's parts on the yard: his station wrapper (fhStationsWrap's, the shadow moved in with him), or, with no wrapper, his breath wrapper and the painter's shadow ellipse before it (the lampost stands between them by night)
+  const im=document.querySelector('#fortBg image[data-fh="sarge"]'); if(!im) return null; const bg=im.closest('#fortBg');
+  const w=im.closest('.fd-man[data-station="sarge"]'); if(w) return { w, im, bg, top:null, sh:null };
+  const top=im.closest('.fl-man')||im; let sh=top.previousElementSibling; if(sh && sh.dataset && sh.dataset.fa==='lampost') sh=sh.previousElementSibling; if(!(sh && sh.tagName==='ellipse' && !(sh.dataset && sh.dataset.fh))) sh=null;
+  return { w:null, im, bg, top, sh }; }
+function sgcAway(on){   // on = the tour's figure stands: the drill Sarge off his post; off = back at the rack. Idempotent: fttTick calls it every tick while the figure stands, so a repaint of the yard is re-dressed
+  on=on? 1 : 0; SGC.away=on; const p=sgcPost(); if(!p) return false;
+  try{ if(on){ sgcCss(); if(p.bg) p.bg.classList.add('sgc-live'); }   // sgc-live stays for the visit: the fade back needs the transition still there when the class leaves
+    if(p.w) p.w.classList.toggle('sgc-away', !!on);
+    else { const rm=(typeof reducedMotion==='function' && reducedMotion()); [p.top,p.sh].forEach(e=>{ if(!e) return; e.style.transition=(on && !rm)? 'opacity .3s' : ''; e.style.opacity=on? '0' : ''; }); }
+  }catch(e){ SGC.err++; } return true; }
+function sgcHandURI(k){ return ftxHandURI(outfitDress(TOUR_POSES[k]||TOUR_POSES.salute, 'sarge'), FF2_POSE_INK[k]||AM_MOLDS.sarge, dyeHex()); }   // the yard's own road (ftxPostURI's grammar) for a tour pose: the hand on the dressed pose, the dye, the crystal, no finish
+function sgcRig(o){ o=o||{}; if(o.on!==undefined) SGC.on=o.on? 1 : 0; if(o.away!==undefined) sgcAway(o.away);   // the rig door (GVT.sgc): { on } · { away } · the read
+  const p=sgcPost(); let op=null; try{ if(p){ const e=p.w? (p.w.querySelector('.fd-sarge')||p.w) : p.top; op=+getComputedStyle(e).opacity; } }catch(e){}
+  let road='flat'; try{ road=!AM_INK_ON()? 'flat' : (sgcOn()? 'hand' : 'finish'); }catch(e){ road='?'; }
+  return { cv:GVT_CV, on:SGC.on, road, away:SGC.away, post:!!p, wrapped:!!(p && p.w), cls:!!(p && p.w && p.w.classList.contains('sgc-away')), live:!!(p && p.bg && p.bg.classList.contains('sgc-live')), op, fig:!!(typeof FTT!=='undefined' && FTT.fig && FTT.fig.isConnected), skipped:SGC.skipped, log:SGC.log.slice(-8), err:SGC.err }; }
+(function(){   // THE WRAPS AT LOAD: the road, the figure's build and fold, the tick, the roam engine's three doors; each keeps the shipped function and calls it
+  try{ const u0=tourFigURI; SGC.finish=u0; tourFigURI=function(k){ if(!sgcOn() || !AM_INK_ON()) return u0(k); try{ return sgcHandURI(k); }catch(e){ SGC.err++; return u0(k); } }; }catch(e){ SGC.err++; }
+  try{ const b0=fttBuild; fttBuild=function(){ const r=b0.apply(this,arguments); try{ if(sgcOn() && r) sgcAway(1); }catch(e){ SGC.err++; } return r; }; }catch(e){ SGC.err++; }
+  try{ const f0=fttFold; fttFold=function(){ try{ if(SGC.away) sgcAway(0); }catch(e){ SGC.err++; } return f0.apply(this,arguments); }; }catch(e){ SGC.err++; }
+  try{ const t0=fttTick; fttTick=function(){ const r=t0.apply(this,arguments); try{ if(SGC.away && FTT.fig && FTT.fig.isConnected) sgcAway(1); }catch(e){ SGC.err++; } return r; }; }catch(e){ SGC.err++; }
+  try{ if(typeof FD==='object' && FD && typeof FD.beat==='function'){ const b1=FD.beat, c1=FD.cls, p1=FD.pieceCast;
+    FD.beat=function(f,w){ if(SGC.away && f && f.k==='sarge'){ sgcSkip('beat:'+w); return false; } return b1.apply(this,arguments); };
+    if(typeof c1==='function') FD.cls=function(el,c,ms){ if(SGC.away && c==='fd-nod'){ sgcSkip('nod'); return; } return c1.apply(this,arguments); };
+    if(typeof p1==='function') FD.pieceCast=function(key){ if(SGC.away && SGC.PIECES[key]){ sgcSkip('piece:'+key); return null; } return p1.apply(this,arguments); }; } }catch(e){ SGC.err++; }
+})();
+// ═══ END CARD-SGC ═══
 // ═══ CARD-DLG THE CLUTTERED ROOM COSTS NOTHING · DLG-A THE STILL ROOM, the bedroom (design/decor-load-1009/BUILD-DLG-A.md; the pass 00-DESIGN-DLG.md §4–§5, §8.1). Wyatt 10/9/2026 on Maker 1, verbatim: "if somebody has a ton of decorations out, we prevent the game from lagging and heating up ... a player will be rewarded for having a bunch of decorations out, and it doesn't heat up their phone or lag or anything. They just have a cluttered room, and they like it that way." His go 10/10/2026 19:00 EDT: "Do it. Plan it out. Execute to the best of your ability." (DLG-Q1..Q6 at their RECs)
 // THE CAUSE (CARD-DCH's measure, re-read by the pass): the room is ONE svg, and one moving thing anywhere in it repaints the whole room; a full floor is 11,000 vector nodes under two drop-shadow filters a toy (every toy out: a slow phone's main thread 99.6 %, the iPhone's painter 11.8 G instructions a second).
 // THE CURE (the industry's static batch + sleeping objects): after every paint each unit of the room that is not awake is painted ONCE into its own picture (its paint read from the live page and inlined, its css transforms as the engine's own resolved matrix,
@@ -192102,6 +192154,7 @@ window.GVT = {
   apt(o){ return aptRig(o); },   // CARD-APT: ACTIVE PLAY TIME + THE RUSH CLUSTERS, the opener's rig door ({ on, reset, t, fire }) + the read (see sec:CARD-APT)
   bal(o){ return balRig(o); },   // CARD-BAL: THE TAN'S CAMPAIGN REACH + THE SIXTH DROP, the rig door ({ on, reach, six }) + the read (see sec:CARD-BAL)
   qwf(o){ return qwfRig(o); },   // CARD-QWF: THE QUEEN WASP'S FINALE, the rig read (the queen, her bees, her court, her nests; see sec:CARD-QWF)
+  sgc(o){ return sgcRig(o); },   // CARD-SGC: SARGE CRISP, the rig door ({ on } · { away }) + the read (the road, the drill Sarge's dress and opacity, the beats skipped; see sec:CARD-SGC)
   tsn(o){ return tsnRig(o); },   // CARD-TSN: the tutorial's snowfield gate ({ on }) + the read (the field's ground, rivers, rocks, flakes, the duck)   // CARD-XBI: the box interior's gate ({ on }) + the read (the board's quad, the cells, the pads, the box, the Nutcracker's seat)
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
   mfs(o){ return mfsRig(o); },   // CARD-MFS: Mom's fight on the whole glass, the bedroom behind her ({ on } · { room } · { K } · { wallDrop }) + the read (VW, the camera, the canvas's box and store, the bake, her state, the toys, the stomps and kicks, the wraps)
