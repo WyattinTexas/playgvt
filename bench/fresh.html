@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.31","md5":"ca87696a9a93f07081e43a78b651e3fe","sha":"7dfa4c69f","at":"2026-10-21T21:02:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.32","md5":"6ae100f144600302bcd563f3bba33bde","sha":"a870afeca","at":"2026-10-21T21:07:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89175,7 +89175,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -126542,10 +126542,15 @@ function drawMomToysAir(){
 // to your box: on level 1 it never reached THEIR box. Level 1 (and every rung whose base field is 1 — the dress row's own seat, campBaseRung) now draws ONE straight groove at the boxes' waist from their box to yours, both
 // round ends tucked under the boxes; the same three readers (pathStroke + the plate's two cuts) take cpsPath(). The runner is paint only (nobody walks PATH_PTS). THE WALLS: CAMP_DRESS[1] = two rows of the house's sandbags
 // (art 'bags', r 16, centres 26 apart — the 0129 barricade), ten each (x 503..737, centred on the field's middle 620), north (y 226) and south (y 374) of the runner: the lane between them 116 wide past the bags' bodies (every pinch past 2×ROCK_PAD_FORM), the west shoulder 487 clear of the 480 deploy line.
-// Every other rung, the battleground, the parks and the raids draw what they drew.
+// Every other rung, the battleground, the parks and the raids draw what they drew. THE WALLS since CARD-SBV (Wyatt 10/21): the same twenty bags as THE V on the road's middle and THE LINE in the lower-left quadrant (sbvWorks, below).
 const CPS={ rung:1, y:300, x0:1110, x1:120, n:240 }, CPS_PTS=[];
 for(let i=0;i<=CPS.n;i++) CPS_PTS.push({ x:CPS.x0+(CPS.x1-CPS.x0)*i/CPS.n, y:CPS.y });
-CAMP_DRESS[CPS.rung]={ rocks:[226,374].flatMap(y=>[0,1,2,3,4,5,6,7,8,9].map(i=>i*26+503).map(x=>({ x, y, r:16, art:'bags', row:y<CPS.y? 'n' : 's' }))) };
+// ═══ CARD-SBV LEVEL 1'S SANDBAGS: THE V ON THE ROAD AND THE LINE IN THE LOWER-LEFT (design/level1-sandbag-v-1021/00-DESIGN-SBV.md; FROM WYATT by phone 10/21/2026 14:51 EDT, verbatim: "There are sandbags, but right now there are two of them, and they're parallel to the main path. What we need is for them to obstruct the main path in a V formation. If we can have one in the middle V formation using the sandbags that are currently on the top, then the second V formation will actually just have a straight vertical line formation. We'll have that on the lower-left quadrant of the screen. Run a design pass and implement live.").
+// CPS's two parallel rows (ten bags north at y 226, ten south at y 374, x 503..737) are now TWO WORKS of the same twenty bags (art 'bags', r 16, the 0129 barricade; a bag is a rock: rockSteer, canPlace, bullets fly over it): THE V = the north row's ten as a chevron on the road's middle with its POINT toward the Tan (SBV.tip on the road's centre line CPS.y), two arms of five at an 18/18 step opening west (25.5 apart along the arm, so the piles overlap into a solid chevron; the far ends 72 west of the point and 81 off the centre line: the whole road body 254..346 covered, x 588..660 centred on the field's middle 620, the west shoulder 572 clear of the 480 deploy line; the design pass's A, the house's 26/18 diagonal, read as dotted piles); the marching column hits the point and splits round the arms (the tangent rockSteer takes), no dead end.
+// THE LINE = the south row's ten as one straight vertical line 16 apart (a stacked wall) in the LOWER-LEFT QUADRANT (SBV.lx 400, from SBV.ly 310 down to 454, whole above the tray on a phone): its top bag on the road's southern half, so the road is obstructed there and the men pass north of it; west of the deploy line as L3's row is (the player's own cover). The mouth-toward-the-Tan V (the pass's C) pinned 7 of 48 marchers in its vertex: never that way round. The pinch between the works stays past 80 (2 x ROCK_PAD_FORM). Painter's order (y, then x). The road (CPS_PTS), every other rung, the battleground, the parks and the raids: byte-what-they-were. The elite twin 101 wears it with the dress (campBaseRung, CPS-Q1).
+const SBV={ tip:660, dx:18, dy:18, lx:400, ly:310, gap:16, n:5, m:10 };   // the V's point (x; on the road's centre line) · the arm's step (18/18 = 25.5 along the arm, a solid chevron; five bags an arm; the first pair 9 off the centre line) · the line's x and its top bag's y · the line's spacing (16: a stacked wall) · bags an arm · bags in the line
+function sbvWorks(){ const R=[]; for(let k=0;k<SBV.n;k++){ const x=SBV.tip-SBV.dx*k; R.push({ x, y:CPS.y-9-SBV.dy*k, r:16, art:'bags', row:'v' }, { x, y:CPS.y+9+SBV.dy*k, r:16, art:'bags', row:'v' }); } for(let k=0;k<SBV.m;k++) R.push({ x:SBV.lx, y:SBV.ly+SBV.gap*k, r:16, art:'bags', row:'l' }); return R.sort((a,b)=>a.y-b.y || a.x-b.x); }   // the twenty bags, painter's order
+CAMP_DRESS[CPS.rung]={ rocks:sbvWorks() };   // CARD-SBV (was CPS's two parallel rows, [226,374] x 503..737)
 function cpsOn(){ return !!(!S.bf && !S.park && !S.raid && !S.momRaid && S.cfg && (S.levelN|0)>0 && (S.cfg.n|0)===(S.levelN|0) && campBaseRung(S.levelN|0)===CPS.rung); }   // the rung actually dealt (S.cfg.n): a leftover levelN behind a face-off or the range (levelN 0) never takes it
 function cpsPath(){ return cpsOn()? CPS_PTS : pthOn()? pthPath() : ncbPathOn()? ncbPath() : PATH_PTS; }   // CARD-PTH (Wyatt 10/11, by phone): every other campaign rung lays its OWN road, box to box over its bridges round its stones (sec CARD-PTH); the battleground, parks, raids, roofs and the range keep PATH_PTS
 function pathStroke(){ if(cmxNoRun()) return; const k=S.gk||1, P=cpsPath();   /* CARD-CMX: no dirt runner on the campaign's HILL VILLAGE (his streets are the road) */ cx.beginPath(); cx.moveTo(P[0].x*k,P[0].y); for(let i=1;i<P.length;i+=3) cx.lineTo(P[i].x*k,P[i].y); cx.stroke(); }   // v1.98: the rug runner stretches with the grand rug (identity at gk 1; y and stroke width untouched)
