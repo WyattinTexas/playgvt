@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.36","md5":"7475576aa33ad4754b0d1b034c9cc023","sha":"1c941d999","at":"2026-10-21T21:59:33Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"25.37","md5":"4121a5dcea4d257b4e2b8c1c96a84944","sha":"804785a14","at":"2026-10-21T22:09:06Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89223,7 +89223,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.37';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -162104,6 +162104,14 @@ const LAIR_U_NESTS=5;                           // ⚑ Q6 THE BRAKE: the nest co
 const LAIR_HATCH_STEP_U=0.05;                   // ⚑ Q3 the clutch's per-egg stagger at 'u' (0.54 at e/m/h/g): sixteen a nest inside 0.8 s, the five nests in parallel — ONE beat; the roll alternative = per-nest at: 7.0/7.8/8.6/9.4/10.2
 const LAIR_U_KING={ court:750, ret:1110 };      // ⚑ Q2 the king's two hpAdd cells at 'u' (the yeti's own ratio on both bars): (3,010 + 750) × 0.56 = 2,106 · (3,010 + 1,110) × 0.56 = 2,308 (hpX then hpAdd, each rounded — the 0574 arithmetic); alt 1,130 / 1,230 = kingrex 0.28
 const LAIR_U_STEGO={ court:2, ret:2 };          // ⚑ Q17a THE KING'S ARTILLERY: stegos with his court (11.6) and in the angry return's pincer (12.0); the shipped line at 14.8 reads bare (1) and the north/south mouths' last pour is a stego each (⚑ Q17b) — 7 in all; their groups PINNED (authored counts are the bodies)
+// ═══ CARD-SX3 ULTRA MEGA KING REX: THE FINAL PHASE'S STEGOSAURS x3 (design/rex-stegos-x3-1021/00-BUILD-SX3.md; Wyatt 10/21/2026 16:27 EDT by phone, dictated, verbatim: "For the Ultra Mega King Rex
+// encounter, when he spawns the stegosauruses who throw the boulders, let's increase the amount spawned by 3 times. During his final phase. If he currently doesn't spawn any stegosauruses during his
+// final phase, spawn 15 of them."). His final phase = THE LAIR ERUPTS · HE COMES BACK ANGRY (the wave that sweeps 'kingrex': P3 of the 'u' lair, the angry king's return). Before this card it
+// fielded FIVE stegos (the north/south mouths' pour, one each at 5.4; the pincer, two at 12.0; the line, one at 14.8): x3 = 15 = his floor, so both his readings land on the same number: the pour
+// 3 a mouth (6), the pincer 6, the line 3. The court's two (11.6), the e/m/h/g lairs (cfgs byte-still) and the ice castle untouched; every stego group stays PINNED (a party of ten fields 15, not
+// 99) and wears EV_HPX_BONE.stego (sx3Stegos runs after the pins, before the hp pass). Had the final phase fielded none, the floor would have dealt a line of 15 at 14.8 (the else branch).
+const LAIR_U_STEGO_P3={ x:3, min:15 };   // CARD-SX3: the final phase's stego seats ×x; under min the line at 14.8 is topped up to it (inert at x3: 6 + 6 + 3 = 15 = min)
+function sx3Stegos(cfg){ const w=cfg.waves.find(w9=>w9.sweep==='kingrex'); if(!w) return 0; let n=0, line=null; for(const g of w.groups){ if(g.t!=='stego') continue; if(g.f==='spout'){ g.per=Math.max(1,Math.round((g.per||1)*LAIR_U_STEGO_P3.x)); n+=(g.pts||[]).length*g.per; } else { g.n=Math.max(1,Math.round((g.n||1)*LAIR_U_STEGO_P3.x)); n+=g.n; line=g; } } if(n<LAIR_U_STEGO_P3.min){ if(line) line.n+=LAIR_U_STEGO_P3.min-n; else w.groups.push({f:'line',t:'stego',n:LAIR_U_STEGO_P3.min-n,e:'right',at:14.8,pin:1}); n=LAIR_U_STEGO_P3.min; } return n; }   // CARD-SX3: the bodies the final phase fields (15 on the shipped table)
 const EV_HPX_BONE={ sdino:0.25, ptero:0.25, trike:0.25, bdino:0.25, eggling:0.25, spitter:0.5, stego:0.5, dilo:0.5, kingrex:0.56 };   // ⚑ Q14 the bodies at 'u' bone (EV_HPX's law, lair edition): on every group's row copy (hpX THEN hpAdd — never the table, never reordered) AND on every hatchling at its birth (lairUHatchX — an egg's child is born group-less); the king 0.56 = the yeti's cell
 // the tall table (boards/rex-gen.js U, verbatim): the middle band = the shipped furniture +240; the north shelf = the top ring's OWN cells; the south shelf = the bottom ring +480
 const LAIR_U_MESAS=[[640,420,40],[760,840,42],[1600,600,36],[620,140,40],[760,1080,42]];
@@ -163017,6 +163025,7 @@ function raidCfg(tier,rk){
     // (3) THE BODIES (⚑ Q14): EV_HPX_BONE on every group's row copy — hpX THEN hpAdd (spawnGroup's two seats, never reordered; the king's hpAdd scales with his cell so the cell cuts
     //     his WHOLE bar — the 0574 law); the hatchlings meet the same table at birth (lairUHatchX).
     for(const w of cfg.waves) for(const g of w.groups){ if(g.f==='spout' || g.t==='stego') g.pin=1; }
+    sx3Stegos(cfg);   // CARD-SX3 (Wyatt 10/21): the final phase's stegos ×3 = 15, after the pins (the counts are the bodies at every seat count) and before the hp pass (every seat wears EV_HPX_BONE.stego)
     const kxb=(RAID_CNT_MUL.u/RAID_CNT_MUL.g)*EV_FOE_F;
     for(const w of cfg.waves) for(const g of w.groups){ if(g.f==='boss' || g.pin) continue; g.n=Math.max(1,Math.round((g.n||1)*kxb)); }
     for(const w of cfg.waves) for(const g of w.groups){ const x=EV_HPX_BONE[g.t]; if(x){ g.hpX=(g.hpX||1)*x; if(g.hpAdd) g.hpAdd=Math.round(g.hpAdd*x); } }
