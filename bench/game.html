@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.27","md5":"5e472d6bdd69b8a994fcc953a869527c","sha":"593b0fa97","at":"2026-10-21T20:20:50Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.28","md5":"c0951c1b028df452f546fb0da00ee5c3","sha":"385fa3220","at":"2026-10-21T20:25:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -59491,7 +59491,7 @@ function snduPlay(cont){
 }
 // ═══ end CARD-SND ═══
 // ═══ CARD-STM SARGE'S TENT, THE MAP TABLE (sec:CARD-STM; design/sarge-tent-map-1016/00-CARD-STM.md; FROM DYLAN by the jumpr guest link 10/16/2026 02:00 UTC: "Thirty second cutscene of Sarge at a table, inside of his tent with a battlefield style map of the frozen tundra in front of him. He moves tiny green army men figures around as he has an inner monologue about how he can take the tan toy box swiftly."): the 30 s film stm-tent.mp4 (Sarge's own mold, THE WINTER FIELD's terrain drawn as a paper map, the game's men and SFX)
-// plays ONCE per device the first time the room's battle-plan door would open the War Table (UI.room('bf')): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the table as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
+// plays ONCE per device the first time the room's battle-plan door would open the War Table (UI.room('bf'); CARD-FTC 10/21 moved that seat to the Tundra's JOIN, sec CARD-FTC below: ?ftc=0 on a device brings this one back): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the table as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
 // Reduced motion skips it. Seen = localStorage gvt_stm (never the save; no storage = never shown). ═══
 const STMU={ key:'gvt_stm', src:'stm-tent.mp4', poster:'stm-tent.jpg' };
 function stmuSeen(){ try{ return localStorage.getItem(STMU.key)==='1'; }catch(e){ return true; } }
@@ -59516,6 +59516,43 @@ function stmuPlay(cont){
   return v;
 }
 // ═══ end CARD-STM ═══
+// ═══ CARD-FTC THE FROZEN TUNDRA FILM MOVES TO THE TUNDRA'S DOOR (sec:CARD-FTC; design/tundra-film-door-1021/00-CARD-FTC.md; FROM WYATT, typed on Maker 1 10/21/2026 ~14:25 EDT, verbatim: "When Battlefields first opened, it should not play the Frozen Tundra cinematic. The Frozen Tundra cinematic is meant for players who are playing in the Frozen Tundra event, and it should only play if there's ample time before the event starts. If someone's in a rush and there's only a minute left, it should not play the cinematic. In the tutorial, we'll just start there." = his answer to STM-Q1)
+// SARGE'S PLAN (CARD-STM's 30 s film, stm-tent.mp4) leaves the War Table's door: UI.room('bf') opens the table at once, for everyone, the tutorial's rookie too (its stmu line is dark while ftcOn()). The film plays ONCE PER DEVICE at the Tundra's JOIN instead: inside bdJoin, before its POST (the chair is not taken, the hold's AFK clock has not started), when the night is the Tundra's (bdKindOf(BD.bell)), the door is live (bdDoorState 'live'), the BELL is at least FTC_MIN_S off (BD.bell - evNow(); the ring is only the late window) and this device has not met it at this door. The end, the ✕ or a load error joins at once (the join as shipped). A desert night, a quiet or sealed door, under the dial, reduced motion, a seen device: the join as shipped, no film.
+// THE SWITCH: ?ftc=0 on a device (gvt_ftc '0'; ?ftc=1 clears the '0') = the game as shipped: the old seat back at the War Table's door, no film at the join. ONE device key, three states: absent = the new seat, the film due · '1' = seen at the Tundra's door · '0' = the switch off. stmuPlay still writes gvt_stm (STM's own key), so the old seat never fires on a device that goes back to ?ftc=0 after the film played here; a device that met the film at the old door since 10/15 (gvt_stm '1', no gvt_ftc) meets it once at the right one.
+// Zero words (the film has its own plank), zero css, zero server bytes, zero sw.js, zero save keys (device keys only, STM's grammar). Rig door: GVT.ftc(o). ═══
+const FTC_MIN_S=120;   // THE DIAL (⚑ FTC-Q1): the bell at least two minutes off at the tap, or no film (the 30 s film leaves a minute and a half of the hold before the bell, plus the late window to the ring); ALT 180 (only the first two minutes of the five-minute window)
+var FTC={ on:(function(){ try{ const m=/[?&]ftc=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_ftc','0'); else if(localStorage.getItem('gvt_ftc')==='0') localStorage.removeItem('gvt_ftc'); } return localStorage.getItem('gvt_ftc')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  key:'gvt_ftc', min:FTC_MIN_S, n:0, why:null, last:null, err:0 };   // the switch (this page's life) · the device key · the dial (the rig may turn it) · the films played on this page · the last join's verdict (null = the film ran; else the one word why not) · the last film's clock · errors caught
+function ftcOn(){ return !!FTC.on; }
+function ftcSeen(){ try{ return localStorage.getItem(FTC.key)==='1'; }catch(e){ return true; } }   // no storage = never shown (STM's law)
+function ftcMark(){ try{ localStorage.setItem(FTC.key,'1'); }catch(e){} }
+function ftcLeft(){ return (BD.bell>0)? BD.bell-evNow() : -1; }   // the BELL's clock (the said time), never the ring's
+function ftcWhy(){   // null = the film is due at this join; else the one word why not (the rig reads it; nothing else does)
+  if(!ftcOn()) return 'off';
+  if(FTC.n>0) return 'played';   // once per page too: a device whose storage refuses the mark never loops the film
+  if(document.getElementById('stmuFilm') || document.getElementById('snduFilm')) return 'film';
+  if(S.mode!=='menu') return 'mode';
+  if(reducedMotion()) return 'motion';
+  if(ftcSeen()) return 'seen';
+  if(!(BD.bell>0)) return 'none';   // no night in hand
+  if(bdKindOf(BD.bell)!=='tundra') return 'desert';
+  const st9=bdDoorState(); if(st9!=='live') return st9;   // 'quiet' | 'sealed': the server would refuse the join anyway; no film in front of a refusal
+  if(ftcLeft()<FTC.min) return 'late';
+  return null;
+}
+function ftcDue(){ FTC.why=ftcWhy(); return FTC.why===null; }
+function ftcPlay(cont){   // the film, then the join as shipped (its end, the ✕ or a load error); the device marked here (gvt_ftc) AND by stmuPlay (gvt_stm)
+  ftcMark(); FTC.n++; const t0=performance.now(); FTC.last={ at:Math.round(evNow()), left:Math.round(ftcLeft()), kind:bdKindOf(BD.bell||0), ran:null, leftAfter:null };
+  return stmuPlay(()=>{ try{ FTC.last.ran=+((performance.now()-t0)/1000).toFixed(1); FTC.last.leftAfter=Math.round(ftcLeft()); }catch(e){ FTC.err++; } try{ if(cont) cont(); }catch(e){ FTC.err++; } });
+}
+function ftcRig(o){ o=o||{}; if(o.on!=null) FTC.on=o.on? 1 : 0; if(o.min!=null) FTC.min=+o.min; if(o.seen!=null){ try{ if(o.seen) localStorage.setItem(FTC.key,'1'); else localStorage.removeItem(FTC.key); }catch(e){} } if(o.stm!=null){ try{ if(o.stm) localStorage.setItem(STMU.key,'1'); else localStorage.removeItem(STMU.key); }catch(e){} } if(o.reset){ FTC.n=0; FTC.why=null; FTC.last=null; FTC.err=0; }   // the rig door (GVT.ftc): { on:0|1 } the switch for this page's life, { min } the dial, { seen:0|1 } this card's key, { stm:0|1 } STM's key, { reset:1 } the page's counters; the read below
+  const f=document.getElementById('stmuFilm'), v=f&&f.querySelector('video');
+  return { cv:GVT_CV, on:FTC.on, key:(function(){ try{ return localStorage.getItem(FTC.key); }catch(e){ return null; } })(), stm:(function(){ try{ return localStorage.getItem(STMU.key); }catch(e){ return null; } })(), min:FTC.min, dial:FTC_MIN_S, now:ftcWhy(), why:FTC.why, n:FTC.n, last:FTC.last, err:FTC.err,
+    kind:bdKindOf(BD.bell||0), bdKind:BD.kind, door:bdDoorState(), left:Math.round(ftcLeft()), bell:BD.bell|0, open:BD.open|0, ring:bdRing()|0, clock:Math.round(evNow()), mode:S.mode, motion:reducedMotion(), seenStm:stmuSeen(),
+    film:f? { t:v? +v.currentTime.toFixed(2) : -1, paused:v? v.paused : null, rs:v? v.readyState : -1, err:(v&&v.error)? v.error.code : 0, src:v? v.getAttribute('src') : null, x:!!f.querySelector('.stmuX') } : null,
+    hold:S.evHold? { bell:S.evHold.bell|0, ring:S.evHold.ring|0, bd:S.evHold.bd|0 } : null, bf:!!S.bf, bd:!!(S.bf&&S.bf.bd), fzt:!!(S.bf&&S.bf.fzt), coop:!!(COOP&&COOP.plc==='bd'), code:COOP? COOP.code : null }; }
+setTimeout(()=>{ try{ if(window.GVT && !GVT.ftc) GVT.ftc=ftcRig; }catch(e){} }, 0);   // the rig door, hung once GVT stands (this section loads before it; CARD-JSX's way, no row in the GVT object)
+// ═══ end CARD-FTC ═══
 // ═══ CARD-MDY MAYDAY ON THE WINTER FIELD (sec:CARD-MDY; design/mayday-winter-field-1016/00-CARD-MDY.md; FROM DYLAN by the jumpr guest link 10/16/2026 11:46 UTC: "Can we make a sixty second cutscene scene of the following: Sarge on his plane, flying over a frozen white plain (The Winter Field). His propeller sputters, then stops. "Mayday, this is sarge, I'm going down!" … The plane pulls in just in front of some large ice caves. Sarge looks up and sees huge footprints…they are the prints of king Yeti. Suddenly standing in front of him is King Yeti, with his minions behind him. King Yeti lets out a roar! … "I'm going to need some backup…stay!" … he pulls out his saber and lunges to a clash of saber to king yetis sword! End scene."): the 60 s film mdy-mayday.mp4 (the game's own toy warplane, Sarge's molds, KING YETI's own mold and the yetis, the game's SFX)
 // plays ONCE per device the first time THE ICE CASTLE's lobby would open (openRaidScene with RAID_CUR 'ice', after the door's own key gate: King Yeti's own throne; the Ice Caves are the Ferocious Yeti's and open only after him): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the lobby as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
 // Reduced motion skips it. Seen = localStorage gvt_mdy (never the save; no storage = never shown). ═══
@@ -89131,7 +89168,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.28';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -92641,6 +92678,7 @@ function bdPopTry(){
 // THE DOOR: POST /gvt/bd/join -> a ROOM party in battle state -> bdLaunch. A refusal speaks and folds.
 function bdJoin(){
   if(S.coop || S.mode!=='menu') return Promise.resolve(null);
+  if(ftcDue()) return new Promise(r9=>{ ftcPlay(()=>r9(bdJoin())); });   // CARD-FTC (FROM WYATT 10/21): SARGE'S PLAN first at the Tundra's JOIN (the night the Tundra's, the door live, the bell FTC_MIN_S off, once per device); its end, the ✕ or a load error = this join as shipped. Before mileFold and the POST: the chair is not taken, no AFK clock runs under the film
   mileFold();   // 0564 THE CARDS LINE UP: a JOIN is not a take — the quiet fold (no blip, no line): no prize card ever lands over the desert join; what is owed deals at the next landing
   if(COOP) coopLeave();
   COOP=coopFresh('lobby','room');
@@ -184718,7 +184756,7 @@ window.UI = {
     if(id==='wpark'){ openParkScene('western'); return; }  // 0339: the outlaw gateway — the third park door
     if(id==='bearfort'){ openParkScene('teddy'); return; }   // 0555: the little bear fortress on the bed — the ONE door into BEAR PARK; THE BEAR BARRICADE (the deed) lives inside openParkScene, so this tap never decides anything
     if(id==='bank'){ bankOpen(); return; }           // 0346: the western bank — three cards behind one door (bankOpen decides)
-    if(id==='bf' && stmuDue()){ stmuPlay(()=>UI.room('bf')); return; }   // CARD-STM (FROM DYLAN 10/16): the War Table's first open comes after SARGE'S PLAN, once per device
+    if(id==='bf' && !ftcOn() && stmuDue()){ stmuPlay(()=>UI.room('bf')); return; }   // CARD-STM (FROM DYLAN 10/16): the War Table's first open comes after SARGE'S PLAN, once per device → CARD-FTC (FROM WYATT 10/21): dark; the film plays at the Tundra's JOIN (bdJoin, sec CARD-FTC); ?ftc=0 on a device brings this seat back
     if(id==='bf'){ openWarTable(); return; }   // the battle plan unrolls the full War Table scene
     if(id==='board'){ openWorldRank(); return; }  // ...the trophy unrolls WORLD RANKINGS
     if(id==='shop'){ openShop(); return; }
