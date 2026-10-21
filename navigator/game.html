@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.15","md5":"6ca5864fcbeb4cbf670b1f30be546719","sha":"976bd1f0e","at":"2026-10-21T04:34:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.16","md5":"8f318fcb92fade721e09d1da0d22e7c2","sha":"7c4cf175f","at":"2026-10-21T14:25:02Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49340,6 +49340,7 @@ function ycdMicOff(){   // THE MICROPHONE CLOSES, whole and at once: the clock, 
   try{ if(ac && ac.state!=='closed' && ac.close){ const p=ac.close(); if(p && p.catch) p.catch(()=>{}); } }catch(e){}
   ycdSession(0); }
 function ycdStands(){ return !!document.querySelector('#roomModal .ycdcard'); }
+function ycdHome(){ try{ return fortSceneOpen() || (typeof mbhOn==='function' && mbhOn() && roomOpenNow()); }catch(e){ return false; } }   // CARD-YCH (jumpr 2414, Wyatt's phone 10/21/2026: "Recording yourself not working for players"): THE PLAYER'S HOME STANDS = the fort's parapet (MBH.on 0, the player's first home) OR HQ's lower shelf in the bedroom (CARD-MBH, live since v21.35 10/11: the fort paints no player then, so the shelf's sheet is the ONLY road to RECORD YOURSELF). The take's door (ycdTapRec), its watchdog (ycdTick) and Hunter's earn (hunHeard) ask this, never fortSceneOpen alone: since 10/11 that word was false at the only player there is, so the red circle did nothing and Hunter could never join.
 function ycdDeal(html){ roomModal(html, 'medalhall fortcard rcpcard ycdcard', 'ycdTapX'); }   // one of this card's faces over the yard (a fort card: the yard's scenes hold; the ✕ = ycdTapX)
 function ycdSheet(){ if(ycdStands()) roomModal(rcpHTML(), 'medalhall fortcard rcpcard'); }   // back to THE SONG SHEET
 function ycdSession(on){ try{ const s=navigator.audioSession; if(!s) return; if(on){ if(s.type!=='play-and-record') s.type='play-and-record'; } else sfxSession(); }catch(e){} }   // CARD-AU's other half (iOS 17+): the game declares its sound 'playback' (it plays through the silent switch), and WebKit refuses a microphone under that word ("AudioSession category is not compatible with audio capture": measured on WebKit 26.5). For the length of a take the page declares 'play-and-record'; every way out (ycdMicOff) hands the word back to sfxSession, the game's own declaration. No navigator.audioSession (Chrome, Android) = nothing to do
@@ -49364,7 +49365,8 @@ function ycdWire(st){ const ac=YCD.ac; try{ YCD.stream=st; const src=ac.createMe
   }catch(e){ ycdFail('mic'); } }
 function ycdTick(){   // the take's 100 ms clock: the face, the seconds left (by the samples kept), the level; and THE WATCHDOG (the card gone, the Fort closed, a road with no samples, the wall's own backstop)
   const ph=YCD.ph; if(ph!=='open' && ph!=='live'){ if(YCD.tid){ clearInterval(YCD.tid); YCD.tid=0; } return; }
-  let card=document.getElementById('ycdRec'); if(!card || !fortSceneOpen()){ ycdEnd('gone'); return; }
+  let card=document.getElementById('ycdRec'); if(!card || !ycdHome()){ ycdEnd('gone'); return; }   // CARD-YCH: the player's home (the shelf or the parapet), never the fort alone
+  try{ const ac=YCD.ac; if(ac && ac.state!=='running' && ac.state!=='closed' && ac.resume){ const p=ac.resume(); if(p && p.catch) p.catch(()=>{}); } }catch(e){}   // CARD-YCH ⚑ YCH-Q3: the take's own context asked back to running on every tick it is not (iOS parks a context on 'interrupted' when the audio session changes under it, the medic's own lesson; a running context answers with nothing)
   if(card.dataset.ph!==ph){ ycdDeal(ycdRecHTML()); card=document.getElementById('ycdRec'); }
   if(ph==='open'){ if(YCD.stream && performance.now()-YCD.t1>8000) ycdFail('mic'); return; }
   const left=Math.max(0, YCD_CAP-YCD.n/YCD.rate), sec=document.getElementById('ycdSec'), fill=document.getElementById('ycdFill'), mic=document.getElementById('ycdMic');
@@ -49380,7 +49382,7 @@ function ycdEnd(by){   // EVERY WAY OUT OF A TAKE: 'tap' = STOP · 'cap' = the 3
   ycdPut({ v:1, rate:YCD_RATE, n:r.n, sec:r.sec, at:Date.now(), pcm:r.pcm.buffer }, ()=>{ ycdFlagSet(true, r.sec); YCD.ph=null; if(LOC.bid===YCD_ID) locFree();   // saved: the CD goes on the player at once (he hears himself), the sheet comes back with YOUR CD ringed (rcpPick, THE ONE WRITER)
     let i=-1; for(let k=0;k<RCP_SONGS.length;k++) if(RCP_SONGS[k].id===YCD_ID) i=k; if(!(i>=0 && rcpPick(i))){ ycdMusicBack(); ycdSheet(); } }, ()=>ycdFail('save')); }
 function ycdFail(kind){ YCD.tok++; ycdMicOff(); YCD.chunks=null; ycdMusicBack(); if(ycdStands()){ YCD.ph='err'; ycdDeal(ycdErrHTML(kind)); } else YCD.ph=null; }   // the plain word: 'mic' = it did not open · 'quiet' = nothing was heard · 'save' = the device did not keep it
-function ycdTapRec(){ if(YCD.ph && !ycdStands()){ if(YCD.ph==='open'||YCD.ph==='live') ycdEnd('gone'); YCD.ph=null; } if(YCD.ph || !fortSceneOpen() || !ycdCan()) return; audio(); SFX.blip(); YCD.ph='ask'; ycdDeal(ycdAskHTML()); }   // RECORD YOURSELF → the ask (a phase left behind by a card somebody else closed is let go first)
+function ycdTapRec(){ if(YCD.ph && !ycdStands()){ if(YCD.ph==='open'||YCD.ph==='live') ycdEnd('gone'); YCD.ph=null; } if(YCD.ph || !ycdHome() || !ycdCan()) return; audio(); SFX.blip(); YCD.ph='ask'; ycdDeal(ycdAskHTML()); }   // RECORD YOURSELF → the ask (CARD-YCH: where the player stands, the shelf or the parapet) (a phase left behind by a card somebody else closed is let go first)
 function ycdTapYes(){ if(YCD.ph!=='ask') return; audio(); SFX.snap(); ycdStart(); }
 function ycdTapStop(){ const ph=YCD.ph; if(ph!=='open' && ph!=='live') return; audio(); ycdEnd(ph==='live'? 'tap' : 'x'); }
 function ycdTapBack(){ const ph=YCD.ph; if(ph!=='ask' && ph!=='err' && ph!=='del') return; audio(); SFX.clack(); YCD.ph=null; ycdSheet(); }   // NO · OK · CARD-YCD2: KEEP IT (the confirm's green button: nothing erased)
@@ -88952,7 +88954,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -190589,7 +190591,7 @@ function hunTakeAt(){ try{ const v=JSON.parse(localStorage.getItem(YCD_FLAG)||'n
 function hunJoin(){ const fresh=petGrant('hunter'); if(!fresh) return false; saveMeta(); try{ SFX.arf(); }catch(e){}
   if(!milePopUp() && !(META.pet.seen && META.pet.seen.hunter)){ META.pet.seen.hunter=1; saveMeta(); try{ UI.closeModal(); }catch(e){} petCard('hunter'); MB_TAKE=function(){}; }   // the record player's sheet steps aside for his joins card
   return true; }
-function hunHeard(id){ try{ if(id!==YCD_ID || petOwns('hunter') || !fortSceneOpen()) return false; if(!(hunTakeAt()>=HU.from)) return false; return hunJoin(); }catch(e){ return false; } }   // YOUR CD on the fort's player, a NEW take = Hunter
+function hunHeard(id){ try{ if(id!==YCD_ID || petOwns('hunter') || !ycdHome()) return false;   /* CARD-YCH: where the player stands (HQ's shelf since CARD-MBH, or the parapet), never the fort alone */ if(!(hunTakeAt()>=HU.from)) return false; return hunJoin(); }catch(e){ return false; } }   // YOUR CD on the record player (HQ's shelf, or the fort's parapet), a NEW take = Hunter
 
 // ── C · THE FIGHT ──
 function huDur(p){ return petHas(p,'hulonger')? HU.dur60 : petHas(p,'hulong')? HU.dur10 : HU.dur; }
