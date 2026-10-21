@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.32","md5":"6ae100f144600302bcd563f3bba33bde","sha":"a870afeca","at":"2026-10-21T21:07:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.33","md5":"78f1d296260a00ca79524fff0852d101","sha":"b918a89d4","at":"2026-10-21T21:22:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -74044,7 +74044,7 @@ function hrdWave(n){
   let src=null, mul=1;
   if(horde){ const bs=lc.waves.filter(w=>clean(w) && w.boss); src=bs.length? bs[bs.length-1] : null; }
   if(!src){ src=lc.waves.filter(w=>clean(w) && !w.boss && !w.piece).reduce((b,w)=>(!b || size(w)>size(b))? w : b, null) || lc.waves.filter(clean)[0] || null; if(horde) mul=HRD_BIG; }
-  const rn=mul*(1+HRD_RAMP.n*(n-1));   // B2: THE RAMP rides every ordinary group (a boss stays one)
+  const rn=mul*s2xK()*(1+HRD_RAMP.n*(n-1));   // B2: THE RAMP rides every ordinary group (a boss stays one)   // CARD-S2X (Wyatt 10/21): ×2 on every wave's count, before the ramp (s2xK)
   const groups=(src? src.groups : [{f:'column',t:'tanrifle',n:5,e:'right'}]).map(g=>smtGroup(Object.assign({}, g, (rn!==1 && g.f!=='boss')? {n:Math.max(1,Math.round((g.n|0)*rn))} : {})));   // CARD-SMT: a cheese-mice group comes as the Tan mortar battery
   const w={ groups, name:(src && src.name) || '', hrdN:n, hrdL:L };
   if(horde && src && src.boss) w.boss=true;
@@ -74361,6 +74361,14 @@ const SMT={ on:1, tagX:0.3, mouse:'wmouse', mortar:'tanmortar' };   // ⚑ SMT-Q
 function smtTagV(v){ if(!(SMT.on && hrdOn())) return v; const H=S.hrd, x=v*SMT.tagX+(H.tagRem||0), r=Math.round(x); H.tagRem=x-r; return r; }   // one door for every tag a run mints: ×0.3 with the remainder carried (the run's sum is the cut exactly)
 function smtGroup(g){ return (SMT.on && g.t===SMT.mouse)? Object.assign(g, { t:SMT.mortar, f:'line', e:'right', smt:1 }) : g; }   // the mice's group (hrdWave's own copy) becomes the mortar battery: the count as ramped, the beat kept
 function smtInf(g){ return !g.smt; }   // the flank party's pick (hrdFlank): never the battery that stands for the mice
+// ═══ CARD-S2X SURVIVAL MODE: THE DIFFICULTY x2 (design/survival-x2-1021/00-BUILD-S2X.md; Wyatt 10/21/2026 15:35 EDT from his phone, dictated, verbatim:
+// "Increase the difficulty of the survival mode x2. Make it happen. We want to see low high scores"). TWICE THE TAN ON EVERY WAVE: hrdWave's count factor rides s2xK()
+// (×S2X.k = 2 before the ramp: wave 1 fields level 1's biggest wave twice over, wave N fields ×2·(1 + 0.1·(N−1)) of level N's); every ordinary group doubles (a boss stays one,
+// as the ramp leaves him), so the party over the rim (a third of the wave: hrdFlank) and the mortar battery (CARD-SMT) double with it. Nothing else moves: the clock, the four
+// guns, the gate, the ramp's slope, the hp, the tags (CARD-SMT's cut stands), the save (a continued run's next waves ride the new counts: hsvResume rebuilds the list from
+// hrdWave), the words, the server. S2X.on 0 = the shipped counts (a rig's dial; the proofs' NEG). Measured: design/survival-x2-1021/00-BUILD-S2X.md § THE MEASUREMENT.
+const S2X={ on:1, k:2 };   // ⚑ S2X-Q1 the lever = the count (not the hp) · Q2 a flat ×2 on every wave (not the ramp's slope) · Q3 a boss stays one
+function s2xK(){ return (S2X.on && S2X.k>0)? S2X.k : 1; }   // the count factor every survival wave's ordinary groups ride (identity when off)
 function hrdEnd(){
   const n=S.wave|0, best=Math.max(META.hrdBest|0, n), isNew=n>0 && n>(S.hrd.best0|0);
   for(const b of S.blobs){ const v9=gtxTag(b.v); S.plastic+=v9; if(META.stats) META.stats.tags=(META.stats.tags|0)+v9; } S.blobs.length=0;   // B2: the tags still in the air land (the blob road's own sum) — the fort fell before they reached the purse
@@ -89175,7 +89183,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.33';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
