@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.01","md5":"522f3209f0f52579586c9e3e84c7ac18","sha":"bae6f8dd40","at":"2026-10-22T23:30:36Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.02","md5":"c5a55e0b290719eab6d05a22837913d9","sha":"9e8721b25e","at":"2026-10-22T23:35:24Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -69494,7 +69494,46 @@ const SKY_MOOR=[560,121], SKY_RIDGE_Y=172;   /* CARD-SFI-B: her seat y 100 -> 12
 const SKY_AIR_OK={ rifleman:1, mgunner:1, bazooka:1, commando:1, grenadier:1, riflemanbaker:1, riflemanrg:1, aagun:1 };   /* CARD-SF3-B: + THE AA GUN */   // THE AIR LAW's guns (+ Sarge with a gun)
 function airOk(u){ if(!u || !u.type) return false; if(u.def && u.def.fly) return false; if(SKY_AIR_OK[u.type]) return true;
   if(u.type==='sarge'){ const w=(u.coopSW && u.coopSW.wk) || META.sargeWeapon || 'pistol'; return w!=='lightsaber'; }   // the pistol, the shotgun, the sniper reach the sky; the saber never (from the ground; CARD-JAB: mid-air on the jet pack the saber, the commander's blade and the shotgun strike a body in the air beside him — jabAir, its own door, never this one)
-  return false; }   // heroes (HEROES), captured kings, the flame, the sweeper, the radio man, the medic: never
+  if(u.type==='medic') return medrOn(u);   /* CARD-SKW (Wyatt 10/22: "Medics who have the ability to shoot and do damage should be shooting them, kind of like riflemen"): a medic carrying THE MEDIC'S RIFLE (TO ARMS: medrOn, the fire loop's own predicate) reaches the sky like the rifleman; an unarmed medic never (rate 0, no gun) */
+  if(u.type==='jane') return true;   /* CARD-SKW (Wyatt 10/22: "Jane, too, should be shooting the plane instead of just standing around"): her pistols reach the sky (the one hero the law lets up; every other hero, the captured kings and the bosses as before) */
+  return false; }   // heroes (HEROES) but Jane, captured kings, the flame, the sweeper, the radio man, the unarmed medic: never
+// ═══ CARD-SKW · EVERY GUN ON THE SKY (jumpr 2525, built on Maker 1 as M2525; design/sky-watch-1022/00-BUILD-SKW.md; Wyatt by phone 10/22/2026 18:10 EDT, jumpr remote, dictated, verbatim:
+// "A few units were just standing around and not interacting properly on the air fortress. Medics who have the ability to shoot and do damage should be shooting them, kind of like riflemen, instead of just
+// standing around. Jane, too, should be shooting the plane instead of just standing around. Finally, the tank can also take a few shots. It should be inaccurate and mostly miss, but every once in a while,
+// the tank should be able to hit one of these planes. Or even the bomber itself"). THE AIR LAW (airOk, above) opens two doors: a medic carrying THE MEDIC'S RIFLE and JANE reach the sky like a rifleman, through
+// every reader of airOk (the aim's bfCanTarget, the halt, the march at the nearest plane, the turkey in the air); the battleground's guns at a dogfighter (dfBfGunOf) read their own table, as shipped.
+// JANE'S EYE: her own camera law (janeVis: a WHOLE figure below the HUD band, JANE_VIS_TOP) hid THE BIG BOMBER from her on every high pass (her tail fin sits under the boss plate: measured, 462 of 611 frames
+// with her in Jane's reach); over the Sky Fortress a plane is judged at the point her round flies at instead (skwJaneH).
+// THE TANK'S FLAK (the sky raid alone): a tank of the family (tkrTank) with no man of the roof inside its SHELL's reach looks UP at the nearest plane inside it (skwTankPick: a fighter, a Red Tail, the drop
+// ship, THE BIG BOMBER; never a man under his chute, never THE WRECK on the roof, which is the roof's fight) — asked through a rifleman's eyes, so the clouds, the peel-off and every other blind stay blind —
+// and the fire loop's tank branch fires the cannon at her (skwFlak): the report, the muzzle and the cadence are the shell's own, the shell climbs to a black flak burst in the sky; ONE SHELL IN FIVE
+// LANDS ON HER (hurt(): the raid plane's armor, the reach, the crit roll of the tank's ladder), every other bursts beside her (outside her body, nothing hurt). THE BAG: every five shells hold one hit, at a
+// place in the five hashed off the tank's own shot count (never more than eight misses in a row; the AA gun's twin law: no Math.random, every sim of a party throws the same). The shell's ground fight is
+// byte-what-it-was: the roof first, the sky only when nothing of the roof is in reach. ═══
+const SKW={ bag:5, flight:0.16, lift:0.42, pad:28, padR:30, arc0:-0.262, arc:3.665, janeAim:18 };   // THE BAG: one shell in every five lands ("inaccurate and mostly miss, but every once in a while") · the shell's climb (s) · her body's middle over her seat (x her height, the molds' own seat) · a miss bursts pad px past her picture's box, + up to padR more · its direction: from 15 degrees over her right shoulder, round under her, to 15 over her left (210 degrees) · Jane's aim point on a plane (skwJaneH)
+function skwPlane(f){ return !!(f && !f.dead && !f.pendDie && !f.skyGone && !(f.hp<=0) && f.def && f.def.fly && !f.skyDrop && !hrtS3Grd(f)); }   // a PLANE in the sky (a man under his chute and THE WRECK on the roof are not the flak's)
+function skwEye(u){ return { type:'rifleman', def:UDEF.rifleman, side:u.side, seat:u.seat, x:u.x, y:u.y }; }   // the tank asks the sky's blinds through a rifleman's eyes (rxaEye's grammar: the law keeps the tank off the sky; the flak is its own door)
+function skwTankPick(u,R){ if(S.bf || !tkrTank(u) || !skyOn()) return null; const e=skwEye(u); let best=null, bd=1e9;   // the nearest plane inside R (the shell's own reach: the caller's def.rng x the aura, + the silver, + the Baker)
+  for(const f of S.foes){ if(!skwPlane(f) || f.x>W-10 || f.x<-40) continue; if(!bfCanTarget(e,f)) continue; const d=Math.hypot(f.x-u.x,f.y-u.y); if(d>R || d>=bd) continue; bd=d; best=f; }
+  return best; }
+function skwSkyShot(u,f){ return !!(!S.bf && tkrTank(u) && skwPlane(f) && skyOn()); }   // the tank branch's fork: a plane in the tank's sights = the flak (skwTankPick is the only door that hands a tank a plane)
+function skwDie(n,k){ let h=Math.imul((n|0)+1,0x9E3779B1)^Math.imul((k|0)+1,0x85EBCA6B); h^=h>>>15; h=Math.imul(h,0x2C1B3C6D); h^=h>>>12; h=Math.imul(h,0x297A2D39); h^=h>>>15; return (h>>>0)/4294967296; }   // [0,1) off a count (no Math.random: the twin law)
+function skwHit(n,k){ const b=Math.max(1,SKW.bag|0), i=(n|0)-1; return (i%b)===Math.floor(skwDie(Math.floor(i/b),k)*b); }   // THE BAG: shot n of a tank keyed k lands iff it holds its five's one hashed place
+function skwBody(f){ const w=(f.def && f.def.w) || 80, im=foeImg(f.type), h=w*((im && im.width)? im.height/im.width : 0.42); return { x:f.x, y:skyAirY(f)-h*SKW.lift, w, h }; }   // her picture's middle (drawSprite / dfBodyDraw seat the mold's foot at her y)
+function skwJaneH(f){ return (f && f.def && f.def.fly && !f.skyDrop && skyOn())? SKW.janeAim : null; }   // JANE'S EYE ON THE SKY (janeVis reads it): a plane over the Sky Fortress is judged at the point her round flies at (its seat − 18: the gun path's own tracer end), not her whole picture; THE BIG BOMBER's tail fin under the boss plate no longer hides her (her rounds still never run up into the HUD: the 0456 law)
+function skwFlak(u,f,dmg,mzl){   // THE TANK'S FLAK: the shell branch's own report, shake, muzzle (+42 · −44: the side it turns to, so mzl is re-read), puff and flash; the shell's climb (a hot round on a faint trail), then the black burst where it arrives
+  const n=u.skwN=(u.skwN|0)+1, k=((u.seat|0)*8)+((u.type==='tank3')? 3 : (u.type==='tank2')? 2 : 1), hit=skwHit(n,k), B=skwBody(f), RM=reducedMotion();
+  bfSfx(SFX.boom, u.x, u.y); if(bfVis(u.x,u.y) && !RM) S.shake=Math.max(S.shake,0.11);
+  let tx=B.x, ty=B.y; if(!hit){ const a=SKW.arc0+skwDie(n,k+101)*SKW.arc, ca=Math.cos(a), sa=Math.sin(a), P=SKW.pad+skwDie(n,k+202)*SKW.padR, d=1/Math.max(Math.abs(ca)/(B.w*0.5+P), Math.abs(sa)/(B.h*0.5+P)); tx=B.x+ca*d; ty=B.y+sa*d; }   // a miss: SHORT or WIDE (beside her, under her, a little over her shoulders: never high over her, where the HUD sits), onto her picture's box grown by pad + the die (clear of her by P on either axis)
+  unitAim(u,{ x:tx, y:ty }); const m9=unitFaceX(u), mzx=u.x+42*m9, mzy=u.y-44, ang=Math.atan2(ty-mzy,tx-mzx), T=SKW.flight;   // the gun turned to where the shell goes (a wide miss on his far side turns him: never a round over his own back)
+  S.fx.push({k:'puff',x:mzx,y:mzy,t:0,dur:0.4,R:14}); S.fx.push({k:'flash',x:mzx,y:mzy,ang,R:20,lw:3.2,t:0,dur:0.13});   // the cannon's own smoke + star
+  S.fx.push({k:'tracer',x1:mzx,y1:mzy,x2:tx,y2:ty,t:0,dur:T+0.08,col:'#FFB25A',w:4,a:0.3}); if(!RM) S.fx.push({k:'slug',x1:mzx,y1:mzy,x2:tx,y2:ty,t:0,dur:T,col:'#6B6152',colH:'#FFE39A'});   // the climb
+  for(let i=0;i<3;i++){ const jx=((n*7+i*13)%11)-5, jy=((n*5+i*17)%9)-4; S.fx.push({k:'puff',x:tx+jx*2,y:ty+jy*2,t:-T,dur:0.8,R:18+i*4,col:'#1E1B18'}); }   // THE BURST, born when the shell arrives (t < 0 waits its turn: the barrage's own law): the AA gun's black flak
+  S.fx.push({k:'flash',x:tx,y:ty,ang,R:RM? 12 : 22,lw:3,t:-T,dur:0.14}); S.fx.push({k:'ring',x:tx,y:ty,r:6,R:hit? 46 : 32,t:-T,dur:0.3,col:hit? '#FFD24A' : '#B9B2A6'});
+  S.skwN=(S.skwN|0)+1; if(hit) S.skwHit=(S.skwHit|0)+1;   // the rig's count (the sim's own fields, never wire, never save)
+  if(!hit) return false;
+  const s9=tkdShot(u,dmg); hurt(f,s9.d,u); if(s9.c){ try{ critFx({ x:tx, y:ty }); }catch(e){} } return true; }   // CARD-TKD's roll on the shell that lands (a miss rolls nothing)
+function skwRig(){ return { bag:SKW.bag, shots:S.skwN|0, hits:S.skwHit|0, air:{ medic:airOk({type:'medic'}), jane:airOk({type:'jane'}), bftank:airOk({type:'bftank'}) }, sky:skyOn() }; }   // the rig's read
 function skyOn(){ return !!(S.raid && S.raid.k==='sky' && S.raid.cfg===S.cfg); }
 function skyTier(){ return (S.raid && S.raid.k==='sky' && SKY_T[S.raid.t])? S.raid.t : 'e'; }
 function skyMegaOpen(){ return !!(META.sky && META.sky.h); }
@@ -90196,7 +90235,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -122051,6 +122090,7 @@ function update(dt){
     }
     if(hsm9){ const air9=hsmAirPick(u,hsmR); if(air9 && air9.d<hsmBs){ hsmBest=air9.o; hsmK=air9.k; } else if(hsmBest) hsmK=S.bf? 'unit' : 'foe'; if(hsmBest) best=hsmBest; }   // CARD-HSM THE PICK: a machine inside the doubled reach takes the missile before any man (the other army's plane or bomber when it is the nearer); men only when none stands there
     const ggPick9=(gg9 && ggTgt9)? ggTgt9 : null; if(ggPick9) best=ggPick9;   // CARD-GG THE PICK: a loaded gun with anything inside twice his reach = this pull is the golden shot's (the grenade's own drum re-arms below), at the biggest thing there; nothing there = the throw's own scan as ever
+    if(!best && !S.bf && tkrTank(u)) best=skwTankPick(u, def.rng*rngMul+tkSilvRng(u)+bakRng(u));   /* CARD-SKW THE TANK'S FLAK: no man of the roof inside the shell's reach = the nearest plane inside it (the sky raid alone: null on every other rug) */
     if(S.bf && !def.mine && !hsmK && dfBfGun(u,rng*rngMul+tkSilvRng(u)+bakRng(u),rate)){ u.cd=tkSlowMul(u)*snowSlowMul(u)*ultHvSlow(u)/(rate*ra.rate); continue; } if(!best) continue;   /* CARD-FOD: a hostile plane in reach takes the round FIRST (was: only with no man in reach) */   // CARD-DF2: no man in his reach: a gun (airOk's own table) fires UP at a hostile plane in reach (the pull spent at the base cadence)
     // the runner-up slot: lowest priority score among everyone who is not the
     // raised gun's man — ties broken on the FIGURE'S OWN POSITION (x, then y),
@@ -122178,7 +122218,8 @@ function update(dt){
       continue;
     }
     const mzl=unitFaceX(u);         // muzzles point the way the figure faces — 0652: the AIM's side (unitFaceX — the sim's own sign, never the walk stamp: this origin feeds duckBlock), else the chair as ever
-    if(mgtU(u)){ mgtFire(u,best,dmg,mzl);   /* CARD-TKR2: mgtU carries the family (it read the heavy tank alone) */ /* CARD-SQL THE MAGNUS TANK: the charged laser in the shell's seat (its cadence, its reach, through the line, the commando's catch) */ }
+    if(skwSkyShot(u,best)){ skwFlak(u,best,dmg,mzl); }   /* CARD-SKW THE TANK'S FLAK: the cannon fired up at a plane (one shell in every five lands) */
+    else if(mgtU(u)){ mgtFire(u,best,dmg,mzl);   /* CARD-TKR2: mgtU carries the family (it read the heavy tank alone) */ /* CARD-SQL THE MAGNUS TANK: the charged laser in the shell's seat (its cadence, its reach, through the line, the commando's catch) */ }
     else if(u.type==='bftank' || t3Fam(u) /* CARD-OCR-B3 */){   // 0547 THE V2 TANK fires the tank's own shell — the blast dial rides the push below
       // THE CANNON: flat, fast and nearly on the money — it reuses the rocket
       // pipeline, just with a fraction of the bazooka's scatter and no anti-
@@ -164320,7 +164361,7 @@ function janeVis(f){
   const cm=(!S.bf && W>VW/zoomZ() && S.cCam)||null;   // 0963
   if(!cm) return true;
   const cy=cm.y||0;
-  const im=IMG[f.type], fh=Math.min(JANE_VIS_HMAX, 0.92*((f.def&&f.def.w)||48)*((im&&im.width)? im.height/im.width : 1));
+  const im=IMG[f.type], sk9=skwJaneH(f), fh=(sk9!=null)? sk9 : Math.min(JANE_VIS_HMAX, 0.92*((f.def&&f.def.w)||48)*((im&&im.width)? im.height/im.width : 1));   /* CARD-SKW JANE'S EYE ON THE SKY: a plane over the Sky Fortress is judged at the point her round flies at (skwJaneH: its seat - 18), not her whole picture */
   return f.x>=cm.x && f.x<=cm.x+VW/zoomZ() && f.y-fh>=cy+JANE_VIS_TOP && f.y<=cy+H/zoomZ();   // 0963: the visible world is VW/z × H/z
 }
 function janeBurst(u,dt){
