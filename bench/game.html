@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.50","md5":"53613943622c5aa168ce2937abd03fbd","sha":"5813ec264","at":"2026-10-22T02:20:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.51","md5":"d9a0476c31646e5e856cab2150c8dc53","sha":"40efb892c","at":"2026-10-22T02:42:17Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16349,10 +16349,27 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
    (the game arms it through window.__gvtDoorArm as its listener attaches): the page still streaming (readyState 'loading') = one line under
    PRESS START; the page done and the door still dead (a torn body, a dead script) = the line + ONE location.reload() (a 90 s sessionStorage
    latch — never a loop; inside it the line says the game could not start on this device). English by construction (⚑ PT-B: the dictionary
-   lives in the script that may be dead). Once armed this listener returns at once, before anything else — zero effect on the live game. */
+   lives in the script that may be dead). Once armed this listener returns at once, before anything else — zero effect on the live game.
+   CARD-HOS HOLD ON, SOLDIER (jumpr 2461, built on Maker 1; design/hold-on-soldier-1021/00-CARD-HOS.md; Wyatt 10/21/2026 by phone: "We're getting
+   game freezes occasionally. We get sent to this screen, then we can't do anything. I got the screen after the Battle of the Desert, but other
+   players have gotten this screen. After just playing a regular level"; his picture = this title with LOADING THE BATTLEFIELD… HOLD ON, SOLDIER
+   under PRESS START): that line was a dead end. The title paints at 6 % of the page and the game's one script is the other 94 % (37 MB served,
+   10 MB on the wire); a line that drops mid-stream (a phone locked mid-download — THE NEW BUILD's unasked reload fired on an idle minute, the
+   minute a screen locks; a weak signal; a tab iOS brought back) left readyState 'loading' for good, and this door only ever reloaded a page
+   that was DONE. THE WATCH: from this script's first second the door reads how much of the game's script has arrived (the last script element's
+   child count + its last text node's length: two O(1) reads, no network of its own, no string built) once a second; a visible page whose stream
+   brings NO new byte for HOS_STALL_MS is a dropped line = the same words, the same ONE reload inside the same 90 s latch, no tap needed (a tap
+   meanwhile still says HOLD ON while bytes come). The reload of a page carrying a probe key (?nb= and ?nbr= from THE NEW BUILD, ?cb=) goes back
+   to its bare address (every other key kept): a bare page rides sw.js's road (the network first, the offline copy when the line says nothing for
+   20 s); a page with any other query goes to the network alone. A stall inside the latch says STILL LOADING. CHECK YOUR SIGNAL, SOLDIER. and the
+   watch tries again when the latch frees. A stream still bringing bytes is never cut; a hidden page is never reloaded (iOS freezes a hidden
+   page's clock: a tick that comes late restarts the count, so does the page coming back); a page that is DONE keeps the tap road as it was.
+   Dials: HOS_STALL_MS 15 s · HOS_TICK_MS 1 s. The battery: design/hold-on-soldier-1021/rig/hosRig.mjs (Chrome) + hosRigWK.mjs (WebKit). */
 (function(){
-  var armed=0, taps=0, line=null;
-  window.__gvtDoorArm=function(){ armed=1; if(line){ try{ line.remove(); }catch(e){} line=null; } };
+  var armed=0, taps=0, line=null, going=0, tick=0, stalled=0;
+  var HOS_STALL_MS=15000, HOS_TICK_MS=1000, LATCH_MS=90000, K='gvt_door_reload';
+  var mark=Date.now(), lastTick=Date.now(), pN=-1, pL=-1;
+  window.__gvtDoorArm=function(){ armed=1; clearInterval(tick); if(line){ try{ line.remove(); }catch(e){} line=null; } };
   function say(msg){
     var t=document.getElementById('title'); if(!t) return;
     if(!line){ line=document.createElement('div'); line.id='ptLine';
@@ -16360,16 +16377,33 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
       var p=t.querySelector('.press'); if(p && p.parentNode===t) t.insertBefore(line, p.nextSibling); else t.appendChild(line); }
     line.textContent=msg;
   }
+  function latched(){ var last=0; try{ last=+sessionStorage.getItem(K)||0; }catch(e){} return Date.now()-last<LATCH_MS; }
+  function road(){   // CARD-HOS: a bare page reloads; a page carrying a probe key (?nb= / ?nbr= / ?cb=) goes back to its bare address, every other key kept (sw.js answers a bare page; another query goes to the network alone)
+    var was=location.search.replace(/^\?/,''), q=was.split('&').filter(function(x){ return x && !/^(nb|nbr|cb)=/.test(x); }).join('&');
+    if(q===was) location.reload(); else location.replace(location.pathname+(q? '?'+q : '')+location.hash);
+  }
+  function go(){ if(going) return; going=1; clearInterval(tick); try{ sessionStorage.setItem(K, String(Date.now())); }catch(e){} say('THE LINE DROPPED MID-LOAD. RELOADING…'); setTimeout(function(){ try{ road(); }catch(e){} }, 700); }
+  function prog(){ var s=document.scripts, e=s[s.length-1], c=e? e.lastChild : null; return [e? e.childNodes.length : 0, (c && c.length)|0]; }   // how much of the newest script has arrived: two O(1) reads
+  function watch(){   // CARD-HOS THE WATCH: once a second while the page streams
+    if(armed || going){ clearInterval(tick); return; }
+    if(document.readyState!=='loading'){ clearInterval(tick); return; }   // a page that is done: the tap road decides (a dead script)
+    var now=Date.now(), late=now-lastTick>HOS_TICK_MS*3; lastTick=now;
+    var p=prog(); if(p[0]!==pN || p[1]!==pL){ pN=p[0]; pL=p[1]; mark=now; return; }   // bytes still coming
+    if(late || document.hidden){ mark=now; return; }   // a frozen clock (the page was hidden, the thread was busy) restarts the count; a hidden page is never reloaded
+    if(now-mark<HOS_STALL_MS) return;
+    if(latched()){ stalled=1; say('STILL LOADING. CHECK YOUR SIGNAL, SOLDIER.'); return; }   // inside the latch: the words, and another try when it frees
+    go();
+  }
+  tick=setInterval(watch, HOS_TICK_MS);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) mark=Date.now(); });
   document.addEventListener('pointerdown', function(ev){
     if(armed) return;
     var t=document.getElementById('title'); if(!t || t.classList.contains('hidden') || !t.contains(ev.target)) return;
     taps++;
-    if(document.readyState==='loading'){ say('LOADING THE BATTLEFIELD… HOLD ON, SOLDIER'); return; }
-    var k='gvt_door_reload', last=0; try{ last=+sessionStorage.getItem(k)||0; }catch(e){}
-    if(Date.now()-last<90000){ say('THE GAME COULD NOT START ON THIS DEVICE. CLOSE IT AND OPEN IT AGAIN, OR TRY ANOTHER BROWSER.'); return; }
-    try{ sessionStorage.setItem(k, String(Date.now())); }catch(e){}
-    say('THE LINE DROPPED MID-LOAD. RELOADING…');
-    setTimeout(function(){ try{ location.reload(); }catch(e){} }, 700);
+    if(going) return;
+    if(document.readyState==='loading'){ say(stalled? 'STILL LOADING. CHECK YOUR SIGNAL, SOLDIER.' : 'LOADING THE BATTLEFIELD… HOLD ON, SOLDIER'); return; }
+    if(latched()){ say('THE GAME COULD NOT START ON THIS DEVICE. CLOSE IT AND OPEN IT AGAIN, OR TRY ANOTHER BROWSER.'); return; }
+    go();
   }, true);
 })();
 </script>
@@ -20871,6 +20905,7 @@ ar:{
 "NEW ORDERS FROM HQ":"أوامر جديدة من المقر",
 "A NEW BUILD IS READY":"نسخة جديدة جاهزة","%1 NEEDS THE NEW BUILD FOR %2":"%1 يحتاج إلى النسخة الجديدة من أجل %2",
 "UPDATE NOW":"حدّث الآن",
+"UPDATING…":"جارٍ التحديث…",
 // FM-GVT-FEEDBACK-0823-EVE / 0520 ELITE FORCES — the premiere card (3 keys)
 "CAMPAIGN UNLOCKED!":"تم فتح الحملة!",
 "ELITE FORCES":"قوات النخبة",
@@ -23237,6 +23272,7 @@ ar:{
 "NEW ORDERS FROM HQ":"ほんぶから あたらしい めいれい",
 "A NEW BUILD IS READY":"あたらしい バージョンが できたよ","%1 NEEDS THE NEW BUILD FOR %2":"%1は %2のために あたらしい バージョンが ひつようだよ",
 "UPDATE NOW":"いま アップデート",
+"UPDATING…":"アップデートちゅう…",
 // FM-GVT-FEEDBACK-0823-EVE / 0520 ELITE FORCES — the premiere card (3 keys)
 "CAMPAIGN UNLOCKED!":"キャンペーン かいほう！",
 "ELITE FORCES":"エリートぶたい",
@@ -27634,6 +27670,7 @@ ar:{
 "NEW ORDERS FROM HQ":"본부의 새 명령",
 "A NEW BUILD IS READY":"새 버전이 준비됐어","%1 NEEDS THE NEW BUILD FOR %2":"%1은(는) %2에 가려면 새 버전이 필요해",
 "UPDATE NOW":"지금 업데이트",
+"UPDATING…":"업데이트 중…",
 // FM-GVT-FEEDBACK-0823-EVE / 0520 ELITE FORCES — the premiere card (3 keys)
 "CAMPAIGN UNLOCKED!":"캠페인 해제!",
 "ELITE FORCES":"엘리트 부대",
@@ -32031,6 +32068,7 @@ ar:{
 "NEW ORDERS FROM HQ":"总部的新命令",
 "A NEW BUILD IS READY":"新版本已准备好","%1 NEEDS THE NEW BUILD FOR %2":"%1需要新版本才能玩%2",
 "UPDATE NOW":"立即更新",
+"UPDATING…":"更新中…",
 // FM-GVT-FEEDBACK-0823-EVE / 0520 ELITE FORCES — the premiere card (3 keys)
 "CAMPAIGN UNLOCKED!":"战役解锁啦！",
 "ELITE FORCES":"精英部队",
@@ -36428,6 +36466,7 @@ ar:{
 "NEW ORDERS FROM HQ":"NEUE BEFEHLE VOM HQ",
 "A NEW BUILD IS READY":"EINE NEUE VERSION IST BEREIT","%1 NEEDS THE NEW BUILD FOR %2":"%1 BRAUCHT DIE NEUE VERSION FÜR %2",
 "UPDATE NOW":"JETZT AKTUALISIEREN",
+"UPDATING…":"AKTUALISIERE…",
 // FM-GVT-FEEDBACK-0823-EVE / 0520 ELITE FORCES — the premiere card (3 keys)
 "CAMPAIGN UNLOCKED!":"FELDZUG FREIGESCHALTET!",
 "ELITE FORCES":"ELITETRUPPEN",
@@ -40825,6 +40864,7 @@ ar:{
 "NEW ORDERS FROM HQ":"НОВЫЕ ПРИКАЗЫ ИЗ ШТАБА",
 "A NEW BUILD IS READY":"НОВАЯ ВЕРСИЯ ГОТОВА","%1 NEEDS THE NEW BUILD FOR %2":"%1 НУЖНА НОВАЯ ВЕРСИЯ ДЛЯ %2",
 "UPDATE NOW":"ОБНОВИТЬ СЕЙЧАС",
+"UPDATING…":"ОБНОВЛЯЮ…",
 // FM-GVT-FEEDBACK-0823-EVE / 0520 ELITE FORCES — the premiere card (3 keys)
 "CAMPAIGN UNLOCKED!":"КАМПАНИЯ ОТКРЫТА!",
 "ELITE FORCES":"ЭЛИТНЫЕ ВОЙСКА",
@@ -45222,6 +45262,7 @@ ar:{
 "NEW ORDERS FROM HQ":"NUEVAS ÓRDENES DE LA BASE",
 "A NEW BUILD IS READY":"HAY UNA NUEVA VERSIÓN LISTA","%1 NEEDS THE NEW BUILD FOR %2":"%1 NECESITA LA NUEVA VERSIÓN PARA %2",
 "UPDATE NOW":"ACTUALIZAR AHORA",
+"UPDATING…":"ACTUALIZANDO…",
 // FM-GVT-FEEDBACK-0823-EVE / 0520 ELITE FORCES — the premiere card (3 keys)
 "CAMPAIGN UNLOCKED!":"¡CAMPAÑA DESBLOQUEADA!",
 "ELITE FORCES":"FUERZAS DE ÉLITE",
@@ -89675,7 +89716,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.50';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.51';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -93886,11 +93927,33 @@ function evInfo(){
 // GVT.nbCheck(); nbGo is a reassignable top-level binding (the coopPost/fitText law) so a battery can record it.
 // ⚑ dials: NB_EVERY 2 (60 s; 0 = off) · NB_SNOOZE_MS 10 min · NB_AUTO_S 60 (0 = never unasked) · NB_BELL_GUARD_S 90 ·
 // a bare reload (location.reload, no query) as the alt if the ?nb key is unwanted in the address bar · NOT NOW = no auto for its window.
+// CARD-HOS HOLD ON, SOLDIER (jumpr 2461, built on Maker 1; design/hold-on-soldier-1021/00-CARD-HOS.md; Wyatt 10/21/2026 by phone: "We're getting game freezes
+// occasionally. We get sent to this screen, then we can't do anything. I got the screen after the Battle of the Desert … After just playing a regular level"; his
+// picture: the title stuck on LOADING THE BATTLEFIELD… HOLD ON, SOLDIER). nbGo's navigation pulled the 37 MB page (10 MB on the wire) fresh from the network, fired
+// on an idle minute at the menu — the minute a phone's screen locks; 28 client versions landed 10/21 alone, so nearly every open page met one. A download cut by the
+// lock left the title painted and the page 'loading' for good (the head script's watch now heals that road as well). THE DOWNLOAD FIRST: nbGo() fetches the new page
+// whole (nbFetch: one unique ?nb=<t> address past every edge cache, the body read to its end; no byte for NB_STALL_MS, or NB_FETCH_MS in all = a failed try that
+// rests NB_RETRY_MS) and streams it, as it comes, into THE OFFLINE COPY's own cache (1097's sw.js cache, the page's own Cache API hand: the stream tee'd, nothing held
+// in memory; a torn stream stores nothing), then navigates to <path>?nbr=<t> (nbLeave): sw.js answers a ?nbr= navigation from that copy while it is under ten
+// minutes old (hunk C), so the navigation reads from disk in a blink, lock or no lock. Measured first and abandoned: the browser's HTTP cache (rig/cacheProbe.mjs —
+// Chrome serves a 200 KB page's navigation from it, never 12 MB and up, with or without a cache-size flag). No controlling worker (the shell, a first visit) = the
+// navigation of before, now with the head script's watch behind it (no download first: a second download would double the data). The room is read AGAIN before
+// the navigation (the auto: nbAutoOK, the chip: nbQuiet) — a player who walked into a battle during the download is never yanked out; the ready copy waits in
+// nbTick for the next quiet second (an idle one for the auto) and goes stale after NB_READY_MS (inside the worker's ten minutes). The chip reads UPDATING… (both
+// buttons dead) while the bytes come; NOT NOW over a download = the auto's law from then on. GVT.nb() reads the new state (pf, pfT, pfN, ready, readyT, bytes,
+// put, go, sw). ⚑ HOS dials: NB_FETCH_MS 240 s · NB_STALL_MS 30 s · NB_RETRY_MS 60 s · NB_READY_MS 540 s · NB_MIN_BYTES 1 MB.
 const NB_EVERY=2;              // the HEAD every this-many menu beats (EV_POLL_MS 30 s → 60 s); 0 = the check is off. ⚑ 1 / 2 / 4
 const NB_SNOOZE_MS=10*60000;   // NOT NOW folds the chip for this long. ⚑ 5 / 10 / 30 min
 const NB_AUTO_S=60;            // idle this long at a quiet menu with a newer build known → the page takes it unasked. ⚑ 60 / 300 · 0 = never
 const NB_BELL_GUARD_S=90;      // no unasked reload with a live bell (yeti or desert) inside this window — a seat is worth more than a build
-let NB={ base:'', stamp:'', newer:false, checks:0, fails:0, last:0, beats:0, busy:null, chip:0, chipT:0, snoozeT:0, went:0 };   // runtime only — a launch is a fresh slate
+const NB_FETCH_MS=240000;      // CARD-HOS: the whole download's patience (10 MB on a slow line); past it the try fails and rests
+const NB_STALL_MS=30000;       // CARD-HOS: no byte for this long mid-download = the try fails and rests
+const NB_RETRY_MS=60000;       // CARD-HOS: a failed download rests this long before the auto or the chip asks again
+const NB_READY_MS=540000;      // CARD-HOS: a downloaded copy not yet navigated to is dropped after this (sw.js answers ?nbr= from the copy for ten minutes)
+const NB_MIN_BYTES=1000000;    // CARD-HOS: a reply smaller than this is not the game (a captive portal's page, a stub) = a failed try
+const NB_SW_CACHE='gvt-open-door-v1';   // CARD-HOS: THE OFFLINE COPY's cache (sw.js SW_K — the two names move together) …
+const NB_SW_PAGE=(()=>{ try{ return new URL('index.html', location.href).href; }catch(e){ return ''; } })();   // … and its one key (sw.js SW_PAGE): /index.html beside this page, the query dropped
+let NB={ base:'', stamp:'', newer:false, checks:0, fails:0, last:0, beats:0, busy:null, chip:0, chipT:0, snoozeT:0, went:0, pf:null, pfT:0, pfN:0, ready:'', readyT:0, bytes:0, put:0, go:'' };   // runtime only — a launch is a fresh slate · CARD-HOS: pf = the download in flight {u,t0,p} · pfT/pfN = the last failure's time / the count · ready/readyT = the address to navigate to and when it was ready · bytes = the download's length · put = 1 when the copy went into the offline cache · go = who asked ('auto' | 'tap')
 function nbQuiet(x){ return S.mode==='menu' && !document.hidden && roomQuiet(x) && !document.getElementById('sqBack'); }   // the quiet room (x='nbCard' lets the chip itself stand)
 function nbBellFar(){ return !(evDoorState()==='live' && evIn()<=NB_BELL_GUARD_S) && !(bdDoorState()==='live' && bdIn()<=NB_BELL_GUARD_S); }
 function nbAutoOK(){ return NB_AUTO_S>0 && nbQuiet('nbCard') && idleQuiet()>=NB_AUTO_S && nbBellFar(); }
@@ -93925,8 +93988,9 @@ function nbChipShow(){
     +'<div class="sqb-r"><button class="mbtn nb-go" data-notr>'+TXT('UPDATE NOW')+'</button>'
     +'<button class="mbtn alt nb-no" data-notr>'+TXT('NOT NOW')+'</button></div>';
   document.body.appendChild(el);
-  el.querySelector('.nb-go').onclick=()=>{ audio(); nbGo(); };
-  el.querySelector('.nb-no').onclick=()=>{ audio(); SFX.clack(); NB.snoozeT=Date.now(); nbChipClear(); };
+  el.querySelector('.nb-go').onclick=()=>{ audio(); if(NB.pf) return; nbGo('tap'); };   // CARD-HOS: the download first; a second tap mid-download is nothing
+  el.querySelector('.nb-no').onclick=()=>{ audio(); SFX.clack(); NB.snoozeT=Date.now(); if(NB.pf || NB.ready) NB.go='auto'; nbChipClear(); };   // CARD-HOS: NOT NOW over a download (or a ready copy) = the auto's law from here (an idle minute), never a navigation under the hand
+  if(NB.pf) nbChipWait(1);   // CARD-HOS: re-dealt mid-download, the chip comes up already UPDATING…
   el._t=setInterval(()=>{ if(!nbQuiet('nbCard')) nbChipClear(); }, 1000);   // the card polices itself (the sqBack idiom): a battle door, a party, a card or a sheet over the room folds it — it deals again on the next quiet second
 }
 // ═══ CARD-HLQ THE HAUNTED LIBRARY TOGETHER (Wyatt 10/8/2026 20:27 EDT by phone: "We tried to play on the new Halloween battlefield map, but each time we try,
@@ -93969,16 +94033,58 @@ function hlqTick(){   // nbTick's seat (the menu's second): the party's builds
 function nbTick(){   // evDoorTick's seat — the room's own second
   try{ hlqTick(); }catch(e){}   // CARD-HLQ: the party's builds, read on the same second (a newer seat · a pick a seat cannot draw)
   if(!NB.newer || NB.went) return;
-  if(nbAutoOK()){ nbGo(); return; }
+  if(NB.ready){   // CARD-HOS: a downloaded copy waits for its quiet second (an idle one for the auto) and goes stale inside the worker's ten minutes
+    if(nbReadyStale()){ NB.ready=''; NB.readyT=0; }
+    else if(NB.go==='auto'? nbAutoOK() : nbQuiet('nbCard')){ nbLeave(); return; }
+  }
+  if(NB.pf) return;   // CARD-HOS: the bytes are coming (the chip reads UPDATING…)
+  if(!NB.ready && NB.pfT && Date.now()-NB.pfT<NB_RETRY_MS) return;   // CARD-HOS: a failed download rests
+  if(!NB.ready && nbAutoOK()){ nbGo('auto'); return; }
   if(!NB.chip && Date.now()-NB.snoozeT>=NB_SNOOZE_MS && nbQuiet()) nbChipShow();
 }
-function nbGo(){   // ONE function — the rig's seam (a reassignable top-level binding): the books, then the navigation
-  if(NB.went) return false;
+function nbLang(){ const lang=(location.search.match(/[?&]lang=([A-Za-z-]+)/)||[])[1]; return lang? '&lang='+lang : ''; }   // ?lang= beats the save (detectLang) — carried; every other key is dropped (a consumed ?coop= invite must not re-join)
+function nbURL(){ return location.pathname+'?nb='+Date.now()+nbLang(); }
+function nbReadyStale(){ return !NB.ready || Date.now()-NB.readyT>NB_READY_MS; }   // CARD-HOS
+function nbSW(){ try{ return !!(NB_SW_PAGE && 'serviceWorker' in navigator && navigator.serviceWorker.controller && typeof caches!=='undefined' && caches.open && typeof ReadableStream!=='undefined'); }catch(e){ return false; } }   // CARD-HOS: a controlling worker + the Cache API = the offline copy's road is open
+function nbChipWait(on){ const el=document.getElementById('nbCard'); if(!el) return; const g=el.querySelector('.nb-go'), n=el.querySelector('.nb-no'); if(g){ g.textContent=on? TXT('UPDATING…') : TXT('UPDATE NOW'); g.disabled=!!on; } if(n) n.disabled=!!on; }   // CARD-HOS: the chip while the bytes come (.mbtn:disabled = the grammar's grey)
+function nbFetch(u){   // CARD-HOS THE DOWNLOAD FIRST: the whole new page, streamed into the offline copy's cache as it comes; the address to navigate to when done
+  if(NB.pf) return NB.pf.p;
+  const ac=(typeof AbortController==='function')? new AbortController() : null; let tAll=0, tStall=0;
+  const cut=()=>{ try{ if(ac) ac.abort(); }catch(e){} }, stall=()=>{ clearTimeout(tStall); tStall=setTimeout(cut, NB_STALL_MS); };
+  tAll=setTimeout(cut, NB_FETCH_MS); stall();
+  const stamp=Date.now();
+  const p=fetch(u, Object.assign({ headers:{ 'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' } }, ac? { signal:ac.signal } : {}))
+    .then(r=>{ if(!r.ok || !/text\/html/i.test(String(r.headers.get('Content-Type')||''))) throw new Error('nb '+r.status);
+      let body=r.body, putP=Promise.resolve(false);
+      if(body && typeof body.tee==='function' && nbSW()){   // the copy into THE OFFLINE COPY's cache as it streams (the headers that matter, a fresh stamp; no Content-Length/-Encoding: the body is the decoded bytes)
+        const pair=body.tee(); body=pair[0]; const h=new Headers(); for(const k of ['Content-Type','ETag','Last-Modified','Cache-Control']){ const v=r.headers.get(k); if(v) h.set(k, v); } h.set('X-GVT-NB', String(stamp));
+        putP=caches.open(NB_SW_CACHE).then(c=>c.put(NB_SW_PAGE, new Response(pair[1], { status:200, headers:h }))).then(()=>true, ()=>false); }
+      let count;
+      if(!body || typeof body.getReader!=='function') count=r.arrayBuffer().then(b=>b.byteLength);   // an older engine: the whole body at once
+      else { const rd=body.getReader(); let n=0; const step=()=>rd.read().then(x=>{ if(x.done) return n; n+=x.value.length; stall(); return step(); }); count=step(); }
+      return count.then(n=>putP.then(put=>({ n, put }))); })
+    .then(o=>{ if(o.n<NB_MIN_BYTES) throw new Error('nb short '+o.n); NB.put=o.put? 1 : 0; NB.ready=o.put? location.pathname+'?nbr='+stamp+nbLang() : u; NB.readyT=Date.now(); NB.bytes=o.n; return true; })   // the copy in the cache → the ?nbr= address (sw.js hunk C); no copy → the address just downloaded (the network again, past every edge cache)
+    .catch(()=>{ NB.pfT=Date.now(); NB.pfN++; NB.ready=''; NB.readyT=0; NB.put=0; return false; })
+    .then(ok=>{ clearTimeout(tAll); clearTimeout(tStall); NB.pf=null; return ok; });
+  NB.pf={ u, t0:Date.now(), p }; return p;
+}
+function nbLeave(){   // CARD-HOS: the navigation, to the ready address (the offline copy answers a ?nbr= one)
+  if(NB.went || !NB.ready) return false;
   NB.went=Date.now();
   saveMeta();
   nbChipClear();
-  const lang=(location.search.match(/[?&]lang=([A-Za-z-]+)/)||[])[1];   // ?lang= beats the save (detectLang) — carried; every other key is dropped (a consumed ?coop= invite must not re-join)
-  location.replace(location.pathname+'?nb='+Date.now()+(lang? '&lang='+lang : ''));
+  location.replace(NB.ready);
+  return true;
+}
+function nbGo(how){   // ONE function — the rig's seam (a reassignable top-level binding): CARD-HOS the download first (nbFetch), the navigation (nbLeave) once the copy is in and the room is still quiet
+  if(NB.went || NB.pf) return false;
+  NB.go=(how==='auto')? 'auto' : 'tap';
+  if(!nbReadyStale()) return nbLeave();
+  NB.ready=''; NB.readyT=0;
+  saveMeta();
+  if(!nbSW()){ NB.ready=nbURL(); NB.readyT=Date.now(); NB.put=0; return nbLeave(); }   // no controlling worker (the shell, a first visit): the navigation of before — the head script's watch stands behind it
+  nbChipWait(1);
+  nbFetch(nbURL()).then(ok=>{ nbChipWait(0); if(ok && (NB.go==='auto'? nbAutoOK() : nbQuiet('nbCard'))) nbLeave(); });   // not quiet any more: the copy waits in nbTick
   return true;
 }
 // the launch card's line: NIGHTLY when HQ says daily (v35), else the weekly line byte-what-it-was —
@@ -195571,7 +195677,7 @@ window.GVT = {
   flow(){ const g=id=>document.getElementById(id), vis=id=>{ const e=g(id); return !!e && !e.classList.contains('hidden'); }; const hb=g('winHqBtn'); return { cv:GVT_CV, top:CAMP_FLOW_TOP, home:CAMP_FLOW_HOME, on:PGFLOW, due:campFlowDue(), hq:!!hb && !hb.classList.contains('off'), hqRect:hb? (r=>[Math.round(r.left),Math.round(r.top),Math.round(r.right),Math.round(r.bottom)])(hb.getBoundingClientRect()) : null, hqText:hb? hb.textContent : null, mode:S.mode, levelN:S.levelN, camp:META.campaign|0, pend:META.pendingPicks|0, menu:vis('menu'), scene:vis('campscene'), picker:vis('picker'), win:vis('win'), lose:vis('lose'), card:milePopUp(), box:mboxUp(), dealt:MB_DEALT, end:MB_END, head:(document.querySelector('#milePop .mb-h')||{}).textContent||'' }; },   // 0625 THE CONTINUOUS CAMPAIGN — the rig's one read (read-only)
   winVerdict(){ const g=id=>document.getElementById(id), win=g('win'), mr=g('medalRow'), mt=g('medalText'); return { cv:GVT_CV, starGap:VD_STAR_GAP, artPx:VD_ART_PX, whisperFrom:VD_WHISPER_FROM, beats:[VD_MEDAL_AT,VD_MEDAL_STAG,VD_TILE_AT,VD_TILE_MS,VD_ROW_AT], sfx:VD_MEDAL_SFX, swords:VD_BOSS_SWORDS, foot:Object.assign({},VD_FOOT), camp:win.classList.contains('camp'), done:win.classList.contains('vdone'), running:!!VD, stars:mr.dataset.stars||null, v:mt.dataset.v||null, parts:[...mt.children].map(e=>({ k:e.className, t:e.innerText.replace(/\s+/g,' ').trim(), op:getComputedStyle(e).opacity })), medals:[...mr.querySelectorAll('.vm')].map(e=>({ g:e.textContent, on:e.classList.contains('on'), off:e.classList.contains('off'), op:getComputedStyle(e).opacity })), title:g('winTitle').innerText.replace(/\s+/g,' ').trim(), btn:g('againBtn').getBoundingClientRect().bottom, due:{ by:(META.lvl|0)>=BY_FREE_LVL && !META.byGift && !roomOwns('backyard'), winter:false, rooftop:false /* CARD-ATL-Q5: the room gifts retired */, bomber:bmbOwned() && !META.bomberSeen, cmd:cmdOwned() && !META.cmdSeen, blade:bladeOwned() && !META.bladeSeen, cmdo:cmdoOwned() && !META.cmdoSeen, soul:soulOwned() && !META.soulSeen, paint:paintRiteOwed(), lens:lensDue() && !lensOwned() }, whispered:[REX_WHISPERED, RANK_WHISPERED], mode:S.mode }; },   // 0552c STARS · PAY · ONE TICKET — the rig's one read (read-only)
   // ---- 0559 THE NEW BUILD rig: nb (the state + every dial) · nbForce (as if a check returned this stamp) · nbCheck (one check now) ----
-  nb(){ return { cv:GVT_CV, base:NB.base||null, stamp:NB.stamp||null, newer:NB.newer?1:0, checks:NB.checks, fails:NB.fails, last:NB.last, beats:NB.beats, busy:!!NB.busy, chip:NB.chip?1:0, card:!!document.getElementById('nbCard'), snoozeT:NB.snoozeT, went:NB.went, auto:nbAutoOK()?1:0, quiet:nbQuiet()?1:0, idle:+idleQuiet().toFixed(1), bellFar:nbBellFar()?1:0, every:NB_EVERY, snoozeMs:NB_SNOOZE_MS, autoS:NB_AUTO_S, guardS:NB_BELL_GUARD_S, path:location.pathname, proto:location.protocol }; },
+  nb(){ return { cv:GVT_CV, base:NB.base||null, stamp:NB.stamp||null, newer:NB.newer?1:0, checks:NB.checks, fails:NB.fails, last:NB.last, beats:NB.beats, busy:!!NB.busy, chip:NB.chip?1:0, card:!!document.getElementById('nbCard'), snoozeT:NB.snoozeT, went:NB.went, pf:!!NB.pf, pfT:NB.pfT, pfN:NB.pfN, ready:NB.ready||null, readyT:NB.readyT, bytes:NB.bytes|0, put:NB.put|0, go:NB.go||null, sw:nbSW()?1:0, auto:nbAutoOK()?1:0, quiet:nbQuiet()?1:0, idle:+idleQuiet().toFixed(1), bellFar:nbBellFar()?1:0, every:NB_EVERY, snoozeMs:NB_SNOOZE_MS, autoS:NB_AUTO_S, guardS:NB_BELL_GUARD_S, path:location.pathname, proto:location.protocol }; },
   nbForce(stamp){ stamp=String(stamp||'forced'); if(!NB.base) NB.base='(rig)'; NB.stamp=stamp; NB.newer=(stamp!==NB.base); NB.last=Date.now(); nbTick(); return GVT.nb(); },
   nbCheck(){ return nbCheck().then(()=>GVT.nb()); },
   bdFeel(){ return { bell:BD.bell, ring:bdRing(), ringRaw:BD.ring|0, knockBell:BDD.knockBell|0, knockSys:BDD.knockSys|0, saidIn:+bdSaidIn().toFixed(1), in:+bdIn().toFixed(1), holdRing:evHoldRing()|0, open:BD.open, wk:BD.wk, state:bdDoorState(), band:evBandState(), fielded:(S.bf&&S.bf.bd)? (S.bf.bdN|0) : 0, teamMin:BD_TEAM_MIN, live:BD.live, sealed:BD.sealed, rooms:BD.rooms, players:BD.players, mine:BD.mine, annWk:BDD.annWk, popBell:BDD.popBell, popT:BDD.popT, redealMs:BD_REDEAL_MS, popS:BD_POP_S, hold:!!S.evHold, holdBell:S.evHold? S.evHold.bell : 0, bd:!!(S.bf&&S.bf.bd), touched:!!S.evTouched, afk:!!S.evAfk, code:COOP&&COOP.code, seat:COOP&&COOP.seat, side:COOP&&COOP.side, host:!!(COOP&&COOP.host), map:S.bf&&S.bf.mapId, team:S.bf&&S.bf.team, seats:S.bf? S.bf.seats.map(s=>({ i:s.i, h:s.human?1:0, me:s.me?1:0, b:s.brain?1:0, e:s.empty?1:0, k:s.kit?1:0, n:s.name, cpu:s.cpu?1:0, away:s.away?1:0, purse:Math.round(s.purse||0), bdPourT:+((s.bdPourT||0).toFixed(3)), diff:s.brain? s.brain.diff : null, hex:s.hex })) : null, note:BD.note, hull:S.bf? [S.bf.base.you.hp, S.bf.base.you.hpMax, S.bf.base.foe.hp, S.bf.base.foe.hpMax] : null, aiDiff:S.bf? S.bf.ai.diff : null, hard:!!(S.bf&&S.bf.hard), hq:!!btnRects.hq, pour:[BD_POUR, BD_POUR_T], baseHp:BD_BASE_HP, diffDial:BD_DIFF, titleY:BD_TITLE_Y, titleAlpha:(S.bf&&S.bf.bd)? +bdTitleAlpha().toFixed(3) : null, bellAt:(S.bdBellAt==null)? null : S.bdBellAt, simT:+((S.t||0).toFixed(3)), rosters:(S.bf&&S.bf.bd)? [bdRosterRows(0), bdRosterRows(1)] : null, putAway:Object.assign({},PUTAWAY), awayLog:BD_AWAY_LOG.slice(), inRoom:bdInRoom(), shell:bdInShell(), annS:BD_ANN_S, annAfterYeti:BD_ANN_AFTER_YETI, plastic:S.plastic, ot:!!(S.bf&&S.bf.ot) }; },   // 0902: + the round-two reads
