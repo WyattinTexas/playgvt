@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.68","md5":"4883a599ca124c701410dc5f12021208","sha":"6468f8713","at":"2026-10-22T06:32:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.69","md5":"0740ab0b63e70845bbb88b9584aae736","sha":"d80c9ea64","at":"2026-10-22T06:43:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89935,7 +89935,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -101561,7 +101561,7 @@ function pbmCovers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.rocks){ pbmCov
 let pbmTwT=null, pbmTwN=-1, pbmTwL=[], pbmTwG=-1;   // the towers, the same way (the props with art 'pblook')
 function pbmTowers(){ const T=S.cfg && S.cfg.terrain; if(!T || !T.props){ pbmTwL=[]; return pbmTwL; } if(PBM.dirty){ PBM.dirty=0; PBM_GEN++; } if(T!==pbmTwT || T.props.length!==pbmTwN || pbmTwG!==PBM_GEN){ pbmTwT=T; pbmTwN=T.props.length; pbmTwG=PBM_GEN; pbmTwL=T.props.filter(p=>p.art==='pblook'); } return pbmTwL; }   // CARD-DFR: keyed by its own rows + PBM_GEN (see pbmCovers)
 function pbmTowerAt(x,y){ const L=pbmTowers(); for(let i=0;i<L.length;i++){ const p=L[i]; if(Math.hypot(x-p.x,y-p.y)<(p.r||PBM.look)) return p; } return null; }
-function pbmTall(o){ return !!(o && (o.boss || (o.def && (o.def.boss || o.def.vehicle || o.def.fly)) || o.skyDrop)); }   // too tall to hide behind a toy, too tall to hide: a tank, a boss, a body in the air
+function pbmTall(o){ if(o && o.def && o.def.bbs && !o.def.fly && !o.skyDrop) return false; /* CARD-BBS-C2 (BBS-F1): in the Showdown Bill is a man to the cover rule, on foot and on C3's horse: his rounds stop at walls and a man in a building's lee is hidden from him; the planes stay tall */ return !!(o && (o.boss || (o.def && (o.def.boss || o.def.vehicle || o.def.fly)) || o.skyDrop)); }   // too tall to hide behind a toy, too tall to hide: a tank, a boss, a body in the air
 function pbmBetween(x1,y1,x2,y2,hx,hy){   // the first cover piece between two points on the floor, or null. A man (hx,hy) pressed to a SMALL piece (one circle, no grp) leans out past it, never through it at a man pressed to its far side; a grp piece (a house, a wall, the book spine) is never fired through by anyone
   const L=pbmCovers(); let best=null;
   for(let i=0;i<L.length;i++){ const rk=L[i];
@@ -114566,6 +114566,7 @@ function fsTick(dt){
     while(p.acc>=FS_TICK){
       p.acc-=FS_TICK; p.tk+=FS_TICK;
       if(p.tk>p.life+1e-9) break;
+      if(p.src==='barrel'){ bbsBlazeBurn(p); continue; }   // CARD-BBS-C2 THE BLAZE: an oil barrel's fire burns its own way (a pip a second on foot, either side; the riders, Bill, the guns and the planes pass; pays nobody)
       // 0406 AN OUTLAW'S PATCH (the ladies' flamestrike irons) — fire
       // belongs to nobody (0404): the GREENS burn through the tanHit grit
       // funnel with a NULL src (no owner: a blue wall negates the beat and
@@ -120637,7 +120638,7 @@ function update(dt){
     const fo=S.forms[i];
     fo.members=fo.members.filter(m=>S.foes.indexOf(m)>=0);
     if(fo.members.length===0){ S.forms.splice(i,1); continue; }
-    let spd=fo.speed;
+    let spd=fo.speed*bbsFormGroundX(fo);   /* CARD-BBS-C2: THE MUD on a block's anchor (x1 everywhere else) */
     fo.rushX=teddyFormRush(fo); spd*=fo.rushX;   // 0554c THE RUSH, the anchor's seat: a block of rushers rushes as a block (×1 for every block without one — byte-still); the members' spring reads fo.rushX below
     fo.rollX=teddyFormRoll(fo); spd*=fo.rollX;   // 0586 THE ROLL, the anchor's seat: a line of bear guns EAST of THE GUN LINE rolls on at ×TEDDY_GUN_ROLL (every other block ×1 — byte-still); the members' spring reads fo.rollX below
     if(fo.kbHold && ((KB_ROY_FRONT>0 && S.cfg.terrain.river && fo.x<=S.cfg.terrain.river.x+S.cfg.terrain.river.w+KB_ROY_FRONT) || (KB_ROY_LINE && fo.members.some(m=>!m.dead && m.def.rng>0 && !!teddyNear(m,teddyReach(m)))))){ spd=0; fo.stall=0; fo.best=null; }   // 0902 Card 2 THE FIRING LINE + THE FRONT: a king's block holds the river's far bank (outside the band where ranks break) and holds wherever a man stands inside its guns' reach; a held block is not a stalled block — the 2.5 s stall watch waits with it (measured: the held line broke every 2.5 s and re-formed 90 px further west on each whistle, creeping into the box); no river = no front (Wyatt 9/2: "Have them line up almost like Redcoats at times and fire"): a KING'S block (kbHold — the funnel's column, the officer's volley line) holds where it stands while any of its guns has a man inside reach, and never marches west of the front (the river's west bank facing the line) — it volleys from there; every other block byte-still (no kbHold)
@@ -120656,7 +120657,7 @@ function update(dt){
     const fcp=(S.raid && fo.rcI!=null && S.raid.cfg===S.cfg)? S.raid.posts[fo.rcI] : null;   // 0318: the block's own turret RACE — while the flag flies no colour (Wyatt's literal revert)
     const fgoal = (fcp && !fcp.o)? {x:fcp.x, y:fcp.y}
       : (RV && fo.x>RV.x+RV.w+40) ? {x:RV.x+RV.w/2, y:rvBridge(RV,fo.y)}   // 0594a: the block aims at the bridge nearer its own y
-      : (WLf && fo.x>WLf.wl.x+WLf.wl.w+40) ? canyonFormGoal(fo,WLf) : T;   // 0570: the river's own funnel, generalised — the block aims at its mouth's east lip (D3 picks it once, in the band)
+      : (WLf && fo.x>WLf.wl.x+WLf.wl.w+40) ? canyonFormGoal(fo,WLf) : bbsFormGoal(fo,dt);   /* CARD-BBS-C2: in the Showdown a block walks the streets too (T everywhere else) */   // 0570: the river's own funnel, generalised — the block aims at its mouth's east lip (D3 picks it once, in the band)
     const d=Math.hypot(fgoal.x-fo.x, fgoal.y-fo.y);
     // a block of men is WIDE. If the anchor stops gaining ground on its goal —
     // a gap the formation can't fit through, a pinch against the edge — the
@@ -120671,7 +120672,7 @@ function update(dt){
     }
     // wheel onto the heading (round a rock if one's in the way) rather than
     // snapping to it — a block of men turns, it doesn't strafe
-    const stf=rockSteer(fo.x,fo.y,fgoal.x,fgoal.y,ROCK_PAD_FORM);
+    const stf=rockSteer(fo.x,fo.y,fgoal.x,fgoal.y,ROCK_PAD_FORM,bbsFormObs(fo));   /* CARD-BBS-C2: a live blaze steers a block like a rock (null off the street) */
     const mx=stf?stf.x:(fgoal.x-fo.x)/d, my=stf?stf.y:(fgoal.y-fo.y)/d;
     const k=Math.min(1,dt*4);
     let nx=fo.dir.x+(mx-fo.dir.x)*k, ny=fo.dir.y+(my-fo.dir.y)*k;
@@ -120944,7 +120945,7 @@ function update(dt){
       if(g6===T && S.cfg.terrain.cmx && !f.boss && !f.def.swoop){ const d7=cmxFoeAim(f,dt); if(d7) g6=d7; }
       if(g6===T && hrdOn() && !f.def.swoop){ const d8=hrdFoeAim(f); if(d8) g6=d8; }   // CARD-HFG (Dylan): in HORDE MODE every Tan's road is THE GATE (hrdFoeAim: round the fort's front corner, the gate's approach, then he stands and works the door)   // CARD-CMX: on the campaign's HILL VILLAGE the tan walk the streets to the toy box (THE STREET GUIDE; every other rug reads no cmx)
       const d=Math.hypot(g6.x-f.x, g6.y-f.y);
-      if(d>1){ const sp=f.def.spd*aura*(f.def.rush? teddyRushX(f) : 1)*teddyGunRoll(f)*clawPaceX(f) /* CARD-CW: THE CLAW creeps at CLAW.creep px/s while it fishes or holds — ×1 for every other foe on every rug */, st=rockSteer(f.x,f.y,g6.x,g6.y,f.squeeze?3:ROCK_PAD_FOE,null,1);   // 0554c THE RUSH, the walk's seat (a `rush` row alone; every other foe reads ×1) · 0586 THE ROLL: a bear cannon east of THE GUN LINE hauls on at ×TEDDY_GUN_ROLL (×1 for every other foe)
+      if(d>1){ const sp=f.def.spd*aura*(f.def.rush? teddyRushX(f) : 1)*teddyGunRoll(f)*clawPaceX(f)*bbsGroundX(f) /* CARD-BBS-C2: THE MUD x0.42 on foot, x0.6 a rider (x1 everywhere else) */ /* CARD-CW: THE CLAW creeps at CLAW.creep px/s while it fishes or holds — ×1 for every other foe on every rug */, st=rockSteer(f.x,f.y,g6.x,g6.y,f.squeeze?3:ROCK_PAD_FOE,bbsFoeObs(f),1);   /* CARD-BBS-C2: a live blaze steers a walker like a rock (null off the street) */   // 0554c THE RUSH, the walk's seat (a `rush` row alone; every other foe reads ×1) · 0586 THE ROLL: a bear cannon east of THE GUN LINE hauls on at ×TEDDY_GUN_ROLL (×1 for every other foe)
         f.x+=(st?st.x:(g6.x-f.x)/d)*sp*amv; f.y+=(st?st.y:(g6.y-f.y)/d)*sp*amv; }   // 0278a: amv — the air-step gate (=== dt for every non-gait foe)
     }
     // NOBODY STANDS STILL FOREVER. Steering gets a man round any rock we can
@@ -124762,7 +124763,7 @@ function tkbCraterImg(v){ const K='c'+v; if(TKB_IMG[K]) return TKB_IMG[K];   // 
   g.fillStyle='rgba(14,11,8,0.7)'; for(let i=0;i<14;i++){ const a=6.2832*h(17,i), d=48+40*h(18,i); g.beginPath(); g.arc(Math.cos(a)*d,Math.sin(a)*d,1.6+3*h(19,i),0,7); g.fill(); }
   return (TKB_IMG[K]=c); }
 // ===== END CARD-TKB
-function splash(x,y,R,dmg,vx2,src,mach,refl,bigSelf,rb,air,msh){ if(!S.bf && S.cfg && S.cfg.olv) olvPadSplash(x,y,R,dmg,vx2,mach,air);   /* CARD-OLV-B1: a blast on a GLOWING tube pad cracks it */ if(!S.bf && S.cfg && S.cfg.olv) olvSplashB2(x,y,R,dmg,vx2,src,mach,air);   /* CARD-OLV-B2: a charge under a jeep at full speed = PILE-UP · a mortar shell over the mirror line */
+function splash(x,y,R,dmg,vx2,src,mach,refl,bigSelf,rb,air,msh){ if(!S.bf && S.cfg && S.cfg.bbs && !air) bbsBarrelSplash(x,y,R);   /* CARD-BBS-C2: a shell of ours bursts an oil barrel inside its blast (the Showdown's street alone) */ if(!S.bf && S.cfg && S.cfg.olv) olvPadSplash(x,y,R,dmg,vx2,mach,air);   /* CARD-OLV-B1: a blast on a GLOWING tube pad cracks it */ if(!S.bf && S.cfg && S.cfg.olv) olvSplashB2(x,y,R,dmg,vx2,src,mach,air);   /* CARD-OLV-B2: a charge under a jeep at full speed = PILE-UP · a mortar shell over the mirror line */
   // 0121: a charged commando on the RECEIVING side catches a shell whole —
   // rockets, mortar bombs and tank rounds, the three Wyatt named; mines
   // (mach) never, and a reflected shell (refl) never again. Stands ABOVE
@@ -125934,6 +125935,7 @@ function drawRug(){
     // IS the void (the v1.21 nebula canon): one paint owns the whole mat.
     drawDeckShip(WD,HT);
   } else if(sand && tkhOn()){ tkhFloorPaint(WD,HT);   // CARD-TKH TURKEY HUNT (Isaac 10/15): the tablecloth, the hem, the runner, the cutlery (paint only)
+  } else if(sand && bbsOn()){ bbsFloorPaint(WD,HT);   // CARD-BBS-C2 THE STREET: the sand with its three bands and curbs (paint only; the mud and the pieces paint after)
   } else if(sand && ncbFloor()){ ncbFloorPaint(WD,HT);   // CARD-NCB-2: the ballroom's parquet (paint only)
   } else if(sand){
     // THE DESERT MAT LIES ON THE RUG — the winter law, in Kalimari paint. The
@@ -193833,7 +193835,7 @@ RAID_INFO.bbs={ k:'bbs', plc:'show', enc:9100, name:'THE BUFFALO BILL SHOWDOWN',
 AM_PINS.push({ id:'bbs', room:'western', x:1188, y:296, name:'THE BUFFALO BILL SHOWDOWN', plc:'show', art:['spr','bbill',null,'0 0 120 140'], line:()=>(evKing()==='bbs' && EV.bell>0)? evAnnLine() : t('BUFFALO BILL CALLED US OUT. TEN COMMANDERS, ONE OUTLAW, THURSDAY NIGHT.'), fight:['wbandit:TAN','wrider:TAN','wmouse:TAN'], pays:()=>({ star:'+'+starX(PARK_PURSE)+'★' }), lock:()=>raidDoorKey('bbs')? null : { line:t('THE SHOWDOWN OPENS THURSDAY NIGHT AT THE BELL') }, go:()=>openRaidScene('bbs'), who:'raid' });   // the map's pin in the western room beside the desert's (the night opens it to every commander past the gate: amNight)
 function bbsCfg(tier){   // THE ENCOUNTER CFG, deterministic per tier (every sim rebuilds the identical army from the tier alone)
   tier=(tier==='m' || tier==='h')? tier : 'e'; const X=BBS_X[tier], px=(tier==='e')? null : BBS_POSSE, RD=BBS_RIDER[tier], PL=BBS_PLANES[tier];
-  const cfg={ n:0, oneBoss:1, hpMul:1, cntMul:1, bossF:1, flatBoss:1, bbs:1, bbsTier:tier, waves:[], terrain:{ rocks:[ { x:900, y:150, r:34, art:'crate' }, { x:960, y:450, r:34, art:'crate' }, { x:1250, y:300, r:34, art:'crate' } ], river:null, ground:'sand' } };   // the plain sand rug with three crates for cover (C2 stands the street on it)
+  const cfg={ n:0, oneBoss:1, hpMul:1, cntMul:1, bossF:1, flatBoss:1, bbs:1, bbsTier:tier, waves:[], terrain:bbsStreetTerrain() };   // CARD-BBS-C2 THE STREET: the sand rug with its three bands, Outlaw Town's buildings as cover, the funnel, the mud, the six oil barrels, the lane guide (was: the plain sand rug with three crates)
   const w1={ name:'BUFFALO BILL', boss:'bbshow', piece:true, herd:{ at:3.0, y:300 }, groups:[
     { f:'boss', t:'bbshow', n:1, e:'right', at:1.0, pin:1, hpX:+(BBS_HP[tier]/FDEF.bbshow.hp).toFixed(4) },   // Bill walks on at the whistle; his bar = the tier's number (hpX on his own row; bhpNow reads 1 on a flatBoss cfg)
     { f:'spout', t:'bbcannon', pts:BBS_GUN_PTS.slice(0,BBS_GUNS[tier]).map(p=>[p[0],p[1]]), per:1, at:0.5, pin:1, quiet:1 } ] };   // THE BIG GUNS dug in east from the first second (a quiet point: the white ring, no eruption)
@@ -193867,6 +193869,7 @@ function bbsTick(dt){ const rd=S.raid; if(!rd || rd.k!=='bbs' || rd.cfg!==S.cfg 
   if(!rd.sky) rd.sky={ t:0, boxCdT:0, patches:[], bombs:[], gates:[], seen:0, air:null };   // the planes' box pass reads the sky bag (the strafe clock); skyOn() stays false: no sky raid, no sky HUD
   if(rd.sky.boxCdT>0) rd.sky.boxCdT=Math.max(0, rd.sky.boxCdT-dt);
   B.t+=dt;
+  bbsStreetTick(dt,B);   // CARD-BBS-C2 THE STREET's clock: a burst barrel's blaze at +0.3 s, a fresh barrel 90 s after the burn-out
   for(let i=B.rideSeen; i<S.wave; i++){ const w=S.cfg.waves[i]; if(w && w.bbsRide){ B.alert={ t:0, n:w.bbsRide }; B.rides++; B.rideDue=S.t+BBS_RIDE.warn; B.hoofT=0; try{ SFX.hooves(); }catch(e){} } } B.rideSeen=S.wave;   // a ride wave pushed = the alert (the riders ride the wave's +8)
   if(B.alert){ B.alert.t+=dt; B.hoofT+=dt; if(B.hoofT>=1.05){ B.hoofT=0; try{ SFX.hooves(); }catch(e){} } if(B.alert.t>=BBS_RIDE.warn) B.alert=null; }
   if(B.rideDue!=null && S.t>=B.rideDue+0.5 && !S.foes.some(f=>f.type==='wrider' && !f.dead) && !S.queue.some(q=>q.t==='wrider')){ B.rideDue=null; B.clears++; S.floats.push({ x:T.x+190, y:T.y-6, txt:'THE STREET IS CLEAR!', t:0, col:'#FFD24A' }); try{ commSayAs(null, 'THE STREET IS CLEAR!', {rank:3, always:1}); }catch(e){} }   // the last rider fell (a raw key: the floats translate at the draw)
@@ -193894,7 +193897,7 @@ function bbsBillTick(f,dt,B){ const b=f.bbs||(f.bbs={ st:'idle', t:BBS_FAN.cd, n
     const men=bbsCorridor(f, b.aim, FN.R, FN.half, FN.thru);
     for(const u of men){ if(u.bbsLast!=null && S.t-u.bbsLast>1.0){ u.bbsExp=0; u.bbsPips=0; } u.bbsLast=S.t; u.bbsExp=(u.bbsExp||0)+dt; const due=Math.floor((u.bbsExp+1e-6)/PIP); while((u.bbsPips|0)<due && !u.dead){ u.bbsPips=(u.bbsPips|0)+1; b.pips++; f.pipN=1; tanHit(u, f.x, f.y, f); f.pipN=0; } }   // the pip clock: a man in the fan takes a pip every PIP s of exposure (never a miss)
     if(b.t<=0 && (b.n<b.nMax || B.force)){ b.t+=FN.gap; b.n++; b.rounds++; const fz=foeFaceX(f), m=BBS_FAN_MZ[b.n&1], mx=f.x+m.x*fz, my=f.y+m.y, ex=mx+Math.cos(b.aim)*FN.R, ey=my+Math.sin(b.aim)*FN.R*0.35+ (f.y-my);
-      S.fx.push({ k:'slugtr', x1:mx, y1:my, x2:ex, y2:ey, t:0, dur:0.11 }); S.fx.push({ k:'flash', x:mx, y:my, ang:b.aim, R:12, lw:2.6, t:0, dur:0.1 }); S.fx.push({ k:'shell', x:mx-3*fz, y:my-2, h:b.n&1, t:0, dur:0.55 }); bfSfx(SFX.wshot, f.x, f.y);
+      S.fx.push({ k:'slugtr', x1:mx, y1:my, x2:ex, y2:ey, t:0, dur:0.11 }); S.fx.push({ k:'flash', x:mx, y:my, ang:b.aim, R:12, lw:2.6, t:0, dur:0.1 }); S.fx.push({ k:'shell', x:mx-3*fz, y:my-2, h:b.n&1, t:0, dur:0.55 }); bfSfx(SFX.wshot, f.x, f.y); bbsFanBarrel(f, b.aim, FN.R, FN.half);   /* CARD-BBS-C2: a round of his bursts an oil barrel in its corridor */
       const sc=bbsAim(f, FN.R); if(sc!=null) b.aim=sc; }   // the next round follows the men
     else if(b.t<=0 && b.n>=b.nMax){ b.st='reload'; b.t=FN.reload; b.reloads++; const fz=foeFaceX(f); for(let i=0;i<6;i++) S.fx.push({ k:'shell', x:f.x-6*fz+(i%3)*4, y:f.y-30+(i%2)*6, h:i&1, t:-i*0.05, dur:0.6 }); bfSfx(SFX.thock, f.x, f.y); S.shake=Math.max(S.shake,0.2); }   // the brass falls: the tell
     return; }
@@ -193902,7 +193905,7 @@ function bbsBillTick(f,dt,B){ const b=f.bbs||(f.bbs={ st:'idle', t:BBS_FAN.cd, n
   const aim=bbsAim(f, FN.R); if(aim==null){ b.t=FN.cd; return; }
   b.st='fan'; b.aim=aim; b.n=0; b.nMax=(FN.n[tier]||6); b.t=0; b.fans++; }   // THE FAN opens on the first man in his reach
 function bbsAim(f, R){ let u=null; try{ u=tanPick(f); }catch(e){ u=null; } if(u && Math.hypot(u.x-f.x,u.y-f.y)<=R) return Math.atan2(u.y-f.y, u.x-f.x); const sc=foeFanScan(f,R); return sc? sc.ang : null; }   // his aim: the nearest legal man in reach, else the crowd's centre
-function bbsCorridor(f, aim, R, half, thru){ const cs=Math.cos(aim), sn=Math.sin(aim), out=[]; for(const u of S.units){ if(u.dead || u.jetT>0 || u.cloakT>0 || u.falling) continue; if(S.drag && S.drag.unit===u) continue; const dx=u.x-f.x, dy=u.y-f.y, along=dx*cs+dy*sn, perp=Math.abs(-dx*sn+dy*cs); if(along<=0 || along>R || perp>half) continue; out.push({ u, along }); } out.sort((a,b)=>a.along-b.along); return out.slice(0,thru).map(o=>o.u); }   // the men a round goes through: the nearest thru inside the ±half corridor along his aim
+function bbsCorridor(f, aim, R, half, thru){ const cs=Math.cos(aim), sn=Math.sin(aim), out=[]; for(const u of S.units){ if(u.dead || u.jetT>0 || u.cloakT>0 || u.falling) continue; if(S.drag && S.drag.unit===u) continue; const dx=u.x-f.x, dy=u.y-f.y, along=dx*cs+dy*sn, perp=Math.abs(-dx*sn+dy*cs); if(along<=0 || along>R || perp>half) continue; if(bbsWalled(f,u)) continue; /* CARD-BBS-C2: a man in a building's lee is out of his corridor (the cover rule's own line) */ out.push({ u, along }); } out.sort((a,b)=>a.along-b.along); return out.slice(0,thru).map(o=>o.u); }   // the men a round goes through: the nearest thru inside the ±half corridor along his aim
 function bbsAceHit(f, dmg){ if(!(dmg>0)) return dmg; if(!f.bbsAce0){ f.bbsAce0=1; f.bbsAceT=BBS_ACE.t; return dmg; } if(!(f.bbsAceT>0)) return dmg; f.bbsAceN=(f.bbsAceN|0)+1; let h=2166136261>>>0; const s9=String(f.id|0)+':'+f.bbsAceN+':'+(f.foN|0); for(let i=0;i<s9.length;i++){ h^=s9.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } if((h%1000)/1000<BBS_ACE.dodge){ f.bbsDodged=(f.bbsDodged|0)+1; if(f.sky){ f.sky.wing=Math.max(f.sky.wing||0, 0.35); } S.fx.push({ k:'puff', x:f.x, y:f.y-SKY_ALT*0.6, t:0, dur:0.3, R:10, col:'#ffffff' }); return 0; } return dmg; }   // THE ACE: the first hit arms 8 s; inside them 79 % of the hits roll off (a hash on the plane's own count: every sim rolls the same)
 function bbsRaidHUD(){ const rd=S.raid, B=bbsOn() && rd.bbs, A=B && B.alert; if(!A || S.mode!=='play' || rd.won || rd.kingDown) return;   // THE ALERT on the glass (drawHUD's screen space; paint only): the red edge, the banner, the riders far off
   const RM=reducedMotion(), left=Math.max(0,BBS_RIDE.warn-A.t), secs=Math.ceil(left-1e-6), k=Math.min(1,A.t/BBS_RIDE.warn), n=A.n|0;
@@ -194256,11 +194259,189 @@ setTimeout(function(){ try{ if(window.GVT && typeof GVT.bbs==='function'){ const
   for (const k in W) for (let i = 0; i < L.length; i++) { if (!TR[L[i]]) TR[L[i]] = {}; TR[L[i]][k] = W[k][i]; }
 })();
 // ═══ END CARD-BBS-C4 ═══
+// ═══ CARD-BBS-C2 THE BUFFALO BILL SHOWDOWN: THE STREET (sec:CARD-BBS-C2; design/buffalo-bill-showdown-1021/00-DESIGN-BBS.md §1.8 + the plan kit/art/map.html + build-c2/00-BUILD-C2.md; jumpr 2468, board J58, lane gvt-p3;
+// WYATT by phone 10/21/2026 22:03 EDT, dictated: "use the exact Western Town buildings, like the bank … Get funneled in, which will be bad … We'll go with your recommendation, and we'll set it live")
+// THE FIELD of the Showdown (rk 'bbs', CARD-BBS-C1's raid): the campaign's 1920 x 600 sand rug with the three street bands (bbsFloorPaint, drawRug's sand seat); Outlaw Town's own lobby pieces standing on it as
+// COVER (the Hill Village's house grammar: several cov:1 circles in one grp, aimed fire stops at the wall, a round in flight dies on it, lobbers arc over; the pictures = the park's own SVG slices rasterized
+// once, painted on the lead piece's turn under the men); THE FUNNEL (the 70 px alley between the bank and THE HOP INN = the north lane's mouth); THE MUD (a ponds row in the Backyard's brown: x0.42 on foot,
+// x0.6 a rider; the Tan walkers and the blocks read it as the Green men do through bfGround); THE OIL BARRELS (six rock rows with a hitbox: a round of Bill's fan or a shell of ours bursts one: a 0.3 s flash,
+// the thump, S.shake 0.4, then THE BLAZE = fsIgnite r 110 for 35 s, a pip every 1.0 s to anyone on foot, either side, pays nobody: BBS-F10; a walker treats a live blaze as a wall, the riders and Bill ride
+// through; a fresh barrel 90 s after the burn-out: BBS-Q7); THE LANE GUIDE (THE HILL VILLAGE's planner hvilPlan on the town's three streets: north through the funnel, Main Street, south past the livery
+// and through the mud; the blocks walk it too); pbmTall OFF for Bill (BBS-F1: on foot and on C3's horse his rounds stop at walls and a man in a building's lee is out of his corridor).
+// Zero words, zero css, zero server, zero sw.js; the park's art untouched (THE STORE = the park's two-storey front with the red awnings; THE JAIL and THE LIVERY = the boarded house; THE HOP INN = the boarded house with its sign).
+const BBS_SAND='#C08A50', BBS_BANDS=[[70,230,'#D9A869',0.55],[230,400,'#A06A38',0.35],[400,560,'#D9A869',0.45]], BBS_CURB='rgba(74,44,18,0.55)';   // the plan's rug: the base, the three street bands (y0, y1, colour, alpha) and their curbs (a line a shade darker: the four rules)
+const BBS_MUD={ x:980, y:490, rx:280, ry:78, col:'#6B4A2F', col2:'#8A6238', foot:0.42, ride:0.6 };   // THE MUD PIT: the corral behind the livery, a ponds row in the Backyard's own brown; bfGround's own x0.42 on foot, the riders x0.6; C3's horse reads it by hand (x0.6)
+const BBS_BLAZE={ r:110, t:35, pip:1.0, hp:1 };   // THE BLAZE: the ring, its life, a pip every 1.0 s on a Green man, 1 hp a second on a Tan walker (a bandit of 2 falls in 2 s)
+const BBS_BARREL={ r:12, flash:0.3, back:90, w:26, h:30 };   // an oil barrel: its hitbox, the flash before the blaze, a fresh one 90 s after the burn-out (BBS-Q7), its picture (the park's barrel at a man's scale)
+const BBS_BARRELS=[[505,345],[505,385],[1012,152],[745,520],[1540,236],[1230,175]];   // the six seats (the plan): FUZZIES' porch (a pair), the bank's corner at the funnel's mouth, the livery gate at the mud's edge, under the water tower, the jail. Two sit a step off the plan's dots: the mouth's barrel at the bank's own corner (the dot in the alley's middle plugged the planner's 70 px corridor with its 34 px shoulder: no walker could be aimed through the funnel) and the livery's at the mud's west edge (the dot between the saloon and the livery closed the south lane the same way)
+const BBS_SET=[   // THE SET (the plan's seats): key = the park's piece, the footprint (x,y,w,h) = its cover (the circles span w at depth h, r = h/2), one grp a building; the picture's body is scaled to w and stands on the footprint's bottom edge
+  { key:'jail',   x:1240, y:80,  w:130, h:80, grp:'jail' },
+  { key:'bank',   x:840,  y:60,  w:140, h:90, grp:'bank' },     // the plan's 180: the bank's own picture is 136 wide at the top edge of the rug (any wider and its pediment leaves the mat); the funnel is the gap below it, unchanged
+  { key:'inn',    x:820,  y:220, w:180, h:90, grp:'inn', pw:150 },   // the cover the plan's 180; the picture 150 wide, so its roof peak stays under the bank's foot and the funnel shows between them
+  { key:'saloon', x:540,  y:330, w:170, h:80, grp:'saloon' },
+  { key:'store',  x:1180, y:330, w:150, h:80, grp:'store' },
+  { key:'livery', x:560,  y:470, w:150, h:80, grp:'livery' } ];
+const BBS_TOWER={ x:1480, y:200, r:44 };   // THE WATER TOWER: one round piece
+const BBS_RAILS=[[310,470,304],[1390,1530,304]];   // the two hitching rails on Main Street (x0, x1, y): SMALL cover pieces r 10 every 20 px, no grp (PBM.hug: a man pressed to a rail leans out past it; a man behind it is covered from the far side)
+const BBS_ROADS=[   // THE STREETS the guide walks (hvilGraph's grammar: a flat list x,y,x,y through the Catmull-Rom; every point clear of every piece's shoulder r + HVIL.pad): north through the funnel, Main Street between the porches, south past the livery and through the mud
+  { w:70,  p:[1900,150, 1700,150, 1560,110, 1440,100, 1400,170, 1310,196, 1265,215, 1195,215, 1130,190, 1060,172, 1000,192, 940,185, 900,185, 810,185, 720,205, 600,240, 480,262, 300,262, 220,285, 170,300] },
+  { w:100, p:[1900,300, 1700,300, 1600,345, 1560,352, 1380,352, 1340,320, 1320,290, 1180,290, 1100,300, 1010,360, 830,360, 760,330, 720,290, 600,290, 500,290, 480,262, 300,262, 220,285, 170,300] },
+  { w:100, p:[1900,460, 1700,472, 1500,490, 1300,500, 1100,502, 980,500, 860,494, 780,480, 760,430, 690,440, 600,440, 520,430, 440,380, 340,345, 230,322, 170,300] } ];   // the tails pass the left rail's shoulder (r 10 + HVIL.pad) above and below it on the way to the box
+const BBS_PIECE={   // the park's pieces: the hero bbox (measured, rig/measureC2.mjs), the body's x-span (the footprint's width scales it), the foot's y (the ground line that stands on the footprint's bottom edge)
+  bank:   { bb:[116,284,152,154],  bx:124,  bw:136, foot:430 },   // bankArtSVG (THE BANK: its sign)
+  saloon: { bb:[90,224,390,342],   bx:120,  bw:300, foot:496 },   // FUZZIES with its false front and boardwalk
+  store:  { bb:[624,102,292,404],  bx:640,  bw:260, foot:496 },   // THE STORE = the park's two-storey front with the red awnings (townPieces' 'hotel' slice, no sign of its own)
+  inn:    { bb:[1110,256,250,240], bx:1120, bw:230, foot:496 },   // THE HOP INN = the boarded house + its sign (cut off the hero after the saguaros)
+  jail:   { bb:[1110,256,250,240], bx:1120, bw:230, foot:496 },   // THE JAIL = the boarded house (the padlock, the crow)
+  livery: { bb:[1110,256,250,240], bx:1120, bw:230, foot:496 },   // THE LIVERY = the boarded house by the corral
+  tower:  { bb:[1430,312,104,188], bx:1430, bw:104, foot:500 },   // THE WATER TOWER
+  hitch:  { bb:[676,506,188,38],   bx:676,  bw:188, foot:544 } }; // a hitching rail with its trough
+const BBS_ART={ ras:Object.create(null), img:Object.create(null), warm:0, n:0, ready:0, sc:0, list:null, T:null, lead:null, stats:{ frames:0, blits:0 } };   // the pictures (a canvas per piece once its Image loads), the draw list + the lead kept per terrain, the rig's counters
+const BBS_OBS={ t:-1, list:null };   // the live blazes as steer circles, read once a frame
+function bbsPieceSVG(key){   // the markup of a piece, from the park's own strings (townPieces' slices; the inn's sign cut off the hero between the saguaros and the wagon wheel; the bank is its own)
+  const P=townPieces(); if(key==='bank') return bankArtSVG();
+  if(key==='store') return P.hotel; if(key==='tower') return P.tower; if(key==='hitch') return P.hitch; if(key==='saloon') return P.saloon;
+  if(key==='inn'){ const V=parkHeroSVG('western'), i=V.indexOf('<g class="otp-hop"'), j=(i>=0)? V.indexOf('<path d="M986 576', i) : -1; return P.hideout+((i>=0 && j>i)? V.slice(i,j).replace(' data-notr ', ' data-notr="1" ') : ''); }   // the sign's bare data-notr (an HTML boolean) given a value: an Image parses its SVG as XML
+  return P.hideout;   // jail, livery
+}
+function bbsWarm(){   // the pictures, once (v2Warm's model): an Image per piece from its own SVG doc (the park's defs + the slice, the hero bbox as the viewBox), rasterized ONCE into a canvas at the device's scale (the phone draws canvases, never an SVG per frame)
+  if(BBS_ART.warm) return; BBS_ART.warm=1; BBS_ART.sc=v2Scale(); const P=townPieces();
+  for(const k in BBS_PIECE){ const pc=BBS_PIECE[k], bb=pc.bb, w=Math.round(bb[2]*BBS_ART.sc), h=Math.round(bb[3]*BBS_ART.sc), im=new Image(); BBS_ART.n++;
+    const doc='<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+bb.join(' ')+'" width="'+w+'" height="'+h+'"><defs>'+(P.defs||'')+'</defs>'+bbsPieceSVG(k)+'</svg>';
+    im.onload=function(){ try{ const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); BBS_ART.ras[k]=c; BBS_ART.img[k]=null; }catch(e){ BBS_ART.ras[k]=im; } BBS_ART.ready++; };
+    im.onerror=function(){ BBS_ART.ready++; };
+    im.src='data:image/svg+xml;utf8,'+encodeURIComponent(doc); BBS_ART.img[k]=im; }
+}
+function bbsBld(o){   // A BUILDING (v2Bld's grammar on the plan's footprint): n circles of r = h/2 span w, every one cover in one grp; the first is the lead (its turn paints the set)
+  const n=Math.max(2,Math.round(o.w/o.h)), r=o.h/2, out=[];
+  for(let i=0;i<n;i++){ const x=o.x+r+(i/(n-1))*(o.w-2*r); out.push({ x:Math.round(x), y:Math.round(o.y+o.h/2), lx:Math.round(x), r:Math.round(r), art:'bbshit', cov:1, grp:o.grp, lead:i===0?1:0, key:o.key, fx:o.x, fy:o.y, fw:o.w, fh:o.h, pw:o.pw||0 }); }
+  return out;
+}
+function bbsGraph(rocks){   // THE STREET GUIDE's graph on the town's three streets (hvilGraph's grammar on BBS_ROADS, no x scaling: a node every HVIL.step px along each street's middle with its normal, the edges along a street and where two meet, every piece's shoulder; hvilPlan reads it as the Hill Village's)
+  const nodes=[], edges=[];
+  for(let ri=0;ri<BBS_ROADS.length;ri++){ const rd=BBS_ROADS[ri], L=hvilCurve(rd.p); let acc=0, last=null;
+    for(let i=0;i<L.length;i+=2){ const x=L[i], y=L[i+1];
+      if(last && i<L.length-2){ acc+=Math.hypot(x-last[0],y-last[1]); if(acc<HVIL.step){ last=[x,y]; continue; } }
+      acc=0; last=[x,y];
+      const j0=Math.max(0,i-2), j1=Math.min(L.length-2,i+2), tx=L[j1]-L[j0], ty=L[j1+1]-L[j0+1], tl=Math.hypot(tx,ty)||1;
+      const n={ i:nodes.length, x:x, y:y, nx:-ty/tl, ny:tx/tl, road:ri, hw:rd.w/2 };
+      if(nodes.length && nodes[nodes.length-1].road===ri) edges.push([nodes.length-1,n.i]);
+      nodes.push(n); } }
+  for(let a=0;a<nodes.length;a++) for(let b=a+1;b<nodes.length;b++){ const A=nodes[a], B=nodes[b]; if(A.road!==B.road && Math.hypot(A.x-B.x,A.y-B.y)<HVIL.join) edges.push([a,b]); }   // where two streets meet
+  const adj=[]; for(let i=0;i<nodes.length;i++) adj.push([]);
+  for(let e=0;e<edges.length;e++){ const a=edges[e][0], b=edges[e][1], d=Math.hypot(nodes[a].x-nodes[b].x,nodes[a].y-nodes[b].y); adj[a].push([b,d]); adj[b].push([a,d]); }
+  const block=[]; for(let i=0;i<rocks.length;i++){ const r=rocks[i]; if(r.x>0 && r.r>=6) block.push({ x:r.x, y:r.y, R:r.r+HVIL.pad, r0:r.r+4 }); }
+  return { nodes:nodes, adj:adj, block:block, block0:block.slice(), bsig:'', cache:{}, keys:[] };   // block0 = the pieces alone; bbsBlazeSync adds the live blazes to block (and clears the home cache) while they burn
+}
+function bbsBlazeSync(){   // THE BLAZE IS A WALL TO THE PLANNER TOO: while a barrel's fire lives its ring joins the street graph's shoulders (so no walker is ever aimed at a node inside it: hvilClear refuses the walk, hvilHome is re-read) and leaves when it burns out; a change of the set is rare (a burst, a burn-out), so the cost is a short string a frame
+  const TR=S.cfg && S.cfg.terrain, G=TR && TR.streets; if(!G || !G.block0) return; let sig='', L=null;
+  if(S.fires && S.fires.length){ for(const p of S.fires){ if(p.src==='barrel' && p.t<p.life){ sig+=p.x+','+p.y+';'; (L||(L=[])).push({ x:p.x, y:p.y, R:p.r+HVIL.pad, r0:p.r+4 }); } } }
+  if(sig===G.bsig) return; G.bsig=sig; G.block=L? G.block0.concat(L) : G.block0.slice(); G.cache={}; G.keys=[];
+}
+function bbsStreetTerrain(){   // THE TERRAIN CELL bbsCfg returns (fresh per cfg): the set as cover, the tower, the rails, the six barrels (rock rows with a hitbox, art 'bbsbarrel'), the mud as a ponds row, the street graph + cmx (THE STREET GUIDE on for the Tan walkers; cmxNoRun: no dirt runner across the street)
+  let rocks=[]; for(const o of BBS_SET) rocks=rocks.concat(bbsBld(o));
+  rocks.push({ x:BBS_TOWER.x, y:BBS_TOWER.y, lx:BBS_TOWER.x, r:BBS_TOWER.r, art:'bbshit', cov:1, grp:'tower', lead:0, key:'tower', fx:BBS_TOWER.x-BBS_TOWER.r, fy:BBS_TOWER.y-BBS_TOWER.r, fw:BBS_TOWER.r*2, fh:BBS_TOWER.r*2 });
+  for(let i=0;i<BBS_RAILS.length;i++){ const rl=BBS_RAILS[i]; for(let x=rl[0]; x<=rl[1]; x+=20) rocks.push({ x:x, y:rl[2], lx:x, r:10, art:'bbshit', cov:1, lead:0, key:'hitch', rail:i, fx:rl[0]-10, fy:rl[2]-10, fw:rl[1]-rl[0]+20, fh:20 }); }
+  for(let i=0;i<BBS_BARRELS.length;i++){ const b=BBS_BARRELS[i]; rocks.push({ x:b[0], y:b[1], lx:b[0], r:BBS_BARREL.r, art:'bbsbarrel', bbsB:i, up:1, downT:null, igniteT:null, bursts:0 }); }
+  const t={ rocks:rocks, river:null, ground:'sand', ponds:[{ x:BBS_MUD.x, y:BBS_MUD.y, rx:BBS_MUD.rx, ry:BBS_MUD.ry, col:BBS_MUD.col, col2:BBS_MUD.col2 }], bbs:{ bursts:0, fresh:0, fan:0, shell:0 } };
+  t.streets=bbsGraph(rocks); t.cmx=1;
+  try{ bbsWarm(); }catch(e){}   // the pictures start loading at the cfg (the whistle is a second away)
+  return t;
+}
+function bbsLead(){ const TR=S.cfg && S.cfg.terrain; if(!TR) return null; if(TR!==BBS_ART.T){ BBS_ART.T=TR; BBS_ART.list=null; BBS_ART.lead=null; const R=TR.rocks||[]; for(let i=0;i<R.length;i++){ if(R[i].art==='bbshit'){ BBS_ART.lead=R[i]; break; } } } return BBS_ART.lead; }   // the first cover piece of this terrain: its turn in drawRug's rock loop paints every piece's art
+function bbsList(){   // THE DRAW LIST: every piece's picture placed by its foot on its footprint's bottom edge, scaled so its body spans the footprint's width; sorted by the foot (the deeper piece paints later), built once per terrain
+  if(BBS_ART.list) return BBS_ART.list; const out=[], seen={};
+  for(const rk of S.cfg.terrain.rocks){ if(rk.art!=='bbshit') continue; const pc=BBS_PIECE[rk.key]; if(!pc) continue; const id=rk.key+'|'+rk.fx+'|'+rk.fy; if(seen[id]) continue; seen[id]=1;
+    const s=(rk.pw||rk.fw)/pc.bw, bot=rk.fy+rk.fh, cxm=rk.fx+rk.fw/2, bb=pc.bb;   // pw: a picture narrower than its cover (the inn)
+    out.push({ key:rk.key, left:cxm-(pc.bx+pc.bw/2-bb[0])*s, top:bot-(pc.foot-bb[1])*s, w:bb[2]*s, h:bb[3]*s, y:bot }); }
+  out.sort(function(a,b){ return a.y-b.y; }); return (BBS_ART.list=out);
+}
+function bbsFloorPaint(WD,HT){   // THE RUG (drawRug's sand seat, paint only): the sand base, the three street bands and their curbs; the mat's frame is painted before, the mud (a ponds row) and every piece after, the men over all
+  cx.fillStyle=BBS_SAND; cx.fillRect(0,0,WD,HT);
+  for(const b of BBS_BANDS){ cx.globalAlpha=b[3]; cx.fillStyle=b[2]; cx.fillRect(0,b[0],WD,b[1]-b[0]); } cx.globalAlpha=1;
+  cx.strokeStyle=BBS_CURB; cx.lineWidth=2; cx.beginPath(); for(const b of BBS_BANDS){ cx.moveTo(0,b[0]+0.5); cx.lineTo(WD,b[0]+0.5); } cx.moveTo(0,BBS_BANDS[BBS_BANDS.length-1][1]+0.5); cx.lineTo(WD,BBS_BANDS[BBS_BANDS.length-1][1]+0.5); cx.stroke();
+}
+function bbsDraw(rk){   // PBM_ART.bbshit: a hitbox paints nothing of its own; the lead piece's turn paints every piece's picture in depth order (all under the men, like every rug piece: the funnel's men stay seen)
+  if(rk!==bbsLead()) return; bbsWarm();
+  const L=bbsList(); for(let i=0;i<L.length;i++){ const d=L[i], im=BBS_ART.ras[d.key]; if(!im) continue; cx.drawImage(im,d.left,d.top,d.w,d.h); BBS_ART.stats.blits++; }
+  BBS_ART.stats.frames++;
+}
+PBM_ART.bbshit=bbsDraw;
+function bbsBarrelDraw(rk){   // PBM_ART.bbsbarrel: the park's own barrel (the mouse's: the rounded stave body, two hoops, the rim) at a man's scale; burnt = the scorched hoops in the ash until the fresh one rolls in
+  const x=rk.x, y=rk.y, w=BBS_BARREL.w, h=BBS_BARREL.h, s=w/50, top=y-h*0.55;
+  cx.save();
+  if(rk.up){ cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(x+3,y+h*0.42,w*0.62,h*0.2,0,0,7); cx.fill();
+    cx.fillStyle='#8a5a30'; cx.strokeStyle='#4a2c12'; cx.lineWidth=3*s; rr(x-w/2,top,w,h,8*s); cx.fill(); cx.stroke();
+    cx.beginPath(); cx.moveTo(x-w/2,top+14*s); cx.lineTo(x+w/2,top+14*s); cx.moveTo(x-w/2,top+42*s); cx.lineTo(x+w/2,top+42*s); cx.stroke();
+    cx.fillStyle='#6b4423'; cx.beginPath(); cx.ellipse(x,top,w/2,7*s,0,0,7); cx.fill(); cx.stroke(); }
+  else { cx.globalAlpha=0.8; cx.strokeStyle='#2a1a0c'; cx.lineWidth=2.5*s; cx.beginPath(); cx.ellipse(x,y+2,w*0.5,5*s,0,0,7); cx.stroke(); cx.beginPath(); cx.moveTo(x-9,y-4); cx.lineTo(x-2,y+6); cx.moveTo(x+4,y-8); cx.lineTo(x+10,y+4); cx.stroke(); }
+  cx.restore();
+}
+PBM_ART.bbsbarrel=bbsBarrelDraw;
+function bbsBarrelBurst(rk,why){   // THE BURST: the flash 0.3 s, the thump, S.shake 0.4, then THE BLAZE on bbsStreetTick's clock (the sim's, never the wall's); the barrel's shoulder goes with it (r 0) until the fresh one
+  if(!rk || !rk.up) return false; const RM=reducedMotion(); rk.up=0; rk.r=0; rk.downT=S.t; rk.igniteT=S.t+BBS_BARREL.flash; rk.bursts=(rk.bursts|0)+1;
+  const B=S.cfg.terrain.bbs; if(B){ B.bursts++; if(why==='fan') B.fan++; else if(why==='shell') B.shell++; }
+  S.fx.push({ k:'flash', x:rk.x, y:rk.y-10, ang:-Math.PI/2, R:36, lw:4, t:0, dur:BBS_BARREL.flash });
+  S.fx.push({ k:'ring', x:rk.x, y:rk.y, r:8, R:64, t:0, dur:0.35, col:'#FFD34D' });
+  if(!RM) for(let i=0;i<4;i++) S.fx.push({ k:'puff', x:rk.x+(i%2? 8 : -8), y:rk.y-8-i*5, t:-i*0.04, dur:0.5, R:8+i*2 });
+  try{ bfSfx(SFX.cotboom, rk.x, rk.y); }catch(e){}
+  if(bfVis(rk.x,rk.y) && !RM) S.shake=Math.max(S.shake,0.4);
+  return true;
+}
+function bbsStreetTick(dt,B){   // the street's clock (bbsTick's seat): a burst barrel's blaze at +0.3 s; a fresh barrel 90 s after the blaze burns out (BBS-Q7: "a fresh one rolled into place off screen")
+  const TR=S.cfg && S.cfg.terrain; if(!TR || !TR.bbs) return; bbsBlazeSync();
+  for(const rk of TR.rocks){ if(rk.art!=='bbsbarrel' || rk.up) continue;
+    if(rk.igniteT!=null){ if(S.t>=rk.igniteT){ rk.igniteT=null; fsIgnite(rk.x, rk.y, 'barrel', BBS_BLAZE.r, BBS_BLAZE.t, BBS_BLAZE.hp); } }
+    else if(rk.downT!=null && S.t>=rk.downT+BBS_BARREL.flash+BBS_BLAZE.t+BBS_BARREL.back){ rk.up=1; rk.r=BBS_BARREL.r; rk.downT=null; TR.bbs.fresh++; if(!reducedMotion()) S.fx.push({ k:'puff', x:rk.x, y:rk.y-10, t:0, dur:0.45, R:12 }); } }
+}
+function bbsBlazeBurn(p){   // fsTick's seat for a barrel's patch, every FS_TICK beat: a Tan walker loses 1 hp a second (hurt with no owner under FS_NOBLOB: no tag, no bounty, fire belongs to nobody), a Green man a pip every 1.0 s (tanHit's grit, every other beat); the riders, Bill, the guns, the planes and anyone in the air pass
+  p.bbsN=(p.bbsN|0)+1;
+  for(const e of S.foes.slice()){ if(e.dead||(e.hp!=null&&e.hp<=0)||e.jetT>0||e.falling||e.burrow||(S.drag&&S.drag.unit===e)) continue; const d=e.def; if(!d || d.fly || d.ride || e.boss || d.boss || e.skyDrop || !(d.spd>0)) continue;
+    if(Math.hypot(e.x-p.x,e.y-p.y)>p.r) continue;
+    if(!p.hit.has(e)){ p.hit.add(e); S.floats.push({x:e.x,y:e.y-52,txt:'',flame:1,t:0,col:'#FF9A3D'}); }
+    FS_NOBLOB=1; try{ hurt(e, BBS_BLAZE.hp*FS_TICK, null, 1); } finally{ FS_NOBLOB=0; } }
+  if(p.bbsN%Math.max(1,Math.round(BBS_BLAZE.pip/FS_TICK))) return;
+  for(const e of S.units){ if(e.dead||e.jetT>0||e.dropT>0||e.falling||e.burrow||(S.drag&&S.drag.unit===e)) continue;
+    if(Math.hypot(e.x-p.x,e.y-p.y)>p.r) continue;
+    if(!p.hit.has(e)){ p.hit.add(e); S.floats.push({x:e.x,y:e.y-52,txt:'',flame:1,t:0,col:'#FF9A3D'}); }
+    tanHit(e, p.x, p.y, null, 1); }
+}
+function bbsBlazeList(){ if(BBS_OBS.t===S.t) return BBS_OBS.list; BBS_OBS.t=S.t; let o=null; if(S.fires && S.fires.length){ for(const p of S.fires){ if(p.src==='barrel' && p.t<p.life){ (o||(o=[])).push({ x:p.x, y:p.y, r:p.r }); } } } return (BBS_OBS.list=o); }
+function bbsFoeObs(f){ if(!f || !f.def || f.boss || f.def.boss || f.def.ride || f.def.fly || f.skyDrop || !bbsOn()) return null; return bbsBlazeList(); }   // a walker treats a live blaze as a wall (rockSteer's xtra: steered round, never shouldered); the riders, Bill and the planes ride through
+function bbsFormObs(fo){ if(!fo || !fo.members || !fo.members.length) return null; return bbsFoeObs(fo.members[0]); }
+function bbsMudAt(x,y){ const P=S.cfg && S.cfg.terrain && S.cfg.terrain.ponds; if(!P) return false; for(const p of P){ const nx=(x-p.x)/p.rx, ny=(y-p.y)/p.ry; if(nx*nx+ny*ny<1) return true; } return false; }   // bfGround's own pond read (the ellipse), for the Tan walkers
+function bbsGroundX(f){ if(!f || !f.def || f.def.fly || f.skyDrop || f.boss || f.def.boss || !bbsOn() || !bbsMudAt(f.x,f.y)) return 1; return f.def.ride? BBS_MUD.ride : BBS_MUD.foot; }   // x0.42 on foot, x0.6 a rider (the mat's riders read bfGround; the raid rug reads it for them here); Bill x1 (a boss mover; C3's horse trots the mud at x0.6 by hand)
+function bbsFormGroundX(fo){ if(!fo || !fo.members || !fo.members.length || !bbsOn() || !bbsMudAt(fo.x,fo.y)) return 1; return fo.members[0].def.ride? BBS_MUD.ride : BBS_MUD.foot; }   // a block's anchor in the mud
+function bbsFormGoal(fo,dt){ if(!bbsOn()) return T; const G=S.cfg.terrain.streets; if(!G || !HVIL.guide || !fo.members.length || fo.members[0].boss) return T; if(fo.id==null) fo.id=(fo.members[0].id|0)+101; const g=hvilPlan(fo,G,T.x,T.y,dt); return g||T; }   // a block walks the streets as a man does (hvilPlan on the anchor, the toy box the goal; the ranks break at the box as ever)
+function bbsWalled(f,u){ return !!(u && f && pbmCovers().length && pbmBetween(f.x,f.y,u.x,u.y,f.x,f.y)); }   // a cover piece between Bill's feet and the man's (the cover rule's own maths): a man in a building's lee is out of his corridor
+function bbsFanBarrel(f,aim,R,half){   // a round of his fan bursts the nearest standing barrel inside its corridor (never one behind a wall); the round goes on through its men
+  const TR=S.cfg && S.cfg.terrain; if(!TR || !TR.bbs) return null; const cs=Math.cos(aim), sn=Math.sin(aim); let best=null, ba=1e9;
+  for(const rk of TR.rocks){ if(rk.art!=='bbsbarrel' || !rk.up) continue; const dx=rk.x-f.x, dy=rk.y-f.y, along=dx*cs+dy*sn, perp=Math.abs(-dx*sn+dy*cs); if(along<=0 || along>R || perp>half+BBS_BARREL.r) continue; if(pbmBetween(f.x,f.y,rk.x,rk.y,f.x,f.y)) continue; if(along<ba){ ba=along; best=rk; } }
+  if(best) bbsBarrelBurst(best,'fan'); return best;
+}
+function bbsBarrelSplash(x,y,R){   // a shell of ours (a bazooka, a mortar, a grenade's splash, a cannon shell, a bomb, a sapper's mine) bursts every standing barrel inside its blast (splash's head; the big guns' lobs and the bandits' rounds leave the barrels be)
+  const TR=S.cfg && S.cfg.terrain; if(!TR || !TR.bbs) return 0; let n=0;
+  for(const rk of TR.rocks){ if(rk.art!=='bbsbarrel' || !rk.up) continue; if(Math.hypot(x-rk.x,y-rk.y)<=R+BBS_BARREL.r){ if(bbsBarrelBurst(rk,'shell')) n++; } }
+  return n;
+}
+function bbsStreetRig(o){ o=o||{}; const TR=S.cfg && S.cfg.terrain, on=!!(bbsOn() && TR && TR.bbs); const R=on? TR.rocks : [], barrels=R.filter(r=>r.art==='bbsbarrel');   // the rigs' read + the levers (burst a barrel, a fresh one, ignite now, the guide's switch)
+  if(on && o.burst!=null && barrels[o.burst|0]) bbsBarrelBurst(barrels[o.burst|0],'rig');
+  if(on && o.fresh!=null && barrels[o.fresh|0]){ const rk=barrels[o.fresh|0]; rk.up=1; rk.r=BBS_BARREL.r; rk.downT=null; rk.igniteT=null; }
+  if(on && o.ignite!=null && barrels[o.ignite|0]) barrels[o.ignite|0].igniteT=S.t;
+  if(o.guide!=null) HVIL.guide=o.guide? 1 : 0;
+  return { on:on?1:0, cmx:!!(TR&&TR.cmx), ground:TR? TR.ground : null, set:on? R.filter(r=>r.art==='bbshit' && r.lead).map(r=>({ key:r.key, x:r.fx, y:r.fy, w:r.fw, h:r.fh, grp:r.grp })) : [], covers:on? pbmCovers().length : 0, rocks:R.length,
+    barrels:barrels.map(r=>({ x:r.x, y:r.y, up:r.up|0, r:r.r, downT:r.downT==null? null : +r.downT.toFixed(2), igniteT:r.igniteT==null? null : +r.igniteT.toFixed(2), bursts:r.bursts|0 })),
+    fires:(S.fires||[]).filter(p=>p.src==='barrel').map(p=>({ x:p.x, y:p.y, r:p.r, t:+p.t.toFixed(2), life:p.life, n:p.bbsN|0, hit:p.hit.size })),
+    stats:on? Object.assign({}, TR.bbs) : null, graph:(TR&&TR.streets)? { nodes:TR.streets.nodes.length, block:TR.streets.block.length, roads:BBS_ROADS.length } : null, hv:Object.assign({}, HVIL.stats), foe:CMX.stats.foe, guide:HVIL.guide,
+    pics:{ n:BBS_ART.n, ready:BBS_ART.ready, blits:BBS_ART.stats.blits, frames:BBS_ART.stats.frames, list:(BBS_ART.list||[]).map(d=>({ key:d.key, left:Math.round(d.left), top:Math.round(d.top), w:Math.round(d.w), h:Math.round(d.h) })) },
+    dials:{ blaze:BBS_BLAZE, barrel:BBS_BARREL, mud:BBS_MUD, bands:BBS_BANDS, sand:BBS_SAND, tower:BBS_TOWER, rails:BBS_RAILS, barrels:BBS_BARRELS, roads:BBS_ROADS.map(r=>({ w:r.w, n:r.p.length/2 })) } }; }
+// ═══ END CARD-BBS-C2 ═══
 window.GVT = {
   cks(o){ if(o && o.pct!=null) CKS.pct=+o.pct||0; const R=[0,1,10,20,25,50,75,99,100], t={}; for(const r of R) t[r]={ mul:+cksMul(r).toFixed(4), hit:+hitDmgNowAt('kingcroak',r).toFixed(4), whole:hitWhole(hitDmgNowAt('kingcroak',r)) }; return { cv:GVT_CV, pct:CKS.pct, at:CKS.at, ck:HHB.ck, slope:HERO_DMG_RANK, mine:(META.up.kingcroak||0)|0, table:t }; },   // CARD-CKS: the ramp's dials (o.pct sets it for a rig; 0 = the storm as it was) + King Croak's HITS FOR at nine ranks
   ffi(o){ return ffiRig(o); },   // CARD-FFI THE FIRST FIVE, ISAAC'S SEVEN NOTES: the switch, the legs, the presses for a rig
   bbs6(o){ return bbs6Rig(o); },   // CARD-BBS-C6 THE SHOWDOWN'S PRIZES: the reads + the levers (a forced roll, the prizes by hand)
   bbs(o){ return bbsRig(o); },   // CARD-BBS-C1 THE BUFFALO BILL SHOWDOWN: the rigs' read + the levers (a forced fan, a rally, a ride)
+  bbsStreet(o){ return bbsStreetRig(o); },   // CARD-BBS-C2 THE STREET: the rigs' read + the levers (burst a barrel, a fresh one, ignite now, the guide's switch)
   spb2(o){ o=o||{}; const st=spbS(); if(o.grant){ for(const k of o.grant) if(!enhOwns(k)){ grantOwned('enh',k); if(!enhOn(k)){ META.enh.on.push(k); enhExclude(k); } } saveMeta(); }   // CARD-SPB-BUILD CARD 2 THE SPELLS (design/spellbook-1016 sec 2d; FROM ISAAC 10/16/2026 13:26: one CAST button, the drawn sign picks the spell): the rig door
     if(o.cd) Object.assign(st.cd, o.cd); if(o.press) spbPress(); let lift=null; if(o.stroke){ if(!st.pad) spbPress(); if(st.pad){ st.pad.pts=o.stroke.slice(); st.pad.down=true; lift=spbLift(); } } if(o.cast){ const js=spbSarge(); if(js) spbGo(js,o.cast); }
     return { cv:GVT_CV, rung:spbRung(), known:spbKnownList(), cd:Object.assign({},st.cd), lock:st.lock, pad:st.pad? { t:+st.pad.t.toFixed(2), g:st.pad.g, down:st.pad.down } : null, last:st.last, lift, casts:st.casts, fizz:st.fizz, holes:st.holes.length, waves:st.waves.length, quakes:st.quakes.length, teddies:st.teddies.map(b=>({ x:Math.round(b.x), y:Math.round(b.y), t:+b.t.toFixed(2) })), rect:btnRects.spb||null, price:spbPrice(),
