@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.02","md5":"c5a55e0b290719eab6d05a22837913d9","sha":"9e8721b25e","at":"2026-10-22T23:35:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.03","md5":"97f99c012dbfb32562f8aa6f93eadb5b","sha":"8969c99c9f","at":"2026-10-22T23:39:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90235,7 +90235,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -195915,6 +195915,26 @@ function otsRead(){ return { on:OTS.on, live:OTS_LIVE, laid:OTS.laid, btw:{ on:B
 setTimeout(function(){ try{ if(window.GVT && !GVT.ots) GVT.ots=function(){ return otsRead(); }; }catch(e){} }, 0);   // GVT.ots(): the rigs' door
 if(OTS.on && BTW.on) otsLay();   // laid at load, before any cfg (the whistle reads the tables)
 // ═══ END CARD-OTS ═══
+// ═══ CARD-WHB THE WHISTLE OFF THE MIDDLE OF THE SCREEN (sec:CARD-WHB; design/whistle-banner-1022/00-CARD-WHB.md; J32, the Big Mac, 10/22/2026 19:2x EDT)
+// WYATT 10/22/2026 19:16 EDT by phone on Discord, answering Maker 1's film of Bill's ride (the banner covered the mount), verbatim: "He Whistles For His Horse should not block the screen. Do not do this
+//   & in our MD please dont have these full screen alerts block gameplay like this moving forward when we are implementing anything new"
+// THE FIX: CARD-BBS-C3's bbsMount (the turn: his first bar at zero, the whistle, the horse from the east edge, the vault) wrapped by name: everything it does stays, but the centre banner it sets
+// (S.ann HE WHISTLES FOR HIS HORSE, 2.6 s, a 128 px card at y 168 over the middle of the field) is LIFTED the same frame and the same words ride as a caption over Bill in the banner's own gold
+// (a second float above his HE'S NOT DONE!, on the screen the banner's own 2.6 s): the mount stays in view, the words stay in the room's language (t()). Nothing else of the turn moves: the whistle's sound, the ring, the shake, the horse, the second bar.
+// Switch: WHB_LIVE 1; ?whb=0 on a device = C3's banner as it was (gvt_whb); GVT.whb() = the rigs' door. Zero words, zero server, zero sw.js, zero save keys, zero RNG.
+const WHB_LIVE=1;
+const WHB={ on:(function(){ try{ const q=/[?&]whb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_whb','0'); else localStorage.removeItem('gvt_whb'); } return localStorage.getItem('gvt_whb')==='0'? 0 : WHB_LIVE; }catch(e){ return WHB_LIVE; } })(),
+  stats:{ mounts:0, lifted:0, kept:0 }, last:null };
+function whbLift(f){   // the banner off, the caption on: only C3's own whistle banner, only while it is the one on the screen (a campaign card or another announce is left alone)
+  const key='HE WHISTLES FOR HIS HORSE', a=S.ann; if(!a || a.lsb || a.txt!==t(key)){ WHB.stats.kept++; return 0; }
+  S.ann=null;
+  const w=(f && f.def && f.def.w)|| 40, y0=(f? f.y : 0)-w*1.05;
+  S.floats.push({ x:f? f.x : W/2, y:y0-24, txt:t(key), t:-1.5, col:'#FFD24A' });   // 24 px above HE'S NOT DONE!, in the banner's gold; t -1.5 = the banner's own 2.6 s on the screen (a float fades from t 0.55 and goes at 1.1; its alpha is min(1, 2 - 1.8 t), full while t < 0.55)
+  WHB.stats.lifted++; WHB.last={ t:+S.t.toFixed(2), x:f? Math.round(f.x) : null, y:f? Math.round(f.y) : null }; return 1; }
+{ const m0=bbsMount; bbsMount=function(f,u){ const r=m0.apply(this, arguments); WHB.stats.mounts++; if(WHB.on){ try{ whbLift(f); }catch(e){} } return r; }; }   // C3's turn wrapped by name (hurt() calls bbsMount by name)
+function whbRead(){ return { on:WHB.on, live:WHB_LIVE, stats:Object.assign({},WHB.stats), last:WHB.last, ann:S.ann? { txt:S.ann.txt, t:S.ann.t, lsb:!!S.ann.lsb } : null, floats:S.floats.filter(function(z){ return z && typeof z.txt==='string'; }).map(function(z){ return [z.txt, Math.round(z.x), Math.round(z.y), +(z.t||0).toFixed(2)]; }).slice(-6) }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.whb) GVT.whb=function(){ return whbRead(); }; }catch(e){} }, 0);
+// ═══ END CARD-WHB ═══
 // ═══ CARD-OTS-RD BILL'S HORSE ON THE TOWN'S TWO STREETS (sec:CARD-OTS-RD; design/outlaw-main-street-1022/00-CARD-OTS.md §5; Maker 1, 10/22/2026 ~18:50 EDT, found by the four-computer fight sim)
 // THE BUG: C3's horse 'own a lane' mode picks a lane by C2's three bands (bbsLaneCounts: 0 north, 1 Main Street, 2 south; BBS_BANDS is never re-laid) and reads the street
 // by the same index (bbsRoadPts(i): BBS_ROADS[i].p). CARD-BTW's town lays TWO streets (Main Street, the south track), so the south band's lane 2 reads BBS_ROADS[2] = undefined
