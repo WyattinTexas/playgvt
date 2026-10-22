@@ -1,1 +1,1 @@
-window.__BENCH_STAMP={"cv":"25.67","md5":"af5c33d1cfa91e9102980a9968df34bd","sha":"1633ef274","at":"2026-10-22T06:26:50Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};
+window.__BENCH_STAMP={"cv":"25.68","md5":"4883a599ca124c701410dc5f12021208","sha":"6468f8713","at":"2026-10-22T06:32:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};
