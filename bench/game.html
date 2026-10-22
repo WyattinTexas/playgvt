@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.47","md5":"ad3ef380f23218efed1520ababff42a0","sha":"8c1758b23","at":"2026-10-22T01:41:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.48","md5":"a4180f16855139a188f905759ade996e","sha":"6b0374ea4","at":"2026-10-22T01:55:05Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89661,7 +89661,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -110762,7 +110762,7 @@ const RXL_ON=true,            // the kill switch
 function rxUX(){ return lairU()? RXB_U_X : 1; }
 function rxBossRng(){ return lairU()? RXB_U_RNG : RXB_RNG; }
 function rxBossMinN(){ return lairU()? RXB_U_MIN_N : RXB_MIN_N; }
-function rexBreathN(f){ return REX_BREATH_PIPS*KRS_FIRE_X*(lairU()? REX_BREATH_U_X : 1); }   // the pips one beat of the BOSS king's tongue stamps (breathBurn's one read)   // CARD-KRS: x KRS_FIRE_X (10 a beat; 20 on the ULTRA night)
+function rexBreathN(f){ return REX_BREATH_PIPS*KRS_FIRE_X*(lairU()? REX_BREATH_U_X*LAIR_U_KING_X.fire : 1); }   /* CARD-KRX: x LAIR_U_KING_X.fire on the ULTRA night alone (20 -> 100 pips a beat) */   // the pips one beat of the BOSS king's tongue stamps (breathBurn's one read)   // CARD-KRS: x KRS_FIRE_X (10 a beat; 20 on the ULTRA night)
 function rxHopCol(f){ return (lairU() || (f && f.rxLeapK))? tkHexOf('purple') : '#FFD24A'; }   // the hop's ring: the purple crystal on the ULTRA night and on every leap, gold as shipped everywhere else
 function rexUnplant(f){   // every standing beat dropped (a leap is its own beat): the inhale, the jet's plant, the sprint, the hop's tell, the sweep's wind-up, a halt, a stake — the mover owns his feet again
   f.aW=0; f.brT=0; f.shot=0; f.rxHopW=0; f.rxSwpW=0; f.rxSwpU=null; f.haltT=0; f.stkT=0; f.aimT=0; f.rexTurn=undefined;
@@ -162580,6 +162580,18 @@ const LAIR_U_STEGO={ court:2, ret:2 };          // ⚑ Q17a THE KING'S ARTILLERY
 // 99) and wears EV_HPX_BONE.stego (sx3Stegos runs after the pins, before the hp pass). Had the final phase fielded none, the floor would have dealt a line of 15 at 14.8 (the else branch).
 const LAIR_U_STEGO_P3={ x:3, min:15 };   // CARD-SX3: the final phase's stego seats ×x; under min the line at 14.8 is topped up to it (inert at x3: 6 + 6 + 3 = 15 = min)
 function sx3Stegos(cfg){ const w=cfg.waves.find(w9=>w9.sweep==='kingrex'); if(!w) return 0; let n=0, line=null; for(const g of w.groups){ if(g.t!=='stego') continue; if(g.f==='spout'){ g.per=Math.max(1,Math.round((g.per||1)*LAIR_U_STEGO_P3.x)); n+=(g.pts||[]).length*g.per; } else { g.n=Math.max(1,Math.round((g.n||1)*LAIR_U_STEGO_P3.x)); n+=g.n; line=g; } } if(n<LAIR_U_STEGO_P3.min){ if(line) line.n+=LAIR_U_STEGO_P3.min-n; else w.groups.push({f:'line',t:'stego',n:LAIR_U_STEGO_P3.min-n,e:'right',at:14.8,pin:1}); n=LAIR_U_STEGO_P3.min; } return n; }   // CARD-SX3: the bodies the final phase fields (15 on the shipped table)
+// ═══ CARD-KRX ULTRA MEGA KING REX: HIS HEALTH x5, HIS FIRE x5, HIS GUARD (design/rex-stegos-x3-1021/02-AUDIT-KRX.md; Wyatt 10/21/2026 21:20 EDT by phone on Discord, after the bone bell's fight,
+// dictated, verbatim: "Please run an audit on the battle. He died just about instantly in the beginning and in the middle. His fire needs to be doing about 5 times more damage, and he needs some
+// backup. He needs about 5 times as much health at a minimum. Please audit what happened, and I didn't even help. Laura and Layla were able to defeat him so fast and easily. It wasn't even like a
+// fight."). THE AUDIT (the box's room A3Y56, the referee's clock): three commanders + two computers; the court king walked on alone at 33.4 s and was floored 11.8 s later (5.7 s after his hop
+// put him in reach); the angry king leapt in alone at 55.2 s and fell 9.4 s later; the whole night 67 s; his bars 5,897 / 6,462 at three commanders against ~700 hp/s of max-rank armies.
+// THE CUT, the ULTRA night (bone 'u') alone: (1) his two bars x hp (the court's row and the return's row: hpX and hpAdd, the 0574 whole-bar law; CARD-BHP's party factor rides on top);
+// (2) his tongue's pips a beat x fire (rexBreathN's lairU branch: 5 x 2 x 2 x 5 = 100); (3) THE KING'S GUARD: bruisers and trikes burst from the lair floor beside him one second after each of his
+// entries (two spouts a wave at seats clear of the nests, the mouths and the lava; pinned, so a party of ten meets the same guard; hpX 4 x EV_HPX_BONE's 0.25 = the full ULTRA bar, 190 each).
+// The E/M/H/MEGA lairs, the park finales, the hero's own tongue, the hatched king's, the fifteen stegos (CARD-SX3), the court's spitters and sprinters, the eighty eggs: byte-what-they-were.
+const LAIR_U_KING_X={ hp:5, fire:5 };   // CARD-KRX: his bars x hp (2,106 / 2,308 at one commander -> 10,527 / 11,540), his tongue x fire (20 -> 100 pips a beat); ⚑ KRX-Q1 "at a minimum": one number each
+const LAIR_U_GUARD={ court:{ bdino:6, trike:4 }, ret:{ bdino:8, trike:6 }, lag:1.0, hpX:4, pts:{ bdino:[[1560,360],[1560,840]], trike:[[1640,300],[1640,900]] } };   // CARD-KRX THE KING'S GUARD: the bodies a wave (split over the two seats), the second after his entry, their bar (4 x 0.25 = the full ULTRA 190; 1 = a lair bruiser's 48); ⚑ KRX-Q2 the counts, Q3 the bar
+function krxKing(cfg){ let n=0; for(const w of cfg.waves){ const k=w.groups.find(g=>g.f==='boss' && g.t==='kingrex'); if(!k) continue; k.hpX=+((k.hpX||1)*LAIR_U_KING_X.hp).toFixed(3); if(k.hpAdd) k.hpAdd=Math.round(k.hpAdd*LAIR_U_KING_X.hp); const G=(w.sweep==='kingrex')? LAIR_U_GUARD.ret : LAIR_U_GUARD.court; for(const t of ['bdino','trike']){ const pts=LAIR_U_GUARD.pts[t], per=Math.round((G[t]||0)/pts.length); if(per<1) continue; w.groups.push({f:'spout',t:t,pts:pts.map(p=>[p[0],p[1]]),per:per,at:+((k.at||0)+LAIR_U_GUARD.lag).toFixed(2),pin:1,hpX:LAIR_U_GUARD.hpX,guard:1}); n+=per*pts.length; } } return n; }   // CARD-KRX: every wave with a King Rex boss row (the court, the return): his bar x hp, then his guard's two spouts at his beat + lag; returns the guard bodies dealt (20 on the shipped table)
 const EV_HPX_BONE={ sdino:0.25, ptero:0.25, trike:0.25, bdino:0.25, eggling:0.25, spitter:0.5, stego:0.5, dilo:0.5, kingrex:0.56 };   // ⚑ Q14 the bodies at 'u' bone (EV_HPX's law, lair edition): on every group's row copy (hpX THEN hpAdd — never the table, never reordered) AND on every hatchling at its birth (lairUHatchX — an egg's child is born group-less); the king 0.56 = the yeti's cell
 // the tall table (boards/rex-gen.js U, verbatim): the middle band = the shipped furniture +240; the north shelf = the top ring's OWN cells; the south shelf = the bottom ring +480
 const LAIR_U_MESAS=[[640,420,40],[760,840,42],[1600,600,36],[620,140,40],[760,1080,42]];
@@ -163494,6 +163506,7 @@ function raidCfg(tier,rk){
     //     his WHOLE bar — the 0574 law); the hatchlings meet the same table at birth (lairUHatchX).
     for(const w of cfg.waves) for(const g of w.groups){ if(g.f==='spout' || g.t==='stego') g.pin=1; }
     sx3Stegos(cfg);   // CARD-SX3 (Wyatt 10/21): the final phase's stegos ×3 = 15, after the pins (the counts are the bodies at every seat count) and before the hp pass (every seat wears EV_HPX_BONE.stego)
+    krxKing(cfg);   // CARD-KRX (Wyatt 10/21 21:20): his bars x5, his guard's spouts (pinned), after the pins and before the hp pass (hpX 0.56 on his cells: 2.8 / hpAdd 2,100 + 3,108; the guard's 4 x 0.25 = 1.0)
     const kxb=(RAID_CNT_MUL.u/RAID_CNT_MUL.g)*EV_FOE_F;
     for(const w of cfg.waves) for(const g of w.groups){ if(g.f==='boss' || g.pin) continue; g.n=Math.max(1,Math.round((g.n||1)*kxb)); }
     for(const w of cfg.waves) for(const g of w.groups){ const x=EV_HPX_BONE[g.t]; if(x){ g.hpX=(g.hpX||1)*x; if(g.hpAdd) g.hpAdd=Math.round(g.hpAdd*x); } }
