@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.51","md5":"d9a0476c31646e5e856cab2150c8dc53","sha":"40efb892c","at":"2026-10-22T02:42:17Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.52","md5":"2172db8aee10469257431be0a824d5ac","sha":"2134d4793","at":"2026-10-22T03:32:25Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83877,7 +83877,7 @@ function cavesBedGen(ok,bad){ try{   // the render (mapBedGen's shape): an Offli
 // THE ENGINE (cpgCore's think: alpha-beta a ply deeper each round, takes first by the biggest victim, the killers, a quiet search on the takes, material + where the pieces stand, a small opening book; green = white = the player moves first).
 // THE TIERS (CPG_TIER, the one dial line) and THE WORKER (cpgWorker: the engine's own text in a Blob, so the screen never waits on a move; refused or silent = the same engine on the page with a short budget). The proofs: perft to the standard numbers, the mates, the ladder (each tier beats the one below), the think time on WebKit.
 const CPG={ on:1 /* CARD-CPG-2: LIVE (the chess event is plain chess) */, floor:600, syncMs:400, late:2500, noWorker:0, sent:0, got:0, sync:0 };   // THE SWITCH (0 = today's chess event; CARD-CPG-2 flips it) · the quickest a move may land (ms: you see it think) · the budget when the engine must run on the page (ms) · how long past its budget a silent Worker is given (ms) · the counts the rigs read
-const CPG_TIER={ e:{d:1,slip:.33,ms:600}, m:{d:2,q:1,slip2:.10,ms:800}, h:{d:4,q:1,book:1,ms:1500}, g:{d:99,q:1,book:1,eg:1,ms:2000} };   // THE TIERS (the design's §3): d = how many moves it looks ahead (99 = as deep as ms allows) · q = it plays the trades out · slip = this often it plays ANY legal move · slip2 = this often its second-best · book = the openings · eg = the endgame knowledge · ms = the think budget, and for EASY and MEDIUM the moment the move lands (HARD and MEGA land when found, never under CPG.floor)
+const CPG_TIER={ e:{d:1,slip:.67,ms:600}, m:{d:1,q:1,slip2:.10,ms:800}, h:{d:4,q:1,book:1,ms:1500}, g:{d:99,q:1,book:1,eg:1,ms:2000} };   // THE TIERS (the design's §3): d = how many moves it looks ahead (99 = as deep as ms allows) · q = it plays the trades out · slip = this often it plays ANY legal move · slip2 = this often its second-best · book = the openings · eg = the endgame knowledge · ms = the think budget, and for EASY and MEDIUM the moment the move lands (HARD and MEGA land when found, never under CPG.floor) · CARD-CPE EASY AND MEDIUM, HALF AS HARD (design/chess-easier-1021/00-BUILD-CPE.md; Wyatt by phone 10/21/2026 23:08 EDT: "50% easier on easy. We want people beating it almost no matter what. Medium we need 50% easier and hard can stay as is."): EASY plays ANY legal move two times in three (slip .33 -> .67; the move in three it thinks is still one move ahead), MEDIUM looks ONE move ahead instead of two (d 2 -> 1), the trades still played out, its second-best one time in ten as before; HARD and MEGA byte-still; the moment a move lands (ms) unchanged
 const CPG_BOOK=[   // THE OPENINGS: three dozen main lines as moves (from-square to-square). While the game follows a line, a book tier plays the line's next move (one of them by the game's dice when lines part).
  'e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6 e1g1 f8e7','e2e4 e7e5 g1f3 b8c6 f1b5 g8f6 e1g1 f6e4 d2d4 e4d6 b5c6 d7c6 d4e5 d6f5','e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 c2c3 g8f6 d2d3 d7d6','e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5','e2e4 e7e5 g1f3 b8c6 d2d4 e5d4 f3d4 g8f6 b1c3 f8b4','e2e4 e7e5 g1f3 g8f6 f3e5 d7d6 e5f3 f6e4 d2d4 d6d5',
  'e2e4 e7e5 b1c3 g8f6 f1c4 b8c6 d2d3 f8b4','e2e4 c7c5 g1f3 d7d6 d2d4 c5d4 f3d4 g8f6 b1c3 a7a6','e2e4 c7c5 g1f3 b8c6 d2d4 c5d4 f3d4 g8f6 b1c3 e7e5','e2e4 c7c5 g1f3 e7e6 d2d4 c5d4 f3d4 a7a6','e2e4 c7c5 b1c3 b8c6 g2g3 g7g6 f1g2 f8g7','e2e4 c7c5 c2c3 g8f6 e4e5 f6d5 d2d4 c5d4',
@@ -89716,7 +89716,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.51';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.52';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
