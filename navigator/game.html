@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.49","md5":"2243bc92419175cce4fa61edc78815a4","sha":"9d2ce7008","at":"2026-10-22T02:07:19Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.50","md5":"53613943622c5aa168ce2937abd03fbd","sha":"5813ec264","at":"2026-10-22T02:20:35Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -13364,11 +13364,11 @@ html.tfh-on #wpfly { z-index:40; }   /* CARD-TFH R2 (Wyatt on Discord 10/18/2026
   /* ═══ link 61 THE SOCCER BALL'S KEEPY-UPPY (design/keepy-uppy-0916/00-BUILD.md; Wyatt 9/16 ~11:42: "When you tap it, it bounces up in place, but if you tap it 10 times, you get 10 stars. 50 times, without it touching the ground, you get 100 stars" · ~11:55: "daily for now. With the rewards at 10, 50, and 100"): the flight rides .socb's INLINE translateY (kuStep — dt-based JS, never a keyframe); the squash at the landing, the counter's tick and the rung's flare are the only keyframes (RM: #decSoc * parks the squash; the counter's tick and flare are parked below) */
   .dec-soc.kusq .socb { animation:kusquash 0.24s ease-out; }
   @keyframes kusquash { 0% { transform:translateY(0) scale(1.2,0.76); } 35% { transform:translateY(-2px) scale(0.94,1.07); } 70% { transform:scale(1.03,0.97); } 100% { transform:none; } }
-  #kuCount { width:56px; margin-left:-28px; text-align:center; font-size:26px; color:#FFF3C4; z-index:8; }   /* the run's counter — .starfloat.run (the 0099 payoff-run idiom: parked over the ball, .tick per kick, dropped .run = the starup send-off) */
-  #kuCount.flare { color:#FFE97A; animation:kuflare 0.6s ease-out; }   /* the rung's flare (10 / 50 / 100) */
+  #kuCount, #kuCountB { width:56px; margin-left:-28px; text-align:center; font-size:26px; color:#FFF3C4; z-index:8; }   /* the run's counter — .starfloat.run (the 0099 payoff-run idiom: parked over the ball, .tick per kick, dropped .run = the starup send-off) */
+  #kuCount.flare, #kuCountB.flare { color:#FFE97A; animation:kuflare 0.6s ease-out; }   /* CARD-2BL: the borrowed ball's counter flares too */   /* the rung's flare (10 / 50 / 100) */
   @keyframes kuflare { 0% { transform:scale(1); } 35% { transform:scale(1.9); } 100% { transform:scale(1); } }
   #kuFloat { width:420px; margin-left:-210px; text-align:center; z-index:9; }   /* KEEPY-UPPY n! +N★ · KEEPY-UPPY n! PAID TODAY */
-  @media (prefers-reduced-motion: reduce){ #kuCount.flare { animation:none; } }
+  @media (prefers-reduced-motion: reduce){ #kuCount.flare, #kuCountB.flare { animation:none; } }
   /* ⚠ THE OVERRIDE MUST FOLLOW EVERY RULE IT CANCELS (the v1.11 medal-case trap:
      a kill-list at the top of the file loses to an animation declared later) —
      and it is ID-scoped so it also outranks the `.dec-x.react .y` tap rules,
@@ -89675,7 +89675,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.49';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.50';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -142326,7 +142326,7 @@ function decorReact(id){
   // is the racecar's own: a tap mid-flight does nothing at all. Reduced
   // motion and Mom's staging day fall through to the old boing react
   // instead (which the RM kill list already parks at identity — v3.04 law).
-  if(id==='soccer'){ if(SOC_FLY) return; socGoalPurse(); if(KU){ if(!KU.b) kuTap(); return; } if(kuCan()){ kuStart(); return; } }   // link 61 THE SOCCER BALL'S KEEPY-UPPY: the TAP is the straight-up kick now (kuStart; a tap on the falling ball re-kicks it — kuTap); v3.16's cross-room kick keeps the FLING alone (rdragEnd's push, byte-still — ⚑ KU-A); Mom's day falls through to the shipped boing as ever, reduced motion runs the plain hop   // v3.32: the purse rides the tap (a mid-flight tap is not a kick and pays nothing)
+  if(id==='soccer'){ if(SOC_FLY) return; socGoalPurse(); if(KU){ kuTap(); return; } if(KUB && !tblOn()) return; if(kuCan()){ kuStart(); return; } }   /* CARD-2BL: KU is the toy's own run alone (the borrowed ball's is KUB): the own ball answers its tap while the dinosaurs' ball is in the air too; ?2bl=0 = the shipped wait */   // link 61 THE SOCCER BALL'S KEEPY-UPPY: the TAP is the straight-up kick now (kuStart; a tap on the falling ball re-kicks it — kuTap); v3.16's cross-room kick keeps the FLING alone (rdragEnd's push, byte-still — ⚑ KU-A); Mom's day falls through to the shipped boing as ever, reduced motion runs the plain hop   // v3.32: the purse rides the tap (a mid-flight tap is not a kick and pays nothing)
   if(id==='puffer') puffPurse();   // 0315: pays before the solo latch can swallow the tap — by the second tap the flag is long since banked
   if(id==='bass') bassPurse();     // 0540: the bass's first flop pays LAKE_BASS_STARS (the same grammar)
   if((id==='snowfig'||id==='gsnowman') && wfLive()) wfSnowPay(id, document.getElementById(d.el), 1);   // 1028 THE WINTER FIELD'S SNOWMEN PAY (⚑ WS-Q3): a snowman toy standing on the REAL winter field pays WF_SNOW_STARS on its first tap ever (the toy's id in the field's ledger — once ever, not once per floor); the sparkle below is its wiggle, its own row's twink its voice; on any other floor the toy stays as it was
@@ -142571,13 +142571,25 @@ function kuDieStep(now){ const h=KU_HOME; if(!h || !h.die) return;
       return; }
     h.vz=v; h.sq=performance.now(); tone(295*0.94,110,0.07,'sine',0.07*v/Math.sqrt(2*KU_G*KU_H)/PBL_E); }   // each contact a smaller socland
   kuDiePaint(h); h.raf=requestAnimationFrame(kuDieStep); }
-function kuRepaintLater(ms){ setTimeout(()=>{ if(S.mode!=='menu' || KU) return; if(KU_HOME){ kuRepaintLater(120); return; } renderMenu(); }, ms); }   // ⚑ KU-B's deferral, held for the roll home too (a repaint mid-roll would rebuild the ball under the tween)
+function kuRepaintLater(ms){ setTimeout(()=>{ if(S.mode!=='menu' || KU) return; if(KU_HOME || KUB){ kuRepaintLater(120); return; } renderMenu(); }, ms); }   // CARD-2BL: a borrowed run in the air holds the repaint as the roll home does   // ⚑ KU-B's deferral, held for the roll home too (a repaint mid-roll would rebuild the ball under the tween)
 let KU=null;   // page-lifetime: { z, vz, x, vx, waver, n, room, prev, roll, paid, raf } while a run lives, null at rest (1174: x/vx = the sideways run, waver = the self-made leans)
+// ═══ CARD-2BL TWO BALLS AT ONCE, AND EITHER BALL COUNTS (jumpr 2462; design/two-things-1021/00-BUILD-2TH.md; WYATT by phone 10/22/2026 00:59 EDT, dictated, verbatim: "The 'juggle the ball 50 times' mission I just did didn't count. I think it's
+// because I use the ball that the dinosaurs kick with instead of the regular ball, and either one should work. In fact, when you juggle the ball, you should be able to juggle both of the balls at once, so if you get good at it, you can be
+// juggling two balls at once."): KU is the toy's OWN run alone now; the dinosaurs' borrowed ball runs in KUB beside it, never in its place (CARD-BRW put the borrowed run in KU with b:'dino', so one ball shut the other's door: kuCan, brwCan,
+// kuFirst and the tap door all read !KU). The shipped keepy-uppy (kuKick · kuTap · kuLean · kuPaint · kuStep · kuEnd · kuRung · kuCounter) reads KU by name, so the borrowed run BORROWS THE NAME for each of its calls (kuAs: KU stands as the
+// borrowed run for the call and is given back after; a kuEnd inside leaves the null) and steps on its own frame (kuStepB). Each ball keeps its own count, counter (#kuCount · #kuCountB), tones, rungs and float; META.ball stays THE ONE LEDGER
+// (BRW-Q1: a rung pays once a day on the yard, whichever ball reaches it first). The weekly order (CARD-MSB-C5's kuNote) counts the best run of EITHER ball. ?2bl=0 on a device (gvt_2bl) = the one-ball law as shipped (the second ball takes
+// no tap while a run lives, the borrowed run never counts); ?2bl=1 back. Zero words, zero save keys, zero server bytes. The rigs' read: UI.ku().kub, UI.brw().run. ═══
+let KUB=null;   // CARD-2BL: the borrowed (dinosaurs') ball's run, the same shape as KU with b:'dino'; null at rest
+const TBL={ on:(function(){ try{ const q=/[?&]2bl=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_2bl','0'); else localStorage.removeItem('gvt_2bl'); } return localStorage.getItem('gvt_2bl')==='0'? 0 : 1; }catch(e){ return 1; } })() };   // CARD-2BL's switch (FHG's grammar): 1 = two balls at once and either counts · 0 = the one-ball law as shipped
+function tblOn(){ return TBL.on===1; }
+function kuAs(k, fn){ if(!k || k===KU) return fn(); const s=KU; KU=k; try{ return fn(); } finally{ KUB=KU; KU=s; } }   // CARD-2BL: run fn with k standing as THE run (the shipped keepy-uppy reads KU by name); the borrowed run is what KU holds after (null = it ended inside), the own run back in its place
+function kuStepB(now){ const k=KUB; if(!k) return; kuAs(k, function(){ kuStep(now); }); }   // CARD-2BL: the borrowed run's frame, under its own name
 function kuCan(){ return !SOC_FLY && !KU && !momDue() && S.mode==='menu' && decorHome('soccer'); }   // Mom's staging day keeps the shipped boing (socCanFly's own gate); reduced motion RUNS (the plain hop)
 function kuFirst(p,e){   // CARD-JBI THE JUGGLING BALL ANSWERS BEFORE A DOG (Wyatt 10/8: "the juggling balls aren't working on an iPad"): the router asks this right after the witch, before the dogs, the cat and the zombie. A dog at home on the bedroom rug (no kennel out: gb 265 / hd 335, pottering) owns a box 96 wide and 114 tall that held the ball's resting seat (324,488): a tap on the ball patted him and the ball never went up. The ball's OWN pad alone answers here: a borrowed ball mid-run, else the soccer ball at home in this room when its own pick (rdragPick: a man, the ship, a treasure drawn in front still win there) names it; off the pad, today's order
   const b=brwPick(p,1,e); if(b) return b;
   const h=(decorHome('soccer') || decorHome('football'))? rdragPick(p) : null; if(!h) return null;
-  if(h.k==='soccer') return (SOC_FLY || (KU && KU.b))? null : h;
+  if(h.k==='soccer') return (SOC_FLY || (KUB && !tblOn()))? null : h;   // CARD-2BL: the own ball answers while the dinosaurs' ball is in the air too (two balls at once); ?2bl=0 = the shipped wait
   return h.k==='football'? h : null; }   // CARD-ABT THE FOOTBALL ANSWERS BEFORE A DOG (Wyatt 10/10, his Android tablet: "we were unable to interact with the soccer ball or the football"): the football's own pick (rdragPick: off it while its field goal runs; a man, the ship, a treasure drawn in front still win there) answers here too, the soccer ball's JBI law. Its bedroom seat (272,489) lies in a dog at home's box and on the walking dog's lane: on a save with a dog ~9 presses in 10 on it patted the dog (design/android-ball-tap-1010)
 function kuStart(){
   KU={ z:0, vz:Math.sqrt(2*KU_G*KU_H), x:kuHomeStop(), vx:0, waver:0, n:0, room:roomCur(), prev:performance.now(), roll:0, paid:0, raf:0 };   // 1174 THE KEEPY-UPPY LEANS: x/vx = the sideways run (a tap on a ball still rolling home starts where it shows — kuHomeStop hands its offset over); waver = the count of self-made leans
@@ -142600,8 +142612,9 @@ function kuTap(){   // a tap on the airborne ball: on the way DOWN, inside the c
 }
 function kuCounter(){   // the counter over the ball — created on demand, re-queried by id (a repaint mid-run wipes it; the next frame brings it back)
   const st=document.getElementById('roomStage'); if(!st) return null;
-  let c=document.getElementById('kuCount');
-  if(!c){ c=document.createElement('div'); c.id='kuCount'; c.className='starfloat run'; c.textContent=String(KU? KU.n : 0); st.appendChild(c); }
+  const id9=(KU && KU.b)? 'kuCountB' : 'kuCount';   // CARD-2BL: the borrowed ball's run keeps its own counter beside the toy's (two balls, two counts)
+  let c=document.getElementById(id9);
+  if(!c){ c=document.createElement('div'); c.id=id9; c.className='starfloat run'; c.textContent=String(KU? KU.n : 0); st.appendChild(c); }
   return c;
 }
 function kuPaint(){
@@ -142790,7 +142803,7 @@ function brwSvg(){ return document.querySelector('#roomStage > svg'); }
 function brwHost(kind){ const svg=brwSvg(); return svg? svg.querySelector(kind==='dino'? '#by-kick' : '#wf-movers') : null; }
 function brwHeld(kind){ return !!(BRW && BRW.kind===kind); }   // THE PAINT'S READ (byLiveSVG · wfMoversSVG): a repaint mid-borrow paints the hold
 function brwFieldOn(kind){ return S.mode==='menu' && !document.hidden && (kind==='dino'? yardLive() : wfLive()) && !kuCovered(); }   // the keepy-uppy's own cut list, on their field
-function brwCan(kind){ return !BRW && !KU && !FGK && !SOC_FLY && brwFieldOn(kind); }   // CARD-ABT-C THEIR BALLS ON MOM'S DAY (Wyatt 10/11, his Android tablet: 'The ball in the backyard and the football in the snowfield, both of them, nothing happens'): Mom's staging day no longer stops their game. momDue() stands for good on a save with 7+ toys out and Mom never beaten, and their balls are not the player's toys (Mom stages and throws HIS)
+function brwCan(kind){ return !BRW && (tblOn() || !KU) && !FGK && !SOC_FLY && brwFieldOn(kind); }   /* CARD-2BL: the dinosaurs' ball takes a tap while the toy's own ball is in the air (two balls at once); ?2bl=0 = one ball at a time as shipped */   // CARD-ABT-C THEIR BALLS ON MOM'S DAY (Wyatt 10/11, his Android tablet: 'The ball in the backyard and the football in the snowfield, both of them, nothing happens'): Mom's staging day no longer stops their game. momDue() stands for good on a save with 7+ toys out and Mom never beaten, and their balls are not the player's toys (Mom stages and throws HIS)
 function brwBox(el){ const st=document.getElementById('roomStage'); if(!st || !el) return null; const r=st.getBoundingClientRect(), b=el.getBoundingClientRect(); if(!r.width || !(b.width>0)) return null; const s=r.width/960;
   return { x:(b.left+b.width/2-r.left)/s, y:(b.top+b.height/2-r.top)/s, w:b.width/s, h:b.height/s }; }   // an element's live box in ROOM units (its centre, its size) through every transform and every CSS clock; an unseen element keeps its box
 function brwMx(el){ try{ const m=/matrix\(([^)]+)\)/.exec(getComputedStyle(el).transform||''); if(m) return m[1].split(',').map(Number); }catch(e){} return [1,0,0,1,0,0]; }
@@ -142801,11 +142814,11 @@ function brwLive(kind){   // THEIR BALL WHERE IT SHOWS: the centre (room units),
   if(kind==='yeti'){ const sh=brwBox(host.querySelector('.ft-sh')); if(sh){ o.sx=sh.x; o.sy=sh.y; } else o.sy=c.y+h+12; o.rot-=10; }   // the football's own tilt (rotate(-10)) lives inside both arts
   return o; }
 function brwPadR(kind,s){ return Math.max(KU_PAD*BRW_R[kind], KU_PAD_PX/2/Math.max(0.05, +s||1)); }   // THE PAD: the keepy-uppy's own law (kuPadR) on their ball's size — never under KU_PAD_PX across on the glass
-function brwZ(){ const k=KU; return k? (reducedMotion()? (k.z>0? KU_RM_LIFT : 0) : k.z) : 0; }
+function brwZ(){ const k=KUB; return k? (reducedMotion()? (k.z>0? KU_RM_LIFT : 0) : k.z) : 0; }   // CARD-2BL: the borrowed run's height (KUB)
 function brwSeat(){ const B=BRW; return { x:(B && B.g? B.g[0] : 0)-BRW_R.dino, w:2*BRW_R.dino }; }   // kuStep's bound reads a toy's spot: the borrowed run's own (its ground seat, its width)
 function brwPick(p,live,e){   // THE PRESS (the room's pointerdown): live = a borrowed ball MID-RUN answers first, over every toy and every door (it rides on top, the thumb is juggling); !live = their ball IN PLAY answers after the toys (a toy over it wins) and yields to a door, a pill or an anchor under the finger
   const B=BRW;
-  if(live){ if(!B || B.kind!=='dino' || B.ph!=='run' || !KU || !KU.b) return null; const cx=B.g[0]+KU.x, cy=B.g[1]-brwZ(), R=brwPadR('dino',p.s);
+  if(live){ if(!B || B.kind!=='dino' || B.ph!=='run' || !KUB) return null; const cx=B.g[0]+KUB.x, cy=B.g[1]-brwZ(), R=brwPadR('dino',p.s);   // CARD-2BL: the borrowed run is KUB
     if((p.x-cx)*(p.x-cx)+(p.y-cy)*(p.y-cy)<=R*R){ KU_HIT=p.x-cx; return { k:'brw', tapOnly:true }; } return null; }
   if(B) return null;
   const kind=yardLive()? 'dino' : wfLive()? 'yeti' : null; if(!kind || !brwCan(kind)) return null;
@@ -142818,7 +142831,7 @@ function brwTapAt(e){   // rdragEnd's sub-slop release on their ball IS the tap:
   document.addEventListener('click', eat, {capture:true, once:true}); setTimeout(()=>document.removeEventListener('click', eat, {capture:true}), 350);
   brwTap(); }
 function brwTap(){ const B=BRW;
-  if(B){ if(B.kind==='dino' && B.ph==='run' && KU && KU.b) kuTap(); return; }   // mid-run: the keepy-uppy's own tap (the catch zone's law); any other beat of a borrow takes no tap
+  if(B){ if(B.kind==='dino' && B.ph==='run' && KUB) kuAs(KUB, kuTap); return; }   // CARD-2BL: the borrowed run's own tap, under its name   // mid-run: the keepy-uppy's own tap (the catch zone's law); any other beat of a borrow takes no tap
   const kind=yardLive()? 'dino' : wfLive()? 'yeti' : null; if(!kind || !brwCan(kind)) return;
   const c=brwLive(kind); if(!c) return;
   audio(); if(kind==='dino') brwJuggle(c); else brwTake(c); }
@@ -142864,10 +142877,9 @@ function brwStep(now){ const B=BRW; if(!B) return;
 function brwJuggle(c){   // the tap is kick 1: the ball leaves the match from where it shows, its height carried into the run
   const z0=Math.min(KU_H, c.h);
   BRW={ kind:'dino', ph:'run', g:[c.x, c.y+c.h], paid:0, raf:0 };
-  KU={ z:z0, vz:Math.sqrt(2*KU_G*Math.max(0, KU_H-z0)), x:0, vx:0, waver:0, n:0, room:roomCur(), prev:performance.now(), roll:c.rot||0, paid:0, raf:0, b:'dino' };
-  brwBall(); brwPaint();
-  kuKick();
-  KU.raf=requestAnimationFrame(kuStep); }
+  KUB={ z:z0, vz:Math.sqrt(2*KU_G*Math.max(0, KU_H-z0)), x:0, vx:0, waver:0, n:0, room:roomCur(), prev:performance.now(), roll:c.rot||0, paid:0, raf:0, b:'dino' };   // CARD-2BL: the borrowed run lives beside the toy's own (KU), never in its place
+  kuAs(KUB, function(){ brwBall(); brwPaint(); kuKick(); });
+  if(KUB) KUB.raf=requestAnimationFrame(kuStepB); }
 function brwPaint(){   // kuPaint's own branch: the borrowed ball at its height over its ground seat, its shadow on the ground, the counter over it
   const k=KU, B=BRW, n=brwBall(); if(!k || !B || !n) return;
   const rm=reducedMotion(), z=brwZ(), zk=Math.max(0,Math.min(1,z/KU_H)), gx=B.g[0]+k.x, gy=B.g[1], b=n.querySelector('.brw-b'), r=n.querySelector('.brw-r'), s=n.querySelector('.brw-sh');
@@ -142876,7 +142888,7 @@ function brwPaint(){   // kuPaint's own branch: the borrowed ball at its height 
   if(s){ s.setAttribute('transform','translate('+fg1(gx)+','+fg1(gy+28.7)+') scale('+(1-0.3*zk).toFixed(3)+')'); s.setAttribute('opacity',(0.25*(1-0.55*zk)).toFixed(3)); }
   const c=kuCounter(); if(c){ c.style.left=fg1(gx)+'px'; c.style.top=fg1(gy-z-64.6)+'px'; } }   // the counter 41.5 over the ball's top, the toy's own gap (58 over a 16.5 ball's centre)
 function brwDrop(k, why){   // kuEnd's own branch: the thud, the counter's send-off; the ball lies a beat, then THE PASS BACK; a cut hands it back at once
-  const B=BRW, c=document.getElementById('kuCount');
+  const B=BRW, c=document.getElementById('kuCountB');   // CARD-2BL: the borrowed run's own counter
   if(c){ c.classList.remove('run'); c.classList.remove('tick'); c.classList.remove('flare'); setTimeout(()=>{ try{ c.remove(); }catch(e){} }, 1000); }
   if(why==='ground') SFX.socland();
   if(!B || B.kind!=='dino'){ brwEnd(); return; }
@@ -142930,7 +142942,7 @@ function kuStep(now){
     if(k.x<lo){ k.x=lo+(lo-k.x); k.vx=Math.abs(k.vx)*KU_WALL; } else if(k.x>hi){ k.x=hi-(k.x-hi); k.vx=-Math.abs(k.vx)*KU_WALL; } }
   if(k.z<=0 && k.vz<0){ k.z=0; kuPaint(); kuEnd('ground'); return; }   // the ground = on the way DOWN only (a real tap lands between frames: the first rAF stamp can sit BEFORE kuStart's own clock, dt 0, z still 0 — that is not a landing)
   kuPaint();
-  k.raf=requestAnimationFrame(kuStep);
+  k.raf=requestAnimationFrame(k.b? kuStepB : kuStep);   // CARD-2BL: the borrowed run steps under its own name (kuStepB swaps it in)
 }
 function kuEnd(why){
   const k=KU; KU=null; if(!k) return;
@@ -147163,6 +147175,9 @@ function rdragEnd(e){
   }
 }
 document.addEventListener('pointerdown', e=>{
+  if(RDRAG && !e.isPrimary && S.mode==='menu' && tblOn() && (RDRAG.k==='soccer' || RDRAG.k==='brw')){   // CARD-2BL THE SECOND THUMB: while one finger is down on a ball, a second finger on the OTHER ball (its pad: kuFirst for a ball in the air or the own ball, brwPick(p,0) for the dinosaurs' ball at play) is its kick NOW; the pinch (1154's listener after this one) never hears it (stopImmediatePropagation: two thumbs on two balls are juggling, not a pinch), so the first thumb's claim stands; its late click eaten at its point (KU-D)
+    try{ const st9=document.getElementById('roomStage'); if(st9 && st9.contains(e.target)){ const p9=rdragPt(e); const kb9=p9? (kuFirst(p9,e) || brwPick(p9,0,e)) : null;
+      if(kb9 && (kb9.k==='brw' || kb9.k==='soccer')){ e.stopImmediatePropagation(); if(kb9.k==='brw') brwTapAt(e); else { const px=e.clientX, py=e.clientY, eat=ev=>{ if(Math.abs(ev.clientX-px)<=8 && Math.abs(ev.clientY-py)<=8){ ev.stopPropagation(); ev.preventDefault(); } }; document.addEventListener('click', eat, {capture:true, once:true}); setTimeout(()=>document.removeEventListener('click', eat, {capture:true}), 350); audio(); decorReact('soccer'); } return; } } }catch(e9){} }
   if(RDRAG || !e.isPrimary || S.mode!=='menu') return;
   const st=document.getElementById('roomStage'); if(!st || !st.contains(e.target)) return;
   const p=rdragPt(e); if(!p) return;
@@ -190163,9 +190178,9 @@ const MSBK={ on:(function(){ try{ const q=/[?&]msbk=([01])/.exec(location.search
 //   THE PICK inside a row is the WEEK'S, seeded, the same on every phone (the board's law: no dice): sport = soccer / football by w mod 2 · bird = ROOM_ORDER's six at (w+1) mod 6 · fish = puffer · betta · goldfish · bonefish · seahorse · bass at (w+3) mod 6 (three offsets: the rings never step in lockstep).
 //   FAR FROM THE PICK (C2's far grammar): a player who cannot reach the week's pick TODAY steps along that ring to the first face he can (a sport needs its floor and its ball; a bird its floor open, the whistle is NOT a gate: the card is the first step to the shop; a fish THE FISHING POLE, its park or floor open, THE BAIT BUCKET for the betta / goldfish / seahorse, the frozen lake open for the bass); no face reachable = that row yields its seat that week to the next row of the roll. The pick is written on the week's sheet at its deal (META.msbw.pk) and HOLDS for the week whatever door opens later.
 //   THE ROLL: rows (3 (w - W0) + i) mod 13 with W0 = the week this card LANDS (0 = 10/20-10/26), so THE FIRST WEEK deals exactly sport · bird · fish and the loop goes on from claw; the landing re-deals the current week's sheet ONCE (the sheet's version stamp v 2 + w0: a sheet without them is dealt afresh; a count on claw / globe / refer this week goes with it).
-//   THE FACES (the row's line, en and n are GETTERS that follow the week's pick, so C3's need(k) = o.n, Q.text(o) and Q.lines(o) read them unchanged): soccer = JUGGLE THE SOCCER BALL 50 TIMES IN THE BACKYARD, n 50, the count = THE BEST RUN this week (the keepy-uppy's own count on THE BACKYARD floor, the player's own ball: a borrowed dino ball never counts) · football = KICK A FIELD GOAL FROM THE FROZEN POND, n 1 (fgMake: the tee IS the pond) · a bird = MAKE FRIENDS WITH THE <bird> IN <its floor>, n 1 (the whistle played on that floor and the bird come down: bwhLand's perch, on Sarge's hand or on the whistle) · a fish = CATCH THE <fish> AT <its water>, n 1 (the fish's own catch door: wlLand's puffer, pfTake, bfishTake, lakeCast / lakeTake).
+//   THE FACES (the row's line, en and n are GETTERS that follow the week's pick, so C3's need(k) = o.n, Q.text(o) and Q.lines(o) read them unchanged): soccer = JUGGLE THE SOCCER BALL 50 TIMES IN THE BACKYARD, n 50, the count = THE BEST RUN this week (the keepy-uppy's own count on THE BACKYARD floor, the player's own ball or the dinosaurs' borrowed ball: CARD-2BL, Wyatt 10/22, "either one should work") · football = KICK A FIELD GOAL FROM THE FROZEN POND, n 1 (fgMake: the tee IS the pond) · a bird = MAKE FRIENDS WITH THE <bird> IN <its floor>, n 1 (the whistle played on that floor and the bird come down: bwhLand's perch, on Sarge's hand or on the whistle) · a fish = CATCH THE <fish> AT <its water>, n 1 (the fish's own catch door: wlLand's puffer, pfTake, bfishTake, lakeCast / lakeTake).
 //   CAUGHT AGAIN: while the fish row stands on the sheet (due, dealt, not done), the pick's water leaps that fish for a player who already has him: the puffer by a branch at wlLand's head (the quest's cast leaps him, the RIGHT OFF THE HOOK card, no second toy; wlCatchEgg false so the fish on the line is the puffer; the egg's door waits behind the quest's catch) · the betta / goldfish / seahorse by pfDue true for the quest's fish though home (pfTake's own law: no second own, the bait USED, the card) · the bone fish and the bass leap every cast already.
-//   THE COUNT lands through MSBQ.fire(k, add, x) as every row's does (HQ's clock, the readers' ledgers): the soccer run fires the DELTA to the best run at every kick above it; the football, the bird and the fish fire 1. THE PAY, THE CLAIM, THE STAMP, THE YARD: C3's, untouched. NEVER: bots', allies' and replays' deeds; a run on the bedroom's ball; a borrowed dino ball; a field goal from anywhere but the pond (there is no such kick).
+//   THE COUNT lands through MSBQ.fire(k, add, x) as every row's does (HQ's clock, the readers' ledgers): the soccer run fires the DELTA to the best run at every kick above it; the football, the bird and the fish fire 1. THE PAY, THE CLAIM, THE STAMP, THE YARD: C3's, untouched. NEVER: bots', allies' and replays' deeds; a run on the bedroom's ball; a field goal from anywhere but the pond (there is no such kick). (A borrowed dino ball COUNTS since CARD-2BL.)
 //   HOW: a new sec after the last Mission Board sec, every seam a WRAP at load (kuKick · fgMake · bwhLand · bwhCall · wlLand · wlCatchEgg · pfDue · pfTake · bfishTake · lakeCast · lakeTake · MSBQ.live); TWO lines of sec CARD-MSB-C3 read this sec where a wrap cannot reach (deal(w)'s pool, sheet()'s stamp). ?msbc5=0 (a device key gvt_msbc5) = the pool of ten without the three, C3's deal as today; ?msbw=0 and ?msb=0 untouched (both off = today's board). GVT.msbc5 = the rigs' read + door. 14 words x7 (drafts for his pen).
 const MSBC5={ on:(function(){ try{ const q=/[?&]msbc5=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_msbc5','0'); else localStorage.removeItem('gvt_msbc5'); } return localStorage.getItem('gvt_msbc5')==='0'? 0 : 1; }catch(e){ return 1; } })(), W0:0, V:2, log:[], fpk:null, fires:0 };   // W0 = the landing week (10/20-10/26 = week 0 of MSB_DAY0's count); V = the sheet's version stamp; fpk = the rigs' forced picks
 (function(){ if(!MSBC5.on || typeof MSB==='undefined' || !MSB.on || typeof MSBQ==='undefined' || !MSBQ.on || typeof MSBW==='undefined' || !MSBW.on || !Array.isArray(MSBQ.POOL) || typeof MSBQ.live!=='function' || typeof MSBW.sheet!=='function'){ MSBC5.on=0; return; } const C=MSBC5, Q=MSBQ, W=MSBW;
@@ -190216,8 +190231,8 @@ const MSBC5={ on:(function(){ try{ const q=/[?&]msbc5=([01])/.exec(location.sear
   function onSheet(k){ try{ const s=W.sheet(); return s.ks.indexOf(k)>=0 && !s.c[k]; }catch(e){ return false; } }
   function standing(k){ try{ return !!W.due() && onSheet(k) && !W.done(k); }catch(e){ return false; } }   // the row stands: the wall is due, the row dealt, not claimed, not done
   function fire(k,add,x){ try{ if(Q.fire(k, add, x)) C.fires++; }catch(e){ log('fire:'+k+':'+e); } }
-  // ── SPORT / THE SOCCER BALL: the keepy-uppy's own count on THE BACKYARD floor, the player's own ball (KU.b = a borrowed dino ball: nothing); the card holds THE BEST RUN this week
-  function kuNote(){ const k=KU; if(!k || k.b || k.room!=='backyard' || cur('sport')!=='soccer' || !onSheet('sport')) return; const n=k.n|0, c=W.cnt('sport'); if(n>c) fire('sport', n-c, { id:'soccer', run:n }); }
+  // ── SPORT / THE SOCCER BALL: the keepy-uppy's own count on THE BACKYARD floor, the player's own ball OR the dinosaurs' borrowed ball (CARD-2BL, Wyatt 10/22: either one; before it a borrowed run counted nothing); the card holds THE BEST RUN this week
+  function kuNote(){ const k=KU; if(!k || (k.b && !tblOn()) || k.room!=='backyard' || cur('sport')!=='soccer' || !onSheet('sport')) return; const n=k.n|0, c=W.cnt('sport'); if(n>c) fire('sport', n-c, { id:'soccer', run:n, ball:k.b||'own' }); }   // CARD-2BL (Wyatt 10/22: "either one should work"): the dinosaurs' borrowed ball counts too (kuAs stands its run in KU's place for the kick); ?2bl=0 = the toy's own ball alone, as C5 shipped
   const kk0=kuKick; kuKick=function(){ const r=kk0.apply(this,arguments); try{ kuNote(); }catch(e){ log('ku:'+e); } return r; };
   // ── SPORT / THE FOOTBALL: a field goal made (fgMake: the tee is the frozen pond; a make is a make)
   const fm0=fgMake; fgMake=function(){ const r=fm0.apply(this,arguments); try{ if(cur('sport')==='football') fire('sport', 1, { id:'football' }); }catch(e){ log('fg:'+e); } return r; };
@@ -190242,7 +190257,7 @@ const MSBC5={ on:(function(){ try{ const q=/[?&]msbc5=([01])/.exec(location.sear
     return { cv:GVT_CV, on:C.on, W0:C.W0, V:C.V, w:w, pool:ks(pool()), live:ks(Q.live()), sheet:(s && typeof s==='object')? { w:s.w, ks:(s.ks||[]).slice(), pk:s.pk? Object.assign({},s.pk) : null, v:s.v, w0:s.w0, n:Object.assign({},s.n||{}), c:Object.assign({},s.c||{}) } : null,
       pk:{ sport:cur('sport'), bird:cur('bird'), fish:cur('fish') }, raw:pick(w), far:pickFar(w), faces:['sport','bird','fish'].map(function(k){ return [k, ROW[k].line, ROW[k].en.slice(), ROW[k].n]; }), lines:['sport','bird','fish'].map(function(k){ return Q.lines(ROW[k]); }),
       standing:{ sport:standing('sport'), bird:standing('bird'), fish:standing('fish') }, reach:{ soccer:canSport('soccer'), football:canSport('football'), birds:BIRDS.map(function(b){ return [b.k, canBird(b.k)]; }), fish:FISH.map(function(f){ return [f, canFish(f)]; }) },
-      ku:KU? { n:KU.n, room:KU.room, b:KU.b||null } : null, bwv:BWV? { kind:BWV.kind, room:BWV.room, on:BWV.on, ph:BWV.ph, rm:!!BWV.rm } : null, degg:META.degg|0, baited:META.baited|0, fires:C.fires, log:C.log.slice(-30), q:{ fired:Q.fired, log:Q.log.slice(-20) }, msbw:W.read() }; };
+      ku:KU? { n:KU.n, room:KU.room, b:KU.b||null } : null, kub:(typeof KUB!=='undefined' && KUB)? { n:KUB.n, room:KUB.room, b:KUB.b||null } : null, tbl:(typeof TBL!=='undefined')? TBL.on : null, bwv:BWV? { kind:BWV.kind, room:BWV.room, on:BWV.on, ph:BWV.ph, rm:!!BWV.rm } : null, degg:META.degg|0, baited:META.baited|0, fires:C.fires, log:C.log.slice(-30), q:{ fired:Q.fired, log:Q.log.slice(-20) }, msbw:W.read() }; };
   setTimeout(function(){ try{ if(window.GVT && !GVT.msbc5) GVT.msbc5=function(o){ o=o||{}; if(o.pk!==undefined){ C.fpk=o.pk||null; try{ if(o.pk && META.msbw && META.msbw.pk) Object.assign(META.msbw.pk, o.pk); }catch(e){} } if(o.reset) delete META.msbw; if(o.deal!==undefined) return { w:o.deal|0, ks:C.deal(o.deal|0), pk:pickFar(o.deal|0), raw:pick(o.deal|0) }; if(o.sheet) W.sheet(); return C.read(); }; }catch(e){} }, 0);   // the rigs' door, seated once window.GVT exists
 })();
 // ═══ END CARD-MSB-C5 ═══
@@ -190310,6 +190325,7 @@ const MCS={ on:(function(){ try{ const q=/[?&]mcs=([01])/.exec(location.search||
     if(document.querySelector('#comms .cm-win')) return 'comms';
     if(document.querySelector('#roomModal .rmback')) return 'modal';
     if(typeof KU!=='undefined' && KU) return 'ku';
+    if(typeof KUB!=='undefined' && KUB) return 'kub';   // CARD-2BL's landing (J44, 10/21): the dinosaurs' borrowed ball in the air holds the page as the own ball does (CARD-MCS was built while the borrowed run lived in KU)
     const rv=document.getElementById('fzReveal'); if(rv && rv.style.display!=='none') return 'claw';
     if(typeof FO!=='undefined' && FO) return 'faceoff';
     if((S.mode==='win' || S.mode==='lose') && Date.now()-MCS.vt<MCS.VWAIT) return 'verdict';
@@ -194387,12 +194403,12 @@ window.GVT = {
     return { cv:GVT_CV, secs:S9.map(s=>({ key:s.key, word:s.word, face:s.face, n:s.vis.length, vis:s.vis.slice() })), arm:Object.assign({}, LAB_ARM), arms:LAB_ARMS.slice(), art:Object.keys(LAB_ARM_ART), saber:sh, saberMeta:META.saberColor||null, labOpen:SHOP.labOpen, keyOf:{ telekinesis:labKeyOf('telekinesis'), riotshield:labKeyOf('riotshield'), emperorsblade:labKeyOf('emperorsblade'), flameblade:labKeyOf('flameblade'), iceblade:labKeyOf('iceblade'), eldersaber:labKeyOf('eldersaber'), unarmed:labKeyOf('unarmed'), dualgun:labKeyOf('dualgun'), cougar:labKeyOf('cougar'), longtube:labKeyOf('longtube') }, subs:{ emperorsblade:ENH_INFO.emperorsblade.sub, flameblade:ENH_INFO.flameblade.sub, iceblade:ENH_INFO.iceblade.sub },
       faces: d? Array.from(d.querySelectorAll('.lb-h')).map(h=>{ const f=h.querySelector('.lb-face'), r=f? f.getBoundingClientRect() : null, p=h.querySelector('.lb-port').getBoundingClientRect(), n=h.querySelector('.lb-n'), arm=!!(f && f.classList.contains('lb-arm')); return { id:h.id, tag:f? f.tagName.toLowerCase() : null, arm, w:r? +r.width.toFixed(1) : 0, h:r? +r.height.toFixed(1) : 0, port:+p.width.toFixed(1), word:n.textContent, fs:getComputedStyle(n).fontSize, clip:n.scrollWidth>n.clientWidth+1, blade:arm? f.innerHTML.indexOf(sh)>=0 : null, kind:h.className.replace('lb-h','').trim() }; }) : null }; },
   ku(){ const c=document.getElementById('kuCount'), sp=document.getElementById('dspot-soccer'), g=document.getElementById('decSoc'), gb=g&&g.querySelector('.socb'), gs=g&&g.querySelector('.socsh'), w=document.getElementById('ro-soccer'), f=document.getElementById('kuFloat');
-    return { live:!!KU, n:KU? KU.n : 0, z:KU? +KU.z.toFixed(2) : 0, vz:KU? +KU.vz.toFixed(1) : 0, paid:KU? KU.paid : 0, ledger:{ day:META.ball.day, paid:META.ball.paid.slice() }, daily:KU_DAILY, rungs:KU_RUNGS.map(r=>r.slice()), h:KU_H, hang:KU_HANG, g:KU_G, catchZ:KU_CATCH, x:KU? +KU.x.toFixed(2) : 0, vx:KU? +KU.vx.toFixed(1) : 0, hit:KU_HIT, waver:KU? KU.waver : 0, home:KU_HOME? { x:+KU_HOME.x.toFixed(2) } : null, pad:{ k:KU_PAD, px:KU_PAD_PX }, steer:KU_STEER, sign:KU_STEER_SIGN, vxMax:KU_VX_MAX, waverFrom:KU_WAVER_FROM, waverP:+KU_WAVER_P.toFixed(4), waverV:KU_WAVER_V.slice(), wall:KU_WALL, homeV:KU_HOME_V, rng:KU_RNG,
+    return { live:!!KU, n:KU? KU.n : 0, kub:KUB? { n:KUB.n, z:+KUB.z.toFixed(2), vz:+KUB.vz.toFixed(1), x:+KUB.x.toFixed(2), paid:KUB.paid|0, room:KUB.room, waver:KUB.waver } : null, countB:(function(){ const c9=document.getElementById('kuCountB'); return c9? { t:c9.textContent, cls:c9.className, top:c9.style.top, left:c9.style.left } : null; })(), tbl:TBL.on, /* CARD-2BL: the borrowed run and its counter */ z:KU? +KU.z.toFixed(2) : 0, vz:KU? +KU.vz.toFixed(1) : 0, paid:KU? KU.paid : 0, ledger:{ day:META.ball.day, paid:META.ball.paid.slice() }, daily:KU_DAILY, rungs:KU_RUNGS.map(r=>r.slice()), h:KU_H, hang:KU_HANG, g:KU_G, catchZ:KU_CATCH, x:KU? +KU.x.toFixed(2) : 0, vx:KU? +KU.vx.toFixed(1) : 0, hit:KU_HIT, waver:KU? KU.waver : 0, home:KU_HOME? { x:+KU_HOME.x.toFixed(2) } : null, pad:{ k:KU_PAD, px:KU_PAD_PX }, steer:KU_STEER, sign:KU_STEER_SIGN, vxMax:KU_VX_MAX, waverFrom:KU_WAVER_FROM, waverP:+KU_WAVER_P.toFixed(4), waverV:KU_WAVER_V.slice(), wall:KU_WALL, homeV:KU_HOME_V, rng:KU_RNG,
       count:c? { t:c.textContent, cls:c.className, top:c.style.top, left:c.style.left } : null, spotTop:sp? sp.style.top : null, tf:gb? gb.style.transform : null, sh:gs? [gs.style.transform, gs.style.opacity] : null, wrap:w? w.getAttribute('transform') : null, pos:rpXY('soccer').slice(),
       bank:META.starBank|0, life:META.starsLifetime|0, float:f? f.textContent : null, squash:!!(g&&g.classList.contains('kusq')), react:!!(g&&g.classList.contains('react')), fly:!!SOC_FLY, goal:!!META.socGoal }; },
   kuDay(day){ META.ball.day=day; saveMeta(); return META.ball.day; },
   brw(){ const B=BRW, L=k=>{ try{ const c=brwLive(k); return c? { x:+c.x.toFixed(2), y:+c.y.toFixed(2), h:+c.h.toFixed(2), rot:+c.rot.toFixed(1), sx:+c.sx.toFixed(2), sy:+c.sy.toFixed(2) } : null; }catch(e){ return null; } }, svg=brwSvg(), n=svg&&svg.querySelector('#brw-ball');   // CARD-BRW THE BORROWED BALL's read door: the state, the hold, the node, their ball where it shows, the dials
-    return { on:!!B, kind:B? B.kind : null, ph:B? B.ph : null, g:(B&&B.g)? B.g.map(v=>+v.toFixed(2)) : null, tee:(B&&B.tee)? B.tee.slice() : null, paid:B? (B.paid|0) : 0, run:!!(KU&&KU.b), kick:!!(FGK&&FGK.b), node:!!n, teeMark:!!(n&&n.querySelector('#brw-tee')&&n.querySelector('#brw-tee').childElementCount), held:{ dino:!!(svg&&svg.querySelector('#by-kick.brw-hold')), yeti:!!(svg&&svg.querySelector('#wf-movers.brw-hold')) },
+    return { on:!!B, kind:B? B.kind : null, ph:B? B.ph : null, g:(B&&B.g)? B.g.map(v=>+v.toFixed(2)) : null, tee:(B&&B.tee)? B.tee.slice() : null, paid:B? (B.paid|0) : 0, run:!!KUB, /* CARD-2BL */ kick:!!(FGK&&FGK.b), node:!!n, teeMark:!!(n&&n.querySelector('#brw-tee')&&n.querySelector('#brw-tee').childElementCount), held:{ dino:!!(svg&&svg.querySelector('#by-kick.brw-hold')), yeti:!!(svg&&svg.querySelector('#wf-movers.brw-hold')) },
       live:{ dino:yardLive()? L('dino') : null, yeti:wfLive()? L('yeti') : null }, can:{ dino:brwCan('dino'), yeti:brwCan('yeti') }, tees:BRW_TEES.map(t=>t.slice()), nextTee:wfLive()? brwTee() : null, r:Object.assign({},BRW_R), lob:Object.assign({},BRW_LOB), rest:BRW_REST, beat:BRW_BEAT, clear:BRW_CLEAR }; },
   brwTap(off){ KU_HIT=+off||0; brwTap(); return !!BRW; },   // the rigs' tap door (no pointer): the borrow, or a kick of the borrowed run
   // 1108 THE FIELD GOAL's doors: the state + the ledger + the law + the greens at the live tee + the paint in one read (read-only), a kick with no taps (the rig's door), the judge itself (the grid against the kit's kick()), the day set by hand
