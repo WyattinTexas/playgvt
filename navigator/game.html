@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.72","md5":"ed0a3baea009c99b7b6573126ba78ee3","sha":"453649b429","at":"2026-10-22T08:37:06Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.73","md5":"aa51b147f2f5970bc21ebf74ce29af7d","sha":"1fe626ce5a","at":"2026-10-22T08:51:17Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -89935,7 +89935,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.72';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.73';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -194463,8 +194463,9 @@ function bbsStreetRig(o){ o=o||{}; const TR=S.cfg && S.cfg.terrain, on=!!(bbsOn(
 // speaker card). THE WIN: the second bar's zero reaches foeFell as any boss death (kingDown by raidBossT): bbsThrown = the fx bbsthrow (he is thrown and tumbles, the horse bolts east off the rug, he
 // sits up in the dust), the verdict's cel as C1 wrote it. THE LOSS: the box's lives at zero = the raid's own door with C1's lost line. GVT.bbs gains phase (through C1's own read of bill.bbs.st), mind,
 // v, horse + the levers (mount, mind, say). Zero server, zero sw.js, zero css; the campaign's Bill, the riders, every other throne byte-still.
+// ROUND 2 (v25.72): THE MIND ON THE WIRE: in a party the referee decides and says it (the bbm word: ordinal x 10 + mode in n, the seat or the lane in b; relayed opaque by the server's own command whitelist, zero server bytes); every guest applies the referee's word for the ordinal (bbsApplyWord through coopApply's door) instead of rolling on its own drifting seats: one mind on every glass (the five-minute party read 93 of 100 before, 100 of 100 after).
 const BBS3={ inv:2.8, horseIn:2.0, vault:0.8, v0:36, acc:24, vmax:84, skid:0.5, turnA:1.75, skidCd:1.0, xMin:300, xLo:420, xHi:1880, yLo:84, yHi:548, hw:108, bw:70, arrive:26, turnRate:3.2,
-  spray:{ every:2.5, t:1.5, gap:0.2, carry:3.0 }, air:{ min:12, max:20, r:300, h:170 }, mind:{ every:3, turn:0.15, hunt:560, lane:4, past:120, flank:60, bandPad:24 }, mud:{ cap:60, rx:200, ry:56, step:0.55 }, line:{ min:20, max:40, gap:4 }, dust:0.09, hoof:0.26, say:{ hunt:15, mud:20, barrel:15 } };   // the dials (§1.7: the clocks, the speeds, the reaches)
+  spray:{ every:2.5, t:1.5, gap:0.2, carry:3.0 }, air:{ min:12, max:20, r:300, h:170 }, mind:{ every:3, turn:0.15, hunt:560, lane:4, past:120, flank:60, bandPad:24, wireR:240 }, mud:{ cap:60, rx:200, ry:56, step:0.55 }, line:{ min:20, max:40, gap:4 }, dust:0.09, hoof:0.26, say:{ hunt:15, mud:20, barrel:15 } };   // the dials (§1.7: the clocks, the speeds, the reaches)
 const BBS3_LINES=['WOOOO! Faster, faster!',"Can't hit what you can't catch!",'I could do this ALL night!','Hold still, little green men!'];   // his road lines (§1.10; C7 brings the speaker window and the recordings; here the hooks and the words)
 FDEF.bbride=Object.assign({}, FDEF.bbshow, { bbsRide:1 });   // BUFFALO BILL RIDES: his own row with the ride flag (the march reads spdMul 0: bbsRideTick owns his feet; the molds, the bar, the reach, the cover rule as on foot)
 BOSSDEF.bbride={ title:'BUFFALO BILL RIDES', wave:'BUFFALO BILL RIDES', bar:'BUFFALO BILL RIDES' };   // the second bar's plate (bbsBarName reads it on the bbshow row while he rides)
@@ -194512,16 +194513,34 @@ function bbsSetMode(f,b,mode,tgt,lane){ const was=b.mode; b.mode=mode; b.tgt=tgt
   if(mode==='mud'){ b.ma=Math.atan2((f.y-BBS_MUD.y)/BBS3.mud.ry, (f.x-BBS_MUD.x)/BBS3.mud.rx); b.mdir=(f.y<BBS_MUD.y)? 1 : -1; }
   if(mode==='hunt' && (was!=='hunt' || !b.huntSaid)){ if(S.t-(b.huntSaidT||-99)>BBS3.say.hunt){ b.huntSaidT=S.t; b.huntSaid=1; bbsSay(f,'There you are, Sarge!',{ pend:1 }); } }
   b.goal=null; }
-function bbsDecide(f,b,B,n){   // THE FREE WILL's decision (every 3 s on the shared second; the die by the ordinal): the turn-around, the hunt, the lane, the mud
+function bbsDecide(f,b,B,n){   // THE FREE WILL's decision (every 3 s on the shared second; the die by the ordinal): the turn-around, the hunt, the lane, the mud. IN A PARTY the referee decides and SAYS IT ON THE WIRE (the bbm word: the ordinal, the mode, the seat or the lane; the server relays it opaque, zero server bytes), and every guest applies the referee's word for the ordinal instead of rolling on its own seats (the sims' seats drift a stride between glasses, so a Sarge near the 560 px line could read inside on one glass and outside on the other: C3-F5): the mind is ONE on every glass
+  if(S.coop && COOP && !COOP.ended && !sqRef()){ if(bbsApplyWord(f,b,B,n)) return 'wire'; b.wireWait=n; return 'wait'; }   // a guest: the referee's word for this ordinal, or the last mode stands until it lands
   b.decisions++; b.mindN=n; const pin=B.mindPin||null;
-  const r=rxRoll(bbsMindKey(n)); b.lastRoll=+r.toFixed(3);
-  if(!pin && r<BBS3.mind.turn && b.mode){ bbsTurnAround(f,b); return 'turn'; }
-  const sg=pin? (pin==='hunt'? bbsSarges(f) : []) : bbsSarges(f);
-  if(sg.length){ const i=Math.min(sg.length-1, Math.floor(rxRoll(bbsMindKey(n,'h'))*sg.length)), u=sg[i]; if(b.mode!=='hunt' || b.tgt!==u) bbsSetMode(f,b,'hunt',u,null); return 'hunt'; }
-  const lc=bbsLaneCounts(); let best=-1, bn=BBS3.mind.lane-1; for(let i=0;i<lc.length;i++){ if(lc[i]>bn){ bn=lc[i]; best=i; } }
-  if(pin==='own' && best<0){ best=1; }
-  if(best>=0 && pin!=='mud'){ if(b.mode!=='own' || b.lane!==best) bbsSetMode(f,b,'own',null,best); return 'own'; }
-  if(b.mode!=='mud') bbsSetMode(f,b,'mud',null,null); return 'mud'; }
+  const r=rxRoll(bbsMindKey(n)); b.lastRoll=+r.toFixed(3); let res;
+  if(!pin && r<BBS3.mind.turn && b.mode){ bbsTurnAround(f,b); res='turn'; }
+  else { const sg=pin? (pin==='hunt'? bbsSarges(f) : []) : bbsSarges(f);
+    if(sg.length){ const i=Math.min(sg.length-1, Math.floor(rxRoll(bbsMindKey(n,'h'))*sg.length)), u=sg[i]; if(b.mode!=='hunt' || b.tgt!==u) bbsSetMode(f,b,'hunt',u,null); res='hunt'; }
+    else { const lc=bbsLaneCounts(); let best=-1, bn=BBS3.mind.lane-1; for(let i=0;i<lc.length;i++){ if(lc[i]>bn){ bn=lc[i]; best=i; } }
+      if(pin==='own' && best<0){ best=1; }
+      if(best>=0 && pin!=='mud'){ if(b.mode!=='own' || b.lane!==best) bbsSetMode(f,b,'own',null,best); res='own'; }
+      else { if(b.mode!=='mud') bbsSetMode(f,b,'mud',null,null); res='mud'; } } }
+  if(S.coop && COOP && !COOP.ended && sqRef()) bbsMindSend(B,n,res,b);   // the referee's word out
+  return res; }
+const BBS3_MODES=['hunt','own','mud','turn'];   // the wire's mode code (n = ordinal x 10 + code; b = the seat or the lane, 0..9: the server's own bounds on the two fields)
+function bbsMindSend(B,n,res,b){ const code=Math.max(0, BBS3_MODES.indexOf(res==='turn'? 'turn' : (b.mode||'mud'))); let t=0; const cm={ k:'bbm', n:(n|0)*10+code, b:0 }; if(res!=='turn'){ if(b.mode==='hunt' && b.tgt){ t=Math.max(0, Math.min(9, b.tgt.seat|0)); cm.x=Math.round(b.tgt.x); cm.y=Math.round(b.tgt.y); if(b.tgt.cid!=null) cm.t=String(b.tgt.cid).slice(0,24); } else if(b.mode==='own') t=Math.max(0, Math.min(9, b.lane|0)); } cm.b=t;
+  try{ coopSend(cm); }catch(e){} B.wireSent=(B.wireSent|0)+1; B.wireLast=[n|0, BBS3_MODES[code], t, cm.x==null? null : cm.x, cm.y==null? null : cm.y]; }   // THE REFEREE'S WORD: bbm { n: ordinal x 10 + mode, b: the seat (hunt) or the lane (own), x, y: the hunted Sarge's seat on the referee's glass, t: his wire id (cid: the same on every glass, the owner's and the copies') }; the server's whitelist carries k, n, b, x, y, t; coopSend is a no-op alone
+function bbsMindWord(cm){ const rd=S.raid; if(!bbsOn() || !rd.bbs || !cm) return; const B=rd.bbs, v=cm.n|0, n=Math.floor(v/10), code=v-n*10, t=Math.max(0, Math.min(9, cm.b|0));
+  const W=B.wire||(B.wire={}); W[n]={ mode:BBS3_MODES[code]||'mud', t:t, x:(typeof cm.x==='number')? cm.x : null, y:(typeof cm.y==='number')? cm.y : null, cid:(typeof cm.t==='string' && cm.t)? cm.t : null }; B.wireN=(B.wireN|0)+1; if(B.wireTop==null || n>B.wireTop) B.wireTop=n;
+  const bill=bbsBill(); if(bill && bill.bbs && bill.bbs.st==='ride' && !sqRef() && (bill.bbs.wireAt==null || n>bill.bbs.wireAt) && n<=Math.floor(bbsClock()/BBS3.mind.every)) bbsApplyWord(bill,bill.bbs,B,n); }   // a guest reads the referee's word (the poll's loop and the live wire both land here through coopApply); a word for an ordinal already reached applies at once, a later one waits for its second
+function bbsApplyWord(f,b,B,n){ const W=B.wire; if(!W) return false; let k=(W[n]!=null)? n : null; if(k==null){ for(const s of Object.keys(W)){ const m=+s; if(m<=n && (b.wireAt==null || m>b.wireAt) && (k==null || m>k)) k=m; } }   // this ordinal's word, else the newest word under it the guest has not yet applied (a guest that fell a few seconds behind never waits on a missed second)
+  if(k==null) return false; const w=W[k]; b.wireAt=k; b.mindN=n; b.decisions++; b.lastRoll=null; b.wireT=w.t;
+  if(w.mode==='turn'){ if(b.mode) bbsTurnAround(f,b); return true; }
+  if(w.mode==='hunt'){ let u=null, bd=1e9, by='none'; const G=bbsGreen(); if(w.cid){ for(const s of G){ if(s.type==='sarge' && s.cid!=null && String(s.cid)===w.cid){ u=s; bd=0; by='cid'; break; } } }   // THE SAME MAN on this glass: by his wire id first (the owner's unit and its copies share it)
+    if(!u && w.x!=null){ for(const s of G){ if(s.type!=='sarge') continue; const d=Math.hypot(s.x-w.x, s.y-w.y); if(d<bd){ bd=d; u=s; by='near'; } } }   // else the Sarge nearest the seat the referee named (the glasses' seats drift a stride; a Sarge is rarely that near another)
+    b.wireD=(u? Math.round(bd) : null); b.wireBy=by; if(b.mode!=='hunt' || b.tgt!==u) bbsSetMode(f,b,'hunt',u,null); return true; }
+  if(w.mode==='own'){ const ln=Math.max(0, Math.min(BBS_BANDS.length-1, w.t)); if(b.mode!=='own' || b.lane!==ln) bbsSetMode(f,b,'own',null,ln); return true; }
+  if(b.mode!=='mud') bbsSetMode(f,b,'mud',null,null); return true; }
+{ const ca0=coopApply; coopApply=function(cm){ if(cm && cm.k==='bbm'){ bbsMindWord(cm); return; } return ca0.apply(this,arguments); }; }   // the word's door: the poll's loop and the live wire both dispatch an unknown key through coopApply (the referee's own echo is skipped before it, as every command's)
 function bbsTurnAround(f,b){ b.turns++; b.h=Math.atan2(-Math.sin(b.h), -Math.cos(b.h)); bbsSkid(f,b); if(b.mode==='own') b.rdir=-b.rdir; if(b.mode==='mud') b.mdir=-b.mdir; if(b.mode==='hunt'){ b.leg='past'; b.goal={ x:f.x+Math.cos(b.h)*160, y:f.y+Math.sin(b.h)*60 }; } else b.goal=null;
   try{ if(typeof SFX.bblaugh==='function') SFX.bblaugh(); }catch(e){} }   // TURN AROUND: the skid, the heading reversed, the laugh (C7's recording in SFX.bblaugh; nothing until then)
 function bbsSkid(f,b){ b.skid=BBS3.skid; b.v=0; b.skids=(b.skids|0)+1; b.skidCdT=BBS3.skidCd; const RM=reducedMotion(); S.fx.push({ k:'ring', x:f.x, y:f.y+2, r:10, R:40, t:0, dur:0.4, col:'rgba(214,170,110,0.7)' }); if(!RM) for(let i=0;i<4;i++) S.fx.push({ k:'puff', x:f.x-16+i*11, y:f.y+2-(i%2)*6, t:-i*0.04, dur:0.45, R:9+i }); bfSfx(SFX.thock, f.x, f.y); }
@@ -194626,7 +194645,7 @@ function bbsThrowDraw(e,k){ const hi=IMG.bbhorse, bi=foeImg('bbshow'); if(!hi ||
   cx.save(); cx.globalAlpha=fade; cx.translate(land, e.y-up+(tk>=1? 6 : 0)); if(e.flip) cx.scale(-1,1); cx.rotate(tk<1? rot : -0.55);
   if(tk<1){ cx.beginPath(); cx.rect(-bw, -h-10, bw*2, h*2+20); cx.ellipse(0, (126-128.8)*bw/120, 33*bw/120*1.06, 7.5*bw/120*1.15, 0, 0, Math.PI*2); cx.clip('evenodd'); }
   cx.drawImage(bi, -bw/2, -h+h*0.08, bw, h); cx.restore(); cx.globalAlpha=1; }   // the tumble (a full turn over 0.55 s, 52 px back along the road), then he sits up in the dust (the lean back), fading with the fx's end
-function bbsMindRead(bill){ const b=bill && bill.bbs; if(!b || !b.mode) return null; return { mode:b.mode, target:(b.mode==='hunt' && b.tgt)? bbsSeatKey(b.tgt) : (b.mode==='own')? b.lane : null, next:+Math.max(0, (b.mindN==null? 0 : (b.mindN+1)*BBS3.mind.every-bbsClock())).toFixed(2), n:b.mindN, decisions:b.decisions|0, turns:b.turns|0, roll:b.lastRoll==null? null : b.lastRoll, leg:b.leg||null, modes:b.modes? b.modes.slice(-40) : [] }; }
+function bbsMindRead(bill){ const b=bill && bill.bbs; if(!b || !b.mode) return null; return { mode:b.mode, target:(b.mode==='hunt')? (b.tgt? bbsSeatKey(b.tgt) : (b.wireT!=null? 's'+(b.wireT|0) : null)) : (b.mode==='own')? b.lane : null, tx:(b.mode==='hunt' && b.tgt)? Math.round(b.tgt.x) : null, ty:(b.mode==='hunt' && b.tgt)? Math.round(b.tgt.y) : null, wire:(S.raid && S.raid.bbs)? { ref:sqRef()? 1 : 0, sent:S.raid.bbs.wireSent|0, got:S.raid.bbs.wireN|0, top:S.raid.bbs.wireTop==null? null : S.raid.bbs.wireTop, at:b.wireAt==null? null : b.wireAt, wait:b.wireWait==null? null : b.wireWait, d:b.wireD==null? null : b.wireD, by:b.wireBy||null, last:S.raid.bbs.wireLast||null } : null, next:+Math.max(0, (b.mindN==null? 0 : (b.mindN+1)*BBS3.mind.every-bbsClock())).toFixed(2), n:b.mindN, decisions:b.decisions|0, turns:b.turns|0, roll:b.lastRoll==null? null : b.lastRoll, leg:b.leg||null, modes:b.modes? b.modes.slice(-40) : [] }; }
 function bbsVRead(bill){ const b=bill && bill.bbs; return (b && b.st==='ride')? +(b.ve||0).toFixed(2) : 0; }
 function bbsHorseRead(bill){ const b=bill && bill.bbs; if(!b) return null; return { st:b.st, mt:+(b.mt||0).toFixed(2), inv:+(bill.bbsInv||0).toFixed(2), ride:bill.bbsRide|0, x:Math.round(bill.x), y:Math.round(bill.y), h:+(b.h||0).toFixed(3), dir:b.dir|0, v:+(b.v||0).toFixed(2), ve:+(b.ve||0).toFixed(2), mud:b.inMud|0, skid:+(b.skid||0).toFixed(2), skids:b.skids|0, dist:Math.round(b.dist||0), goal:b.goal? [Math.round(b.goal.x),Math.round(b.goal.y)] : null, horse:b.horse? [Math.round(b.horse.x),Math.round(b.horse.y)] : null,
     spray:b.spray? { t:+b.spray.t.toFixed(2), n:b.spray.n, aim:+b.spray.aim.toFixed(2) } : null, sprays:b.sprays|0, sprayRounds:b.sprayRounds|0, sprayPips:b.sprayPips|0, sprayCd:+(b.sprayCd||0).toFixed(2), airs:b.airs|0, airDue:+(b.airDue||0).toFixed(1), airT:+(b.airT||0).toFixed(1), lines:b.lines|0, lastLine:b.lastLine||null, barrels:b.barrels|0, mounts:b.mounts|0, thrown:b.thrown|0, def:(bill.def===FDEF.bbride)? 'bbride' : (bill.def===FDEF.bbshow)? 'bbshow' : 'other', life:bill.kbLife|0, dials:BBS3 }; }
