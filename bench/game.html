@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.87","md5":"90be10f936999a8743af574c33318510","sha":"2f194f2804","at":"2026-10-22T20:38:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.88","md5":"8db21e13f9c5c4e4463bc1cbdf1f5409","sha":"a8d1339ff4","at":"2026-10-22T20:43:00Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90173,7 +90173,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.87';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.88';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -195635,6 +195635,60 @@ function bbfRig(o){ o=o||{}; const f=bbsBill(); const M=f && f.bbs && f.bbs.bbf;
   return { cv:GVT_CV, on:BBF.on, raid:bbsOn()?1:0, owns:f? (bbfOwns(f)?1:0) : null, bill:f? { x:Math.round(f.x), y:Math.round(f.y), hp:Math.round(f.hp), max:f.hpMax, st:f.bbs? f.bbs.st : null, ride:f.bbsRide|0, faceX:f.faceX||0, fz:bbfFz(f) } : null, m:f? bbfRead(f,1) : null, seats:bbfSeats().map(q=>({ i:q.i, x:q.x, y:q.y, side:q.side, key:q.key, peeks:q.peeks })), stats:Object.assign({}, BBF_STATS), wire:(S.raid && S.raid.bbs)? { top:S.raid.bbs.bbfTop==null? null : S.raid.bbs.bbfTop, got:Object.keys(S.raid.bbs.bbfW||{}).length } : null, dials:{ walk:BBF.walk, run:BBF.run, tell:BBF.tell, fans:BBF.fans, crowdR:BBF.crowdR, crowdN:BBF.crowdN, mz:BBF.mz, tr:BBF.tr, kick:BBF.kick, cyl:BBF.cyl }, fx:S.fx.filter(e=>e.k==='bbf').length, guest:bbfGuest()?1:0 }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bbf) GVT.bbf=function(o){ return bbfRig(o); }; }catch(e){} }, 0);   // the rigs' door (seated once window.GVT exists: CARD-MSB's grammar)
 // ═══ END CARD-BBF ═══
+// ═══ CARD-BBF-Q6 THE OLD FLASHES AT THE IRONS (sec:CARD-BBF-Q6; design/buffalo-bill-showdown-1021/build-bbf-q6/00-BUILD-BBF-Q6.md; jumpr 2507, Maker 1 M2507, lane maker1;
+// WYATT on Discord by phone 10/22/2026 15:22 EDT, answering CARD-BBF's landing, verbatim: "Go is recommended here, and send me the new map so I can draw on it and perfect it" = 🟨 BBF-Q6's REC: "the old Bill's
+//   muzzle flashes (and his spray on the horse) draw mirrored, behind his shoulder: fix those two lines?")
+// THE FINDING (CARD-BBF ⚑ BBF-F1): BBS_FAN_MZ is measured in the mold's own frame (drawSprite's 76-wide box, facing west: 0500's foeFanTick draws f.x + m.x). C1's fan line and C1's rally seat their flashes at
+//   f.x + m.x * foeFaceX (= -1: Bill never stamps an aim); C3's spray and air shot at f.x + m.x * (b.dir>0? 1 : -1) and 22 px up. Every star, tracer and brass of theirs left the mirror image of the iron that fired,
+//   behind his shoulder and at his knee (on the horse also off C3's own seat of his mold on the saddle: 70 px wide, his hips on the horse's seat, the bob, the lean). The horse is every player's (phase two, after his
+//   first bar falls) and so is the rally (50 %); on foot C1's fan line runs only under ?bbf=0 (CARD-BBF's machine fans with its own bbfMz).
+// THE FIX (wraps by name; C1's, C3's, C7's, CARD-BBA's and CARD-BBF's lines byte-still): after C1's raid tick (bbsTick: C1's fan line lives inside bbsBillTick, whose outermost wrap is CARD-BBF's), C1's bbsRallyStart,
+//   C3's bbsSprayTick and C3's bbsAirShot, the fx THEIR round just pushed (the slug tracer, the muzzle star, the brass: found by their own seat's numbers, bit for bit) move to the iron that fired. On foot (bq6Foot)
+//   = CARD-BBF's bbfMz: f.x - m.x * fz, f.y + m.y, fz +1 while his picture is mirrored (drawFoe's own facing seat for him, read with its chair memory put back). On the horse (bq6Horse) = the same seat through C3's
+//   seat of his mold in bbsDrawBill (the 70-wide mold, his hips on the horse's seat, the bob, the lean, the mirror): the star is on the drawn barrel the frame it fires. The tracer keeps its aim and its far end on the
+//   ground; the air shot its 6 px lean the way he rides; the brass its 3 px behind the iron (their own offset, mirrored with the picture); the rally its 14 px up (both irons in the air). BBS_FAN_MZ is read live at
+//   every round (CARD-BBG moves it in place under its switch). Nothing else moves: the clocks, the pips, the barrels, the gallop, the turn, the skids, the words (the sim never reads an fx).
+// ?bq6=0 (gvt_bq6) on a device = the flashes as C1 and C3 seated them (no wrap installed). BQ6.rally 0 = the rally's two as C1 drew them. GVT.bq6(o) for the rigs. Zero server, zero sw.js, zero words.
+const BQ6={ on:(function(){ try{ const q=/[?&]bq6=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bq6','0'); else localStorage.removeItem('gvt_bq6'); } return localStorage.getItem('gvt_bq6')==='0'? 0 : 1; }catch(e){ return 1; } })(),   // the switch (CARD-BBF's grammar): 1 = the flashes at the irons; 0 = as C1 and C3 seated them
+  rally:1,   // ⚑ BBF-Q6-F1: C1's rally carries the same mirror one line above its fan (both irons in the air): seated too
+  n:{ fan:0, rally:0, spray:0, air:0, miss:0 }, log:[] };   // the rigs' count of rounds seated (miss = a spray round or an air shot whose own fx were not found: their line moved) and the last rounds
+function bq6Fl(f){ const a0=f.flA, t0=f.flAt; let fl=false; try{ fl=foeFl(f); }catch(e){ fl=false; } finally{ f.flA=a0; f.flAt=t0; }   // foeFl speaks a facing into the chair's memory: put back, the draw speaks it itself
+  try{ return !!crAimFl(f, foeCmdFl(f, fl)); }catch(e){ return !!fl; } }   // his picture on foot is mirrored (facing east): drawFoe's own seat for him (crAimFl over foeCmdFl over foeFl)
+function bq6Foot(f,i){ const m=BBS_FAN_MZ[i&1]||BBS_FAN_MZ[0], fz=bq6Fl(f)? 1 : -1; return { x:f.x-m.x*fz, y:f.y+m.y, fz:fz }; }   // CARD-BBF's bbfMz with the picture's own mirror: the mold's own frame (facing west: f.x + m.x), mirrored when he faces east
+function bq6Horse(f,b,i){ const m=BBS_FAN_MZ[i&1]||BBS_FAN_MZ[0], hw=BBS3.hw, bw=BBS3.bw, k=bw/FDEF.bbshow.w, RM=reducedMotion(), flip=b.dir>0, sx=flip? -1 : 1, mv=(b.ve>20 && !b.skid)? 1 : 0, d=b.dist;   // C3's ride draw (bbsDrawBill), its numbers
+  const bob=RM? 0 : Math.abs(Math.sin(d/9+f.wob))*3.5*mv, lean=(RM? 0 : Math.sin(d/9+f.wob)*0.05*mv)+(b.skid>0? -0.14*b.dir : 0), a=lean-0.05, c=Math.cos(a), s=Math.sin(a), px=m.x*k, py=m.y*k;   // the seat's turn; the mold drawn 70 wide, not 76
+  const x=f.x+(10*hw/120+2*bw/120)*sx+sx*(c*px-s*py), y=f.y-bob+(-60.8*hw/120+29.8*bw/120)+(s*px+c*py);   // his hips (58,99) on the horse's seat (70,68): translate, mirror, turn, as seat() draws him
+  return (isFinite(x) && isFinite(y))? { x:x, y:y, fz:flip? 1 : -1 } : null; }
+function bq6Move(A,n0,mx,my,bx0,to,keepY2){ const dx=to.x-mx, dy=to.y-my; let hit=0;   // the round's own three fx pushed since n0, found at their old seat, moved to the iron
+  for(let j=Math.max(0, Math.min(n0, A.length)); j<A.length; j++){ const e=A[j]; if(!e) continue;
+    if(!(hit&1) && e.k==='slugtr' && e.x1===mx && e.y1===my){ e.x1=to.x; e.y1=to.y; e.x2+=dx; if(!keepY2) e.y2+=dy; hit|=1; }   // the tracer: from the iron, along the same aim (C1's and C3's far end stays on the ground; the air shot's rides up with the iron)
+    else if(!(hit&2) && e.k==='flash' && e.x===mx && e.y===my){ e.x=to.x; e.y=to.y; hit|=2; }   // the muzzle star
+    else if(!(hit&4) && e.k==='shell' && e.x===bx0 && e.y===my-2){ e.x=to.x-3*to.fz; e.y=to.y-2; hit|=4; } }   // the brass: 3 px behind the iron (their own offset, east of a west-facing iron), mirrored with the picture
+  return hit; }
+function bq6Log(kind,i,mx,my,to,hit){ BQ6.n[kind]++; BQ6.log.push([+S.t.toFixed(3), kind, i, +mx.toFixed(2), +my.toFixed(2), +to.x.toFixed(2), +to.y.toFixed(2), to.fz, hit]); if(BQ6.log.length>120) BQ6.log.shift(); }
+function bq6Fan(f,b,A,n0){ const i=b.n&1, m=BBS_FAN_MZ[i], fz=foeFaceX(f), mx=f.x+m.x*fz, my=f.y+m.y;   // C1's fan line's own seat (bbsBillTick), bit for bit
+  let any=false; for(let j=Math.max(0, Math.min(n0, A.length)); j<A.length; j++){ const e=A[j]; if(e && e.k==='slugtr' && e.x1===mx && e.y1===my){ any=true; break; } } if(!any) return 0;   // CARD-BBF's machine fanned this frame (its own fx), or no round of C1's
+  const to=bq6Foot(f,i), hit=bq6Move(A,n0,mx,my,mx-3*fz,to,1); bq6Log('fan',i,mx,my,to,hit); return hit; }
+function bq6Spray(f,b,sp,A,n0){ const i=sp.n&1, fz=(b.dir>0)? 1 : -1, m=BBS_FAN_MZ[i], mx=f.x+m.x*fz, my=f.y+m.y-22, to=bq6Horse(f,b,i);   // C3's spray line's own seat (bbsSprayTick), bit for bit
+  if(!to){ BQ6.n.miss++; return 0; } const hit=bq6Move(A,n0,mx,my,mx-3*fz,to,1); if(!(hit&1)) BQ6.n.miss++; bq6Log('spray',i,mx,my,to,hit); return hit; }
+function bq6Air(f,b,A,n0){ const fz=(b.dir>0)? 1 : -1, m=BBS_FAN_MZ[0], mx=f.x+m.x*fz, my=f.y+m.y-22, to=bq6Horse(f,b,0);   // C3's air shot's own seat (bbsAirShot), bit for bit: one round straight up from the first iron
+  if(!to){ BQ6.n.miss++; return 0; } const hit=bq6Move(A,n0,mx,my,mx-3*fz,to,0); if(!(hit&1)) BQ6.n.miss++; bq6Log('air',0,mx,my,to,hit); return hit; }
+function bq6Rally(A,n0){ const f=bbsBill(); if(!f) return 0; const fz=foeFaceX(f); let hit=0;   // C1's rally line's own seat (bbsRallyStart: both irons in the air, 14 px up), bit for bit
+  for(let i=0;i<2;i++){ const m=BBS_FAN_MZ[i], mx=f.x+m.x*fz, my=f.y+m.y-14; for(let j=Math.max(0, Math.min(n0, A.length)); j<A.length; j++){ const e=A[j];
+      if(e && e.k==='flash' && e.R===14 && e.x===mx && e.y===my){ const to=bq6Foot(f,i); e.x=to.x; e.y=to.y-14; hit++; bq6Log('rally',i,mx,my,{ x:to.x, y:to.y-14, fz:to.fz },1); break; } } }
+  return hit; }
+if(BQ6.on){
+  { const tk0=bbsTick; bbsTick=function(dt){ const A=S.fx, n0=A? A.length : 0, f=bbsBill(), b=f && f.bbs, r0=b? (b.rounds|0) : 0; const r=tk0.apply(this, arguments);   // C1's fan line (?bbf=0, or any frame CARD-BBF's machine stands aside)
+      if(f && b && f.bbs===b && !f.dead && !f.bbsRide && (b.rounds|0)>r0 && A===S.fx){ try{ bq6Fan(f,b,A,n0); }catch(e){} } return r; }; }
+  { const rs0=bbsRallyStart; bbsRallyStart=function(B){ const A=S.fx, n0=A? A.length : 0; const r=rs0.apply(this, arguments); if(BQ6.rally && A===S.fx){ try{ bq6Rally(A,n0); }catch(e){} } return r; }; }   // over C7's wrap (his line) of C1's
+  { const sp0=bbsSprayTick; bbsSprayTick=function(f,dt,B,b){ const A=S.fx, n0=A? A.length : 0, sp=b && b.spray, k0=sp? sp.n : 0; const r=sp0.apply(this, arguments); if(sp && sp.n>k0 && A===S.fx){ try{ bq6Spray(f,b,sp,A,n0); }catch(e){} } return r; }; }   // a round fired = the stream's count moved
+  { const as0=bbsAirShot; bbsAirShot=function(f,b){ const A=S.fx, n0=A? A.length : 0; const r=as0.apply(this, arguments); if(f && b && A===S.fx){ try{ bq6Air(f,b,A,n0); }catch(e){} } return r; }; }
+}
+function bq6Rig(o){ o=o||{}; if(o.rally!=null) BQ6.rally=o.rally? 1 : 0; if(o.clear){ BQ6.log.length=0; for(const k in BQ6.n) BQ6.n[k]=0; }   // the levers: the rally's seat on or off, a clean count
+  const f=bbsBill(), b=f && f.bbs, ride=!!(f && f.bbsRide && b && b.st==='ride');
+  return { cv:GVT_CV, on:BQ6.on, rally:BQ6.rally, n:Object.assign({}, BQ6.n), log:BQ6.log.slice(-60), mz:BBS_FAN_MZ.map(m=>({ x:m.x, y:m.y })), bill:f? { x:+f.x.toFixed(2), y:+f.y.toFixed(2), ride:ride? 1 : 0, st:b? b.st : null, fz:ride? (b.dir>0? 1 : -1) : (bq6Fl(f)? 1 : -1) } : null, irons:f? [0,1].map(i=>ride? bq6Horse(f,b,i) : bq6Foot(f,i)) : null }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bq6) GVT.bq6=function(o){ return bq6Rig(o); }; }catch(e){} }, 0);   // the rigs' door (seated once window.GVT exists: CARD-MSB's grammar)
+// ═══ END CARD-BBF-Q6 ═══
 window.GVT = {
   cks(o){ if(o && o.pct!=null) CKS.pct=+o.pct||0; const R=[0,1,10,20,25,50,75,99,100], t={}; for(const r of R) t[r]={ mul:+cksMul(r).toFixed(4), hit:+hitDmgNowAt('kingcroak',r).toFixed(4), whole:hitWhole(hitDmgNowAt('kingcroak',r)) }; return { cv:GVT_CV, pct:CKS.pct, at:CKS.at, ck:HHB.ck, slope:HERO_DMG_RANK, mine:(META.up.kingcroak||0)|0, table:t }; },   // CARD-CKS: the ramp's dials (o.pct sets it for a rig; 0 = the storm as it was) + King Croak's HITS FOR at nine ranks
   ffi(o){ return ffiRig(o); },   // CARD-FFI THE FIRST FIVE, ISAAC'S SEVEN NOTES: the switch, the legs, the presses for a rig
