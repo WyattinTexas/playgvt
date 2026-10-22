@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.00","md5":"4be94d133ee8b9e5bc55904e2c082065","sha":"aedb284e0a","at":"2026-10-22T23:22:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.01","md5":"522f3209f0f52579586c9e3e84c7ac18","sha":"bae6f8dd40","at":"2026-10-22T23:30:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90196,7 +90196,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -195874,6 +195874,18 @@ function otsRead(){ return { on:OTS.on, live:OTS_LIVE, laid:OTS.laid, btw:{ on:B
 setTimeout(function(){ try{ if(window.GVT && !GVT.ots) GVT.ots=function(){ return otsRead(); }; }catch(e){} }, 0);   // GVT.ots(): the rigs' door
 if(OTS.on && BTW.on) otsLay();   // laid at load, before any cfg (the whistle reads the tables)
 // ═══ END CARD-OTS ═══
+// ═══ CARD-OTS-RD BILL'S HORSE ON THE TOWN'S TWO STREETS (sec:CARD-OTS-RD; design/outlaw-main-street-1022/00-CARD-OTS.md §5; Maker 1, 10/22/2026 ~18:50 EDT, found by the four-computer fight sim)
+// THE BUG: C3's horse 'own a lane' mode picks a lane by C2's three bands (bbsLaneCounts: 0 north, 1 Main Street, 2 south; BBS_BANDS is never re-laid) and reads the street
+// by the same index (bbsRoadPts(i): BBS_ROADS[i].p). CARD-BTW's town lays TWO streets (Main Street, the south track), so the south band's lane 2 reads BBS_ROADS[2] = undefined
+// and update() throws "Cannot read properties of undefined (reading 'p')" every frame from that moment (measured: the EASY sims that put Bill on the horse threw 3,386 to 8,302
+// times, the fight frozen). THE FIX: bbsRoadPts wrapped by name: with the town laid, a lane = the town street nearest that band's middle (north and Main Street -> Main Street,
+// south -> the south track); C2's own three streets (the town off) read as C3 wrote them. Pure function of the static tables: every glass maps the same. Zero words, server, keys.
+function otsRoadIx(i){ i=i|0; if(!(typeof BTW==='object' && BTW.laid) && BBS_ROADS[i]) return i;
+  const B=BBS_BANDS[i], y=B? (B[0]+B[1])/2 : 312; let bi=0, bd=1e9;
+  for(let k=0;k<BBS_ROADS.length;k++){ const p=BBS_ROADS[k].p; let s=0, n=0; for(let j=1;j<p.length;j+=2){ s+=p[j]; n++; } const d=n? Math.abs(s/n-y) : 1e9; if(d<bd){ bd=d; bi=k; } }
+  return bi; }
+{ const r0=bbsRoadPts; bbsRoadPts=function(i){ return r0.call(this, otsRoadIx(i)); }; }   // C3's street door wrapped by name (bbsRoadNear and the 'own' mode call it by name)
+// ═══ END CARD-OTS-RD ═══
 // ═══ CARD-BBF BILL FIGHTS LIKE A GUNSLINGER (sec:CARD-BBF; design/buffalo-bill-showdown-1021/build-bbf/00-BUILD-BBF.md; jumpr 2496, Maker 1 M2496, lane maker1;
 // WYATT by phone 10/22/2026 12:25 EDT, dictated, verbatim: "Bill needs to be moving a bit faster ... Bill's firing actions: it was hard to notice what he was really doing. We also need to make what he does a little more apparent.
 //   When he's firing away, we really need to feel it. ... I don't want him just sitting there taking damage. I want him firing, moving back, and getting behind cover, kind of like what King Croak would do. This is a Wild West fight.")
