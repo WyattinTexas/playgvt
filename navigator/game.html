@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.88","md5":"8db21e13f9c5c4e4463bc1cbdf1f5409","sha":"a8d1339ff4","at":"2026-10-22T20:43:03Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"25.89","md5":"e3c7fdc78406a47fd23fbb164a4ebc87","sha":"e3d6311b26","at":"2026-10-22T20:53:31Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90173,7 +90173,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.88';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.89';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -195418,6 +195418,124 @@ Object.assign(TR["ru"]||(TR["ru"]={}), {"THE SHOTGUN BANDIT":"БАНДИТ С Д
 Object.assign(TR["es"]||(TR["es"]={}), {"THE SHOTGUN BANDIT":"EL BANDIDO DE LA ESCOPETA","THE IRON CANNON":"EL CAÑÓN DE HIERRO"});
 Object.assign(TR["ar"]||(TR["ar"]={}), {"THE SHOTGUN BANDIT":"قاطع الطريق ببندقية الرش","THE IRON CANNON":"المدفع الحديدي"});
 // ═══ END CARD-BBA ═══
+// ═══ CARD-BTW BILL'S TOWN, LIKE THE HILL VILLAGE (sec:CARD-BTW; design/buffalo-bill-showdown-1021/build-btw/00-DESIGN-BTW.md; jumpr 2502 cut 5 of 8 from Maker 1's M2494, board J14, lane gvt;
+// WYATT by phone 10/22/2026 12:25 EDT, dictated, verbatim: "the town layout just has to be much better. It needs to be more like the Hill Village, with a clean street and a good-looking map."; his 10/21 word, still the law:
+// "use the exact Western Town buildings, like the bank … Get funneled in, which will be bad")
+// A DESIGN PASS WITH A DARK BUILD: the Showdown's street re-laid as ONE CLEAN MAIN STREET (packed dirt, two wagon tracks the length of it, hoof marks, a boardwalk with its posts along the far side) running east to west through the
+// middle of C2's 1920 x 600 sand rug, OUTLAW TOWN'S OWN BUILDINGS in one row along its far side with their feet on the boardwalk, facing the street like a movie set (west to east: FUZZIES, THE BANK, THE HOP INN, THE STORE, THE JAIL,
+// THE LIVERY; the water tower rising behind the jail), a gap between each (the bank / HOP INN gap = C2's 70 px funnel, the rest 80 to 90); the near side LOW, so nothing ever covers the street on this mat (an upright facade rises north of
+// its feet: a lane behind a building is drawn over its facade, which is what his screenshot shows today): the hitching rails with their troughs, a parked buckboard, hay
+// bales, six oil barrels at the backs of the gaps between the buildings and on the corral's floor (never within a blaze of the street's walking line: BTW-F1), a rail fence on the slant from the livery's corner up to the mat's rim (the town's edge: nothing walks in behind the row, a straggler slides down it to the street), and THE LIVERY'S CORRAL across the street (a rail fence along the street side with its gate open, THE MUD its trodden pit: the south lane wades it at x0.42, C2's rule). THE LANES: Main Street (the blocks, the riders, C1's
+// herd at y 300, CARD-BBA's cannons) and the south track past the corral; the open ground beside them walks straight (hvilPlan's own law); the posses from the north rim come round the livery's corner. BTW-Q1..Q3 in the record.
+// HOW: with THE SWITCH on, C2's own town tables are re-laid IN PLACE at load (BBS_SET, BBS_TOWER, BBS_RAILS, BBS_BARRELS, BBS_ROADS, BBS_MUD: the rows replaced, the objects' fields rewritten; C2's bbsStreetTerrain, bbsBld, bbsGraph, bbsList,
+// the barrels, the blaze, the mud, the rig's dials and CARD-BBF's seat reader all read them as they stand, so Bill's covers follow the new town the day BBF lands); bbsFloorPaint wrapped by name (the new ground), bbsStreetTerrain wrapped by
+// name (the props' rows, the graph rebuilt over them), bbsStreetRig wrapped by name (.btw). PBM_ART.btwprop paints the props (the style guide's four rules: a tonal panel with a light top and a deeper foot, the rim its own fill a shade
+// darker at 0.6x and 55 %, crisp lines, rich colour); the buildings stay the park's own slices (C2's rasters, untouched). THE SWITCH: BTW_LIVE 0 -> 1 is his go (one line); ?btw=1 on a device previews it (gvt_btw), ?btw=0 clears.
+// OFF: every table and every byte of the street as today. Zero server, zero sw.js, zero words, zero save keys, zero RNG (the ground's marks hash off their index: every glass paints the same town). GVT.btw(o) is the rigs' door. ═══
+const BTW_LIVE=0;   // THE ONE CELL his go flips: 1 = Bill's town on every device
+const BTW={ on:(function(){ try{ const q=/[?&]btw=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_btw','1'); else localStorage.removeItem('gvt_btw'); } return (localStorage.getItem('gvt_btw')==='1')? 1 : BTW_LIVE; }catch(e){ return BTW_LIVE; } })(),   // the switch (CARD-BBA's grammar): 1 = the town; 0 = C2's street as it was
+  laid:0, orig:null, stats:{ paints:0, props:0, lays:0 } };   // laid = the tables carry the town now; orig = C2's rows, kept from the first lay (the rig's A/B puts them back); the counters
+const BTW_TOWN={   // THE TOWN on the rug's own 1920 x 600 frame (the toy box at T 130,300; the posses from the east rim; the HUD's bar hides y < 82 on a phone and the deploy tray y > 478: the street and the near side sit between)
+  feet:240,   // the row's ground line: every building's foot on the boardwalk's back edge (FUZZIES' own porch, 40 px of its picture below its foot, steps down to the boardwalk: its foot 24 higher)
+  street:{ y0:256, y1:368 },   // MAIN STREET, curb to curb (C1's herd runs its y 300; the blocks walk its middle 312)
+  walk:{ y0:240, y1:256, x0:522, x1:1900, post:96 },   // THE BOARDWALK along the row's feet, a post every 96 px
+  set:[   // the row, west to east (C2's own footprints: w x h = the cover, pw the picture's width; the gap between each a way onto the street)
+    { key:'saloon', x:540,  y:136, w:170, h:80, grp:'saloon' },
+    { key:'bank',   x:800,  y:150, w:140, h:90, grp:'bank' },
+    { key:'inn',    x:1010, y:150, w:180, h:90, grp:'inn', pw:150 },
+    { key:'store',  x:1270, y:160, w:150, h:80, grp:'store' },
+    { key:'jail',   x:1500, y:160, w:130, h:80, grp:'jail' },
+    { key:'livery', x:1710, y:160, w:120, h:80, grp:'livery' } ],   // the row ends at 1830: the rim east of the livery's shoulder is 68 px wide, a block comes down it without brushing the corner (measured at 1870: 28 px, the north posses walked the livery's corner)
+  tower:{ x:1565, y:116, r:44 },   // THE WATER TOWER behind the jail, its tank rising over the jail's roof (painted first: the deepest foot paints last); never at the rim (at 1874,116 its shoulder closed the rim's top and the north posses went round behind the row, measured)
+  rails:[[560,700,266],[1130,1290,376]],   // the hitching rails with their troughs (C2's small cover, a man leans out past one): before FUZZIES on the street's far edge; the livery's across the street on the near edge
+  barrels:[[768,130],[983,130],[1221,130],[1462,130],[1670,130],[1612,504]],   // six oil barrels: one at the back of each gap between the buildings, against the side walls (a blaze there burns the corner a man hides at, never the street: C2's 110 px blaze within 132 px of Main Street's walking line closed the only street for 35 s and the pour piled up at the rim, measured: BTW-F1), the sixth on the corral's floor south-east of the pit, 64 px off the south track's walking line (at 22 px it closed the track at the fence post with the pour piled up at 1671, measured; a shell on it sets the pen alight)
+  mud:{ x:1450, y:438, rx:130, ry:30 },   // THE MUD: the corral's trodden pit (C2's x0.42 on foot, x0.6 a rider); the south lane wades it
+  pen:{ x0:1300, x1:1650, y:396, gate:[1400,1550], y1:512, posts:[1300,1350,1400,1550,1600,1650] },
+  edge:{ posts:[[1838,150],[1852,128],[1866,106],[1880,84],[1894,62],[1908,40]] },   // THE TOWN'S EDGE FENCE: a rail fence from the livery's north-east corner up to the mat's rim, on the slant (its posts cover rows): nothing walks in behind the row (a HARD posse's wide line sprang round the livery's shoulder, walked west behind the facades and wedged at the tower's shoulder under the mat's top, measured), and a straggler pressed on its face slides south-west to the street (a fence straight up and down held him on its east face for a minute, measured); the top post sits above the rim so no body is ever above its middle   // THE CORRAL across from the livery: the rail fence along the street side (its posts cover rows), the gate open in the middle, the pen open to the east and the south
+  roads:[   // THE LANES (hvilGraph's grammar through C2's bbsGraph: a flat list x,y through the Catmull-Rom; every point clear of every piece's shoulder r + HVIL.pad)
+    { w:100, p:[1910,312, 1750,312, 1600,312, 1450,312, 1300,312, 1150,312, 1000,312, 850,312, 700,312, 560,312, 470,306, 300,300, 180,300] },   // MAIN STREET to the box
+    { w:80,  p:[1910,440, 1760,440, 1620,440, 1460,438, 1300,440, 1150,440, 1000,440, 850,444, 700,440, 580,420, 480,380, 380,340, 260,310, 180,300] } ],   // THE SOUTH TRACK past the corral and the wagon to the box
+  props:[   // the near side's props on their own rows: the buckboard (two rows, one grp: a wall to a round), the hay bales (small pieces: a man leans out past one)
+    { k:'wagon', x:884, y:392, r:16, grp:'wagon', lead:1 }, { k:'wagon', x:916, y:392, r:16, grp:'wagon' },
+    { k:'hay', x:1270, y:486, r:14 }, { k:'hay', x:1760, y:500, r:14 }, { k:'hay', x:990, y:484, r:14 } ],   // every bale 60 px off the south track's walking line (at 40 the bale by the corral caught a block's near file: a man held at its shoulder for a minute, measured)
+  tufts:[[300,120],[460,108],[1250,118],[1480,128],[560,500],[760,522],[1100,500],[1780,520],[1850,470],[250,430],[1200,562],[1560,556],[640,470],[1120,566]] };   // scrub on the open ground
+function btwH(i){ const h=((i+13)*2654435761)>>>0; return (h%1000)/1000; }   // a deterministic 0..1 off an index (no RNG: every glass paints the same ground)
+function btwLay(on){   // THE RE-LAY of C2's town tables IN PLACE (on: the town; off: C2's rows back from the copies taken at the first lay): read by bbsStreetTerrain, bbsGraph, the rig's dials and CARD-BBF's seats as they stand
+  if(!BTW.orig) BTW.orig={ set:BBS_SET.slice(), tower:Object.assign({},BBS_TOWER), rails:BBS_RAILS.slice(), barrels:BBS_BARRELS.slice(), roads:BBS_ROADS.slice(), mud:Object.assign({},BBS_MUD) };
+  const T9=BTW_TOWN, O=BTW.orig, put=function(arr,rows){ arr.length=0; for(let i=0;i<rows.length;i++) arr.push(rows[i]); };
+  if(on){ put(BBS_SET, T9.set.map(o=>Object.assign({},o))); Object.assign(BBS_TOWER, T9.tower); put(BBS_RAILS, T9.rails.map(r=>r.slice())); put(BBS_BARRELS, T9.barrels.map(b=>b.slice())); put(BBS_ROADS, T9.roads.map(r=>({ w:r.w, p:r.p.slice() }))); Object.assign(BBS_MUD, T9.mud); }
+  else { put(BBS_SET, O.set); Object.assign(BBS_TOWER, O.tower); put(BBS_RAILS, O.rails); put(BBS_BARRELS, O.barrels); put(BBS_ROADS, O.roads); Object.assign(BBS_MUD, O.mud); }
+  BTW.laid=on? 1 : 0; BTW.stats.lays++; return BTW.laid;
+}
+function btwProps(t){   // the near side's props on their own rows (art 'btwprop', cov: the hug law for the small ones, the wagon's grp a wall) + the corral's posts; the street graph rebuilt over them (bbsGraph reads every row's shoulder)
+  const P=BTW_TOWN.pen, rows=[];
+  for(const o of BTW_TOWN.props){ const r={ x:o.x, y:o.y, lx:o.x, r:o.r, art:'btwprop', cov:1, k:o.k, lead:o.lead|0, btw:1 }; if(o.grp) r.grp=o.grp; rows.push(r); }
+  for(const x of P.posts) rows.push({ x:x, y:P.y, lx:x, r:8, art:'btwprop', cov:1, k:'post', btw:1 });
+  for(const q of BTW_TOWN.edge.posts) rows.push({ x:q[0], y:q[1], lx:q[0], r:8, art:'btwprop', cov:1, k:'post', btw:1 });
+  for(const r of rows) t.rocks.push(r);
+  t.streets=bbsGraph(t.rocks); t.btw=1;
+}
+function btwPost(x,y,w,h){ cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(x+1,y+1,w*0.95,2.4,0,0,7); cx.fill(); cx.fillStyle='#5E3A1C'; cx.fillRect(x-w/2,y-h,w,h); cx.fillStyle='#8A5A30'; cx.fillRect(x-w/2,y-h,2,h); cx.fillStyle='#3E2412'; cx.fillRect(x-w/2,y-h,w,2); }   // a post: its shadow, the dark body, a lit west face, the cut top
+function btwFloorPaint(WD,HT){   // THE GROUND (drawRug's sand seat with the switch on; paint only, under the mud and every piece): the sand, Main Street's packed dirt with its tracks and hoof marks, the boardwalk with its posts, the corral's floor and fence, the scrub
+  const T9=BTW_TOWN, ST=T9.street, BW=T9.walk, PN=T9.pen;
+  cx.save(); cx.lineCap='round'; cx.lineJoin='round';
+  cx.fillStyle=BBS_SAND; cx.fillRect(0,0,WD,HT);
+  cx.fillStyle='rgba(255,236,196,0.10)'; cx.fillRect(0,0,WD,T9.feet-84);   // the far ground lit, the near ground in a touch of shade: the mat reads as ground, not a flat tint
+  cx.fillStyle='rgba(70,40,15,0.07)'; cx.fillRect(0,ST.y1,WD,HT-ST.y1);
+  cx.fillStyle='#B07B43'; cx.fillRect(0,ST.y0,WD,ST.y1-ST.y0);   // MAIN STREET: packed dirt, a lit crown, a deeper foot, the rim its own fill a shade darker
+  cx.fillStyle='rgba(255,226,170,0.13)'; cx.fillRect(0,ST.y0,WD,22);
+  cx.fillStyle='rgba(60,30,10,0.12)'; cx.fillRect(0,ST.y1-16,WD,16);
+  cx.strokeStyle='rgba(106,74,40,0.55)'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(0,ST.y0+1); cx.lineTo(WD,ST.y0+1); cx.moveTo(0,ST.y1-1); cx.lineTo(WD,ST.y1-1); cx.stroke();
+  cx.strokeStyle='rgba(118,78,38,0.42)'; cx.lineWidth=3;   // two wagon tracks the length of the street, off both rims
+  for(const yc of [ST.y0+36, ST.y0+78]){ for(const d of [-6,6]){ cx.beginPath(); for(let x=-10;x<=WD+10;x+=20){ const y=yc+d+Math.sin(x/160+yc)*3; if(x<0) cx.moveTo(x,y); else cx.lineTo(x,y); } cx.stroke(); } }
+  cx.fillStyle='rgba(90,58,26,0.30)'; for(let i=0;i<70;i++){ const x=20+btwH(i)*(WD-40), y=ST.y0+10+btwH(i+300)*(ST.y1-ST.y0-20); cx.beginPath(); cx.ellipse(x,y,2.6,1.8,0,0,7); cx.fill(); }   // hoof marks on the street
+  cx.fillStyle='rgba(138,96,50,0.5)'; for(let i=0;i<34;i++){ const x=btwH(i+700)*WD, y=ST.y1+8+btwH(i+900)*(HT-ST.y1-30); cx.beginPath(); cx.ellipse(x,y,4,2.4,0,0,7); cx.fill(); }   // pebbles on the near ground
+  cx.fillStyle='#A4733D'; cx.fillRect(BW.x0,BW.y0,BW.x1-BW.x0,BW.y1-BW.y0);   // THE BOARDWALK: the planks, a lit back edge, the seams, the rim, its shadow on the street
+  cx.fillStyle='#C08D51'; cx.fillRect(BW.x0,BW.y0,BW.x1-BW.x0,3);
+  cx.strokeStyle='rgba(96,60,28,0.5)'; cx.lineWidth=1; cx.beginPath(); for(let x=BW.x0+14;x<BW.x1;x+=26){ cx.moveTo(x+0.5,BW.y0+3); cx.lineTo(x+0.5,BW.y1); } cx.stroke();
+  cx.strokeStyle='rgba(104,68,34,0.55)'; cx.lineWidth=2; cx.strokeRect(BW.x0+1,BW.y0+1,BW.x1-BW.x0-2,BW.y1-BW.y0-2);
+  cx.fillStyle='rgba(50,26,8,0.28)'; cx.fillRect(BW.x0,BW.y1,BW.x1-BW.x0,4);
+  for(let x=BW.x0+30;x<BW.x1-10;x+=BW.post) btwPost(x,BW.y1+3,6,15);
+  cx.fillStyle='rgba(96,62,30,0.16)'; cx.beginPath(); cx.moveTo(PN.x0,PN.y); cx.lineTo(PN.x1,PN.y); cx.lineTo(PN.x1+24,PN.y1); cx.lineTo(PN.x0-12,PN.y1); cx.closePath(); cx.fill();   // THE CORRAL's trodden floor
+  cx.strokeStyle='#8A5A30'; cx.lineWidth=3; cx.beginPath(); for(const s of [[PN.x0,PN.gate[0]],[PN.gate[1],PN.x1]]){ cx.moveTo(s[0],PN.y-11); cx.lineTo(s[1],PN.y-11); cx.moveTo(s[0],PN.y-3); cx.lineTo(s[1],PN.y-3); } cx.stroke();   // the two rails of the fence, the gate open between
+  cx.strokeStyle='rgba(74,44,18,0.55)'; cx.lineWidth=1.2; cx.beginPath(); for(const s of [[PN.x0,PN.gate[0]],[PN.gate[1],PN.x1]]){ cx.moveTo(s[0],PN.y-9.5); cx.lineTo(s[1],PN.y-9.5); cx.moveTo(s[0],PN.y-1.5); cx.lineTo(s[1],PN.y-1.5); } cx.stroke();
+  { const E=T9.edge.posts, a=E[0], b=E[E.length-1], dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy)||1, nx=-dy/L*4, ny=dx/L*4; cx.strokeStyle='#8A5A30'; cx.lineWidth=3; cx.beginPath(); cx.moveTo(a[0]+nx,a[1]+ny-10); cx.lineTo(b[0]+nx,b[1]+ny-10); cx.moveTo(a[0]-nx,a[1]-ny-2); cx.lineTo(b[0]-nx,b[1]-ny-2); cx.stroke(); cx.strokeStyle='rgba(74,44,18,0.55)'; cx.lineWidth=1.2; cx.beginPath(); cx.moveTo(a[0]+nx*1.4,a[1]+ny*1.4-10); cx.lineTo(b[0]+nx*1.4,b[1]+ny*1.4-10); cx.moveTo(a[0]-nx*1.4,a[1]-ny*1.4-2); cx.lineTo(b[0]-nx*1.4,b[1]-ny*1.4-2); cx.stroke(); }   // THE EDGE FENCE's two rails on the slant (its posts are rows)
+  cx.strokeStyle='#6b5a2e'; cx.lineWidth=2; cx.beginPath(); for(const t of T9.tufts){ const x=t[0], y=t[1]; cx.moveTo(x,y); cx.lineTo(x+2,y-12); cx.moveTo(x+5,y); cx.lineTo(x+5,y-15); cx.moveTo(x+10,y); cx.lineTo(x+8,y-11); } cx.stroke();   // the scrub (the park's own tufts)
+  cx.restore(); BTW.stats.paints++;
+}
+function btwPropDraw(rk){   // PBM_ART.btwprop: the props on their own rows (the four rules: a light top and a deeper foot, the rim its own fill a shade darker at 0.6x and 55 %, crisp lines); the wagon paints once, on its lead row's turn
+  const x=rk.x, y=rk.y; cx.save(); cx.lineCap='round';
+  if(rk.k==='hay'){   // a bale on its side: the shadow, the body, the lit top, the rim, the twine, the straw
+    cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(x+2,y+9,20,6,0,0,7); cx.fill();
+    cx.fillStyle='#C9A24A'; rr(x-17,y-14,34,24,5); cx.fill(); cx.fillStyle='#E3BF5E'; rr(x-17,y-14,34,9,5); cx.fill();
+    cx.strokeStyle='rgba(146,110,38,0.55)'; cx.lineWidth=1.8; rr(x-17,y-14,34,24,5); cx.stroke();
+    cx.strokeStyle='#8E6A22'; cx.lineWidth=1.4; cx.beginPath(); cx.moveTo(x-7,y-14); cx.lineTo(x-7,y+10); cx.moveTo(x+7,y-14); cx.lineTo(x+7,y+10); cx.stroke();
+    cx.strokeStyle='rgba(120,88,30,0.5)'; cx.lineWidth=1; cx.beginPath(); for(let i=0;i<6;i++){ cx.moveTo(x-15+i*6,y-2); cx.lineTo(x-13+i*6,y+6); } cx.stroke(); }
+  else if(rk.k==='wagon' && rk.lead){   // the buckboard: the shadow, the tongue west, the bed (planks, a lit top board, the deeper side, the rim), the seat board, the two wheels on their hubs
+    const bx=x+16;
+    cx.fillStyle='rgba(0,0,0,0.22)'; cx.beginPath(); cx.ellipse(bx+3,y+13,46,8,0,0,7); cx.fill();
+    cx.strokeStyle='#5E3A1C'; cx.lineWidth=4; cx.beginPath(); cx.moveTo(bx-38,y+2); cx.lineTo(bx-72,y+9); cx.stroke();
+    cx.fillStyle='#7C4E26'; rr(bx-40,y-22,80,26,3); cx.fill(); cx.fillStyle='#A26A36'; rr(bx-40,y-22,80,8,3); cx.fill();
+    cx.strokeStyle='rgba(74,44,18,0.5)'; cx.lineWidth=1; cx.beginPath(); for(let i=1;i<5;i++){ cx.moveTo(bx-40+i*16+0.5,y-14); cx.lineTo(bx-40+i*16+0.5,y+4); } cx.stroke();
+    cx.strokeStyle='rgba(74,44,18,0.55)'; cx.lineWidth=1.8; rr(bx-40,y-22,80,26,3); cx.stroke();
+    cx.fillStyle='#8E5A2C'; cx.fillRect(bx-36,y-31,16,9); cx.strokeStyle='rgba(74,44,18,0.55)'; cx.lineWidth=1.4; cx.strokeRect(bx-36,y-31,16,9);
+    const wheel=function(wx,wy,r){ cx.fillStyle='#4A2C12'; cx.beginPath(); cx.arc(wx,wy,r,0,7); cx.fill(); cx.fillStyle='#B07B43'; cx.beginPath(); cx.arc(wx,wy,r-3.5,0,7); cx.fill(); cx.strokeStyle='#4A2C12'; cx.lineWidth=2; cx.beginPath(); for(let i=0;i<6;i++){ const a=i*Math.PI/3; cx.moveTo(wx,wy); cx.lineTo(wx+Math.cos(a)*(r-3),wy+Math.sin(a)*(r-3)); } cx.stroke(); cx.fillStyle='#2E1A0A'; cx.beginPath(); cx.arc(wx,wy,2.6,0,7); cx.fill(); cx.strokeStyle='rgba(46,26,10,0.55)'; cx.lineWidth=1.6; cx.beginPath(); cx.arc(wx,wy,r,0,7); cx.stroke(); };
+    wheel(bx-24,y+6,13); wheel(bx+26,y+6,13); }
+  else if(rk.k==='post'){ btwPost(x,y+8,7,18); }
+  cx.restore(); BTW.stats.props++;
+}
+PBM_ART.btwprop=btwPropDraw;
+{ const fp0=bbsFloorPaint; bbsFloorPaint=function(WD,HT){ if(BTW.laid) return btwFloorPaint(WD,HT); return fp0.apply(this, arguments); }; }   // THE GROUND: C2's painter wrapped by name (drawRug's sand seat calls it by name); off = C2's three bands
+{ const st0=bbsStreetTerrain; bbsStreetTerrain=function(){ const t=st0.apply(this, arguments); if(!BTW.laid || !t) return t; try{ btwProps(t); }catch(e){} return t; }; }   // THE TERRAIN: C2's cell (the set, the tower, the rails, the barrels, the mud, the graph, all off the re-laid tables) + this card's props and the graph over them
+function btwRead(o){ o=o||{}; if(o.lay!=null) btwLay(o.lay? 1 : 0);   // the rigs' read + the lever (o.lay: re-lay or restore the tables on this glass, before a cfg: a rig's A/B)
+  const TR=S.cfg && S.cfg.terrain, on=!!(bbsOn() && TR && TR.bbs); let seats=null; if(on && typeof bbfSeats==='function'){ try{ seats=bbfSeats().map(q=>({ i:q.i, x:q.x, y:q.y, side:q.side, key:q.key })); }catch(e){ seats=null; } }
+  return { on:BTW.on, laid:BTW.laid, live:BTW_LIVE, town:{ feet:BTW_TOWN.feet, street:BTW_TOWN.street, walk:BTW_TOWN.walk, pen:BTW_TOWN.pen }, set:BBS_SET.map(o9=>[o9.key,o9.x,o9.y,o9.w,o9.h,o9.pw||0]), tower:[BBS_TOWER.x,BBS_TOWER.y,BBS_TOWER.r], rails:BBS_RAILS.map(r=>r.slice()), barrels:BBS_BARRELS.map(b=>b.slice()), roads:BBS_ROADS.map(r=>({ w:r.w, n:r.p.length/2 })), mud:Object.assign({},BBS_MUD),
+    props:on? TR.rocks.filter(r=>r.btw).map(r=>[r.k,r.x,r.y,r.r]) : [], terrainBtw:on? (TR.btw|0) : null, graph:(on && TR.streets)? { nodes:TR.streets.nodes.length, block:TR.streets.block.length } : null, seats:seats, stats:Object.assign({},BTW.stats) };
+}
+{ const r0=bbsStreetRig; bbsStreetRig=function(o){ const r=r0.apply(this, arguments); try{ if(r && typeof r==='object') r.btw=btwRead(o); }catch(e){} return r; }; }   // GVT.bbsStreet(o).btw (C2's door, wrapped by name)
+setTimeout(function(){ try{ if(window.GVT && !GVT.btw) GVT.btw=function(o){ return btwRead(o); }; }catch(e){} }, 0);   // GVT.btw(o): the rigs' door
+if(BTW.on) btwLay(1);   // the town laid at load, before any cfg (the tables are read at the cfg: the whistle is a second away)
+// ═══ END CARD-BTW ═══
 // ═══ CARD-BBF BILL FIGHTS LIKE A GUNSLINGER (sec:CARD-BBF; design/buffalo-bill-showdown-1021/build-bbf/00-BUILD-BBF.md; jumpr 2496, Maker 1 M2496, lane maker1;
 // WYATT by phone 10/22/2026 12:25 EDT, dictated, verbatim: "Bill needs to be moving a bit faster ... Bill's firing actions: it was hard to notice what he was really doing. We also need to make what he does a little more apparent.
 //   When he's firing away, we really need to feel it. ... I don't want him just sitting there taking damage. I want him firing, moving back, and getting behind cover, kind of like what King Croak would do. This is a Wild West fight.")
