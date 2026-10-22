@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.92","md5":"231ce157a424b2c90596b5729a6bb7e1","sha":"fb5a9211ec","at":"2026-10-22T22:24:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"25.93","md5":"49a8cfc0917da3ec8e3136ca174f99d7","sha":"51a70ae91e","at":"2026-10-22T22:37:05Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -14178,6 +14178,7 @@ html.tfh-on #wpfly { z-index:40; }   /* CARD-TFH R2 (Wyatt on Discord 10/18/2026
   .mbbill .mb-win.bbw .bbw-sheet { flex:0 0 auto; position:relative; height:100%; width:auto; aspect-ratio:220 / 306; max-width:none; max-height:none; filter:drop-shadow(0 6px 8px rgba(0,0,0,0.5)); transform:rotate(-2deg); }
   .mbbill .bbw-clip { position:relative; flex:0 1 auto; height:100%; aspect-ratio:16 / 9; max-width:100%; }
   .mbbill .bbw-clip .bdp-v, .mbbill .bbw-clip .bdp-p { width:100%; height:100%; }
+  .mbbill .bbw-when { display:block; margin:0.05em 0 0; font-family:var(--uih); font-weight:bold; font-size:clamp(13px,3.6vh,19px); letter-spacing:0.1em; color:#FFF3C4; text-shadow:0 2px 0 rgba(0,0,0,0.5); }   /* CARD-BPT: TONIGHT AT 9:15 PM EDT under BUFFALO BILL */
   .mbbill .bbw-prizes { display:flex; flex-wrap:wrap; justify-content:center; gap:3px 12px; margin:5px 0 0; }
   .mbbill .bbw-pz { display:inline-flex; align-items:center; gap:5px; font-size:clamp(11px,2.4vh,14px); letter-spacing:0.03em; color:#D8CFA8; }
   .mbbill .bbw-pz i { display:inline-block; width:1.9em; height:1.9em; flex:0 0 auto; } .mbbill .bbw-pz i svg { width:100%; height:100%; display:block; }
@@ -90180,7 +90181,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='25.92';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='25.93';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -195231,7 +195232,7 @@ SFX.hooves=function(){ if(!soundOn) return; const ac=audio(); if(!ac) return; BB
 }catch(e){} };
 // ── THE PILL'S NAME + THE WANTED SHEET + THE CARD
 function evPillName(){ return (evKing()==='bbs')? evNightName() : evKingName(); }   // line 1 of the pill: THE SHOWDOWN on Bill's night, the king's name on the kings' (evDoorHTML's two faces)
-function bbsCardPrizes(){ return [['EASY','THE OUTLAW .44s',()=>o44TicketArt()],['EASY','THE OUTLAW STASH',()=>outfitPartSVG('outlawstash')] /* CARD-OSD */,['MEDIUM',"BILL'S PISTOL",()=>enhPartSVG('billspistol')],['HARD',"THE MARSHAL'S HAT" /* CARD-BBW */,()=>outfitPartSVG('tombstonehat')]]; }   // C6's three (one a tier beaten), their own pictures
+function bbsCardPrizes(){ return [['EASY','THE OUTLAW .44s',()=>o44TicketArt()] /* CARD-BPT: THE OUTLAW STASH off the promo (Wyatt 10/22: "easy, medium, hard rewards. That's it."); the prize itself still pays at EASY */,['MEDIUM',"BILL'S PISTOL",()=>enhPartSVG('billspistol')],['HARD',"THE MARSHAL'S HAT" /* CARD-BBW */,()=>outfitPartSVG('tombstonehat')]]; }   // C6's three (one a tier beaten), their own pictures
 function bbsWantedSheet(w,h){ const P='#F1E6C8', PB='#B9A36E', RED='#B5362E', INK='#2A2622', GOLD='#F2C14E', MONO="'Courier New',Courier,monospace", sf=f=>{ try{ return f(); }catch(e){ return ''; } };   // bbrSheet's hand (CARD-BBR) with the Showdown's words
   const band=h*0.12, pw=w*0.50, ph=pw*300/216, px=(w-pw)/2, py=band+h*0.03, when=(EV.bell>0)? tf('TONIGHT AT %1', evBellTime()) : t('TONIGHT');
   let v='<rect x="2" y="3" width="'+w+'" height="'+h+'" rx="3" fill="#000" opacity=".22"/><rect x="0" y="0" width="'+w+'" height="'+h+'" rx="3" fill="'+P+'" stroke="'+PB+'" stroke-width="1.4"/>';
@@ -195258,6 +195259,7 @@ function bbsAnnCard(line){ const p=document.getElementById('milePop'); if(!p) re
     +'<button type="button" class="mb-x" onclick="UI.mileTake()" aria-label="close">✕</button>'
     +'<span class="mb-band">PRIME TIME</span>'
     +'<h2 class="mb-h">'+evKingName()+'</h2>'
+    +((EV.bell>0)? '<span class="bbw-when" data-notr>'+escH(tf('TONIGHT AT %1', evBellTime()))+'</span>' : '')   /* CARD-BPT: the start time under his name (Wyatt 10/22: "include the time that it starts"), the bell in the player's own clock */
     +'<span class="mb-win bbw"><svg class="bbw-sheet" viewBox="-2 -2 220 306" data-notr>'+bbsWantedSheet(216,300)+'</svg><span class="bbw-clip">'+bbsPromoClip()+'</span></span>'
     +'<div class="bbw-prizes" data-notr>'+prizes+'</div>'
     +(pop? '<span class="mb-line" data-notr>'+escH(line)+'</span>' : bbsPosterSayHTML())
