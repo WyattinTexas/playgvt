@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.04","md5":"aeaabe4622c755ce64cb5d373108666c","sha":"35da37d917","at":"2026-10-22T23:46:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.05","md5":"841ef838e96f49dd9fa807d6c4538082","sha":"a16df33919","at":"2026-10-22T23:52:50Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90468,7 +90468,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.05';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -196375,6 +196375,74 @@ function otsRoadIx(i){ i=i|0; if(!(typeof BTW==='object' && BTW.laid) && BBS_ROA
   return bi; }
 { const r0=bbsRoadPts; bbsRoadPts=function(i){ return r0.call(this, otsRoadIx(i)); }; }   // C3's street door wrapped by name (bbsRoadNear and the 'own' mode call it by name)
 // ═══ END CARD-OTS-RD ═══
+// ═══ CARD-OTS-BACK THE SHOWDOWN'S MAT 20 % TALLER AT THE TOP: A LITTLE DESERT BEHIND THE ROW (sec:CARD-OTS-BACK; design/outlaw-main-street-1022/00-CARD-OTS.md; Maker 1, 10/22/2026;
+// WYATT 19:05 EDT, typed on Maker 1, verbatim: "Extend the top of the map by about 20%. That way, players can go behind the building, and it's just kind of a little desert back there."; 19:09: "Extending that screen up 20% is really the main thing.")
+// HOW (the house's own tall-mat grammar, nothing new): Bill's raid row takes a mat height like every other raid (RAID_INFO.bbs.hmul 1 -> 1.4: raidArm makes WORLD_H 840, the classic 600 band slides to the waist
+// at off 120, the box at WORLD_H/2 = 420, FOE_BOT 828, the camera opening on the band at y 120 = today's framing to the pixel). Every street table Bill's town authored on the flat 600 rug moves down by the
+// same 120 (BTW_TOWN's rows, CARD-OTS's furniture and bunting, C2's three bands, C1's gun points and the herd's line, CARD-BBF's seat band, C3's ride limits), so the street keeps its shape and the 120 NEW rows
+// are open sand above the facades: the back desert (a few tufts and stones, the four rules), walkable, nothing walls it off. The waves' entry bands, the box, the computers' drop band ride the house's own
+// waist arithmetic (off = (WORLD_H-H)/2), so they move with it; BTW's edge fence (moved with the town) still keeps the posses on Main Street and the south track. Below the old south edge the mat carries the
+// house's other 120 rows of sand (the 1.4 grammar centres the band; ⚑ OTS-BACK-F1). ?back=0 on a device = the flat 600 street. Zero words, server, sw.js, save keys, RNG.
+const BACK_LIVE=1;   // the taller mat with Bill's town
+const BACK={ on:(function(){ try{ const q=/[?&]back=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_back','0'); else localStorage.removeItem('gvt_back'); } return localStorage.getItem('gvt_back')==='0'? 0 : BACK_LIVE; }catch(e){ return BACK_LIVE; } })(),
+  hm:1.4, dy:120, laid:0, stats:{ paints:0 },
+  rocks:[[180,64,16],[420,150,11],[700,44,13],[1010,118,18],[1290,58,12],[1560,150,15],[1780,88,12],[300,196,9],[760,198,10],[1440,196,9]],   // the back desert's stones (x, y, size), clear of the snake's sleeping seat
+  tufts:[[90,120],[260,30],[520,96],[640,180],[880,60],[1120,170],[1200,30],[1370,110],[1650,40],[1840,120],[980,20],[1530,82]] };
+function backShiftTown(dy){   // every y of BTW_TOWN (CARD-OTS has written its rows into it) moves by dy; the arrays and objects are rewritten in place
+  const T9=BTW_TOWN; T9.feet+=dy; T9.street.y0+=dy; T9.street.y1+=dy; T9.walk.y0+=dy; T9.walk.y1+=dy;
+  for(const o of T9.set) o.y+=dy; T9.tower.y+=dy; for(const r of T9.rails) r[2]+=dy; for(const b of T9.barrels) b[1]+=dy;
+  T9.mud.y+=dy; T9.pen.y+=dy; T9.pen.y1+=dy; for(const q of T9.edge.posts) q[1]+=dy;
+  for(const rd of T9.roads){ for(let i=1;i<rd.p.length;i+=2) rd.p[i]+=dy; }
+  for(const pr of T9.props) pr.y+=dy; for(const t of T9.tufts) t[1]+=dy;
+}
+function backLay(){
+  const dy=BACK.dy;
+  RAID_INFO.bbs.hmul=BACK.hm;   // raidArm(raidHmul('bbs', tier)) at every door (solo, party, the rigs' fixture)
+  backShiftTown(dy);
+  if(typeof OTS_DECOR==='object'){ for(const d of OTS_DECOR){ if(d.Y!=null) d.Y+=dy; } }   // CARD-OTS's furniture (laid at load with their Y already set)
+  if(typeof OTS_BUNT==='object'){ OTS_BUNT.a[1]+=dy; OTS_BUNT.b[1]+=dy; OTS_BUNT.bb[1]+=dy; }
+  for(const b of BBS_BANDS){ b[0]+=dy; b[1]+=dy; }   // C2's three bands (C3's lane counts read them; CARD-OTS-RD maps lanes by their middles)
+  for(const p of BBS_GUN_PTS) p[1]+=dy;               // C1's dug-in gun points
+  if(typeof BBS3==='object'){ BBS3.yLo+=dy; BBS3.yHi+=dy; }  // C3's ride limits
+  if(BTW.laid) btwLay(1);   // C2's tables re-laid from the moved town
+  BACK.laid=1; return 1;
+}
+function backLate(){ if(!BACK.laid || BACK.late) return; try{ BBF.yMin+=BACK.dy; BBF.yMax+=BACK.dy; BACK.late=1; }catch(e){} }   // CARD-BBF's seat band (his glass's band between the HUD bar and the tray, the camera on the band): BBF is declared after this sec, so it moves at the first cfg
+{ const c0=bbsCfg; bbsCfg=function(tier){ backLate(); const cfg=c0.apply(this, arguments); try{ if(BACK.laid && cfg && cfg.waves){ for(const w of cfg.waves){ if(w.herd && w.herd.y!=null && !w.herd.backDy){ w.herd.y+=BACK.dy; w.herd.backDy=1; } } } }catch(e){} return cfg; }; }   // C1's herd line rides Main Street (y 300 -> 420)
+function backPaint(){   // THE BACK DESERT (the floor's own seat, after BTW's ground): stones with a lit top and a deeper foot, the rim their own fill a shade darker at 0.6x and 55 %; the park's scrub tufts; two soft drift lines
+  const dy=BACK.dy; cx.save(); cx.lineCap='round';
+  cx.strokeStyle='rgba(150,104,56,0.28)'; cx.lineWidth=2; cx.beginPath(); for(const yy of [34, 96, 158]){ cx.moveTo(0,yy); for(let x=0;x<=1920;x+=40) cx.lineTo(x, yy+Math.sin(x/170+yy)*5); } cx.stroke();
+  for(const r of BACK.rocks){ const x=r[0], y=r[1], s=r[2];
+    cx.fillStyle='rgba(0,0,0,0.18)'; cx.beginPath(); cx.ellipse(x+2,y+s*0.45,s*1.25,s*0.4,0,0,7); cx.fill();
+    cx.fillStyle='#9C7A55'; cx.beginPath(); cx.ellipse(x,y,s*1.1,s*0.7,0,0,7); cx.fill();
+    cx.fillStyle='#B8956B'; cx.beginPath(); cx.ellipse(x-s*0.15,y-s*0.22,s*0.75,s*0.38,0,0,7); cx.fill();
+    cx.strokeStyle='rgba(110,82,52,0.55)'; cx.lineWidth=1.4; cx.beginPath(); cx.ellipse(x,y,s*1.1,s*0.7,0,0,7); cx.stroke(); }
+  cx.strokeStyle='#6b5a2e'; cx.lineWidth=2; cx.beginPath(); for(const t of BACK.tufts){ const x=t[0], y=t[1]; cx.moveTo(x,y); cx.lineTo(x+2,y-12); cx.moveTo(x+5,y); cx.lineTo(x+5,y-15); cx.moveTo(x+10,y); cx.lineTo(x+8,y-11); } cx.stroke();
+  cx.restore(); BACK.stats.paints++;
+}
+{ const fp1=bbsFloorPaint; bbsFloorPaint=function(WD,HT){ const r=fp1.apply(this, arguments); try{ if(BACK.laid && BTW.laid) backPaint(); }catch(e){} return r; }; }   // drawRug's sand seat, wrapped by name after CARD-BTW's wrap
+function backRead(){ return { on:BACK.on, live:BACK_LIVE, laid:BACK.laid, hm:RAID_INFO.bbs.hmul, dy:BACK.dy, WORLD_H:WORLD_H, T:{ x:T.x, y:T.y }, foe:[FOE_TOP,FOE_BOT], cam:S.cCam? { x:Math.round(S.cCam.x), y:Math.round(S.cCam.y||0) } : null,
+  bands:BBS_BANDS.map(b=>[b[0],b[1]]), bbf:(function(){ try{ return [BBF.yMin,BBF.yMax,BACK.late|0]; }catch(e){ return null; } })(), bbs3:(typeof BBS3==='object')? [BBS3.yLo,BBS3.yHi] : null, feet:BTW_TOWN.feet, street:Object.assign({},BTW_TOWN.street), stats:Object.assign({},BACK.stats) }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.back) GVT.back=function(){ return backRead(); }; }catch(e){} }, 0);   // GVT.back(): the rigs' door
+if(BACK.on && BTW.on && typeof OTS==='object' && OTS.laid) backLay();   // at load, after CARD-OTS laid its row (before any cfg)
+// ═══ END CARD-OTS-BACK ═══
+// ═══ CARD-OTS-TM BILL'S NIGHT: DOG TAGS AT 75 % + THE MICE LAY THEIR CHEESE IN THE PLAYERS' GROUND (sec:CARD-OTS-TM; design/outlaw-main-street-1022/00-CARD-OTS.md; Maker 1, 10/22/2026;
+// WYATT ~19:09 EDT on Maker 1, after the four-computer film, verbatim: "the mice need to do a better job of putting the cheese in the players' territory a little bit better ... making sure that the players
+//   don't have unlimited dog tags to really fight this out. Their dog tags should, I'd say, generate 75% as much as they currently do whenever the player recieves them.")
+// THE TAGS: CARD-BBS-C5's table BBS_TAGX (by the room's real commanders) x 0.75, in place at load: bbsTagX() reads it, so EVERY income in the Showdown pays 75 % of today's (the opening purse through
+//   bbsTag, the faucet, every kill blob and its pickup), and the vote page's "· TAGS x.." line shows the new number (x0.75 for one commander ... x0.22 for ten). Outside the Showdown bbsTagX is 1: untouched.
+// THE MICE: the desert mouse's sneak (updateFoeSneak, 0339) is five cloaked seconds and the cheese drops in the last one; on Bill's 1920 street a mouse entering at the east rim covers ~840 px in that time
+//   and drops mid-street (the film: the cheese piled on Main Street). In the Showdown each mouse's cloak now lasts as long as his run to the house's own goal (sneak.gx, behind the westmost green man,
+//   clamped 260..520: never on the toy box) + the drop second, capped at OTS_TM.tMax: the cheese lands behind the players' line, then he decloaks there (the sneak's own design). Every other room: as built.
+// Zero words, server, sw.js, save keys. GVT.otsTM() = the rigs' read.
+const OTS_TM={ tagK:0.75, tMax:10, pad:0.4, tag0:null, mice:0 };
+(function(){ try{ if(Array.isArray(BBS_TAGX) && !OTS_TM.tag0){ OTS_TM.tag0=BBS_TAGX.slice(); for(let i=0;i<BBS_TAGX.length;i++) BBS_TAGX[i]=+(BBS_TAGX[i]*OTS_TM.tagK).toFixed(4); } }catch(e){} })();   // C5's table x0.75, in place (its readers read it live)
+{ const s0=updateFoeSneak; updateFoeSneak=function(f,dt){   // the house's sneak wrapped by name (update calls it by name every frame for a cloaked mouse)
+    try{ if(f && f.mzT==null && f.type==='wmouse' && f.def && f.def.sneak && !f.def.sneak.mark && bbsOn()){ const sk=f.def.sneak, need=(f.x-sk.gx)/Math.max(1,sk.spd)+sk.mineAt+OTS_TM.pad;
+      f.mzT=Math.max(sk.t, Math.min(OTS_TM.tMax, need)); f.burrow=true; f.mzLaid=false; OTS_TM.mice++; } }catch(e){}
+    return s0.apply(this, arguments); }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.otsTM) GVT.otsTM=function(){ return { tagK:OTS_TM.tagK, table:BBS_TAGX.slice(), table0:OTS_TM.tag0, mice:OTS_TM.mice, tMax:OTS_TM.tMax }; }; }catch(e){} }, 0);
+// ═══ END CARD-OTS-TM ═══
 // ═══ CARD-BBF BILL FIGHTS LIKE A GUNSLINGER (sec:CARD-BBF; design/buffalo-bill-showdown-1021/build-bbf/00-BUILD-BBF.md; jumpr 2496, Maker 1 M2496, lane maker1;
 // WYATT by phone 10/22/2026 12:25 EDT, dictated, verbatim: "Bill needs to be moving a bit faster ... Bill's firing actions: it was hard to notice what he was really doing. We also need to make what he does a little more apparent.
 //   When he's firing away, we really need to feel it. ... I don't want him just sitting there taking damage. I want him firing, moving back, and getting behind cover, kind of like what King Croak would do. This is a Wild West fight.")
