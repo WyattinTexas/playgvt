@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.46","md5":"01601fd41874f9803f6ccc3413dce622","sha":"39ae4014b3","at":"2026-10-23T06:27:30Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.47","md5":"8fc268f28854a6b34baea08b2a96b1f3","sha":"3eb2a7c74a","at":"2026-10-23T06:31:48Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90746,7 +90746,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.46';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -199802,6 +199802,32 @@ function oilRead(){ const f=bbsBill(), b=f && f.bbs, M=b && b.bbf, L=oilRings();
     stats:Object.assign({}, OIL.stats), wrapped:[String(bbfTick).indexOf('OIL')>=0, String(bbfStep).indexOf('OIL')>=0, String(bbsFanBarrel).indexOf('OIL')>=0] }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.oil) GVT.oil=function(){ return oilRead(); }; }catch(e){} }, 0);   // the door on GVT once it exists (CARD-WHB's grammar: window.GVT is built below this seat)
 // ═══ END CARD-OTS-OIL ═══
+// ═══ CARD-NCL · THE PIRATE COVE STAYS OUT OF THE CAPTAIN'S LOG (sec:CARD-NCL; design/no-cove-log-1023/00-CARD-NCL.md; Maker 1's M2595 on air/m1-2595, 10/23/2026). WYATT by phone (jumpr 2595, 10/23/2026 03:51 EDT, dictated, verbatim: "Do not show the pirate's cove in the captain's log."). ═══
+// THE LAW: the Captain's Log never shows THE PIRATE COVE: no book on the shelf, no spread, no page in the turn order, no token on the Known World. CARD-LBW-B's lbwbBook writes the cove's row into LG_CH, LG_PAGES, SLB.ORDER + SLB.PG and its seats into LG3_TOK / LG_SEATS at the join (the boot with META.pirate, the code typed at the counter, the rig's door). This section takes those rows OUT: once here at load (every section above has run by now, the boot's own join included), and again at every paint of a page of the Log (lgPageHTML re-pointed by name: a join made while the game runs, or a later card's token, never shows), and lbwbBook is re-pointed by name to a no-op so no later join writes them back.
+// WHAT STANDS: everything of the cove outside the Log. The code PIRATE, the pond and the bottle, the deed, the ship and the pill TO THE COVE, THE SUNKEN SHIP's row (RAID_INFO.wreck) with its lobby wordmark THE PIRATE COVE, the fight, the ledger, the four prizes' rows in their own tables, the king's name row: not a byte of them is touched; the cove stays playable, it is only out of the book. LG3_NAME.wreck, LG3_THRONE.wreck and LG3_MENU.wreck stay in their tables too: keyed lookups no page of the Log reaches without the row (CARD-LBW-B's rig door still reads them).
+// THE DOOR: ?ncl=0 on a device = the cove's book back as CARD-LBW-B laid it (gvt_ncloff); ?ncl=1 clears it. GVT.ncl() the rig's read. Zero words, zero CSS, zero save keys, zero server bytes, zero sw.js.
+const NCL_OFF=(function(){ try{ const q=/[?&]ncl=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_ncloff','1'); else localStorage.removeItem('gvt_ncloff'); } return localStorage.getItem('gvt_ncloff')==='1'; }catch(e){ return false; } })();
+function nclOn(){ return !NCL_OFF; }
+var NCL={ v:1, id:'wreck', strips:0, took:0, paints:0, err:0 };   // the cove's id in the Log's tables (CARD-LBW-B's row 'wreck'; the raid keeps RAID_INFO.wreck) · how many strips found something · how many rows went · how many Log paints ran the strip · errors
+function nclStrip(){ if(!nclOn()) return 0; const id=NCL.id; let n=0; try{
+  if(typeof LG_CH==='object' && LG_CH && LG_CH.length){ for(let i=LG_CH.length-1; i>=0; i--) if(LG_CH[i] && LG_CH[i].id===id){ LG_CH.splice(i, 1); n++; } }   // the shelf's book and the spread (SLB's books() reads LG_CH; lgCh reads it for the page)
+  if(typeof LG_PAGES==='object' && LG_PAGES && LG_PAGES.length){ for(let i=LG_PAGES.length-1; i>=0; i--) if(LG_PAGES[i]===id){ LG_PAGES.splice(i, 1); n++; } }   // the turn order (lgTurn, the ‹ › arrows)
+  if(typeof SLB==='object' && SLB && SLB.ORDER && SLB.PG){ let k=SLB.ORDER.indexOf(id); if(k>=0){ while(k>=0){ SLB.ORDER.splice(k, 1); k=SLB.ORDER.indexOf(id); } SLB.ORDER.forEach((pid, i9)=>{ if(i9>0) SLB.PG[pid]=[i9*2, i9*2+1]; }); n++; } if(Object.prototype.hasOwnProperty.call(SLB.PG, id)){ delete SLB.PG[id]; n++; } }   // the spreads' order and their page numbers re-counted (CARD-LBW-B's and CARD-BBS-C7's own grammar; the Known World stays 2 and 3)
+  if(typeof LG3_TOK==='object' && LG3_TOK && Object.prototype.hasOwnProperty.call(LG3_TOK, id)){ delete LG3_TOK[id]; n++; }   // a token on the Known World (none today; a later card's would go the same way)
+  if(typeof LG_SEATS==='object' && LG_SEATS && Object.prototype.hasOwnProperty.call(LG_SEATS, id)){ delete LG_SEATS[id]; n++; }   // the old theater's well seat (CARD-KW; no live painter reads it today)
+  }catch(e){ NCL.err++; try{ console.error('CARD-NCL strip', e); }catch(e2){} }
+  if(n){ NCL.strips++; NCL.took+=n; } return n; }
+{ const b0=lbwbBook; lbwbBook=function(){ if(!nclOn()) return b0.apply(this, arguments); return 0; }; }   // the book writer re-pointed by name: a later join (the code typed at the counter, GVT.lbwb({book:1})) writes nothing into the Log; with the device door open CARD-LBW-B's own writer runs
+{ const p0=lgPageHTML; lgPageHTML=function(pg, beat){ try{ NCL.paints++; nclStrip(); }catch(e){ NCL.err++; } return p0.apply(this, arguments); }; }   // every paint of a page of the Log (the shelf, a spread, the Known World: lgBookHTML and lgJump both come through here) strips first, so a join made while the game runs never shows
+if(nclOn()){ try{ nclStrip(); }catch(e){ NCL.err++; } }   // at load, after every section above (the boot's own join with META.pirate ran in CARD-LBW-B)
+function nclRig(o){ o=o||{}; try{ if(o.strip) nclStrip(); }catch(e){ NCL.err++; }
+  const has=(T,k)=>!!(typeof T==='object' && T && Object.prototype.hasOwnProperty.call(T, k)); const id=NCL.id, W=(typeof LBWB==='object' && LBWB)? LBWB : null, R=(typeof RAID_INFO==='object' && RAID_INFO && RAID_INFO.wreck)? RAID_INFO.wreck : null;
+  let shelf=null; try{ const bk=document.querySelector('#travelMap .lg-book'); if(bk){ const words=[t('THE PIRATE COVE'), 'THE PIRATE COVE', t('THE SUNKEN SHIP'), 'THE SUNKEN SHIP']; const tx=bk.textContent||''; shelf={ pg:bk.getAttribute('data-pg'), books:Array.prototype.map.call(bk.querySelectorAll('.sls-row [data-ch]'), e=>e.getAttribute('data-ch')), cove:words.some(w=>w && tx.indexOf(w)>=0), ch:!!bk.querySelector('[data-ch="'+id+'"]'), tok:!!bk.querySelector('[data-place="'+id+'"]') }; } }catch(e){ NCL.err++; }
+  return { cv:GVT_CV, v:NCL.v, on:nclOn(), strips:NCL.strips, took:NCL.took, paints:NCL.paints, err:NCL.err, pirate:META.pirate? 1 : 0, cove:META.cove? 1 : 0, joined:W? W.joined : null, book:W? W.book : null,
+    log:{ ch:(typeof LG_CH==='object' && LG_CH)? LG_CH.some(c=>c && c.id===id) : null, pages:(typeof LG_PAGES==='object' && LG_PAGES)? LG_PAGES.indexOf(id) : null, order:(typeof SLB==='object' && SLB && SLB.ORDER)? SLB.ORDER.indexOf(id) : null, pg:(typeof SLB==='object' && SLB && SLB.PG)? has(SLB.PG, id) : null, tok:has(typeof LG3_TOK==='object'? LG3_TOK : null, id), seat:has(typeof LG_SEATS==='object'? LG_SEATS : null, id), name:has(typeof LG3_NAME==='object'? LG3_NAME : null, id), nPages:(typeof LG_PAGES==='object' && LG_PAGES)? LG_PAGES.length : null, nCh:(typeof LG_CH==='object' && LG_CH)? LG_CH.length : null, nOrder:(typeof SLB==='object' && SLB && SLB.ORDER)? SLB.ORDER.length : null },
+    world:{ row:!!R, wm:R? R.wm : null, pond:(typeof lbwbPondOn==='function')? !!lbwbPondOn() : null, jungle:(typeof LBWC==='object' && LBWC)? !!LBWC.dino : null, door:(typeof lbwbCoveOn==='function')? !!lbwbCoveOn() : null, tables:{ decor:!!(typeof DECOR_INFO==='object' && DECOR_INFO.shipswheel), part:!!(typeof ENH_INFO==='object' && ENH_INFO.cutlass), outfit:!!(typeof OUTFIT_INFO==='object' && OUTFIT_INFO.captainshat), unit:!!(typeof UDEF==='object' && UDEF.kingkraken) } }, shelf }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.ncl=nclRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar): GVT.ncl(o)
+// ═══ END CARD-NCL ═══
 window.GVT = {
   cks(o){ if(o && o.pct!=null) CKS.pct=+o.pct||0; const R=[0,1,10,20,25,50,75,99,100], t={}; for(const r of R) t[r]={ mul:+cksMul(r).toFixed(4), hit:+hitDmgNowAt('kingcroak',r).toFixed(4), whole:hitWhole(hitDmgNowAt('kingcroak',r)) }; return { cv:GVT_CV, pct:CKS.pct, at:CKS.at, ck:HHB.ck, slope:HERO_DMG_RANK, mine:(META.up.kingcroak||0)|0, table:t }; },   // CARD-CKS: the ramp's dials (o.pct sets it for a rig; 0 = the storm as it was) + King Croak's HITS FOR at nine ranks
   ffi(o){ return ffiRig(o); },   // CARD-FFI THE FIRST FIVE, ISAAC'S SEVEN NOTES: the switch, the legs, the presses for a rig
