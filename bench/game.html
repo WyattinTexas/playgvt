@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.47","md5":"8fc268f28854a6b34baea08b2a96b1f3","sha":"3eb2a7c74a","at":"2026-10-23T06:31:48Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.48","md5":"326801cd58fb42dc2b5c8d5c8867d548","sha":"a757285221","at":"2026-10-23T06:37:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90746,7 +90746,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -187740,6 +187740,70 @@ HSL.old.capDuoPick=UI.capDuoPick; UI.capDuoPick=function(k){ const r=HSL.old.cap
   '@media (max-width:760px) { .hau .hsl-take, .hau .hsl-in { font-size:.95rem; letter-spacing:.1em; min-height:42px; padding:6px 10px; } .rmcard.hau .hau-row.hsl-wide .us-bps .us-bp, .rmcard.hau .hau-row.hsl-wide .us-bps.many .us-bp { grid-template-columns:48px 1fr !important; } }'
 ].join('\n'); document.head.appendChild(st); })();
 // ═══ END CARD-HSL ═══
+// ═══ CARD-IVF THE INVENTIONS FIT THEIR COLUMN (sec:CARD-IVF; design/inventions-fit-1023/00-CARD-IVF.md; FROM WYATT'S PHONE by the jumpr remote 10/23/2026 03:56:58 UTC (10/22 23:56 EDT), one screenshot (JANE's page: five inventions over the rank track and over the IN COMMAND stamp), verbatim: "We need to fit our inventions neatly. Currently, they're overflowing out of the UI when there are too many.") ═══
+// THE LAW: on THE HEROES' AUDITION PAGE (CARD-HAU's hauHTML, dressed by CARD-HSL) a hero's inventions (usPartsHTML's blueprints in the side column .hau-side, beside the pentagon) stand INSIDE the row they are dealt in, between the ladder
+// and the command seat: never over the rank track or its named rung, never over the stamp, the button or the TWO HEROES strip, never off the glass. The row's height is what the glass leaves (874 x 402 on his phone: 161 px for Jane, whose
+// five tiles stood 217 px tall). THE FIT (ivfFit) measures the row and, only when the column as shipped is taller, deals THE LIST: one column of equal rows, the blueprint at the left, the name over its state; a part with a door
+// (the price on the shelf, IN ITS ROOM) carries the short door FLOOP'S LAB → beside its state (the quiet door's own words, already a key x7; the same verb UI.usLab), so every row is two lines. The list steps down one size at a
+// time until it fits (s1 48 x 32 · s2 42 x 28 · s3 34 x 23 · s4 31 x 21, the words .68 → .56 rem); past s4 it keeps s4's look and SCROLLS inside its own box with a soft fade at the cut, so nothing ever stands over anything.
+// A column that fits as shipped (one to three parts on most glasses) is left byte-what-it-was. It runs when the page is dealt (hauOpen), every time CARD-HSL re-dresses it (hslDress: TAKE COMMAND, the TWO HEROES switch, CHANGE,
+// a pick) and on a resize. At load it WRAPS hauOpen and hslDress BY NAME; no existing line changed. ?ivf=0 on a device = the column as shipped (kept in gvt_ivf; ?ivf=1 clears it). Zero new words, zero save keys, zero server bytes,
+// zero sw.js. The css = the style node ivfCss, appended at load. Rig door: GVT.ivf().
+var IVF={ on:(function(){ try{ const m=/[?&]ivf=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_ivf','0'); else localStorage.removeItem('gvt_ivf'); } return localStorage.getItem('gvt_ivf')==='0'? 0 : 1; }catch(e){ return 1; } })(), fits:0, err:0, raf:0, last:null, old:{} };   // the switch · fits run · errors caught · the frame's re-fit · the last fit's read · the wrapped originals
+const IVF_STEPS=['ivf-s1','ivf-s2','ivf-s3','ivf-s4'], IVF_AIR=2;   // THE LIST's four sizes, roomiest first (the css below) · the air (px) THE LIST keeps under the head's foot
+function ivfOn(){ return !!IVF.on; }
+function ivfPage(){ return document.querySelector('#roomModal .rmcard.hau'); }   // the audition page standing (null = not)
+function ivfDoors(bps){ bps.querySelectorAll('.us-bp').forEach(bp=>{ const go=bp.querySelector('.us-go'); if(!go || bp.querySelector('.ivf-go')) return;   // THE SHORT DOOR beside a part's state (the price, IN ITS ROOM): the long door's own verb, the quiet door's own words (FLOOP'S LAB, a key x7)
+    const b=document.createElement('button'); b.type='button'; b.className='ivf-go'; b.setAttribute('data-notr',''); b.setAttribute('onclick', go.getAttribute('onclick')||'');
+    b.appendChild(document.createTextNode(t("FLOOP'S LAB")+' ')); const ar=document.createElement('i'); ar.appendChild(document.createTextNode('→')); b.appendChild(ar);   // DOM nodes (createTextNode: no setter hook re-reads the words as a key)
+    const st=bp.querySelector('.us-st'); if(st) st.insertAdjacentElement('afterend', b); else go.insertAdjacentElement('beforebegin', b); }); }
+function ivfOver(m,row){ const w=m.querySelector('.hau-words'); if(!w || !row) return 0; const y=e=>{ let t=0; for(let q=e; q && q!==w; q=q.offsetParent) t+=q.offsetTop; return t; }; let f=0;   // how far the head's foot reaches INTO the row: layout offsets (the entrance's transforms never move them)
+  for(let e=row.previousElementSibling; e; e=e.previousElementSibling) if(e.offsetHeight) f=Math.max(f, y(e)+e.offsetHeight);   // the eye, the name, the role, the ladder, the glyphs, her gown rows
+  w.querySelectorAll('.us-lad s').forEach(e=>{ if(e.offsetHeight) f=Math.max(f, y(e)+e.offsetHeight); });   // the NEXT rung's name hangs under the track; with no glyph row under it (King Croak, the bear) it reaches 4 px into the row
+  return Math.max(0, Math.ceil(f-y(row))); }
+function ivfFit(){ const m=ivfPage(); if(!m) return null; const row=m.querySelector('.hau-row'), side=row && row.querySelector('.hau-side'), bps=side && side.querySelector('.us-bps'); if(!row || !side) return null;
+  row.classList.remove('ivf','ivf-scroll',...IVF_STEPS); row.style.paddingTop=''; if(bps) bps.scrollTop=0;   // every fit starts from the column as shipped (a step from the last glass never sticks)
+  const over=ivfOver(m,row), L={ k:(typeof HAU!=='undefined')? HAU.k : null, step:0, room:row.clientHeight, over, need:side.offsetHeight, n:bps? bps.querySelectorAll('.us-bp').length : 0, scroll:0 };   // the room = the row's own height (flex:1 under the ladder, over the seat); the need = the side column's
+  if(ivfOn() && bps && L.n && L.need>L.room-2*over+0.5){ ivfDoors(bps); const cmd=side.querySelector('.hau-cmd'); if(cmd) cmd.classList.toggle('ivf-none', !cmd.firstElementChild && !(cmd.textContent||'').trim());   // the shipped column, centred, clears the head only when need <= room - 2 x over; else THE LIST. CARD-HSL empties an owned hero's seat (THE BUTTON stands under the row): the empty seat stops costing the list its gap
+    const pad=over+IVF_AIR; row.style.paddingTop=pad+'px'; L.room=row.clientHeight-pad;   // THE LIST stands under the head's foot with a breath of air (the row's content box starts there; the pentagon centres in it too)
+    row.classList.add('ivf'); for(let i=0;i<IVF_STEPS.length;i++){ if(i) row.classList.remove(IVF_STEPS[i-1]); row.classList.add(IVF_STEPS[i]); L.step=i+1; L.need=side.offsetHeight; if(L.need<=L.room+0.5) break; }
+    if(L.need>L.room+0.5){ row.classList.add('ivf-scroll'); L.step=IVF_STEPS.length+1; L.need=side.offsetHeight; L.scroll=bps.scrollHeight; } }   // the last resort: s4's look, the list scrolls in its own box (a finger's swipe), the fade marks the cut
+  IVF.fits++; IVF.last=L; return L; }
+function ivfSoon(){ try{ cancelAnimationFrame(IVF.raf); }catch(e){} IVF.raf=requestAnimationFrame(()=>{ IVF.raf=0; try{ ivfFit(); }catch(e){ IVF.err++; } }); }   // once more on the next frame (a turned phone settles its glass a frame late)
+function ivfRig(o){ o=o||{}; if(o.on!=null){ IVF.on=o.on? 1 : 0; try{ ivfFit(); }catch(e){ IVF.err++; } } if(o.fit){ try{ ivfFit(); }catch(e){ IVF.err++; } }   // the rig door (GVT.ivf): { on:0|1 } flips the switch for this page's life and fits again; { fit:1 } fits again
+  const m=ivfPage(), q=s=>m? m.querySelector(s) : null, box=e=>{ if(!e) return null; const b=e.getBoundingClientRect(); return [Math.round(b.left*10)/10,Math.round(b.top*10)/10,Math.round(b.width*10)/10,Math.round(b.height*10)/10]; }, vis=e=>!!e && e.getBoundingClientRect().height>0 && getComputedStyle(e).display!=='none';
+  const row=q('.hau-row'), bps=q('.us-bps'), cls=row? [...row.classList].filter(c=>/^ivf/.test(c)) : [];
+  return { on:IVF.on, fits:IVF.fits, err:IVF.err, page:!!m, k:m && typeof HAU!=='undefined'? HAU.k : null, last:IVF.last, cls, step:IVF_STEPS.reduce((s,c,i)=>cls.indexOf(c)>=0? i+1 : s, 0)+(cls.indexOf('ivf-scroll')>=0? 1 : 0), row:box(row), side:box(q('.hau-side')), bps:box(bps), pent:box(q('.us-pent')),
+    tiles:m? [...m.querySelectorAll('.us-bp')].map(b=>({ id:b.dataset.part, box:box(b), art:box(b.querySelector('.bp')), st:((b.querySelector('.us-st')||{}).textContent||'').trim(), long:vis(b.querySelector('.us-go')), short:vis(b.querySelector('.ivf-go')), shortText:((b.querySelector('.ivf-go')||{}).textContent||'').trim(), door:(b.querySelector('.ivf-go')||b.querySelector('.us-go')||{ getAttribute:()=>null }).getAttribute('onclick') })) : [],
+    scroll:bps? { top:bps.scrollTop, h:bps.scrollHeight, ch:bps.clientHeight, ov:getComputedStyle(bps).overflowY } : null,
+    wraps:{ hauOpen:hauOpen!==IVF.old.hauOpen && !!IVF.old.hauOpen, hslDress:hslDress!==IVF.old.hslDress && !!IVF.old.hslDress } }; }
+IVF.old.hauOpen=hauOpen; hauOpen=function(k){ const r=IVF.old.hauOpen.apply(this, arguments); try{ ivfFit(); ivfSoon(); }catch(e){ IVF.err++; } return r; };   // the wrap: the page as dealt (CARD-HAU, then CARD-HSL's dress), then the fit
+IVF.old.hslDress=hslDress; hslDress=function(){ const r=IVF.old.hslDress.apply(this, arguments); try{ ivfFit(); }catch(e){ IVF.err++; } return r; };   // the wrap: every re-dress (the stamp, the strip ON or OFF, CHANGE, a pick) moves the seat under the row: the fit again
+addEventListener('resize', ()=>{ if(ivfPage()) ivfSoon(); });   // a turned phone, a resized window
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.ivf=ivfRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar)
+(function(){ const st=document.createElement('style'); st.id='ivfCss'; const R='.rmcard.uscard.hau .hau-row.ivf'; st.textContent=[   // css:ivf: THE LIST (only under .ivf; the shipped column's rules stand everywhere else)
+  R+'.ivf-s1 { --ivf-w:48px; --ivf-h:32px; --ivf-pad:4px 5px; --ivf-fr:3px; --ivf-fn:.68rem; --ivf-fs:.66rem; --ivf-fd:.6rem; --ivf-gap:5px; --ivf-col:8px; }',
+  R+'.ivf-s2 { --ivf-w:42px; --ivf-h:28px; --ivf-pad:3px 4px; --ivf-fr:3px; --ivf-fn:.64rem; --ivf-fs:.62rem; --ivf-fd:.57rem; --ivf-gap:4px; --ivf-col:7px; }',
+  R+'.ivf-s3 { --ivf-w:34px; --ivf-h:23px; --ivf-pad:3px; --ivf-fr:2px; --ivf-fn:.6rem; --ivf-fs:.58rem; --ivf-fd:.54rem; --ivf-gap:3px; --ivf-col:6px; }',   /* s3 and s4: the blueprint as tall as its two lines of words (the words keep their size longer) */
+  R+'.ivf-s4 { --ivf-w:31px; --ivf-h:21px; --ivf-pad:2px 3px; --ivf-fr:2px; --ivf-fn:.56rem; --ivf-fs:.55rem; --ivf-fd:.5rem; --ivf-gap:2px; --ivf-col:5px; }',
+  R+' .hau-side { gap:6px; }',
+  R+' .hau-cmd.ivf-none { display:none; }',
+  R+' .us-bps.us-bps { gap:var(--ivf-gap) !important; }',
+  R+' .us-bps .us-bp.us-bp { display:grid; grid-template-columns:var(--ivf-w) minmax(0,1fr) !important; gap:var(--ivf-col) !important; align-items:center !important; justify-items:stretch !important; text-align:left !important; }',   /* the shipped many-rule centres each cell (justify-items:center): the words stand flush beside their blueprint */
+  R+' .us-bps .bp.ink.ink { width:var(--ivf-w) !important; height:var(--ivf-h) !important; max-width:none !important; padding:var(--ivf-pad) !important; border-radius:3px; background-size:8px 8px; box-shadow:inset 0 0 0 var(--ivf-fr) #16376A, inset 0 0 0 calc(var(--ivf-fr) + 1px) rgba(237,234,223,0.72); }',
+  R+' .us-bps .us-bpi.us-bpi { display:flex; flex-wrap:wrap; align-items:center; column-gap:6px; row-gap:1px; min-width:0; text-align:left; }',
+  R+' .us-bps .us-bpn.us-bpn { flex:1 1 100%; min-width:0; font-size:var(--ivf-fn); line-height:1.12; }',
+  R+' .us-bps .us-st.us-st { margin:0 !important; font-size:var(--ivf-fs); line-height:1.12; }',
+  R+' .us-bps .us-st.lock { white-space:normal; }',
+  R+' .us-bps .us-go, '+R+' .us-bps .us-quiet { display:none !important; }',
+  '.rmcard.uscard.hau .ivf-go { display:none; }',
+  R+' .us-bps .ivf-go { display:inline-flex; align-items:center; gap:3px; margin:0; padding:1px 6px; border-radius:7px; border:1.5px solid #E8C25A; background:rgba(0,0,0,0.25); color:#F2D488; font:inherit; font-weight:bold; font-size:var(--ivf-fd); letter-spacing:0.05em; line-height:1.12; white-space:nowrap; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }',
+  R+' .us-bps .ivf-go i { font-style:normal; }',
+  R+' .us-bps .ivf-go:active { transform:translateY(1px); background:rgba(232,194,90,0.18); }',
+  R+'.ivf-scroll .hau-side { max-height:100%; min-height:0; align-self:stretch; justify-content:flex-start; }',
+  R+'.ivf-scroll .us-bps.us-bps { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; touch-action:pan-y; scrollbar-width:none; padding-bottom:12px; -webkit-mask-image:linear-gradient(180deg, #000 calc(100% - 16px), transparent); mask-image:linear-gradient(180deg, #000 calc(100% - 16px), transparent); }'   /* the map's own scroll box (#travelMap .s-list's recipe) */
+].join('\n'); document.head.appendChild(st); })();
+// ═══ END CARD-IVF ═══
 // ═══ CARD-US THE UNIT SHEET, SIMPLIFIED (jumpr 1247e-1b; design/unit-sheet-0925/00-BUILD-US.md; Wyatt 9/25/2026 16:21, verbatim: "run a design pass on the unit full breakdown from inside the fort. I'm realizing that these need to be simplified:
 // just very basic, way less reading, way less of this extra stuff. What it needs to do is tell you: How much health he has · How much he hits for · How fast he attacks · How fast he moves · What his crit percentage is. That's it … They'd rather look at a chart
 // than text or a bar. As for the upgrades … it should probably just show the blueprints of what those are and then how you can go to Floop's Lab to learn it" · 18:45 his four words: "Instead of 'hits,' it says 'damage.' Instead of 'rate,' it says 'attack
