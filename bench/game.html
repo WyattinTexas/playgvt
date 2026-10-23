@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.18","md5":"2016165aad622d3ebc0f146ae3f18160","sha":"93eb578d73","at":"2026-10-23T02:55:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.19","md5":"4ff1227ee6fcbb0d0a20fd1f1cf8119a","sha":"eadbdea034","at":"2026-10-23T03:04:00Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -192567,6 +192567,31 @@ function dlgeSync(){ const svg=DLGP.svg; const ok=DLGE.on && DLGP.on && svg && s
 function dlgeOff(){ DLGE.tok++; for(const u of [...DLGE.halos.keys()]) dlgeDrop(u); }
 setTimeout(()=>{ try{ if(window.GVT && !GVT.dlgHalo) GVT.dlgHalo={ st:()=>({ on:DLGE.on, n:DLGE.halos.size, made:DLGE.made, ms:+DLGE.ms.toFixed(1), err:DLGE.err, halos:[...DLGE.halos].map(([u, H])=>({ id:u.id, cvs:H.cvs? H.cvs.length : 0, anim:H.cvs? H.cvs.map(c=>c.style.animationName) : [], seat:H.el.previousElementSibling? (H.el.previousElementSibling.id||H.el.previousElementSibling.tagName) : null })) }), on:v=>{ DLGE.on=v? 1 : 0; if(v) dlgeSync(); else dlgeOff(); return DLGE.on; } }; }catch(e){} }, 0);   // the rig's door
 // ═══ CARD-DLG-E ends ═══
+// ═══ CARD-BFT THE BATTLEFIELD SHOWS ON EVERY PHONE (sec:CARD-BFT; design/battlefield-tile-1022/00-CARD-BFT.md; Maker 1, jumpr 2546 = M2546, 10/22/2026 ~21:30 EDT)
+// LAURA 10/22/2026 20:39 EDT by the jumpr guest link, verbatim: "battlefield not showing up" + her phone's screenshot: the bedroom at THE SHOWDOWN's bell (THE BELL IN 8:23 · JOIN THE FIGHT), the rug's
+//   BATTLEFIELD tile with its pill (BATTLEFIELD · 211 WINS) and its bell disc standing, and the war table under them GONE.
+// THE CAUSE: a lit door resting as a still-room picture (CARD-DLG-A: dlgSer0 writes each element's computed paint into the picture) carried its halo's filter url(#bcn…) INTO its picture. The halo filters live
+//   in #bcnDefs at the foot of <body>, outside the picture, so the reference dangles there. Chrome and WebKit's main since 308809@main (2026-03-06, bugs.webkit.org 309281) draw the art without it; the WebKit
+//   of Safari 26.6 (this Mac's own, measured) and of the iPhones on that release draws NO svg element whose filter it cannot find: the lit door's picture is empty. The doors it empties: the battlefield
+//   while a bell is live (.evlive, bcnW*) or when the idle beacon picks it (.beacon, bcnS), the campaign crate when the idle beacon picks it (bcnC* on its first child), any door pictured under .beacon,
+//   .beckon, .nudge or .tcover. The halo never needed the picture: CARD-DLG-E draws it as two still bitmaps in its own box (and its trim strips these same filters from its own copies).
+// THE CURE: dlgSer0 (the still room's one walk, called by name by dlgSer and dlgeMake) wrapped by name: its markup leaves out every halo filter (#bcn…) with CARD-DLG-E's own pattern, so a picture is the
+//   art alone on every engine. Chrome's and the newer WebKit's pictures stay what they were to the eye (neither ever applied the dangling filter; measured against the base's: WebKit 2311 to the dot,
+//   Chrome 58.5 dB for the lit battlefield and 88.6 dB for the lit crate, as it draws such a group through a layer of its own); Safari 26.6 draws the lit door again, CARD-DLG-E's halo box around it.
+//   A lit door's markup now equals its unlit one, so its picture IS the unlit picture the cache already holds (no second decode, no shift of a dot, when a door lights).
+// Switch: BFT_LIVE 1; ?bft=0 on a device = the pictures as they were (gvt_bft); GVT.bft() = the rigs' door. Zero words, zero server, zero sw.js, zero save keys, zero RNG; no existing line changed.
+const BFT_LIVE=1;
+const BFT={ on:(function(){ try{ const q=/[?&]bft=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bft','0'); else localStorage.removeItem('gvt_bft'); } return localStorage.getItem('gvt_bft')==='0'? 0 : BFT_LIVE; }catch(e){ return BFT_LIVE; } })(),
+  stats:{ walks:0, cut:0 } };
+const BFT_RX=/filter:\s*url\([^)]*#bcn\w+[^)]*\)\s*;?/g;   // dlgeMake's own pattern: the halo's url() in a style, however the engine wrote it (quoted, bare, absolute)
+function bftCut(s){ if(!BFT.on || typeof s!=='string' || s.indexOf('#bcn')<0) return s; const o=s.replace(BFT_RX, ''); if(o!==s) BFT.stats.cut++; return o; }
+{ const s0=dlgSer0; dlgSer0=function(u){ BFT.stats.walks++; return bftCut(s0.apply(this, arguments)); }; }   // the walk wrapped by name
+function bftRead(){ const pre=/^data:image\/svg\+xml;charset=utf-8,/, lit=[];
+  for(const u of (DLGP.units||[])){ let on=false; try{ on=u.matches(DLGE_LIT); }catch(e){} if(!on) continue; const P=u.__p, v=(P && P.rec && P.rec.vurl)||''; let d=''; try{ d=v? decodeURIComponent(v.replace(pre, '')) : ''; }catch(e){}
+    lit.push({ id:u.id||null, cls:u.getAttribute('class'), asleep:DLGP.sleep.has(u), pic:!!P, bcn:(d.match(/#bcn\w+/g)||[]).length }); }
+  return { cv:GVT_CV, on:BFT.on, live:BFT_LIVE, stats:Object.assign({}, BFT.stats), lit }; }   // every lit door the still room holds: asleep in a picture, and how many halo references that picture carries (0 = the cure)
+setTimeout(function(){ try{ if(window.GVT && !GVT.bft) GVT.bft=function(){ return bftRead(); }; }catch(e){} }, 0);
+// ═══ END CARD-BFT ═══
 function frame(ts){
   requestAnimationFrame(frame);
   if(!ready) return;
