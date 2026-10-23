@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.64","md5":"c13de143774b439f09d3e8249e5dfdd9","sha":"062468357a","at":"2026-10-23T17:20:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.65","md5":"df61961bca685a763627f0968a651d1a","sha":"6591ac1bab","at":"2026-10-23T17:36:49Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90757,7 +90757,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.64';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.65';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -197536,6 +197536,65 @@ function pcfRead(o){ const keys={}; for(const k in PCF_KEYS){ const im=IMG[k]; k
 try{ pcfInstall(); }catch(e){ PCF.err++; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.pcf) GVT.pcf=pcfRead; }catch(e){} }, 0);   // the rig door, seated once window.GVT stands (the house's way)
 // ═══ END CARD-PCF ═══
+// ═══ CARD-RSQ · LAURA'S TWO DRAWINGS, LIGHTER: THE FELT PRINCESS AND THE STUFFIES AT A FRACTION OF THE MEMORY (sec:CARD-RSQ; design/rsl-light-1023/00-CARD-RSQ.md; jumpr 2616 = CARD-RSL's RSL-Q2;
+// WYATT 10/23/2026 by Discord, verbatim: 12:04:26 EDT "Yes fix it. Add to jumpr queue full permission" · 12:04:41 EDT "Fix and go with recommendations" (RSL-Q2's REC: "Laura's same drawings at a fraction of the
+// memory ... and hers come back on iPhones"); LAYLA's iPhone, RADIO SILENCE at every open: design/radio-silence-1023). HER DRAWINGS ARE UNTOUCHED: every pixel she sees is the one CARD-PCF and CARD-STF draw today;
+// only WHEN a picture is made and HOW BIG it is kept change. Laura's cards' lines stand as they are; every change below is a wrap by name.
+// THE PRINCESS (CARD-PCF, every device): (1) buildSprites leaves her six keys out of its svg pass (they were decoded at boot as six live svg documents with her blurs and masks, then never drawn: her bake took
+// their place); (2) no boot bake (pcfBakeAll: the six poses baked at every launch as png data uris, their decodes and the svg documents drawn to make them, whether a princess shows or not); (3) IMG's six keys are
+// a door of this card's (CARD-ODL's grammar: ODL's own door skips a key that has one): the first READ of a pose bakes THAT pose by pcfBake's own recipe (her mold in a document of 120 x 140 units at pcfPx a
+// unit, drawn once by the engine) into a CANVAS that IS the picture: no png string, no second decode, the source picture let go at once. Until it lands the read hands her standing pose's canvas (her own drawing in
+// the same box, a frame or two; the tray reads the standing pose from the title on), else a blank of her box's shape. pcfBake / pcfBaked (the moments, a gown pick) answer from the same door. (4) A pose nothing has
+// read for a minute lets its canvas go (the next read bakes it again).
+// (5) HER PALACE's three layers (the body, the two heads: bitmaps at the screen's size) are baked only while the palace shows (no bake at the menu's idle) and let go a minute after it closes.
+// THE STUFFIES (CARD-STF): untouched, every pixel as today. Measured on Layla's army (the record): baking her plushes at their drawn size (RSL-Q2's first idea) wins nothing measurable in her bedroom
+// (her pictures there are small: ~3 MB in all) and resamples them a hair softer, so it is not built; their ~35 MB is the five plush documents (CARD-LPS's table), a card of its own (RSQ-F1).
+// THE RELIEF (CARD-RSL, a crashed iPhone: the old princess and the old stuffies) stands as it is: with her stuffies, Laura's two still cost ~35 MB more than the relief in Layla's bedroom (714-718 vs 680-683
+// MB), so a phone that crashed keeps the old two; when CARD-RSL turns her cards off, this card arms nothing. ?rsq=0 = everything as before this card (remembered on the device; ?rsq=1 back on).
+// GVT.rsq() = the rig's read. Zero words, zero save keys, zero server bytes, zero css, zero sw.js.
+var RSQ={ on:(function(){ try{ const q=/[?&]rsq=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_rsq','0'); else localStorage.removeItem('gvt_rsq'); } return localStorage.getItem('gvt_rsq')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  d:{}, armed:0, warm:0, reads:0, stand:0, blanks:0, writes:0, bakes:0, outs:0, hid:0, err:0, log:[], blank0:null, layNo:0, layOk:0, layOut:0, palNow:0, palGone:0, tick:0 };
+const RSQ_IDLE=60000, RSQ_BEAT=5000, RSQ_EARLY=15000, RSQ_WAIT=1500, RSQ_TRIES=4;   // a minute unread = let go · the beat · a bake in the page's first 15 s is checked: drawn again 1.5 s later, up to 4 times, until two agree
+function rsqOn(){ return RSQ.on===1 && typeof pcfOn==='function' && pcfOn(); }
+function rsqBlank(){ if(RSQ.blank0) return RSQ.blank0; const c=document.createElement('canvas'); c.width=12; c.height=14; c.complete=true; c.naturalWidth=12; c.naturalHeight=14; c.rsq='blank'; return (RSQ.blank0=c); }   // her box's shape (120:140), nothing drawn
+function rsqBake(k, d){   // her mold → a canvas at pcfPx a unit (pcfBake's own document and size); a promise of the canvas
+  const src=SPRITES_SRC[k]; if(typeof pcfKeyOf!=='function' || !pcfKeyOf(src)) return Promise.resolve(null); const ck=pcfBakeKey(k); if(d.cv && d.ck===ck) return Promise.resolve(d.cv); if(d.busy && d.busy[0]===ck) return d.busy[1];
+  const px=pcfPx(), W=120*px, H=140*px;
+  const pr=new Promise(res=>{ const im=new Image(); const fin=v=>{ im.onload=im.onerror=null; try{ im.removeAttribute('src'); }catch(e){} if(d.busy && d.busy[0]===ck) d.busy=null; res(v); };   // the source picture let go at once
+    im.onload=()=>{ let cv=null; try{ cv=document.createElement('canvas'); cv.width=W; cv.height=H; cv.getContext('2d').drawImage(im, 0, 0, W, H); cv.complete=true; cv.naturalWidth=W; cv.naturalHeight=H; cv.pcf=ck; cv.rsq=k; }catch(e){ cv=null; RSQ.err++; RSQ.log.push(['bake', k, String(e).slice(0, 80)]); }
+      if(cv && SPRITES_SRC[k]===src){ d.cv=cv; d.ck=ck; RSQ.bakes++; PCF.bakes++; PCF.swaps++; } fin(cv);
+      if(cv && !d.steady && performance.now()<RSQ_EARLY){ d.steady=1; rsqSteady(k, d, 1); } };   // THE ENGINE'S EARLY PASS: see rsqSteady
+    im.onerror=()=>{ RSQ.err++; RSQ.log.push(['load', k]); fin(null); };
+    im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" width="'+W+'" height="'+H+'">'+src+'</svg>'); });   // the game's CSP: img-src 'self' data:
+  d.busy=[ck, pr]; return pr; }
+function rsqSame(a, b){ try{ if(a.width!==b.width || a.height!==b.height) return false; const x=a.getContext('2d').getImageData(0, 0, a.width, a.height).data, y=b.getContext('2d').getImageData(0, 0, b.width, b.height).data; for(let i=0;i<x.length;i++) if(x[i]!==y[i]) return false; return true; }catch(e){ return true; } }
+function rsqSteady(k, d, n){ setTimeout(function(){ const prev=d.cv; if(!prev) return; d.ck=''; rsqBake(k, d).then(cv=>{ RSQ.warm++; if(cv && cv!==prev && !rsqSame(prev, cv) && n<RSQ_TRIES) rsqSteady(k, d, n+1); }); }, RSQ_WAIT); }   // WebKit's raster of her felt filters early in a page's life differs from its later rasters by up to 10/255 on ~3 % of her pixels (measured on today's build too: its boot bake shows it): a pose baked then is drawn again a little later until two bakes agree, and the steady picture stands
+function rsqDoor(k){ const pd=Object.getOwnPropertyDescriptor(IMG, k); if(pd && (pd.get || pd.set || !pd.configurable)) return false; const d=RSQ.d[k]={ cv:null, ck:'', busy:null, at:0, steady:0 };
+  Object.defineProperty(IMG, k, { configurable:true, enumerable:true,
+    get:function(){ d.at=Date.now(); RSQ.reads++; if(!(d.cv && d.ck===pcfBakeKey(k))) rsqBake(k, d); if(d.cv) return d.cv; const s0=RSQ.d.princess; if(s0 && s0.cv){ RSQ.stand++; return s0.cv; } RSQ.blanks++; return rsqBlank(); },   // the canvas (the old colours' until the new lands), else her standing pose, else her box's blank
+    set:function(n){ RSQ.writes++; } });   // a write (an old path's picture of her) is not kept: the door bakes her own
+  return true; }
+function rsqPalShown(){ try{ const w=document.getElementById('palaceWrap'); return !!(w && w.isConnected && w.getClientRects().length); }catch(e){ return false; } }
+function rsqBeat(){ const now=Date.now(); for(const k in RSQ.d){ const d=RSQ.d[k]; if(d.cv && !d.busy && now-d.at>RSQ_IDLE){ d.cv=null; d.ck=''; RSQ.outs++; } }   // a pose unread for a minute lets its canvas go
+  let lay=0; try{ lay=Object.keys(PCF.lay).length; }catch(e){}
+  if(lay){ if(rsqPalShown()) RSQ.palGone=0; else if(!RSQ.palGone) RSQ.palGone=now; else if(now-RSQ.palGone>RSQ_IDLE){ PCF.lay={}; try{ if(PARK_HERO.palace && PARK_HERO.palace.indexOf('data-pcf="')>=0) delete PARK_HERO.palace; }catch(e){} RSQ.layOut++; RSQ.palGone=0; } } }   // her palace closed a minute: its three bitmaps go (the memo with them)
+function rsqArm(){ if(RSQ.armed || !rsqOn()) return; RSQ.armed=1;
+  try{ for(const k in PCF_KEYS) rsqDoor(k); }catch(e){ RSQ.err++; }
+  try{ const b0=buildSprites; buildSprites=function(){ if(!rsqOn()) return b0.apply(this, arguments); const hid=[];   // her six stay out of the svg pass (the order of SPRITES_SRC kept: only hidden from the walk)
+      for(const k in PCF_KEYS){ const pd=Object.getOwnPropertyDescriptor(SPRITES_SRC, k); if(pd && pd.enumerable && pd.configurable && ('value' in pd)){ Object.defineProperty(SPRITES_SRC, k, { enumerable:false }); hid.push(k); } }
+      try{ return b0.apply(this, arguments); } finally { for(const k of hid) Object.defineProperty(SPRITES_SRC, k, { enumerable:true }); RSQ.hid+=hid.length; } }; }catch(e){ RSQ.err++; }
+  try{ const a0=pcfBakeAll; pcfBakeAll=function(){ if(rsqOn()) return; return a0.apply(this, arguments); }; }catch(e){ RSQ.err++; }   // no boot bake
+  try{ const p0=pcfBake; pcfBake=function(k){ const d=RSQ.d[k]; if(rsqOn() && d){ d.at=Date.now(); return rsqBake(k, d); } return p0.apply(this, arguments); }; }catch(e){ RSQ.err++; }   // a gown pick, the moments: the door's bake
+  try{ const q0=pcfBaked; pcfBaked=function(k){ const d=RSQ.d[k]; if(rsqOn() && d){ d.at=Date.now(); return (d.cv && d.ck===pcfBakeKey(k))? d.cv : null; } return q0.apply(this, arguments); }; }catch(e){ RSQ.err++; }
+  try{ const f0=pcfFigure; pcfFigure=function(){ RSQ.palNow++; try{ return f0.apply(this, arguments); } finally { RSQ.palNow--; } }; }catch(e){ RSQ.err++; }   // the palace being painted = the palace shows
+  try{ const l0=pcfLayBake; pcfLayBake=function(){ if(rsqOn() && !RSQ.palNow && !rsqPalShown()){ RSQ.layNo++; return; } RSQ.layOk++; RSQ.palGone=0; return l0.apply(this, arguments); }; }catch(e){ RSQ.err++; }   // no palace bake at the menu's idle
+  try{ RSQ.tick=setInterval(function(){ try{ rsqBeat(); }catch(e){ RSQ.err++; } }, RSQ_BEAT); }catch(e){ RSQ.err++; } }
+function rsqRead(){ const keys={}; for(const k in RSQ.d){ const d=RSQ.d[k]; keys[k]={ cv:d.cv? d.cv.width+'x'+d.cv.height : null, ck:d.ck, at:d.at? Date.now()-d.at : null, busy:!!d.busy }; }
+  let lay=0; try{ lay=Object.keys(PCF.lay).length; }catch(e){}
+  return { on:RSQ.on, live:rsqOn(), armed:RSQ.armed, reads:RSQ.reads, stand:RSQ.stand, blanks:RSQ.blanks, writes:RSQ.writes, bakes:RSQ.bakes, warm:RSQ.warm, outs:RSQ.outs, hid:RSQ.hid, layNo:RSQ.layNo, layOk:RSQ.layOk, layOut:RSQ.layOut, lay:lay, palShown:rsqPalShown(), rslPcf:(typeof RSL==='object' && RSL)? RSL.pcf : null, rslStf:(typeof RSL==='object' && RSL)? RSL.stf : null, err:RSQ.err, log:RSQ.log.slice(-6), keys:keys }; }
+try{ rsqArm(); }catch(e){ RSQ.err++; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.rsq) GVT.rsq=rsqRead; }catch(e){} }, 0);   // the rig door, seated once window.GVT stands (the house's way)
+// ═══ END CARD-RSQ ═══
 buildSprites(()=>{ ready=true;
   // v3.23 (card 03): the review range answers only to its own key — without
   // ?tkdemo=1 this line is a dead regex test and the boot is behavior-
