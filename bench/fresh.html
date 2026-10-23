@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.38","md5":"a99f2e2798fb6261ba68fcd095b23110","sha":"c20fca10d3","at":"2026-10-23T05:26:44Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.39","md5":"c1872a9e27ae11ad9036ef44f8bc18d2","sha":"8e7e0a34af","at":"2026-10-23T05:31:09Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90744,7 +90744,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.38';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -198324,12 +198324,12 @@ const COL_LIVE=1;   // Wyatt's rule on; 0 = Bill tan everywhere
 const OTS_COL={ on:(function(){ try{ const q=/[?&]billcol=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_billcol','0'); else localStorage.removeItem('gvt_billcol'); } return localStorage.getItem('gvt_billcol')==='0'? 0 : COL_LIVE; }catch(e){ return COL_LIVE; } })(),
   chain:['tan','green','red','blue','purple'], fight:null, id:'tan', hex:null, taken:[], roster:[], imgs:Object.create(null), force:null, stats:{ picks:0, draws:0 } };
 function otsColNorm(h){ return (typeof h==='string' && /^#[0-9A-Fa-f]{6}$/.test(h))? h.toUpperCase() : null; }
-function otsColRoster(){   // every army on the field: the room's commanders + the house computers (hexes, upper case)
+function otsColRoster(){   // CARD-OTS-COLP (Wyatt 10/22 ~21:26: "No"): the PLAYERS' armies only: the room's commanders (hexes, upper case); the house computers' colours never count
   if(OTS_COL.force) return OTS_COL.force.slice();
   const out=[], mem=(typeof COOP==='object' && COOP && Array.isArray(COOP.members))? COOP.members : null;
   if(mem && mem.length){ for(const m of mem) out.push(otsColNorm(m && m.hex) || GREEN.toUpperCase()); }
   else { let h=null; try{ h=dyeHex(); }catch(e){} out.push(otsColNorm(h) || GREEN.toUpperCase()); }
-  const bots=(S.sq && Array.isArray(S.sq.bots))? S.sq.bots : []; for(const b of bots){ const h=otsColNorm(b && b.hex); if(h) out.push(h); }
+  /* CARD-OTS-COLP: no house computer in the roster */
   return out; }
 function otsColId(h){   // a worn hex → the chain's colour word (the dye row, else the house's nearness), null = no colour word
   let id=null; try{ id=bfDyeOfHex(h) || bfDyeOfHex(h.toLowerCase()); }catch(e){}
