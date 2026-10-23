@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.25","md5":"f0537529b5e1f9f377fa09396e336f93","sha":"7d3b8374c4","at":"2026-10-23T03:38:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.26","md5":"ce4fd496004299d6905d387a9081506c","sha":"35a4335569","at":"2026-10-23T03:46:20Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.25';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -198405,6 +198405,27 @@ function sharpRead(o){ o=o||{}; const A=(bbsOn() && sharpBag())||null, L=(S.olv 
     up:S.foes.filter(f=>!f.dead && SHARP.trio.indexOf(f.type)>=0).map(f=>({ id:f.id, t:f.type, x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(1), sx:(f.olvSx==null)? null : Math.round(f.olvSx), dot:(f.rd && f.rd.st==='dot')? 1 : 0, aim:+(f.aimT||0).toFixed(2), lock:+(f.lrBmT||0).toFixed(2), cd:(f.shpCd==null)? null : +f.shpCd.toFixed(2) })) }; }
 { const r0=bbsRig; bbsRig=function(o){ const r=r0.apply(this, arguments); try{ if(r && typeof r==='object') r.sharp=sharpRead(o); }catch(e){} return r; }; }   // GVT.bbs(o).sharp (C1's door, wrapped by name)
 // ═══ END CARD-OTS-SHARP ═══
+// ═══ CARD-OTS-ALERT THE RIDERS' ALERT LEAVES THE MIDDLE OF THE FIELD (sec:CARD-OTS-ALERT; design/outlaw-main-street-1022/07-CARD-OTS-ALERT.md; jumpr 2557, board J65, lane gvt-p5; GOAL 5 of Bill's first-night notes, 02-NOTES-NIGHT-1022.md)
+// WYATT 10/22/2026 19:16 EDT by phone on Discord, answering Maker 1's film of Bill's ride, verbatim: "He Whistles For His Horse should not block the screen. Do not do this & in our MD please dont have these
+//   full screen alerts block gameplay like this moving forward when we are implementing anything new" (CLAUDE.md "No full-screen alert blocks the play"; CARD-WHB lifted the whistle banner at v26.03; this card = the riders' alert).
+// THE FIND (the night's notes, GOAL 5: seen in every film of the first live Showdown): CARD-BBS-C1's riders' alert, bbsRaidHUD, painted on the glass for the 8 s of every ride's warning (BBS_RIDE.warn), in drawHUD's screen space:
+//   the red edge glow; THE BOX (a dark card at HUD y 84 between x 356 and the right edge: the red count dial with the seconds and the words RIDERS! %1 BANDITS INBOUND, over the field's upper middle); THE FAR RIDERS
+//   (a cluster of up to twelve dark silhouettes under the box, mid-right, growing as the count ran down: over the east end the riders ride in on). The HUD's top strip already says the same words with the
+//   count (bbsHudLine, the wave pill, C1's own line) and the hoofbeats sound every second of the alert (bbsTick).
+// THE FIX: bbsRaidHUD wrapped by name (drawHUD calls it by name): the red edge glow ALONE, as C1 built it (the four gradient bands E = H x 0.055, the same pulse, reducedMotion the same); the box, the dial, the
+//   words on the field and the far riders are not drawn. Nothing else of the ride moves: the call, the count, the 8 s, the queue's seat, the hoofbeats, the top strip's words (C1's lines untouched; the words stay in the room's language).
+// Switch: ?ridersbox=1 on a device (gvt_ridersbox, remembered) = C1's whole picture back (the box, the dial, the far riders); ?ridersbox=0 = this. ridersBoxRead() / GVT.ridersBox() = the rigs' read.
+// Zero words, zero server, zero service worker, zero save keys, zero dice; one wrap by name, no existing line changed. ═══
+const RBX={ on:(function(){ try{ const q=/[?&]ridersbox=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_ridersbox','1'); else localStorage.removeItem('gvt_ridersbox'); } return localStorage.getItem('gvt_ridersbox')==='1'? 1 : 0; }catch(e){ return 0; } })(), draws:0, boxed:0 };   // on 1 = C1's box drawn (a device's own choice, the preview of the old look); 0 = the edge alone
+{ const hud0=bbsRaidHUD; bbsRaidHUD=function(){ if(RBX.on){ RBX.boxed++; return hud0.apply(this, arguments); }   // the device asked for C1's picture: his function, untouched
+  const rd=S.raid, B=bbsOn() && rd.bbs, A=B && B.alert; if(!A || S.mode!=='play' || rd.won || rd.kingDown) return;   // C1's guard, verbatim: the alert alone, in play, the fight not over
+  RBX.draws++; const RM=reducedMotion(), pa=RM? 0.3 : 0.2+0.26*(0.5+0.5*Math.sin(A.t*Math.PI*2.4)), E=Math.round(H*0.055);   // C1's edge: the four red gradient bands, the same pulse
+  const edge=(x0,y0,x1,y1,rx,ry,rw,rh)=>{ const g=cx.createLinearGradient(x0,y0,x1,y1); g.addColorStop(0,'rgba(214,38,28,'+pa.toFixed(3)+')'); g.addColorStop(1,'rgba(214,38,28,0)'); cx.fillStyle=g; cx.fillRect(rx,ry,rw,rh); };
+  edge(0,0,0,E, 0,0,VW,E); edge(0,H,0,H-E, 0,H-E,VW,E); edge(0,0,E,0, 0,0,E,H); edge(VW,0,VW-E,0, VW-E,0,E,H); }; }   // and nothing over the field: the box, the dial, the words and the far riders are not drawn (the top strip carries the words)
+function ridersBoxRead(){ const B=(bbsOn() && S.raid && S.raid.bbs)||null, A=(B && B.alert)||null;   // the rigs' read: the switch, the draws, the alert's clock and count, the ride count, the top strip's line, the edge's depth, the HUD's basis
+  return { on:RBX.on, draws:RBX.draws, boxed:RBX.boxed, alert:A? { t:+A.t.toFixed(2), n:A.n|0, left:+Math.max(0,BBS_RIDE.warn-A.t).toFixed(2) } : null, rides:B? B.rides|0 : null, hud:B? bbsHudLine() : null, E:Math.round(H*0.055), VW:VW, H:H, scale:scale, wrapped:String(bbsRaidHUD).indexOf('RBX')>=0 }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.ridersBox) GVT.ridersBox=function(){ return ridersBoxRead(); }; }catch(e){} }, 0);   // the door on GVT once it exists (CARD-WHB's grammar: window.GVT is built below this seat)
+// ═══ END CARD-OTS-ALERT ═══
 // ═══ CARD-OSD THE OUTLAW STASH (sec:CARD-OSD; design/outlaw-stash-1022/00-DESIGN-OSD.md + build-osb/; Wyatt 10/22/2026 ~15:25 EDT on Maker 1, verbatim: "add Outlaw Stash to be gained from beating Buffalo Bill on Easy. -10% Armor, +5% Dodge, +5 Damage. [the picture] This is the visual of the Stash we want to nail. Run a design pass in jumpr; then queue for implementation after going with recommendations & set live") ═══
 // A FACE piece for Sarge's rack (id 'outlawstash', the rack row in the tombstonehat IIFE's seat: never sold, hidden till owned, THE BUFFALO BILL SHOWDOWN on EASY pays it BESIDE THE OUTLAW .44s, the boot heals it off META.bbs.e).
 // THE NUMBERS ride the rack's own seams, nothing new: −10 % armor = a (1 − OSTASH.def) term on dM (the belt's minus idiom: Sarge's own plate, his BF hit points and the rug's pip roll) · dodges 5 % of hits = OSTASH.dodge on outfitDodgeSum (THE PONCHO'S DODGE, 0654 Card E:
