@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.40","md5":"818361ce745d4dd57f63e3118cadc285","sha":"3d430a069b","at":"2026-10-23T05:34:55Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.41","md5":"8cc377b251f07c74e6cbb83a8e23ea34","sha":"fc1eff12a8","at":"2026-10-23T05:40:55Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90746,7 +90746,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.40';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.41';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -199086,7 +199086,7 @@ const SHARP={ on:(function(){ try{ const q=/[?&]sharp=([01])/.exec(location.sear
   dotLock:0.7, dotStep:3, dotAdv:300, dotFloor:520,   // + THE ADVANCE: after every dotStep rounds the dot man moves his stand dotAdv px west (never west of dotFloor): the house's 237 man stands at the rim for ever, out of every gun's reach; on Bill's street he walks into it (measured: 16 of them standing at x 1660 on HARD by 300 s)   // THE DOT follows its man until the last 0.7 s of RD.tell, then holds the spot (the house's slip law from there): the ring closing on it is the clock   // the bolt's drum by tier: the first lock this many s after he is on the carpet (+ stagger x his id mod 3, so a pair never locks on one frame), then every cd s
   dot:{ r:4.2, halo:10, ring:15, lineA:0.42, lineW:1.4, col:'#e0251a' },   // THE DOT on Bill's street (the house's colour; RD.r 1.7 is a pinhead at the phone's 0.45 scale)
   charge:{ r0:5, r1:19, col:'#9FE8FF' } };   // THE BEAMER'S CHARGE (the storm coil's cyan)
-const SHARP_ART_LIVE=0;   // SHARP-F4 THE STYLE GUIDE'S RULE (show him a picture before a new drawing goes live): the ONE cell his go flips. 0 = the dot draws the house's own 237 pinhead (olvDotOver) and the beamer shows no charge; 1 = the phone-size dot + ring and the cyan charge (the picture: #wyatt-jump 1563017727344381972)
+const SHARP_ART_LIVE=1;   // SHARP-F4 THE STYLE GUIDE'S RULE (show him a picture before a new drawing goes live): the ONE cell his go flips. 0 = the dot draws the house's own 237 pinhead (olvDotOver) and the beamer shows no charge; 1 = the phone-size dot + ring and the cyan charge (the picture: #wyatt-jump 1563017727344381972)
 SHARP.art=(function(){ try{ const q=/[?&]sharpart=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_sharpart','1'); else localStorage.removeItem('gvt_sharpart'); } return (localStorage.getItem('gvt_sharpart')==='1')? 1 : SHARP_ART_LIVE; }catch(e){ return SHARP_ART_LIVE; } })();   // the preview door (gvt_sharpart): the new drawings on THIS device before his go
 function sharpPour(cfg){ let k=0; for(const w of cfg.waves){ if(!w || !w.groups) continue; for(const g of w.groups){ if(g && g.bba && g.t==='wsniper'){ g.t=SHARP.trio[k%SHARP.trio.length]; g.sharp=1; k++; } } } cfg.sharp=k; return cfg; }   // the posse's back sniper in time order (bbaPour sorts its waves by bbsT) becomes the trio in turn; n, the lane, at, hpX / spdx stay BBA's
 { const c0=bbsCfg; bbsCfg=function(tier){ const cfg=c0.apply(this, arguments); try{ if(SHARP.on && cfg && cfg.bba) sharpPour(cfg); }catch(e){} return cfg; }; }   // THE DOOR: the cfg every sim rebuilds from the tier alone (bbsCfg wrapped by name, after CARD-BBA's and CARD-OTS's wraps); ?bba=0 = C1's own trio waves, untouched
@@ -199128,6 +199128,93 @@ function sharpRead(o){ o=o||{}; const A=(bbsOn() && sharpBag())||null, L=(S.olv 
     up:S.foes.filter(f=>!f.dead && SHARP.trio.indexOf(f.type)>=0).map(f=>({ id:f.id, t:f.type, x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(1), sx:(f.olvSx==null)? null : Math.round(f.olvSx), dot:(f.rd && f.rd.st==='dot')? 1 : 0, aim:+(f.aimT||0).toFixed(2), lock:+(f.lrBmT||0).toFixed(2), cd:(f.shpCd==null)? null : +f.shpCd.toFixed(2) })) }; }
 { const r0=bbsRig; bbsRig=function(o){ const r=r0.apply(this, arguments); try{ if(r && typeof r==='object') r.sharp=sharpRead(o); }catch(e){} return r; }; }   // GVT.bbs(o).sharp (C1's door, wrapped by name)
 // ═══ END CARD-OTS-SHARP ═══
+// ═══ CARD-OTS-PLAY BILL'S PLAYTHROUGH NOTES: HALF THE CHEESE, THE RIDERS +100 HP, BILL TAKES PEOPLE OUT, HIS FIRST BAR -30 %, THE SNIPER'S ENERGY SHOT (sec:CARD-OTS-PLAY; design/bill-playthrough-1022/00-CARD-OTS-PLAY.md; jumpr 2582, Maker 1 M2582, lane maker1;
+// WYATT by phone 10/22/2026 23:16 EDT after a playthrough, dictated, verbatim: "For all difficulties, reduce the amount of cheese mines by 50% so players can't get too many free dog tags from that. / Let's increase
+//   the health of the incoming bandit riders by 100 HP each. This is for all difficulties. That way, they stand a chance of actually getting through. / Let's make sure that Buffalo Bill, before he gets on the horse, has
+//   his area cone attack dealing at least 60 to 100 damage, and his other abilities are dealing 80 to 200 damage. He needs to be taking people out. ... / We can reduce his HP in phase 1, on easy, medium, and hard, by
+//   30%. / I didn't see an enemy sniper come in. ... I want to see that enemy sniper in there, shooting energy shots at us. I want that red laser beam shot too, and the energy shot. It will be such a rush when that
+//   energy shot comes flying at you for the first time as a player. It's very important."
+// 1 THE CHEESE: a Showdown mouse lays ONE slice of the house's two (updateFoeSneak wrapped by name, after CARD-OTS-TM's wrap): every mouse, every tier, the rally's call too; the gold detector's 100 a slice stands.
+// 2 THE RIDERS: every THE RIDER (wrider) born in the Showdown +100 HP flat after the tier's bar (6 x 1 / 1.5 / 2 + 100 = 106 / 109 / 112; spawnGroup wrapped by name: the hpAdd seat's own idiom, post-curve).
+// 3 BILL ON FOOT TAKES PEOPLE OUT: a hit of his fan (C1's and CARD-BBF's, b.st 'fan') lands PLAY.cone HP, a hit of every other move of his on foot (CARD-OTS-FIRE's revolver) PLAY.other HP, each a seeded roll
+//   (C1's ACE hash on his id, his hit count, the man's id: no dice), through the house's whole save chain (tanHit wrapped by name: Bill's pipN x dmgX seat); the horse as built unless PLAY.horse.
+// 4 HIS FIRST BAR x PLAY.p1K on every tier (Bill's row hpX in bbsCfg wrapped by name: 14,000 / 28,000 / 42,000); at the mount (bbsMount wrapped by name) the bar goes back to the tier's whole number, so THE HORSE
+//   keeps 20,000 / 40,000 / 60,000; the vote page's ON FOOT number follows (vtcSkeleton + bbsvHTML wrapped by name).
+// 5 THE SNIPER'S ENERGY SHOT: THE FIRST POSSE (12 s) brings a SHARPSHOOTER too (CARD-OTS-SHARP's wsniper; the trio's rotation after it as SHARP laid it), and every sharpshooter's 1st, 3rd, 5th ... lock (the red
+//   laser line riding your man, SHARP's own tell) releases THE ENERGY SHOT: the player's three bolts of light turned round (Larson's war's trio, the lane's green branch: the middle bolt down the red line, two
+//   PLAY.es.deg off it, in the enemy's laser colour rlzRow; ENERGY SHOT! over him at the lock and again as it flies, the house's key x7); a man the light crosses is down (CARD-EKO's strict hitbox: step off the line, hop, or take him in
+//   your hand), the kings take their share and stand, a swinging mirror blade throws it back; his 2nd, 4th ... lock = SHARP's overcharged beam (larsonBeamFire wrapped by name).
+// Nothing covers the field (the 10/22 rule): the words sit on the men. Zero new words, zero server, zero sw.js, zero save keys. ?otsplay=0 (gvt_otsplay) = the night as it was; GVT.otsPlay() / GVT.bbs().play = the rigs. ═══
+const PLAY_HORSE_LIVE=0;   // ⚑ PLAY-Q1 THE ONE CELL his word flips: 1 = the same two numbers on the horse (his sprays = the cone, the revolver between them = the rest); 0 = the horse as built (his note named phase one)
+const PLAY={ on:(function(){ try{ const q=/[?&]otsplay=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_otsplay','0'); else localStorage.removeItem('gvt_otsplay'); } return localStorage.getItem('gvt_otsplay')==='0'? 0 : 1; }catch(e){ return 1; } })(),   // the switch (CARD-BBA's grammar): 1 = his notes; 0 = the night as it was
+  horse:(function(){ try{ const q=/[?&]otsplayh=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_otsplayh','1'); else localStorage.removeItem('gvt_otsplayh'); } return (localStorage.getItem('gvt_otsplayh')==='1')? 1 : PLAY_HORSE_LIVE; }catch(e){ return PLAY_HORSE_LIVE; } })(),   // the preview door (gvt_otsplayh): the horse's numbers on THIS device before his word
+  cheeseK:0.5,   // his -50 %: the share of a mouse's slices that stay (2 -> 1)
+  riderAdd:100,  // his +100 HP a rider, flat after the tier's bar
+  cone:[60,100], other:[80,200],   // his numbers: a hit of the fan / a hit of every other move of his on foot (HP = the rug's grit pips: the HP the cards print)
+  p1K:0.7,       // his -30 % on the first bar, every tier (the horse's bar stays the tier's whole number)
+  es:{ first:1, every:2, deg:9 },   // THE ENERGY SHOT: the sharpshooter's lock 1, 3, 5 ... releases the trio (lock 2, 4 ... the overcharged beam); deg = the two outer bolts off the red line (Larson's war's trioDeg)
+  stats:{ slices:0, cut:0, riders:0, cone:0, other:0, coneHp:0, otherHp:0, downs:0, ride:0, mount:0, p0:0, es:0, esBolts:0, beams:0 } };
+function playRoll(lo,hi,a,b,c){ let h=2166136261>>>0; const s9=String(a)+':'+String(b)+':'+String(c); for(let i=0;i<s9.length;i++){ h^=s9.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return lo+(h%((hi-lo)+1)); }   // the seeded roll (bbsAceHit's FNV hash): lo..hi, no dice (each glass rolls its own hits, the house's per-glass fire law)
+function playEsHex(){ try{ const r=rlzRow(); if(r && r.hex) return r.hex; }catch(e){} return '#FF3B2A'; }   // the enemy's laser colour (CARD-RLZ: red, or blue while yours is red); Larson's red if the row is missing
+function playEsTurn(k){ const E=PLAY.es; return k>=E.first && ((k-E.first)%E.every)===0; }   // lock k (1-based) of a sharpshooter is an ENERGY SHOT
+// 1 THE CHEESE
+{ const s0=updateFoeSneak; updateFoeSneak=function(f,dt){ let n0=-1; try{ if(PLAY.on && f && f.type==='wmouse' && !f.mzLaid && bbsOn()) n0=S.mines.length; }catch(e){}
+    const r=s0.apply(this, arguments);
+    try{ if(n0>=0 && f.mzLaid && S.mines.length>n0){ const fresh=[]; for(let i=n0;i<S.mines.length;i++){ if(S.mines[i] && S.mines[i].chz) fresh.push(i); } const keep=Math.round(fresh.length*PLAY.cheeseK);
+        for(let j=fresh.length-1;j>=keep;j--) S.mines.splice(fresh[j],1); PLAY.stats.slices+=fresh.length; PLAY.stats.cut+=Math.max(0,fresh.length-keep); } }catch(e){}
+    return r; }; }   // the house's two slices pushed in this one call: the first stays, the second leaves the field before anyone sees it
+// 2 THE RIDERS
+{ const g0=spawnGroup; spawnGroup=function(g){ let i0=-1; try{ if(PLAY.on && g && g.t==='wrider' && bbsOn()) i0=idc; }catch(e){}
+    const r=g0.apply(this, arguments);
+    try{ if(i0>=0){ for(const f of S.foes){ if(f && f.id>=i0 && f.type==='wrider' && !f.playHp){ f.playHp=1; f.hp+=PLAY.riderAdd; f.hpMax+=PLAY.riderAdd; PLAY.stats.riders++; } } } }catch(e){}
+    return r; }; }   // a ride's riders (C1's timeline, CARD-OTS-HARD's counts, the rally's call): +100 on the bar each, after the tier's hpX (the formation lane has no hpAdd seat: here is the seat)
+// 3 BILL TAKES PEOPLE OUT
+{ const fs0=fireShot; fireShot=function(f){ if(f) f.playFire=1; try{ return fs0.apply(this, arguments); } finally{ if(f) f.playFire=0; } }; }   // CARD-OTS-FIRE's revolver named (the rest of his moves on foot), wrapped by name
+{ const th0=tanHit; tanHit=function(u,fx,fy,src,fire9){
+    if(!(src && src.type==='bbshow' && src.pipN>0 && PLAY.on && u && !u.dead)) return th0.apply(this, arguments);
+    const b=src.bbs, ride=!!(src.bbsRide || (b && (b.st==='mount' || b.st==='ride')));
+    if(!b || (ride && !PLAY.horse) || !bbsOn()) return th0.apply(this, arguments);
+    const cone=src.playFire? 0 : (ride? 1 : (b.st==='fan')? 1 : 0), R=cone? PLAY.cone : PLAY.other; src.playN=(src.playN|0)+1;
+    const d=playRoll(R[0], R[1], src.id|0, src.playN, (u.id|0)+(cone? ':c' : ':o')), x0=src.dmgX, up=S.units.indexOf(u)>=0 && !u.dead;
+    src.dmgX=d/src.pipN; let r;
+    try{ r=th0.apply(this, arguments); } finally{ src.dmgX=x0; }
+    try{ const P=PLAY.stats; if(cone){ P.cone++; P.coneHp+=d; } else { P.other++; P.otherHp+=d; } if(ride) P.ride++; if(up && (u.dead || u.falling || S.units.indexOf(u)<0)) P.downs++; }catch(e){}
+    return r; }; }   // the pip write's own seat (pipN x dmgX): every save above it has its say first (a dodge, a shield, a plate); a man it reaches goes down (a level-100 rifleman stands about 9 HP on the rug)
+// 4 HIS FIRST BAR · 5 THE FIRST POSSE'S SHARPSHOOTER
+function playCfg(cfg,tier){ const w1=cfg.waves && cfg.waves[0], g=w1 && w1.groups && w1.groups.find(x=>x && x.f==='boss' && x.t==='bbshow');
+  if(g && !g.playP1){ g.hpX=+((g.hpX||1)*PLAY.p1K).toFixed(4); g.playP1=1; }   // Bill's row: 20,000 / 40,000 / 60,000 x 0.7
+  try{ if(typeof SHARP==='object' && SHARP.on && cfg.bba && typeof BBA_POSSE==='object'){ const P=BBA_POSSE, w=cfg.waves.find(x=>x && x.bbsT===P.first && x.groups && x.groups.some(q=>q && q.bba && q.t==='wbandit'));
+      if(w && !w.groups.some(q=>q && q.playP0)){ const gb=w.groups.find(q=>q && q.bba && q.t==='wbandit'); w.groups.push(Object.assign({}, gb, { f:'solo', t:'wsniper', n:1, at:P.sniperAt, pin:1, bba:1, sharp:1, playP0:1 })); PLAY.stats.p0++; } } }catch(e){}   // the first posse's back sniper: ONE on every tier (the first one you meet; the slots after it keep BBA's n by tier), 1.5 s behind, the posse's lane, hpX / spdx above EASY
+  cfg.play=1; return cfg; }
+{ const c0=bbsCfg; bbsCfg=function(tier){ const cfg=c0.apply(this, arguments); try{ if(PLAY.on && cfg && cfg.bbs) playCfg(cfg, cfg.bbsTier||tier); }catch(e){} return cfg; }; }   // THE DOOR: after CARD-BBA's, CARD-OTS-HARD's and CARD-OTS-SHARP's wraps (the cfg every sim rebuilds from the tier alone)
+{ const m0=bbsMount; bbsMount=function(f,u){ try{ if(f && f.type==='bbshow' && !f.bbsRide && !f.playFull && S.cfg && S.cfg.play && f.hpMax>0){ f.playP1Max=f.hpMax; f.hpMax=Math.round(f.hpMax/PLAY.p1K); f.playFull=1; PLAY.stats.mount++; } }catch(e){}
+    return m0.apply(this, arguments); }; }   // THE TURN: the horse's bar = the tier's whole number (C3 refills hp to hpMax at the mount and at the ride)
+function playHpTxt(h,mark){ try{ if(!(S && PLAY.on) || typeof h!=='string' || h.indexOf(mark)<0) return h; const A={}, C={}; for(const k of ['e','m','h']){ A[k]=Number(BBS_HP[k]).toLocaleString(); C[k]=Number(Math.round(BBS_HP[k]*PLAY.p1K)).toLocaleString(); }
+    const parts=h.split(mark); for(let i=1;i<parts.length;i++){ const s=parts[i], end=s.indexOf('</div>'), head=(end>=0)? s.slice(0,end) : s; let best=null, at=1e9; for(const k of ['e','m','h']){ const j=head.indexOf(A[k]); if(j>=0 && j<at){ at=j; best=k; } }
+      if(best) parts[i]=s.slice(0,at)+C[best]+s.slice(at+A[best].length); } return parts.join(mark); }catch(e){ return h; } }   // the first number in each block (ON FOOT %1 / BILL %1) = the cut bar; the horse's stays
+{ const v0=vtcSkeleton; vtcSkeleton=function(){ return playHpTxt(v0.apply(this, arguments), 'class="vtc-hp">'); }; }   // CARD-VTC's posters
+{ const v1=bbsvHTML; bbsvHTML=function(){ return playHpTxt(v1.apply(this, arguments), 'class="bbsv-sub" data-notr>'); }; }   // CARD-BBS-C4's page
+// 5 THE ENERGY SHOT
+function playTrio(f){ const mx=f.lrBmX1, my=f.lrBmY1, th=Math.atan2(f.lrBmY2-my, f.lrBmX2-mx), col=playEsHex(), vol={ hits:0, down:0, t0:+S.t.toFixed(2), play:1 }, RM=reducedMotion();   // the player's three bolts turned round (larsonTrio's own push, never his state)
+  try{ SFX.crack(); }catch(e){} try{ bfSfx(SFX.harpRelease, f.x, f.y); }catch(e){} if(!RM) S.shake=Math.max(S.shake||0,0.3); laRelease(mx,my,-1,col);
+  for(let i=0;i<LA_N;i++){ const k=Math.ceil(i/2)*((i%2)? -1 : 1), a=th+k*PLAY.es.deg*Math.PI/180; S.shots.push({ k:'lightarrow', x0:mx, y0:my, ux:Math.cos(a), uy:Math.sin(a), s:0, x:mx, y:my, dir:-1, len:LA_LEN, spd:LA_SPD, hw:LA_HW, side:'foe', la:1, lg:1, bounce:0, hit:{}, src:f, t:-i*LA_GAP, back:0, vol:vol, col:col, playEs:1 }); }   // lg = the lane's green branch (ovfLaneGreen18): a man the light crosses is down
+  S.floats.push({ x:f.x, y:f.y-76, txt:'ENERGY SHOT!', t:0, col:col }); f.playVol=vol; PLAY.stats.es++; PLAY.stats.esBolts+=LA_N; }   // the word again as the light leaves (the lock's word has faded by now)
+{ const lb0=larsonBeamFire; larsonBeamFire=function(f){ try{ if(PLAY.on && f && f.shpBolt && f.type==='wsniper' && !f.dead && f.lrBmX1!=null && bbsOn()){ if(f.playEs){ f.playEs=0; playTrio(f); return; } PLAY.stats.beams++; } }catch(e){}
+    return lb0.apply(this, arguments); }; }   // SHARP's release (sharpBolt stamps shpBolt round its call): an energy-shot lock flies the trio, every other the overcharged beam as built
+function playTick(dt){ if(!PLAY.on || !bbsOn() || S.mode!=='play') return;
+  for(const f of S.foes){ if(f.dead || f.type!=='wsniper') continue;
+    if(f.lrBmT>0){ if(!f.playLkOn){ f.playLkOn=1; f.playLk=(f.playLk|0)+1; f.playEs=playEsTurn(f.playLk)? 1 : 0; if(f.playEs) S.floats.push({ x:f.x, y:f.y-76, txt:'ENERGY SHOT!', t:0, col:playEsHex() }); } }   // a fresh lock: its kind, and the word over him for the energy shot (the red line already rides your man)
+    else if(f.playLkOn){ f.playLkOn=0; if(f.lrBmX1==null) f.playEs=0; } } }   // the lock ended (released, or broken off: a flat, frozen, held or routing man fires nothing)
+{ const t0=bbsTick; bbsTick=function(dt){ const r=t0.apply(this, arguments); try{ playTick(dt); }catch(e){} return r; }; }   // after SHARP's tick (the lock it just started is read the same frame)
+function playRead(o){ o=o||{}; if(o.playHorse!=null) PLAY.horse=o.playHorse? 1 : 0; if(o.playReset){ for(const k in PLAY.stats) PLAY.stats[k]=0; }
+  const bill=bbsBill(); return { on:PLAY.on, horse:PLAY.horse, live:PLAY_HORSE_LIVE, cfg:(S.cfg && S.cfg.play)? 1 : 0, p1K:PLAY.p1K, bar:bill? { hp:Math.round(bill.hp), max:bill.hpMax, full:!!bill.playFull, p1:bill.playP1Max||null } : null,
+    stats:Object.assign({}, PLAY.stats), riders:S.foes.filter(f=>f.type==='wrider' && !f.dead).map(f=>({ id:f.id, hp:+(+f.hp).toFixed(1), max:f.hpMax, add:f.playHp|0 })), cheese:(S.mines||[]).filter(m=>m && m.chz).length,
+    snipers:S.foes.filter(f=>f.type==='wsniper' && !f.dead).map(f=>({ id:f.id, x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(1), lk:f.playLk|0, es:f.playEs|0, lock:+(f.lrBmT||0).toFixed(2), cd:(f.shpCd==null)? null : +f.shpCd.toFixed(2) })),
+    bolts:(S.shots||[]).filter(s=>s && s.playEs).map(s=>({ x:Math.round(s.x), y:Math.round(s.y), t:+s.t.toFixed(2), hits:Object.keys(s.hit||{}).length, col:s.col })) }; }
+{ const r0=bbsRig; bbsRig=function(o){ const r=r0.apply(this, arguments); try{ if(r && typeof r==='object') r.play=playRead(o); }catch(e){} return r; }; }   // GVT.bbs(o).play (C1's door, wrapped by name)
+setTimeout(function(){ try{ if(window.GVT && !GVT.otsPlay) GVT.otsPlay=function(o){ return playRead(o); }; }catch(e){} }, 0);
+// CARD-OTS-PLAY kit: SHARP_ART_LIVE flipped 0 -> 1 here (his words 10/22 23:16 "I want that red laser beam shot too"); applyPLAY.py --undo flips it back
+// ═══ END CARD-OTS-PLAY ═══
 // ═══ CARD-OTS-ALERT THE RIDERS' ALERT LEAVES THE MIDDLE OF THE FIELD (sec:CARD-OTS-ALERT; design/outlaw-main-street-1022/07-CARD-OTS-ALERT.md; jumpr 2557, board J65, lane gvt-p5; GOAL 5 of Bill's first-night notes, 02-NOTES-NIGHT-1022.md)
 // WYATT 10/22/2026 19:16 EDT by phone on Discord, answering Maker 1's film of Bill's ride, verbatim: "He Whistles For His Horse should not block the screen. Do not do this & in our MD please dont have these
 //   full screen alerts block gameplay like this moving forward when we are implementing anything new" (CLAUDE.md "No full-screen alert blocks the play"; CARD-WHB lifted the whistle banner at v26.03; this card = the riders' alert).
