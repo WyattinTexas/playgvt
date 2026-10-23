@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.14","md5":"00965e0db33351297cb1bc3890c7fcbc","sha":"6fa6870458","at":"2026-10-23T02:26:56Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.15","md5":"817c5c7131ca54e8f71c8849bdd66a9e","sha":"72bc5cf299","at":"2026-10-23T02:30:41Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.14';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -197542,6 +197542,70 @@ function bq6Rig(o){ o=o||{}; if(o.rally!=null) BQ6.rally=o.rally? 1 : 0; if(o.cl
   return { cv:GVT_CV, on:BQ6.on, rally:BQ6.rally, n:Object.assign({}, BQ6.n), log:BQ6.log.slice(-60), mz:BBS_FAN_MZ.map(m=>({ x:m.x, y:m.y })), bill:f? { x:+f.x.toFixed(2), y:+f.y.toFixed(2), ride:ride? 1 : 0, st:b? b.st : null, fz:ride? (b.dir>0? 1 : -1) : (bq6Fl(f)? 1 : -1) } : null, irons:f? [0,1].map(i=>ride? bq6Horse(f,b,i) : bq6Foot(f,i)) : null }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bq6) GVT.bq6=function(o){ return bq6Rig(o); }; }catch(e){} }, 0);   // the rigs' door (seated once window.GVT exists: CARD-MSB's grammar)
 // ═══ END CARD-BBF-Q6 ═══
+// ═══ CARD-OTS-SHARP THE SHARPSHOOTERS COME BACK FORMIDABLE (sec:CARD-OTS-SHARP; design/outlaw-main-street-1022/04-CARD-OTS-SHARP.md; jumpr 2554, board J57, lane gvt-p5;
+// WYATT ~20:55 EDT 10/22/2026 on Maker 1 after the first live Showdown with Layla, verbatim: "The enemy snipers and shotgun units never showed up. We were expecting them to come with energy shot
+// and all the sniper abilities, being a formidable force, just like the shotgun guy coming in with his five shields, ready to rock."
+// THE AUDIT (rig-probe/rosterAudit.mjs on the live client, MEDIUM, 300 s): 22 'wsniper' walked to the box as plain Tan men. CARD-BBA's bbaPour took C1's sharpshooter waves out by type, the
+// commando's beam with them, and its posse's back sniper is the plain row. C1's design (00-DESIGN-BBS.md §1.5.4) asked for THE THREE SHARPSHOOTERS IN TURN: THE RED DOT · THE BEAMER · THE BOLT.
+// THE CHOICE: THE POSSE'S BACK SNIPER BECOMES THE TRIO IN TURN (not C1's 40 s waves beside the posses). The posse is the clock the tier already scales (n = BBS_X, BBS_POSSE's hpX / spdx above
+// EASY), every sniper slot now carries one of the three, and each one rides in behind three bandits and a shotgun man who screen him while his tell runs. One rewrite of the cfg, no new clock.
+// 1 THE RED DOT = the house's own 'reddot' row (237: the tan sniper's mold, no rifle trigger) on the house's own brain (olvRedDot / rdFire: he stands RD.standX in from the east rim, the dot sits on
+//   your nearest man RD.tell s, the second dot takes Sarge, then a knockdown AT ANY RANGE unless the man moved RD.slip px). Here the dot FOLLOWS its man until the last SHARP.dotLock s:
+//   on a street where every man walks, a dot that holds the spot from its first frame missed 76 of 84 (measured); the step aside is still the answer, in the last 0.7 s. The house draws its dot a pinhead (the 237 colour law); on Bill's street
+//   it is drawn phone-size: the dot, its halo, a ring closing on it as the round nears, the hair to the muzzle.
+// 2 THE ENERGY SHOT = the house's own 'tancommando' (0594: the sweep beam, ENH_CMDO_GRAV_DMG of a knock and THE GRAVITY GUN's throw). His present-arms is held SHARP.beamAim s here (the shipped
+//   trigger's aimT, which plants him) and THE CHARGE is drawn at his muzzle: the cyan ball of light grows until the beam leaves.
+// 3 THE OVERCHARGED SHOT = Larson's channel (0612 D4) on THE SHARPSHOOTER ('wsniper', Outlaw Town's own mold): on his own drum he locks a ray (lrBmT = LR_BM_CH, the doubled red line and the growing
+//   muzzle glow are tanAimTell's own), planted; the line follows its man until the last SHARP.bolt.lock s, then stands; at the release larsonBeamFire: LR_BM_PIPS through tanBeamHit on every body in the LR_BM_W corridor, OVERCHARGED! (the existing key). His rifle stays.
+// Nothing new covers the field (the 10/22 rule): the tells sit on the men and the muzzles. Zero words, zero server, zero service worker, zero save keys, no dice (every pick the house's nearest-man law).
+// ?sharp=0 (gvt_sharp) = CARD-BBA's posse as it was. Wraps by name: bbsCfg, bbsTick, tanBeam, tanBeamHit, drawSoccer, bbsRig; no existing line changed. ═══
+const SHARP={ on:(function(){ try{ const q=/[?&]sharp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_sharp','0'); else localStorage.removeItem('gvt_sharp'); } return localStorage.getItem('gvt_sharp')==='0'? 0 : 1; }catch(e){ return 1; } })(),   // the switch (CARD-BBA's grammar): 1 = the trio; 0 = the posse's plain sniper
+  trio:['reddot','tancommando','wsniper'],   // C1's order: THE RED DOT · THE BEAMER · THE BOLT, slot by slot in time order
+  beamAim:1.2, beamRngX:2,   // + beamRngX = THE REACH on Bill's street (frng's per-man rngX stamp): 152 x 2 = 304, past the rifle line's, so the energy shot is fired, not walked into the guns (measured: x1 = 5 beams from 8 commandos in 300 s)   // the beamer's present-arms (s; the shipped 0.55): long enough to SEE the charge on a phone and step off his line
+  bolt:{ first:{ e:5, m:4, h:3 }, cd:{ e:12, m:10, h:8 }, stagger:1.3, lock:1.2 },   // + lock = the last s of the 3 s channel the ray stands still (before it, the line FOLLOWS its man: a man who keeps walking is still on it; a man who steps off in the last 1.2 s is not)
+  dotLock:0.7, dotStep:3, dotAdv:300, dotFloor:520,   // + THE ADVANCE: after every dotStep rounds the dot man moves his stand dotAdv px west (never west of dotFloor): the house's 237 man stands at the rim for ever, out of every gun's reach; on Bill's street he walks into it (measured: 16 of them standing at x 1660 on HARD by 300 s)   // THE DOT follows its man until the last 0.7 s of RD.tell, then holds the spot (the house's slip law from there): the ring closing on it is the clock   // the bolt's drum by tier: the first lock this many s after he is on the carpet (+ stagger x his id mod 3, so a pair never locks on one frame), then every cd s
+  dot:{ r:4.2, halo:10, ring:15, lineA:0.42, lineW:1.4, col:'#e0251a' },   // THE DOT on Bill's street (the house's colour; RD.r 1.7 is a pinhead at the phone's 0.45 scale)
+  charge:{ r0:5, r1:19, col:'#9FE8FF' } };   // THE BEAMER'S CHARGE (the storm coil's cyan)
+function sharpPour(cfg){ let k=0; for(const w of cfg.waves){ if(!w || !w.groups) continue; for(const g of w.groups){ if(g && g.bba && g.t==='wsniper'){ g.t=SHARP.trio[k%SHARP.trio.length]; g.sharp=1; k++; } } } cfg.sharp=k; return cfg; }   // the posse's back sniper in time order (bbaPour sorts its waves by bbsT) becomes the trio in turn; n, the lane, at, hpX / spdx stay BBA's
+{ const c0=bbsCfg; bbsCfg=function(tier){ const cfg=c0.apply(this, arguments); try{ if(SHARP.on && cfg && cfg.bba) sharpPour(cfg); }catch(e){} return cfg; }; }   // THE DOOR: the cfg every sim rebuilds from the tier alone (bbsCfg wrapped by name, after CARD-BBA's and CARD-OTS's wraps); ?bba=0 = C1's own trio waves, untouched
+function sharpBag(){ const B=S.raid && S.raid.bbs; if(!B) return null; return B.sharp||(B.sharp={ seen:{}, n:{ reddot:0, tancommando:0, wsniper:0 }, adv:0, beams:0, beamHits:0, locks:0, bolts:0, boltHits:0 }); }
+function sharpTick(dt){ if(!SHARP.on || !bbsOn() || S.mode!=='play' || !(dt>0)) return; const A=sharpBag(); if(!A) return; const tier=bbsTier(); let dots=0;
+  for(const f of S.foes){ if(f.dead) continue; const ty=f.type; if(ty!=='reddot' && ty!=='tancommando' && ty!=='wsniper') continue;
+    if(!A.seen[f.id]){ A.seen[f.id]=1; A.n[ty]++; if(ty==='tancommando') f.rngX=SHARP.beamRngX; }
+    if(ty==='reddot'){ dots++; const d=f.rd, st=d? d.st : null; if(f.shpSt==='dot' && st==='cd'){ f.shpN=(f.shpN|0)+1; if(f.shpN%SHARP.dotStep===0 && f.olvSx!=null){ f.olvSx=Math.max(SHARP.dotFloor, f.olvSx-SHARP.dotAdv); A.adv++; } } f.shpSt=st; } else if(ty==='tancommando') sharpBeamer(f); else sharpBolt(f,dt,A,tier,f.id%3); }
+  if(dots){ for(const f of S.foes){ const d=f.rd; if(f.type!=='reddot' || f.dead || !d || d.st!=='dot' || !d.u || d.off || d.u.dead || S.t>=d.t-SHARP.dotLock) continue; d.lx=d.u.x; d.ly=d.u.y; } olvRedDot(olvB2L()); } }   // THE RED DOT's brain is the house's (the 237 pass), run on Bill's street while a dot man stands
+{ const t0=bbsTick; bbsTick=function(dt){ t0.apply(this, arguments); try{ sharpTick(dt); }catch(e){} }; }   // the trio's clock rides C1's bbsTick (wrapped by name)
+function sharpBeamer(f){ if(f.aimT>0){ if(!f.shpAim){ f.shpAim=1; f.aimT=Math.max(f.aimT, SHARP.beamAim); f.shpAim0=f.aimT; } } else if(f.shpAim) f.shpAim=0; }   // THE CHARGE: the shipped present-arms (aimT plants him; tanFire's beam at its end) held to beamAim
+function sharpBolt(f,dt,A,tier,j){ const Bo=SHARP.bolt;
+  if(f.x>=W-10 || f.flatT>0 || f.fzT>0 || f.kyHeldT>0 || f.retreat || f.falling){ if(f.lrBmT>0){ f.lrBmT=0; f.lrBmX1=null; } return; }   // off the carpet, flat, frozen, held or routing: no lock (a burning one is dropped, no release)
+  if(f.lrBmT>0){ f.lrBmT=Math.max(0, f.lrBmT-dt); { const u=f.shpTgt; if(f.lrBmT>Bo.lock && u && !u.dead && S.units.indexOf(u)>=0) sharpRay(f,u); }   // THE FOLLOW, then THE LOCK
+    if(f.lrBmT<=0){ A.bolts++; f.shpBolt=1; try{ larsonBeamFire(f); }finally{ f.shpBolt=0; } f.lrBmX1=null; f.shpCd=Bo.cd[tier]; } return; }   // THE LOCK burns (planted: the mover's and the trigger's gates read lrBmT), then the release on the LOCKED ray
+  if(f.shpCd==null) f.shpCd=Bo.first[tier]+Bo.stagger*j; f.shpCd=Math.max(0, f.shpCd-dt);
+  if(f.shpCd>0 || f.aimT>0 || f.burst>0) return;   // the bolt waits out a mid-burn rifle tell (Larson's own law: one thing at a time)
+  const u=((A.locks&1)? tanPick(f) : null) || larsonMark(f); if(!u) return;   // every other lock takes Sarge (larsonMark: Sarge, a hero, else the nearest), the rest the nearest man in his reach
+  f.lrBmT=LR_BM_CH; f.shpTgt=u; sharpRay(f,u); A.locks++; try{ SFX.ready(); }catch(e){} }
+function sharpRay(f,u){ foeAim(f,u); const fz=foeFaceX(f), mx=f.x+20*fz, my=f.y-36, a=Math.atan2((u.y-18)-my, u.x-mx); f.lrBmX1=mx; f.lrBmY1=my; f.lrBmX2=mx+Math.cos(a)*4600; f.lrBmY2=my+Math.sin(a)*4600; }   // the ray from his muzzle (the tell's own [20,36] seat) through the man's chest to the map edge (the 4600 grammar)
+{ const b0=tanBeam; tanBeam=function(f){ const r=b0.apply(this, arguments); try{ if(r && f && f.type==='tancommando' && SHARP.on && bbsOn()){ const A=sharpBag(); if(A) A.beams++; } }catch(e){} return r; }; }   // the rigs' count of beams (tanFire calls it by name)
+{ const h0=tanBeamHit; tanBeamHit=function(sh,u){ try{ const f=sh && sh.src; if(f && SHARP.on && bbsOn() && u && !u.dead && S.units.indexOf(u)>=0){ const A=sharpBag(); if(A){ if(f.type==='tancommando') A.beamHits++; else if(f.type==='wsniper' && f.shpBolt) A.boltHits++; } } }catch(e){} return h0.apply(this, arguments); }; }   // the hits the two beams land (the count only)
+function sharpDraw(){ if(!SHARP.on || !bbsOn()) return; const RM=reducedMotion(), D=SHARP.dot, C=SHARP.charge; cx.save();
+  for(const f of S.foes){
+    if(rdLive(f) && f.rd && f.rd.st==='dot'){ const P=rdSpot(f), x=P.x, y=P.y-18, mx=f.x-16, my=f.y-30, t0=(f.rd.t0==null)? S.t : f.rd.t0, k=Math.max(0, Math.min(1, (S.t-t0)/Math.max(0.1, f.rd.t-t0))), pu=RM? 1 : 0.75+0.25*Math.sin(S.t*14);   // THE DOT on the marked man
+      cx.globalAlpha=D.lineA; cx.strokeStyle=D.col; cx.lineWidth=D.lineW; cx.beginPath(); cx.moveTo(mx,my); cx.lineTo(x,y); cx.stroke();   // the hair to his muzzle
+      cx.globalAlpha=0.32*pu; cx.fillStyle=D.col; cx.beginPath(); cx.arc(x,y,D.halo,0,7); cx.fill(); cx.globalAlpha=1; cx.beginPath(); cx.arc(x,y,D.r,0,7); cx.fill();   // the halo, the dot
+      cx.globalAlpha=0.85; cx.lineWidth=1.8; cx.beginPath(); cx.arc(x,y,D.r+2+D.ring*(1-k),0,7); cx.stroke(); }   // the ring closes on the dot as the round nears (the clock you can read)
+    else if(f.type==='tancommando' && f.shpAim && f.aimT>0 && !f.dead){ const k=Math.max(0, Math.min(1, 1-f.aimT/(f.shpAim0||SHARP.beamAim))), fz=foeFaceX(f), x=f.x+CMDO_MZX*fz, y=f.y-CMDO_MZY, pu=RM? 0 : Math.sin(S.t*22);   // THE CHARGE at his muzzle
+      cx.globalAlpha=0.22+0.4*k; cx.fillStyle=C.col; cx.beginPath(); cx.arc(x,y,C.r0+(C.r1-C.r0)*k+1.5*pu,0,7); cx.fill();
+      cx.globalAlpha=0.9; cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(x,y,2+3*k,0,7); cx.fill();
+      cx.globalAlpha=0.5+0.4*k; cx.strokeStyle=C.col; cx.lineWidth=1.6; cx.beginPath(); cx.arc(x,y,C.r1+4-(C.r1-4)*k,0,7); cx.stroke(); } }
+  cx.restore(); }
+{ const ds0=drawSoccer; drawSoccer=function(){ const r=ds0.apply(this,arguments); try{ sharpDraw(); }catch(e){} return r; }; }   // over the men and the fx, under the fog and the words (CARD-BBF's seat)
+function sharpRead(o){ o=o||{}; const A=(bbsOn() && sharpBag())||null, L=(S.olv && S.olv.b2)||null;   // the rigs' read + one lever: o.sharpSpawn = 'reddot' | 'tancommando' | 'wsniper' (at o.sharpX / o.sharpY, else the rim on Main Street)
+  if(A && o.sharpSpawn && SHARP.trio.indexOf(o.sharpSpawn)>=0){ const g=spawnFoe(o.sharpSpawn, (o.sharpX!=null)? +o.sharpX : W+40, foeBandY((o.sharpY!=null)? +o.sharpY : 300), null, false); if(g && o.sharpX!=null) g.x=+o.sharpX; }
+  return { on:SHARP.on, cfgSharp:(S.cfg && S.cfg.sharp)|0, n:A? Object.assign({}, A.n) : null, beams:A? A.beams : 0, beamHits:A? A.beamHits : 0, adv:A? A.adv : 0, locks:A? A.locks : 0, bolts:A? A.bolts : 0, boltHits:A? A.boltHits : 0,
+    dots:L? L.dots|0 : 0, flat:L? L.flat|0 : 0, miss:L? L.miss|0 : 0,
+    up:S.foes.filter(f=>!f.dead && SHARP.trio.indexOf(f.type)>=0).map(f=>({ id:f.id, t:f.type, x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(1), sx:(f.olvSx==null)? null : Math.round(f.olvSx), dot:(f.rd && f.rd.st==='dot')? 1 : 0, aim:+(f.aimT||0).toFixed(2), lock:+(f.lrBmT||0).toFixed(2), cd:(f.shpCd==null)? null : +f.shpCd.toFixed(2) })) }; }
+{ const r0=bbsRig; bbsRig=function(o){ const r=r0.apply(this, arguments); try{ if(r && typeof r==='object') r.sharp=sharpRead(o); }catch(e){} return r; }; }   // GVT.bbs(o).sharp (C1's door, wrapped by name)
+// ═══ END CARD-OTS-SHARP ═══
 // ═══ CARD-OSD THE OUTLAW STASH (sec:CARD-OSD; design/outlaw-stash-1022/00-DESIGN-OSD.md + build-osb/; Wyatt 10/22/2026 ~15:25 EDT on Maker 1, verbatim: "add Outlaw Stash to be gained from beating Buffalo Bill on Easy. -10% Armor, +5% Dodge, +5 Damage. [the picture] This is the visual of the Stash we want to nail. Run a design pass in jumpr; then queue for implementation after going with recommendations & set live") ═══
 // A FACE piece for Sarge's rack (id 'outlawstash', the rack row in the tombstonehat IIFE's seat: never sold, hidden till owned, THE BUFFALO BILL SHOWDOWN on EASY pays it BESIDE THE OUTLAW .44s, the boot heals it off META.bbs.e).
 // THE NUMBERS ride the rack's own seams, nothing new: −10 % armor = a (1 − OSTASH.def) term on dM (the belt's minus idiom: Sarge's own plate, his BF hit points and the rug's pip roll) · dodges 5 % of hits = OSTASH.dodge on outfitDodgeSum (THE PONCHO'S DODGE, 0654 Card E:
