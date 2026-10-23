@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.35","md5":"d06406fc81748c7b805ac46257902268","sha":"9f038cc8d4","at":"2026-10-23T05:09:24Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.36","md5":"fa27024ac13b1931566c9b0092e7bc1e","sha":"4e3cb23e7c","at":"2026-10-23T05:16:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90744,7 +90744,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -198972,6 +198972,43 @@ function ridersBoxRead(){ const B=(bbsOn() && S.raid && S.raid.bbs)||null, A=(B 
   return { on:RBX.on, draws:RBX.draws, boxed:RBX.boxed, alert:A? { t:+A.t.toFixed(2), n:A.n|0, left:+Math.max(0,BBS_RIDE.warn-A.t).toFixed(2) } : null, rides:B? B.rides|0 : null, hud:B? bbsHudLine() : null, E:Math.round(H*0.055), VW:VW, H:H, scale:scale, wrapped:String(bbsRaidHUD).indexOf('RBX')>=0 }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.ridersBox) GVT.ridersBox=function(){ return ridersBoxRead(); }; }catch(e){} }, 0);   // the door on GVT once it exists (CARD-WHB's grammar: window.GVT is built below this seat)
 // ═══ END CARD-OTS-ALERT ═══
+// ═══ CARD-OTS-CODE THE CODE DOOR GIVES THE BELL'S FIGHT (sec:CARD-OTS-CODE; design/outlaw-main-street-1022/10-CARD-OTS-CODE.md; jumpr 2563, board J73, lane gvt-p4; GOAL 6 of Bill's first-night notes, 02-NOTES-NIGHT-1022.md)
+// WYATT 10/22/2026 ~20:55 EDT on Maker 1, after the first live Showdown with Layla, verbatim: "Then I will test it again and push it live. Via using the code method to try the fight over and over"
+// THE FIND (AUDIT-A §3): the code BILL / CODEBILL sets META.billCode and opens the raid door any time, but the fight it gave was Bill vs the player ALONE: the solo door (startRaid) and a party formed at the raid door
+//   (coopStartBattle with no COOP.ev) never arm the house computers (the frame's arm reads COOP.ev, the event room's word), the swarm is scaled on the real people, the purse opens without EV_TAGS_ADD. The bell's room
+//   (evJoin -> evLaunch -> coopStartBattle with COOP.ev rk 'bbs') pins the swarm to BBS_PIN_P, writes S.sq.ev, opens the purse EV_TAGS_ADD deeper and arms the computers to THE FILL IS FOUR at the bell.
+// THE FIX: otscRoom() gives a Showdown that is no event room the bell's room SHAPE right after its door (startRaid and coopStartBattle wrapped by name): the cfg rebuilt from the tier alone and scaled on the night's pin
+//   (bbsvApplyRuling's own line, before the first sim step), S.sq.p = BBS_PIN_P, S.sq.bp = the real people, S.sq.ev { rk:'bbs', code:1 }, the purse + the night's deeper part through the same rounding (added: the
+//   whistle's formation deal has already spent from the solo purse), evBotsArm(pc) = three computers alone, two with two, one with three, none with four or more (their colours and callsigns off the room's seeded
+//   stream, the first men pistol Sarges, the referee's shop, the orders crossing with b). The tier is the door's own (alone: the button pressed; a party: the server's vote at the code door, bbsvRuledN).
+// UNTOUCHED: the bell's own rooms (COOP.ev set = this returns at once); the spoils (evBattle needs COOP.ev: a code room pays the raid's purse and prizes, never the night's level, latch or HQ verdict); every other door.
+// THE SERVER: zero bytes. Alone = no room at all; a party = an ordinary lobby party with the 'bbs' order (the vote at the code door is server v142's; CMD_KEYS carries b for every lobby).
+// Switch: ?otscode=0 on a device (gvt_otscode, remembered) = the road before this card (Bill alone through the code); ?otscode=1 = this. otsCodeRead() / GVT.otsCode() = the rigs' read.
+// Zero words, zero server, zero service worker, zero save keys, zero dice; two wraps by name, no existing line changed. ═══
+const OTSC={ on:(function(){ try{ const q=/[?&]otscode=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_otscode','0'); else localStorage.removeItem('gvt_otscode'); } return localStorage.getItem('gvt_otscode')==='0'? 0 : 1; }catch(e){ return 1; } })(), rooms:0, skips:0, last:null, err:null };   // on 1 = the bell's shape at the raid door (the default); 0 = a device's own choice of the old road
+function otscPc(){ return Math.max(1, Math.min(SQ_MAX, S.coop? (((COOP&&COOP.pc)|0) || ((COOP&&COOP.members)||[]).length || 1) : 1)); }   // the real commanders: the server's frozen pc in a party (coopStartBattle's own bpq), one alone
+function otscRoom(){   // the bell's room shape on a Showdown that is no event room; null = nothing to do
+  if(!OTSC.on) return null;
+  const rd=S.raid; if(!rd || rd.k!=='bbs' || rd.cfg!==S.cfg || S.mode!=='play' || !S.sq){ OTSC.skips++; return null; }   // bbsOn() and the table written: the Showdown just opened at its door
+  if(COOP && COOP.ev){ OTSC.skips++; return null; }   // the bell's own room: coopStartBattle's evb path, the hold, the vote and the frame's arm stand as built
+  if(S.sq.ev || S.sq.bots){ OTSC.skips++; return null; }   // shaped already (a second call), or a room with computers already
+  const pc=otscPc(), p0=S.plastic|0;
+  const extra=bbsTag(RAID_TAGS+EV_TAGS_ADD+eliteRaidTags())-bbsTag(RAID_TAGS+eliteRaidTags());   // the night's deeper purse (startRaidBattle's own line with COOP.ev true, x the tag multiplier by the real commanders, rounded as the house rounds): added, so a deal already spent stays spent
+  S.cfg=raidCfg(rd.t,'bbs'); rd.cfg=S.cfg; sqScaleCfg(S.cfg, BBS_PIN_P, true, pc);   // the parkCfg law: the identical army from the tier alone, the swarm pinned to four, the boss's count the real people (coopStartBattle's own evb call); before the first sim step, so nothing was dealt from the old table
+  S.sq.p=BBS_PIN_P; S.sq.bp=pc;   // the swarm's pin and the real commanders (bbsTagP, bhpNow)
+  S.sq.ev={ bell:0, ring:0, wk:'', rk:'bbs', code:1 };   // the room's word for the fill (evBotsN -> THE FILL IS FOUR), the HUD's sub-line and roster, the relayed computers' orders (coopBy 'bot' on every glass); wk '' = evWk falls to HQ's week as on any non-event fight; code 1 = this card's mark
+  S.plastic=p0+extra;
+  const nb=evBotsArm(pc);   // the night's arm: EV_FILL's arithmetic in a Showdown room (three alone), each on RAID_TAGS x EV_BOT_F, the first man a pistol Sarge; botTick runs them on the referee alone
+  OTSC.rooms++; OTSC.last={ solo:S.coop? 0 : 1, pc, bots:nb, purse:S.plastic|0, purse0:p0, extra, tier:rd.t, p:S.sq.p, bp:S.sq.bp, t:+(S.t||0).toFixed(2) };
+  return OTSC.last; }
+{ const r0=startRaid; startRaid=function(tier){ const r=r0.apply(this, arguments); try{ otscRoom(); }catch(e){ OTSC.err=String(e).slice(0,200); } return r; }; }   // the solo door (the scene's tier buttons call it by name)
+{ const c0=coopStartBattle; coopStartBattle=function(){ const r=c0.apply(this, arguments); try{ otscRoom(); }catch(e){ OTSC.err=String(e).slice(0,200); } return r; }; }   // the party's launch on every glass (the poll's battle flip and evLaunch call it by name; evLaunch's room carries COOP.ev and is left as built)
+function otsCodeRead(){ const sq=S.sq||null, ev=sq && sq.ev; return { on:OTSC.on, rooms:OTSC.rooms, skips:OTSC.skips, last:OTSC.last, err:OTSC.err, wrapped:String(startRaid).indexOf('otscRoom')>=0 && String(coopStartBattle).indexOf('otscRoom')>=0,
+  bbs:bbsOn()? 1 : 0, tier:bbsOn()? S.raid.t : null, coop:S.coop? 1 : 0, evRoom:!!(COOP && COOP.ev), evBattle:(typeof evBattle==='function' && evBattle())? 1 : 0, night:bbsNightRoom()? 1 : 0,
+  sq:sq? { p:sq.p, bp:sq.bp|0, evPc:sq.evPc|0, evBots:sq.evBots? 1 : 0, ev:ev? { rk:ev.rk, code:ev.code|0, wk:ev.wk } : null, bots:(sq.bots||[]).map(b=>({ hex:b.hex, name:b.name||null, purse:+(+b.purse).toFixed(1), n:b.n|0, sg:b.sg|0 })) } : null,
+  purse:S.plastic|0, tagX:(typeof bbsTagX==='function')? bbsTagX() : null, fill:[1,2,3,4,5].map(evBotsNFor9), botMen:S.units.filter(u=>u.coopBy==='bot' && !u.dead).length }; }   // the rigs' read: the switch, the rooms shaped, the table, the computers, the purse (the HUD's own line and roster: GVT.evRoom().roster, evBotsN)
+setTimeout(function(){ try{ if(window.GVT && !GVT.otsCode) GVT.otsCode=function(){ return otsCodeRead(); }; }catch(e){} }, 0);   // the door on GVT once it exists (CARD-WHB's grammar: window.GVT is built below this seat)
+// ═══ END CARD-OTS-CODE ═══
 // ═══ CARD-OSD THE OUTLAW STASH (sec:CARD-OSD; design/outlaw-stash-1022/00-DESIGN-OSD.md + build-osb/; Wyatt 10/22/2026 ~15:25 EDT on Maker 1, verbatim: "add Outlaw Stash to be gained from beating Buffalo Bill on Easy. -10% Armor, +5% Dodge, +5 Damage. [the picture] This is the visual of the Stash we want to nail. Run a design pass in jumpr; then queue for implementation after going with recommendations & set live") ═══
 // A FACE piece for Sarge's rack (id 'outlawstash', the rack row in the tombstonehat IIFE's seat: never sold, hidden till owned, THE BUFFALO BILL SHOWDOWN on EASY pays it BESIDE THE OUTLAW .44s, the boot heals it off META.bbs.e).
 // THE NUMBERS ride the rack's own seams, nothing new: −10 % armor = a (1 − OSTASH.def) term on dM (the belt's minus idiom: Sarge's own plate, his BF hit points and the rug's pip roll) · dodges 5 % of hits = OSTASH.dodge on outfitDodgeSum (THE PONCHO'S DODGE, 0654 Card E:
