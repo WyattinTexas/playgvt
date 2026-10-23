@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.53","md5":"a80df8e732bb82045054944d74c125d8","sha":"e418a636e9","at":"2026-10-23T07:43:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.54","md5":"5fb05fe014481cf674a57cbd90007c05","sha":"2cd84cdef7","at":"2026-10-23T13:29:31Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90746,7 +90746,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.53';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.54';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -197021,6 +197021,26 @@ function lbwg2Rig(o){ o=o||{}; if(o.hq!==undefined) LBWG2.hq=o.hq; if(o.ask){ LB
     key:(typeof raidDoorKey==='function')? raidDoorKey('wreck') : null, mega:(R && R.mega)? !!R.mega() : null, wing:R? R.wing : null, rideJoin:LBWG2.rode, rode:(typeof META==='object' && META && META.wreckRode)? 1 : 0 }; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lbwg2=lbwg2Rig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar)
 // ═══ END CARD-LBW-G2 ═══
+// ═══ CARD-LBW-LIVE · THE PIRATE COVE GOES LIVE (sec:CARD-LBW-LIVE; design/boss-world-layla-1022/build-lbwlive/00-BUILD-LBW-LIVE.md). LAYLA 10/23/2026 by WhatsApp, verbatim: 09:12 "set the cove to go live!" · 09:21 "and only set it live to me first. The Bum's GF and The Bum's Gf 2 then I will let you know when to set it to everyone" · WYATT 10/22/2026 19:25 EDT by Discord, verbatim: "Approved, and approve everything Layla does regarding Pirates Cove until I say otherwise. She has full permission to set live any work on Pirates Cove without my permission." ═══
+// HER TWO ARMIES FIRST: LBWL.who = her armies' names as the cloud holds them ("The Bums GF" lvl 252, "The Bums Gf 2" lvl 3), matched the house's tester way (csTester: lower-case, letters and digits alone, so "The Bum's GF" is the same army); EVERYONE = LBWL.all 1, on her word (one line).
+// THE GATE LIFTED. Every piece of the cove waited behind META.pirate (the code PIRATE at the codes counter: Wyatt's 18:36 gate while the cove was built). LIVE: a save without the code meets Layla's own door, THE MESSAGE IN A BOTTLE, in Dino Park's pond (CARD-LBW-C round 3's seat; the backyard's pond while LBWC.dino is 0): lbwcBottleDue / lbwbPondOn are wrapped so the bottle shows while the deed is unread.
+// THE CATCH (the tap on the bottle or the pole's cast, both land in lbwcBottleLand; the backyard's lbwbCatch the same): META.pirate=1 + META.pirateGift=1 (granted by the bottle, not typed) BEFORE the deed's own line writes META.cove and saves, then lbwbJoin() late (its chain: LBW-A's molds minted by spriteMint, LBW-H's characters, the tables' rows, LBW-C's territory, LBW-D's four, LBW-C2's cutlass and wheel, LBW-E's hero).
+// A save that never catches the bottle boots byte-what-it-was: no cove mold in the sprite table, no row in any table (the memory of every phone that never goes there unchanged). The code PIRATE still works. The Log stays clear of the cove (CARD-NCL's strip runs at every Log paint).
+// THE WAY BACK: LBWL.on=0 (one line; every army), or ?lbwl=0 on one device (a key gvt_lbwl; ?lbwl=1 clears it); a save the bottle granted wears pirateGift. Zero words, zero CSS, zero server bytes, zero sw.js. GVT.lbwl() the rig's read.
+var LBWL={ on:(function(){ try{ const m=/[?&]lbwl=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_lbwl','0'); else localStorage.removeItem('gvt_lbwl'); } return localStorage.getItem('gvt_lbwl')==='0'? 0 : 1; }catch(e){ return 1; } })(), all:0, who:['thebumsgf','thebumsgf2'], grants:0, joins:0, err:0 };   // all 0 = her two armies alone (Layla 09:21); all 1 = every player (her word to come)
+function lbwlMe(){ return String(META.name||'').toLowerCase().replace(/[^a-z0-9]/g,''); }   // the army's name the tester way (csTester's grammar)
+function lbwlOn(){ if(!LBWL.on) return false; return !!(LBWL.all || LBWL.who.indexOf(lbwlMe())>=0); }   // the door open: for everyone, or for one of her armies
+function lbwlGrant(){ if(!lbwlOn() || META.pirate) return 0; META.pirate=1; META.pirateGift=1; LBWL.grants++; return 1; }   // the bottle grants the code, marked as granted (never typed); the deed's own line saves both
+{ const d0=lbwcBottleDue; lbwcBottleDue=function(){ if(d0.apply(this, arguments)) return true; try{ return !!(lbwlOn() && LBWC.dino && !META.pirate && !META.cove); }catch(e){ LBWL.err++; return false; } }; }   // Dino Park's pond: the bottle for every save while the deed is unread
+{ const l0=lbwcBottleLand; lbwcBottleLand=function(){ let g=0; try{ g=lbwlGrant(); }catch(e){ LBWL.err++; } const r=l0.apply(this, arguments); if(g || (META.pirate && !LBWB.joined)){ try{ if(lbwbJoin()) LBWL.joins++; }catch(e){ LBWL.err++; } } return r; }; }   // the catch: the code granted BEFORE the deed's line (it writes META.cove and saves both), then the world joins late
+{ const p0=lbwbPondOn; lbwbPondOn=function(){ if(p0.apply(this, arguments)) return true; try{ return !!(lbwlOn() && !(typeof LBWC==='object' && LBWC && LBWC.dino) && !META.pirate && !META.cove); }catch(e){ LBWL.err++; return false; } }; }   // the backyard's pond (LBWC.dino 0, the one-line flip back): the same door there
+{ const c0=lbwbCatch; lbwbCatch=function(){ let g=0; try{ if(lbwbPondOn() && !META.cove && !LBWB.busy && S.mode==='menu') g=lbwlGrant(); }catch(e){ LBWL.err++; } if(g){ try{ if(lbwbJoin()) LBWL.joins++; }catch(e){ LBWL.err++; } } return c0.apply(this, arguments); }; }   // the backyard's catch: the code granted, the world joined, then LBW-B's lift and deed as written
+setTimeout(function(){ try{ if(window.GVT && !GVT.lbwl) GVT.lbwl=function(o){ o=o||{}; if(o.on!=null) LBWL.on=o.on? 1 : 0; if(o.all!=null) LBWL.all=o.all? 1 : 0;
+  return { cv:GVT_CV, on:LBWL.on, all:LBWL.all, who:LBWL.who.slice(), me:lbwlMe(), open:lbwlOn()? 1 : 0, key:(function(){ try{ return localStorage.getItem('gvt_lbwl'); }catch(e){ return null; } })(), grants:LBWL.grants, joins:LBWL.joins, err:LBWL.err, pirate:META.pirate? 1 : 0, gift:META.pirateGift? 1 : 0, cove:META.cove? 1 : 0, dino:(typeof LBWC==='object' && LBWC)? LBWC.dino : null,
+    bottleDue:lbwcBottleDue()? 1 : 0, pondOn:lbwbPondOn()? 1 : 0, coveDue:(typeof lbwcCoveDue==='function' && lbwcCoveDue())? 1 : 0,
+    joined:{ a:LBWA.joined, b:LBWB.joined, c:LBWC.joined, d:LBWD.joined, e:(typeof LBWE==='object')? LBWE.joined : null, h:(typeof LBWH==='object')? LBWH.joined : null, c2:(typeof LBWC2==='object')? LBWC2.joined : null },
+    kk:typeof SPRITES_SRC.kingkraken, minted:!!(IMG.kingkraken && IMG.kingkraken.width>0), key9:raidDoorKey('wreck')? 1 : 0, n:Object.keys(SPRITES_SRC).length }; }; }catch(e){} }, 0);
+// ═══ END CARD-LBW-LIVE ═══
 // ═══ CARD-PCF · PRINCESS CROAK IN FELT (sec:CARD-PCF; design/princess-felt-1023/00-CARD-PCF.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026), the jumpr guest link
 // 10/23/2026 03:21 UTC (jumpr 2583; her file's part 2/2 = jumpr 2584), verbatim head: "NEW: PRINCESS CROAK (ch 038) -- Laura's redesign. PUSH HER LIVE. Approved by Laura 10/23 ("get rid of her face thread and
 // push her live!") ... a felt frog puppet princess ... ONE DRAWING EVERYWHERE (Laura's rule): her other poses (038-b PLUCK, 038-c CHARGE, 038-d HOP, 038-e HURT, 038-f FALL) still show the OLD design -- please rebuild
