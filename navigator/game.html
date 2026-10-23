@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.76","md5":"3f580aee0d91bebef18980cb4dd7486d","sha":"1e0b80d964","at":"2026-10-23T20:54:47Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.77","md5":"e0fe2fa1451467761041b701045e73a5","sha":"6d9136d689","at":"2026-10-23T21:21:40Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -61697,6 +61697,34 @@ function smguPlay(cont){
   return v;
 }
 // ═══ end CARD-SMG ═══
+// ═══ CARD-TSS PIRATES COVE: THE SUNKEN SHIP (sec:CARD-TSS; design/pirates-cove-sunken-ship-1023/00-CARD-TSS.md; FROM DYLAN by the jumpr guest link 10/23/2026 16:25 EDT: "Sixty second cut scene for Pirate Cove entry. Sarge has just defeated king Rex. Sarge and a few units notice a rowboat nearby and they row out into the cove. They are suddenly met with a thrashing kraken, with remnants of broken pirate ships around him. “King Kraken” arises from the water and says “This cove is forbidden for all ye’ trying to enter”. “You shall feel my wrath!”. Sarge rows frantically to the shore as the kraken thrashes around his rowboat. Sarge is met at the shore by an army of pirates. Sarge and his men look at the kraken, then the pirates and say “Shiver me’ timbers boys. We are in a bit of a pickle!” The pirates jeer at the notion and start upon sarge and his men. End scene. Title it, “Pirates Cove: The Sunken Ship”"): the 60 s film tss-sunkenship.mp4 (King Rex beaten in Dino Park, the rowboat at the water's edge, the cove's broken pirate ships, KING KRAKEN rising out of the water with his two lines, the frantic row to the shore, the Tan pirates of the cove waiting on the sand, the pickle, the pirates' charge; Sarge's mold and the squad's sprites, the cove's own molds (KING KRAKEN, CAPTAIN CUTLASS, THE CREW, PIP, POLLY); the game's comm window; the plank PIRATES COVE: THE SUNKEN SHIP) + its poster tss-sunkenship.jpg at the root (bdPromoSrc), the eighth Dylan film in CARD-SMG's grammar.
+// plays ONCE per device the first time THE SUNKEN SHIP's lobby would open (openRaidScene with RAID_CUR 'wreck', after the door's own key gate: lbwbCoveOn = the deed of the code PIRATE, or a party's walk riding the leader's key (CARD-LBW-G2); Dino Park's ship TO THE COVE, the map's bay and a party's walk all come through it), so the film stands only where the cove's door already stands (Wyatt 10/23 15:14: "Not live for everyone. Just if they type pirate in the code room"): the whole glass, black, the ✕ floating in its corner; the end, the ✕ or a load error opens the lobby as before. The room's bed and theme hush while it plays (snduHush, CARD-SND's).
+// Reduced motion skips it. Seen = localStorage gvt_tss (never the save; no storage = never shown). ═══
+const TSSU={ key:'gvt_tss', src:'tss-sunkenship.mp4', poster:'tss-sunkenship.jpg' };
+function tssuSeen(){ try{ return localStorage.getItem(TSSU.key)==='1'; }catch(e){ return true; } }
+function tssuMark(){ try{ localStorage.setItem(TSSU.key,'1'); }catch(e){} }
+function tssuDue(){ return !document.getElementById('tssuFilm') && !document.getElementById('smguFilm') && !document.getElementById('enfuFilm') && !document.getElementById('fifuFilm') && !document.getElementById('hstuFilm') && !document.getElementById('lnguFilm') && !document.getElementById('dmtuFilm') && !document.getElementById('drwuFilm') && !document.getElementById('mdyuFilm') && !document.getElementById('snduFilm') && !document.getElementById('stmuFilm') && S.mode==='menu' && !reducedMotion() && !tssuSeen(); }
+function tssuPlay(cont){
+  tssuMark();
+  const d=document.createElement('div'); d.id='tssuFilm'; d.setAttribute('data-notr','1');
+  d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center';
+  const v=document.createElement('video'); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.playsInline=true; v.preload='auto';
+  v.poster=bdPromoSrc(TSSU.poster); v.muted=!soundOn; v.src=bdPromoSrc(TSSU.src);
+  v.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';
+  const x=document.createElement('button'); x.type='button'; x.className='tssuX'; x.setAttribute('aria-label','close'); x.setAttribute('data-notr','1');
+  x.style.cssText='position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 14px);width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,0.75);background:rgba(0,0,0,0.55);color:#fff;font:bold 24px/44px Arial,sans-serif;padding:0;cursor:pointer;z-index:2';
+  x.insertAdjacentHTML('beforeend','&#10005;');
+  let done=false;
+  const end=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} d.remove(); snduHush(false); try{ if(cont) cont(); }catch(e){} };
+  v.addEventListener('ended',end); v.addEventListener('error',end);
+  x.addEventListener('click',e=>{ e.stopPropagation(); end(); });
+  d.appendChild(v); d.appendChild(x); document.body.appendChild(d); snduHush(true);
+  try{ const p=v.play(); if(p&&p.catch) p.catch(()=>{ v.muted=true; try{ const q=v.play(); if(q&&q.catch) q.catch(end); }catch(e){ end(); } }); }catch(e){ end(); }
+  return v;
+}
+// CARD-LBW-RST's one toast (THE COVE STARTS OVER: EASY FIRST) WAITS while the film stands: LBW-RST's openRaidScene wrap calls lbwrToast after the door returns with the film up, where it would be spent unseen under the film; the film's own door call after the ✕ (or the end, or an error) shows it on the lobby. Wrapped BY NAME (a function declaration of this same script, hoisted; absent = nothing to guard).
+{ const t0=(typeof lbwrToast==='function')? lbwrToast : null; if(t0) lbwrToast=function(){ if(document.getElementById('tssuFilm')) return 0; return t0.apply(this, arguments); }; }
+// ═══ end CARD-TSS ═══
 // THE SERVE ITSELF: the daily raid's own battlefield 1v1, his way. Rides
 // startBattlefield whole (random map draw, seat plan, director, briefing law,
 // rookie gate — a save with ten raid wins can never still be a rookie), then
@@ -91181,7 +91209,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.76';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.77';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -164775,6 +164803,7 @@ function openRaidScene(id){
   if(RAID_CUR==='palace' && hstuDue()){ hstuPlay(()=>openRaidScene(id)); return; }   // CARD-HST (FROM DYLAN 10/17): PRINCESS CROAK'S PALACE's first open comes after HOP, SKIP AND A THUMP, once per device (the doors' own gates stand first: palaceOpenFor at the oak doors, raidDoorKey at the map's pin)
   if(RAID_CUR==='sky' && fifuDue()){ fifuPlay(()=>openRaidScene(id)); return; }   // CARD-FIF (FROM DYLAN 10/17): THE SKY FORTRESS's first open comes after FORTRESS, IN FLIGHT, once per device (the key gate above stands first)
   if(RAID_CUR==='gmy' && smguDue()){ smguPlay(()=>openRaidScene(id)); return; }   // CARD-SMG (FROM DYLAN 10/21): THE HAUNTED LIBRARY's first open (the bedroom's STRANGE BOOK) comes after STRANGE MAGIC, once per device (the key gate above stands first)
+  if(RAID_CUR==='wreck' && tssuDue()){ tssuPlay(()=>openRaidScene(id)); return; }   // CARD-TSS (FROM DYLAN 10/23): THE SUNKEN SHIP's first open (THE PIRATE COVE: the pond's ship, the map's bay, a party's walk) comes after PIRATES COVE: THE SUNKEN SHIP, once per device (the key gate above stands first: no code PIRATE, no cove, no film)
   safeOnce();   // v3.60 (0297): a raid door is a campaign-family multiplayer door
   document.getElementById('raidscene').classList.remove('hidden');   // unhide FIRST — partyLive counts me while open (the v3.10 law)
   RAID_WARN9=0;   // 1164: the lone-commander warning re-arms at every lobby open (spoken once per open — never a wall)
