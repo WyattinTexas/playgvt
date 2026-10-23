@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.22","md5":"668e28060f5864595452be1e82baa276","sha":"38aa9ffb20","at":"2026-10-23T03:21:25Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.23","md5":"984e17d8b9bc9b494508dbb34a49e85a","sha":"9bb1b8749a","at":"2026-10-23T03:23:57Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.23';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -100483,7 +100483,7 @@ function rbnTrailStep(u,dt){   // (4) campUnitStep's read: 1 = the trail walked 
   if(d<=RBN_TRAIL_IN){ u.marching=false; return 1; }
   const sp=Math.min(RBN_TRAIL_VMAX, d/Math.max(0.3,(u.rbnGap||0.65)*RBN_TRAIL_LAG)), st=Math.min(d, sp*dt), vx=dx/d*sp;
   u.x+=dx/d*st; u.y+=dy/d*st; u.marching=sp>6;
-  if(vx>20){ u.wkX=1; u.wkT=S.t; } else if(vx<-20){ u.wkX=-1; u.wkT=S.t; }   // bfMarch's own stride stamp (the 20 px/s floor)
+  { const f9=utaFloor(20,(u.def&&u.def.moveSpd)||36); if(vx>f9){ u.wkX=1; u.wkT=S.t; } else if(vx<-f9){ u.wkX=-1; u.wkT=S.t; } }   // bfMarch's own stride stamp (the 20 px/s floor; CARD-UTA: a share of his own pace below it)
   return 1; }
 function rbnZig(u){   // (4) the same zig on every screen: the room walk's seeded dice (zigRoll: the man's stamp + the 64-px cell he re-rolls from), the stamp cut from his cid (every screen holds the same cid)
   if(u.zigS==null){ let h=2166136261>>>0; const c=String(u.cid||u.id); for(let i=0;i<c.length;i++){ h^=c.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } u.zigS=h; }
@@ -100844,14 +100844,14 @@ function owTwinStep(u,dt){   // bfUnitStep's read: 0 = his own brain walks him t
     const ex=u.owPx-u.x, ey=u.owPy-u.y, e=Math.hypot(ex,ey);
     if(e<=OW_IN) return 2;
     const sp=Math.min(smax, Math.max(30, e/OW_TAU)), st=Math.min(e, sp*dt);
-    u.x+=ex/e*st; u.y+=ey/e*st; if(ex/e*sp>20){ u.wkX=1; u.wkT=S.t; } else if(ex/e*sp<-20){ u.wkX=-1; u.wkT=S.t; }
+    u.x+=ex/e*st; u.y+=ey/e*st; { const f9=utaFloor(20,(u.def&&u.def.moveSpd)||60); if(ex/e*sp>f9){ u.wkX=1; u.wkT=S.t; } else if(ex/e*sp<-f9){ u.wkX=-1; u.wkT=S.t; } }
     u.marching=true; return 1; }
   // his owner marches: a slice of what the body owes, then the tape, then his own brain (bfUnitStep runs on)
   const ox=u.owEx||0, oy=u.owEy||0, o=Math.hypot(ox,oy);
   if(u.owFw? (o>5) : (o>OW_FOLLOW)){ u.owFw=1;   // the copy's own brain and his owner have parted ways by more than OW_FOLLOW (another zig, a halt his owner did not make, a Sarge his commander steers): the owner leads. The copy walks his owner's pace plus what he owes, his gun down, until he is back on the path (5 px); never a standing man slid along the mat, never a walker crabbing against his own stride
     const h9=u.owH||(u.owH=[]); let cx=owVx(u)+ox/OW_TAU, cy=owVy(u)+oy/OW_TAU; const c=Math.hypot(cx,cy); if(c>smax){ cx*=smax/c; cy*=smax/c; }
     const dx=ox*Math.min(1,dt/OW_TAU), dy=oy*Math.min(1,dt/OW_TAU);
-    u.x+=cx*dt; u.y+=cy*dt; u.owEx=ox-dx; u.owEy=oy-dy; if(cx>20){ u.wkX=1; u.wkT=S.t; } else if(cx<-20){ u.wkX=-1; u.wkT=S.t; }
+    u.x+=cx*dt; u.y+=cy*dt; u.owEx=ox-dx; u.owEy=oy-dy; { const f9=utaFloor(20,(u.def&&u.def.moveSpd)||60); if(cx>f9){ u.wkX=1; u.wkT=S.t; } else if(cx<-f9){ u.wkX=-1; u.wkT=S.t; } }
     if(!h9.length || S.t-h9[h9.length-1][0]>=OW_HZ){ h9.push([S.t,u.x+u.owEx,u.y+u.owEy]); while(h9.length>34) h9.shift(); }
     u.marching=true; return 1; }
   u.owFw=0;
@@ -104328,7 +104328,7 @@ function bfMarch(u,dt,goal){
   // facing — nx is post-steer/post-ice, so a bridge detour stamps the way he
   // actually strides; the rock-shoulder below is displacement, never a walk,
   // and deliberately never stamps. 20 px/s clears the noise floor.
-  const wkv=nx*sp*v2m, wkf=u.cmdWkF?7:(u.type==='jane'? JANE_WKF : u.type==='kingbear'? KB_HERO_WKF : 20);   // 0876 THE EMPEROR BEAR cell F (⚑ Q7): the emperor's floor 10 — at the rifleman's 44 a 45° step is 31 on the axis and stamps; at the shipped 26 it was 18.4 and never did (the 0585 F3 / 0517 class — his face froze and he moonwalked)   // 0585 F3 JANE'S STAMP FLOOR (the 0517 fix shape): her 26 px/s pace against the 20 floor stamped only within ~±40° of the axis — every diagonal step and every wade stamped nothing, her face froze and THE STEP's gait gate shut while she slid (the moonwalk); at JANE_WKF 12 every step she takes stamps and the gate opens whenever she moves — every other figure keeps its floor byte-what-it-was   // 0517 THE MOONWALK: the Commander's stride (CMD.pace ×0.55 → 14 campaign / 22 BF) sat UNDER the 20 floor, so his walk never stamped and he faced east on every westward step (Wyatt: "unable to turn around… just walks backwards"); the floor drops to 7 where the pace seats mark him (u.cmdWkF — half his slowest stride, the same ±60-degree acceptance the 20 gives a 40 px/s walker; displacement never routes through this line, so the jitter guard keeps) — every other figure keeps the 20 byte-what-it-was
+  const wkv=nx*sp*v2m, wkf=utaFloor(u.cmdWkF?7:(u.type==='jane'? JANE_WKF : u.type==='kingbear'? KB_HERO_WKF : 20), sp*v2m);   /* CARD-UTA: the floor is a share of his own stride (a medic at 18 px/s never cleared 20 and never turned) */   // 0876 THE EMPEROR BEAR cell F (⚑ Q7): the emperor's floor 10 — at the rifleman's 44 a 45° step is 31 on the axis and stamps; at the shipped 26 it was 18.4 and never did (the 0585 F3 / 0517 class — his face froze and he moonwalked)   // 0585 F3 JANE'S STAMP FLOOR (the 0517 fix shape): her 26 px/s pace against the 20 floor stamped only within ~±40° of the axis — every diagonal step and every wade stamped nothing, her face froze and THE STEP's gait gate shut while she slid (the moonwalk); at JANE_WKF 12 every step she takes stamps and the gate opens whenever she moves — every other figure keeps its floor byte-what-it-was   // 0517 THE MOONWALK: the Commander's stride (CMD.pace ×0.55 → 14 campaign / 22 BF) sat UNDER the 20 floor, so his walk never stamped and he faced east on every westward step (Wyatt: "unable to turn around… just walks backwards"); the floor drops to 7 where the pace seats mark him (u.cmdWkF — half his slowest stride, the same ±60-degree acceptance the 20 gives a 40 px/s walker; displacement never routes through this line, so the jitter guard keeps) — every other figure keeps the 20 byte-what-it-was
   if(u.coopBy && u.glOn && GLIDE_FACE){ /* 0585 F4: a co-op glide is moving this ally's man — the march still moves him between beats, it does not vote on his face (glideTick stamps the way it slides him) ⚑ Q4 */ }
   else wkStride(u,wkv,wkf,dt);   // CARD-CFP THE TURN SETTLE: the stride stamps through THE STEP (sec:CARD-CFP; was: else if(wkv>wkf){ u.wkX=1; u.wkT=S.t; } else if(wkv<-wkf){ u.wkX=-1; u.wkT=S.t; })   // 0585 F2's clear of the aim RETIRED 0652: faceX is a sim field now (the muzzle law) and this line stands down behind a per-screen glide — the aim expires by its own hold; the fresh stride still outranks it in the picture
   for(const rk of S.cfg.terrain.rocks){          // rocks shoulder him aside (reused kernel)
@@ -126009,6 +126009,16 @@ function cfpRig(o){ if(o){ if(o.step!=null) CFP.step=+o.step; if(o.grace!=null) 
   const U=(o&&o.id!=null)? S.units.find(q=>q.id===o.id) : null;
   return { cv:GVT_CV, step:CFP.step, grace:CFP.grace, hold:WKF_HOLD, u:U? { id:U.id, wkX:U.wkX==null? null : U.wkX, wkAge:U.wkT==null? null : +(S.t-U.wkT).toFixed(3), wkS:U.wkS==null? null : U.wkS, wkSD:U.wkSD==null? null : +U.wkSD.toFixed(2), flA:U.flA==null? null : !!U.flA, flAge:U.flAt==null? null : +(S.t-U.flAt).toFixed(3), fl:!!unitFl(U) } : null }; }
 // ═══ end of sec:CARD-CFP ═══
+// ═══ CARD-UTA · THE UNITS THAT COULD NOT TURN ROUND (10/23/2026, from Wyatt's phone: "the medics are actually walking to the left, but they're still facing to the right. We need to make sure each unit is properly turning and facing the direction they're going") ═══
+// THE FINDING (design/unit-turn-1022, the audit rig on THE SHOWDOWN): the walk-flip stamps a stride only when its sideways pace clears a FLAT 20 px/s floor — the MEDIC (18 px/s), the BAZOOKA (19), the MORTAR (9) and the M. GUNNER (20, the test is > 20) can never clear it
+// at full stride, so they never turned: west on the mat in their army's east face; the slow hulls and heroes (the tank 22, the dogfighter 26, Sarge 40) turned only on a near-flat stride and moonwalked every diagonal. Jane (0585 F3), the Emperor Bear (0876)
+// and the Commander (0517) had each been given a floor of their own, one man at a time. THE CURE, presentation only (nothing in the sim reads wkX/wkT — the 0307 mvSm law; co-op's twin sims and seeded replays are byte-what-they-were): the floor is the man's
+// OWN pace's share — utaFloor(base,pace) = min(base, max(UTA.min, UTA.frac x pace)) — at bfMarch's stride stamp and the co-op twins' two movers (rbnTrailStep, owTwinStep). A fast man's floor stays what it was (the rifleman's 66 x 0.4 = 26 > 20), Jane's 12 and
+// the bear's 10 hold, and CARD-CFP's step (4 px of intended travel) still keeps a wedged man's face from flickering.
+// ⚑ UTA-Q1 UTA.frac 0.4 (a stride within ~66 degrees of the row turns him; Jane's 12/31 and the bear's 10/26 sat at the same share) · ?uta=0 = the flat floors as shipped (a rig reads UTA itself)
+const UTA={ on:(function(){ try{ return /[?&]uta=0/.test(location.search||'')? 0 : 1; }catch(e){ return 1; } })(), frac:0.4, min:3 };
+function utaFloor(base,pace){ return UTA.on? Math.min(base, Math.max(UTA.min, UTA.frac*Math.abs(pace||0))) : base; }   // the stride's floor in px/s: never above the shipped one, a share of the man's own pace below it
+// ═══ end of sec:CARD-UTA ═══
 const WKF_HOLD=0.15;
 function wkBack(o,dir){ return !!(o.wkT && S.t-o.wkT<WKF_HOLD && o.wkX===-dir); }
 // ===== 0652 Card C TURN TO FACE — THE AIM SEAT (Wyatt 8/31: "a lot of units are not turning around when they're firing …
