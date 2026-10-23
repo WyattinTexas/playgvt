@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.44","md5":"32e96b44a73e0b8024b6bd6b06360ec9","sha":"504e8b8a93","at":"2026-10-23T06:11:25Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.45","md5":"2984f48e84893204542df459e82b87f4","sha":"3506dfa99a","at":"2026-10-23T06:21:00Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90746,7 +90746,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.44';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.45';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -190951,6 +190951,57 @@ function afxRead(o){ if(o && o.sweep) afxSweep(); const live=[]; for(const im of
 try{ afxArm(); }catch(e){ AFX.err++; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.afx) GVT.afx=afxRead; }catch(e){} }, 0);   // the rig door, seated once window.GVT stands (the house's way: CARD-WHB's line)
 // ═══ END CARD-AFX ═══
+// ═══ CARD-AFX-ELE · THE ELEPHANT'S ARMY COLOUR BAKED INTO HIS PICTURE (sec:CARD-AFX-ELE; design/attic-fps-1022/01-CARD-AFX-ELE.md; CARD-AFX's flag AFX-F2, Wyatt's go on Maker 1 10/22/2026 21:46 EDT, verbatim:
+// "Go with recomendations and make sure each card is queued up"; built on Maker 1 as M2578). THE CAUSE (measured, the kernel's book, WebKit at his glass): an elephant in any army colour (the rail's ten, or the army's dye)
+// wears lpsEleph's tint filter (hueRotate + saturate + a slope, CARD-LPS) on g.elbody, the very group his breathing loop moves, so the engine re-runs the filter over the group on every step of his breath (his breath
+// alone: 14-65 M painter instructions a frame tinted, 1-3 M in her own green). THE CURE: the tint baked ONCE into his picture's pixels (CARD-AFX's bake, then the filter's own three steps on straight sRGB: the SVG
+// hueRotate and saturate matrices, then the slope, each step clamped), the picture keyed by the tint id as the attic's by the night (AFX.pic 'elephant:b:<tint id>:<bucket>'), and the group's filter attribute dropped
+// in the same task as the swap (data-afx-tint), the way CARD-AFX drops wb-night. A colour on the rail repaints the seat (fresh nodes, the filter back on): the sweep bakes the new tint. A tinted group's picture is
+// never replaced by a plain one once its filter is off (afxSet wrapped by name); afxSweep is wrapped by name (the tint pass first, then CARD-AFX's own). ?afx=0 = as today (CARD-AFX's one switch for both cards).
+// Zero words, zero save keys, zero server bytes, zero css, zero sw.js. GVT.afxEle() = the rig door (the tints, the bakes, the swaps, the dropped filters, the live pictures).
+// RE-ANCHORED AT THE LANDING (J88, Big Mac, 10/23/2026 ~01:45 EDT; design/attic-fps-1022/land-j88/kit): since CARD-STF (LAURA'S STUFFIES, ALL NINE, client v26.27) wraps lpsElTint, his tint id is stfEl<HEX> and its def is ONE feColorMatrix
+// type="matrix" (sRGB, 4x5: her grey plush coloured by its luminance); the bake runs that matrix on the straight pixels when the def carries one, the three steps otherwise (?stf=0 = the lpsEl def as before); both id prefixes are read.
+var AFX_ELE={ T:{}, bakes:0, swaps:0, drops:0, sweeps:0, err:0, log:[], set0:null, sweep0:null };
+function afxTintOf(id){ if(AFX_ELE.T[id]!==undefined) return AFX_ELE.T[id]; let T=null;   // lpsElTint's own numbers for a tint id (the def's rounded values = what the filter runs), with the two matrices built once
+  try{ const t=lpsElTint('#'+String(id).slice(5)); if(t && t.id===id){ const mm=/type="matrix" values="([-\d.\s]+)"/.exec(t.def), M=mm? mm[1].trim().split(/\s+/).map(Number) : null;   // CARD-STF's def: one 4x5 matrix (row-major, the spec's order)
+    if(M && M.length===20 && M.every(isFinite)) T={ id:id, m:M }; else { const n=re=>+((re.exec(t.def)||[])[1]), dh=n(/hueRotate" values="([-\d.]+)"/), ds=n(/saturate" values="([-\d.]+)"/), dl=n(/slope="([-\d.]+)"/);
+    if(isFinite(dh) && isFinite(ds) && isFinite(dl)){ const c=Math.cos(dh*Math.PI/180), s=Math.sin(dh*Math.PI/180);   // the SVG feColorMatrix matrices (Filter Effects 1, type hueRotate and saturate)
+      T={ id:id, dh:dh, ds:ds, dl:dl, h:[0.213+c*0.787-s*0.213, 0.715-c*0.715-s*0.715, 0.072-c*0.072+s*0.928, 0.213-c*0.213+s*0.143, 0.715+c*0.285+s*0.140, 0.072-c*0.072-s*0.283, 0.213-c*0.213-s*0.787, 0.715-c*0.715+s*0.715, 0.072+c*0.928+s*0.072],
+        s:[0.213+0.787*ds, 0.715-0.715*ds, 0.072-0.072*ds, 0.213-0.213*ds, 0.715+0.285*ds, 0.072-0.072*ds, 0.213-0.213*ds, 0.715-0.715*ds, 0.072+0.928*ds] }; } } } }catch(e){ AFX_ELE.err++; }
+  return (AFX_ELE.T[id]=T); }
+function afxTintPx(a, T){ const cl=v=>v<0? 0 : v>255? 255 : v;
+  if(T.m){ const m=T.m; for(let k=0;k<a.length;k+=4){ if(!a[k+3]) continue; const r=a[k], g=a[k+1], b=a[k+2], A=a[k+3];   // ONE feColorMatrix type="matrix" on straight sRGB colour (CARD-STF's tint); the offsets in 0..1 x 255; the array clamps and rounds
+      a[k]=m[0]*r+m[1]*g+m[2]*b+m[3]*A+m[4]*255; a[k+1]=m[5]*r+m[6]*g+m[7]*b+m[8]*A+m[9]*255; a[k+2]=m[10]*r+m[11]*g+m[12]*b+m[13]*A+m[14]*255; a[k+3]=m[15]*r+m[16]*g+m[17]*b+m[18]*A+m[19]*255; } return; }
+  const h=T.h, s=T.s, l=T.dl;   // straight colour (getImageData's), alpha kept: hueRotate, saturate, the slope, each step clamped (the filter's own order)
+  for(let k=0;k<a.length;k+=4){ if(!a[k+3]) continue; const r=a[k], g=a[k+1], b=a[k+2];
+    const r1=cl(h[0]*r+h[1]*g+h[2]*b), g1=cl(h[3]*r+h[4]*g+h[5]*b), b1=cl(h[6]*r+h[7]*g+h[8]*b);
+    const r2=cl(s[0]*r1+s[1]*g1+s[2]*b1), g2=cl(s[3]*r1+s[4]*g1+s[5]*b1), b2=cl(s[6]*r1+s[7]*g1+s[8]*b1);
+    a[k]=r2*l; a[k+1]=g2*l; a[k+2]=b2*l; } }   // the array clamps and rounds the slope's step
+function afxBakeTint(key, T, bucket){   // → a promise of the tinted png data uri: CARD-AFX's own bake of her piece at this bucket (shared, cached), its pixels tinted (null when the engine could not draw it: the filter stays on)
+  const ck=key+':'+T.id+':'+bucket; if(AFX.pic[ck]) return Promise.resolve(AFX.pic[ck]); if(AFX.busy[ck]) return AFX.busy[ck];
+  const pr=afxBake(key, false, bucket).then(u0=>{ if(!u0){ delete AFX.busy[ck]; return null; }
+    return new Promise(res=>{ const im=new Image(); im.onload=()=>{ let u=null; try{ const W=im.naturalWidth, H=im.naturalHeight, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const cx=cv.getContext('2d'); cx.drawImage(im, 0, 0);
+        const d=cx.getImageData(0, 0, W, H); afxTintPx(d.data, T); cx.putImageData(d, 0, 0); u=cv.toDataURL('image/png'); AFX.pic[ck]=u; AFX_ELE.bakes++; }catch(e){ AFX_ELE.err++; AFX_ELE.log.push(['bake', ck, String(e).slice(0,80)]); } delete AFX.busy[ck]; res(u); };
+      im.onerror=()=>{ AFX_ELE.err++; AFX_ELE.log.push(['load', ck]); delete AFX.busy[ck]; res(null); }; im.src=u0; }); });
+  return (AFX.busy[ck]=pr); }
+function afxSetTint(im, key, T, bucket, u, g){ AFX_ELE.set0(im, key, false, bucket, u); im.__afx.tint=T.id; AFX_ELE.swaps++;   // CARD-AFX's own swap, then the tint on the picture's record
+  if(g.getAttribute('data-afx-tint')===T.id) return; for(const x of g.querySelectorAll('image')) if(!(x.__afx && x.__afx.tint===T.id)) return;   // every picture of the group tinted: his filter is off, in this same task
+  g.removeAttribute('filter'); g.setAttribute('data-afx-tint', T.id); AFX_ELE.drops++; }
+function afxSweepTint(){ if(!afxOn()) return; const gs=document.querySelectorAll('g.elbody[filter^="url(#lpsEl"], g.elbody[filter^="url(#stfEl"], g.elbody[data-afx-tint]'); if(!gs.length) return; const M=afxKeys(); if(!M.size) return; AFX_ELE.sweeps++;
+  for(const g of gs){ const f=/^url\(#((?:lps|stf)El[0-9A-Za-z]+)\)$/.exec(g.getAttribute('filter')||''), T=afxTintOf(g.getAttribute('data-afx-tint') || (f && f[1])); if(!T) continue;
+    if(g.closest('g[filter="url(#wb-night)"], g[data-afx-dim]')) continue;   // under the attic's night dim: left as today (no elephant stands in the find scene)
+    for(const im of g.querySelectorAll('image')){ const key=im.__afx? im.__afx.key : M.get(im.getAttribute('href')||''); if(!key) continue;
+      const need=afxNeed(im); if(!(need>0)) continue; const bucket=afxBucket(need);
+      if(im.__afx && im.__afx.tint===T.id && im.__afx.bucket>=bucket) continue;   // as it should be (a smaller draw keeps the bigger picture)
+      const u=AFX.pic[key+':'+T.id+':'+bucket]; if(u){ afxSetTint(im, key, T, bucket, u, g); continue; }
+      afxBakeTint(key, T, bucket).then(u2=>{ if(u2 && im.isConnected && !(im.__afx && im.__afx.tint===T.id && im.__afx.bucket>=bucket)) afxSetTint(im, key, T, bucket, u2, g); }); } } }
+function afxEleRead(o){ if(o && o.sweep) afxSweep(); const live=[], left=[]; for(const g of document.querySelectorAll('g.elbody[data-afx-tint]')) for(const im of g.querySelectorAll('image')) live.push((im.__afx? im.__afx.key+':'+im.__afx.tint+':'+im.__afx.bucket : '?')+':'+String(im.getAttribute('href')).slice(5,14));
+  for(const g of document.querySelectorAll('g.elbody[filter^="url(#lpsEl"], g.elbody[filter^="url(#stfEl"]')){ const im=g.querySelector('image'); if(im && afxNeed(im)>0) left.push(g.getAttribute('filter')); }
+  return { on:afxOn(), wrapped:!!(AFX_ELE.set0 && AFX_ELE.sweep0), tints:Object.keys(AFX_ELE.T).filter(k=>AFX_ELE.T[k]), bakes:AFX_ELE.bakes, swaps:AFX_ELE.swaps, drops:AFX_ELE.drops, sweeps:AFX_ELE.sweeps, err:AFX_ELE.err, live:live, dropped:document.querySelectorAll('g.elbody[data-afx-tint]').length, filtersShown:left, pics:Object.keys(AFX.pic).filter(k=>/:(?:lps|stf)El/.test(k)).map(k=>k+'='+AFX.pic[k].length), log:AFX_ELE.log.slice(-8) }; }
+try{ AFX_ELE.set0=afxSet; afxSet=function(im){ try{ if(im && im.closest && im.closest('g[data-afx-tint]')) return; }catch(e){ AFX_ELE.err++; } return AFX_ELE.set0.apply(this, arguments); }; }catch(e){ AFX_ELE.err++; }   // his filter off = only his tinted picture lands there
+try{ AFX_ELE.sweep0=afxSweep; afxSweep=function(){ try{ afxSweepTint(); }catch(e){ AFX_ELE.err++; } return AFX_ELE.sweep0.apply(this, arguments); }; }catch(e){ AFX_ELE.err++; }   // every sweep: the tint pass first (a cached tint lands before CARD-AFX's plain one would)
+setTimeout(function(){ try{ if(window.GVT && !GVT.afxEle) GVT.afxEle=afxEleRead; }catch(e){} }, 0);   // the rig door (CARD-AFX's line)
+// ═══ END CARD-AFX-ELE ═══
 // ═══ CARD-LGB · LAURA'S GREAT BASS (sec:CARD-LGB; design/great-bass-1019/00-CARD-LGB.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026), the jumpr guest link
 // 10/19/2026 15:08 EDT (jumpr 2366), verbatim: "put my GREAT BASS in the game for everyone, LIVE (approved 10/19; ticked Finished on the Every Character page). The drawing: private artifact
 // https://claude.ai/artifact/TALAxVKadFjkWhg7kDWrSg (same claude.ai account) -> files art/great-bass.svg and art/great-bass.png. 1) It replaces The Great Bass treasure's drawing EVERYWHERE it
