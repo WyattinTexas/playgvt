@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.13","md5":"5b7085ad7f57e4d88d3f00c1f71a0baa","sha":"fc0ef7472f","at":"2026-10-23T02:15:56Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.14","md5":"00965e0db33351297cb1bc3890c7fcbc","sha":"6fa6870458","at":"2026-10-23T02:27:00Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.13';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.14';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -196528,14 +196528,23 @@ function bbsAnnCard(line){ const p=document.getElementById('milePop'); if(!p) re
     +((EV.bell>0)? '<span class="bbw-when" data-notr>'+escH(tf('TONIGHT AT %1', evBellTime()))+'</span>' : '')   /* CARD-BPT: the start time under his name (Wyatt 10/22: "include the time that it starts"), the bell in the player's own clock */
     +'<span class="mb-win bbw"><svg class="bbw-sheet" viewBox="-2 -2 220 306" data-notr>'+bbsWantedSheet(216,300)+'</svg><span class="bbw-clip">'+bbsPromoClip()+'</span></span>'
     +'<div class="bbw-prizes" data-notr>'+prizes+'</div>'
-    +(pop? '<span class="mb-line" data-notr>'+escH(line)+'</span>' : bbsPosterSayHTML())
+    +bbsPosterSayHTML()   /* CARD-PTW: his window on EVERY face, the live door's too (Wyatt 10/22: "use our text box style chat for these screens ... It's way cooler when Buffalo Bill is calling you out."); the live faces printed the deal's line as plain text (BBS7.card.line keeps it) */
     +(pop? '<button type="button" class="mb-take" onclick="UI.evJoin()">JOIN THE BATTLE</button>' : '<button type="button" class="mb-take" onclick="UI.mileTake()">GOT IT</button>')
     +'</div>';
   p.classList.remove('hidden');
   bdPromoPlay(p);   // the clip rolls once the card stands (muted, inline, looping forward)
-  if(!pop) bbsPosterType(p);
+  bbsCardFit(p);   // CARD-PTW: the button whole on the glass before the line types
+  bbsPosterType(p);   // CARD-PTW: his line typed on every face
   SFX.fanfare();
   return true; }
+// CARD-PTW THE FIT (Wyatt 9/29's law: the button stands whole on a phone, every face, every tongue): the card is a flex column capped at 94vh with its overflow hidden, and where the prizes wrap
+//   (ja · de · ru · es) or the glass is short (812x375, 667x375) its foot ran under the cap, GOT IT and JOIN THE BATTLE with it. The sheet + clip row gives up exactly the clipped overflow
+//   (both scale with it: their height is the row's), never below BBS_FIT_MIN; nothing moves where the card already fits. The row is pinned (flex-shrink 0) before the measure: at the deal the
+//   clip's video has no size yet, the column shrinks the row and nothing overflows, then the video's size lands and pushes the button under. Refit on a resize and once the fonts are in.
+const BBS_FIT_MIN=64;
+function bbsCardFit(p){ try{ const c=p && p.querySelector('.mb-card.mbbill'), w=c && c.querySelector('.mb-win.bbw'); if(!w) return 0; w.style.flexShrink='0'; w.style.height=''; const over=c.scrollHeight-c.clientHeight; if(over>0) w.style.height=Math.max(BBS_FIT_MIN, w.offsetHeight-over-1)+'px';
+  if(document.fonts && document.fonts.status!=='loaded' && !p.bbsFontFit){ p.bbsFontFit=1; document.fonts.ready.then(()=>{ p.bbsFontFit=0; bbsCardFit(p); }); } return over; }catch(e){ return 0; } }
+addEventListener('resize', function(){ const p=document.getElementById('milePop'); if(p && !p.classList.contains('hidden')) bbsCardFit(p); });
 // ── THE BOOK on the Captain's Log's shelf (CARD-SKB's grammar; the tables take their rows here, at load)
 (function bbsBook(){ try{
   if(typeof LG_CH==='undefined' || typeof LG_PAGES==='undefined' || typeof SLB==='undefined' || !SLB.ORDER || !SLB.PG) return;
