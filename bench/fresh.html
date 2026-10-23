@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.69","md5":"c55cd72f54dd6776e14f6398cabb4111","sha":"3c471cd33d","at":"2026-10-23T18:19:08Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.70","md5":"fd53f68e72eb74d7c9e25668fb8b9692","sha":"fb08054896","at":"2026-10-23T18:31:23Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90801,7 +90801,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.70';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -192894,6 +192894,27 @@ async function dlgSettleNow(all){ if(!DLGP.svg) return dlgProbe(); if(all){ DLGP
 try{ if(S.mode==='menu' && document.querySelector('#roomStage > svg')) dlgAfterPaint(); }catch(e){}   // a room painted before this sec stood (the boot's first paint) is laid now
 setTimeout(()=>{ try{ if(window.GVT && !GVT.dlg) GVT.dlg={ st:dlgProbe, wake:id=>{ dlgHold(id, 600000); return dlgProbe(); }, settle:all=>dlgSettleNow(all), rouse:()=>{ dlgRouse(); return dlgProbe(); }, on:v=>{ DLGP.on=v? 1 : 0; if(v) dlgAfterPaint(); else dlgOff(); return DLGP.on; } }; }catch(e){} }, 0);   // the rig's door, hung once the GVT object stands
 // ═══ CARD-DLG ends ═══
+// ═══ CARD-RSD · A PHONE THAT CRASHED OPENS ITS BEDROOM WITHOUT THE STILL ROOM'S LAYERS (sec:CARD-RSD; design/radio-silence-audit-1023/00-CARD-RSD.md). WYATT 10/23/2026 13:24 EDT by phone (jumpr 2621, Maker 1's lane M2621), dictated, verbatim:
+//   "High-priority bug right now. When users are logging in after the start screen loads in, Layla and Laura both ran into a bug where it was saying "radio silence" even though they had a network connection. Let's audit this issue. Send me a report, and then fix it. Set it to live. Explain what happened."
+// WHAT RADIO SILENCE WAS: the App Store app's own card when iOS ends the game's page three times inside two minutes (GVTShell 3, "WebContent process terminated"), iOS's memory limit, never the network (the card's one title says RADIO SILENCE for both).
+// THE CAUSE (measured: the system WebKit, the engine of iOS 26, at the iPhone 17's glass 874x402 @3, the page process's footprint; a bedroom with 63 toys out = Layla's main army, whose other account does not crash):
+//   PRESS START takes the page from ~780 MB on the title to 1.8-2.0 GB in the bedroom inside two seconds (peak 2.0-2.1 GB); ~1 GB of it is the glass's own surfaces, the room's layers tiled at 3 dots a pixel over the room's
+//   whole width (twice the glass). The still room (CARD-DLG) is ~450 MB of that: its three room-sized canvases, double-buffered at 3x (146 MB), the svg layers it splits the room into, its pictures (~47 MB). ?dlg=0: 1.40 GB, peak 1.65.
+// THE RELIEF (beside CARD-RSL's, on the same phones): an iOS device whose last page died while it showed (CARD-RSL-EARLY's mark: gvt_rsl_light) opens its bedroom with the still room OFF = CARD-SKM's own ?dlg=0 road (the room
+//   fully live as before CARD-DLG: no pictures, no canvases, no clones; the PURE CHAOS medals still counted), never stored as gvt_dlgoff, so the still room comes back by itself when the relief is lifted. Every other device keeps it.
+//   ?rsl=0 (the relief off) keeps it too; ?rsd=0 keeps the still room on this crashed device (remembered: gvt_rsdoff), ?rsd=1 back. The corner's "L" stands while this relief stands. Zero words, save keys, server bytes, css, sw.js.
+//   GVT.rsd() the rig's read. Read at load, before any room is painted (DLGP.on is only read when the room paints).
+const RSD=(function(){ const o={ v:1, ios:0, light:0, off:0, dlg:0 }; try{ const s=location.search||'';
+  const q=/[?&]rsd=([01])/.exec(s); if(q){ if(q[1]==='0') localStorage.setItem('gvt_rsdoff','1'); else localStorage.removeItem('gvt_rsdoff'); }
+  const r=/[?&]rsl=([01])/.exec(s);   // CARD-RSL reads (and remembers) its own ?rsl= later in the script: this load's word is read here as well
+  o.ios=window.__rslEarly? 1 : 0;   // CARD-RSL-EARLY marks iOS launches alone (the App Store app, an iPhone, iPad or iPod browser, an iPad asking for the desktop site)
+  o.light=localStorage.getItem('gvt_rsl_light')? 1 : 0;   // the last page died while it showed, on this launch or an earlier one (CARD-RSL's relief, for good on this device)
+  o.off=(localStorage.getItem('gvt_rsdoff')==='1' || (r? r[1]==='0' : localStorage.getItem('gvt_rsloff')==='1'))? 1 : 0;
+  if(o.ios && o.light && !o.off && DLGP.on){ DLGP.on=0; o.dlg=1; console.log('CARD-RSD: this phone crashed: its bedroom opens without the still room (?rsd=0 keeps the still room)'); }
+}catch(e){} return o; })();
+setTimeout(()=>{ try{ if(RSD.dlg){ const cvm=document.querySelector('#title .coinop-v'); if(cvm && !/ L$/.test(cvm.textContent)) cvm.textContent=cvm.textContent.replace(/\s+$/, '')+' L'; } }catch(e){}   // the tell: the corner reads v… L on a phone the relief serves
+  try{ if(typeof GVT==='object' && GVT) GVT.rsd=function(){ return Object.assign({ cv:GVT_CV, dlgOn:DLGP.on }, RSD); }; }catch(e){} }, 0);
+// ═══ END CARD-RSD ═══
 // ═══ CARD-DLG-F THE CLUTTERED ROOM COSTS NOTHING · THE TOY BOX (sec:CARD-DLG-F; design/decor-load-1009/BUILD-DLG-F.md; the pass 00-DESIGN-DLG.md §3, §5, §8.5; five of six). His go 10/10/2026 19:00 EDT on Maker 1, verbatim: "Do it. Plan it out. Execute to the best of your ability."
 // THE CAUSE (the pass's measure): the open toy box (chestOpen → roomModal(chestHTML())) was the hottest screen of all: a LIVE card for every toy the kid owns (~9,000 vector nodes of art, ~80 idle loops in 141 windows), Chrome 4× 99.5 % busy and WebKit's painter 21 G/s
 //   even on an empty floor, and chestSync re-dealt the whole grid after every OUT / IN.
