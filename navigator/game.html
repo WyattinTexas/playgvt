@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.30","md5":"226a4149b68afcee76c86594567eab7e","sha":"831231cada","at":"2026-10-23T04:19:20Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.31","md5":"196f8bf40739b958739496cb43a8edd6","sha":"b415f44da5","at":"2026-10-23T04:25:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90731,7 +90731,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -198192,6 +198192,44 @@ function snake2Read(){ const f=S.foes? S.foes.find(q=>q.bbsSnake) : null; const 
     log:SNAKE2.log.slice(), stats:Object.assign({},SNAKE2.stats), err:SNAKE2.err, lives:S.lives }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.snake2) GVT.snake2=function(){ return snake2Read(); }; }catch(e){} }, 0);   // GVT.snake2(): the rigs' door
 // ═══ END CARD-OTS-SNAKE2 ═══
+// ═══ CARD-OTS-P2 THE FIGHT REACHES BILL'S HORSE: THE TOY BOX HOLDS FOR A ROOM THAT IS BEATING HIM, AND THE LOSS SAYS HOW CLOSE IT CAME (sec:CARD-OTS-P2; design/outlaw-main-street-1022/08-CARD-OTS-P2.md; J69, the Big Mac, 10/22/2026 ~23:5x EDT;
+// WYATT ~20:55 EDT on Maker 1 after the live Showdown with Layla, verbatim: "We just finished, and he never transitioned to the second phase. The fight just ended when he got pretty low on health."
+// THE CAUSE (AUDIT-A §1 + this card's sim on the real client, real rules, the box's fall ends the fight): the mount works; THE TOY BOX FELL FIRST. Who takes the box's lives: THE RIDERS, 2 lives each (FDEF.wrider.leak), 90 % and more of them,
+//   and CARD-OTS-HARD's rides grow 6, 11, 13, 17, 23 … 40 a wave (Wyatt's 20:39 ask, kept). A room that holds the street leaks almost nothing on foot; one big ride that breaks through takes the whole box of 10 in seconds, so a room that had Bill
+//   "pretty low" lost before his horse came. Once he rides, his sprays clear the street and the next ride walks in: the box falls inside two rides of the mount.
+// THE BOX: the Showdown's toy box starts with OTSP2.lives (the house's 10 on every other door; startRaidBattle wrapped by name: the solo door, the code door BILL and the party's launch all pass it; a guest's count still follows the referee's beacon).
+// THE RIDERS' BITE: a rider who reaches the box takes OTSP2.rider life in the Showdown (the house's 2 everywhere else: FDEF.wrider.leak read live on the row, the leak line's own read; nothing else reads it).
+// THE BAR: the HUD's YOUR TOY BOX bar reads lives / OTSP2.lives in the Showdown (the house's / 10 elsewhere; drawBaseBar wrapped by name, that label alone), so it empties as the box does.
+// THE VERDICT: the house's loss already says THE TOY BOX HAS FALLEN with Bill's line ("Come back when you can keep up.") in the quote seat; while Bill still stands it now adds one row, how close it came:
+//   BUFFALO BILL WAS AT 34% (on foot) · BUFFALO BILL WAS ON HIS HORSE AT 34% (the ride). His bar is read every frame of the fight (bbsStreetTick wrapped by name) so a guest, whose verdict lands from the referee's word after its foes are cleared, says it too.
+// NEVER Bill's bar (Wyatt 19:05: no tuning of Bill himself). No banner, nothing over the field (CLAUDE.md 10/22). THE SWITCH: OTSP2_LIVE 1; ?otsp2=0 on a device = the box as it was (gvt_otsp2). Zero server, sw.js, save keys, CSS.
+const OTSP2_LIVE=1;
+const OTSP2={ on:(function(){ try{ const q=/[?&]otsp2=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_otsp2','0'); else localStorage.removeItem('gvt_otsp2'); } return localStorage.getItem('gvt_otsp2')==='0'? 0 : OTSP2_LIVE; }catch(e){ return OTSP2_LIVE; } })(),
+  lives:30,   // the Showdown's toy box (⚑ OTSP2-Q1)
+  rider:1,    // a Showdown rider's bite on the box (the house's 2) (⚑ OTSP2-Q1)
+  stats:{ starts:0, rows:0, errs:0 }, err:null };
+function otsp2On(){ return !!(OTSP2.on && S.raid && S.raid.k==='bbs' && S.raid.cfg===S.cfg && !S.bf); }
+{ const s0=startRaidBattle; startRaidBattle=function(){ const r=s0.apply(this, arguments); try{ if(otsp2On()){ S.lives=OTSP2.lives; OTSP2.stats.starts++; } }catch(e){ OTSP2.stats.errs++; OTSP2.err=String(e).slice(0,200); } return r; }; }
+{ const d9=FDEF.wrider; let v9=d9.leak; Object.defineProperty(d9, 'leak', { configurable:true, enumerable:true, get:function(){ try{ return otsp2On()? OTSP2.rider : v9; }catch(e){ return v9; } }, set:function(v){ v9=v; } }); }
+{ const b0=drawBaseBar; drawBaseBar=function(bx,by,bw,k,label,col){ try{ if(otsp2On() && label===tf('YOUR TOY BOX %1', Math.max(0,S.lives|0))){ k=Math.max(0, Math.min(1, (S.lives|0)/OTSP2.lives)); col=k>0.35? '#5E7F44' : '#E8705A'; } }catch(e){} return b0.call(this, bx,by,bw,k,label,col); }; }
+{ const t0=bbsStreetTick; bbsStreetTick=function(dt,B){ const r=t0.apply(this, arguments); try{ if(otsp2On()){ const f=S.foes.find(q=>q.type==='bbshow' && !q.dead); if(f && f.hpMax>0) S.raid.otsp2={ pct:Math.max(0, f.hp)/f.hpMax, ride:!!(f.bbsRide || (f.bbs && (f.bbs.st==='ride' || f.bbs.st==='mount'))) }; } }catch(e){ OTSP2.stats.errs++; OTSP2.err=String(e).slice(0,200); } return r; }; }
+function otsp2Line(o){ const p=Math.max(1, Math.min(99, Math.round(o.pct*100))); return o.ride? tf('BUFFALO BILL WAS ON HIS HORSE AT %1%', p) : tf('BUFFALO BILL WAS AT %1%', p); }
+{ const e0=endBattle; endBattle=function(win){ const on=!win && otsp2On(), o=on? S.raid.otsp2 : null; const r=e0.apply(this, arguments);
+  try{ if(o && S.mode==='lose' && !S.raid.otsp2Row){ const el=document.getElementById('loseText'); if(el){ S.raid.otsp2Row=1; const txt=otsp2Line(o);
+    el.insertAdjacentHTML('afterbegin', '<span class="'+(VD_KIND.r||'vr')+'" data-otsp2="1">'+escH(txt)+'</span>'); el.dataset.v=txt+(el.dataset.v? ' · '+el.dataset.v : ''); OTSP2.stats.rows++; } } }catch(e){ OTSP2.stats.errs++; OTSP2.err=String(e).slice(0,200); }
+  return r; }; }
+// ───── THE WORDS x7 (drafts for his pen; a key the tables already hold keeps its row)
+(function(){ const W9={
+  ja:{"BUFFALO BILL WAS AT %1%":"バッファロー・ビルは のこり %1%だった","BUFFALO BILL WAS ON HIS HORSE AT %1%":"バッファロー・ビルは うまのうえで のこり %1%だった"},
+  ko:{"BUFFALO BILL WAS AT %1%":"버팔로 빌은 %1% 남아 있었다","BUFFALO BILL WAS ON HIS HORSE AT %1%":"버팔로 빌은 말 위에서 %1% 남아 있었다"},
+  "zh-Hans":{"BUFFALO BILL WAS AT %1%":"水牛比尔还剩 %1%","BUFFALO BILL WAS ON HIS HORSE AT %1%":"水牛比尔骑在马上，还剩 %1%"},
+  de:{"BUFFALO BILL WAS AT %1%":"BUFFALO BILL HATTE NOCH %1%","BUFFALO BILL WAS ON HIS HORSE AT %1%":"BUFFALO BILL HATTE AUF SEINEM PFERD NOCH %1%"},
+  ru:{"BUFFALO BILL WAS AT %1%":"У БАФФАЛО БИЛЛА ОСТАВАЛОСЬ %1%","BUFFALO BILL WAS ON HIS HORSE AT %1%":"У БАФФАЛО БИЛЛА НА КОНЕ ОСТАВАЛОСЬ %1%"},
+  es:{"BUFFALO BILL WAS AT %1%":"A BUFFALO BILL LE QUEDABA %1%","BUFFALO BILL WAS ON HIS HORSE AT %1%":"A BUFFALO BILL LE QUEDABA %1% SOBRE SU CABALLO"},
+  ar:{"BUFFALO BILL WAS AT %1%":"كان بافالو بيل عند %1%","BUFFALO BILL WAS ON HIS HORSE AT %1%":"كان بافالو بيل على حصانه عند %1%"} };
+  for(const lg in W9){ const tb=TR[lg]||(TR[lg]={}); for(const k in W9[lg]) if(!(k in tb)) tb[k]=W9[lg][k]; } })();
+setTimeout(function(){ try{ if(window.GVT && !GVT.otsp2) GVT.otsp2=function(){ return { on:OTSP2.on, live:OTSP2_LIVE, lives:OTSP2.lives, rider:OTSP2.rider, active:otsp2On(), riderLeak:FDEF.wrider.leak, boxNow:S.lives, snap:(S.raid && S.raid.otsp2)? Object.assign({}, S.raid.otsp2) : null, stats:Object.assign({}, OTSP2.stats), err:OTSP2.err }; }; }catch(e){} }, 0);   // GVT.otsp2(): the rigs' door
+// ═══ END CARD-OTS-P2 ═══
 // ═══ CARD-OTS-TM BILL'S NIGHT: DOG TAGS AT 75 % + THE MICE LAY THEIR CHEESE IN THE PLAYERS' GROUND (sec:CARD-OTS-TM; design/outlaw-main-street-1022/00-CARD-OTS.md; Maker 1, 10/22/2026;
 // WYATT ~19:09 EDT on Maker 1, after the four-computer film, verbatim: "the mice need to do a better job of putting the cheese in the players' territory a little bit better ... making sure that the players
 //   don't have unlimited dog tags to really fight this out. Their dog tags should, I'd say, generate 75% as much as they currently do whenever the player recieves them.")
