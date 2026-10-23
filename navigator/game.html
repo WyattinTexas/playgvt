@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.16","md5":"20a6516163bf35b8e0bc64bc81ac47ad","sha":"925c062275","at":"2026-10-23T02:34:03Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.17","md5":"db2d3c1c8233a7cfaaf7aadb78b6faee","sha":"fac88dffa5","at":"2026-10-23T02:44:53Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -197715,6 +197715,8 @@ const SHARP={ on:(function(){ try{ const q=/[?&]sharp=([01])/.exec(location.sear
   dotLock:0.7, dotStep:3, dotAdv:300, dotFloor:520,   // + THE ADVANCE: after every dotStep rounds the dot man moves his stand dotAdv px west (never west of dotFloor): the house's 237 man stands at the rim for ever, out of every gun's reach; on Bill's street he walks into it (measured: 16 of them standing at x 1660 on HARD by 300 s)   // THE DOT follows its man until the last 0.7 s of RD.tell, then holds the spot (the house's slip law from there): the ring closing on it is the clock   // the bolt's drum by tier: the first lock this many s after he is on the carpet (+ stagger x his id mod 3, so a pair never locks on one frame), then every cd s
   dot:{ r:4.2, halo:10, ring:15, lineA:0.42, lineW:1.4, col:'#e0251a' },   // THE DOT on Bill's street (the house's colour; RD.r 1.7 is a pinhead at the phone's 0.45 scale)
   charge:{ r0:5, r1:19, col:'#9FE8FF' } };   // THE BEAMER'S CHARGE (the storm coil's cyan)
+const SHARP_ART_LIVE=0;   // SHARP-F4 THE STYLE GUIDE'S RULE (show him a picture before a new drawing goes live): the ONE cell his go flips. 0 = the dot draws the house's own 237 pinhead (olvDotOver) and the beamer shows no charge; 1 = the phone-size dot + ring and the cyan charge (the picture: #wyatt-jump 1563017727344381972)
+SHARP.art=(function(){ try{ const q=/[?&]sharpart=([01])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.setItem('gvt_sharpart','1'); else localStorage.removeItem('gvt_sharpart'); } return (localStorage.getItem('gvt_sharpart')==='1')? 1 : SHARP_ART_LIVE; }catch(e){ return SHARP_ART_LIVE; } })();   // the preview door (gvt_sharpart): the new drawings on THIS device before his go
 function sharpPour(cfg){ let k=0; for(const w of cfg.waves){ if(!w || !w.groups) continue; for(const g of w.groups){ if(g && g.bba && g.t==='wsniper'){ g.t=SHARP.trio[k%SHARP.trio.length]; g.sharp=1; k++; } } } cfg.sharp=k; return cfg; }   // the posse's back sniper in time order (bbaPour sorts its waves by bbsT) becomes the trio in turn; n, the lane, at, hpX / spdx stay BBA's
 { const c0=bbsCfg; bbsCfg=function(tier){ const cfg=c0.apply(this, arguments); try{ if(SHARP.on && cfg && cfg.bba) sharpPour(cfg); }catch(e){} return cfg; }; }   // THE DOOR: the cfg every sim rebuilds from the tier alone (bbsCfg wrapped by name, after CARD-BBA's and CARD-OTS's wraps); ?bba=0 = C1's own trio waves, untouched
 function sharpBag(){ const B=S.raid && S.raid.bbs; if(!B) return null; return B.sharp||(B.sharp={ seen:{}, n:{ reddot:0, tancommando:0, wsniper:0 }, adv:0, beams:0, beamHits:0, locks:0, bolts:0, boltHits:0 }); }
@@ -197736,7 +197738,7 @@ function sharpBolt(f,dt,A,tier,j){ const Bo=SHARP.bolt;
 function sharpRay(f,u){ foeAim(f,u); const fz=foeFaceX(f), mx=f.x+20*fz, my=f.y-36, a=Math.atan2((u.y-18)-my, u.x-mx); f.lrBmX1=mx; f.lrBmY1=my; f.lrBmX2=mx+Math.cos(a)*4600; f.lrBmY2=my+Math.sin(a)*4600; }   // the ray from his muzzle (the tell's own [20,36] seat) through the man's chest to the map edge (the 4600 grammar)
 { const b0=tanBeam; tanBeam=function(f){ const r=b0.apply(this, arguments); try{ if(r && f && f.type==='tancommando' && SHARP.on && bbsOn()){ const A=sharpBag(); if(A) A.beams++; } }catch(e){} return r; }; }   // the rigs' count of beams (tanFire calls it by name)
 { const h0=tanBeamHit; tanBeamHit=function(sh,u){ try{ const f=sh && sh.src; if(f && SHARP.on && bbsOn() && u && !u.dead && S.units.indexOf(u)>=0){ const A=sharpBag(); if(A){ if(f.type==='tancommando') A.beamHits++; else if(f.type==='wsniper' && f.shpBolt) A.boltHits++; } } }catch(e){} return h0.apply(this, arguments); }; }   // the hits the two beams land (the count only)
-function sharpDraw(){ if(!SHARP.on || !bbsOn()) return; const RM=reducedMotion(), D=SHARP.dot, C=SHARP.charge; cx.save();
+function sharpDraw(){ if(!SHARP.on || !bbsOn()) return; if(!SHARP.art){ try{ olvDotOver(); }catch(e){} return; }   /* SHARP-F4: dark until his go = the house's own dot */ const RM=reducedMotion(), D=SHARP.dot, C=SHARP.charge; cx.save();
   for(const f of S.foes){
     if(rdLive(f) && f.rd && f.rd.st==='dot'){ const P=rdSpot(f), x=P.x, y=P.y-18, mx=f.x-16, my=f.y-30, t0=(f.rd.t0==null)? S.t : f.rd.t0, k=Math.max(0, Math.min(1, (S.t-t0)/Math.max(0.1, f.rd.t-t0))), pu=RM? 1 : 0.75+0.25*Math.sin(S.t*14);   // THE DOT on the marked man
       cx.globalAlpha=D.lineA; cx.strokeStyle=D.col; cx.lineWidth=D.lineW; cx.beginPath(); cx.moveTo(mx,my); cx.lineTo(x,y); cx.stroke();   // the hair to his muzzle
