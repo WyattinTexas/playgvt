@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.21","md5":"a8520f08df9ffdf07eff616811ba4e07","sha":"c0973a290d","at":"2026-10-23T03:11:38Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.22","md5":"668e28060f5864595452be1e82baa276","sha":"38aa9ffb20","at":"2026-10-23T03:21:21Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -119937,6 +119937,7 @@ function endBattle(win){
         else if(S.raid.k==='chess'){ /* CARD-CHS7: THE KING'S RANSOM moved OUTSIDE this latch onto its own once-a-tier latch META.chess.rs (chsRansomRow beside chsPrizeRows below): a tier cleared on a client older than the drops still pays on its next win; the cell this write just set opens the next plate */ }   // CARD-CHS6 THE KING'S RANSOM: the first clear's stars, once per tier, through THE ONE PIPE (the sky's grammar byte for byte; CARD-CHS1's ledger cell above opens the next chip); the four named prizes sit OUTSIDE this latch (chsPrizeRows)
         else if(S.raid.k==='sweets'){ ncbSweetsPrize(prizes); }   // CARD-NCB-7 THE SUGAR PLUM CROWN
         else if(S.raid.k==='bbs'){ bbsPrizeRows(prizes, tb9); }   // CARD-BBS-C1 THE BUFFALO BILL SHOWDOWN: the tier's cell is written above; C6 fills the three prizes (THE OUTLAW .44s · BILL'S PISTOL · THE TOMBSTONE HAT)
+        else if(S.raid.k==='wreck'){ lbwcPrizeRows(prizes, tb9); }   // CARD-LBW-C THE SUNKEN SHIP: the tier's cell is written above; EASY the KING KRAKEN wallpaper, HARD THE CAPTAIN'S HAT, MEGA BEATEN! (MEDIUM's cutlass and EASY's wheel heal off the cells when their homes land)
         else if(S.raid.k==='gmy'){ gmyPrizeRows(prizes, tb9); }   // CARD-GMY THE GIANT MUMMY: THE MUMMY'S RANSOM, the tier's stars once (GMY.stars: the sky's ladder)
         else if(S.raid.k==='sky'){ const rs9=SKY_RANSOM[tb9]|0; if(rs9>0){ const w9=starX(rs9); META.starBank+=w9; META.starsLifetime+=w9; prizes.push({ o:5, t:"THE MARSHAL'S RANSOM", f:'bank', a:skyStarArt(w9), n:w9 }); } }   /* CARD-SF3-E: n = the stars this ticket banked (the big number counts them: vdBanked) */   // CARD-SF (§4 THE LOOT): the first clear's stars, once per tier, through THE ONE PIPE — the cell this write just set (sky.<tier>) opens the next chip; the trophy / the kid's own Dogfighter / the cap are designed, not built (⚑ SF-Q2–Q4)
         else if(S.raid.k==='bone'){
@@ -195476,6 +195477,302 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.lbwb) GVT.lbwb=function(o){ o=
     fight:S.raid? { k:S.raid.k, t:S.raid.t, won:S.raid.won?1:0, void:S.raid.void?1:0, wave:S.wave, waves:S.cfg? S.cfg.waves.length : 0, foes:S.foes.filter(f=>!f.dead).length, queue:S.queue.length, cleared:S.cleared?1:0, mode:S.mode, lbwb:!!(S.cfg && S.cfg.lbwb), ground:S.cfg && S.cfg.terrain? S.cfg.terrain.ground : null } : null,
     wreck:META.wreck? JSON.parse(JSON.stringify(META.wreck)) : null, bank:META.starBank|0, raidDay:META.raidDay? JSON.parse(JSON.stringify(META.raidDay)) : null }; }; }catch(e){} }, 0);
 // ═══ END CARD-LBW-B ═══
+// ═══ CARD-LBW-C · THE TERRITORY AND THE KING (sec:CARD-LBW-C; design/boss-world-layla-1022/build-lbwc/00-BUILD-LBW-C.md). LAYLA'S DESIGN (card 2519: the record ../00-DESIGN-LBW.md round 2, her words 10/22 18:13 "three levels easy medium and hard and when a player beats level hard they unlock the mega level and have to defeat Mega King Kraken" and 18:15 "the land for King kraken's territory will be water and sand and there will be creatures in the water that pop up when players walk across the bridges") BUILT ON WYATT'S OWN GO (Discord 10/22/2026 18:36 EDT, verbatim: "Have the fight implemented and enabled, and only accessed if you type "pirate" in the code room. ... Let's have it be playable and implemented then loop Layla in once it's live. Questions go with the recommended."). ═══
+// THE GATE stands as CARD-LBW-B laid it: the fight is THE SUNKEN SHIP's (RAID_INFO.wreck), reachable only through the deed, and the deed only through the code PIRATE. This sec replaces LBW-B's PLACEHOLDER (raidCfg's wrap below wins over lbwbCfg; lbwbTick's voided win door is lifted for this cfg) with the real fight:
+// THE TERRITORY (lbwcCfg, deterministic per tier): Sarge's men on the near SAND (the west), the wreck's DECK the far bank (the east), the WATER between (terrain.river, 150 wide) crossed ONLY on the plank BRIDGES: one wide on EASY, two on MEDIUM, three narrow on HARD and MEGA (rvBridges learns a third span: RV.lbwcYs).
+//   No man and no Tan wades here (campUnitStep's wrap: the wade is never armed; a body off the planks in the channel is set back on the bank it stands nearer). The painter: lbwcFloor over the rug, under every figure (lagRugBand's wrap), cached once a battle.
+// THE POP-UPS: a seeded clock per bridge. A man on the planks with the bridge's clock run down = a creature pops up in the water beside him (EASY THE CRAB; MEDIUM + THE CLAM; HARD + THE JELLYFISH, whose sting slows him; MEGA + THE KING'S ARM), and 0.45 s later SNAPS: every man of yours on those planks within reach is KNOCKED BACK to the bank he came from, ALIVE
+//   (nobody is destroyed: lbwcShove, a slide and a daze, never knock()). A pop-up stands ~1.5 s, is a real foe (FDEF lbwc*: your men shoot it), and a shot one DUCKS UNDER (its ring and bubbles) and pays its tag; then it ducks by itself.
+// THE KING: KING KRAKEN rises from the hold at the deck's end (a quiet spout) and holds there. THE SWEEP (one arm across a lane: every man of yours east of the near bank in it knocked back, alive), THE GRAB (a man lifted and tossed behind your line, alive), THE INK (a cloud: everyone in it fires at half the rate),
+//   THE DIVE AND RETURN (at 40 % of his bar he sinks into the hold, out of every aim, while the Tan pour; he comes back with the bar refilled). EASY the sweep; MEDIUM + the grab; HARD + the ink; MEGA everything wider (the sweep two lanes, the grab two men, the ink longer, the dive twice) in MEGA KING KRAKEN's coat (the meter wears the name).
+// THE LEVELS: the bars on RAID_HP_MUL (e 1 · m 1.5 · h 2.2 · g 2.64 of his 160), the Tan counts on RAID_CNT_MUL; THE WIN = his fall through the house's own door (raidTick: p3King, kingDown), so endBattle banks META.wreck.{e,m,h,g}, pays the repeat purse on the cove's own wing, and the first clear of a tier deals its prize (lbwcPrizeRows, endBattle's one hunk):
+//   EASY the KING KRAKEN wallpaper (owned by the ledger, the kings' law; WPAP_ORDER learns it at the join) · MEDIUM the ledger cell (THE CUTLASS needs its lab card, its hand and its film: the next card heals it off META.wreck.m) · HARD THE CAPTAIN'S HAT on the rack (OUTFIT_ORDER / the head set / OUTFIT_EARN_RAID at the join; the boot heals it off META.wreck.h) · MEGA the ticket MEGA BEATEN! (the hero is LBW-E's).
+//   EASY's SHIP'S WHEEL waits for its room seat with the cutlass (⚑ LBWC-F2). Zero CSS, zero server bytes, zero sw.js. A party at the wreck stays held (LBW-B). The rig's door: GVT.lbwc().
+const LBWC={ v:1, rv:{ x:1000, w:150 }, hold:{ x:1790, y:360 }, popUp:1.5, snapAt:0.45, popReach:84, rail:6, shove:0.5, daze:0.55, toss:0.95, inkSlow:2, joined:0, cache:null, cacheKey:'' };   // the channel (x, width), the hold, a pop-up's stand (s), the snap's beat (s), its reach (px), the shove's slide (s), the daze after it (s), the toss's flight (s), the ink's fire-clock factor (x2 = half the rate)
+const LBWC_T={   // the four levels (Layla's chain: EASY → MEDIUM → HARD → MEGA)
+  e:{ ys:[360], bw:124, hp:160, cd:6.2, pops:['crab'], popCd:2.8, moves:['sweep'], lanes:1, grabN:1, inkT:0, inkR:0, dives:1, tan:[['tanrifle',4],['tanmg',2]], gates:[[0.7,[['tanrifle',4],['tanshotgun',1]]],[0.35,[['tanrifle',4],['tanmg',2]]]] },
+  m:{ ys:[230,490], bw:100, hp:240, cd:5.6, pops:['crab','clam'], popCd:2.4, moves:['sweep','grab'], lanes:1, grabN:1, inkT:0, inkR:0, dives:1, tan:[['tanrifle',5],['tanshotgun',2]], gates:[[0.7,[['tanrifle',5],['tanmg',2]]],[0.35,[['tanrifle',5],['tanflame',2]]]] },
+  h:{ ys:[170,360,550], bw:78, hp:352, cd:5.0, pops:['crab','clam','jelly'], popCd:2.0, moves:['sweep','grab','ink'], lanes:1, grabN:1, inkT:6, inkR:120, dives:1, tan:[['tanrifle',6],['tanmg',2],['tanflame',1]], gates:[[0.7,[['tanrifle',6],['tansniper',1]]],[0.35,[['tanrifle',6],['tanmortar',1],['tanshotgun',2]]]] },
+  g:{ ys:[170,360,550], bw:78, hp:422, cd:4.4, pops:['crab','clam','jelly','arm'], popCd:1.7, moves:['sweep','grab','ink'], lanes:2, grabN:2, inkT:9, inkR:150, dives:2, tan:[['tanrifle',6],['tanmg',3],['tanflame',1]], gates:[[0.7,[['tanrifle',6],['tansniper',2]]],[0.35,[['tanrifle',6],['tanmortar',1],['tanshotgun',3]]]] } };
+const LBWC_POP={ crab:{ up:'crab', under:'crabunder', w:56, hp:3 }, clam:{ up:'clam', under:'clamunder', w:56, hp:4 }, jelly:{ up:'jelly', under:'jellyunder', w:56, hp:3, sting:3.5 }, arm:{ up:'krakenarm', under:'crabunder', w:84, hp:6, all:1 } };   // the up mold, the ducked mold, the rug width, the bar; the jelly's sting slows the man (s); THE KING'S ARM snaps everyone on the planks
+FDEF.kingkraken={ hp:160, spd:20, bounty:250, leak:0, w:140, boss:true, lbwc:1 };   // KING KRAKEN on the deck: LBW-A's molds, no trigger of the house's (his four moves are lbwcKingTick's); the bar is set at his first tick (LBWC_T[t].hp x bhpNow)
+['crab','clam','jelly','arm'].forEach(function(k){ FDEF['lbwc'+k]={ hp:LBWC_POP[k].hp, spd:0, bounty:6, leak:0, w:LBWC_POP[k].w, lbwc:1, lbwcPop:k }; });   // the pop-ups: real foes your men shoot (a tag each), standing in the water, never marching, never leaking
+BOSSDEF.kingkraken={ title:'KING KRAKEN', wave:'KING KRAKEN RISES', bar:'KING KRAKEN' };   // the plate wears the name (CARD-BBN); MEGA's cfg writes MEGA KING KRAKEN on it
+SHAKE_LINE.kingkraken='You defeated KING KRAKEN!';
+function lbwcOn(){ const rd=S.raid; return !!(rd && rd.k==='wreck' && rd.cfg===S.cfg && S.cfg && S.cfg.lbwc && !S.bf); }   // THE SUNKEN SHIP is the battle (the raid's identity stamp)
+function lbwcTier(){ return (lbwcOn() && LBWC_T[S.raid.t])? S.raid.t : 'e'; }
+function lbwcRV(){ return (S.cfg && S.cfg.terrain && S.cfg.terrain.river && S.cfg.terrain.river.lbwcYs)? S.cfg.terrain.river : null; }
+function lbwcRng(seed){ let s=(seed>>>0)||1; return function(){ s=(Math.imul(s,1664525)+1013904223)>>>0; return s/4294967296; }; }   // the field's own dice (an LCG: every sim of a tier rolls the same pops and moves)
+// ───── THE FIELD (raidCfg's wrap: the wreck answers here, LBW-B's placeholder never runs)
+{ const c0=raidCfg; raidCfg=function(tier,rk){ if(rk && RAID_INFO[rk] && RAID_INFO[rk].k==='wreck') return lbwcCfg(tier); return c0.apply(this, arguments); }; }
+function lbwcCfg(tier){ tier=LBWC_T[tier]? tier : 'e'; const T=LBWC_T[tier], ax=parkCampAxes(40), cn=RAID_CNT_MUL[tier]||1, c=n=>Math.max(1,Math.round(n*cn));
+  const RV={ x:LBWC.rv.x, w:LBWC.rv.w, bridgeY:T.ys[0], bw:T.bw, lbwcYs:T.ys.slice() }; if(T.ys.length>1) RV.bridgeY2=T.ys[1];   // the house's two-span readers see the first two; rvBridges' wrap gives the third
+  const cfg={ n:0, oneBoss:1, hpMul:ax.hpMul*(RAID_HP_MUL[tier]||1), cntMul:1, bossF:1, rateMul:ax.rateMul, waves:[], terrain:{ rocks:[], river:RV, ground:'sand', lbwc:1 }, lbwc:1, lbwcTier:tier };
+  const E=['right','right-top','right-bottom'];
+  cfg.waves.push({ name:'THE SUNKEN SHIP', groups:T.tan.map((g,i)=>({ f:i? 'line' : 'column', t:g[0], n:c(g[1]), e:E[i%3], at:i*2.2 })) });   // the Tan on the deck first
+  cfg.waves.push({ name:'KING KRAKEN RISES', boss:'kingkraken', groups:[ { f:'spout', t:'kingkraken', n:1, raw:1, pin:1, quiet:1, at:0.5, pts:[[LBWC.hold.x, LBWC.hold.y]] }, { f:'column', t:'tanrifle', n:c(3), e:'right-top', at:3.5 } ] });   // HE RISES from the hold (a quiet point: the white ring, the thump)
+  T.gates.forEach(function(gt){ cfg.waves.push({ name:'THE TAN BOARD THE BRIDGES!', hpGate:{ t:'kingkraken', k:gt[0], bark:null }, groups:gt[1].map((g,i)=>({ f:i? 'line' : 'column', t:g[0], n:c(g[1]), e:E[(i+1)%3], at:i*1.6 })) }); });   // the pour at his bar's marks
+  BOSSDEF.kingkraken.bar=(tier==='g')? 'MEGA KING KRAKEN' : 'KING KRAKEN';   // the meter: MEGA KING KRAKEN on MEGA (her name), KING KRAKEN below it
+  return cfg; }
+{ const r0=rvBridges; rvBridges=function(RV){ return (RV && RV.lbwcYs)? RV.lbwcYs.slice() : r0.apply(this, arguments); }; }   // a third span for the cove's HARD and MEGA (every crossing reader asks here: the men's funnel, the Tan's, the painter)
+{ const b0=lbwbTick; lbwbTick=function(dt){ if(S.cfg && S.cfg.lbwc) return; return b0.apply(this, arguments); }; }   // LBW-B's placeholder win door (the waves cleared = a voided VICTORY) is lifted: the king's fall is the win, and the win banks
+// ───── THE LAW OF THE WATER + THE PASSENGERS (campUnitStep's wrap): no wade; a man on the shove or the toss is a passenger; dazed = no march, no gun; stung = half pace
+{ const s0=campUnitStep; campUnitStep=function(u,dt){ if(!lbwcOn()) return s0.apply(this, arguments);
+  if(u.lbwcFly){ lbwcFlyStep(u,dt); u.marching=false; return false; }
+  if(u.lbwcDazeT>0){ u.lbwcDazeT-=dt; u.marching=false; return false; }
+  u.wade=null; u.squeeze=false;   // THE WATER: never a wade on the cove (the funnel to the planks is the only road)
+  let g9=null; if(u.lbwcSlowT>0){ u.lbwcSlowT-=dt; g9=u.gait; u.gait=(u.gait||1)*0.5; }
+  const r=s0.apply(this, arguments);
+  if(g9!==null) u.gait=g9;
+  lbwcDry(u, true); return r; }; }
+function lbwcOnPlanks(RV,x,y){ if(x<RV.x-4 || x>RV.x+RV.w+4) return true; const ys=RV.lbwcYs; for(const by of ys) if(Math.abs(y-by)<=RV.bw*0.5+LBWC.rail) return true; return false; }   // true on the sand, on the deck, or on a plank (its rope rail included)
+function lbwcDry(o, green){ const RV=lbwcRV(); if(!RV || o.dead || o.lbwcFly || (o.def && (o.def.fly || o.def.lbwcPop)) || o.boss || o.jetT>0 || o.falling) return;   // a body in the channel off every plank = back on the bank it stands nearer (the Tan's latch reset so the funnel takes him to a span)
+  if(o.x<RV.x-4 || o.x>RV.x+RV.w+4) return; let by=RV.lbwcYs[0]; for(const y of RV.lbwcYs) if(Math.abs(o.y-y)<Math.abs(o.y-by)) by=y; const d=o.y-by, half=RV.bw*0.5;
+  if(Math.abs(d)<=half) return; if(Math.abs(d)<=half+30){ o.y=by+Math.sign(d)*(half-1); return; }   // a step off the plank's side = back onto the plank
+  const west=o.x<RV.x+RV.w/2; o.x=west? RV.x-6 : RV.x+RV.w+6;
+  if(green){ o.wp=null; } else { if(!west){ o.crossed=false; o.squeeze=false; o.stall=0; } } }
+// ───── THE SHOVE (a pop-up's snap, the sweep) and THE TOSS (the grab): alive, a slide or a flight, then a daze; never knock()
+function lbwcShove(u, tx, ty, dur, arc){ if(!u || u.dead || u.jetT>0 || u.dropT>0 || u.falling || u.lbwcFly) return false;
+  u.lbwcFly={ x0:u.x, y0:u.y, x1:tx, y1:ty, t:0, dur:dur||LBWC.shove, arc:arc||0 }; u.wp=null; u.wade=null; u.marching=false;
+  S.fx.push({ k:'ring', x:u.x, y:u.y-4, r:6, R:30, t:0, dur:0.4, col:'#E6F6FF' }); return true; }
+function lbwcFlyStep(u,dt){ const F=u.lbwcFly; F.t+=dt; const k=Math.min(1,F.t/F.dur), e=1-Math.pow(1-k,2);
+  u.x=F.x0+(F.x1-F.x0)*e; u.y=F.y0+(F.y1-F.y0)*e-(F.arc? F.arc*4*k*(1-k) : 0);
+  if(k>=1){ u.y=F.y1; u.lbwcFly=null; u.lbwcDazeT=LBWC.daze; u.laneY=u.y; u.wp=null; S.fx.push({ k:'ring', x:u.x, y:u.y-2, r:5, R:22, t:0, dur:0.35, col:'#EAD9AE' }); } }
+// ───── THE CLOCKS (raidTick's wrap: after the house's raid clock and LBW-B's)
+{ const t0=raidTick; raidTick=function(dt){ t0.apply(this, arguments); try{ lbwcTick(dt); }catch(e){ try{ console.error('CARD-LBW-C tick', e); }catch(e2){} } }; }
+function lbwcTick(dt){ if(!lbwcOn() || S.mode!=='play') return; const rd=S.raid, T=LBWC_T[lbwcTier()], RV=lbwcRV(); if(!RV) return;
+  const L=rd.lbwc||(rd.lbwc={ t:0, rng:lbwcRng(7919*(['e','m','h','g'].indexOf(rd.t)+1)+13), br:T.ys.map((y,i)=>({ y, cd:1.2+i*0.6, pop:null, n:0 })), pops:0, kinds:{}, snaps:0, shoved:0, ducked:0, shot:0, stung:0, moves:{ sweep:0, grab:0, ink:0, dive:0, back:0 }, tossed:0, swept:0, ink:[], fx:[], king:null, mv:0, cd:3.0, act:null, dives:0, kingT:0 });
+  L.t+=dt;
+  const king=S.foes.find(f=>f.type==='kingkraken' && !f.dead);
+  if(!rd.p3King && king){ rd.p3=true; rd.p3King=true; rd.p3kT=Math.round(S.t-(rd.t0||0)); if(rd.p3T==null) rd.p3T=rd.p3kT; }   // the duel's own clock: the king stands from his walk-on
+  if(rd.kingDown && S.wave<S.cfg.waves.length && sqRef()){ S.wave=S.cfg.waves.length; S.queue.length=0; }   // his fall flushes the still-gated pour: the house's win door opens
+  for(const f of S.foes){ if(!f.dead && !f.boss && !(f.def && (f.def.fly || f.def.lbwcPop))) lbwcDry(f, false); }   // the Tan keep to the planks too
+  lbwcPopsTick(L,T,RV,dt);
+  if(king) lbwcKingTick(king,L,T,RV,dt);
+  for(let i=L.ink.length-1;i>=0;i--){ const c=L.ink[i]; c.t+=dt; if(c.t>=c.dur) L.ink.splice(i,1); }
+  for(let i=L.fx.length-1;i>=0;i--){ const q=L.fx[i]; q.t+=dt; if(q.t>=q.dur) L.fx.splice(i,1); } }
+function lbwcMenOn(RV,by){ return S.units.filter(u=>!u.dead && !u.lbwcFly && !(u.jetT>0) && !(u.dropT>0) && !u.falling && u.x>=RV.x-2 && u.x<=RV.x+RV.w+2 && Math.abs(u.y-by)<=RV.bw*0.55); }   // your men on THESE planks
+function lbwcPopsTick(L,T,RV,dt){
+  for(let i=0;i<L.br.length;i++){ const B=L.br[i];
+    if(B.pop){ const P=B.pop, f=P.f; P.t+=dt;
+      if(f.dead || S.foes.indexOf(f)<0){ B.pop=null; B.cd=T.popCd+L.rng()*1.2; continue; }   // shot (foeFell's wrap ducked it) or gone
+      if(!P.snapped && P.t>=LBWC.snapAt){ P.snapped=1; lbwcSnap(L,T,RV,B,P); }
+      if(P.t>=LBWC.popUp){ lbwcDuck(f, false); B.pop=null; B.cd=T.popCd+L.rng()*1.2; }
+      continue; }
+    B.cd-=dt; if(B.cd>0) continue;
+    const men=lbwcMenOn(RV,B.y); if(!men.length) continue;
+    const m=men[0], kind=T.pops[Math.floor(L.rng()*T.pops.length)], r9=L.rng(), side=(B.y<WORLD_H*0.4)? 1 : (B.y>WORLD_H*0.6)? -1 : (r9<0.5? -1 : 1), x=Math.max(RV.x+24, Math.min(RV.x+RV.w-24, m.x+(L.rng()-0.5)*30)), y=B.y+side*(RV.bw*0.5+20);
+    const f=spawnFoe('lbwc'+kind, x, y, null, false); if(!f) continue;
+    f.hp=f.hpMax=Math.max(1, Math.round(LBWC_POP[kind].hp*(1+(RAID_HP_MUL[lbwcTier()]-1)*0.5))); f.lbwcSide=side; f.spdMul=1e-6;
+    B.pop={ f, t:0, kind, snapped:0 }; B.n++; L.pops++; L.kinds[kind]=(L.kinds[kind]|0)+1;
+    S.fx.push({ k:'ring', x, y:y+2, r:6, R:34, t:0, dur:0.45, col:'#E6F6FF' }); try{ bfSfx(SFX.thock, x, y); }catch(e){} } }
+function lbwcSnap(L,T,RV,B,P){ const f=P.f, PK=LBWC_POP[P.kind], men=lbwcMenOn(RV,B.y).filter(u=>PK.all || Math.abs(u.x-f.x)<=LBWC.popReach);
+  S.floats.push({ x:f.x, y:f.y-PK.w*0.9, txt:'SNAP!', t:0, col:'#FFD24A' }); try{ bfSfx(SFX.snap, f.x, f.y); }catch(e){} L.snaps++;
+  for(const u of men){ const west=(u.lbwcFrom!=null)? u.lbwcFrom<0 : true; const tx=west? RV.x-36-L.rng()*26 : RV.x+RV.w+36+L.rng()*26;   // back to the bank he came from (your men come from the west)
+    if(lbwcShove(u, tx, u.y+(L.rng()-0.5)*20, LBWC.shove, 14)){ L.shoved++; if(PK.sting){ u.lbwcSlowT=PK.sting; L.stung++; S.floats.push({ x:u.x, y:u.y-40, txt:'STUNG!', t:0, col:'#F7A9C6' }); } } } }
+function lbwcDuck(f, shot){ const PK=LBWC_POP[f.def.lbwcPop]; const L=S.raid && S.raid.lbwc; if(L){ L.fx.push({ k:'under', mold:PK.under, x:f.x, y:f.y, w:PK.w, t:0, dur:0.6 }); if(shot) L.shot++; else L.ducked++; }
+  S.fx.push({ k:'ring', x:f.x, y:f.y+2, r:5, R:26, t:0, dur:0.4, col:'#E6F6FF' });
+  if(!shot){ const i=S.foes.indexOf(f); if(i>=0) S.foes.splice(i,1); f.dead=true; } }   // ducked by itself: quietly back under (no tag, no fall)
+{ const f0=foeFell; foeFell=function(f,u){ const pop=!!(f && f.def && f.def.lbwcPop); const n9=S.fx.length; const r=f0.apply(this, arguments);
+  if(pop){ for(let i=S.fx.length-1;i>=n9;i--){ if(S.fx[i] && S.fx[i].k==='fallen') S.fx.splice(i,1); } try{ lbwcDuck(f, true); }catch(e){} }   // a SHOT pop-up ducks under (its tag paid by the house's blob), never a fall on the water
+  return r; }; }
+{ const m0=snowSlowMul; snowSlowMul=function(o){ const k=m0.apply(this, arguments); return (o && lbwcOn() && lbwcInked(o))? k*LBWC.inkSlow : k; }; }   // THE INK: the fire clock of everyone in a cloud runs at half the rate
+function lbwcInked(o){ const L=S.raid && S.raid.lbwc; if(!L || !L.ink.length) return false; for(const c of L.ink) if(Math.hypot(o.x-c.x,(o.y-c.y)*1.4)<=c.r) return true; return false; }
+// ───── KING KRAKEN (his own clock: the rise, the hold, the four moves; every pick on the field's dice)
+function lbwcKingTick(f,L,T,RV,dt){ const H=LBWC.hold; f.spdMul=1e-6; f.vx=0; f.vy=0;
+  if(!L.king){ L.king={ st:'rise', t:0 }; f.hp=f.hpMax=Math.max(1, Math.round(T.hp*bhpNow())); f.x=H.x; f.y=H.y; try{ SFX.rumble(); }catch(e){} S.shake=Math.max(S.shake,0.3); }
+  const K=L.king; K.t+=dt; L.kingT+=dt; if(K.st!=='under'){ f.x=H.x; f.y=H.y; }
+  if(K.st==='rise'){ f.burrow=K.t<0.6; if(K.t>=1.1){ K.st='idle'; K.t=0; f.burrow=false; if(L.dives) { f.hp=f.hpMax; S.floats.push({ x:f.x, y:f.y-150, txt:'HE IS BACK!', t:0, col:'#FFD24A' }); L.moves.back++; } } return; }
+  if(K.st==='dive'){ if(K.t>=1.0){ K.st='under'; K.t=0; f.burrow=true; } return; }
+  if(K.st==='under'){ f.burrow=true; if(((K.t*2)|0)!==(((K.t-dt)*2)|0)) S.fx.push({ k:'ring', x:H.x, y:H.y, r:10, R:60, t:0, dur:0.6, col:'#E6F6FF' }); if(K.t>=5.0){ K.st='rise'; K.t=0; try{ SFX.rumble(); }catch(e){} } return; }
+  if(K.st==='idle' && L.dives<T.dives && f.hp<=f.hpMax*RAID_RETREAT_F && !rdLbwcForced(L)){ K.st='dive'; K.t=0; L.dives++; L.moves.dive++; S.floats.push({ x:f.x, y:f.y-150, txt:'THE KRAKEN DIVES!', t:0, col:'#BFE9FF' }); try{ bfSfx(SFX.thump, f.x, f.y); }catch(e){} L.act=null; return; }   // THE DIVE: 40 % of his bar (the raid's own retreat mark)
+  if(L.act){ lbwcActTick(f,L,T,RV,dt); return; }
+  L.cd-=dt; if(L.cd>0 && !L.force) return;
+  const mv=L.force || T.moves[L.mv % T.moves.length]; L.force=null; L.mv++; L.cd=T.cd+L.rng()*1.2;
+  lbwcActStart(f,L,T,RV,mv); }
+function rdLbwcForced(L){ return !!L.force; }
+function lbwcActStart(f,L,T,RV,mv){ if(T.moves.indexOf(mv)<0){ L.cd=0.5; return; }   // a move the level does not own is never dealt (EASY the sweep; MEDIUM + the grab; HARD and MEGA + the ink)
+  const far=S.units.filter(u=>!u.dead && !u.lbwcFly && !(u.jetT>0) && !(u.dropT>0) && u.x>=RV.x-10);   // the men on his side of the near bank (the planks, the deck)
+  if(mv==='sweep'){ const ys=RV.lbwcYs.slice().sort((a,b)=>far.filter(u=>Math.abs(u.y-b)<70).length-far.filter(u=>Math.abs(u.y-a)<70).length); const lanes=ys.slice(0, Math.min(T.lanes, ys.length));
+    if(T.lanes>1 && ys.length===1) lanes.push(ys[0]+120);
+    L.act={ k:'sweep', t:0, tell:0.9, lanes, done:0 }; }
+  else if(mv==='grab'){ const pick=far.slice().sort((a,b)=>Math.hypot(a.x-f.x,a.y-f.y)-Math.hypot(b.x-f.x,b.y-f.y)).slice(0, T.grabN); if(!pick.length){ L.cd=1.0; return; } L.act={ k:'grab', t:0, tell:0.7, men:pick, done:0 }; }
+  else if(mv==='ink'){ const pool=S.units.filter(u=>!u.dead && u.x>RV.x-420); if(!pool.length){ L.cd=1.0; return; } let best=pool[0], bn=-1; for(const u of pool){ const n=pool.filter(v=>Math.hypot(v.x-u.x,v.y-u.y)<T.inkR).length; if(n>bn){ bn=n; best=u; } } L.act={ k:'ink', t:0, tell:0.6, x:best.x, y:best.y, done:0 }; }
+  else return;
+  L.moves[mv]++; S.floats.push({ x:f.x, y:f.y-150, txt:(mv==='sweep'? 'THE SWEEP!' : mv==='grab'? 'THE GRAB!' : 'THE INK!'), t:0, col:'#FFD24A' }); }
+function lbwcActTick(f,L,T,RV,dt){ const A=L.act; A.t+=dt; const H=LBWC.hold;
+  if(A.k==='sweep'){ if(!A.done && A.t>=A.tell){ A.done=1; try{ bfSfx(SFX.whoosh||SFX.thump, f.x, f.y); }catch(e){} S.shake=Math.max(S.shake,0.35);
+      for(const u of S.units){ if(u.dead || u.lbwcFly || !(u.x>=RV.x-10 && u.x<=H.x-40)) continue; if(!A.lanes.some(y=>Math.abs(u.y-y)<=58)) continue;
+        if(lbwcShove(u, RV.x-40-L.rng()*40, u.y+(L.rng()-0.5)*30, LBWC.shove+0.15, 22)){ L.swept++; u.lbwcFrom=-1; } } }
+    if(A.t>=A.tell+0.45) L.act=null; return; }
+  if(A.k==='grab'){ if(!A.done && A.t>=A.tell){ A.done=1; try{ bfSfx(SFX.squeak||SFX.thock, f.x, f.y); }catch(e){} for(const u of A.men){ if(u.dead) continue; const tx=Math.max(170, campDeployX()-460-L.rng()*120), ty=Math.max(90, Math.min(WORLD_H-110, WORLD_H/2+(L.rng()-0.5)*260)); if(lbwcShove(u, tx, ty, LBWC.toss, 160)){ L.tossed++; S.floats.push({ x:u.x, y:u.y-40, txt:'TOSSED!', t:0, col:'#FFD24A' }); } } }
+    if(A.t>=A.tell+0.5) L.act=null; return; }
+  if(A.k==='ink'){ if(!A.done && A.t>=A.tell){ A.done=1; L.ink.push({ x:A.x, y:A.y, r:T.inkR, t:0, dur:T.inkT }); try{ bfSfx(SFX.plop||SFX.thump, A.x, A.y); }catch(e){} S.floats.push({ x:A.x, y:A.y-50, txt:'INKED!', t:0, col:'#C9B6E8' }); }
+    if(A.t>=A.tell+0.5) L.act=null; return; } }
+// ───── THE PICTURES: the floor (cached once a battle, over the rug, under the box and every figure), the pop-ups and the king (drawFoe's wrap), the tells under the men, the arm and the ink over them
+{ const l0=lagRugBand; lagRugBand=function(){ const r=l0.apply(this, arguments); try{ if(lbwcOn()) lbwcFloor(); }catch(e){} return r; }; }
+function lbwcFloor(){ const RV=lbwcRV(); if(!RV) return; const key=W+'x'+WORLD_H+'|'+RV.lbwcYs.join(',')+'|'+RV.bw;
+  if(!LBWC.cache || LBWC.cacheKey!==key){ const c=document.createElement('canvas'), k=Math.min(1.5, Math.max(1, window.devicePixelRatio||1)); c.width=Math.round(W*k); c.height=Math.round(WORLD_H*k); const g=c.getContext('2d'); g.scale(k,k); lbwcPaint(g, RV, W, WORLD_H); LBWC.cache=c; LBWC.cacheKey=key; }   // one bake a battle (1.5x at most on a phone's glass)
+  cx.drawImage(LBWC.cache, 0, 0, W, WORLD_H); }
+function lbwcPaint(g, RV, WD, HT){ const x0=RV.x, x1=RV.x+RV.w, I='#4A2E18';
+  const grad=(a,b)=>{ const q=g.createLinearGradient(0,0,0,HT); q.addColorStop(0,a); q.addColorStop(1,b); return q; };
+  g.fillStyle=grad('#F0DCA9','#DDBE82'); g.fillRect(0,0,x0,HT);   // THE SAND: light top, deeper foot (Laura's panel)
+  g.fillStyle='rgba(176,138,82,0.35)'; for(let i=0;i<70;i++){ const x=(i*137)%Math.max(1,x0-40)+10, y=(i*263)%HT; g.beginPath(); g.ellipse(x,y,2.2,1.4,0,0,7); g.fill(); }   // the grains
+  g.fillStyle='#F7EAD0'; g.strokeStyle='#C9A270'; g.lineWidth=1.2; [[260,120],[540,610],[820,180],[380,470]].forEach(p=>{ g.beginPath(); g.moveTo(p[0]-7,p[1]+4); g.quadraticCurveTo(p[0],p[1]-9,p[0]+7,p[1]+4); g.closePath(); g.fill(); g.stroke(); });   // the shells
+  g.fillStyle='#CDAE74'; g.fillRect(x0-34,0,34,HT);   // the wet band at the water's edge
+  g.fillStyle=grad('#5DB3E6','#2F7FB8'); g.fillRect(x0,0,RV.w,HT);   // THE WATER
+  g.strokeStyle='rgba(230,246,255,0.55)'; g.lineWidth=2; for(let y=24;y<HT;y+=46){ const ox=((y*7)%40); g.beginPath(); g.moveTo(x0+12+ox,y); g.quadraticCurveTo(x0+26+ox,y-6,x0+40+ox,y); g.stroke(); g.beginPath(); g.moveTo(x0+80-ox*0.5,y+20); g.quadraticCurveTo(x0+94-ox*0.5,y+14,x0+108-ox*0.5,y+20); g.stroke(); }   // the ripples
+  g.strokeStyle='#F4FBFF'; g.lineWidth=3; for(const xx of [x0+3,x1-3]){ g.beginPath(); for(let y=0;y<=HT;y+=12){ const dx=Math.sin(y*0.21)*2.5; if(y===0) g.moveTo(xx+dx,y); else g.lineTo(xx+dx,y); } g.stroke(); }   // the foam at both banks
+  g.fillStyle=grad('#A9733F','#80522C'); g.fillRect(x1,0,WD-x1,HT);   // THE DECK: the wreck's boards, light top, deeper foot
+  g.strokeStyle='rgba(74,46,24,0.75)'; g.lineWidth=1.6; for(let y=30;y<HT;y+=30){ g.beginPath(); g.moveTo(x1,y); g.lineTo(WD,y); g.stroke(); const off=((y/30)|0)%2? 90 : 0; for(let x=x1+40+off;x<WD;x+=180){ g.beginPath(); g.moveTo(x,y-30); g.lineTo(x,y); g.stroke(); } }   // the seams and the butt joints
+  g.fillStyle='rgba(74,46,24,0.55)'; for(let y=15;y<HT;y+=30) for(let x=x1+52;x<WD;x+=180){ g.beginPath(); g.arc(x,y,1.6,0,7); g.fill(); }   // the nails
+  g.fillStyle='#5E3A1C'; g.fillRect(x1,0,12,HT); g.fillStyle='rgba(255,255,255,0.18)'; g.fillRect(x1+12,0,3,HT);   // the hull's rim at the water
+  const H=LBWC.hold; g.fillStyle='#2A1A0E'; g.strokeStyle=I; g.lineWidth=3; g.beginPath(); g.roundRect? g.roundRect(H.x-78,H.y-58,156,104,10) : g.rect(H.x-78,H.y-58,156,104); g.fill(); g.stroke();   // THE HOLD (he rises from it)
+  g.fillStyle='rgba(61,147,204,0.55)'; g.beginPath(); g.ellipse(H.x,H.y,58,30,0,0,7); g.fill(); g.strokeStyle='rgba(230,246,255,0.5)'; g.lineWidth=2; g.beginPath(); g.ellipse(H.x,H.y,40,18,0,0,7); g.stroke();   // the water in the hold
+  g.strokeStyle='#8B5A2B'; g.lineWidth=5; g.strokeRect(H.x-78,H.y-58,156,104);   // the hatch's frame
+  const barrel=(x,y)=>{ g.fillStyle='#8E5B2E'; g.strokeStyle=I; g.lineWidth=2; g.beginPath(); g.ellipse(x,y,20,26,0,0,7); g.fill(); g.stroke(); g.strokeStyle='#3F4247'; g.lineWidth=3; g.beginPath(); g.moveTo(x-19,y-10); g.lineTo(x+19,y-10); g.moveTo(x-19,y+10); g.lineTo(x+19,y+10); g.stroke(); };
+  barrel(1700,92); barrel(1742,108); barrel(1640,650);   // scenery (no hitbox)
+  g.fillStyle='#6E4A2B'; g.strokeStyle=I; g.lineWidth=3; g.beginPath(); g.arc(1560,110,24,0,7); g.fill(); g.stroke(); g.fillStyle='#8B5A2B'; g.beginPath(); g.arc(1560,110,15,0,7); g.fill();   // the broken mast's stump
+  g.strokeStyle='#D9C08A'; g.lineWidth=5; for(let r=8;r<=26;r+=6){ g.beginPath(); g.arc(1500,628,r,0,7); g.stroke(); }   // the coiled rope
+  for(const by of RV.lbwcYs){ const bw=RV.bw, a=x0-16, b=x1+16, y0=by-bw/2;   // THE BRIDGES: plank slats across the water, the ink round them, the rope rails
+    g.fillStyle='rgba(0,0,0,0.18)'; g.fillRect(a+4,y0+6,b-a,bw);
+    for(let x=a,i=0;x<b;x+=14,i++){ g.fillStyle=(i%2)? '#B98450' : '#A6733F'; g.fillRect(x,y0,Math.min(14,b-x),bw); g.strokeStyle='rgba(74,46,24,0.6)'; g.lineWidth=1.2; g.strokeRect(x,y0,Math.min(14,b-x),bw); }
+    g.strokeStyle=I; g.lineWidth=2.2; g.strokeRect(a,y0,b-a,bw);
+    g.strokeStyle='#E2CB94'; g.lineWidth=3; for(const yy of [y0-2, y0+bw+2]){ g.beginPath(); g.moveTo(a,yy); g.quadraticCurveTo((a+b)/2,yy+7,b,yy); g.stroke(); }
+    g.fillStyle='#6E4A2B'; for(const px of [a,b]) for(const py of [y0-2,y0+bw+2]){ g.beginPath(); g.arc(px,py,5,0,7); g.fill(); } } }
+{ const d0=drawFoe; drawFoe=function(f){ if(f && f.def && f.def.lbwc && !S.bf){ try{ lbwcPaintFoe(f); }catch(e){} return; } return d0.apply(this, arguments); }; }
+function lbwcImg(k){ return (typeof IMG!=='undefined' && IMG[k])? IMG[k] : null; }
+function lbwcPaintFoe(f){ const mega=lbwcTier()==='g';
+  if(f.def.lbwcPop){ const P=f.def.lbwcPop, PK=LBWC_POP[P], key=(P==='arm' && mega)? 'megakrakenarm' : PK.up, im=lbwcImg(key); const L=S.raid && S.raid.lbwc; let rise=1; if(L){ for(const B of L.br) if(B.pop && B.pop.f===f) rise=Math.min(1,B.pop.t/0.25); }
+    if(im){ cx.save(); cx.globalAlpha=Math.max(0.2,rise); drawSprite(key, f.x, f.y+(1-rise)*16, PK.w, 0, 0, im, (f.lbwcSide||1)<0); cx.restore(); } return; }
+  if(f.type!=='kingkraken') return; const L=S.raid && S.raid.lbwc, K=L && L.king, A=L && L.act, w=mega? 175 : 140;
+  if(K && K.st==='under') return;
+  let pose=''; if(K && (K.st==='rise' || K.st==='dive')) pose='dive'; else if(A && A.k==='sweep') pose='sweep'; else if(A && A.k==='grab') pose='grab'; else if(A && A.k==='ink') pose='ink';
+  const key=(mega? 'megakraken' : 'kingkraken')+pose, im=lbwcImg(key)||lbwcImg(mega? 'megakraken' : 'kingkraken'); if(!im) return;
+  let dy=0; if(K && K.st==='rise') dy=(1-Math.min(1,K.t/1.1))*70; else if(K && K.st==='dive') dy=Math.min(1,K.t/1.0)*70;
+  cx.save(); if(dy){ cx.beginPath(); cx.rect(f.x-w, f.y-w*1.4, w*2, w*1.4+4); cx.clip(); } drawSprite(key, f.x, f.y+dy+(reducedMotion()? 0 : Math.sin(S.t*2.2)*2), w, 0, 0, im, false); cx.restore(); }
+{ const o0=olvActors; olvActors=function(A){ const r=o0.apply(this, arguments); try{ if(lbwcOn()) lbwcActors(A); }catch(e){} return r; }; }
+function lbwcActors(A){ const L=S.raid && S.raid.lbwc; if(!L) return; const RV=lbwcRV(), H=LBWC.hold, mega=lbwcTier()==='g';
+  A.push({ y:-1e6, f:()=>{ const a=L.act; if(!a || a.done) return; const k=Math.min(1,a.t/a.tell), pul=0.35+0.35*Math.abs(Math.sin(S.t*12));   // THE TELLS on the ground under every man: the sweep's lanes, the grab's rings, the ink's mark
+      cx.save(); cx.globalAlpha=pul; cx.fillStyle='rgba(217,52,43,0.35)'; cx.strokeStyle='rgba(217,52,43,0.9)'; cx.lineWidth=3; cx.setLineDash([12,8]);
+      if(a.k==='sweep') for(const y of a.lanes){ cx.fillRect(RV.x-10, y-58, (H.x-40)-(RV.x-10), 116); cx.strokeRect(RV.x-10, y-58, (H.x-40)-(RV.x-10), 116); }
+      else if(a.k==='grab') for(const u of a.men){ if(u.dead) continue; cx.beginPath(); cx.arc(u.x, u.y, 26-10*k, 0, 7); cx.stroke(); }
+      else if(a.k==='ink'){ cx.fillStyle='rgba(43,28,58,0.25)'; cx.beginPath(); cx.arc(a.x, a.y, LBWC_T[lbwcTier()].inkR*k, 0, 7); cx.fill(); }
+      cx.restore(); } });
+  for(const q of L.fx){ if(q.k!=='under') continue; A.push({ y:q.y, f:()=>{ const im=lbwcImg(q.mold); if(!im) return; cx.save(); cx.globalAlpha=Math.max(0,1-q.t/q.dur); drawSprite(q.mold, q.x, q.y, q.w, 0, 0, im, false); cx.restore(); } }); }
+  A.push({ y:1e6, f:()=>{ const a=L.act;   // OVER every man: the arm that sweeps the lane, the arm that reaches, the ink cloud
+      const C1=mega? '#5B2A8E' : '#E9552B', arm=(x0,y0,x1,y1,wd)=>{ cx.save(); cx.lineCap='round'; cx.strokeStyle=LBWA_INK; cx.lineWidth=wd+5; cx.beginPath(); cx.moveTo(x0,y0); cx.quadraticCurveTo((x0+x1)/2,Math.min(y0,y1)-40,x1,y1); cx.stroke(); cx.strokeStyle=C1; cx.lineWidth=wd; cx.stroke(); cx.fillStyle='#F6D7B0'; for(let i=1;i<6;i++){ const k=i/6, x=x0+(x1-x0)*k, y=y0+(y1-y0)*k-40*4*k*(1-k)*0.5; cx.beginPath(); cx.arc(x,y+wd*0.2,wd*0.16,0,7); cx.fill(); } cx.restore(); };
+      if(a && a.k==='sweep' && a.done){ const k=Math.min(1,(a.t-a.tell)/0.45); for(const y of a.lanes) arm(H.x-40, H.y-20, H.x-40-(H.x-RV.x+30)*k, y, 22); }
+      if(a && a.k==='grab' && !a.done){ const k=Math.min(1,a.t/a.tell); for(const u of a.men){ if(!u.dead) arm(H.x-40, H.y-30, H.x-40+(u.x-(H.x-40))*k, H.y-30+(u.y-14-(H.y-30))*k, 16); } }
+      for(const c of L.ink){ const k=Math.min(1,c.t/0.4), out=Math.max(0,Math.min(1,(c.dur-c.t)/1.0)); cx.save(); cx.globalAlpha=0.42*k*out; cx.fillStyle='#2B1C3A'; for(let i=0;i<7;i++){ const a9=i*0.9+c.x*0.01, rr=c.r*(0.42+0.18*((i*37)%5)/4); cx.beginPath(); cx.arc(c.x+Math.cos(a9)*c.r*0.45, c.y+Math.sin(a9)*c.r*0.3, rr, 0, 7); cx.fill(); } cx.restore(); } } }); }
+// ───── THE PRIZES (endBattle's one hunk calls this inside the first-clear latch: the tier's cell is written there) and THE JOIN's rows (the hat on the rack, the wallpaper in the picker)
+function lbwcPrizeRows(prizes, tb9){
+  if(tb9==='e'){ prizes.push({ o:5, t:'KING KRAKEN', f:'room', a:'<svg viewBox="0 0 120 80">'+lbwaWallPaint(0,0,120,80)+'</svg>' }); }   // the KING KRAKEN wallpaper: owned from this cell on (WPAP.kraken boss:'wreck'), in the picker
+  else if(tb9==='h'){ lbwcHatRows(); if(!outfitOwns('captainshat')){ META.outfit.own.push('captainshat'); prizes.push({ o:6, t:OUTFIT_INFO.captainshat.name, f:'rack', a:outfitPartSVG('captainshat') }); } }   // THE CAPTAIN'S HAT on the rack (unequipped: the rack law)
+  else if(tb9==='g'){ prizes.push({ o:5, t:'MEGA KING KRAKEN', f:'lbwcg', a:'<img src="'+sprURI('megakraken', null, '0 0 140 140')+'" alt="">', s:t('HE JOINS YOUR ARMY SOON') }); } }   // MEGA BEATEN! (the hero's grant is LBW-E's)
+VD_FOOT.lbwcg='MEGA BEATEN!';
+function lbwcHatRows(){ const id='captainshat'; if(!OUTFIT_INFO[id]) return 0; if(OUTFIT_ORDER.indexOf(id)<0) OUTFIT_ORDER.push(id); OUTFIT_EARN_RAID[id]={ k:'wreck', t:'h' };   // the tombstone hat's grammar, at the join (never sold, hidden till owned; the band reads HARD BEATEN!)
+  const g=OUTFIT_SLOTS.find(s=>s.key==='head'); if(g && g.ids.indexOf(id)<0){ g.ids.push(id); OUTFIT_EXCL[id]=g.ids.filter(i=>i!==id); for(const i of g.ids){ if(i===id) continue; const x=OUTFIT_EXCL[i]; if(x && x.indexOf(id)<0) x.push(id); } } return 1; }
+function lbwcJoin(){ if(LBWC.joined || !META.pirate) return 0; LBWC.joined=1;
+  try{ if(WPAP.kraken && WPAP_ORDER.indexOf('kraken')<0) WPAP_ORDER.push('kraken'); }catch(e){}
+  try{ lbwcHatRows(); if(META.wreck && (META.wreck.h || META.wreck.g) && META.outfit && !outfitOwns('captainshat')) META.outfit.own.push('captainshat'); }catch(e){}   // the boot heals the hat off the HARD cell (the loader's whitelist dropped it before this sec ran)
+  RAID_INFO.wreck.wing='wreck';   // the cove's own day cap (25★ a day), never the Showdown's
+  try{ if(LBWC.dino){ const row=LG_CH.find(c=>c.id==='wreck'); if(row) row.note="The bottle in Dino Park's pond holds the deed."; } }catch(e){}   // round 3: the Log's note follows the bottle
+  return 1; }
+{ const j0=lbwbJoin; lbwbJoin=function(){ const r=j0.apply(this, arguments); try{ lbwcJoin(); }catch(e){} return r; }; }
+if(META.pirate){ try{ lbwcJoin(); }catch(e){} }
+// ───── ROUND 3 (Layla 10/22 19:40, verbatim: "let's make the king Kraken land be in the dino Park"; Wyatt 19:43: "Thats fine just make sure it doesnt go live unless the player types "Pirate" in the code room"): THE DOOR AND THE SEAT MOVE TO DINO PARK.
+// With the code a MESSAGE IN A BOTTLE bobs in DINO PARK's own pond (the pond the puffer and the betta come out of): a CAST with the pole catches it (the pond's own rig, the bottle on the line), a tap lifts it out (a save with no pole yet); the deed puts the toy pirate ship on
+// that pond with the pill TO THE COVE (openRaidScene('wreck')). The backyard's pond, bottle, ship and pill (LBW-B's round-1 seat) stand down; the code walks to Dino Park; the lobby is the cove seen from Dino Park's JUNGLE SHORE (the hedge and the hose of the backyard
+// become the treeline, the volcano far off and the fronds at the near shore). ⚑ LBWC-F1 for Wyatt: LBWC.dino 0 = the backyard as LBW-B built it (one line).
+LBWC.dino=1; LBWC.bottle={ x:850, y:556, w:100, h:62 }; LBWC.ship={ x:836, y:556, s:1.2 }; LBWC.lift=1100;   // the seats in Dino Park's scene units (the pond's mouth centred on x 800 by 0443; east of the bobber, clear of the rod and the pail)
+function lbwcBottleDue(){ return !!(LBWC.dino && META.pirate && !META.cove); }   // the code typed, the deed not yet read
+function lbwcCoveDue(){ return !!(LBWC.dino && lbwbCoveOn()); }
+{ const p0=lbwbPondOn; lbwbPondOn=function(){ return !LBWC.dino && p0.apply(this, arguments); }; }   // the backyard's pond and its bottle stand down
+for(const sp of ROOM_SPOTS){ if(sp && sp.id==='lbwcove'){ const d0=sp.due; sp.due=function(){ return !LBWC.dino && (!d0 || d0()); }; } }   // and the yard's ship pill
+{ const h0=RAID_INFO.wreck.hall; RAID_INFO.wreck.hall=function(){ return LBWC.dino? lbwcJungleHallSVG() : h0(); }; }
+{ const s0=LGX.scene; LGX.scene=k=>(k==='wreckhall' && LBWC.dino)? (function(){ try{ return lbwcJungleHallSVG(); }catch(e){ return ''; } })() : s0(k); }   // the Log's clipping: the same shore
+function lbwcJungleHallSVG(){ let s=lbwaCoveHallSVG(); const A=LBWA_ART, I=LBWA_INK;
+  s=s.replace(/<rect y="236" width="1600" height="80" fill="url\(#lbwHedge\)"\/>[\s\S]*?<rect y="262" width="1600" height="60" fill="#5FAF45"\/>/, function(){ return lbwcJungleBand(); });   // the backyard's hedge → Dino Park's treeline and the volcano beyond it
+  s=s.replace(/<path d="M1600 60 Q1460 110 1500 230 Q1530 300 1480 330"[^>]*\/>/g, '').replace(/<path d="M1470 318 L1494 310 L1500 330 L1476 338 Z"[^>]*\/>/, '').replace(/<path d="M1478 340 Q1460 360 1440 372 M1486 344 Q1480 362 1468 380"[^>]*\/>/, '');   // the garden hose gone
+  const frond=(x,y,a,L,f)=>'<g transform="translate('+x+' '+y+') rotate('+a+')">'+A.P('M0 0 Q'+(L*0.3)+' '+(-L*0.22)+' '+L+' 0 Q'+(L*0.3)+' '+(L*0.2)+' 0 0 Z',f||'#3E9A46',2)+A.LN('M4 0 Q'+(L*0.4)+' -3 '+(L*0.92)+' 0','#8ED674',2,{ opacity:0.8 })+'</g>';
+  s+='<g id="lbwc-shore">'+frond(-20,660,-62,250)+frond(-30,640,-38,230,'#2F7D3A')+frond(10,670,-80,200,'#4FAE52')+frond(1620,660,-118,250)+frond(1630,640,-142,230,'#2F7D3A')+frond(1590,672,-100,190,'#4FAE52')
+    +frond(400,612,-70,90,'#2F7D3A')+frond(404,612,-110,90)+frond(1180,624,-74,80,'#2F7D3A')+frond(1184,624,-106,80)+'</g>';   // the jungle at the near shore, framing the cove (the corners and two ferns on the sand; the chips and DEPLOY stay clear)
+  return s; }
+function lbwcJungleBand(){ const A=LBWA_ART, I=LBWA_INK; let s='';
+  s+=A.P('M1020 306 L1150 168 Q1170 150 1190 156 L1238 156 Q1258 150 1276 168 L1420 306 Z','#7B5A7E',2)+A.P('M1150 168 Q1214 182 1276 168 L1262 180 Q1214 194 1166 180 Z','#F08A3A',1.4)+A.E(1214,128,34,18,'#C9B8C6',0,{ opacity:0.85 })+A.E(1242,100,26,14,'#C9B8C6',0,{ opacity:0.7 });   // DINO PARK's volcano, far off (hazy), its crater's glow and the smoke
+  s+='<rect y="244" width="1600" height="78" fill="#2F7D3A"/>'; for(let x=-40, i=0; x<1700; x+=72, i++) s+=A.C(x, 252+(i%3)*6, 44+(i%2)*10, (i%2)? '#3E9A46' : '#358A40', 0);   // the canopy: a band of jungle, light top
+  s+='<rect y="276" width="1600" height="46" fill="#2A6F35"/>';
+  const palm=(x,h)=>{ let g=A.LN('M'+x+' 310 Q'+(x+14)+' '+(310-h*0.5)+' '+(x+8)+' '+(310-h), I, 10)+A.LN('M'+x+' 310 Q'+(x+14)+' '+(310-h*0.5)+' '+(x+8)+' '+(310-h),'#8B6237',7); const tx=x+8, ty=310-h; for(const a of [-160,-120,-60,-20,-95]) g+='<g transform="translate('+tx+' '+ty+') rotate('+a+')">'+A.P('M0 0 Q30 -12 64 4 Q30 6 0 0 Z','#3E9A46',1.8)+'</g>'; return g; };
+  s+=palm(96,150)+palm(520,128)+palm(1490,140)+palm(880,110);   // the palms over the treeline (the jungle's shore)
+  return s; }
+// THE PARK'S PIECES (paintParkScene's wrap: after the dino scene is mounted, the bottle or the ship + the pill are added; parkSceneLayout's wrap seats them on the same cover mapping)
+{ const p0=paintParkScene; paintParkScene=function(){ const r=p0.apply(this, arguments); try{ if(PARK_CUR==='dino') lbwcParkDress(); }catch(e){ try{ console.error('CARD-LBW-C park', e); }catch(e2){} } return r; }; }
+{ const l0=parkSceneLayout; parkSceneLayout=function(){ const r=l0.apply(this, arguments); try{ if(PARK_CUR==='dino') lbwcParkSeat(); }catch(e){} return r; }; }
+function lbwcParkDress(){ const bg=document.getElementById('parkBg'); if(!bg) return; for(const id of ['lbwcBottle','lbwcBottleHot','lbwcShip','lbwcCovePill']){ const e=document.getElementById(id); if(e) e.remove(); }
+  const RM=reducedMotion();
+  if(lbwcBottleDue()){ const B=LBWC.bottle;
+    bg.insertAdjacentHTML('beforeend', '<div id="lbwcBottle" style="position:absolute;z-index:2;pointer-events:none"><svg viewBox="-36 -26 72 46" style="display:block;width:100%;overflow:visible"><g id="lbwcBottleG"><g>'+(RM? '' : '<animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="2.6s" repeatCount="indefinite"/>')+lbwaBottleLeap()+'</g></g>'+LBWA_ART.RING(0,10,26,6,0.7)+'</svg></div>'
+      +'<button type="button" id="lbwcBottleHot" aria-label="bottle" onclick="lbwcBottleTap()" style="position:absolute;z-index:3;background:transparent;border:none;padding:0;cursor:pointer"></button>'); }
+  else if(lbwcCoveDue()){
+    bg.insertAdjacentHTML('beforeend', '<div id="lbwcShip" onclick="lbwcShipTap()" style="position:absolute;z-index:3;cursor:pointer"><svg viewBox="-46 -54 92 80" style="display:block;width:100%;overflow:visible"><g>'+(RM? '' : '<animateTransform attributeName="transform" type="rotate" values="-2.2 0 0;2.2 0 0;-2.2 0 0" dur="3.6s" repeatCount="indefinite"/>')+LBWA_ART.ship()+'</g></svg></div>'
+      +'<div id="lbwcCovePill" class="roomtag" data-notr onclick="lbwcShipTap()">'+escH(t('TO THE COVE'))+'</div>'); }
+  lbwcParkSeat(); }
+function lbwcParkSeat(){ const bg=document.getElementById('parkBg'); if(!bg || PARK_CUR!=='dino') return; const r=bg.getBoundingClientRect(); if(!r.width || !r.height) return;
+  const meet=heroMeetRect(r.width, r.height), s2=meet? Math.min(r.width/1600, r.height/650) : Math.max(r.width/1600, r.height/650), ox=(1600-r.width/s2)/2, oy=(650-r.height/s2)/2;   // parkSceneLayout's own mapping (the dino scene: no span)
+  const P=(id,x,y,w,h)=>{ const el=document.getElementById(id); if(!el) return; el.style.left=((x-ox)*s2)+'px'; el.style.top=((y-oy)*s2)+'px'; if(w) el.style.width=(w*s2)+'px'; if(h) el.style.height=(h*s2)+'px'; };
+  const B=LBWC.bottle, H=LBWC.ship;
+  P('lbwcBottle', B.x-B.w/2, B.y-B.h*0.6, B.w); P('lbwcBottleHot', B.x-44, B.y-40, 88, 76);   // the tap box a kid's thumb (≥ 44 px on the phone)
+  P('lbwcShip', H.x-48*H.s, H.y-56*H.s, 96*H.s);
+  const pl=document.getElementById('lbwcCovePill'); if(pl){ pl.style.left=((H.x-ox)*s2)+'px'; pl.style.top=((H.y+40-oy)*s2)+'px'; } }   // the pill under the ship, over the water's south edge (.roomtag centres itself)
+function lbwcShipTap(){ if(!lbwbCoveOn()) return; audio(); SFX.blip(); openRaidScene('wreck'); }
+function lbwcBottleTap(){ if(!lbwcBottleDue() || LBWC.busy) return; LBWC.busy=1; audio(); try{ SFX.thock(); }catch(e){}
+  const g=document.getElementById('lbwcBottle'), t0=performance.now(), done=()=>{ LBWC.busy=0; lbwcBottleLand(); };
+  if(!g || reducedMotion()){ done(); return; }
+  const step=()=>{ const k=Math.min(1,(performance.now()-t0)/LBWC.lift), e=1-Math.pow(1-k,3); g.style.transform='translateY('+(-60*e)+'px) rotate('+(30*e)+'deg) scale('+(1+0.3*e)+')'; if(k<1 && g.isConnected) requestAnimationFrame(step); else done(); };
+  requestAnimationFrame(step); }
+function lbwcBottleLand(){ if(!lbwcBottleDue()) return; META.cove=1; saveMeta(); try{ SFX.snap(); }catch(e){} if(parkSceneOpen() && PARK_CUR==='dino') paintParkScene(true); lbwbCard(); }   // THE DEED, flag first; the park repaints with the ship BEFORE the card (the v1.70 law)
+{ const c0=wlCast; wlCast=function(){ if(PARK_CUR==='dino' && lbwcBottleDue() && !FISH_BUSY && parkSceneOpen()) return lbwcCast(); return c0.apply(this, arguments); }; }   // the pole's cast at Dino Park's pond catches the bottle first (the puffer, the egg and the betta wait for the next cast)
+function lbwcCast(){ if(reducedMotion()){ SFX.snap(); lbwcBottleLand(); return; }
+  const bg=document.getElementById('parkBg'), pb=wlPondBox(); if(!bg || !pb){ SFX.snap(); lbwcBottleLand(); return; }
+  FISH_BUSY=1; const o=document.createElement('div'); o.id='wlover'; o.style.cssText='position:absolute;left:'+pb.x+'px;top:'+pb.y+'px;width:'+pb.w+'px;height:'+pb.h+'px;pointer-events:none;z-index:5;'; bg.appendChild(o);
+  const paint=h=>{ o.innerHTML='<svg viewBox="0 0 260 150" style="width:100%;height:100%;display:block;overflow:visible">'+h+'</svg>'; };
+  const LINE='<path id="wlLn" d="" stroke="#EAF3FA" stroke-width="2" fill="none" opacity="0.9"/>', BOB='<circle cx="128" cy="86" r="3.2" fill="#A63B2A" stroke="#6d2418" stroke-width="1.2"/>', RIP='<ellipse cx="128" cy="88" rx="13" ry="3" fill="none" stroke="#dff0ff" stroke-width="1.6" opacity="0.7" class="wlrip"/>';
+  const rc=k=>{ const rb=document.getElementById('rodBody'); if(!rb) return; rb.classList.remove('rcast','rtug','rsnap'); if(k){ void rb.getBoundingClientRect(); rb.classList.add(k); } };
+  rc('rcast'); SFX.thock(); paint(LINE+BOB); if(!WL_RAF) WL_RAF=requestAnimationFrame(wlLineTick);
+  setTimeout(()=>{ rc('rtug'); SFX.thump(); paint(LINE+BOB+RIP); const b=document.getElementById('lbwcBottle'); if(b) b.style.visibility='hidden'; }, 900);   // the bottle in the water takes the hook
+  setTimeout(()=>{ rc('rsnap'); SFX.snap(); paint('<g class="wlfish"><g transform="translate(128,86) scale(1.6)">'+lbwaBottleLeap()+'<circle id="wlMouthM" cx="-20" cy="0" r="0.1" fill="none"/></g></g>'+LINE+'<path d="M96 92 l-8 -6 M164 90 l8 -6 M118 100 l-6 6 M148 100 l6 6" stroke="#dff0ff" stroke-width="2" opacity="0.8"/>'); }, 2000);   // THE MESSAGE IN A BOTTLE on the line
+  setTimeout(()=>{ rc(null); if(WL_RAF){ cancelAnimationFrame(WL_RAF); WL_RAF=0; } try{ o.remove(); }catch(err){} FISH_BUSY=0; lbwcBottleLand(); }, 3200); }
+// THE CODE walks to Dino Park (codeRedeem's wrap, outside LBW-B's: the same grammar, the park's own toast)
+const LBWC_TOAST='SOMETHING WASHED UP IN DINO PARK\'S POND…';
+{ const c0=codeRedeem; codeRedeem=function(){ try{ if(LBWC.dino){ const inp=document.getElementById('shCodeIn'); const word=inp? codeNorm(inp.value) : '';
+    if(word==='PIRATE' || word==='CODEPIRATE'){ inp.value=''; try{ inp.blur(); }catch(e){} codeSay(t(LBWC_TOAST),'yes'); SFX.fanfare(); codeShut(1); META.pirate=1; saveMeta(); lbwbJoin(); if(S.mode==='menu') renderMenu(); if(parkDoorOpen('dino')) openParkScene('dino'); evToast(t(LBWC_TOAST)); return; } } }
+  catch(e){ try{ console.error('CARD-LBW-C code', e); }catch(e2){} }
+  return c0.apply(this, arguments); }; }
+// ───── THE WORDS x7 (drafts for his pen; a key the tables already hold keeps its row)
+(function(){ const W9={
+  ja:{"SOMETHING WASHED UP IN DINO PARK'S POND…":"ダイノパークの いけに なにか ながれついた…","The bottle in Dino Park's pond holds the deed.":"ダイノパークの いけの ボトルに けんりしょが はいっている。","KING KRAKEN RISES":"キング・クラーケン あらわる","MEGA KING KRAKEN":"メガ・キング・クラーケン","THE TAN BOARD THE BRIDGES!":"タンぐんが はしに のりこんだ！","SNAP!":"パチン！","STUNG!":"チクッ！","THE KRAKEN DIVES!":"クラーケンが もぐった！","HE IS BACK!":"もどってきた！","THE SWEEP!":"なぎはらい！","THE GRAB!":"つかみ！","THE INK!":"スミ！","TOSSED!":"ポイッ！","INKED!":"スミまみれ！","MEGA BEATEN!":"メガ クリア！","HE JOINS YOUR ARMY SOON":"まもなく きみの ぐんたいに くわわる"},
+  ko:{"SOMETHING WASHED UP IN DINO PARK'S POND…":"공룡 공원 연못에 뭔가 떠내려왔어…","The bottle in Dino Park's pond holds the deed.":"공룡 공원 연못의 병 속에 권리증이 들어 있어.","KING KRAKEN RISES":"크라켄 왕이 솟아오른다","MEGA KING KRAKEN":"메가 크라켄 왕","THE TAN BOARD THE BRIDGES!":"탄 군이 다리에 올라탔다!","SNAP!":"싹둑!","STUNG!":"따끔!","THE KRAKEN DIVES!":"크라켄이 잠수했다!","HE IS BACK!":"돌아왔다!","THE SWEEP!":"휩쓸기!","THE GRAB!":"움켜잡기!","THE INK!":"먹물!","TOSSED!":"휙!","INKED!":"먹물 범벅!","MEGA BEATEN!":"메가 격파!","HE JOINS YOUR ARMY SOON":"곧 네 군대에 합류한다"},
+  "zh-Hans":{"SOMETHING WASHED UP IN DINO PARK'S POND…":"恐龙公园的池塘里漂来了什么东西……","The bottle in Dino Park's pond holds the deed.":"恐龙公园池塘里的瓶子装着地契。","KING KRAKEN RISES":"海怪国王浮出水面","MEGA KING KRAKEN":"超级海怪国王","THE TAN BOARD THE BRIDGES!":"黄军冲上桥了！","SNAP!":"咔嚓！","STUNG!":"被蜇了！","THE KRAKEN DIVES!":"海怪潜下去了！","HE IS BACK!":"他回来了！","THE SWEEP!":"横扫！","THE GRAB!":"抓取！","THE INK!":"喷墨！","TOSSED!":"扔出去了！","INKED!":"满身是墨！","MEGA BEATEN!":"超级难度通关！","HE JOINS YOUR ARMY SOON":"他很快就会加入你的军队"},
+  de:{"SOMETHING WASHED UP IN DINO PARK'S POND…":"ETWAS IST IM TEICH DES DINO-PARKS ANGESPÜLT WORDEN…","The bottle in Dino Park's pond holds the deed.":"Die Flasche im Teich des Dino-Parks enthält die Urkunde.","KING KRAKEN RISES":"KÖNIG KRAKE TAUCHT AUF","MEGA KING KRAKEN":"MEGA KÖNIG KRAKE","THE TAN BOARD THE BRIDGES!":"DIE BEIGEN STÜRMEN DIE BRÜCKEN!","SNAP!":"SCHNAPP!","STUNG!":"GESTOCHEN!","THE KRAKEN DIVES!":"DER KRAKE TAUCHT AB!","HE IS BACK!":"ER IST ZURÜCK!","THE SWEEP!":"DER SCHWUNG!","THE GRAB!":"DER GRIFF!","THE INK!":"DIE TINTE!","TOSSED!":"GEWORFEN!","INKED!":"VOLL TINTE!","MEGA BEATEN!":"MEGA GESCHAFFT!","HE JOINS YOUR ARMY SOON":"ER SCHLIESST SICH BALD DEINER ARMEE AN"},
+  ru:{"SOMETHING WASHED UP IN DINO PARK'S POND…":"ЧТО-ТО ПРИБИЛО К ПРУДУ В ПАРКЕ ДИНОЗАВРОВ…","The bottle in Dino Park's pond holds the deed.":"В бутылке в пруду парка динозавров лежит купчая.","KING KRAKEN RISES":"КОРОЛЬ КРАКЕН ПОДНИМАЕТСЯ","MEGA KING KRAKEN":"МЕГА КОРОЛЬ КРАКЕН","THE TAN BOARD THE BRIDGES!":"ПЕСОЧНАЯ АРМИЯ НА МОСТАХ!","SNAP!":"ЩЁЛК!","STUNG!":"УЖАЛИЛ!","THE KRAKEN DIVES!":"КРАКЕН НЫРНУЛ!","HE IS BACK!":"ОН ВЕРНУЛСЯ!","THE SWEEP!":"РАЗМАХ!","THE GRAB!":"ХВАТКА!","THE INK!":"ЧЕРНИЛА!","TOSSED!":"ОТБРОШЕН!","INKED!":"В ЧЕРНИЛАХ!","MEGA BEATEN!":"МЕГА ПРОЙДЕН!","HE JOINS YOUR ARMY SOON":"СКОРО ОН ВСТУПИТ В ТВОЮ АРМИЮ"},
+  es:{"SOMETHING WASHED UP IN DINO PARK'S POND…":"ALGO LLEGÓ AL ESTANQUE DEL PARQUE DE DINOSAURIOS…","The bottle in Dino Park's pond holds the deed.":"La botella del estanque del parque de dinosaurios guarda la escritura.","KING KRAKEN RISES":"EL REY KRAKEN EMERGE","MEGA KING KRAKEN":"MEGA REY KRAKEN","THE TAN BOARD THE BRIDGES!":"¡LOS BEIGE ASALTAN LOS PUENTES!","SNAP!":"¡ZAS!","STUNG!":"¡PICADO!","THE KRAKEN DIVES!":"¡EL KRAKEN SE SUMERGE!","HE IS BACK!":"¡HA VUELTO!","THE SWEEP!":"¡EL BARRIDO!","THE GRAB!":"¡EL AGARRE!","THE INK!":"¡LA TINTA!","TOSSED!":"¡LANZADO!","INKED!":"¡ENTINTADO!","MEGA BEATEN!":"¡MEGA SUPERADO!","HE JOINS YOUR ARMY SOON":"PRONTO SE UNIRÁ A TU EJÉRCITO"},
+  ar:{"SOMETHING WASHED UP IN DINO PARK'S POND…":"شيء ما جرفته المياه إلى بركة حديقة الديناصورات…","The bottle in Dino Park's pond holds the deed.":"الزجاجة في بركة حديقة الديناصورات تحمل صك الملكية.","KING KRAKEN RISES":"الملك كراكن يصعد","MEGA KING KRAKEN":"الملك كراكن الضخم","THE TAN BOARD THE BRIDGES!":"الجيش البيج يقتحم الجسور!","SNAP!":"طق!","STUNG!":"لُسع!","THE KRAKEN DIVES!":"الكراكن يغوص!","HE IS BACK!":"لقد عاد!","THE SWEEP!":"الضربة الكاسحة!","THE GRAB!":"القبضة!","THE INK!":"الحبر!","TOSSED!":"قُذف!","INKED!":"غارق في الحبر!","MEGA BEATEN!":"تم التغلب على الضخم!","HE JOINS YOUR ARMY SOON":"سينضم إلى جيشك قريبًا"} };
+  for(const lg in W9){ const tb=TR[lg]||(TR[lg]={}); for(const k in W9[lg]) if(!(k in tb)) tb[k]=W9[lg][k]; } })();
+// ───── THE RIG'S DOOR (seated once window.GVT stands): force a pop or a move, read the fight
+setTimeout(function(){ try{ if(window.GVT && !GVT.lbwc) GVT.lbwc=function(o){ o=o||{}; const rd=S.raid, L=rd && rd.lbwc, king=S.foes.find(f=>f.type==='kingkraken' && !f.dead), RV=lbwcRV();
+  if(L && o.move) L.force=o.move;
+  if(L && o.pop!=null){ const B=L.br[o.pop|0]; if(B) B.cd=0; }
+  if(king && o.hp!=null){ king.hp=Math.max(1, Math.round(king.hpMax*o.hp)); }
+  if(L && o.cd!=null){ L.cd=o.cd; }
+  return { cv:GVT_CV, v:LBWC.v, on:lbwcOn()?1:0, tier:lbwcOn()? rd.t : null, joined:LBWC.joined, wing:RAID_INFO.wreck.wing, river:RV? { x:RV.x, w:RV.w, ys:RV.lbwcYs.slice(), bw:RV.bw, spans:rvBridges(RV) } : null, waves:S.cfg? S.cfg.waves.map(w=>w.name+(w.hpGate? '@'+w.hpGate.k : '')+':'+w.groups.map(g=>g.t+'x'+(g.n||((g.pts||[]).length))).join('+')) : null, wave:S.wave|0,
+    king:king? { x:Math.round(king.x), y:Math.round(king.y), hp:Math.round(king.hp), max:king.hpMax, burrow:!!king.burrow, st:L && L.king? L.king.st : null, bar:BOSSDEF.kingkraken.bar } : null, act:L && L.act? { k:L.act.k, t:+L.act.t.toFixed(2), done:L.act.done } : null,
+    L:L? { pops:L.pops, snaps:L.snaps, shoved:L.shoved, ducked:L.ducked, shot:L.shot, stung:L.stung, swept:L.swept, tossed:L.tossed, moves:Object.assign({}, L.moves), dives:L.dives, ink:L.ink.length, up:L.br.map(B=>B.pop? B.pop.kind : null), br:L.br.map(B=>B.n) } : null,
+    units:S.units.filter(u=>!u.dead).map(u=>({ t:u.type, x:Math.round(u.x), y:Math.round(u.y), fly:!!u.lbwcFly, daze:+(u.lbwcDazeT||0).toFixed(2), slow:+(u.lbwcSlowT||0).toFixed(2), ink:lbwcInked(u)?1:0 })), dead:S.units.filter(u=>u.dead).length,
+    wet:S.units.concat(S.foes).filter(o=>!o.dead && RV && !(o.def && (o.def.fly || o.def.lbwcPop)) && !o.boss && !o.lbwcFly && !lbwcOnPlanks(RV,o.x,o.y)).length,
+    pops:S.foes.filter(f=>f.def && f.def.lbwcPop && !f.dead).map(f=>({ k:f.def.lbwcPop, x:Math.round(f.x), y:Math.round(f.y), hp:f.hp })),
+    rd:rd? { k:rd.k, t:rd.t, won:rd.won?1:0, void:rd.void?1:0, p3King:rd.p3King?1:0, kingDown:rd.kingDown?1:0 } : null, mode:S.mode, wreck:META.wreck? JSON.parse(JSON.stringify(META.wreck)) : null, hat:outfitOwns('captainshat')?1:0, wall:(typeof wpapOwns==='function')? (wpapOwns('kraken')?1:0) : null, wallOrder:WPAP_ORDER.indexOf('kraken'), bank:META.starBank|0, raidDay:META.raidDay? JSON.parse(JSON.stringify(META.raidDay)) : null }; }; }catch(e){} }, 0);
+// ═══ END CARD-LBW-C ═══
 buildSprites(()=>{ ready=true;
   // v3.23 (card 03): the review range answers only to its own key — without
   // ?tkdemo=1 this line is a dead regex test and the boot is behavior-
