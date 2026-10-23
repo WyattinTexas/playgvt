@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.19","md5":"4ff1227ee6fcbb0d0a20fd1f1cf8119a","sha":"eadbdea034","at":"2026-10-23T03:04:00Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.20","md5":"ba4176c1e12def66fc0d5f517420bfbd","sha":"c9f89fd945","at":"2026-10-23T03:06:21Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -197445,6 +197445,40 @@ const OTS_TM={ tagK:0.75, tMax:10, pad:0.4, tag0:null, mice:0 };
     return s0.apply(this, arguments); }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.otsTM) GVT.otsTM=function(){ return { tagK:OTS_TM.tagK, table:BBS_TAGX.slice(), table0:OTS_TM.tag0, mice:OTS_TM.mice, tMax:OTS_TM.tMax }; }; }catch(e){} }, 0);
 // ═══ END CARD-OTS-TM ═══
+// ═══ CARD-OTS-SHIELD THE SHOTGUN BANDITS COME IN WITH FIVE SHIELDS, READY TO ROCK (sec:CARD-OTS-SHIELD; design/outlaw-main-street-1022/05-CARD-OTS-SHIELD.md; jumpr 2555, board J59, lane gvt;
+// WYATT ~20:55 EDT 10/22/2026 on Maker 1 after the first live Showdown with Layla, verbatim: "The enemy snipers and shotgun units never showed up. We were expecting them to come with energy shot and all the
+// sniper abilities, being a formidable force, just like the shotgun guy coming in with his five shields, ready to rock.")
+// THE RIOT SHIELD'S GRAMMAR MIRRORED ONTO THE TAN SIDE. Every shotgun man of Bill's gang (CARD-BBA's posse slot: 'tanshotgun' standing in, 'bbshotgun' once his drawing is live) walks on with FIVE SHIELDS
+// (BSH.n = the player's plate's five, ENH_SHIELD_N, Wyatt's number): each incoming hit EVENT at the head of hurt() (the foe's one funnel: a round, a pellet, a shell's splash, a mine, a flame beat, a bite: any
+// caliber, any source, the player's plate's own law) spends one pip and lands nothing (the thock, a steel ring, no number); at the last pip SHIELDS DOWN! (the house's word, x7 already) and from then on he is
+// the plain shotgun man (the 7 hp, the 103 px cone, the 2.6 s drum: tanshotgun's row untouched; the shields are what carry him through the line's fire to his cone). THE PLATE on his forward arm (tanAimTell
+// wrapped by name: the generic walker's own seat right after his sprite and under his hp bar; drawFoe untouched): a stamped steel riot plate in the style guide's four rules (a flat tonal panel: a light top,
+// a deeper foot; the outline a shade darker than the steel at 0.6x and 55 %; crisp lines; rich steel, never heavy black) with FIVE RIVETS as the count (a full rivet = a shield left, a hollow one = spent; a
+// spent plate draws nothing), a white flash for 0.15 s on each hit. spawnFoe wrapped by name stamps the pips on the Showdown's shotgun men alone (bbsOn()): every other rug and every other type walks on as
+// before; the pour, the posses, the lanes, the cannons, Bill: untouched. ?shield=0 (gvt_bsh) = the men as they were. Zero words, zero server, zero sw.js, no banner over the field. ═══
+const BSH={ on:(function(){ try{ const q=/[?&]shield=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bsh','0'); else localStorage.removeItem('gvt_bsh'); } return localStorage.getItem('gvt_bsh')==='0'? 0 : 1; }catch(e){ return 1; } })(), n:5, flash:0.15, st:{ born:0, spent:0, down:0 } };   // the switch (CARD-BBA's grammar), the five, the hit flash, the counts the rigs read
+function bshMan(type){ return type==='tanshotgun' || type==='bbshotgun'; }   // the gang's shotgun slot, either mold
+{ const s0=spawnFoe; spawnFoe=function(type,x,y,form,gu){ const f=s0.apply(this, arguments); try{ if(f && BSH.on && bshMan(type) && bbsOn()){ f.bshN=BSH.n; f.bshMax=BSH.n; BSH.st.born++; } }catch(e){} return f; }; }   // THE PIPS stamped at birth, the Showdown's shotgun men alone (spawnFoe wrapped by name, never edited)
+function bshTake(f,src,fire9){ if(!(f.bshN>0)) return false; f.bshN--; f.bshHitT=S.t; BSH.st.spent++; const last=!(f.bshN>0);   // one event, one pip (the v1.52 one-round-one-save law, the Tan edition)
+  bfSfx(SFX.thock, f.x, f.y); if(!reducedMotion()) S.fx.push({ k:'ring', x:f.x, y:f.y-28, r:5, R:last? 40 : 26, t:0, dur:last? 0.45 : 0.22, col:'#D8D8D8' });   // the plate's own thock and steel ring, no number
+  if(last){ BSH.st.down++; S.floats.push({ x:f.x, y:f.y-80, txt:'SHIELDS DOWN!', t:0, col:'#DFE6EA' }); }   // the last pip: the house's word (raw key, floats translate at draw); from here he is the plain man
+  return true; }
+{ const h0=hurt; hurt=function(f,dmg,src,fire9){ if(f && f.bshN>0 && !f.dead && BSH.on && bshTake(f,src,fire9)) return; return h0.apply(this, arguments); }; }   // THE HEAD OF THE FUNNEL (hurt wrapped by name): a shielded man's hit spends the pip and lands nothing; everyone else: the shipped road
+function bshDrawPlate(f){ const n=f.bshN|0; if(n<=0) return; const w=f.def.w||56, h=w*(140/120), wbk=foeFl(f), dir=wbk? 1 : -1, lift=(f.hopZ||0)+(f.airB||0);   // THE PLATE on his forward arm (the molds face -x; wbk = the walk-flip's mirror)
+  const pw=w*0.34, ph=w*0.56, px=f.x+dir*w*0.25, py=f.y-lift-h*0.46, hit=(f.bshHitT!=null && S.t-f.bshHitT<BSH.flash), r=3, L=-pw/2, T=-ph/2;
+  cx.save(); cx.translate(px,py); cx.rotate(dir*0.10);
+  const path=()=>{ cx.beginPath(); cx.moveTo(L+r,T); cx.lineTo(L+pw-r,T); cx.quadraticCurveTo(L+pw,T,L+pw,T+r); cx.lineTo(L+pw,T+ph-r); cx.quadraticCurveTo(L+pw,T+ph,L+pw-r,T+ph); cx.lineTo(L+r,T+ph); cx.quadraticCurveTo(L,T+ph,L,T+ph-r); cx.lineTo(L,T+r); cx.quadraticCurveTo(L,T,L+r,T); cx.closePath(); };
+  path(); cx.fillStyle=hit? '#E9EEF2' : '#5E7284'; cx.fill();   // the deeper foot: the whole plate in steel (the hit's white flash over it)
+  cx.save(); cx.clip(); cx.fillStyle=hit? '#F6F8FA' : '#8DA2B3'; cx.fillRect(L,T,pw,ph*0.46); cx.restore();   // the light top: a flat panel over the upper half (the trike's law)
+  path(); cx.strokeStyle='rgba(52,65,78,0.55)'; cx.lineWidth=1.2; cx.stroke();   // the outline a shade darker than the steel, 0.6x, 55 %
+  const rx=pw*0.26, ry=ph*0.30, seats=[[-rx,-ry],[rx,-ry],[0,0],[-rx,ry],[rx,ry]];   // THE FIVE RIVETS as the count (a die's five): a full rivet = a shield left, a hollow one = spent
+  for(let i=0;i<5;i++){ const s=seats[i]; if(i<n){ cx.fillStyle='#E6ECF0'; cx.beginPath(); cx.arc(s[0],s[1],2.1,0,7); cx.fill(); cx.strokeStyle='rgba(52,65,78,0.55)'; cx.lineWidth=0.8; cx.stroke(); } else { cx.strokeStyle='rgba(38,48,58,0.6)'; cx.lineWidth=1; cx.beginPath(); cx.arc(s[0],s[1],1.7,0,7); cx.stroke(); } }
+  cx.restore(); }
+{ const a0=tanAimTell; tanAimTell=function(f){ a0.apply(this, arguments); try{ if(f && f.bshN>0 && !f.dead && !f.falling && BSH.on) bshDrawPlate(f); }catch(e){} }; }   // the plate's seat: the generic walker's own tell call, right after his sprite, under his hp bar (tanAimTell wrapped by name)
+setTimeout(function(){ try{ if(window.GVT && !GVT.bsh) GVT.bsh=function(o){ o=o||{}; if(o.on!=null) BSH.on=o.on? 1 : 0;   // THE RIGS' DOOR (seated once window.GVT exists: C7's grammar): the counts and the men
+  const men=S.foes.filter(f=>!f.dead && bshMan(f.type)); return { cv:GVT_CV, on:BSH.on, n:BSH.n, st:Object.assign({}, BSH.st), bbs:bbsOn(), men:men.length, shielded:men.filter(f=>f.bshN>0).length,
+    list:men.slice(0,12).map(f=>({ id:f.id, t:f.type, x:Math.round(f.x), y:Math.round(f.y), hp:f.hp, max:f.hpMax, sh:f.bshN|0 })), wraps:{ spawn:String(spawnFoe).indexOf('bshMan')>=0, hurt:String(hurt).indexOf('bshTake')>=0, tell:String(tanAimTell).indexOf('bshDrawPlate')>=0 } }; } }catch(e){} }, 0);
+// ═══ END CARD-OTS-SHIELD ═══
 // ═══ CARD-BBF BILL FIGHTS LIKE A GUNSLINGER (sec:CARD-BBF; design/buffalo-bill-showdown-1021/build-bbf/00-BUILD-BBF.md; jumpr 2496, Maker 1 M2496, lane maker1;
 // WYATT by phone 10/22/2026 12:25 EDT, dictated, verbatim: "Bill needs to be moving a bit faster ... Bill's firing actions: it was hard to notice what he was really doing. We also need to make what he does a little more apparent.
 //   When he's firing away, we really need to feel it. ... I don't want him just sitting there taking damage. I want him firing, moving back, and getting behind cover, kind of like what King Croak would do. This is a Wild West fight.")
