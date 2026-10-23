@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.20","md5":"ba4176c1e12def66fc0d5f517420bfbd","sha":"c9f89fd945","at":"2026-10-23T03:06:21Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.21","md5":"a8520f08df9ffdf07eff616811ba4e07","sha":"c0973a290d","at":"2026-10-23T03:11:38Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90730,7 +90730,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -190811,6 +190811,48 @@ if(lpsOn()) try{
   LPS.old.wbAtticSVG=wbAtticSVG; wbAtticSVG=function(){ let v=LPS.old.wbAtticSVG.apply(this, arguments); if(typeof v!=='string' || !v) return v; for(const id in LPS.inner){ if(v.indexOf(LPS.inner[id])>=0) v=v.split(LPS.inner[id]).join(lpsWbInner(id)); } return v; };   // the attic's find scene inlines the same inner body (Ernie's dream of Bun Bun stays outside it)
 }catch(e){ LPS.err++; }
 // ═══ END CARD-LPS ═══
+// ═══ CARD-AFX · THE ATTIC HOLDS ITS FRAME WITH LAURA'S PLUSH STUFFIES IN IT (sec:CARD-AFX; design/attic-fps-1022/00-CARD-AFX.md; FROM WYATT'S PHONE, the jumpr remote, 10/23/2026 00:36 EDT, dictated, verbatim:
+// "Attic screen dropping to low fps please investigate and fix"; built on Maker 1 as M2545). THE CAUSE (measured, the kernel's book, WebKit at his glass): since CARD-LPS (10/19) each plush is Laura's whole svg document in an
+// <image> (Bun Bun 1590 x 1618, Ernie 1406 x 1340, their sparkles and Z's the same way); WebKit keeps such a document as a bitmap at its OWN size and resamples it down ten times over every time its rect repaints, and her
+// twinkles (.wbt) and his Z's (.wbzz) repaint it every step: the attic's painter went from 126 M instructions a frame (10/4, v16.28) to 346 M by day and 520 M at night (the wb-night filter re-run over the group each step).
+// THE CURE: each of her pieces drawn ONCE into a bitmap of the size the glass needs (1.5 x the drawn size, the next power of two, 128..2048), swapped into the live <image> in place (the same box, the same seat, her svg
+// as it came until the bitmap is ready); at night the attic's dim (wb-night's own matrix 0.58 0.56 0.64, sRGB) baked into the pixels and the filter attribute dropped from the group. The sweep runs after every paint
+// (renderMenu wrapped by name, one frame later) and once a second while the menu shows (the room zoomed, the chest's cards scrolled into view). Zero words, zero save keys, zero server bytes, zero css, zero sw.js.
+// ?afx=0 = her documents drawn as today (remembered on the device; ?afx=1 back on). GVT.afx() = the rig door (the bakes, the swaps, the live images and their buckets, the dropped filters).
+var AFX={ on:(function(){ try{ const q=/[?&]afx=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_afx','0'); else localStorage.removeItem('gvt_afx'); } return localStorage.getItem('gvt_afx')==='0'? 0 : 1; }catch(e){ return 1; } })(), pic:{}, busy:{}, map:null, armed:0, iv:0, bakes:0, swaps:0, drops:0, sweeps:0, err:0, log:[] };
+const AFX_DIM=[0.58,0.56,0.64], AFX_MIN=128, AFX_MAX=2048, AFX_OVER=1.5;   // wb-night's matrix (wbAtticSVG's numbers) · the buckets · the headroom over the drawn size
+function afxOn(){ return AFX.on===1 && typeof LPS==='object' && !!LPS && typeof lpsOn==='function' && lpsOn(); }
+function afxKeys(){ if(AFX.map) return AFX.map; const m=new Map(); try{ for(const id in LPS_ART.ids){ m.set(lpsUri(id,null), id+':b'); const A=LPS_ART.ids[id]; for(let i=0;i<A.floats.length;i++) m.set(lpsUri(id,i), id+':'+i); } }catch(e){ AFX.err++; } return (AFX.map=m); }   // her uri → the piece (the body 'b', a float by its index)
+function afxBucket(px){ let b=AFX_MIN; const want=px*AFX_OVER; while(b<want && b<AFX_MAX) b*=2; return b; }
+function afxNeed(im){ try{ const r=im.getBoundingClientRect(); return Math.max(r.width, r.height)*(window.devicePixelRatio||1); }catch(e){ return 0; } }   // the drawn size on the glass, in dots (0 = not shown)
+function afxBake(key, night, bucket){   // → a promise of the png data uri (null when the engine could not draw it: the image stays hers)
+  const ck=key+':'+(night? 'n' : 'd')+':'+bucket; if(AFX.pic[ck]) return Promise.resolve(AFX.pic[ck]); if(AFX.busy[ck]) return AFX.busy[ck];
+  const sp=key.split(':'), p=lpsPiece(sp[0], sp[1]==='b'? null : +sp[1]); if(!p || !p.pic || String(p.mime).indexOf('svg')<0) return Promise.resolve(null);
+  const w=p.w||p.box[2], h=p.h||p.box[3], W=Math.max(1, Math.round(w>=h? bucket : bucket*w/h)), H=Math.max(1, Math.round(w>=h? bucket*h/w : bucket));
+  const doc=String(p.pic).replace(/^\s*<svg\b/, '<svg width="'+W+'" height="'+H+'"');   // her document with its size said: the engine draws it at exactly W x H
+  const pr=new Promise(res=>{ const im=new Image(); im.onload=()=>{ let u=null; try{ const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const cx=cv.getContext('2d'); cx.drawImage(im, 0, 0, W, H);
+      if(night){ const d=cx.getImageData(0, 0, W, H), a=d.data; for(let k=0;k<a.length;k+=4){ a[k]=a[k]*AFX_DIM[0]; a[k+1]=a[k+1]*AFX_DIM[1]; a[k+2]=a[k+2]*AFX_DIM[2]; } cx.putImageData(d, 0, 0); }   // the attic's night dim, in the pixels
+      u=cv.toDataURL('image/png'); AFX.pic[ck]=u; AFX.bakes++; }catch(e){ AFX.err++; AFX.log.push(['bake', ck, String(e).slice(0,80)]); } delete AFX.busy[ck]; res(u); };
+    im.onerror=()=>{ AFX.err++; AFX.log.push(['load', ck]); delete AFX.busy[ck]; res(null); }; im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(doc); });   // the game's CSP: img-src 'self' data: (dlgPicture's own idiom)
+  return (AFX.busy[ck]=pr); }
+function afxSet(im, key, night, bucket, u){ im.setAttribute('href', u); im.__afx={ key:key, night:night, bucket:bucket }; im.setAttribute('data-afx', key); AFX.swaps++; }
+function afxDrop(){ for(const g of document.querySelectorAll('g[filter="url(#wb-night)"]')){ let ok=true; for(const im of g.querySelectorAll('image')){ if(!(im.__afx && im.__afx.night)){ ok=false; break; } } if(ok){ g.removeAttribute('filter'); g.setAttribute('data-afx-dim', '1'); AFX.drops++; } } }   // a dim group whose every picture carries the dim: the filter is off
+function afxSweep(){ if(!afxOn()) return; const M=afxKeys(); if(!M.size) return; AFX.sweeps++;
+  for(const im of document.querySelectorAll('image')){ const h=im.getAttribute('href'); if(!h) continue; let key=im.__afx? im.__afx.key : null;
+    if(!key){ if(h.charCodeAt(11)!==115 /* 's' of data:image/svg */) continue; key=M.get(h); if(!key) continue; }
+    const need=afxNeed(im); if(!(need>0)) continue; const night=!!(im.closest && im.closest('g[filter="url(#wb-night)"], g[data-afx-dim]')), bucket=afxBucket(need);
+    if(im.__afx && im.__afx.night===night && im.__afx.bucket>=bucket) continue;   // as it should be (a smaller draw keeps the bigger picture)
+    const u=AFX.pic[key+':'+(night? 'n' : 'd')+':'+bucket]; if(u){ afxSet(im, key, night, bucket, u); continue; }
+    afxBake(key, night, bucket).then(u2=>{ if(u2 && im.isConnected && !(im.__afx && im.__afx.night===night && im.__afx.bucket>=bucket)) afxSet(im, key, night, bucket, u2); afxDrop(); }); }
+  afxDrop(); }
+function afxArm(){ if(AFX.armed || !afxOn()) return; AFX.armed=1;
+  try{ const r0=renderMenu; renderMenu=function(){ const v=r0.apply(this, arguments); try{ requestAnimationFrame(afxSweep); }catch(e){} return v; }; }catch(e){ AFX.err++; }   // every paint of the room: the swap before the frame shows
+  try{ AFX.iv=setInterval(function(){ try{ if(typeof S==='object' && S.mode==='menu' && !document.hidden) afxSweep(); }catch(e){ AFX.err++; } }, 1000); }catch(e){ AFX.err++; } }
+function afxRead(o){ if(o && o.sweep) afxSweep(); const live=[]; for(const im of document.querySelectorAll('image[data-afx]')) live.push(im.getAttribute('data-afx')+':'+(im.__afx? (im.__afx.night? 'n' : 'd')+im.__afx.bucket : '?')+':'+(String(im.getAttribute('href')).slice(5,14)));
+  return { on:afxOn(), armed:AFX.armed, bakes:AFX.bakes, swaps:AFX.swaps, drops:AFX.drops, sweeps:AFX.sweeps, err:AFX.err, pics:Object.keys(AFX.pic).map(k=>k+'='+AFX.pic[k].length), live:live, dims:document.querySelectorAll('[data-afx-dim]').length, filters:document.querySelectorAll('g[filter="url(#wb-night)"]').length, svgLeft:[...document.querySelectorAll('image')].filter(im=>{ const h=im.getAttribute('href')||''; return h.charCodeAt(11)===115 && afxKeys().has(h) && afxNeed(im)>0; }).length, log:AFX.log.slice(-8) }; }
+try{ afxArm(); }catch(e){ AFX.err++; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.afx) GVT.afx=afxRead; }catch(e){} }, 0);   // the rig door, seated once window.GVT stands (the house's way: CARD-WHB's line)
+// ═══ END CARD-AFX ═══
 // ═══ CARD-LGB · LAURA'S GREAT BASS (sec:CARD-LGB; design/great-bass-1019/00-CARD-LGB.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026), the jumpr guest link
 // 10/19/2026 15:08 EDT (jumpr 2366), verbatim: "put my GREAT BASS in the game for everyone, LIVE (approved 10/19; ticked Finished on the Every Character page). The drawing: private artifact
 // https://claude.ai/artifact/TALAxVKadFjkWhg7kDWrSg (same claude.ai account) -> files art/great-bass.svg and art/great-bass.png. 1) It replaces The Great Bass treasure's drawing EVERYWHERE it
