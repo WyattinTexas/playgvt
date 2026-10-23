@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.67","md5":"a3721f406f8ec45dba126eb84b5d68ce","sha":"13551e1d92","at":"2026-10-23T17:48:53Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"26.68","md5":"cd23b5ff1947f49275f78375653aa4f4","sha":"97e32041d0","at":"2026-10-23T18:04:11Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -57952,6 +57952,50 @@ setInterval(acsTick, ACS_TICK);
 document.addEventListener('visibilitychange', ()=>{ if(document.hidden) acsPush('hide'); });
 window.addEventListener('pagehide', ()=>{ acsPush('hide'); });
 // ═══ END CARD-ACS ═══
+// ═══ CARD-RIN · A REINSTALL KEEPS THE ARMY (sec:CARD-RIN; design/reinstall-army-1023/00-CARD-RIN.md). Found from Layla's report (WhatsApp 10/23/2026 06:33 EDT, verbatim: "when I went to login because I needed to delete and re-download the game ... I signed in and it says I'm signed in, but none of my stuff has been saved ... nothing I have bought with stars or upgrades has been saved so we gotta fix that"). ═══
+// THE HOLE: the iPhone shell keeps the device id in the KEYCHAIN (window.__GVT_KC_DEVICE, the keychain line above), and the keychain outlives a deleted app. A reinstall is a FRESH save (META_FRESH) on a device HQ
+// already knows, and since CARD-SFE every phone HQ has met pushes its save (acsTick, 15 s): the empty army went up with a newer t (CARD-ACS law 2: the newer last change wins) and took both of HQ's copies before
+// any sign-in pulled. The pull (acsAfter) was a sign-in's alone, so her sign-in a minute later brought the EMPTY army back from HQ.
+// NOW: (1) THE REINSTALL is told apart at boot: a save fresh on this boot whose device id IS the keychain's, with no seat handed in (a sign-out's fresh save takes a NEW id in accBoot, a Sarge swap's carries
+// META.ngpU and its account from ngpBoot, a first install's keychain is empty). (2) From the first frame it holds every push (the ACS ledger's pend, as a sign-in deciding does: acsPush, the hidden tab, acsOut).
+// (3) On the title or in the room it asks HQ (/gvt/save/get, the device's own uid): an army with play (accHasPlay) comes back by acsPick's own road (the army on the disk FIRST, this phone's own fields carried, the copy's own
+// account and squad, WELCOME BACK: "Your army came back from HQ.", a reload). (4) HQ dark: nothing leaves, and it asks again a minute on, on the title or in the room only (never under a fight). (5) HQ holds no army for this
+// phone: the new army is the phone's and goes up as today. Server v144 adds the guard (a save born after HQ's copy last changed, with less play, never replaces it) and a guest's own copy (RIN-Q1).
+// Zero words (WELCOME BACK and its line are CARD-ACS's, x7), zero css, zero save keys, zero sw.js. THE DOOR: ?rin=0 on a device = the boot as CARD-ACS left it (gvt_rinoff); ?rin=1 clears it. GVT.rin() the rig's read.
+const RIN_OFF=(function(){ try{ const q=/[?&]rin=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_rinoff','1'); else localStorage.removeItem('gvt_rinoff'); } return localStorage.getItem('gvt_rinoff')==='1'; }catch(e){ return false; } })();
+var RIN={ v:1, kc:0, busy:0, asks:0, at:0, res:'', err:0, iv:0 };   // kc = this boot is a reinstall still deciding · asks/at = HQ asked (count, the last ask's clock) · res = the last answer: dark | back | none | thin | gone
+RIN.kc=(!RIN_OFF && ACS.on && META_FRESH && typeof window.__GVT_KC_DEVICE==='string' && !!window.__GVT_KC_DEVICE && META.deviceId===window.__GVT_KC_DEVICE && !META.ngpU && !META.account)? 1 : 0;
+if(RIN.kc){ try{ acsStore(Object.assign(acsLoad(), { pend:META.deviceId })); }catch(e){ RIN.err++; } }   // (2) hold every push from the first frame: nothing of this empty army leaves until HQ has answered
+function rinAsk(force){
+  if(!RIN.kc || RIN.busy || ACS.gone || ACS.hold) return;
+  if(!acsPend(acsLoad())){ RIN.kc=0; return; }   // settled by another road (a sign-in decided)
+  if(S.mode!=='menu' && S.mode!=='title') return;   // the title or the room: an army is never swapped under a fight (the pend holds every push meanwhile); a reinstall boots on the title, so its army comes back before PRESS START
+  const now=Date.now(); if(!force && RIN.asks && now-RIN.at<ACS_GAP) return;
+  RIN.busy=1; RIN.asks++; RIN.at=now; ACS.hold=now;
+  const dev=META.deviceId, pre=JSON.stringify(META), A=accLoad();
+  const ask=netFetch(NET+'/save/get', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ device:dev, cv:GVT_CV }) }).then(r=>r.json()).catch(()=>null);
+  return Promise.race([ ask, new Promise(r=>setTimeout(()=>r(null), ACS_WAIT)) ]).then(hq=>{
+    RIN.busy=0;
+    if(ACS.gone || !RIN.kc || !acsPend(acsLoad()) || (ACS.hold && ACS.hold!==now)){ if(ACS.hold===now) ACS.hold=0; RIN.res='gone'; RIN.kc=0; return; }   // another road settled it while HQ answered (a sign-in's own pull: its hold, its pick)
+    if(!hq || hq.err==='offline' || !hq.ok){ ACS.hold=0; RIN.res='dark'; return; }   // (4) no answer: hold on, ask again a minute on
+    let ht=null; if(typeof hq.m==='string' && !hq.none){ try{ ht=JSON.parse(hq.m); }catch(e){ ht=null; } }
+    if(ht && ht.v===1 && typeof hq.uid==='string' && hq.uid && accHasPlay(hq.m)){   // (3) HQ keeps this phone's army: it comes back
+      RIN.res='back'; const a0=META.account, c0=META.crew;
+      if(!META.account && (ht.account==='apple' || ht.account==='google')) META.account=ht.account;   // the copy's own sign-in (acsPick stamps the phone's onto HQ's copy; a reinstall has none of its own)
+      if(!META.crew && ht.crew && typeof ht.crew.code==='string' && ht.crew.code) META.crew={ code:String(ht.crew.code), name:String(ht.crew.name||'THE SQUAD') };   // and its squad (the squad's poll stays HQ's truth)
+      const res=acsPick(pre, A, hq.uid, hq); ACS.hold=0; RIN.kc=0;
+      if(res==='dark' || !ACS.gone){ META.account=a0; if(c0) META.crew=c0; else delete META.crew; }   // the disk refused (acsPick: ACS.gone, nothing leaves this session; the next boot decides again)
+      return; }
+    RIN.res=ht? 'thin' : 'none'; RIN.kc=0;   // (5) HQ holds no army for this phone (or one with no play): the new army is the phone's
+    const st=acsLoad(); delete st.pend; acsStore(st); ACS.hold=0; acsPush('in');
+  }).catch(()=>{ RIN.busy=0; ACS.hold=0; RIN.err++; });
+}
+function rinTick(){ try{ if(!RIN.kc){ if(RIN.iv){ clearInterval(RIN.iv); RIN.iv=0; } return; } if(!document.hidden) rinAsk(0); }catch(e){ RIN.err++; } }
+if(RIN.kc){ setTimeout(rinTick, 0); RIN.iv=setInterval(rinTick, 1000); }   // the room's first frame, then each second until it settles (the ask itself waits a minute after a dark answer)
+function rinRig(o){ o=o||{}; if(o.ask){ RIN.at=0; rinAsk(1); }
+  return { cv:GVT_CV, v:RIN.v, off:RIN_OFF, kc:RIN.kc, busy:RIN.busy, asks:RIN.asks, res:RIN.res, err:RIN.err, fresh:META_FRESH? 1 : 0, kcDev:(typeof window.__GVT_KC_DEVICE==='string')? window.__GVT_KC_DEVICE : null, pend:acsPend(acsLoad())? 1 : 0, hold:ACS.hold? 1 : 0, gone:ACS.gone? 1 : 0 }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.rin=rinRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar)
+// ═══ END CARD-RIN ═══
 // native sign-in callbacks land here
 window.GVTN = {
   appleSignIn(){ sioGo(); },   // CARD-SIO: the latch, the watchdog and the bridge call live in sioGo (one tap at a time; no bridge at all = the line on the card)
@@ -90757,7 +90801,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
