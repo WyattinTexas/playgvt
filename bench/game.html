@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.50","md5":"131dc57e5498860179ea2262e8c2893e","sha":"e8e4374e9a","at":"2026-10-23T06:49:28Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.51","md5":"9018d372f0dd628e62ee464253ce02c6","sha":"d3ceafcd74","at":"2026-10-23T07:00:23Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -90746,7 +90746,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.50';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.51';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -196078,7 +196078,7 @@ function lbwbTick(dt){ const rd=S.raid; if(!rd || rd.k!=='wreck' || rd.cfg!==S.c
   if(S.wave<S.cfg.waves.length || S.queue.length || S.foes.length) return;
   rd.won=true; rd.void=1;   // void = the voided-run road at the verdict (endBattle's raid branch: no purse, no day-cap wing, no ledger cell, no prize row): nothing banked until LBW-D's king stands here (its card lifts this line)
   if(!coopGuest() && !S.cleared){ S.cleared=true; S.forms.length=0; S.queue.length=0; S.waveActive=false; S.bossKilled=true; startVictoryFlag(120, 1, null, dyeHex()||GREEN, ()=>{ if(S.mode==='play') endBattle(true); }); } }
-{ const b0=crewRaidBoom; crewRaidBoom=function(tier){ if(RAID_CUR==='wreck' && typeof COOP!=='undefined' && COOP && COOP.code && (COOP.members||[]).length>=2){ try{ wtToast(t(LBWB_SOLO)); }catch(e){} return Promise.resolve(true); } return b0.apply(this, arguments); }; }   // a party at the wreck waits for the server card (the Land of Sweets' precedent: no band on HQ yet)
+{ const b0=crewRaidBoom; crewRaidBoom=function(tier){ if(RAID_CUR==='wreck' && !(typeof lbwg2Door==='function' && lbwg2Door()) /* CARD-LBW-G2: held only until HQ says it knows the throne */ && typeof COOP!=='undefined' && COOP && COOP.code && (COOP.members||[]).length>=2){ try{ wtToast(t(LBWB_SOLO)); }catch(e){} return Promise.resolve(true); } return b0.apply(this, arguments); }; }   // a party at the wreck waits for the server card (the Land of Sweets' precedent: no band on HQ yet)
 // ───── THE LOBBY'S DRESS: Layla's four chips from the first look (the fourth dark with its lock until HARD falls), Sarge's line under them
 { const r0=renderRaidScene; renderRaidScene=function(){ r0.apply(this, arguments); if(RAID_CUR==='wreck'){ try{ lbwbLobbyDress(); }catch(e){ try{ console.error('CARD-LBW-B lobby', e); }catch(e2){} } } }; }
 function lbwbLobbyDress(){ const sc=document.getElementById('raidscene'); if(!sc) return; sc.classList.add('lbwb');
@@ -196871,6 +196871,41 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.lbwf) GVT.lbwf=function(){ con
     bay:el? !!el.querySelector('#lbwf-bay') : null, veil:el? (function(){ const v=el.querySelector('.tm-veil[data-room="cove"]'); return v? { reveal:v.hasAttribute('data-reveal'), lift:v.classList.contains('lift') } : null; })() : null,
     rib:el? (function(){ const g=el.querySelector('.tm-rib[data-room="cove"]'); return g? { dark:g.classList.contains('dark'), text:g.textContent } : null; })() : null, raid:!document.getElementById('raidscene').classList.contains('hidden')? RAID_CUR : null, park:parkSceneOpen()? PARK_CUR : null, room:roomCur() }; }; }catch(e){} }, 0);
 // ═══ END CARD-LBW-F ═══
+// ═══ CARD-LBW-G2 · THE PARTY DOOR AT THE WRECK (sec:CARD-LBW-G2; design/boss-world-layla-1022/build-lbwg2/00-BUILD-LBW-G2.md; jumpr 2605). LAYLA'S DESIGN (card 2519: the record ../00-DESIGN-LBW.md, round 2 §6, the row LBW-6) BUILT ON WYATT'S OWN GO (Discord 10/22/2026 18:36 EDT, verbatim: "Have the fight implemented and enabled, and only accessed if you type "pirate" in the code room. ... Let's have it be playable and implemented then loop Layla in once it's live. Questions go with the recommended."). ═══
+// WHAT IT WAS: CARD-LBW-B shut the party door at THE SUNKEN SHIP until HQ knew the throne: RAID_INFO.wreck.plc '' (no party place) and its crewRaidBoom wrap toasted THE SUNKEN SHIP IS SOLO FOR NOW to a party of two or more. Server v143 (CARD-LBW-G) stores a wreck order verbatim ({t:'wreck', n 1..4}, the band 9200+n) and /gvt/health says wreck: true.
+// NOW, the chess set's client half as the precedent (CARD-MCO-B): (1) the party's place word is 'cove' (^[a-z]{1,6}$), named THE PIRATE COVE (the lobby's own wordmark, x7 already): the party MOVES there, the beacon and the lobby chip name it, a member walks in behind the leader;
+// (2) pg = MEGA RIDES A PARTY (band 4) where the leader's save has HARD beaten (wreckMegaOpen; Wyatt 10/10: "Allow all of the Mega fights to be played co-op. There should be no solo-only fight.");
+// (3) ride = THE PARTY RIDES THE LEADER'S CODE (the sky's law, LBWG2-Q1 at the REC): the gate is the leader's code PIRATE; a guest without it is pulled in by the leader's order (ptyFollowing) and sees nothing of the cove on his own map until he types it. The cell a party win writes (META.wreckRode) is a mark nothing reads as a lock: never the deed, never the code.
+// (3b) THE GUEST'S RIDE-JOIN: the cove's world joins a save only with the code (lbwbJoin and its chain read META.pirate), so a code-less guest pulled in had no King Kraken to draw (her lobby threw in sprURI). When she is pulled to the cove (openRaidScene as a follower) or an order starts THE SUNKEN SHIP on her sim (startRaidBattle), ONLY what the fight draws and says joins, in memory: the molds (lbwaJoin + CARD-LBW-H's figures), Sarge's wave lines (LBWD_SAY) and the cove's own day cap (wing 'wreck', the leader's purse law). Nothing a menu shows: no hero, no wallpaper, decor, part or hat row, no Log row, no save key; she sees the cove's world for good when she types PIRATE.
+// (4) SERVER-FIRST: the door opens only once HQ has said it knows the throne: ONE GET of /gvt/health when the cove's lobby opens (again a minute later if HQ said no or did not answer); until wreck:true comes back CARD-LBW-B's solo toast stands, so a client on an older HQ never sends a word HQ folds.
+// (5) the lobby's four chips keep raidTierOpenFor's chain for the leader (CARD-LBW-B's own). Zero new words, zero CSS, zero server bytes, zero sw.js. THE DOOR: ?lbwg2=0 on a device = the solo cove as CARD-LBW-B laid it (gvt_lbwg2off); ?lbwg2=1 clears it. GVT.lbwg2() the rig's read.
+const LBWG2_OFF=(function(){ try{ const q=/[?&]lbwg2=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_lbwg2off','1'); else localStorage.removeItem('gvt_lbwg2off'); } return localStorage.getItem('gvt_lbwg2off')==='1'; }catch(e){ return false; } })();
+var LBWG2={ v:1, plc:'cove', hq:null, asks:0, askT:0, busy:0, held:0, rode:0, err:0 };   // the place word · HQ's word (null not asked, true knows the throne, false does not) · GETs sent · the last ask's clock · a GET in flight · DEPLOYs held by the solo toast (LBW-B's wrap) · the guest's ride-join ran · errors
+function lbwg2On(){ return !LBWG2_OFF && !!(typeof RAID_INFO==='object' && RAID_INFO && RAID_INFO.wreck); }
+function lbwg2Door(){ return lbwg2On() && LBWG2.hq===true; }   // CARD-LBW-B's crewRaidBoom wrap reads this: true = HQ knows the throne, the party launches together
+function lbwg2Ask(){ if(!lbwg2On() || LBWG2.hq===true || LBWG2.busy) return; const now=Date.now(); if(LBWG2.asks && now-LBWG2.askT<60000) return;   // once; a "no" or a miss asks again a minute on
+  LBWG2.busy=1; LBWG2.asks++; LBWG2.askT=now;
+  try{ netFetch(NET+'/health', { cache:'no-store' }).then(r=>r.json()).then(j=>{ LBWG2.busy=0; LBWG2.hq=!!(j && j.wreck===true); }, ()=>{ LBWG2.busy=0; }); }catch(e){ LBWG2.busy=0; LBWG2.err++; } }
+if(lbwg2On()){ try{
+  PTY_PLACES[LBWG2.plc]='THE PIRATE COVE';   // the party's place word x7 (the lobby's wordmark, CARD-LBW-B's row wm)
+  RAID_INFO.wreck.plc=LBWG2.plc;   // was '' (no party place until the server card knew the throne)
+  RAID_INFO.wreck.pg=1;   // MEGA rides a party (band 4 = 9204), the caves', the sky's, the chess set's law
+  RAID_INFO.wreck.ride='wreckRode';   // the party rides the leader's code (ptyRaidCap answers null); a seat without the code that wins with its party gets this mark alone, read by nothing
+  }catch(e){ LBWG2.err++; try{ console.error('CARD-LBW-G2 row', e); }catch(e2){} } }
+function lbwg2RideJoin(){ if(LBWG2.rode || !lbwg2On() || META.pirate) return 0; LBWG2.rode=1; let n=0;   // a guest without the code: only what the fight draws and says (see (3b))
+  try{ if(typeof lbwaJoin==='function'){ lbwaJoin(); n++; } }catch(e){ LBWG2.err++; }   // the molds (King Kraken, the four, the shore's figures): sprites only, minted now when the boot is past
+  try{ if(typeof LBWD_SAY==='object' && typeof SB_LINE==='object'){ for(const k in LBWD_SAY) if(!SB_LINE[k]) SB_LINE[k]=LBWD_SAY[k]; n++; } }catch(e){ LBWG2.err++; }   // Sarge's banner at each of the four's walk-on (lbwdJoin's own line)
+  try{ RAID_INFO.wreck.wing='wreck'; n++; }catch(e){ LBWG2.err++; }   // the cove's own day cap, as on the leader's sim (lbwcJoin's own line)
+  return n; }
+{ const o0=openRaidScene; openRaidScene=function(id){ try{ if(id==='wreck' && lbwg2On() && !META.pirate && ptyGuestRaid('wreck')) lbwg2RideJoin(); }catch(e){ LBWG2.err++; } return o0.apply(this, arguments); }; }   // a member walking in behind the leader joins the fight's pictures before the lobby paints
+{ const s0=startRaidBattle; startRaidBattle=function(tier, rk){ try{ if(rk==='wreck' && lbwg2On() && !META.pirate) lbwg2RideJoin(); }catch(e){ LBWG2.err++; } return s0.apply(this, arguments); }; }   // an order (or the beacon) starting the cove's fight on a guest's sim
+{ const r0=renderRaidScene; renderRaidScene=function(){ r0.apply(this, arguments); try{ if(RAID_CUR==='wreck') lbwg2Ask(); }catch(e){ LBWG2.err++; } }; }   // the cove's lobby asks HQ (the leader's open, a member's walk in, a chip's repaint: one GET at most a minute)
+{ const b0=crewRaidBoom; crewRaidBoom=function(tier){ try{ if(RAID_CUR==='wreck' && !lbwg2Door() && typeof COOP!=='undefined' && COOP && COOP.code && (COOP.members||[]).length>=2){ LBWG2.held++; lbwg2Ask(); } }catch(e){ LBWG2.err++; } return b0.apply(this, arguments); }; }   // counts a held DEPLOY (CARD-LBW-B's wrap inside toasts it) and asks HQ again
+function lbwg2Rig(o){ o=o||{}; if(o.hq!==undefined) LBWG2.hq=o.hq; if(o.ask){ LBWG2.askT=0; lbwg2Ask(); } const R=(typeof RAID_INFO==='object' && RAID_INFO)? RAID_INFO.wreck : null;
+  return { cv:GVT_CV, v:LBWG2.v, on:lbwg2On(), door:lbwg2Door(), hq:LBWG2.hq, asks:LBWG2.asks, held:LBWG2.held, err:LBWG2.err, plc:R? R.plc : null, pg:R? R.pg : null, ride:R? (R.ride||null) : null, place:PTY_PLACES[LBWG2.plc]||null, word:(typeof ptyRaidWord==='function')? [1,2,3,4].map(n=>ptyRaidWord('wreck', n)?1:0) : null,
+    key:(typeof raidDoorKey==='function')? raidDoorKey('wreck') : null, mega:(R && R.mega)? !!R.mega() : null, wing:R? R.wing : null, rideJoin:LBWG2.rode, rode:(typeof META==='object' && META && META.wreckRode)? 1 : 0 }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lbwg2=lbwg2Rig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar)
+// ═══ END CARD-LBW-G2 ═══
 // ═══ CARD-PCF · PRINCESS CROAK IN FELT (sec:CARD-PCF; design/princess-felt-1023/00-CARD-PCF.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026), the jumpr guest link
 // 10/23/2026 03:21 UTC (jumpr 2583; her file's part 2/2 = jumpr 2584), verbatim head: "NEW: PRINCESS CROAK (ch 038) -- Laura's redesign. PUSH HER LIVE. Approved by Laura 10/23 ("get rid of her face thread and
 // push her live!") ... a felt frog puppet princess ... ONE DRAWING EVERYWHERE (Laura's rule): her other poses (038-b PLUCK, 038-c CHARGE, 038-d HOP, 038-e HURT, 038-f FALL) still show the OLD design -- please rebuild
