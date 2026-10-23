@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.72","md5":"cc0afb01f19cb4fad4481ab53a8c00f3","sha":"22d02f5137","at":"2026-10-23T20:09:55Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.73","md5":"9fab9879a426cbe5c7e0cb9ed41a88f1","sha":"5a0ccef7d8","at":"2026-10-23T20:21:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91181,7 +91181,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.72';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.73';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -197938,6 +197938,29 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.lbwt) GVT.lbwt=function(o){ o=
     ids:lbwtIds(), lobby:lbwtLobby()? 1 : 0, layer:!!sv, pads:pads, spk:sv? sv.querySelectorAll('.lbwt-spk:not(.sp)').length : -1, hid:sv? [].slice.call(sv.querySelectorAll('.lbwt-spk')).filter(function(e){ return e.style.display==='none'; }).map(function(e){ return e.parentNode.getAttribute('data-k'); }) : [], off:sv? [].slice.call(sv.querySelectorAll('.lbwt-fig[data-off]')).map(function(e){ return e.getAttribute('data-k'); }) : [], chrome:lbwtChrome().length, fits:LBWT.fits, spent:sv? sv.querySelectorAll('.lbwt-spk.sp').length : -1, pops:sv? sv.querySelectorAll('.lbwt-pop').length : -1,
     paints:LBWT.paints, taps:LBWT.taps, paidSum:LBWT.paid, spentTaps:LBWT.spentTaps, err:LBWT.err, last:LBWT.last, paid:paid, bank:META.starBank|0, life:META.starsLifetime|0, ceiling:LBWT_ORDER.length*starX(LBWT.base), rm:reducedMotion()? 1 : 0, king:!!(document.querySelector('#raidscene img.wt-flank.r')||{}).__lbwt }; }; }catch(e){} }, 0);
 // ═══ END CARD-LBW-TAP ═══
+// ═══ CARD-LBW-WP · THE COVE'S WALLPAPER ASK, ONCE (sec:CARD-LBW-WP; design/boss-world-layla-1022/build-lbwwp/00-BUILD-LBW-WP.md; jumpr 2629). LAYLA 10/23/2026 15:49:21 EDT by WhatsApp, verbatim: "that's also just fix a quick small thing in the game already when you beat level easy on  The Cove you unlock the wallpaper if someone says not now or to hang it up / only show that once don't repeat it and just leave the wallpaper on if they clicked yes and just leave it off if they said no and don't keep popping it up" · WYATT 10/22/2026 19:25 EDT by Discord: her cove work goes live on her word. ═══
+// THE CAUSE: the boot's fresh-build (wpapNorm, the load's own whitelist) drops every wallpaper id WPAP_ORDER does not list YET, and 'kraken' joins WPAP_ORDER only at the cove's join (lbwcJoin, far below the load). So every boot wiped 'kraken' from META.decor.wall.ann (the sweep asked again), .seen and .on (HANG IT came down), and saved the wiped ledger back.
+// THE FIX: the three KING KRAKEN cells ride a key of their own the load keeps whole (META.lbwwp { a: asked, s: seen, on: hung }), copied off the ledger at every save once the cove has joined (saveMeta wrapped by name); put back into the ledger right after the join (this sec's top level = the boot, and wpapSweep wrapped by name for a late join).
+// Asked once: HANG IT! = the wallpaper stays up; NOT NOW = it stays off (the picker on the wall still holds it); the card never comes back. A save from before this fix (no pin) is asked one last time, and that answer sticks.
+// ?lbwwp=0 on a device = off (gvt_lbwwpoff; ?lbwwp=1 lifts it). Zero CSS, zero words, zero server bytes, zero sw.js. GVT.lbwwp() the rig's door.
+var LBWWP={ v:1, id:'kraken', on:(function(){ try{ const m=/[?&]lbwwp=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_lbwwpoff','1'); else localStorage.removeItem('gvt_lbwwpoff'); } return localStorage.getItem('gvt_lbwwpoff')==='1'? 0 : 1; }catch(e){ return 1; } })(), ready:0, heals:0, put:0, pins:0, err:0 };
+function lbwwpJoined(){ return !!(WPAP[LBWWP.id] && WPAP_ORDER.indexOf(LBWWP.id)>=0); }   // the cove's wallpaper is in the table and the order (lbwcJoin ran)
+function lbwwpPinOf(w){ const id=LBWWP.id; return { a:w.ann.indexOf(id)>=0? 1 : 0, s:w.seen.indexOf(id)>=0? 1 : 0, on:w.on===id? 1 : 0 }; }
+function lbwwpPin(){ if(!LBWWP.on || !lbwwpJoined()) return 0; if(!LBWWP.ready) lbwwpHeal(); const w=wpapLedger(); if(!w) return 0; const p=lbwwpPinOf(w), o=META.lbwwp;   // the ledger -> the pin (the ledger is the truth once healed: a save before the heal heals first, so a stripped ledger never overwrites the pin)
+  if(o && typeof o==='object' && o.a===p.a && o.s===p.s && o.on===p.on) return 0; META.lbwwp=p; LBWWP.pins++; return 1; }
+function lbwwpHeal(){ if(!LBWWP.on || !lbwwpJoined()) return 0; LBWWP.ready=1; const p=META.lbwwp; if(!p || typeof p!=='object') return 0;   // the pin -> the ledger, after the load's whitelist dropped the id
+  const id=LBWWP.id, w0=wpapLedger(); if(w0 && (!p.a || w0.ann.indexOf(id)>=0) && (!p.s || w0.seen.indexOf(id)>=0) && (!p.on || w0.on)) return 0;
+  const w=wpapLedgerW(); let n=0;
+  if(p.a && w.ann.indexOf(id)<0){ w.ann.push(id); n++; }
+  if(p.s && w.seen.indexOf(id)<0){ w.seen.push(id); n++; }
+  if(p.on && !w.on && wpapOwns(id)){ w.on=id; n++; LBWWP.put++; }   // HANG IT! stays hung (a wall hung since with another paper keeps that one: the pin would read on 0)
+  if(n){ LBWWP.heals++; saveMeta(); } return n; }
+{ const s0=saveMeta; saveMeta=function(){ try{ lbwwpPin(); }catch(e){ LBWWP.err++; } return s0.apply(this, arguments); }; }   // every writer of the ledger (the sweep, HANG IT!, the picker, its NEW! chips) is copied at its own save
+{ const w0=wpapSweep; wpapSweep=function(){ try{ lbwwpHeal(); }catch(e){ LBWWP.err++; } return w0.apply(this, arguments); }; }   // the heal stands before every ask (a join after the boot)
+try{ lbwwpHeal(); }catch(e){ LBWWP.err++; }   // the boot: every cove sec above joined the wallpaper; the room paints after the script
+setTimeout(function(){ try{ if(window.GVT && !GVT.lbwwp) GVT.lbwwp=function(){ const w=wpapLedger();
+  return { cv:GVT_CV, v:LBWWP.v, on:LBWWP.on, key:(function(){ try{ return localStorage.getItem('gvt_lbwwpoff'); }catch(e){ return null; } })(), joined:lbwwpJoined(), pin:META.lbwwp? JSON.parse(JSON.stringify(META.lbwwp)) : null, wall:w? JSON.parse(JSON.stringify(w)) : null, cur:wpapCur(), owns:wpapOwns(LBWWP.id)? 1 : 0, ready:LBWWP.ready, heals:LBWWP.heals, put:LBWWP.put, pins:LBWWP.pins, err:LBWWP.err }; }; }catch(e){} }, 0);
+// ═══ END CARD-LBW-WP ═══
 // ═══ CARD-RSL · THE iPHONE KEEPS THE GAME OPEN (sec:CARD-RSL; design/radio-silence-1023/00-CARD-RSL.md). RADIO SILENCE 10/23/2026: Layla's iPhone ends the game's page for its memory at every open since the night's landings (WhatsApp 07:02 EDT, verbatim: "everytime I open the app it keeps saying 'radio silence' and it keeps on saying press to start and I press it and it keeps poping up"). ═══
 // THE CAUSE (measured on HER army, WebKit at a phone's shape @3, the page process's phys_footprint, CARD-ODL's measure): her bedroom after PRESS START 680 MB on v26.09 -> 770-790 MB on v26.53, from two
 // cards: CARD-STF (v26.27, Laura's nine stuffies: +67 MB in the bedroom) and CARD-PCF (v26.42, Laura's felt Princess Croak: +66 MB at the title, +56 MB in the bedroom). Both cards' own switches off = 685 MB.
