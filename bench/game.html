@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.03","md5":"f625a4d13d27cf773d29f6f4cb7a952b","sha":"ac9418e020","at":"2026-10-24T04:17:04Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.04","md5":"c0f33ed21db3c8ea73caf13af2bcaa65","sha":"f0faf5fe76","at":"2026-10-24T04:55:15Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -55899,7 +55899,7 @@ function tslPush(u,e){ if(!tslRed(u)){ S.fx.push(e); return; } const r=rlzRow();
 function tslCase(c,e,k){ if(!tslShade()) return; const w=e.w||2.5; if(w<TSL.minW || (e.a!=null && e.a<1)) return; TSL.n.cased++; c.globalAlpha=(1-k)*TSL.a; c.strokeStyle=TSL.hex; c.lineWidth=w+TSL.pad; c.beginPath(); c.moveTo(e.x1,e.y1); c.lineTo(e.x2,e.y2); c.stroke(); }   // under the tracer, before its own stroke (the painter sets its own alpha, colour and width right after)
 function tslRig(o){ o=o||{}; if(o.zero){ TSL.n.red=0; TSL.n.cased=0; } return { on:TSL.on, shade:tslShade(), opener:!!(S.bf && S.bf.opener), snow:snowField(), foeHex:rlzRow().hex, n:Object.assign({},TSL.n), fx:S.fx.filter(e=>e.k==='tracer').map(e=>({ col:e.col||null, w:e.w||null, a:e.a==null? null : e.a, x1:Math.round(e.x1), x2:Math.round(e.x2) })) }; }
 // ═══ END CARD-TSL ═══
-function lzDmgMul(u){ const c=lzOf(u); return c==='red'? 1+LZ_DMG : c==='silver'? 1+LZ_SILVER_D : c==='slug'? 1+LZ_SLUG_D : c==='outlaw44'? LZ_O44.dmg : 1; }   /* CARD-BBS-C6: the .44s +5 % */
+function lzDmgMul(u){ const c=lzOf(u); return c==='red'? 1+LZ_DMG : c==='silver'? 1+LZ_SILVER_D : c==='slug'? 1+LZ_SLUG_D : c==='outlaw44'? LZ_O44.dmg : 1; }   /* CARD-BBS-C6: the .44s +7 % (CARD-O44; C6 built +5 %) */
 function lzRateMul(u){ const c=lzOf(u); return c==='blue'? 1+LZ_RATE : c==='silver'? 1+LZ_SILVER_RT : c==='slug'? 1-LZ_SLUG_RT : c==='outlaw44'? LZ_O44.rate : 1; }   /* CARD-BBS-C6: the .44s fire 5 % slower */
 function lzRngMul(u){ return lzOf(u)==='tan'?  1+LZ_RNG  : 1; }
 // the stride tune — bfMarch's ONE speed line, both carpets: the green beam
@@ -91349,7 +91349,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -104250,7 +104250,7 @@ function rollCrit(u,tgt){ const r9=Math.random() < critChance(u,tgt); if(r9 && u
 function critMult(u){
   let m=CRIT_MULT*sqlCritX(u);   /* CARD-SQL L8 THE SQUAD PANTS x1.15 beside a squadmate · L10 THE SQUAD'S EYE x1.10 on the picked type */
   if(lzOf(u)==='teal') m*=1+LZ_CRITDMG;
-  if(lzOf(u)==='outlaw44') m*=LZ_O44.critX;   // CARD-BBS-C6 THE OUTLAW .44s: +9 % CRIT damage (the teal's own seat)
+  if(lzOf(u)==='outlaw44') m*=LZ_O44.critX;   // CARD-BBS-C6 THE OUTLAW .44s: +18 % CRIT damage (the teal's own seat; CARD-O44, C6 built +9 %)
   if(u.type==='sarge' && unitSargeStats(u).cz==='teal') m*=1+LZ_CRITDMG;
   if(u.type==='sarge' && unitSargeStats(u).ib) m*=1+IB_CRITDMG;   // 1153 THE ICE BLADE: crit damage ×2 off the bag (a crit lands ×4)
   if(OF_SCOUTER_CRITDMG>0 && !u.coopBy && !u.coopMods && !(S.bf && !bfHumanU(u)) && outfitOn('scouter')) m*=1+OF_SCOUTER_CRITDMG;   // 0593 THE SCOUTER: YOUR men's crits land 40% harder while Sarge wears it (the dog glasses' ownership predicate — never a relayed ally's men, never the AI chairs; the outfit never rides the wire), multiplicative with the teal beam/crystal (the shipped stacking grammar); critChance untouched — chance is the orange's, damage the teal's and the scouter's. ⚑ Q6 army-wide (every other outfit number is Sarge's own through his bag)
@@ -199578,7 +199578,7 @@ Object.assign(TR["ar"]||(TR["ar"]={}), {"THE BUFFALO BILL SHOWDOWN":"مواجه�
 //   at twice his pistol's bite; 8 s between hops; no downside (the raid hats' precedent).
 // The words x7 (the TR rows at the foot); GVT.bbs6(o) for the rigs (the reads + the levers: a forced roll, the prizes by hand). Zero server bytes (the mo clamp is 96 since server v140), zero save shape (META.lasers, META.enh, META.outfit
 // carry the three as every other prize), zero css, zero sw.js.
-const LZ_O44={ dmg:1.05, rate:0.95, critX:1.09, p:0.01, x:3, thru:2, half:54, len:1.0, beat:0.35, hex:'#9C8F82', lead:'#8E8378', brass:'#C9A227' };   // THE OUTLAW .44s: +5 % damage · fires 5 % slower · +9 % CRIT damage · the Little Fire Away 1 in 100 (riflemen and medics: BBS-Q12), 3x the bite, through 3 men, 1.0 s, the rounds 0.35 s apart
+const LZ_O44={ dmg:1.07, rate:0.95, critX:1.18, p:0.01, x:3, thru:2, half:54, len:1.0, beat:0.35, hex:'#9C8F82', lead:'#8E8378', brass:'#C9A227' };   // THE OUTLAW .44s: +7 % damage · fires 5 % slower · +18 % CRIT damage (CARD-O44, Wyatt's phone 10/23/2026 20:45 EDT, jumpr 2654: "Adjust the Outlaw 44s and their graphic to do 7% damage, 18% crit damage." C6 built +5 % · +9 %; the rail's power line, the verdict's ticket and the words x7 read these dials through o44Line) · the Little Fire Away 1 in 100 (riflemen and medics: BBS-Q12), 3x the bite, through 3 men, 1.0 s, the rounds 0.35 s apart
 const LZ_O44_ROW={ id:'outlaw44', hex:LZ_O44.hex, name:'THE OUTLAW .44s' };   // the rail's row (lrcBeams / shopLasersInnerHTML add it once owned; lrcModelOf hands it THE IRON, the Yellow Boy chambered .44s)
 const BFP={ rate:0.82, p:0.10, x:10, thru:2, half:54, plant:0.45, beat:0.6, holster:0.45, v:2400, len:26, stop:0.09, push:null, sync:420, hex:'#E0B868' };   // BILL'S PISTOL: x0.82 on the rate · 1 in 10 · ten times the bite · through two, stopping in the third · the plant, two beats, the holster = 2.1 s · the slug's pace and streak · the shove = FIRE AWAY!'s own dial (push null: SKD.push, Wyatt's 2 m since CARD 2483) · THE SYNC's reach 15 m
 const OF_TSH={ qd:0.3, cd:8, x:2, shotR:420 };   // THE TOMBSTONE HAT: THE QUICK DRAW x0.3 on the next shot's cooldown when his target changes · THE JUMP BACK every 8 s · the counter shot at twice his pistol's bite, reaching the shooter within 15 m of where he lands (his pistol's own 108 px would answer almost no Tan rifle: ⚑ C6-Q3)
