@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.04","md5":"c0f33ed21db3c8ea73caf13af2bcaa65","sha":"f0faf5fe76","at":"2026-10-24T04:55:15Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.05","md5":"2e0e61ce079782f0875bb6b290ad4454","sha":"e50e69946b","at":"2026-10-24T12:02:25Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -85121,6 +85121,8 @@ const LOC_TRACKS={
   ,reverie: { gen:rvhGen, band:'m', raw:-27.7, hp1:-27.8, fin:0.8 }   // CARD-RVH HER RÊVERIE: PRINCESS CROAK plays Debussy's Rêverie on her harp (the block after ARB_M4A has the record; public domain + CC0, no credit line): THE FORT's music while the yard stands after a tap on her (locNow's line through rvhOn), never a record, never a place; the file is SERVED (reverie-harp.m4a, fetched at her first tap), decoded by its own gen; fin 0.8 = her first notes arrive softly
   ,chessset: { gen:chsBedGen, band:'m', raw:-20.0, hp1:-20.1, fin:1.0 }
   ,nutball: { gen:ncmGen, band:'m', raw:-20.1, hp1:-20.6, fin:1.0 }   // CARD-NCM THE NUTCRACKER'S OWN SCORE (FROM DYLAN 10/11): NUTCRACKER'S BALL's ballroom (the park 'nut', locNow's park clause) plays the studio's own orchestration of Tchaikovsky's Nutcracker, the movement of the rung the player stands at — a bed the page SYNTHESIZES (ncmGen, the sec after the chess set's bed; public domain, no file, no credit line); raw/hp1 = ffmpeg ebur128 on the rendered loops (build-ncm/score/measure.log: every movement levelled to NCM.rms); A PLACE (the park) and a RECORD on the fort's player (RCP_SONGS' row)   // CARD-CHS11 THE CHESS SET'S OWN SONG (CHS6-Q14's REC, his 10/7 13:08 word): THE CHESS SET's lobby (RAID_INFO.chess.bed, CHS1's), a bed the page SYNTHESIZES (chsBedGen, the section after the caves' bed: a music box's comb and a clock; no file, no credit line); A PLACE through locNow's thrones line, and a RECORD on the fort's player (RCP_SONGS' row THE CHESS SET); the battle mute stands (0462: NEMESIS brings his own bed, CHS5's clause). raw/hp1 = ffmpeg ebur128 on the rendered loop (build-chs11/logs/measure.log); fin = its own arrival, the comb's first notes coming up softly
+  ,slmbox: { gen:slmBoxGen, band:'m', raw:-20.3, hp1:-20.4, fin:1.0 }   // CARD-SLM THE MUSIC BOX (FROM DYLAN 10/24, their cutscene's music): THE DANCE OF THE SUGAR PLUM FAIRY, the ballroom's own orchestration, under SARGE'S LAST DANCE until the Mouse King enters (locNow's slmUp clause; sec CARD-SLM); the rulers measured on the render (kit/measure_slm.sh)
+  ,slmking: { gen:slmKingGen, band:'m', raw:-19.6, hp1:-20.7, fin:0.05 }   // CARD-SLM THE MOUSE KING: this card's own cue in the score's grammar, the war dress; fin 0.05 = the hit lands at once (slmSharp keeps it sharp through the CHANGE)
 };
 // THE MIX, APPLIED — the ONE place a location's gain is ever set. Each row lands
 // on its own band's target at the speaker, so no two places can step against
@@ -85196,6 +85198,7 @@ function locNow(){
   // one-buffer law lets the PCM go for the fight, as every other door does).
   if(ncmInFight()) return 'nutball';   // CARD-NCM ⚑ NCM-Q1 (dormant, NCM.fight 0): the rung's movement THROUGH the ball's fights alone, on Wyatt's word; the 0462 battle mute below stands for every other fight
   if(dcoUp()){ DCO.lit=1; return DCO.id; }   /* CARD-DCO (Isaac 10/15): THE OPENING SCENE + SARGE'S OPENING PAGES play the Drum Cadence record; the opener's own fight too (CARD-DCO2, Wyatt's grant 10/15); every other fight keeps the mute below */
+  if(slmUp()) return SLM.part==='king'? 'slmking' : 'slmbox';   // CARD-SLM SARGE'S LAST DANCE (Dylan 10/24): while the cutscene stands its music outranks the place under it (the Christmas box's hall, the ballroom's rung): THE MUSIC BOX until the Mouse King enters, THE MOUSE KING after (sec CARD-SLM)
   if(locBattle() && !(parkSceneOpen()||raidSceneOpen())) return null;   // 0903 THE PARKS SOUND ON THE WALK IN (FM-GVT-YETI-EARLY-01; Wyatt 9/2: "arrivate at Dino Park & yeti park (When auto taken to there) music didnt play first time"): 0625's flow deals the gift road's cards OVER the win face with S.mode still 'win', and the DINO PARK / YETI PARK card's IT'S MINE opened the park under this mute (the door path lands at the menu and never met it) - a park or throne scene standing over a folded verdict is where the kid stands; a live fight hides every scene at its door, so the mute is byte-what-it-was there
   if(fzbOn()) return null;   // CARD-FZB R10 (Dylan 10/15 14:37): FUZZIES plays its own rag; the lobby's bed goes out at the bar's door (fzbBedSync: locSync at the open) and comes back at the ✕ (locSync at the close), the SARGE DOWN shape
   if(sdnUp()) return null;   // CARD-SDN-LOG: while SARGE DOWN plays over the Log the film's track has the speaker: the Log's bed goes out under it (locSync at the open) and nothing revives it until the ✕ (sdnClose: locSync + themeHome)
@@ -91349,7 +91352,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.05';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -202800,6 +202803,62 @@ function clmRig(o){ o=o||{}; try{ if(o.rank!=null){ META.sargeUp=META.sargeUp||{
       "LEVEL {0} · RANK {1}":"المستوى {0} · الرتبة {1}","BEAT CAMPAIGN LEVEL {0} · OR THE CLAYMORE AT RANK {1}":"اهزم مستوى الحملة {0} · أو الكلايمور عند الرتبة {1}"} };
   for(const lg in W9){ const tb=TR[lg]||(TR[lg]={}); for(const k in W9[lg]) if(!(k in tb)) tb[k]=W9[lg][k]; } })();
 // ═══ END CARD-CLM ═══
+// ═══ CARD-SLM · SARGE'S LAST DANCE: THE MUSIC (sec:CARD-SLM; design/sarges-last-dance-music-1024/00-CARD-SLM.md; jumpr 2670, J1, acct F). DYLAN on WhatsApp 10/24/2026 07:15 EDT, answering their own cutscene card (2669, built on Maker 1 as M2669, sec CARD-LDN), verbatim: "Also, please have nutcracker music playing in the background up until the mouse king enters. Then let’s add dramatic theme music please. Thank you!" ═══
+// TWO BEDS AND ONE DOOR, no second engine: the cutscene's music rides the beds' engine (LOC_TRACKS / locNow / locSync: the crossfades, the mix law, the HQ mute and the 🔊 chip, the duck, the medic, the put-away, the one-buffer law) and THE NUTCRACKER'S OWN SCORE (CARD-NCM, Dylan's 10/11 go).
+//   THE MUSIC BOX (the row slmbox, LOC_TRACKS): THE DANCE OF THE SUGAR PLUM FAIRY, the ballroom's own orchestration (ncmRender('sugar'): the celesta over pizzicato and the bass clarinet; NCMB.cache read when it already holds it), looping while the scene stands; the level the scene asks for rides the duck node (slmLevel: faint from afar in the winter field, full at the music box; locSwell's own seat).
+//   THE MOUSE KING (the row slmking): this card's own cue in the score's grammar (NCM_SCORE.mouseking, kit/genKing.py: E minor, 88, eight bars; the trumpets' mock-March motif B B B C, the Phrygian F, the low brass, the chromatic climb to the dominant, the loop's return the next hit) in the WAR dress (the timpani, the bass drum, the snare, the cymbal at bar 0; the brass up), fin 0.05: the hit lands at once.
+//   THE DOOR sldMusic(part, level): 'prep' renders both ahead, no sound (the Sugar Plum takes 2-6 s on a phone) · 'box' · 'king' (the box crossfades out over LOC_XFADE, the king in sharp) · 'off' (every exit of the scene: the place's own bed back through locSync, the bedroom's theme back through themeHome, the renders freed). level = a number 0..1, or { level, alive } (alive() false = the scene is gone: the music ends by itself, the STOP LAW's safety net). The scene calls it GUARDED (typeof sldMusic==='function'); locNow answers the two rows while slmUp() (one clause before the battle mute).
+//   ?slm=0 on a device = the scene without this music (the device key gvt_slm; ?slm=1 back) · ?slm=box|king = an audition on the first tap at the menu (90 s, the menu alone). GVT.slm(v) = the rig's door. Zero words, css, save keys, server, sw.js, files at the root (the scene's film is CARD-LDN's).
+var SLM={ v:1, err:0, part:null, lvl:1, alive:null, until:0, aud:null, src:null,
+  on:(function(){ try{ const q=/[?&]slm=(0|1|box|king)/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_slm','0'); else if(q[1]==='1') localStorage.removeItem('gvt_slm'); } return localStorage.getItem('gvt_slm')==='0'? 0 : 1; }catch(e){ return 1; } })() };
+const SLMB={ box:null, king:null, busy:{} };   // the two renders, kept while the scene stands (freed at 'off'); busy[which] = the callbacks waiting on a render in flight
+const SLM_LVL_T=1.5, SLM_SHARP=0.05, SLM_AUD_MS=90000;   // the swell's ramp (s) · the king's own arrival when the engine's CHANGE ramp would soften the hit (s) · the audition's span (ms)
+function slmUp(){ if(!SLM || !SLM.on || !SLM.part) return false;
+  try{ if((SLM.alive && !SLM.alive()) || (SLM.until && Date.now()>SLM.until)){ SLM.part=null; SLM.alive=null; SLM.until=0; SLM.lvl=1; setTimeout(function(){ try{ themeHome(); slmFree(); }catch(e){ SLM.err++; } }, 0); return false; } }catch(e){ SLM.err++; }   // the scene gone (its alive() says so) or the audition's span up: this very knock answers the place's own bed; the bedroom's theme and the PCM one tick later
+  return true; }
+function slmFree(){ if(SLM.part) return; SLMB.box=null; SLMB.king=null; }   // the engine's own reference (LOC.buf) goes at its next change of place (locSync → locFree), as every bed's does
+function slmRender(which, ok, bad){   // one render a piece, shared by the two gens and the prep; the callbacks of a render in flight queue behind it
+  const have=SLMB[which]; if(have){ try{ ok(have); }catch(e){ SLM.err++; } return; }   // a render in hand answers AT ONCE (inside the door's own call, so the king's pass starts on the word, not a tick later)
+  const q=SLMB.busy[which]; if(q){ q.push([ok, bad]); return; }
+  const list=SLMB.busy[which]=[[ok, bad]];
+  const fin=function(buf){ SLMB.busy[which]=null; if(buf) SLMB[which]=buf; for(let i=0;i<list.length;i++){ try{ if(buf) list[i][0](buf); else list[i][1](); }catch(e){ SLM.err++; } } };
+  try{
+    if(which==='box'){ const c=NCMB.cache; if(c && c.piece==='sugar' && !c.war && c.buf){ fin(c.buf); return; } ncmRender('sugar', false, fin, function(){ fin(null); }); }   // the ballroom's own Sugar Plum (the rung-16 render, when the page holds it)
+    else ncmRender('mouseking', true, fin, function(){ fin(null); }); }   // THE MOUSE KING in the war dress
+  catch(e){ SLM.err++; fin(null); } }
+function slmBoxGen(ok, bad){ slmRender('box', ok, bad); }    // LOC_TRACKS.slmbox's gen
+function slmKingGen(ok, bad){ slmRender('king', ok, bad); }  // LOC_TRACKS.slmking's gen
+function slmLevel(){ try{ const d=LOC.d, ac=AC, s=LOC.src; if(!d||!s||!ac||ac.state!=='running'||(LOC.id!=='slmbox'&&LOC.id!=='slmking')) return false;
+  const t0=ac.currentTime, v=Math.max(0.0001, Math.min(1.41, +SLM.lvl||0)); d.gain.cancelScheduledValues(t0);
+  if(SLM.src!==s){ SLM.src=s; d.gain.setValueAtTime(v, t0); }   // a pass just born takes its level at once (under its own arrival fade)
+  else { d.gain.setValueAtTime(d.gain.value, t0); d.gain.linearRampToValueAtTime(v, t0+SLM_LVL_T); }   // a re-call SWELLS (or sinks) over SLM_LVL_T, no restart
+  return true; }catch(e){ SLM.err++; return false; } }
+function slmLevelSoon(n){ if(slmLevel() || n<=0 || !SLM.part) return; setTimeout(function(){ slmLevelSoon(n-1); }, (n>20)? 60 : 250); }   // the pass may start after a render (its own, or another bed's in flight: the engine decodes one at a time): knock until it is live, every 60 ms for the first 2.4 s, then every 250 ms (n 60 = ~7 s)
+function slmSharp(){ try{ if(LOC.id!=='slmking') return; const g=LOC.g, ac=AC; if(g && LOC.src && ac && ac.state==='running'){ const t0=ac.currentTime, v=locVol('slmking'); if(v>0){ g.gain.cancelScheduledValues(t0); g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), t0); g.gain.exponentialRampToValueAtTime(v, t0+SLM_SHARP); } } else if(LOC.fade>SLM_SHARP) LOC.fade=SLM_SHARP; }catch(e){ SLM.err++; } }   // the entrance: a live pass is pulled to its level in SLM_SHARP; a pass still rendering arrives with it instead of the CHANGE's 0.4 s
+function sldMusic(part, lvl){ try{
+  if(part==='prep'){ if(!SLM.on) return false; slmRender('box', function(){ slmRender('king', function(){}, function(){}); }, function(){ SLM.err++; }); return true; }
+  if(part==='off'){ const was=SLM.part; SLM.part=null; SLM.alive=null; SLM.until=0; SLM.lvl=1; SLM.src=null; if(was){ locSync(); themeHome(); } slmFree(); return true; }
+  if(part!=='box' && part!=='king') return false;
+  if(lvl!=null){ if(typeof lvl==='number') SLM.lvl=lvl; else if(typeof lvl==='object'){ if(typeof lvl.level==='number') SLM.lvl=lvl.level; if(typeof lvl.alive==='function') SLM.alive=lvl.alive; } }
+  if(!SLM.on) return false;
+  const chg=(SLM.part!==part); SLM.part=part;
+  if(chg){ if(part==='box') slmRender('box', function(){ slmRender('king', function(){}, function(){}); }, function(){ SLM.err++; });   // 'box' renders the king behind it, so the entrance never waits
+    locSync(); if(part==='king') slmSharp(); }
+  slmLevelSoon(60);
+  return true;
+}catch(e){ SLM.err++; return false; } }
+NCM_SCORE.mouseking={"id":"mouseking","title":"THE MOUSE KING","key":"E minor","bpm":88,"bpb":4.0,"bars":8,"units":768,"maxd":96,"drums":"march","v":[{"r":"MEL","i":[["tpt",0.55,0],["hn",0.3,0]],"b":55,"s":"-fGbGbGbHbHdGdCd-d-fLbLbLbMbMdLdKf-h-fOb-bOb-bLdMdOdPdQdSe-e"},{"r":"MEL-","i":[["tbn",0.5,0],["tuba",0.35,0]],"b":40,"s":"-h-h-h-h-fCbCbCbDbDdCdAd8d7f-f-h"},{"r":"HAR","i":[["hn",0.42,0]],"b":43,"s":"ChChChBhChDhEhGf-f"},{"r":"HAR","i":[["hn",0.36,0]],"b":47,"s":"ChChDhChDhChDhGf-f"},{"r":"ACC","i":[["strm",0.5,0]],"b":40,"s":"CbCbCbCbDbDbCbCbCbCbCbCbAbAbCbCbCbCbCbCbDbDbCbCb7b7b7b7b7b7b7b7bCbCbCbCbDbDbCbCbCbCbCbCbAbAbCbCbCbCbDbDbFbFbGbGbHbHbJbJbJbJb-d"},{"r":"ACC","i":[["str",0.55,0]],"b":40,"s":"Ch-h-h-hCh-h-h-h"},{"r":"ACC","i":[["str",0.45,0]],"b":52,"s":"7h-h-h-h7h-h-h-h"},{"r":"ACC","i":[["str",0.4,0]],"b":55,"s":"Ch-h-h-hCh-h-h-h"},{"r":"BAS","i":[["tuba",0.6,0],["bsn",0.45,0]],"b":36,"s":"4d4d5d4d4d4d2d4d4d4d5d4dBdBdBdBd4d4d5d4d4d4d2d4d4d5d7d8d9dBdBd-d"},{"r":"HAR-","i":[["glk",0.3,0]],"b":64,"s":"-h-h-h-fEbCbBd-h-h-h-fBbEbJd"}]};   // THE MOUSE KING (kit/genKing.py; the score's own grammar: NCM_PA / NCM_DA / NCM_DUR, read by ncmNotes)
+NCM.trim.mousekingwar=1.5;   // the level law's trim for the war render (ncmLoop keys the war dress piece+'war'): a shade over the Sugar Plum's −1.1, measured by kit/measure_slm.sh
+try{ const q=/[?&]slm=(box|king)/.exec(location.search||''); if(q && SLM.on){ SLM.aud=q[1]; window.addEventListener('pointerdown', function(){ try{ SLM.until=Date.now()+SLM_AUD_MS; sldMusic(SLM.aud, { alive:function(){ return S.mode==='menu' && !S.bf; } }); }catch(e){ SLM.err++; } }, { once:true, capture:true }); } }catch(e){}   // the audition: the first tap at the menu plays the piece for 90 s (a fight or a door ends it)
+setTimeout(function(){ try{ if(window.GVT && !GVT.slm) GVT.slm=function(v){ v=v||{};   // the rig's door: v.part = sldMusic(part, v.lvl) · v.on sets the switch for this page · reads the state, the engine's seat and the rows
+  if(v.on!=null) SLM.on=v.on? 1 : 0;
+  if(v.part) sldMusic(v.part, (v.lvl!=null)? v.lvl : undefined);
+  const t1=LOC_TRACKS.slmbox, t2=LOC_TRACKS.slmking, P=NCM_SCORE.mouseking, row=function(t){ return t? { vol:t.vol, fin:t.fin, band:t.band, raw:t.raw, hp1:t.hp1, hp:t.hp, gen:(t.gen? t.gen.name : null) } : null; };
+  return { cv:GVT_CV, v:SLM.v, on:SLM.on, err:SLM.err, part:SLM.part, lvl:SLM.lvl, up:slmUp(), loc:locNow(), id:LOC.id, src:!!LOC.src, bid:LOC.bid, busy:LOC.busy||null, gain:(LOC.g? +LOC.g.gain.value.toFixed(4) : null), duck:(LOC.d? +LOC.d.gain.value.toFixed(3) : null), fade:LOC.fade,
+    box:!!SLMB.box, king:!!SLMB.king, inflight:Object.keys(SLMB.busy).filter(function(k){ return !!SLMB.busy[k]; }), rows:{ box:row(t1), king:row(t2) },
+    piece:P? { title:P.title, key:P.key, bpm:P.bpm, bars:P.bars, units:P.units, voices:P.v.length, notes:P.v.reduce(function(a, vv){ return a+ncmNotes(vv).length; }, 0), len:+(P.units*(60/P.bpm)/24).toFixed(2), trim:NCM.trim.mousekingwar } : null,
+    theme:{ src:!!THEME.src, want:THEME.want, dead:THEME.dead, started:THEME.started } }; }; }catch(e){} }, 0);
+// ═══ END CARD-SLM ═══
 window.GVT = {
   clm(o){ return clmRig(o); },   // CARD-CLM THE CLAYMORE'S RANK RUNGS: the rig's door (the dials, the doors, the factors, the words, a fielded Claymore's reads; o.rank sets MY Claymore's rank, o.camp the campaign, o.on the switch)
   cks(o){ if(o && o.pct!=null) CKS.pct=+o.pct||0; const R=[0,1,10,20,25,50,75,99,100], t={}; for(const r of R) t[r]={ mul:+cksMul(r).toFixed(4), hit:+hitDmgNowAt('kingcroak',r).toFixed(4), whole:hitWhole(hitDmgNowAt('kingcroak',r)) }; return { cv:GVT_CV, pct:CKS.pct, at:CKS.at, ck:HHB.ck, slope:HERO_DMG_RANK, mine:(META.up.kingcroak||0)|0, table:t }; },   // CARD-CKS: the ramp's dials (o.pct sets it for a rig; 0 = the storm as it was) + King Croak's HITS FOR at nine ranks
