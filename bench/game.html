@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"26.99","md5":"1b0327345fbc96b7f7db21c5e2bc7dfe","sha":"c8d2dc2ec7","at":"2026-10-24T02:50:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.00","md5":"4c53d81c094c3b0da096e611728b9a91","sha":"f0a8d59411","at":"2026-10-24T03:24:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -58122,13 +58122,14 @@ function acsSend(L, st, why){
   ACS.busy=1; ACS.at=Date.now();
   ACS.p=netFetch(NET+'/save/put', { method:'POST', headers:{'Content-Type':'text/plain;charset=UTF-8'}, body, keepalive:(why==='hide' && body.length<ACS_KEEP) })   // text/plain: no preflight (the hidden tab's keepalive)
     .then(r=>r.json()).then(r=>{ ACS.last=r;
-      if(r && r.ok) acsStore({ u:dev, h:L.h, t:r.stale? (Number(r.t)||t) : t });   // stale: HQ holds a newer copy (another phone played): this save is settled, the next change stands on HQ's t
+      if(r && r.ok) acsStore({ u:dev, h:L.h, t:r.stale? (Number(r.t)||t) : t, s:r.stale? 1 : 0 });   // CARD-LQP THE LINE: s 1 = HQ kept another phone's newer army (the line takes it in a quiet room)   // stale: HQ holds a newer copy (another phone played): this save is settled, the next change stands on HQ's t
       return r; }, ()=>0).then(r=>{ ACS.busy=0; ACS.p=null; return r; });
   return ACS.p;
 }
 function acsPush(why){
   if(!acsLive() || ACS.busy) return Promise.resolve(0);
   const L=acsLook(), st=acsLoad();
+  if(st.adopt && st.u===META.deviceId && !st.h){ st.h=LQB.h0||L.h; delete st.adopt; acsStore(st); }   // CARD-LQP THE LINE: the copy this phone just took IS HQ's (its hash at this boot): settled, never pushed back; a change made since still goes up
   if(acsPend(st) || (st.u===META.deviceId && st.h===L.h)) return Promise.resolve(0);   // unsettled · HQ already holds this very save from this phone
   if(why==='tick' && Date.now()-ACS.at<ACS_GAP) return Promise.resolve(0);
   return acsSend(L, st, why);
@@ -58433,10 +58434,11 @@ function lqpFeed(force){
   if(LQP_OFF || LQP.hq!==1 || LQP.busy || !META.deviceId || document.hidden) return;
   if(S.mode!=='menu' && S.mode!=='title') return;
   if(!acsLive() || acsPend(acsLoad())) return;
-  if(!force && Date.now()-LQP.at<LQP_GAP) return;
+  if(!force && Date.now()-LQP.at<(LQP.nd>1? LQB_FAST : LQP_GAP)) return;   // THE LINE: a shared account's phone reads every 30 s
   LQP.busy=1; LQP.at=Date.now(); const dev=META.deviceId;
   try{ lqpPost('/iap/feed', {}).then(j=>{ LQP.busy=0;
     if(!j || !j.ok || !Array.isArray(j.rows) || META.deviceId!==dev || !acsLive() || acsPend(acsLoad()) || (S.mode!=='menu' && S.mode!=='title')) return;
+    if(typeof lqbSee==='function' && lqbSee(j, j.rows)) return;   // THE LINE: HQ holds another phone's newer army: it decides first (its copy carries its own book)
     lqpTake(j.rows);
   }, ()=>{ LQP.busy=0; }); }catch(e){ LQP.busy=0; LQP.err++; } }
 // a row the army's book lacks is credited ONCE: a pack's stars (the count the buyer was credited, never past the pack's drop count), a no-ads tier (3); the book takes the tx in the same write
@@ -58464,6 +58466,50 @@ document.addEventListener('visibilitychange', ()=>{ try{ if(!document.hidden && 
 function lqpRig(o){ o=o||{}; if(o.feed){ LQP.at=0; lqpFeed(1); } if(o.health){ LQP.hAt=0; lqpHealth(); }
   return { cv:GVT_CV, v:LQP.v, off:LQP_OFF, hq:LQP.hq, busy:LQP.busy, at:LQP.at, got:LQP.got, sent:LQP.sent, err:LQP.err, book:Array.isArray(META.lqpS)? META.lqpS.slice() : [], out:Array.isArray(META.lqpO)? META.lqpO.length : 0, bank:META.starBank, ledger:(META.iap && Array.isArray(META.iap.t))? META.iap.t.length : 0 }; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lqp=lqpRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-RIN's grammar)
+// ── THE LINE (CARD-LQP stage B). LAYLA 10/23/2026 21:44 EDT on WhatsApp (AC6B92D80186EBFF3B3BDCBB7F0A4C7E), verbatim: "quick fix, when two or more devices link each other make sure that when someone does one thing on one device that it saves to the other device to and updates on both or all devices at all times right away" ──
+// Every phone already pushes its army to HQ (CARD-ACS: once a minute while it changes, and when the app goes to the back); the pull was a sign-in's, a reinstall's or a link landing's alone. NOW a phone of a SHARED account (the feed's
+// nd: 2+ devices on the uid) reads the feed every 30 s on the title or in a quiet room and when the app comes back; when HQ's copy changed after this phone's own last word (the feed's t past the ACS ledger's t, or this
+// phone's last push answered stale), it fetches the copy (/gvt/save/get): a copy with LESS PLAY than this army (fewer levels won, or as many with fewer stars ever earned) never comes in, this army goes up over it; a copy
+// with MORE play comes in; at as much play THE NEWER CHANGE WINS (CARD-ACS law 2): this phone changed later = its army goes up; else the copy comes in by acsPick's own road (the army on the
+// disk FIRST, this phone's own things carried, WELCOME BACK "Your army came back from HQ.", a reload). The phone that took a copy never pushes it straight back (the ledger's adopt: the next push waits for a change of its
+// own), so two phones never take turns. No shelf is touched (the pre-army is never shelved: a linked phone's old recruit stays where CARD-QRL put it). Never under a fight, a page, the shop or a swap. ?lqp=0 = off with the rest.
+const LQB_FAST=30000;   // a shared account's phone reads every 30 s
+var LQB={ busy:0, at:0, took:0, res:'', h0:'', asks:0 };   // h0 = the army's hash at this session's first look (a change since = this session's own: ACS.ct is its clock) · res = the last word: same | mine | take | thin | dark | shelf | busy
+function lqbQuiet(){ try{ return (S.mode==='title' || (S.mode==='menu' && qrlQuiet() && !shopIsOpen() && !SPOP.el)) && !document.hidden && acsLive() && !acsPend(acsLoad()); }catch(e){ return false; } }
+// the feed's answer: true = a pull started (the book's rows wait for it: a copy that comes in carries its own book)
+function lqbSee(j, rows){
+  LQP.nd=(j && j.nd)|0; const t=Number(j && j.t)||0; if(!LQB.h0) LQB.h0=acsLook().h;
+  if(LQP.nd<2 || !t) return false;
+  const st=acsLoad(); if(st.u!==META.deviceId) return false;
+  if(t<=(Number(st.t)||0) && !st.s) return false;   // HQ holds nothing newer than this phone's own last word
+  if(LQB.busy || !lqbQuiet()) return false;
+  lqbPull(t, rows); return true;
+}
+function lqbPull(t, rows){
+  LQB.busy=1; LQB.asks++; const at=Date.now(); LQB.at=at; ACS.hold=at;   // no push while this decides
+  const dev=META.deviceId, A=accLoad();
+  const ask=netFetch(NET+'/save/get', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ device:dev, cv:GVT_CV }) }).then(r=>r.json()).catch(()=>null);
+  return Promise.race([ ask, new Promise(r=>setTimeout(()=>r(null), ACS_WAIT)) ]).then(hq=>{
+    LQB.busy=0; if(ACS.hold===at) ACS.hold=0;
+    const take=()=>{ try{ lqpTake(rows||[]); }catch(e){ LQP.err++; } };
+    if(!hq || !hq.ok || hq.none || typeof hq.m!=='string' || typeof hq.uid!=='string' || META.deviceId!==dev || ACS.gone || !lqbQuiet()){ LQB.res='dark'; take(); return; }
+    const st=acsLoad(), L=acsLook(), ht=Number(hq.t)||0;
+    const mine=st.u===dev && st.h===L.h && !st.s, chg=L.h!==LQB.h0;   // mine = HQ holds this phone's latest · chg = this phone changed this session (ACS.ct is when)
+    let m=null; try{ m=JSON.parse(hq.m); }catch(e){ m=null; }
+    if(!m || m.v!==1 || !accHasPlay(hq.m)){ LQB.res='thin'; take(); return; }
+    const cmp=lqbCmp(m);   // -1 the copy has less play than this army · 1 more · 0 as much
+    if(cmp<0){ LQB.res='ahead'; take(); acsStore(Object.assign(acsLoad(), { u:dev, h:'', t:ht, s:0 })); acsPush('in'); return; }   // THE PLAY GUARD: a copy with less play never comes in, this army goes up over it; a copy with more play always comes in (the most progress wins on both)
+    if(cmp===0 && !mine && chg && (ACS.ct||0)>ht){ LQB.res='mine'; take(); acsPush('in'); return; }   // as much play, this phone changed LATER: its army goes up (the newer change wins)
+    if(acsHash(JSON.stringify(acsPhone(m)))===L.h){ acsStore(Object.assign(st, { u:dev, h:L.h, t:ht, s:0 })); LQB.res='same'; take(); return; }   // the same army: the ledger settles on HQ's t
+    if(A.u && A.u[hq.uid]){ LQB.res='shelf'; take(); return; }   // this phone keeps a shelf for that account (CARD-ACC): the sign-in's own road decides that one
+    LQB.res='take'; LQB.took++;
+    acsPick(null, A, hq.uid, hq);   // the copy comes in (no shelving: pre null); WELCOME BACK, a reload
+    if(ACS.gone) acsStore({ u:dev, h:'', t:ht, adopt:1 });   // the reloaded army is HQ's copy: it is not pushed back until it changes here
+  }).catch(()=>{ LQB.busy=0; if(ACS.hold===at) ACS.hold=0; LQP.err++; });
+}
+function lqbCmp(m){ const c=m.campaign|0, k=META.campaign|0, a=m.starsLifetime|0, b=META.starsLifetime|0; return c<k? -1 : c>k? 1 : a<b? -1 : a>b? 1 : 0; }   // the copy against this army: levels won, then stars ever earned
+function lqbRig(){ return { took:LQB.took, res:LQB.res, asks:LQB.asks, busy:LQB.busy, nd:LQP.nd, quiet:lqbQuiet(), ledger:acsLoad() }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lqb=lqbRig; }catch(e){} }, 0);
 // ═══ END CARD-LQP ═══
 // native sign-in callbacks land here
 window.GVTN = {
@@ -91303,7 +91349,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
