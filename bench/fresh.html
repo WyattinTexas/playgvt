@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.00","md5":"4c53d81c094c3b0da096e611728b9a91","sha":"f0a8d59411","at":"2026-10-24T03:24:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.01","md5":"59b55df1d3e7215715eb18928d54b974","sha":"c05764c458","at":"2026-10-24T03:35:56Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -55476,7 +55476,7 @@ const OF_ADV_CRIT=0.10, OF_ADV_DODGE=0.05;   // CARD-CPN THE ADVENTURER'S HAT (W
 const OF_FURHAT_X=0.5;                      // THE FURRY HAT: mortar · sniper hits land at HALF
 const OF_SHF_DMG=0.10, OF_SHF_M=4*TK_M, OF_SHF_VS=0.20;   // CARD-CPN (Wyatt 10/23: "raise the Sheriff hat's damage to their enemy Sarge to 20%"): 0.15 → 0.20 · THE SHERIFF HAT: +10% into a rifleman inside 4 m · +20% into their Sarge (TK_M = the house ruler, 28 px/m)
 const OF_FUZ_EVERY=2;                       // THE FUZZY HAT: every 2nd Commando beam bounces back at its owner (= 50%, no dice)
-const OF_KBH_SPD=0.10, OF_KBH_DMG=0.10, OF_KBH_DEF=0.05;   // KING BEAR'S HAT: marches 10% faster · +10% damage · +5% armor (Wyatt 8/25 verbatim)
+const OF_KBH_SPD=0.10, OF_KBH_DMG=0.10, OF_KBH_DEF=0, OF_KBH_AS=0.60, OF_KBH_M=35*TK_M, OF_KBH_CRITX=3;   // CARD-EBH EMPEROR BEAR'S HAT (Wyatt's phone 10/23: "Remove the armor stat from emperor beard hat, replace with the following: Cannons within 35m first Fire 60% faster & deal *3 critical crit damage"): the armor 0.05 → 0 (outfitTune's dM factor reads ×1) · a cannon of his side inside 35 m of him fires ×1.6 · its first shot there lands ×3, a CRIT (sec CARD-EBH) · was: KING BEAR'S HAT: marches 10% faster · +10% damage · +5% armor (Wyatt 8/25 verbatim)
 const OF_MCAP_AIR=0.50;   // CARD-MCV2 (design/sky-v2-0929/00-BUILD-MCV2.md; Wyatt 9/29: "+50% more damage to planes"): 0.15 → 0.50 — THE MARSHAL'S CAP's own number (CARD-SF3-D1's seat at counterDmg's foot, byte-still)
 const OF_MCAP_NEAR_M=20, OF_MCAP_WING=2, OF_MCAP_WING_BMB=1;   // CARD-MCV2 THE MARSHAL'S WING (Wyatt 9/29: "nearby planes within 20 meters attack x2 as fast"): a plane of yours whose shadow is within OF_MCAP_NEAR_M metres (TK_M px a metre: 560 px) of a living Sarge wearing the cap attacks OF_MCAP_WING× as fast — the dogfighter's strafe clock (dfPass) and, with OF_MCAP_WING_BMB (⚑ MCV2-Q1), the bomber's aimed stick (bmbTick)
 function mcapNear(x,y,side){   // CARD-MCV2 THE MARSHAL'S WING: is (x,y) — a plane's shadow on the carpet — within the ring of a living Sarge of this side wearing THE MARSHAL'S CAP? (a co-op ally's Sarge answers through sargeOfU's worn list; in the battlefield only the plane's own side; the campaign's S.units is your own army)
@@ -55794,7 +55794,7 @@ function lensLines2(id){ const p=lensPct; { const dj9=djsLens(id); if(dj9) retur
   if(id==='furryhat')    return ['half damage from mortars & snipers'];
   if(id==='sheriffhat')  return ['+'+p(OF_SHF_DMG)+'% damage to riflemen within '+(OF_SHF_M/TK_M)+' m', '+'+p(OF_SHF_VS)+'% damage to their Sarge'];
   if(id==='fuzzyhat')    return ['every second Commando beam bounces back'];
-  if(id==='kingbearhat') return ['marches '+p(OF_KBH_SPD)+'% faster', '+'+p(OF_KBH_DMG)+'% damage', '+'+p(OF_KBH_DEF)+'% armor'];
+  if(id==='kingbearhat') return ['marches '+p(OF_KBH_SPD)+'% faster', '+'+p(OF_KBH_DMG)+'% damage', 'cannons within '+(OF_KBH_M/TK_M)+' m fire '+p(OF_KBH_AS)+'% faster', 'their first shot CRITS ×'+OF_KBH_CRITX];   // CARD-EBH (Wyatt 10/23): the armor row out, his cannons in — ▲ CARD-CPN's {0}{1}-key ×7 · ▲ one new {0}-key ×7 (sec CARD-EBH's words)
   if(id==='marshalcap')  return ['+'+p(OF_MCAP_AIR)+'% damage to planes', 'planes within '+OF_MCAP_NEAR_M+' m of him attack twice as fast'];   // CARD-MCV2: two ▲ rows — CARD-SF3-D1's {0}-key (+50 now) · THE MARSHAL'S WING (one new {0}-key ×7)
   if(id==='tombstonehat') return [tf('THE QUICK DRAW: the first shot at a new man comes %1% faster', p(1-OF_TSH.qd)), t('THE JUMP BACK: a round lands on him, he hops clear and fires one shot back')];   // CARD-BBS-C6: two ▲ rows, no ▼ (a raid hat carries no downside: King Bear's precedent)
   if(id==='muskboots')   return ['+'+OF_MBOOT_HP+' HP', 'marches '+p(OF_MBOOT_SPD)+'% faster'];   // 0654 Card E: the march row FLIPPED (the belt's own key ×7) — two ▲ rows, no ▼ (a prize carries no ▼, the 0539 frame)
@@ -91349,7 +91349,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -202590,6 +202590,54 @@ function cpnRig(o){ o=o||{}; if(o.on!=null){ CPN.on=o.on? 1 : 0; CPN.svg=''; }
     stats:JSON.parse(JSON.stringify(CPN.stats)), prims:CPN_HAT.length, tileVB:CPN_TILE_VB }; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.cpn=cpnRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar)
 // ═══ END CARD-CPN ═══
+// ═══ CARD-EBH · EMPEROR BEAR'S HAT: THE ARMOR OUT, THE CANNONS IN (sec:CARD-EBH; design/emperor-hat-cannons-1023/00-CARD-EBH.md; Wyatt's phone 10/23/2026 22:51 EDT, jumpr 2666, built on Maker 1 as M2666) ═══
+// His words (Wispr Flow): "Remove the armor stat from emperor beard hat, replace with the following: Cannons within 35m first Fire 60% faster & deal *3 critical crit damage. Help with the wording there and keep
+// short. Implement live." THE HAT = `kingbearhat`, EMPEROR BEAR'S HAT (the General's bicorne, THE PILLOW FIELDS' HARD prize; his "beard" = Wispr's "bear"). THE ARMOR OUT: OF_KBH_DEF 0.05 → 0 on its own line
+// (outfitTune's dM factor reads ×1; outfitTune's bytes are the cutlass card's) and its row gone from lensLines2. THE CANNONS IN (LIVE): a cannon of his side (CARD-CPN's two guns: THE EMPEROR'S CANNON kbcannon,
+// a mortar fitted with THE CANNON) inside 35 m of a live Sarge wearing the hat (sargeOfU: MY rack or a relayed ally's worn list, so both sims agree) ·
+//   FIRES 60% FASTER: the men's ONE drum ×1.6 on every pull (capRateMul wrapped by name, CARD-CPN's own seat; the captain's hat is a hat too, so one Sarge never wears both) ·
+//   ITS FIRST SHOT THERE CRITS ×3: the first shell a cannon fires inside the ring carries ×3 its damage (lobFire wrapped by name: the burst and THE CANNON's iron roll ride sh.dmg; CARD-CBX's box whack, dmg 0,
+//   never spends it) and the house's CRIT! + gold ring where it bursts (splash wrapped by name; a caught shell shows nothing). Once a cannon (u.ebhK). A cannon never rolled a crit before (critChance's club
+//   is Sarge + the trigger-men): this crit is the hat's own, at a flat ×3 (the Dogfighter crit's grammar: the crit-damage gear does not stack on it).
+// "FIRST" (EBH-Q1): a cannon's first shot already leaves the moment a man stands in its reach (cd 0 at its birth and after every lull; measured on v26.99: 1.83 s = the first foe, then every 5.0 s), so the 60 %
+// lives on the drum and "first" names the crit. THE WORDS: 'cannons within 35 m fire 60% faster' (CARD-CPN's {0}{1}-key, ×7 already) + 'their first shot CRITS ×3' (one new {0}-key ×7 below). Zero server
+// bytes (the away bag's defM clamp 0..5 holds), zero sw.js, zero save keys, zero css, zero art. UNDO = kit/applyEBH.py --undo. ═══
+const EBH={ v:1, stats:{ rate:0, crit:0, fx:0, err:0 } };   // the rigs' read: the drum's hurried pulls, the crits spent, the CRIT! drawn
+function ebhCannonU(u){ return !!u && (u.type==='kbcannon' || cannonU(u)); }   // his "cannons" (CARD-CDM's two guns; CARD-CPN's cpnCannonU, the same test of its own)
+function ebhNear(u){   // a live Sarge of his side wearing EMPEROR BEAR'S HAT inside OF_KBH_M of the gun (cpnRateMul's finder)
+  for(const s of S.units){
+    if(s.type!=='sarge' || s===u || s.dead) continue;
+    if(S.bf && (s.dropT>0 || s.side!==u.side)) continue;
+    if(!sargeOfU(s,'kingbearhat')) continue;
+    if(Math.hypot(s.x-u.x,s.y-u.y)<=OF_KBH_M) return true;
+  }
+  return false; }
+function ebhRateMul(u){ if(!(OF_KBH_AS>0) || !ebhCannonU(u) || !ebhNear(u)) return 1; EBH.stats.rate++; return 1+OF_KBH_AS; }   // FIRES 60% FASTER: one factor at the men's ONE drum
+function ebhCritNow(u,dmg){ if(!(OF_KBH_CRITX>1) || !(dmg>0) || !u || u.ebhK || !ebhCannonU(u) || !ebhNear(u)) return false; u.ebhK=1; EBH.stats.crit++; return true; }   // ITS FIRST SHOT THERE: spent once a cannon
+{ const c0=capRateMul; capRateMul=function(u){ return c0.apply(this, arguments)*ebhRateMul(u); }; }   // the drum multiplies capRateMul(u) (the feathered hat's tubes and the captain's ×1.7 untouched under it)
+{ const l0=lobFire; lobFire=function(u, best, def9, acc, dmg, P){ let k=false; try{ k=ebhCritNow(u,dmg); }catch(e){ EBH.stats.err++; }   // a cannon's shot: the kbcannon's lob, THE CANNON's cannonFire, CARD-CBX's box whack (dmg 0)
+    if(!k) return l0.apply(this, arguments);
+    const n0=S.shots.length, r=l0.call(this, u, best, def9, acc, dmg*OF_KBH_CRITX, P), sh=S.shots[S.shots.length-1];
+    if(S.shots.length>n0 && sh && sh.src===u) sh.ebhK=1;   // the shell carries the crit to its landing (the CRIT! below)
+    return r; }; }
+{ const s0=splash; splash=function(x, y){ const r=s0.apply(this, arguments);   // the shell lands: splash(x,y,R,dmg,…,msh), the 12th word is the shot (CARD-MTR); true = caught, never landed
+    try{ const sh=arguments[11]; if(sh && sh.ebhK===1 && !r){ sh.ebhK=2; critFx({ x:x, y:y }); EBH.stats.fx++; } }catch(e){ EBH.stats.err++; }
+    return r; }; }
+// ── THE WORDS ×7 (the crit row's one new {0}-key; the drum row is CARD-CPN's key; each tongue's own "first shot" and CRIT words from the tombstone hat's and the eye patch's rows)
+// THE CHINESE TRAP: the game's Chinese is LANG 'zh-Hans' (canonLang). CARD-CPN wrote its three Chinese rows to TR.zh, a table nothing reads (CARD-SQL's trap, mended once already), so the drum row's
+// key rides here in TR['zh-Hans'] too: his row reads in Chinese, and the captain's hat's own cannon row with it (⚑ EBH-F1: CPN's FEATHERED HAT and "ho ho ho!" still sit in TR.zh).
+Object.assign(TR.ar||(TR.ar={}), {"their first shot CRITS ×{0}":"طلقتها الأولى ضربة حاسمة ×{0}"});
+Object.assign(TR.ja||(TR.ja={}), {"their first shot CRITS ×{0}":"さいしょの いっぱつは クリティカル ×{0}"});
+Object.assign(TR.ko||(TR.ko={}), {"their first shot CRITS ×{0}":"첫 발은 크리티컬 ×{0}"});
+Object.assign(TR['zh-Hans']||(TR['zh-Hans']={}), {"their first shot CRITS ×{0}":"第一炮暴击 ×{0}","cannons within {0} m fire {1}% faster":"{0} 米内的大炮射速提高 {1}%"});
+Object.assign(TR.de||(TR.de={}), {"their first shot CRITS ×{0}":"ihr erster Schuss: KRIT ×{0}"});
+Object.assign(TR.ru||(TR.ru={}), {"their first shot CRITS ×{0}":"их первый выстрел — КРИТ ×{0}"});
+Object.assign(TR.es||(TR.es={}), {"their first shot CRITS ×{0}":"su primer disparo es CRÍTICO ×{0}"});
+// ── THE RIGS' READ: GVT.ebh() (read-only)
+function ebhRig(){ let rows=null; try{ rows=lensLines2('kingbearhat'); }catch(e){ rows='ERR '+e; }
+  return { v:EBH.v, name:OUTFIT_INFO.kingbearhat && OUTFIT_INFO.kingbearhat.name, rows, dials:{ spd:OF_KBH_SPD, dmg:OF_KBH_DMG, def:OF_KBH_DEF, as:OF_KBH_AS, m:OF_KBH_M/TK_M, critX:OF_KBH_CRITX }, stats:JSON.parse(JSON.stringify(EBH.stats)) }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.ebh=ebhRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar)
+// ═══ END CARD-EBH ═══
 // ═══ CARD-CLM · THE CLAYMORE'S RANK RUNGS AT 70 AND 80 (sec:CARD-CLM; design/claymore-ranks-1023/00-CARD-CLM.md; Wyatt by phone 10/23/2026 21:06 EDT, jumpr 2658, built on Maker 1 as M2658, verbatim:
 // "At level 70 of the Claymore, make Men Without Fear now have its effect be twice as effective, so the mortars and bazookas will be firing twice as fast as they currently are. At 80, have Inspire. The effect of
 // Inspire also will be double. Set live"). "LEVEL N of the Claymore" = THE CLAYMORE's RANK (META.sargeUp.commander, 0..RANK_MAX — his word for an iron's rank since the pistol's "level 10,20,…100" and the
