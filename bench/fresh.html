@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.93","md5":"d43df6477ca8596399c379272d0a4ea2","sha":"80d843bb4e","at":"2026-10-24T02:17:44Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.94","md5":"f3ecf29642f98f5862d5c96b58c86471","sha":"80d843bb4e","at":"2026-10-24T02:19:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91234,7 +91234,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.93';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.94';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -198871,6 +198871,48 @@ function lbwtpImg(k){ const d=LBWTP_PICK[k]; if(!d) return null; const hex=lbwtp
 { const fi0=foeImg; foeImg=function(k){ if(lbwtpOn()){ try{ const im=lbwtpImg(dgKey(k)); if(im){ LBWTP.draws++; return im; } }catch(e){} } return fi0.apply(this, arguments); }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.lbwtp) GVT.lbwtp=function(){ return { cv:GVT_CV, v:LBWTP.v, off:LBWTP.off, on:lbwtpOn(), pick:LBWTP_PICK, hexes:Object.keys(LBWTP.img), minted:LBWTP.minted, draws:LBWTP.draws, ready:Object.keys(LBWTP_PICK).filter(function(k){ const s=LBWTP.img[lbwtpHex()]; return !!(s && s[k] && s[k].naturalWidth); }) }; }; }catch(e){} }, 0);
 // ═══ END CARD-LBW-TP ═══
+// ═══ CARD-LBW-WAT · THE COVE'S HOME SCREEN: THE WATER MOVES (sec:CARD-LBW-WAT; design/boss-world-layla-1022/build-lbwwat/00-BUILD-LBW-WAT.md; jumpr plan 20261023-2143-lbw-lobby-water). LAYLA 10/23/2026 21:40:12 EDT by WhatsApp (ACA9341FEE141B6AF0CCDF7FFCF9B1D0), verbatim: "and just one more small edit to the cove home screen lets have the water moving". LIVE ON HER WORD: WYATT 10/22/2026 19:25 EDT by Discord, verbatim: "Approved, and approve everything Layla does regarding Pirates Cove until I say otherwise. She has full permission to set live any work on Pirates Cove without my permission." The door stays the code PIRATE (Wyatt 10/23 15:14); this card never touches it. ═══
+// WHAT: THE SUNKEN SHIP's lobby (the cove's home screen) gets moving water: four swell bands drifting across the bay with a slow rise and fall (far ones slower: the depth), rows of little wave crests riding them, the foam lapping the three shores (the fort's beach, the lighthouse's sand, the near beach), glints twinkling on the open water. Sharky's fin, the king, the wreck, the gulls, the islands all stand IN FRONT of it as before: the group sits right after the sea's own path, under LBW-DET's far group, clipped to the sea's shape.
+// HOW: RAID_INFO.wreck.hall wrapped BY NAME (this sec stands after every cove sec, so its wrap runs last: over LBW-C, LBW-SK, LBW-DET); <g id="lbwwat" class="lbwdet-anim"> = SMIL only (the cove's grammar), no canvas loop, no timer; frozen from Laura's style pass (LBW-DET's class + its own id in SGP_FREEZE['raid-wreck']). NONE under prefers-reduced-motion (LBW-DET's law: the hall byte-what-it-was). A hall without the sea's path (LBW-C's jungle) is left as it was.
+// THE WAY BACK: LBWWAT.on=0 (one line) or ?lbwwat=0 on one device (gvt_lbwwat; ?lbwwat=1 clears it). Zero words, zero CSS, zero server bytes, zero sw.js, zero save shape. GVT.lbwwat() the rig's read.
+var LBWWAT={ on:(function(){ try{ const m=/[?&]lbwwat=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_lbwwat','0'); else localStorage.removeItem('gvt_lbwwat'); } return localStorage.getItem('gvt_lbwwat')==='0'? 0 : 1; }catch(e){ return 1; } })(), paints:0, err:0,
+  SEA:'M0 300 Q400 270 800 296 Q1200 320 1600 292 L1600 580 Q1200 600 800 584 Q400 570 0 592 Z' };   // the sea's own outline (LBW-A's hall), the clip
+function lbwwatSVG(){ const R='repeatCount="indefinite"', SP='calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"';
+  // a swell band: a ribbon whose two edges are waves of length L and height A, h thick, from -2L to 1600+2L; drifting one wave length loops without a seam
+  const band=(y,L,A,h)=>{ let d='M'+(-2*L)+' '+y+' Q'+(-2*L+L/4)+' '+(y-A)+' '+(-2*L+L/2)+' '+y; for(let x=-2*L+L;x<=1600+2*L;x+=L/2) d+=' T'+x+' '+y; const x1=Math.ceil((1600+2*L)/(L/2))*(L/2), yb=y+h;
+    d+=' L'+x1+' '+yb+' Q'+(x1-L/4)+' '+(yb+A)+' '+(x1-L/2)+' '+yb; for(let x=x1-L;x>=-2*L;x-=L/2) d+=' T'+x+' '+yb; return d+' Z'; };
+  const swell=(y,L,A,h,fill,op,dur,bob,bdur,beg)=>'<g><animateTransform attributeName="transform" type="translate" values="0 0;0 '+(-bob)+';0 0" dur="'+bdur+'s" begin="-'+beg+'s" '+SP+' '+R+'/>'
+    +'<path d="'+band(y,L,A,h)+'" fill="'+fill+'" opacity="'+op+'"><animateTransform attributeName="transform" type="translate" values="0 0;'+L+' 0" dur="'+dur+'s" '+R+'/></path></g>';
+  // a row of wave crests (the hall's own white stroke), one every P units, drifting one P a loop, breathing in and out
+  const crests=(y,P,dur,beg,op)=>{ let d=''; for(let x=-P;x<=1600+P;x+=P){ const o=((x/P)%2)? 10 : 0; d+='M'+(x+o)+' '+(y+((x/P)%3)*4)+' q9 -6 18 0 q9 -6 18 0 '; }
+    return '<path d="'+d+'" fill="none" stroke="#F2FAFF" stroke-width="2.4" stroke-linecap="round" opacity="'+op+'"><animateTransform attributeName="transform" type="translate" values="0 0;'+P+' 0" dur="'+dur+'s" '+R+'/><animate attributeName="opacity" values="'+op+';'+(op*0.35).toFixed(2)+';'+op+'" dur="'+(dur/3).toFixed(1)+'s" begin="-'+beg+'s" '+R+'/></path>'; };
+  // foam lapping a shore: a white line along the sand's edge that rises up the beach and slips back, a second one half a beat behind
+  const lap=(d,dy,dur,beg)=>'<path d="'+d+'" fill="none" stroke="#F4FBFF" stroke-width="3.2" stroke-linecap="round" opacity="0.85"><animateTransform attributeName="transform" type="translate" values="0 0;0 '+(-dy)+';0 0" dur="'+dur+'s" begin="-'+beg+'s" '+SP+' '+R+'/><animate attributeName="opacity" values="0.9;0.35;0.9" dur="'+dur+'s" begin="-'+beg+'s" '+R+'/></path>';
+  // a ring of foam spreading off an island's shore and fading
+  const ring=(cx,cy,rx,ry,dur,beg)=>'<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="none" stroke="#F4FBFF" stroke-width="2.6" opacity="0"><animate attributeName="rx" values="'+rx+';'+(rx+26)+'" dur="'+dur+'s" begin="-'+beg+'s" '+R+'/><animate attributeName="ry" values="'+ry+';'+(ry+10)+'" dur="'+dur+'s" begin="-'+beg+'s" '+R+'/><animate attributeName="opacity" values="0.8;0" dur="'+dur+'s" begin="-'+beg+'s" '+R+'/></ellipse>';
+  // a glint: a four-point sparkle that winks
+  const glint=(x,y,s,dur,beg)=>'<path d="M0 -6 L1.4 -1.4 L6 0 L1.4 1.4 L0 6 L-1.4 1.4 L-6 0 L-1.4 -1.4 Z" fill="#FFFFFF" opacity="0" transform="translate('+x+' '+y+') scale('+s+')"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.4;0.5;0.6;1" dur="'+dur+'s" begin="-'+beg+'s" '+R+'/></path>';
+  let g='<g id="lbwwat" class="lbwdet-anim"><defs><clipPath id="lbwwatClip"><path d="'+LBWWAT.SEA+'"/></clipPath></defs><g clip-path="url(#lbwwatClip)">';
+  // THE SWELLS (far to near: longer, slower, bigger)
+  g+=swell(318,150,4,8,'#C9ECFC',0.40,8,3,5.2,0)+swell(380,200,6,12,'#2C7FC0',0.16,10,4,6.1,1.7)+swell(440,240,7,14,'#B5E3FA',0.34,12,5,6.8,3.1)+swell(514,280,8,18,'#2A78B6',0.15,14,6,7.4,4.4);
+  // THE CRESTS riding them
+  g+=crests(342,230,11,0,0.7)+crests(412,270,14,2.2,0.65)+crests(482,310,17,4.1,0.7)+crests(540,350,20,1.3,0.6);
+  // THE GLINTS on the open water
+  [[150,336,1,3.1,0],[420,404,0.8,2.7,1.2],[640,350,1.1,3.5,2.3],[980,330,0.9,2.9,0.6],[1180,412,1,3.3,1.9],[1420,360,0.8,2.6,2.9],[300,468,0.9,3.7,3.3],[760,540,1,3.0,1.5],[1060,526,0.8,3.4,0.2],[1540,470,1,2.8,2.0]].forEach(function(q){ g+=glint(q[0],q[1],q[2],q[3],q[4]); });
+  // THE SHORES: the foam lapping the near beach, the fort's island and the lighthouse's sand
+  g+=lap('M0 562 Q400 592 800 576 Q1200 562 1600 590',7,4.2,0)+lap('M0 556 Q400 586 800 570 Q1200 556 1600 584',5,4.2,2.1);
+  g+=ring(260,524,248,84,4.6,0)+ring(260,524,248,84,4.6,2.3)+ring(1300,562,168,60,4.0,1.0)+ring(1300,562,168,60,4.0,3.0);
+  g+='</g></g>'; return g; }
+function lbwwatHall(s){ if(!LBWWAT.on) return s; if(typeof reducedMotion==='function' && reducedMotion()) return s;   // none under reduced motion: the hall as it was
+  const sea=/(<path d="M0 300 Q400 270 800 296[^>]*\/>)/; if(!sea.test(s) || s.indexOf('id="lbwwat"')>=0) return s;
+  const v=s.replace(sea, function(m){ return m+lbwwatSVG(); }); LBWWAT.paints++; return v; }
+try{ if(typeof SGP_FREEZE==='object'){ const f=SGP_FREEZE['raid-wreck']||(SGP_FREEZE['raid-wreck']=[]); if(f.indexOf('lbwwat')<0) f.push('lbwwat'); } }catch(e){ LBWWAT.err++; }   // the water stays as painted (no panel on a moving band)
+{ const h=(typeof RAID_INFO==='object' && RAID_INFO && RAID_INFO.wreck && typeof RAID_INFO.wreck.hall==='function')? RAID_INFO.wreck.hall : null;   // over every wrap above (LBW-C, LBW-SK, LBW-DET)
+  if(h) RAID_INFO.wreck.hall=function(){ const s=h.apply(this, arguments); try{ return lbwwatHall(s); }catch(e){ LBWWAT.err++; try{ console.error('CARD-LBW-WAT hall', e); }catch(e2){} return s; } }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.lbwwat) GVT.lbwwat=function(){ const sv=document.querySelector('#raidscene svg.rhero'), w=sv? sv.querySelector('#lbwwat') : null;
+  return { cv:GVT_CV, on:LBWWAT.on, paints:LBWWAT.paints, err:LBWWAT.err, key:(function(){ try{ return localStorage.getItem('gvt_lbwwat'); }catch(e){ return null; } })(), raid:(typeof RAID_CUR==='string')? RAID_CUR : null, water:!!w, anims:w? w.querySelectorAll('animate,animateTransform,animateMotion').length : 0, nodes:w? w.querySelectorAll('*').length : 0, panels:w? w.querySelectorAll('.sgp').length : -1,
+    underFar:!!(w && w.nextElementSibling && w.nextElementSibling.id==='lbwdet-far'), frozen:(typeof SGP_FREEZE==='object' && SGP_FREEZE['raid-wreck'])? SGP_FREEZE['raid-wreck'].indexOf('lbwwat')>=0 : false }; }; }catch(e){} }, 0);
+// ═══ END CARD-LBW-WAT ═══
 // ═══ CARD-RSL · THE iPHONE KEEPS THE GAME OPEN (sec:CARD-RSL; design/radio-silence-1023/00-CARD-RSL.md). RADIO SILENCE 10/23/2026: Layla's iPhone ends the game's page for its memory at every open since the night's landings (WhatsApp 07:02 EDT, verbatim: "everytime I open the app it keeps saying 'radio silence' and it keeps on saying press to start and I press it and it keeps poping up"). ═══
 // THE CAUSE (measured on HER army, WebKit at a phone's shape @3, the page process's phys_footprint, CARD-ODL's measure): her bedroom after PRESS START 680 MB on v26.09 -> 770-790 MB on v26.53, from two
 // cards: CARD-STF (v26.27, Laura's nine stuffies: +67 MB in the bedroom) and CARD-PCF (v26.42, Laura's felt Princess Croak: +66 MB at the title, +56 MB in the bedroom). Both cards' own switches off = 685 MB.
