@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.95","md5":"1ba94751f851260d8095c7d40e3383a4","sha":"20505724b5","at":"2026-10-24T02:25:48Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"26.96","md5":"0207b977a0a989e0d94228f226a8ee8e","sha":"65a7c34ee8","at":"2026-10-24T02:36:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -58108,11 +58108,12 @@ const ACS={ on:1, hold:0, busy:0, p:null, h:'', ct:0, at:0, gone:0, last:null, p
 const ACS_K='gvt_acs';   // this phone's ledger: {u: the device id it pushed as, h: the hash HQ holds from here, t: that copy's t (the floor the next push stands on), pend: a device id whose sign-in HQ has not settled yet}
 const ACS_GAP=60000, ACS_TICK=15000, ACS_KEEP=60000, ACS_WAIT=8000;   // one push a minute · the look every 15 s · a keepalive body stays under the browsers' 64 KB · a sign-in waits for HQ at most 8 s
 const ACS_SAVE0=saveMeta;   // a swap stands saveMeta down: from then on nothing of this RAM may reach HQ either
+function acsUp(){ return saveMeta===ACS_SAVE0 || !/^function\s*\(\s*\)\s*\{\s*\}$/.test(String(saveMeta)); }   // CARD-LQP: saveMeta still writes (a swap stands it down with the empty stub function(){}; a card that WRAPS it, CARD-LBW-WP v26.73, is still up: the identity test alone read every phone as stood down since 16:20 10/23)
 function acsPhone(m){ const o=Object.assign({}, m||{}); for(const k of Object.keys(accKeep({})).concat('deviceId')) delete o[k]; return o; }   // the phone's own, never the account's
 function acsHash(s){ let h=0x811c9dc5; for(let i=0; i<s.length; i++){ h^=s.charCodeAt(i); h=Math.imul(h, 16777619); } return (h>>>0).toString(36)+'.'+s.length; }
 function acsLoad(){ let a=null; try{ a=JSON.parse(localStorage.getItem(ACS_K)||'null'); }catch(e){} return (a && typeof a==='object')? a : {}; }
 function acsStore(a){ try{ localStorage.setItem(ACS_K, JSON.stringify(a)); }catch(e){} }
-function acsLive(){ return !!(ACS.on && !ACS.gone && META.deviceId && saveMeta===ACS_SAVE0 && !ACC.busy && !NGP.busy && !ACS.hold); }   // CARD-SFE THE SAVE FOR EVERY PLAYER (design/adventure-standings-1015/02-BUILD-SFE.md; Wyatt on Discord 10/15/2026 13:00 EDT: "We need to have their data logged"): META.account is no longer required: every phone HQ has met pushes on the signed-in cadence (server v134 takes it under the device's own uid; a phone HQ never met is answered 403 guest and tries again a minute on); the pull (acsAfter), the sign-out push (acsOut) and the switch (acsPick) stay the sign-in's
+function acsLive(){ return !!(ACS.on && !ACS.gone && META.deviceId && acsUp() && !ACC.busy && !NGP.busy && !ACS.hold); }   // CARD-SFE THE SAVE FOR EVERY PLAYER (design/adventure-standings-1015/02-BUILD-SFE.md; Wyatt on Discord 10/15/2026 13:00 EDT: "We need to have their data logged"): META.account is no longer required: every phone HQ has met pushes on the signed-in cadence (server v134 takes it under the device's own uid; a phone HQ never met is answered 403 guest and tries again a minute on); the pull (acsAfter), the sign-out push (acsOut) and the switch (acsPick) stay the sign-in's
 function acsPend(st){ return !!(st.pend && st.pend===META.deviceId); }   // a sign-in HQ never answered: the army on the glass may not be the account's, so nothing leaves until HQ settles it
 function acsLook(){ const raw=JSON.stringify(acsPhone(META)), h=acsHash(raw); if(h!==ACS.h){ ACS.h=h; ACS.ct=Date.now(); } return { raw, h }; }
 function acsSend(L, st, why){
@@ -58133,7 +58134,7 @@ function acsPush(why){
   return acsSend(L, st, why);
 }
 function acsTick(){ try{ if(document.hidden) return;
-  if(ACS.on && META.account && !ACS.hold && !ACS.gone && S.mode==='menu' && saveMeta===ACS_SAVE0 && !ACC.busy && !NGP.busy && acsPend(acsLoad()) && Date.now()-ACS.at>ACS_GAP){ ACS.at=Date.now(); acsAfter(ACS.pre!==null? ACS.pre : JSON.stringify(META)); return; }   // HQ was dark at the sign-in: ask again, in the room only
+  if(ACS.on && META.account && !ACS.hold && !ACS.gone && S.mode==='menu' && acsUp() && !ACC.busy && !NGP.busy && acsPend(acsLoad()) && Date.now()-ACS.at>ACS_GAP){ ACS.at=Date.now(); acsAfter(ACS.pre!==null? ACS.pre : JSON.stringify(META)); return; }   // HQ was dark at the sign-in: ask again, in the room only
   acsPush('tick'); }catch(e){} }
 // THE SIGN-OUT (accOutGo, BEFORE the stash): the latest army goes to HQ first (an in-flight push finishes, then this one; 5 s at most, HQ dark never blocks the sign-out)
 function acsOut(){
@@ -58286,7 +58287,7 @@ function qrlLand(hq){ const pre=JSON.stringify(META), A=accLoad(), a0=META.accou
   const res=acsPick(pre, A, hq.uid, hq);   // the army on the disk FIRST, this phone's own things carried (accCarry), the old recruit shelved as the guest army (gvt_accts.g when it has play), the ledger settled (no pend), WELCOME BACK "Your army came back from HQ.", the reload
   if(res==='dark' || !ACS.gone){ META.account=a0; if(c0) META.crew=c0; else delete META.crew; QRL.busy=0; QRL.face='code'; QRL.err='disk'; qrlPaint(); return; }   // the disk refused (acsPick: nothing moved, nothing leaves this session); the latch stays; the next try is a new code
   QRL.res='back'; QRL.code=''; QRL.exp=0; QRL.held=0; }
-function qrlPush(){ if(!ACS.on || !META.deviceId || saveMeta!==ACS_SAVE0 || ACS.gone) return Promise.resolve(0);
+function qrlPush(){ if(!ACS.on || !META.deviceId || !acsUp() || ACS.gone) return Promise.resolve(0);
   const go=()=>{ const L=acsLook(), st=acsLoad(); return (acsPend(st) || (st.u===META.deviceId && st.h===L.h))? 0 : acsSend(L, st, 'out'); };   // acsOut's road, for a guest too (the giver needs no sign-in: QRL-Q3): an in-flight push finishes, then this one
   return Promise.race([ Promise.resolve(ACS.p).then(go), new Promise(r=>setTimeout(()=>r(0), QRL_PUSH)) ]).catch(()=>0); }
 // ── THE GIVER: the lane (the camera's link or the typed code), LINK A NEW DEVICE?, LINKED! ──
@@ -58399,6 +58400,71 @@ function qrlSVG(text){ const q=qrlQR(text); if(!q) return ''; const N=q.length; 
   for(let y=0; y<N; y++){ let x=0; while(x<N){ if(!q[y][x]){ x++; continue; } let w=1; while(x+w<N && q[y][x+w]) w++; d+='M'+(x+2)+' '+(y+2)+'h'+w+'v1h-'+w+'z'; x+=w; } }
   return '<svg class="qrl-qr" viewBox="0 0 '+(N+4)+' '+(N+4)+'" aria-hidden="true"><rect width="'+(N+4)+'" height="'+(N+4)+'" fill="#fff"/><path d="'+d+'" fill="#111"/></svg>'; }
 // ═══ END CARD-QRL ═══
+// ═══ CARD-LQP · STARS BOUGHT ON ONE LINKED PHONE SHOW ON THE OTHER (sec:CARD-LQP; design/qr-link-purchases-1023/00-CARD-LQP.md). FROM LAYLA (WhatsApp 10/23/2026 20:28 EDT, her bug lane: Wyatt 10/23 12:34), verbatim: "after someone uses the QR code to link their account if you bought stars on your phone account and went to check if it was on the account you linked it to it doesn't show up so let's just fix that. so any purchases you have on one account go to the same linked account" ═══
+// THE HOLE: iapCredit credits the pack on the phone that bought it, and nothing else ever carries it: CARD-QRL copies the army ONCE, and CARD-ACS pushes every save to HQ but pulls only at a sign-in, a reinstall or a link
+// landing. So a buy on one phone of a pair (or of two sign-ins on one account) never reached the other. NOW: (1) THE BUYER books each fresh purchase in its army (META.lqpS, the army's own book: it rides the same
+// save as the stars it counts, so an HQ copy of the army carries both or neither) and notes it to HQ (META.lqpO, an outbox flushed by POST /gvt/iap/note, server v147: one row per account and store transaction).
+// (2) EVERY PHONE reads the account's book (POST /gvt/iap/feed) on the title or in the room, every 90 s and when the app comes back, and credits a row ONLY when its army's book lacks that transaction: the buyer
+// never twice, the other phone once, a phone that lands an army copy only what that copy lacks. No ack (the store transaction is the buyer's own), no sp_done (counted once, on the buyer). (3) A no-ads tier: forever =
+// adFreeF; a timed one = adFreeT at least the purchase's own clock + its days (a max: never twice). (4) Nothing while an army is being swapped or decided (acsLive, the ACS ledger's pend: a sign-in, a reinstall, a
+// link code standing), never under a fight. THE LAWS: server first (nothing is noted or read before one GET /gvt/health says iapx:true); zero words, zero css, zero sw.js; the phone's own ledger (META.iap) untouched.
+// THE DOOR: ?lqp=0 on a device = the shop as before (gvt_lqpoff); ?lqp=1 clears it. GVT.lqp() the rig's read.
+const LQP_OFF=(function(){ try{ const q=/[?&]lqp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_lqpoff','1'); else localStorage.removeItem('gvt_lqpoff'); } return localStorage.getItem('gvt_lqpoff')==='1'; }catch(e){ return false; } })();
+const LQP_GAP=90000, LQP_TICK=15000, LQP_BACK=10000, LQP_BOOK=400, LQP_OUT=50;   // the feed every 90 s · the look every 15 s · a return to the app reads at once (10 s apart at most) · the army's book keeps 400 · the outbox 50
+var LQP={ v:1, hq:0, hAt:0, hBusy:0, busy:0, at:0, sending:0, got:0, sent:0, err:0, last:null };   // hq 1 = HQ said iapx:true · at = the last feed's clock · got = rows credited this session · sent = notes HQ booked
+function lqpBook(){ if(!Array.isArray(META.lqpS)) META.lqpS=[]; return META.lqpS; }   // the army's book: the store transactions its stars already count
+function lqpBox(){ if(!Array.isArray(META.lqpO)) META.lqpO=[]; return META.lqpO; }    // the outbox: [tx, sku, n, ms] HQ has not booked yet
+// (1) THE BUYER: iapCredit's fresh credit calls this BEFORE its one saveMeta, so the book, the outbox and the stars land in the same write (the 0097 atomicity law)
+function lqpOwn(tx, sku, n){ try{ if(LQP_OFF || !tx) return;
+  const b=lqpBook(); if(b.indexOf(tx)<0){ b.push(tx); if(b.length>LQP_BOOK) META.lqpS=b.slice(-LQP_BOOK); }
+  const o=lqpBox(); if(!o.some(x=>x[0]===tx)){ o.push([tx, String(sku||''), n|0, Date.now()]); if(o.length>LQP_OUT) META.lqpO=o.slice(-LQP_OUT); }
+  setTimeout(()=>{ try{ lqpFlush(); }catch(e){ LQP.err++; } }, 0); }catch(e){ LQP.err++; } }
+function lqpHealth(){ if(LQP_OFF || LQP.hq===1 || LQP.hBusy || Date.now()-LQP.hAt<60000) return; LQP.hBusy=1; LQP.hAt=Date.now();
+  try{ netFetch(NET+'/health', { cache:'no-store' }).then(r=>r.json()).then(j=>{ LQP.hBusy=0; if(j && j.iapx===true){ LQP.hq=1; lqpFlush(); lqpFeed(1); } }, ()=>{ LQP.hBusy=0; }); }catch(e){ LQP.hBusy=0; LQP.err++; } }   // an older HQ: nothing noted, nothing read
+function lqpPost(path, body){ return netFetch(NET+path, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(Object.assign({ device:META.deviceId, cv:GVT_CV }, body||{})) }).then(r=>r.json()); }
+// the outbox, one note at a time: booked (ok, a replay's dup too) or refused for good (bad tx | bad sku) leaves it; HQ dark, slow down or no door keeps it for the next look
+function lqpFlush(){ if(LQP_OFF || LQP.hq!==1 || LQP.sending || !META.deviceId) return; const o=lqpBox(); if(!o.length) return;
+  const x=o[0]; LQP.sending=1;
+  try{ lqpPost('/iap/note', { tx:x[0], sku:x[1], n:x[2] }).then(j=>{ LQP.sending=0; LQP.last=j;
+    if(j && (j.ok || j.err==='bad tx' || j.err==='bad sku')){ const k=lqpBox().findIndex(y=>y[0]===x[0]); if(k>=0){ META.lqpO.splice(k, 1); saveMeta(); } if(j.ok) LQP.sent++; if(lqpBox().length) setTimeout(()=>{ try{ lqpFlush(); }catch(e){ LQP.err++; } }, 300); }
+  }, ()=>{ LQP.sending=0; }); }catch(e){ LQP.sending=0; LQP.err++; } }
+// (2) THE FEED: the title or the room only, the army settled (no swap, no sign-in deciding, no reinstall or link code standing)
+function lqpFeed(force){
+  if(LQP_OFF || LQP.hq!==1 || LQP.busy || !META.deviceId || document.hidden) return;
+  if(S.mode!=='menu' && S.mode!=='title') return;
+  if(!acsLive() || acsPend(acsLoad())) return;
+  if(!force && Date.now()-LQP.at<LQP_GAP) return;
+  LQP.busy=1; LQP.at=Date.now(); const dev=META.deviceId;
+  try{ lqpPost('/iap/feed', {}).then(j=>{ LQP.busy=0;
+    if(!j || !j.ok || !Array.isArray(j.rows) || META.deviceId!==dev || !acsLive() || acsPend(acsLoad()) || (S.mode!=='menu' && S.mode!=='title')) return;
+    lqpTake(j.rows);
+  }, ()=>{ LQP.busy=0; }); }catch(e){ LQP.busy=0; LQP.err++; } }
+// a row the army's book lacks is credited ONCE: a pack's stars (the count the buyer was credited, never past the pack's drop count), a no-ads tier (3); the book takes the tx in the same write
+function lqpTake(rows){
+  const b=lqpBook(); let got=0, stars=0;
+  for(const r of rows){
+    if(!Array.isArray(r) || r.length<5) continue;
+    const tx=String(r[1]||'').slice(0,64), sku=String(r[2]||''), at=(Number(r[4])||0)*1000;
+    if(!tx || b.indexOf(tx)>=0) continue;
+    const p=PACKS.find(k=>k.sku===sku), na=NOADS.find(k=>k.sku===sku);
+    if(!p && !na) continue;   // a pack this build does not sell: left for a build that does (never booked)
+    if(p){ let n=r[3]|0; const cap=Math.max(p.n, p.sale|0); if(n<=0 || n>cap) n=p.n; META.starBank+=n; stars+=n; }   // 0875: a PURCHASE: the bank only, never doubled, starsLifetime stays earned
+    if(na){ if(na.days) META.adFreeT=Math.max(META.adFreeT||0, (at||Date.now())+na.days*86400000); else META.adFreeF=1; }
+    META.paidEver=1; b.push(tx); got++;
+  }
+  if(!got) return 0;
+  if(b.length>LQP_BOOK) META.lqpS=b.slice(-LQP_BOOK);
+  saveMeta(); LQP.got+=got;
+  try{ if(S.mode==='menu') renderMenu(); shopRefresh(); starPopRefresh(); if(stars) SFX.coin(); }catch(e){ LQP.err++; }
+  return got;
+}
+function lqpTick(){ try{ if(document.hidden) return; lqpHealth(); lqpFlush(); lqpFeed(0); }catch(e){ LQP.err++; } }
+setInterval(lqpTick, LQP_TICK); setTimeout(lqpTick, 4000);
+document.addEventListener('visibilitychange', ()=>{ try{ if(!document.hidden && Date.now()-LQP.at>LQP_BACK){ lqpFlush(); lqpFeed(1); } }catch(e){ LQP.err++; } });   // back in the app: the other phone's buys at once
+function lqpRig(o){ o=o||{}; if(o.feed){ LQP.at=0; lqpFeed(1); } if(o.health){ LQP.hAt=0; lqpHealth(); }
+  return { cv:GVT_CV, v:LQP.v, off:LQP_OFF, hq:LQP.hq, busy:LQP.busy, at:LQP.at, got:LQP.got, sent:LQP.sent, err:LQP.err, book:Array.isArray(META.lqpS)? META.lqpS.slice() : [], out:Array.isArray(META.lqpO)? META.lqpO.length : 0, bank:META.starBank, ledger:(META.iap && Array.isArray(META.iap.t))? META.iap.t.length : 0 }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lqp=lqpRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-RIN's grammar)
+// ═══ END CARD-LQP ═══
 // native sign-in callbacks land here
 window.GVTN = {
   appleSignIn(){ sioGo(); },   // CARD-SIO: the latch, the watchdog and the bridge call live in sioGo (one tap at a time; no bridge at all = the line on the card)
@@ -58778,6 +58844,7 @@ function iapCredit(d){
     tel(p? 'sp_done' : 'na_done', String(d.sku||'').split('.').pop(), NAOFF.el? 1 : 0);   // 0624 D4: a fresh credit — once per txid, only a pack this build sells (the 0097 law)
     META.paidEver=1;   // FM-GVT-MAX-01 §V3.10 payer exemption: ANY real purchase retires REAL interstitials for good (rewarded stays — a gift, not a toll; the placeholder era has no reader). Flat comet-law field, Object.assign-safe.
     led.t.push(tx); if(led.t.length>300) led.t=led.t.slice(-300);
+    if(typeof lqpOwn==='function') lqpOwn(tx, d.sku, cred);   // CARD-LQP: the army books this purchase (META.lqpS) and notes it to HQ (META.lqpO), in the same write as the stars: the account's other phones credit it once
   }
   saveMeta();
   // THE ACK RULE IS UNCHANGED: an ack only ever follows a successful on-disk
@@ -91234,7 +91301,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='26.95';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='26.96';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
