@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.01","md5":"59b55df1d3e7215715eb18928d54b974","sha":"c05764c458","at":"2026-10-24T03:35:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.02","md5":"278790af1b17e079740046c3ca3c60c7","sha":"36b8ad93ba","at":"2026-10-24T03:39:48Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91349,7 +91349,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -131700,6 +131700,7 @@ function drawSargeOutfit(u){
     cx.strokeStyle='#8a6a24'; cx.lineWidth=0.18; cx.lineCap='round'; cx.beginPath(); cx.moveTo(hx+1.6425,hy-4.05); cx.lineTo(hx+1.6425,hy-2.655); cx.stroke(); cx.lineCap='butt';
   }
   if(on('captainshat') && cpnOn()) cpnHatCv(cx,hx,hy);   // CARD-CPN THE CAPTAIN'S HAT on the carpet man (sec CARD-CPN: the portrait's own geometry at the figure's 0.45 through Path2D; the cove's hat never had a carpet twin; dark until CPN_LIVE)
+  if(on('captainshat') && !cpnOn()) chbCanvas(hx,hy);   // CARD-CHB THE CAPTAIN'S HAT IN BATTLE (Wyatt 10/23: "Captains hat not displaying on sarge in game"): while CPN is dark the carpet man wears the portrait's own tricorn (lbwaHatArt through the image door, sec CARD-CHB); he fought bare-helmeted in it
   if(on('tinfoilhat')){                                  // 1008 THE SEVEN HATS + THE SCOUTER'S SHINE — THE TINFOIL HAT on the carpet man (OF_TINFOIL at 0.45, artH7.py): the cone, the two facets, the creases, the crumpled rim, the glint
     cx.fillStyle='#C2C9D0'; cx.strokeStyle='#6F777F'; cx.lineWidth=0.36; cx.lineJoin='round'; cx.beginPath(); cx.moveTo(hx-5.58,hy-0.45); cx.lineTo(hx-3.69,hy-6.57); cx.lineTo(hx-1.08,hy-11.25); cx.lineTo(hx+0.81,hy-11.97); cx.lineTo(hx+2.88,hy-9.54); cx.lineTo(hx+4.23,hy-5.85); cx.lineTo(hx+5.58,hy-0.45); cx.closePath(); cx.fill(); cx.stroke(); cx.lineJoin='miter';
     cx.fillStyle='#E6EAEE'; cx.beginPath(); cx.moveTo(hx-5.58,hy-0.45); cx.lineTo(hx-3.69,hy-6.57); cx.lineTo(hx-1.08,hy-11.25); cx.lineTo(hx-1.62,hy-0.45); cx.closePath(); cx.fill();
@@ -202590,6 +202591,27 @@ function cpnRig(o){ o=o||{}; if(o.on!=null){ CPN.on=o.on? 1 : 0; CPN.svg=''; }
     stats:JSON.parse(JSON.stringify(CPN.stats)), prims:CPN_HAT.length, tileVB:CPN_TILE_VB }; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.cpn=cpnRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-WSK's grammar)
 // ═══ END CARD-CPN ═══
+// ═══ CARD-CHB · THE CAPTAIN'S HAT IN BATTLE (sec:CARD-CHB; design/captains-hat-battle-1023/00-CARD-CHB.md; Wyatt's phone 10/23/2026 22:58 EDT, jumpr 2667, built on Maker 1 as M2667) ═══
+// His words, verbatim (Wispr Flow): "Captains hat not displaying on sarge in game as you can see in the screenshot". His screenshot: a snow fight, his Sarge with the cutlass, the plain steel pot on his head.
+// THE FINDING: THE CAPTAIN'S HAT (`captainshat`, THE PIRATE COVE's HARD prize) has its picture on the portrait (outfitDress → lbwaHatArt(): CARD-LBW-A's tricorn) and on the rack tile, but the carpet
+// man's painter (drawSargeOutfit) only ever drew CARD-CPN's NEW tricorn (cpnHatCv), and that one is dark behind CPN_LIVE=0 until his yes to its picture (CPN-Q1). So in every fight a Sarge wearing the
+// hat showed his bare steel pot: mine, a partner's, the away captain's, a computer's chair, the robot that wears your Sarge's hat (all of them read drawSargeOutfit's one `on`).
+// THE CURE (the picture only): the carpet man wears the hat the portrait wears. CPN on: cpnHatCv, byte-still. CPN off: THE IMAGE DOOR (CARD-SNH / CARD-TRN-B3 / CARD-SQG's grammar): the head seat's own
+// string (lbwaHatArt(): today LBW-A's tricorn) painted ONCE to an image, the 120x140 box at the figure's 0.45 = 54 x 63 with its head seat (60,50) on the first hat run's hx,hy (the run's lift applied,
+// like every carpet hat; the eye pieces draw over the brim, the portrait's order). Minted at load, so the first frame of the first fight already wears it. ?chb=0 = HEAD's picture (no hat in a fight).
+// Zero words, zero rows, zero save, wire or server bytes; the hat's stats (CARD-CPN's +8 HP and the cannons) were live already and are untouched.
+const CHB={ on:(function(){ try{ return /[?&]chb=0/.test(location.search||'')? 0 : 1; }catch(e){ return 1; } })(), v:1, im:null, src:'', stats:{ cv:0, wait:0, err:0, mint:0 } };
+function chbImg(){ const s=lbwaHatArt(); if(CHB.im && CHB.src===s) return CHB.im;   // one image a string (a rig's CPN flip re-mints; today's string is LBWA_ART.hat)
+  const im=new Image(); im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140"><g transform="translate(60,50)">'+s+'</g></svg>');
+  CHB.im=im; CHB.src=s; CHB.stats.mint++; return im; }
+function chbCanvas(hx,hy){   // drawSargeOutfit's first hat run while CPN is dark: the portrait's own tricorn on the carpet man (true = painted this frame)
+  try{ if(!CHB.on) return false; const im=chbImg(); if(im.complete && im.naturalWidth){ cx.drawImage(im, hx-27, hy-22.5, 54, 63); CHB.stats.cv++; return true; } CHB.stats.wait++; }
+  catch(e){ try{ CHB.stats.err++; }catch(e2){} }   // safe before this sec runs: a boot paint meets the TDZ and draws nothing, as before
+  return false; }
+try{ if(!cpnOn()) chbImg(); }catch(e){}   // minted at load: decoded long before the first fight
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.chb=function(o){ o=o||{}; if(o.on!=null) CHB.on=o.on? 1 : 0; const im=CHB.im;
+  return { v:CHB.v, on:CHB.on, cpn:cpnOn(), ready:!!(im && im.complete && im.naturalWidth), w:im? im.naturalWidth : 0, h:im? im.naturalHeight : 0, same:CHB.src===lbwaHatArt(), today:CHB.src===LBWA_ART.hat, stats:JSON.parse(JSON.stringify(CHB.stats)) }; }; }catch(e){} }, 0);   // the rigs' read (CARD-CPN's grammar): GVT.chb({ on:0|1 }) flips THIS page only
+// ═══ END CARD-CHB ═══
 // ═══ CARD-EBH · EMPEROR BEAR'S HAT: THE ARMOR OUT, THE CANNONS IN (sec:CARD-EBH; design/emperor-hat-cannons-1023/00-CARD-EBH.md; Wyatt's phone 10/23/2026 22:51 EDT, jumpr 2666, built on Maker 1 as M2666) ═══
 // His words (Wispr Flow): "Remove the armor stat from emperor beard hat, replace with the following: Cannons within 35m first Fire 60% faster & deal *3 critical crit damage. Help with the wording there and keep
 // short. Implement live." THE HAT = `kingbearhat`, EMPEROR BEAR'S HAT (the General's bicorne, THE PILLOW FIELDS' HARD prize; his "beard" = Wispr's "bear"). THE ARMOR OUT: OF_KBH_DEF 0.05 → 0 on its own line
