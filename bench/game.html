@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.11","md5":"2fd5561e02cba770dbc49c24f1cc56e2","sha":"21c359d054","at":"2026-10-24T16:10:31Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.12","md5":"633d5a64500a704521b41ddc6ded18b7","sha":"1eadb6142a","at":"2026-10-24T17:25:54Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -58121,17 +58121,18 @@ function acsSend(L, st, why){
   const body='{"device":'+JSON.stringify(dev)+',"m":'+L.raw+',"t":'+t+((typeof META.ngpU==='string' && META.ngpU)? ',"su":'+JSON.stringify(META.ngpU) : '')+',"cv":'+JSON.stringify(GVT_CV)+'}';
   ACS.busy=1; ACS.at=Date.now();
   ACS.p=netFetch(NET+'/save/put', { method:'POST', headers:{'Content-Type':'text/plain;charset=UTF-8'}, body, keepalive:(why==='hide' && body.length<ACS_KEEP) })   // text/plain: no preflight (the hidden tab's keepalive)
-    .then(r=>r.json()).then(r=>{ ACS.last=r;
+    .then(r=>r.json()).then(r=>{ ACS.last=r; if(typeof lnkAnswer==='function') lnkAnswer(r);   // CARD-LNK-ALL: slow down = a pause before the next try; stale = the line reads HQ's newer copy at once
       if(r && r.ok) acsStore({ u:dev, h:L.h, t:r.stale? (Number(r.t)||t) : t, s:r.stale? 1 : 0 });   // CARD-LQP THE LINE: s 1 = HQ kept another phone's newer army (the line takes it in a quiet room)   // stale: HQ holds a newer copy (another phone played): this save is settled, the next change stands on HQ's t
       return r; }, ()=>0).then(r=>{ ACS.busy=0; ACS.p=null; return r; });
   return ACS.p;
 }
 function acsPush(why){
+  if(typeof lnkFree==='function') lnkFree(ACS, 'acs');   // CARD-LNK-ALL: a put that never answered (the app slept mid-fetch) no longer holds every later push
   if(!acsLive() || ACS.busy) return Promise.resolve(0);
   const L=acsLook(), st=acsLoad();
   if(st.adopt && st.u===META.deviceId && !st.h){ st.h=LQB.h0||L.h; delete st.adopt; acsStore(st); }   // CARD-LQP THE LINE: the copy this phone just took IS HQ's (its hash at this boot): settled, never pushed back; a change made since still goes up
   if(acsPend(st) || (st.u===META.deviceId && st.h===L.h)) return Promise.resolve(0);   // unsettled · HQ already holds this very save from this phone
-  if(why==='tick' && Date.now()-ACS.at<ACS_GAP) return Promise.resolve(0);
+  if(why==='tick' && Date.now()-ACS.at<(typeof lnkGap==='function'? lnkGap() : ACS_GAP)) return Promise.resolve(0);   // CARD-LNK-ALL: a shared account's phone pushes a change within seconds (lnkGap 5 s once HQ said nd 2+), the rest once a minute
   return acsSend(L, st, why);
 }
 function acsTick(){ try{ if(document.hidden) return;
@@ -58431,6 +58432,7 @@ function lqpFlush(){ if(LQP_OFF || LQP.hq!==1 || LQP.sending || !META.deviceId) 
   }, ()=>{ LQP.sending=0; }); }catch(e){ LQP.sending=0; LQP.err++; } }
 // (2) THE FEED: the title or the room only, the army settled (no swap, no sign-in deciding, no reinstall or link code standing)
 function lqpFeed(force){
+  if(typeof lnkFree==='function') lnkFree(LQP, 'lqp');   // CARD-LNK-ALL: a feed that never answered (the app slept mid-fetch) no longer holds every later read
   if(LQP_OFF || LQP.hq!==1 || LQP.busy || !META.deviceId || document.hidden) return;
   if(S.mode!=='menu' && S.mode!=='title') return;
   if(!acsLive() || acsPend(acsLoad())) return;
@@ -58473,15 +58475,16 @@ setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lqp=lqpRig; }catch(e)
 // with MORE play comes in; at as much play THE NEWER CHANGE WINS (CARD-ACS law 2): this phone changed later = its army goes up; else the copy comes in by acsPick's own road (the army on the
 // disk FIRST, this phone's own things carried, WELCOME BACK "Your army came back from HQ.", a reload). The phone that took a copy never pushes it straight back (the ledger's adopt: the next push waits for a change of its
 // own), so two phones never take turns. No shelf is touched (the pre-army is never shelved: a linked phone's old recruit stays where CARD-QRL put it). Never under a fight, a page, the shop or a swap. ?lqp=0 = off with the rest.
-const LQB_FAST=30000;   // a shared account's phone reads every 30 s
+const LQB_FAST=10000;   // a shared account's phone reads every 10 s (CARD-LNK-ALL; stage B read every 30 s)
 var LQB={ busy:0, at:0, took:0, res:'', h0:'', asks:0 };   // h0 = the army's hash at this session's first look (a change since = this session's own: ACS.ct is its clock) · res = the last word: same | mine | take | thin | dark | shelf | busy
 function lqbQuiet(){ try{ return (S.mode==='title' || (S.mode==='menu' && qrlQuiet() && !shopIsOpen() && !SPOP.el)) && !document.hidden && acsLive() && !acsPend(acsLoad()); }catch(e){ return false; } }
 // the feed's answer: true = a pull started (the book's rows wait for it: a copy that comes in carries its own book)
 function lqbSee(j, rows){
   LQP.nd=(j && j.nd)|0; const t=Number(j && j.t)||0; if(!LQB.h0) LQB.h0=acsLook().h;
   if(LQP.nd<2 || !t) return false;
-  const st=acsLoad(); if(st.u!==META.deviceId) return false;
+  const st=acsLoad(); if(st.u && st.u!==META.deviceId) return false;   // CARD-LNK-ALL: a phone whose ledger is empty (it never pushed) still takes the account's copy; another device's ledger still bars it
   if(t<=(Number(st.t)||0) && !st.s) return false;   // HQ holds nothing newer than this phone's own last word
+  if(typeof lnkFree==='function') lnkFree(LQB, 'lqb');   // CARD-LNK-ALL: a pull that never answered no longer holds every later one
   if(LQB.busy || !lqbQuiet()) return false;
   lqbPull(t, rows); return true;
 }
@@ -58511,6 +58514,28 @@ function lqbCmp(m){ const c=m.campaign|0, k=META.campaign|0, a=m.starsLifetime|0
 function lqbRig(){ return { took:LQB.took, res:LQB.res, asks:LQB.asks, busy:LQB.busy, nd:LQP.nd, quiet:lqbQuiet(), ledger:acsLoad() }; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lqb=lqbRig; }catch(e){} }, 0);
 // ═══ END CARD-LQP ═══
+// ═══ CARD-LNK-ALL LINKED DEVICES SHARE EVERYTHING THAT IS PLAYED (design/linked-devices-everything-1024/00-CARD-LNK.md; board J2; THE BUG LANE, Wyatt 10/23 12:34). LAYLA 10/24/2026 11:06:44 EDT on WhatsApp
+// (ACC8711B3C0A624C6583E83C1A78B41F), verbatim: "we need to fix the linking system. EVERY SINGLE thing that is played on one device NEEDS to be updated to the all the other linked devices"; 11:09:33 (3A79122F04861766A374):
+// "levels. I beat bear park and the 1st campaign. and it didnt shiw on my other 2 devices". THE READ: HQ held her play (her account's copy ten minutes young, v27.09, four devices on the uid); her other phones never took it.
+// THE LINE (CARD-LQP stage B) had a phone of a shared account push a change once a minute at most (the 15 s look, ACS_GAP) and read the feed every 30 s, and one fetch left hanging when the app went to sleep mid-flight
+// (LQP.busy, LQB.busy or ACS.busy, never cleared) made that phone deaf or dumb for good; a phone whose ledger never got a u (it never pushed) was barred from the pull. NOW: a phone HQ has told is shared (the feed's nd 2+)
+// looks at its army every LNK_TICK and pushes a change within LNK_GAP (never under a fight: the minute's push stands there); it reads the feed every 10 s (LQB_FAST); a push answered stale reads at once; a fetch that
+// never answered is forgotten after LNK_HUNG; HQ's slow down (its bucket, v148: six writes back to back, then one every 10 s) pauses the next try LNK_SLOW; an empty ledger no longer bars the pull. A phone alone on its
+// account (nd 1) is byte-what-it-was. Zero words, zero css, zero sw.js, zero server bytes. GVT.lnk() the rig's read.
+const LNK_GAP=5000, LNK_TICK=3000, LNK_SLOW=10000, LNK_HUNG=20000, LNK_SETTLE=3000, LNK_BOOT=15000;   // a shared phone's push gap · its look · the pause after slow down (HQ v148 refills one write every 10 s) · a fetch is hung after this · a change must hold still this long before the fast look pushes it · the fast look sits out a page's first 15 s (CARD-ACS's own first look: a just-landed copy's boot-time flicker is never pushed)
+var LNK={ v:1, looks:0, pushed:0, slow:0, stale:0, freed:0, gave:0 };   // gave = this phone linked another one this session (LINKED!): shared from that moment
+function lnkFast(){ try{ return !LQP_OFF && (LQP.nd|0)>1; }catch(e){ return false; } }   // HQ said this uid has 2+ devices (the feed's nd, read on the title or in the room)
+function lnkGap(){ return lnkFast()? LNK_GAP : ACS_GAP; }
+function lnkFree(o, k){ if(o.busy && Date.now()-(o.at||0)>LNK_HUNG){ o.busy=0; o.at=0; if(k==='acs') ACS.p=null; LNK.freed++; return 1; } return 0; }   // a fetch that never answered (the app slept mid-flight) no longer holds every later one; its clock is cleared too, so the next tick reads or pushes at once (a phone whose FIRST feed hung never learned nd: it would have waited the solo 90 s)
+function lnkAnswer(r){ try{ if(!r) return; if(r.err==='slow down'){ LNK.slow++; if(lnkFast()) ACS.at=Date.now()+LNK_SLOW-LNK_GAP; }
+  if(r.ok && r.stale && lnkFast()){ LNK.stale++; setTimeout(()=>{ try{ LQP.at=0; lqpFeed(1); }catch(e){} }, 50); } }catch(e){} }   // stale = HQ kept another phone's newer army: the line reads it now, not at the next 10 s
+function lnkLook(){ try{ if(!LNK.gave && QRL.res==='gave'){ LNK.gave=1; LQP.nd=Math.max(LQP.nd|0, 2); LQP.at=0; }   // the giver just linked another phone (qrlTake's LINKED!): the account is shared NOW, not at its next feed (90 s on the solo cadence: the rig's first level waited 42 s behind the minute's gap)
+  if(document.hidden || !lnkFast() || S.mode==='play' || performance.now()<LNK_BOOT) return; LNK.looks++; acsLook(); if(Date.now()-(ACS.ct||0)<LNK_SETTLE) return;   // a hash that changed within the last 3 s waits: a bookkeeping flicker in a page's first seconds (set, then reset) was pushed by the 3 s look, never by the 15 s one, and made the other phone take the copy (a reload for nothing)
+  const p=acsPush('tick'); if(p && p.then) p.then(r=>{ if(r && r.ok) LNK.pushed++; }); }catch(e){} }
+setInterval(lnkLook, LNK_TICK);
+function lnkRig(){ return { v:LNK.v, cv:GVT_CV, fast:lnkFast(), nd:LQP.nd|0, gap:lnkGap(), looks:LNK.looks, pushed:LNK.pushed, slow:LNK.slow, stale:LNK.stale, freed:LNK.freed, gave:LNK.gave, busy:{ acs:ACS.busy, lqp:LQP.busy, lqb:LQB.busy }, at:{ acs:ACS.at, lqp:LQP.at, lqb:LQB.at }, ledger:acsLoad() }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.lnk=lnkRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (CARD-LQP's grammar)
+// ═══ END CARD-LNK-ALL ═══
 // native sign-in callbacks land here
 window.GVTN = {
   appleSignIn(){ sioGo(); },   // CARD-SIO: the latch, the watchdog and the bridge call live in sioGo (one tap at a time; no bridge at all = the line on the card)
@@ -91386,7 +91411,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
