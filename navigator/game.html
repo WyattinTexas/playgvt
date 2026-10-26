@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.34","md5":"ed44fad4e4c0dca69009ca77d8f08c78","sha":"4a74076b16","at":"2026-10-26T20:10:56Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.35","md5":"1a7c5eef9fa5c0ad4646ef67947ec96b","sha":"8da870cd95","at":"2026-10-26T20:30:22Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91421,7 +91421,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -206475,6 +206475,61 @@ const SDR=(function(){
 window.GVT_SDR=SDR;
 if(typeof GVT==='object' && GVT) GVT.sdr=function(){ return { on:SDR.on, gear:(SDR.on && SDR.gon)? SDR.gear().length : 0, pool:SDR.on? SDR.pool().length : 0, found:SDR.on? SDR.found() : null, n:(META.sdr&&META.sdr.n)|0, step:SDR.on? SDR.st.step : null }; };
 // ═══ END CARD-SDR ═══
+// ═══ CARD-NFD NOT FOUND (sec:CARD-NFD; design/not-found-toys-1026/00-DESIGN-NFD.md; FROM ISAAC, designer: his note by the jumpr guest link 10/26/2026 13:20 EDT (jumpr 2697, built on Maker 1 as M2697), verbatim:
+// "let's make a change to the treasure chest and the way the toys pop up. If a player hasn't found a toy in a supply drop yet, it should be grayed out with the text "Not Found" over it. For example the Robo Sarge 3000:
+// it should just be the icon of the Robo Sarge, not the text at the bottom. It should just be grayed out and have "Not Found" said over the top of it to really show that the player does not have that yet and they need
+// to go get it. Side note: let's make the Robo Sarge rare." A DESIGN PASS built as a kit: NOTHING LIVE until his word (his live switch, card 2277).
+// THE LAW: a toy that is WON IN A SUPPLY DROP (CARD-SDR's isDrop) and not found yet is its ICON alone, greyed, with NOT FOUND across it, wherever its card stands: the treasure chest (ALL and every land's tab, the
+// SUPPLY DROPS tab), SARGE'S SURPLUS's SUPPLY DROPS aisle (the pool) and a park store's toys (NFD.surplus). Its rarity pill stays (NFD.pill). The name, the sub line and the tag come back the moment the toy is found
+// (an owned card is byte-still). The tap still answers WIN IT IN A SUPPLY DROP! (CARD-SDR's nudge). As today: a rug sold for stars (its sticker), a prize with its lock line (how to get it), a mystery silhouette
+// (a shut park's model in the chest, a Halloween piece not yet got). SIDE NOTE: ROBO-SARGE 3000 is RARE (NFD.robo 2 on CARD-SDR's judge table; it was COMMON).
+// ROUND 2 (his WhatsApp reply 10/26 15:24 EDT, 3B4B3DD5164F38BF5B8E, with a picture of the chest's own black silhouettes, verbatim: "Let's try changing the card to the empty silhouette design as found in the attached image, but keeping
+// the rarity pill in the same place as it is now."): THE PICK IS THE SILHOUETTE (NFD.look 'sil'): the toy's art filled black on the cream card (the chest's own .sil grammar, Wyatt 9/5), wordless, the rarity pill where CARD-SDR put it;
+// 'silband' = the same with the NOT FOUND band over it (an option); 'band' · 'stamp' · 'plate' = round 1's three.
+// ?nfd=0 on a device = CARD-SDR's cards as v27.24 (the words, the colour, the robot COMMON); ?nfd=1 clears it. NFD.pill · NFD.surplus · NFD.look ('sil' · 'silband' · 'band' · 'stamp' · 'plate') · NFD.robo = one number each.
+// GVT.nfd(o) = the rig's door. Words: NOT FOUND ×7. Zero save keys, zero server, zero wire.
+const NFD=(function(){
+  const on=(function(){ try{ const q=/[?&]nfd=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_nfd','0'); else localStorage.removeItem('gvt_nfd'); } return localStorage.getItem('gvt_nfd')==='0'? 0 : 1; }catch(e){ return 1; } })();
+  const B={ v:2, on, pill:1, surplus:1, look:'sil', robo:2, robo0:null };
+  if(!on || typeof SDR!=='object' || !SDR || !SDR.on) return B;   // the drops off on this device (?sdr=0) = nothing to dress
+  B.robo0=SDR.JUDGE.robot; SDR.JUDGE.robot=B.robo;   // the side note: the judge table is the one tierOf reads (the same object), so the robot's crate, pill and pool row follow
+  const own=id=>{ try{ return decOwns(id); }catch(e){ return false; } };
+  const shut=id=>{ try{ return !!(decBoss(id) && !decBossOpen(id)); }catch(e){ return false; } };   // a park's model while its king stands: not yet IN the drops (the chest's silhouette, the Surplus's LOCKED grid, the park store's NOT YET shelf keep their words)
+  const due=(id, h)=>B.on && SDR.isDrop(id) && !own(id) && !shut(id) && !/class="sh-dec[^"]*\b(mys|sil)\b/.test(h);   // a mystery silhouette keeps the chest's own law (Wyatt 9/5)
+  const css=document.createElement('style'); css.id='nfdCSS'; css.textContent=[
+    // the icon alone: the window takes the card (the text seats are gone), grey, a little dim; the drop shadow stays so it still sits on the card
+    '.sh-dec.nfd .sh-dwin{filter:grayscale(1) brightness(.8) contrast(.9);opacity:.92}',
+    '.sh-dec.nfd .sh-dwin svg{filter:drop-shadow(0 3px 2px rgba(0,0,0,.28)) saturate(0)}',
+    '.sdr-grid .sh-dec.nfd .sh-dwin,.sdr-row .sh-dec.nfd .sh-dwin{min-height:clamp(70px,13vh,110px)}',   // the Surplus's aisles: the window keeps a toy-sized box with no text under it
+    // THE BAND (the pick): a straight dark band across the middle of the icon, cream letters, a cream rim
+    '.nfd-mark{position:absolute;left:2%;right:2%;top:50%;z-index:4;transform:translateY(-50%);padding:3px 2px;text-align:center;font-family:var(--uih);font-weight:800;font-size:clamp(10px,1.95vh,14px);letter-spacing:.14em;line-height:1.1;color:#F6EFDC;background:rgba(36,28,18,.86);border:2px solid rgba(246,239,220,.55);border-radius:4px;box-shadow:0 3px 6px rgba(0,0,0,.45);pointer-events:none;white-space:normal;overflow:hidden}',
+    // THE STAMP: a tilted rubber stamp in red ink, the chest's own double rim (.sh-dstamp's grammar) over the icon
+    '.sh-dec.nfd-stamp .nfd-mark{left:50%;right:auto;width:auto;max-width:112%;transform:translate(-50%,-50%) rotate(-12deg);padding:1px 7px;background:rgba(246,239,220,.78);color:#8B2432;border:3px double #8B2432;border-radius:6px;letter-spacing:.14em;box-shadow:none}',
+    // THE PLATE: no band on the icon; the words sit where the name was (the icon keeps its size)
+    '.sh-dec.nfd-plate .nfd-mark{position:static;display:block;flex:0 0 auto;overflow:visible;transform:none;margin-top:clamp(1px,.5vh,4px);padding:2px 8px;background:rgba(36,28,18,.86);border-radius:5px;box-shadow:none;border:none;letter-spacing:.14em}',
+    '.sh-dec.nfd-plate .sh-dwin{flex:1 1 auto}',
+    '.sh-dec.nfd-plate .nfd-mark{white-space:nowrap}',
+    '.sdr-grid .nfd-mark,.sdr-row .nfd-mark{font-size:clamp(9px,1.6vh,12px);letter-spacing:.08em}',   // the Surplus's small cards: a smaller word; a long tongue wraps to two lines
+    // THE SILHOUETTE (round 2, his pick): the chest's own black shape on the cream card (.tc-grid .sh-dec.sil's grammar: the art filled black, the window at full opacity, no grey), wordless; the pill stays where it is
+    '.sh-dec.nfd-sil .sh-dwin,.sh-dec.nfd-silband .sh-dwin{filter:none;opacity:1}',
+    '.sh-dec.nfd-sil .sh-dwin svg,.sh-dec.nfd-sil .sh-dwin img,.sh-dec.nfd-silband .sh-dwin svg,.sh-dec.nfd-silband .sh-dwin img{filter:brightness(0)}',
+    '.sh-dec.nfd-sil .nfd-mark{display:none}'   // wordless, as his picture; nfd-silband keeps the band over the black shape
+  ].join('\n'); document.head.appendChild(css);
+  const MARK='<span class="nfd-mark">NOT FOUND</span>';
+  const old={ shopDecHTML };
+  shopDecHTML=function(id, twin){ const h=old.shopDecHTML(id, twin); if(!due(id, h)) return h; if(twin!=='c' && !B.surplus) return h;   // twin 'c' = the chest; anything else = the Surplus's aisles and the park stores
+    let s=h.replace(/<span class="sh-dn">[\s\S]*?<\/span>/, '').replace(/<span class="sh-dsub">[\s\S]*?<\/span>/, '').replace(/<span class="sh-dlk">[\s\S]*?<\/span>/, '').replace(/<span class="sh-dtag">[\s\S]*?<\/span>/, '');   // the text at the bottom goes (the name, the sub, a lock line, the tag)
+    if(!B.pill) s=s.replace(/<span class="sdr-pill[^"]*">[\s\S]*?<\/span>/, '');
+    return s.replace(/(<button type="button" class="sh-dec)/, '$1 nfd nfd-'+B.look).replace('</button>', MARK+'</button>'); };   // the first </button> closes the card (a paint rail's buttons come after it)
+  for(const L9 of [ ['es','NO ENCONTRADO'], ['de','NICHT GEFUNDEN'], ['ru','НЕ НАЙДЕНО'], ['ja','まだ みつけてない'], ['ko','아직 못 찾음'], ['zh-Hans','未找到'], ['ar','لم يُعثر عليها'] ]) Object.assign(TR[L9[0]]||(TR[L9[0]]={}), { 'NOT FOUND':L9[1] });
+  return Object.assign(B, { due:id=>due(id, old.shopDecHTML(id, 'c')), mark:MARK });
+})();
+if(typeof GVT==='object' && GVT) GVT.nfd=function(o){ o=o||{}; let re=0;
+  if(o.pill!=null){ NFD.pill=o.pill? 1 : 0; re=1; } if(o.surplus!=null){ NFD.surplus=o.surplus? 1 : 0; re=1; } if(o.look && /^(sil|silband|band|stamp|plate)$/.test(o.look)){ NFD.look=o.look; re=1; }
+  if(o.robo!=null && typeof SDR==='object' && SDR && SDR.on && SDR.JUDGE){ NFD.robo=o.robo|0; SDR.JUDGE.robot=NFD.robo; re=1; }
+  if(re){ try{ if(typeof chestStands==='function' && chestStands()){ const v=CHT_VIEW; CHT_VIEW=null; chtTab(v); } }catch(e){} }   // the standing panel dealt again on its own tab
+  return { v:NFD.v, on:NFD.on, pill:NFD.pill, surplus:NFD.surplus, look:NFD.look, robo:NFD.robo, robo0:NFD.robo0, robot:(typeof SDR==='object' && SDR && SDR.on)? SDR.tierOf('robot') : null, css:!!document.getElementById('nfdCSS'), marks:document.querySelectorAll('.sh-dec.nfd .nfd-mark').length }; };   // CARD-NFD: the rig's door (the dials, the robot's tier, how many cards wear the band on the screen)
+// ═══ END CARD-NFD ═══
 // ═══ CARD-FGT · THE FORT'S DOORS COME WITH THE PLAYER (sec:CARD-FGT; design/fort-gates-1024/00-CARD-FGT.md §12 (the pass §0-§11, jumpr 2682 from Wyatt's phone 10/24 18:19: "Dont let players access all the fort features at the start. Have them come in at later levels. Run an audit and a design pass"); WYATT typed on the Big Mac 10/26/2026 ~13:1x EDT, finishing it in a fresh hand session, verbatim: "Promotions will just be hidden until the player levels up, at which point the next time he's in the fort, he'll see that the promotions are there. The pets will be hidden until the player obtains a pet, at which point they can now see the pet button in the fort. Same with heroes: it should not show up until you have a hero, at which point it's available in the fort. Trophies and medals as well will not show up until the player gets a medal. After the initial tutorial, the player should have no medals, so the first time that they're in the fort, it should truly not be visibly showing. We saw earlier that on a fresh account, it was saying that we had a medal for playing a decoration in the room. That shouldn't be happening. When the player is in the fort for the first time, they shouldn't have a medal, so both trophies and medals should be hidden until the player gets a medal. We are going to put the training range inside of the roster. To access it, the player will click on the roster and then click on one of the units they want to see their stats for. Inside of that screen, we're going to have a button, and it will say "Try Training Grounds." That opens up the training grounds. The hangar will open up at level 7. Once the account is level 7, it will unlock the hangar. They'll get an announcement for it too. Floop's Lab will open up at level 11 and will automatically give them the long-range rocket upgrade. Finally, the roster will open up from campaign level 5, and the way we'll do it is when paint day comes up. They'll be doing that inside of roster, so that way it all comes together. And finally, we're moving formations inside of roster. That was a previous Dylan push that I'm not seeing, but we need to put formations inside of roster. That way, the mission board can be in the center of the fort, and we can remove the current formations icon."):
 //   THE DOORS on the yard are HIDDEN (not there at all, FORMATION's way since CARD-FIR; no padlocked plank) until their thing: PROMOTIONS the first promotion AFTER the tutorial (commander level FGT_LVL.promotions 3: the opener's forced promotion makes every save level 2 before its first visit, and its pick is spent on the verdict's picker) or a pick waiting ·
 //   ROSTER campaign PAINT_GIFT_LVL (5) = PAINT DAY (one const with it), or a thing of his inside (a jar, KEEP MY GREEN, a line, a bench) · PETS a pet · HEROES a king · MEDALS and TROPHIES the first medal in the case · FLOOP'S LAB commander 11 (the lab he ever opened, or a sold part he owns, keeps it) · THE EAST FIELD + THE HANGAR commander 7 (a machine or the jet pack keeps it) ·
