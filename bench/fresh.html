@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.29","md5":"687afd0bab8bce7b6771b66a2e3ed00c","sha":"9bc15391cf","at":"2026-10-26T18:51:38Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.30","md5":"c43edaaa89648942c6a72f48a33c3f27","sha":"5216836cff","at":"2026-10-26T19:15:35Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91421,7 +91421,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.29';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -206570,14 +206570,17 @@ try{ if(window.GVT && !GVT.fgt) GVT.fgt=fgtRig; }catch(e){ FGT.err++; }
 // tile: a gold band ★ FEATURED BATTLE, the size big, the map, the hook line, the card's own words off its own data (featBattle, featDone, bfMapLabel, FEAT_STARS).
 // LEADERBOARD, MORE BATTLES and SURVIVAL MODE as three small doors of one size in a right column (the table's own buttons moved, their taps kept). THE MAP chip and
 // GROUP stay. renderWarTable wrapped by name (the lay runs after every draw); one style element (id bmtCss) injected; no new key; zero server bytes.
+// ROUND 7 (Isaac 15:04, on the live screen): the two squares a half larger and centred in the band between PLAY's foot and the screen's bottom (the pair lifted out of the
+// column onto the table, its top = PLAY's foot measured at every lay and on a resize); the tile and the right column padded by the phone's own safe-area insets
+// (env(safe-area-inset-left / -right): the Dynamic Island's side in landscape; the page runs viewport-fit=cover), so neither sits under the island.
 // ?bmt=0 (a device key gvt_bmt) = the shipped screen. The rig door GVT.bmt({on, mode}).
-const BMT={ on:1, err:0 };
+const BMT={ on:1, err:0, rs:0, ro:null };
 try{ const m=location.search.match(/[?&]bmt=([01])/); if(m) localStorage.setItem('gvt_bmt', m[1]); BMT.on=(localStorage.getItem('gvt_bmt')==='0')? 0 : 1; }catch(e){ BMT.on=1; }
 function bmtMode(){ return ((META.bfMode|0)===2)? 2 : 1; }   // the lit tab: 1v1 unless 2v2 was lit (META.bfMode, the save's own field from here on; absent = 1v1)
 function bmtPty(){ try{ return partyLive().length>=2; }catch(e){ return false; } }   // a live party: the row follows the party's size and locks
 const BMT_CSS=[
-  '#wartable.bmt { --gasq:clamp(84px,21vh,160px); --bmtf:calc(var(--gasq)*1.08); --bmtw:min(calc(var(--gasq)*1.5), 16vw); }',
-  '#wartable.bmt .wt-mid.wt-mid { gap:clamp(5px,1.3vh,12px); justify-content:center; padding:0 12px; }',   /* the column centred on the screen: the padding-right that kept PLAY clear of the torch square on the flank (#wartable.gasq .wt-mid) goes, the squares now sit in the column; Isaac's first note: smack dab in the middle */
+  '#wartable.bmt { --gasq0:clamp(84px,21vh,160px); --gasq:var(--gasq0); --bmtf:calc(var(--gasq0)*1.08); --bmtw:min(calc(var(--gasq0)*1.5), 16vw); --bmt-sal:env(safe-area-inset-left, 0px); --bmt-sar:env(safe-area-inset-right, 0px); }',   /* --gasq0 the column's measure; the squares read 1.5 x it; the insets = the island's side */
+  '#wartable.bmt .wt-mid.wt-mid { gap:clamp(5px,1.3vh,12px); justify-content:flex-start; padding:clamp(4px,2vh,24px) 12px 0; }',   /* the tabs and PLAY under the top row; the band below PLAY belongs to the pair */   /* the column centred on the screen: the padding-right that kept PLAY clear of the torch square on the flank (#wartable.gasq .wt-mid) goes, the squares now sit in the column; Isaac's first note: smack dab in the middle */
   '#wartable.bmt .wt-flank { height:clamp(44px,10vh,72px); }',
   '#wartable.bmt .wt-play { min-width:calc(clamp(220px,36vw,520px)*var(--uik,1)); }',
   '#wartable.bmt .bmt-tabs { display:flex; gap:clamp(8px,1.6vw,16px); justify-content:center; }',
@@ -206585,20 +206588,21 @@ const BMT_CSS=[
   '#wartable.bmt .bmt-tab.on { background:linear-gradient(180deg,#8bd45a,#4f9a2f 55%,#3a7a22); border-color:#B9F08A; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,0.35); transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.5); }',
   '#wartable.bmt .bmt-tab:active { transform:scale(0.96); }',
   '#wartable.bmt .bmt-tabs[data-pty], #wartable.bmt.ptylock .bmt-tabs { filter:grayscale(1) brightness(0.55); pointer-events:none; }',
-  '#wartable.bmt .bmt-pair { display:flex; gap:clamp(10px,2vw,22px); justify-content:center; align-items:flex-end; }',
-  '#wartable.bmt .wt-gasq, #wartable.bmt .wt-glsq { position:relative; top:auto; left:auto; right:auto; }',   /* relative, never static: the globe's mini canvas and the torch's ring are absolute INSIDE their squares */
+  '#wartable.bmt .bmt-pair { position:absolute; z-index:3; left:0; right:0; bottom:0; top:var(--bmt-pairtop, 55%); display:flex; gap:clamp(12px,2.4vw,26px); justify-content:center; align-items:center; pointer-events:none; }',   /* the band from PLAY\'s foot to the screen\'s bottom; the squares centred in it */
+  '#wartable.bmt .bmt-pair > * { pointer-events:auto; }',
+  '#wartable.bmt .wt-gasq, #wartable.bmt .wt-glsq { --gasq:calc(var(--gasq0)*1.5); position:relative; top:auto; left:auto; right:auto; }',   /* a half larger: every inner measure reads the square\'s own --gasq */   /* relative, never static: the globe's mini canvas and the torch's ring are absolute INSIDE their squares */
   '#wartable.bmt .wt-m2.bmt-hide { display:none; }',
-  '#wartable.bmt .wt-feat { position:absolute; z-index:3; left:var(--gasqr); top:calc(50% - var(--bmtf)/2); width:var(--bmtw); height:var(--bmtf); margin:0; padding:0 calc(var(--gasq)*0.05) calc(var(--gasq)*0.06); gap:0; justify-content:space-between; align-items:center; overflow:hidden; box-sizing:border-box; border-radius:14px; }',
+  '#wartable.bmt .wt-feat { position:absolute; z-index:3; left:calc(var(--gasqr) + var(--bmt-sal)); top:calc(50% - var(--bmtf)/2); width:var(--bmtw); height:var(--bmtf); margin:0; padding:0 calc(var(--gasq)*0.05) calc(var(--gasq)*0.06); gap:0; justify-content:space-between; align-items:center; overflow:hidden; box-sizing:border-box; border-radius:14px; }',
   '#wartable.bmt .wt-feat .bmt-band { display:block; width:calc(100% + var(--gasq)*0.1); margin:0 calc(var(--gasq)*-0.05); background:#D9A544; color:#2C2416; font-size:clamp(9px,calc(var(--gasq)*0.105),15px); letter-spacing:0.1em; padding:calc(var(--gasq)*0.045) 0; text-align:center; white-space:nowrap; }',
   '#wartable.bmt .wt-feat .n { font-size:clamp(20px,calc(var(--gasq)*0.3),44px); line-height:1; }',
   '#wartable.bmt .wt-feat small { font-size:clamp(8.5px,calc(var(--gasq)*0.09),12.5px); letter-spacing:0.05em; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; }',   /* the map's name whole on every glass (THE HAUNTED LIBRARY on the iPad's tile) */
   '#wartable.bmt .wt-feat small.bmt-hook { color:#FFD24A; }',
-  '#wartable.bmt .bmt-side { position:absolute; z-index:3; right:var(--gasqr); top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:clamp(6px,1.4vh,12px); }',
+  '#wartable.bmt .bmt-side { position:absolute; z-index:3; right:calc(var(--gasqr) + var(--bmt-sar)); top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:clamp(6px,1.4vh,12px); }',
   '#wartable.bmt .bmt-side .wt-door { width:var(--bmtw); box-sizing:border-box; justify-content:center; padding:clamp(5px,1.2vh,9px) clamp(8px,1.2vw,14px); gap:6px; }',
   '#wartable.bmt .bmt-side .wt-door .dlab { font-size:clamp(10px,2vh,14px); white-space:nowrap; }',
   '#wartable.bmt .bmt-side .wt-door .wt-crate { width:clamp(16px,3.2vh,24px); height:clamp(12px,2.4vh,18px); }',
   '#wartable.bmt .wt-foot2 { justify-content:space-between; }',
-  '#wartable.bmt.queueing .bmt-side, #wartable.bmt.queueing .bmt-tabs { display:none; }'
+  '#wartable.bmt.queueing .bmt-side, #wartable.bmt.queueing .bmt-tabs, #wartable.bmt.queueing .bmt-pair { display:none; }'
 ].join('\n');
 function bmtCss(){ if(document.getElementById('bmtCss')) return; const st=document.createElement('style'); st.id='bmtCss'; st.textContent=BMT_CSS; document.head.appendChild(st); }
 function bmtTabsHTML(){ const pty=bmtPty(), lit=pty? 2 : bmtMode();
@@ -206608,14 +206612,20 @@ function bmtFeatLay(card){   // the card's own data laid as the left tile: the b
   card.innerHTML='<span class="bmt-band" data-notr>★ '+escH(TXT('FEATURED BATTLE'))+'</span><span class="n" data-notr>'+ft.size+'v'+ft.size+'</span>'
     +'<small class="bmt-map" data-notr>'+escH(bfMapLabel(ft.map))+'</small><small class="bmt-hook" data-notr>'+escH(done? TXT('WON TODAY · REPLAY ANYTIME') : tf('FIRST WIN +%1★', starX(FEAT_STARS)))+'</small>';
   card.classList.add('bmt-feat'); }
+function bmtBand(){ const wt=document.getElementById('wartable'); if(!wt || !BMT.on) return; const play=wt.querySelector('.wt-play'); if(!play) return;   // the band's top = PLAY's foot, measured on the table
+  const w=wt.getBoundingClientRect(), p=play.getBoundingClientRect(); if(!(p.height>0) || !(w.height>0)) return;   // hidden (the opener draws before it shows): the observer below measures once it shows
+  wt.style.setProperty('--bmt-pairtop', Math.max(0, Math.round(p.bottom-w.top))+'px'); }
+function bmtWatch(wt, play){   // PLAY and the table watched for size (the table showing, a glass turning): the band follows; iOS 13.4+
+  try{ if(!BMT.ro && window.ResizeObserver) BMT.ro=new ResizeObserver(()=>{ try{ bmtBand(); }catch(e){ BMT.err++; } }); if(BMT.ro){ BMT.ro.disconnect(); BMT.ro.observe(wt); if(play) BMT.ro.observe(play); } }catch(e){ BMT.err++; } }
 function bmtPairSeat(){ const wt=document.getElementById('wartable'); if(!wt || !BMT.on) return; const pair=wt.querySelector('.bmt-pair'); if(!pair) return;
   const gl=document.getElementById('glSq'), ga=document.getElementById('gaSq'); if(gl && gl.parentNode!==pair) pair.insertBefore(gl, pair.firstChild); if(ga && ga.parentNode!==pair) pair.appendChild(ga); }
 function bmtLay(){   // after the table's own draw: the pieces re-seated; nothing redrawn but the tabs and the tile's lay
   const wt=document.getElementById('wartable'); if(!wt) return; if(!BMT.on){ wt.classList.remove('bmt'); return; }
   bmtCss(); wt.classList.add('bmt'); const mid=wt.querySelector('.wt-mid'), pw=wt.querySelector('.wt-playwrap'); if(!mid || !pw) return;
   if(!mid.querySelector('.bmt-tabs')) pw.insertAdjacentHTML('beforebegin', bmtTabsHTML());
-  let pair=mid.querySelector('.bmt-pair'); if(!pair){ pair=document.createElement('div'); pair.className='bmt-pair'; pw.insertAdjacentElement('afterend', pair); }
-  bmtPairSeat();
+  let pair=wt.querySelector('.bmt-pair'); if(!pair){ pair=document.createElement('div'); pair.className='bmt-pair'; wt.appendChild(pair); }   // on the table, not in the column: the band runs to the screen's bottom
+  bmtPairSeat(); bmtBand(); bmtWatch(wt, wt.querySelector('.wt-play'));
+  if(!BMT.rs){ BMT.rs=1; try{ addEventListener('resize', ()=>{ try{ bmtBand(); }catch(e){ BMT.err++; } }); }catch(e){} }
   for(const m2 of mid.querySelectorAll('.wt-m2:not(.wt-feat)')){ if(!m2.hasAttribute('data-notr')) m2.classList.add('bmt-hide'); }   // the plain 2v2 GRAB AN ALLY pill goes; a party's face keeps its own button
   const feat=mid.querySelector('.wt-feat'); if(feat && !feat.classList.contains('bmt-feat')) bmtFeatLay(feat);
   let side=wt.querySelector('.bmt-side'); if(!side){ side=document.createElement('div'); side.className='bmt-side'; wt.appendChild(side); }
