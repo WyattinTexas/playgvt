@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>Take a seat</title>
+<body style="background:#111;color:#eee;font:16px system-ui;display:grid;place-items:center;height:100vh;margin:0">
+<div id="o">Taking the seat…</div>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search), dev=q.get('dev')||'', name=q.get('name')||'';
+  var o=document.getElementById('o');
+  if(!/^[a-f0-9]{16,64}$/.test(dev)){ o.textContent='No seat in this link.'; return; }
+  try{
+    var m={}; try{ m=JSON.parse(localStorage.getItem('gvt_meta')||'{}')||{}; }catch(e){ m={}; }
+    m.deviceId=dev; if(name) m.name=name;
+    localStorage.setItem('gvt_meta', JSON.stringify(m));
+    o.textContent='Seated as '+(name||dev)+' — loading the game…';
+  }catch(e){ o.textContent='Storage refused: '+e; return; }
+  setTimeout(function(){ location.replace('/'); }, 400);
+})();
+</script>
