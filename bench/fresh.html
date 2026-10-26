@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.16","md5":"9a2ce628a45e5feeee808e3f07c27c18","sha":"d8f9bbecca","at":"2026-10-25T02:26:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.17","md5":"082c4f384fee888d9ee09fefe01e6f0d","sha":"fe8ccc5d1e","at":"2026-10-26T02:04:17Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80186,7 +80186,7 @@ function ccnCast(u,col,relay){ ccnBat(); u.ccnFl={ t:ccnNow(), col:(col==='silve
   return true; }
 function ccnWord(u,col){ if(!u || u.ccnBig!==col || rfOf(u,col)) return; u.ccnBig=null; ccnBigWord(u,CCN.word[col],(col==='silver'? '#FFFFFF' : tkHexOf(col))); }   // a base power's first cast: its word big (a refined one lands through rfSay)
 function ccnSayBig(u,col,w){ if(!u || u.ccnBig!==col) return false; u.ccnBig=null; ccnBigWord(u,w,(col==='silver'? '#FFFFFF' : tkHexOf(col))); return true; }   // rfSay's line: the refined word big on its first cast, the float skipped that once
-function ccnBigWord(u,key,col){ if(!key) return; rfFx().push({ k:'ccnW', txt:key, col, x:u.x, y:u.y-98, t0:S.t, dur:CCN.wordT }); ccnLog(['word',key]); }
+function ccnBigWord(u,key,col){ if(!key) return; rfFx().push({ k:'ccnW', txt:key, col, x:u.x, y:u.y-98-hldStack(u), t0:S.t, dur:CCN.wordT }); ccnLog(['word',key]); }   // CARD-HLD: a word cast while another still shows lands one line higher (her film's WHHALO!OL!)
 function ccnHit(u,f){ const st=u && u.ccnSt; if(st && f && (f.boss || (f.def && f.def.boss))) st.boss=1; }   // a boss in the power's reach (the earned moment)
 // ---- (2) THE EARNED MOMENT (every frame: ccnCam9)
 function ccnEarnTick(){ for(const u of S.units){ const st=u.ccnSt; if(!st) continue;
@@ -91421,7 +91421,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -101148,7 +101148,7 @@ function roomAdoptBeacon(b){
   if(typeof b.dy==='number') bf.base.you.dmgTaken=Math.max(0,b.dy|0);
   if(typeof b.df==='number') bf.base.foe.dmgTaken=Math.max(0,b.df|0);
   if(typeof b.tl==='number') bf.timeLeft=Math.max(0,+b.tl||0);
-  if(b.ph==='sudden' && bf.phase!=='sudden'){ bf.phase='sudden'; S.ann={txt:'SUDDEN DEATH · FIRST HIT WINS',t:3,warn:true}; SFX.horn(); }
+  hldBeacon(bf,b);   // CARD-HLD (Laura 10/25/2026, M2685): the shipped sudden-death line + THE HOLD FOLLOWS THE REFEREE (a held mat whose referee's clock runs rings its own bell) + the phase back to live on a referee's fresh fight
   if(b.ot && !bf.ot){ bf.ot=true; }   // CARD-DT (Wyatt 9/27/2026): the follower's seat doubles with the host's beacon; no card, no horn (the host's own seat: bfTick)
   // v2.83 LAW 3 — THE PULL (Wyatt 8/9: "every three seconds, whoever wasn't
   // the original host pulls from the host data. Even if there's a little
@@ -133909,7 +133909,7 @@ function drawHUD(){
   // 1191b CARD-HB-2 THE PURSE OVER THE TRAY (Wyatt 9/23/2026: "the currency in the top left. We want to move that down above the soldier icons in the bottom left, just to more signify that that currency is what dictates what you can put down. Also, it's easier to read because the player's eyes will be [there]" · "make sure that we move the dog tags down to that nice spot on the lower left, just like we're doing for the campaign."): the dog tags left the strip — drawPurse seats them above the tray's first card, in both battles (the range has no economy, as before)
   cx.textAlign='center';
   if(S.bf){
-    const urgent=S.bf.timeLeft<=15, sudden=S.bf.phase==='sudden';
+    const urgent=S.bf.timeLeft<=15, sudden=S.bf.phase==='sudden' && !hldHeld();   // CARD-HLD: no SUDDEN over a held mat (the word is the referee's fight, not this screen's counter)
     cx.fillStyle = sudden? '#FFD24A' : (urgent? '#E8705A' : CREAM);
     cx.font=cf('bold '+(urgent?27:23)+'px');
     cx.fillText((sudden?TXT('SUDDEN')+' ':'')+bfClock(), VW/2-60, 23);
@@ -203233,6 +203233,27 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.slm) GVT.slm=function(v){ v=v|
     piece:P? { title:P.title, key:P.key, bpm:P.bpm, bars:P.bars, units:P.units, voices:P.v.length, notes:P.v.reduce(function(a, vv){ return a+ncmNotes(vv).length; }, 0), len:+(P.units*(60/P.bpm)/24).toFixed(2), trim:NCM.trim.mousekingwar } : null,
     theme:{ src:!!THEME.src, want:THEME.want, dead:THEME.dead, started:THEME.started } }; }; }catch(e){} }, 0);
 // ═══ END CARD-SLM ═══
+// ═══ CARD-HLD THE HOLD FOLLOWS THE REFEREE (sec:CARD-HLD; design/tundra-hold-1025/00-CARD-HLD.md; from Maker 1, account I, lane card M2685, jumpr 2685). FROM LAURA by her jumpr guest link 10/25/2026 20:34 EDT, verbatim: "lots of bugs in this game", with her 113 s iPhone film of THE BATTLE OF THE FROZEN TUNDRA (20:29:03 to 20:30:56 EDT, two real commanders).
+// WHAT HER FILM SHOWS: her screen in THE HOLD (S.evHold: the sim frozen, the counter running to the ring) while the referee's fight was already minutes old. Every census row's copy stood where it was born and nobody was swept (a pile of some three hundred men on the centre line); the HUD read SUDDEN over her hold's counter
+// (the referee's phase, adopted off his beacon); at her ring her bell rang into a fight with 38 s left (the referee's clock, adopted); her guns' bounties off the frozen pile paid some 4,700 tags in three seconds; the verdict came a minute later. Two power words (WHIRLPOOL!, HALO!) cast in one second printed on top of each other.
+// THE LAW NOW (a room battle, a guest's screen; ?hld=0 = HEAD, remembered on the device as gvt_hld; ?hld=1 forgets it):
+//   1 · THE HOLD FOLLOWS THE REFEREE: a held desert / Tundra mat whose referee's beacon shows a RUNNING clock (tl under the full clock by HLD.moved s) or SUDDEN DEATH rings its own bell at once, by evBell's own law (the horn, Sarge's line, the AFK card's leave): one carpet, one clock. The ring on this screen's own clock stays the bell for everyone else (the shipped line, untouched).
+//   2 · NO SUDDEN OVER A HELD MAT: the HUD prints the hold's counter plain; the word SUDDEN belongs to a fight this screen is in.
+//   3 · THE PHASE FOLLOWS BOTH WAYS: a referee's beacon that says live on a mat that says sudden (a referee's fresh fight after a reload, a hand-off) takes the mat back to live, quietly; the shipped sudden line (the banner, the horn) stands byte for byte.
+//   4 · TWO WORDS NEVER PRINT ON ONE SPOT: a big power word cast while another still shows lands one line higher (ccnBigWord).
+// Zero server, save or wire bytes. GVT.hld() = the rig's read; GVT.hld({on:0|1}) sets the switch for this page. ═══
+var HLD={ on:(function(){ try{ const q=/[?&]hld=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_hld','0'); else localStorage.removeItem('gvt_hld'); } return localStorage.getItem('gvt_hld')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  moved:1.5, stackPx:34, near:80, bells:0, live:0, sudden:0, stacked:0, log:[] };   // var on purpose (CARD-DFR's grammar): roomAdoptBeacon and ccnBigWord read it wherever they run, never a TDZ
+function hldOn(){ return !!(HLD && HLD.on); }
+function hldHeld(){ return !!(hldOn() && S.evHold); }   // a held mat under the law (the desert's / the Tundra's hold)
+function hldRunning(bf,b){ if(!bf || !b) return false; if(b.ph==='sudden') return true; const full=bfClockFor(bf.team); return (typeof b.tl==='number' && b.tl>0 && b.tl<full-HLD.moved); }   // the referee's clock has moved: his fight is on
+function hldBeacon(bf,b){
+  if(hldOn() && S.evHold && S.bf===bf && bf.bd && !bf.resolved && S.mode==='play' && hldRunning(bf,b)){ HLD.bells++; HLD.log.push(['bell', Math.round(evHoldRing()-evNow()), b.ph||null, (typeof b.tl==='number')? Math.round(b.tl) : null]); evBell(); }   // 1 · THE HOLD FOLLOWS THE REFEREE
+  if(b.ph==='sudden' && bf.phase!=='sudden'){ bf.phase='sudden'; HLD.sudden++; S.ann={txt:'SUDDEN DEATH · FIRST HIT WINS',t:3,warn:true}; SFX.horn(); }   // the shipped line
+  else if(hldOn() && b.ph==='live' && bf.phase==='sudden'){ bf.phase='live'; HLD.live++; HLD.log.push(['live', Math.round(S.t)]); }   // 3 · THE PHASE FOLLOWS BOTH WAYS (the referee's fresh fight)
+}
+function hldStack(u){ if(!hldOn() || !u) return 0; let n=0; const y0=u.y-98, t=S.t; for(const e of rfFx()){ if(e.k==='ccnW' && Math.abs(e.x-u.x)<HLD.near && Math.abs(e.y-y0)<HLD.near*2 && t-e.t0<e.dur) n++; } if(n) HLD.stacked++; return n*HLD.stackPx; }   // 4 · the next word one line up
+// ═══ CARD-HLD ends ═══
 window.GVT = {
   clm(o){ return clmRig(o); },   // CARD-CLM THE CLAYMORE'S RANK RUNGS: the rig's door (the dials, the doors, the factors, the words, a fielded Claymore's reads; o.rank sets MY Claymore's rank, o.camp the campaign, o.on the switch)
   cks(o){ if(o && o.pct!=null) CKS.pct=+o.pct||0; const R=[0,1,10,20,25,50,75,99,100], t={}; for(const r of R) t[r]={ mul:+cksMul(r).toFixed(4), hit:+hitDmgNowAt('kingcroak',r).toFixed(4), whole:hitWhole(hitDmgNowAt('kingcroak',r)) }; return { cv:GVT_CV, pct:CKS.pct, at:CKS.at, ck:HHB.ck, slope:HERO_DMG_RANK, mine:(META.up.kingcroak||0)|0, table:t }; },   // CARD-CKS: the ramp's dials (o.pct sets it for a rig; 0 = the storm as it was) + King Croak's HITS FOR at nine ranks
@@ -205717,6 +205738,7 @@ window.GVT = {
       mode:S.mode }; },
   bfCash(n){ S.plastic=n; if(S.bf) S.bf.seats.forEach(st=>{ if(!st.human) st.purse=n; }); },
   bfClock(t){ if(S.bf) S.bf.timeLeft=t; },
+  hld(v){ v=v||{}; if(v.on!=null) HLD.on=v.on? 1 : 0; return { cv:GVT_CV, on:HLD.on, held:hldHeld(), hold:S.evHold? { ring:S.evHold.ring|0, left:+(evHoldRing()-evNow()).toFixed(1) } : null, mode:S.mode, host:!!(COOP&&COOP.host), phase:S.bf? S.bf.phase : null, tl:S.bf? +S.bf.timeLeft.toFixed(1) : null, full:S.bf? bfClockFor(S.bf.team) : null, clock:S.bf? bfClock() : null, bells:HLD.bells, live:HLD.live, sudden:HLD.sudden, stacked:HLD.stacked, log:HLD.log.slice(-12), units:S.units.length, dead:S.units.filter(u=>u.dead).length, hy:S.bf? S.bf.base.you.hp : null, hf:S.bf? S.bf.base.foe.hp : null }; },   // CARD-HLD: the rig's read; {on:0|1} sets the switch for this page
   // v2.88 (card 0239): the 2v2 base-HP dial. Call bare to read; session-local,
   // so a console tune never writes into a kid's save. Answers the number the
   // next 2v2 will actually deal, so a tune reads back as hp on the spot.
