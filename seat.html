@@ -9,6 +9,9 @@
   try{
     var m={}; try{ m=JSON.parse(localStorage.getItem('gvt_meta')||'{}')||{}; }catch(e){ m={}; }
     m.deviceId=dev; if(name) m.name=name;
+    var lv=parseInt(q.get('lvl')||'',10); if(lv>0){ m.lvl=lv; m.xp=0; m.pendingPicks=0; }
+    var cp=parseInt(q.get('camp')||'',10); if(cp>=0 && q.get('camp')!==null){ m.campaign=Math.max(cp, (m.campaign|0)); }
+    window.__SEAT_V=2;
     localStorage.setItem('gvt_meta', JSON.stringify(m));
     o.textContent='Seated as '+(name||dev)+' — loading the game…';
   }catch(e){ o.textContent='Storage refused: '+e; return; }
