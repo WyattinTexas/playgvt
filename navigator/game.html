@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.22","md5":"b34c98c9660cba6d1c3478b544df9ba3","sha":"5cd0bb1446","at":"2026-10-26T17:05:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.23","md5":"9f3cd8b84e5d1ce3b80524f0a1f9770e","sha":"c81642d9e2","at":"2026-10-26T17:18:11Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -62867,7 +62867,7 @@ function nemRamTick(h,kt,dt){
   if(!h.nkSt) h.nkSt='idle';
   if(h.nkSt==='idle'){
     const m=nemNearFig(h.x,h.y,rb.aggro);
-    if(m){
+    if(m && frkClear(h.x,h.y,m.x,m.y,16)){   // CARD-FRK THE LOCK (the trike's own)
       const dx=m.x-h.x, dy=m.y-h.y, d=Math.hypot(dx,dy)||1;
       h.nkSt='brace'; h.nkT=rb.brace; h.nkDir={x:dx/d,y:dy/d}; h.nkRun=d+rb.over; h.nkHit={}; h.fx=dx>0;
       S.fx.push({k:'puff',x:h.x+(h.fx?18:-18),y:h.y+4,t:0,dur:0.3,R:9});
@@ -72432,7 +72432,7 @@ function petTnTick(p,u,dt){   // THE BEAT: true while the machine owns the feet 
     petTnHome(p); return false; }
   if(p.state==='sprint'){ if(!p.tgt || !petTtLive(p,p.tgt) || TGT(u).indexOf(p.tgt)<0 || !petTgtOk(u,p.tgt)){ const n=petTtNear(p,u,p.x,p.y,petTnSwing(p),p.bit); if(n) p.tgt=n; else { petTnHome(p); return false; } }
     const m=p.tgt, dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy); if(d<=TN_REACH){ p.state='bite'; p.biteT=TN_BITE_T; return true; }
-    const sp=Math.min(d, petTnSpd(p)*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.fx=dx>0? 1 : -1; return true; }
+    frkGo(p, m.x, m.y, petTnSpd(p)*dt); p.fx=dx>0? 1 : -1; return true; }   /* CARD-FRK */
   p.state='idle';
   if(p.cd<=0){ const m=petTtNear(p,u,u.x,u.y,petTnR(p),null); if(m){ p.state='sprint'; p.phase='sprint'; p.tgt=m; p.bit={}; p.tripN=0; p.t=0; p.fx=m.x>p.x? 1 : -1; return true; } }
   return false; }
@@ -81317,7 +81317,7 @@ function petBiDmg(p){ return petHas(p,'heavymitre')? CHS_BI.dmgH : petHas(p,'sha
 function petBiCd(p){ return (petHas(p,'quickerslide')? CHS_BI.cdQQ : petHas(p,'quickslide')? CHS_BI.cdQ : CHS_BI.cd)/petMul(p.r|0); }
 function petBiMoves(p){ return petHas(p,'doubleslide')? 2 : 1; }
 function petBiDiag(x,y,f){ const dx=f.x-x, dy=f.y-y; const d=Math.hypot(dx,dy); if(d<12) return false; const a=Math.abs(Math.atan2(Math.abs(dy),Math.abs(dx))*180/Math.PI-45); return a<=CHS_BI.deg; }   // on one of the four 45-degree lines from (x,y), within the cone
-function petBiFind(p,u,x,y,R,ex){ let best=null, bd=1e9; for(const f of TGT(u)){ if(!petBiLive(p,f) || !petTgtOk(u,f) || (ex && ex[f.id])) continue; const d=Math.hypot(f.x-x,f.y-y); if(d>R || d>=bd || !petBiDiag(x,y,f)) continue; bd=d; best=f; } return best; }   // THE TARGET: the NEAREST live Tan body on a diagonal inside R (the bishop slides THROUGH him: everyone on the line is in the wake)
+function petBiFind(p,u,x,y,R,ex){ let best=null, bd=1e9; for(const f of TGT(u)){ if(!petBiLive(p,f) || !petTgtOk(u,f) || (ex && ex[f.id])) continue; const d=Math.hypot(f.x-x,f.y-y); if(d>R || d>=bd || !petBiDiag(x,y,f) || !frkClear(x,y,f.x,f.y,FRK.pad)) continue; bd=d; best=f; } return best; }   /* CARD-FRK: THE LOCK (a bishop never slides through a rock) */   // THE TARGET: the NEAREST live Tan body on a diagonal inside R (the bishop slides THROUGH him: everyone on the line is in the wake)
 function petBiVs(f){ return (f && (f.type==='tansarge' || (S.bf && f.type==='sarge')))? CHS_BI.vs : 1; }   // x4 on the enemy Sarge (his word)
 function petBiLive(p,f){ return petTtLive(p,f) || (petBiVs(f)>1 && petFlLive(f)); }   // THE BISHOP's own gate: GAMBIT's skip list (machines before THE IRON MITRE, kings before THE KING TAKER), but the ENEMY SARGE always (he is a boss row; the x4 is the pet's signature)
 function petBiSweep(p,u,x,y){ const W=petBiW(p), dmg=petBiDmg(p)*petPotX(p);
@@ -81327,7 +81327,7 @@ function petBiStart(p,u,m){ const sx=(m.x>p.x)? 1 : -1, sy=(m.y>p.y)? 1 : -1; co
 function petBiTick(p,u,dt){   // THE BEAT: true while the machine owns the feet (the slide); the trot home is the shared heel walk (phase 'sprint')
   if(p.state==='slide'){
     if(!p.to){ p.state='idle'; return false; }
-    p.t+=dt; const k=Math.min(1,p.t/p.dur); p.x=p.from.x+(p.to.x-p.from.x)*k; p.y=p.from.y+(p.to.y-p.from.y)*k;
+    p.t+=dt; let k=Math.min(1,p.t/p.dur); const nx9=p.from.x+(p.to.x-p.from.x)*k, ny9=p.from.y+(p.to.y-p.from.y)*k; if(frkWall(p.x,p.y,nx9,ny9,FRK.passPad)) k=1; else { p.x=nx9; p.y=ny9; }   /* CARD-FRK: the slide pulls up short of a rock */
     petBiSweep(p,u,p.x,p.y);
     if(k>=1){ bfSfx(SFX.clack,p.x,p.y); p.moves=(p.moves|0)+1;
       const m2=(p.moves<petBiMoves(p))? petBiFind(p,u,p.x,p.y,CHS_BI.R2,p.hitSet) : null;
@@ -81361,10 +81361,10 @@ function petRkTick(p,u,dt){   // THE BEAT on the rug: true always (he stands at 
           if(petHas(p,'doubleknock') && !f.dead && !(f.hp!=null && f.hp<=0)) petTtHurt(p,f,petRkDmg(p)); bfSfx(SFX.clack,p.x,p.y); if(!reducedMotion()) S.fx.push({k:'ring',x:f.x,y:f.y-16,r:5,R:34,t:0,dur:0.28,col:'#F3E3C0'}); }
         p.state='back'; p.to=seat; p.tgt=null; p.cd=CHS_RK.cd/petMul(p.r|0); }
       else { p.state='idle'; p.to=null; } }
-    else { p.x+=dx/d*sp; p.y+=dy/d*sp; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }
+    else { frkGo(p, to.x, to.y, sp); if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }   /* CARD-FRK */
     return true; }
   p.state='idle';
-  { const dx=seat.x-p.x, dy=seat.y-p.y, d=Math.hypot(dx,dy); if(d>sp){ p.x+=dx/d*sp; p.y+=dy/d*sp; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; return true; } p.x=seat.x; p.y=seat.y; }
+  { const dx=seat.x-p.x, dy=seat.y-p.y, d=Math.hypot(dx,dy); if(d>sp){ frkGo(p, seat.x, seat.y, sp); /* CARD-FRK */ if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; return true; } p.x=seat.x; p.y=seat.y; }
   if(p.cd<=0 && S.mode==='play'){ const f=petRkFind(p,u); if(f){ const dx=f.x-p.x, dy=f.y-p.y, d=Math.hypot(dx,dy)||1, L=Math.min(d, CHS_RK.shove); p.to={ x:p.x+dx/d*L, y:p.y+dy/d*L }; p.tgt=f; p.state='strike'; p.fx=dx>0? 1 : -1; p.guards=(p.guards|0)+1; return true; } }
   p.fx=1; return true; }
 function petChsDraw(p,RM9){   // THE BISHOP: a lean into the slide, GAMBIT's gait at heel and on the trot; THE ROOK: a tower stands flat, tips into the strike, lies down at zero
@@ -91421,7 +91421,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.23';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -110260,6 +110260,7 @@ function updateFoeTrike(f,dt){
       const dx=u.x-f.x, dy=u.y-f.y, d=Math.hypot(dx,dy);
       if(d>=bd || d<1) continue;
       if((-dx)/d<0.796) continue;   // ~37° — only what's AHEAD of the gallop (the box is west)
+      if(!frkClear(f.x,f.y,u.x,u.y,16)) continue;   // CARD-FRK THE LOCK: never a man a rock stands in front of (the bonk at r+16, again and again — Isaac 10/26)
       bd=d; best=u;
     }
     if(best){ const dx=best.x-f.x, dy=best.y-f.y, d=Math.hypot(dx,dy)||1;
@@ -110325,7 +110326,7 @@ function updateFoeSwoop(f,dt){
     f.sAlt=Math.min(1,f.sAlt+dt*1.6);
     if(f.swoopCd<=0){
       const m=foeSaberNext(f, f.gnCall? 1e4 : wb.aggro); f.gnCall=0;   // 0947d THE QUEEN'S CALL: a called wasp picks at any range, once
-      if(m){ const dx=m.x-f.x, dy=m.y-f.y, d=Math.hypot(dx,dy)||1;
+      if(m && frkStraight(f.x,f.y,m.x,m.y,FRK.flyR)){ const dx=m.x-f.x, dy=m.y-f.y, d=Math.hypot(dx,dy)||1;   // CARD-FRK THE LOCK: no dive at a man a rock stands in front of while there is a way round (the glide takes it round first; a heap with no way round is flown over)
         f.swoopDir={x:dx/d,y:dy/d}; f.swoopRun=d+110; f.swoopHit={};
         if(wb.stall>0){ f.swoopState='stall'; f.stallT=wb.stall; S.fx.push({k:'ring',x:f.x,y:f.y-40,r:6,R:34,t:0,dur:wb.stall,col:'#FFF4C8'}); bfSfx(SFX.thump, f.x, f.y); }   // 0947c the stall = the tell (a dashed ring in the mold, this ring on the sim)
         else { f.swoopState='dive'; bfSfx(SFX.swish, f.x, f.y); } }
@@ -110333,8 +110334,8 @@ function updateFoeSwoop(f,dt){
     return;
   }
   f.sAlt=Math.max(0,f.sAlt-dt*3.2);
-  const step=wb.dive*dt;
-  f.x+=f.swoopDir.x*step; f.y+=f.swoopDir.y*step; f.swoopRun-=step;
+  const step=wb.dive*dt, wall9=(f.swoopRun<=110) && frkWall(f.x,f.y,f.x+f.swoopDir.x*step,f.y+f.swoopDir.y*step,FRK.passPad,FRK.flyR);   // CARD-FRK: past the man the dive pulls up short of a rock
+  if(!wall9){ f.x+=f.swoopDir.x*step; f.y+=f.swoopDir.y*step; } f.swoopRun-=step;
   for(const u of S.units){
     if(u.dead || u.jetT>0 || u.dropT>0 || u.falling) continue;
     if(S.drag && S.drag.unit===u) continue;
@@ -110345,7 +110346,7 @@ function updateFoeSwoop(f,dt){
         if(!u.dead && (st.pips|0)>1 && !(u.def&&u.def.vehicle)) ggShove(u,f.x,f.y,f,null,FL_SHOVE); }   // THE HEAVY STING's bowl-over (the flappy's shove length)
       else knock(u,f.x,f.y); }
   }
-  if(f.swoopRun<=0 || f.x<20 || f.x>W+60 || f.y<FOE_TOP-30 || f.y>FOE_BOT+30){
+  if(wall9 || f.swoopRun<=0 || f.x<20 || f.x>W+60 || f.y<FOE_TOP-30 || f.y>FOE_BOT+30){
     f.swoopState='glide'; f.swoopCd=wb.climb/(f.bigX||1);   // 0947c a BIG wasp dives ×1.5 as often
   }
 }
@@ -124254,32 +124255,32 @@ function petFlTick(p,u,dt){   // THE BEAT: returns true when the machine owns th
   if(p.state==='fly'){   // THE APPROACH: homing on the locked man's CURRENT position at the dive's own speed
     if(!p.tgt || !petFlLive(p.tgt) || TGT(u).indexOf(p.tgt)<0){ const n=(!p.swung)? petFlSwing(p) : null; if(n){ p.tgt=n; p.swung=1; } else { petFlHome(p); return true; } }   // the man died, left, or was swept off the field (a retreat sweep splices without a death flag): one swing onto a neighbour inside FL_SWING, else the sortie is abandoned — home
     const m=p.tgt, dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy);
-    if(d<=FL_STRIKE){   // THE STRIKE: inside a pace the approach becomes the foe's own straight pass THROUGH him, aimed once; the screech here (⚑ Q12)
+    if(d<=FL_STRIKE && frkStraight(p.x,p.y,m.x,m.y,FRK.flyR)){   /* CARD-FRK: the strike waits while the way round still has a rock to round */   // THE STRIKE: inside a pace the approach becomes the foe's own straight pass THROUGH him, aimed once; the screech here (⚑ Q12)
       const ex=(d>0.5? dx/d : p.fx), ey=(d>0.5? dy/d : 0);
       p.state='pass'; p.phase='pass'; p.dir={x:ex,y:ey}; p.run=d+110; p.hits={}; p.t=0; p.fx=ex>0? 1 : -1;
       bfSfx(SFX.screech, p.x, p.y); if(petHas(p,'screech')) petScreech(p,u); return true; }   // 0806q THE SCREECH (70): every man inside three metres of the strike flinches
-    const sp=Math.min(d, FL_DIVE*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.fx=dx>0? 1 : -1;
+    frkGo(p, m.x, m.y, FL_DIVE*dt, FRK.flyR); p.fx=dx>0? 1 : -1;   /* CARD-FRK: THE WAY ROUND (the shipped straight step on a clear line; a small rock flown over) */
     p.alt=Math.max(0, Math.min(p.alt, (d-FL_STRIKE)/FL_SINK));   // the sink scaled to the distance left: high till FL_STRIKE+FL_SINK out, on the deck at the strike — never rising mid-approach
     return true;
   }
   if(p.state==='pass'){   // THE PASS: the foe's own strafe (updateFoeSwoop's dive), flown straight out past the man
     p.alt=Math.max(0,p.alt-dt*3.2);
-    const step=FL_DIVE*dt; p.x+=p.dir.x*step; p.y+=p.dir.y*step; p.run-=step; p.fx=p.dir.x>0? 1 : -1;
+    const step=FL_DIVE*dt, wall=(p.run<=110) && frkWall(p.x,p.y,p.x+p.dir.x*step,p.y+p.dir.y*step,FRK.passPad,FRK.flyR); if(!wall){ p.x+=p.dir.x*step; p.y+=p.dir.y*step; } p.run-=step; p.fx=p.dir.x>0? 1 : -1;   /* CARD-FRK: past the man (the run's own 110) the strafe pulls up short of a rock, never into it */
     for(const f of TGT(u)){
       if(!petFlLive(f) || !petTgtOk(u,f)) continue;   // ⚑ Q6: the one skip list (mid-slide, underground, falling, dead, in the hand)
       if(f.def && f.def.vehicle && !petHas(p,'machine')) continue;   // ⚑ Q3 (0807b): machines are strafed for nothing — 0806q: until THE MACHINE STRIKE (50)
       if(p.hits[f.id]) continue;
       if(Math.hypot(f.x-p.x,f.y-p.y)<FL_LANE+10){ p.hits[f.id]=1; if(p.bit) p.bit[f.id]=1; petFlBite(p,u,f); }   // 0806q: the bite + the bowl-over through petFlBite (the rungs read there; the man is remembered for the sortie — THE SECOND MAN takes a different one)   // the bite through the one funnel, then the bowl-over along the pass (the slide's ray from a point 40 px back up the line); the lane still takes bystanders (⚑ Q7)
     }
-    if(p.run<=0 || p.x<20 || p.x>petEdgeE()+70 || p.y<(S.bf? -30 : FOE_TOP-30) || p.y>(S.bf? WORLD_H+30 : FOE_BOT+30)) petFlDone(p,u);   // 0806q: THE SECOND / THIRD MAN before home   // the pass is flown: out past the man or off the carpet (the foe's own ends) → right back to Sarge
+    if(wall || p.run<=0 || p.x<20 || p.x>petEdgeE()+70 || p.y<(S.bf? -30 : FOE_TOP-30) || p.y>(S.bf? WORLD_H+30 : FOE_BOT+30)) petFlDone(p,u);   // 0806q: THE SECOND / THIRD MAN before home   // the pass is flown: out past the man or off the carpet (the foe's own ends) → right back to Sarge
     return true;
   }
   if(p.state==='climb'){   // THE FLIGHT HOME: the rise over FL_CLIMB and the straight line to the heel seat at FL_HOME; it ends when he is HOME
     p.t+=dt; p.alt=Math.min(1, p.alt+dt/FL_CLIMB);
-    const hx=u.x-PET_HEEL_DX*petDir(u), hy=u.y+PET_HEEL_DY, dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy), sp=FL_HOME*dt;
+    const hs=frkHeel(u), hx=hs.x, hy=hs.y, dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy), sp=FL_HOME*dt;   /* CARD-FRK: THE SEAT (a heel in a rock steps out of it) */
     if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1;
     if(d<=sp){ p.x=hx; p.y=hy; p.state='idle'; p.alt=1; p.phase='heel'; p.t=0; p.cd=petFlCd(p); p.fx=petDir(u); return true; }   // HOME: back on his circle facing the way the men march; the wait starts here (⚑ Q8)
-    p.x+=dx/d*sp; p.y+=dy/d*sp;
+    frkGo(p, hx, hy, sp, FRK.flyR);   /* CARD-FRK: THE WAY ROUND home */
     if(p.t>=FL_CLIMB*3){ p.state='idle'; p.alt=1; p.phase='sprint'; p.t=0; p.cd=petFlCd(p); return false; }   // ⚑ Q11: a Sarge outrunning him — the shared leash walk takes the feet this frame
     return true;
   }
@@ -124288,6 +124289,89 @@ function petFlTick(p,u,dt){   // THE BEAT: returns true when the machine owns th
     if(m){ handRoll(p); p.state='fly'; p.phase='fly'; p.tgt=m; p.swung=0; p.hits={}; p.bit={}; p.passN=1; p.t=0; p.sorties=(p.sorties|0)+1; p.fx=m.x>p.x? 1 : -1; return true; } }
   return false;
 }
+// ═══ CARD-FRK GO ROUND THE ROCK, NEVER INTO IT (ISAAC by the jumpr guest link 10/26/2026 11:26 EDT, jumpr 2687, built on Maker 1 as M2687, design/flappy-rock-1026/00-CARD-FRK.md; verbatim: "I just discovered a bug on level 54 of the campaign. If Sarge has Flappy as a pet and he's standing behind the big boulder on the level, then when Flappy goes to try to attack the enemy soldiers, he will just keep running headfirst into the rock over and over and over and over again. We need to fix that so if Flappy's ever in that situation, he just flies around the rock and does his thing. Also we need to run an audit and make sure that this behavior isn't happening anywhere else in the game.") ═══
+// THE CAUSE (measured on rung 54, the big boulder r 50.6 at 569,229 on the river: rig/auditPets.mjs · auditFoes.mjs): NO PET'S OWN FEET EVER READ terrain.rocks. Sarge behind the boulder, the Tan halt behind it at their reach,
+// and every sortie of FLAPPY's sank to the deck THROUGH the boulder (the homing dive), flew on into it (the pass) and crossed it low on the way home (the climb) — his body painted on the boulder's face.
+// The same straight step walks Tiptoe, Tiny, the Coyote, Oreo (his station ahead sat IN the boulder), Sharky, Smash, Puff, the Rook, Hunter, Patch, the Witch's frog and every pet's trot home
+// through a rock; FRANCIS, the TRIKE and the BIG TRIKE lock a man behind a rock and gallop into it (the bonk, the rest, again: every charge on rung 54 ended on the boulder); the BISHOP slides through it;
+// the PTERODACTYL, the WASP and the HORNET dive through it. ONE LAW, three seats:
+//  · THE WAY ROUND (frkGo): one step of a pet's own errand runs along the TANGENT of the FIRST rock standing on its line (rockSteer's choice of side: the one nearer the goal, never into the
+//    next rock, never off the carpet; a tangent only touches the rock, so no step cuts into it) — the straight step as shipped on a clear line. A goal IN a rock's own footprint (a man in the air over it) is gone to straight (rounding it would orbit for ever); a goal at the
+//    rim (a man the shoulder holds a hair off it) shrinks the way round to just inside him, so it still ends at him. NO WAY ROUND (both sides run into the next rock or off the carpet: a canyon's
+//    wall, the paintball maze, the dish field's heap) = the straight line as shipped (a flier crosses it, nothing orbits; the men's own mouth-finding for a pet on foot is a card of its own).
+//  · THE LOCK: a GALLOP or a chess SLIDE that runs a locked straight line (Francis, the trike, the big trike, the Nemesis hatchlings' ram, the Bishop) never locks a man a rock stands in front
+//    of (frkClear — any rock: a gallop cannot cross one, it can only bonk); a STRIKE, a DIVE or a SPRING (Flappy's, the pterodactyl's, the wasp's, the hornet's, the Coyote's) waits while
+//    THE WAY ROUND still has a rock to round (frkStraight — the same reading, so the approach and the strike agree). Past the man, a strafe or a slide pulls up short of a rock (frkWall).
+//  · THE SEAT (frkSeat / frkOut): a pet's place (the heel, Oreo's station, the Coyote's seat, Sharky's ring, the Witch's ring, a waypoint) that falls in a rock's shoulder steps out of it.
+// THE KNIGHT still leaps OVER (a chess knight jumps) but never LANDS on a rock (frkKnLegs: the other L). THE SNATCH's seat is his body in the air (he carries men off the top): untouched.
+// Flying over vs round: Isaac's word "he just flies around the rock" (a flier's shadow is his truth: the rock's picture stands over its footprint and he is painted over it) — for a rock as big as the
+// boulder (r >= FRK.flyR: the stones, the mesas, the vents, the pillows, the tree, the paintball towers); a sandbag, a small gift, a plate, a canyon's pillow wall, the paintball walls
+// he flies OVER as shipped (rounding them starved his sorties: measured, rung 23's sandbags 39 -> 14 hits, Bear Park 6's pillow wall 37 -> 15).
+// ?frk=0 = the straight line as shipped (gvt_frk): every helper hands back the shipped arithmetic; GVT.frk() reads the counters.
+const FRK={ on:1, pad:16, passPad:8, side:6, lockPad:12, flyR:30 };   // pad = a man's own shoulder (ROCK_PAD_FOE): the way round keeps r+16 · passPad: a strafe pulls up inside r+8 · side: the shortest look-ahead a side's score reads · lockPad: Francis's own bonk (r+12; the trikes' own r+16 is passed at their seats) · flyR: a FLIER flies OVER a rock smaller than this (a sandbag, a small gift, a plate) and ROUND the rest (the boulder, the stones, the mesas, the vents, the tree)
+try{ const m9=location.search.match(/[?&]frk=([01])/); if(m9) localStorage.setItem('gvt_frk', m9[1]); FRK.on=(localStorage.getItem('gvt_frk')==='0')? 0 : 1; }catch(e){ FRK.on=1; }
+const FRK_OVER={ wall:1, pbwall:1 };   // what a FLIER always crosses from above, whatever its size: a canyon's pillow wall, the paintball arena's walls (a long wall has no way round worth flying)
+const FRKN={ round:0, wall:0, lock:0, seat:0 };   // the rig's counters (GVT.frk): steps taken round a rock · strafes pulled up · locks refused · seats stepped out
+function frkRocks(){ return (FRK.on && S.cfg && S.cfg.terrain && S.cfg.terrain.rocks) || []; }   // the one geometry (terrain.rocks: the rug's stones, the mesas, the vents, the gifts, the walls' solids — what a man is shouldered by); [] with the switch off
+function frkSteer(x,y,gx,gy,pad,minR){   // THE WAY ROUND's reading (rockSteer's choice of side, the pet's edition: no pits — a pet never falls; no jax): the first rock on the straight line to the goal → the unit heading ALONG ITS TANGENT (a tangent only touches its circle, so the step never cuts into the rock — rockSteer's side point cuts a chord in from the rim, which a man's shoulder pushes back out and a pet has no shoulder); null = the line is clear
+  const RK=frkRocks(); if(!RK.length) return null;
+  let dx=gx-x, dy=gy-y; const gd=Math.hypot(dx,dy); if(gd<1) return null; dx/=gd; dy/=gd;
+  let blk=null, ba=1e9, bR=0;
+  for(const rk of RK){ if(minR && (rk.r<minR || FRK_OVER[rk.art])) continue;   // a flier's small rock, or a wall: flown over
+    const gr=Math.hypot(gx-rk.x,gy-rk.y); if(gr<rk.r) continue;   // the goal stands IN this rock's own footprint: straight in (never an orbit)
+    const R=Math.min(rk.r+pad, gr-1), vx=rk.x-x, vy=rk.y-y, along=vx*dx+vy*dy;   // a goal at the rim: the way round shrinks to just inside him
+    if(along<=0 || along-R>gd || Math.abs(vx*dy-vy*dx)>=R) continue;   // behind, past the goal, or the line clears it
+    if(along<ba){ ba=along; blk=rk; bR=R; } }
+  if(!blk) return null;
+  const R=bR+1, cx=blk.x-x, cy=blk.y-y, dc=Math.hypot(cx,cy)||1, ux=cx/dc, uy=cy/dc, cross=cx*dy-cy*dx, lo=S.bf? 30 : FOE_TOP, hi=S.bf? WORLD_H-30 : FOE_BOT;
+  const a=(dc>R)? Math.asin(R/dc) : Math.PI/2+Math.min(0.6,(R-dc)/R), L=(dc>R)? Math.max(Math.sqrt(dc*dc-R*R), FRK.side) : R*0.5;   // the tangent's angle off the line to the rock's heart (inside the shoulder: along the rim and a little out) · how far ahead it touches
+  let best=null, bs=1e9, bp=0;
+  for(const s of (cross>=0? [1,-1] : [-1,1])){ const c=Math.cos(s*a), sn=Math.sin(s*a), hx=ux*c-uy*sn, hy=ux*sn+uy*c, tx=x+hx*L, ty=y+hy*L; let pen=0;   // either side's tangent: the one whose touch point stands nearer the goal (the side the line already leans to wins a tie)
+    if(ty<lo || ty>hi) pen+=900;   // never round it off the carpet
+    for(const o of RK){ if(o===blk || (minR && (o.r<minR || FRK_OVER[o.art]))) continue; const od=Math.hypot(o.x-tx,o.y-ty), om=o.r+pad; if(od<om) pen+=1400+(om-od)*8; }   // nor into the next rock
+    const sc=Math.hypot(gx-tx,gy-ty)+pen; if(sc<bs){ bs=sc; bp=pen; best={ x:hx, y:hy }; } }
+  return bp>0? null : best; }   // NO WAY ROUND (both ways run into the next rock or off the carpet: a wall's chain, a maze, a heap): the straight line as shipped — a flier crosses it, nothing orbits
+function frkStraight(x,y,gx,gy,minR){ return !frkSteer(x,y,gx,gy,FRK.pad,minR); }   // the way round has nothing to round: a strike, a dive, a spring may go (THE WAY ROUND's own reading, so they agree frame for frame)
+function frkGo(p,gx,gy,sp,minR){   // ONE STEP of a pet's own errand toward (gx,gy), at most sp px: the shipped straight step on a clear line (the same arithmetic, so ?frk=0 is the shipped line); THE WAY ROUND when a rock stands on it
+  const dx=gx-p.x, dy=gy-p.y, d=Math.hypot(dx,dy); if(!(d>0)) return;
+  const s=Math.min(d, sp), st=frkSteer(p.x,p.y,gx,gy,FRK.pad,minR);
+  if(st){ p.x+=st.x*s; p.y+=st.y*s; FRKN.round++; return; }
+  p.x+=dx/d*s; p.y+=dy/d*s; }
+function frkClear(x,y,gx,gy,pad){   // THE LOCK's test: no rock stands on the straight line to the man (frkSteer's own reading, the rim rule included); true on a rug without rocks and with the switch off
+  const RK=frkRocks(); if(!RK.length) return true;
+  let dx=gx-x, dy=gy-y; const gd=Math.hypot(dx,dy); if(gd<1) return true; dx/=gd; dy/=gd;
+  for(const rk of RK){ const gr=Math.hypot(gx-rk.x,gy-rk.y); if(gr<rk.r) continue; const R=Math.min(rk.r+pad, gr-1), vx=rk.x-x, vy=rk.y-y, along=vx*dx+vy*dy;
+    if(along<=0 || along-R>gd || Math.abs(vx*dy-vy*dx)>=R) continue; FRKN.lock++; return false; }
+  return true; }
+function frkWall(x,y,nx,ny,pad,minR){   // a strafe's or a slide's next step goes INTO a rock (inside its r+pad and nearer its heart than this one): that rock (it pulls up here), else null (a flier's small rock: flown over)
+  for(const rk of frkRocks()){ if(minR && (rk.r<minR || FRK_OVER[rk.art])) continue; const d1=Math.hypot(nx-rk.x,ny-rk.y); if(d1<rk.r+pad && d1<Math.hypot(x-rk.x,y-rk.y)){ FRKN.wall++; return rk; } }
+  return null; }
+function frkOut(x,y,pad,minR){   // a POINT in a rock's shoulder → the rim's point straight out from the rock's heart (three passes, for two rocks shoulder to shoulder); null = it stands clear
+  const RK=frkRocks(); if(!RK.length) return null; let moved=false;
+  for(let i=0;i<3;i++){ let hit=null; for(const rk of RK){ if(minR && (rk.r<minR || FRK_OVER[rk.art])) continue; if(Math.hypot(x-rk.x,y-rk.y)<rk.r+pad){ hit=rk; break; } } if(!hit) break;
+    const dx=x-hit.x, dy=y-hit.y, d=Math.hypot(dx,dy), R=hit.r+pad, ux=d>0.01? dx/d : 0, uy=d>0.01? dy/d : 1; x=hit.x+ux*R; y=hit.y+uy*R; moved=true; }
+  return moved? { x, y } : null; }
+function frkTo(p){ const o=frkOut(p.tx,p.ty,FRK.pad); if(o){ p.tx=o.x; p.ty=o.y; FRKN.seat++; } }   // a glide's or a slide's end point (p.tx, p.ty) in a rock steps out of it — in place, so the arrival reads the same point
+function frkWp(p){ const o=frkOut(p.wx,p.wy,FRK.pad); if(o){ p.wx=o.x; p.wy=o.y; FRKN.seat++; } }   // the Coyote's roam leg and his shadow, the same
+function frkSeat(x,y,ax,ay){   // THE SEAT: a pet's place that falls in a rock's shoulder steps back toward its anchor (Sarge) to the rock's rim — Oreo's station and the Coyote's seat stop at the rock's near face; an anchor pressed to that rock = straight out from its heart, never on his own feet
+  const RK=frkRocks(); if(!RK.length) return { x, y };
+  for(let i=0;i<3;i++){ let rk=null; for(const o of RK){ if(Math.hypot(x-o.x,y-o.y)<o.r+FRK.pad){ rk=o; break; } } if(!rk) break;
+    const R=rk.r+FRK.pad, Dx=ax-x, Dy=ay-y, Fx=x-rk.x, Fy=y-rk.y, a=Dx*Dx+Dy*Dy, b=Fx*Dx+Fy*Dy, c=Fx*Fx+Fy*Fy-R*R, disc=b*b-a*c, t=(a>1e-6 && disc>=0)? (-b+Math.sqrt(disc))/a : 2;
+    if(t<=1 && Math.hypot(ax-(x+Dx*t), ay-(y+Dy*t))>=18){ x+=Dx*t; y+=Dy*t; }
+    else { const d=Math.hypot(Fx,Fy), ux=d>0.01? Fx/d : 0, uy=d>0.01? Fy/d : 1; let qx=rk.x+ux*R, qy=rk.y+uy*R;
+      if(Math.hypot(ax-qx,ay-qy)<18){ const a0=Math.atan2(uy,ux), A=[a0+0.6, a0-0.6].map(t9=>({ x:rk.x+Math.cos(t9)*R, y:rk.y+Math.sin(t9)*R })); const w=(Math.hypot(ax-A[0].x,ay-A[0].y)>=Math.hypot(ax-A[1].x,ay-A[1].y))? A[0] : A[1]; qx=w.x; qy=w.y; }   // pressed to the rock: a pace round the rim from him
+      x=qx; y=qy; }
+    FRKN.seat++; }
+  return { x, y }; }
+function frkFly(p){ return (p && (p.k==='flappy' || p.k==='witchpet'))? FRK.flyR : 0; }   // the pets on wings (Flappy, the Witch on her broom): over the small rocks, round the big ones; every pet on foot rounds them all
+function frkHeel(u){ return frkSeat(u.x-PET_HEEL_DX*petDir(u), u.y+PET_HEEL_DY, u.x, u.y); }   // the heel seat (petPass's own two numbers) under THE SEAT
+function frkKnLegs(p,m){ const L=petKnPlan(p,m); if(!frkRocks().length || !frkOut(L[0].x,L[0].y,4)) return L;   // THE KNIGHT leaps OVER (his arc stands), but his L's corner never LANDS on a rock: the other L (both corners on rocks: the plan stands)
+  const dx=m.x-p.x, dy=m.y-p.y, A=(Math.abs(dx)>=Math.abs(dy))? [{x:p.x,y:p.y+dy},{x:m.x,y:m.y}] : [{x:p.x+dx,y:p.y},{x:m.x,y:m.y}];
+  return frkOut(A[0].x,A[0].y,4)? L : A; }
+function frkFrDoor(p,u,R){ let best=null, bd=R; for(const f of TGT(u)){ if(!petFrLive(p,f) || !petTgtOk(u,f)) continue; const d=Math.hypot(f.x-u.x,f.y-u.y); if(d<bd && frkClear(p.x,p.y,f.x,f.y,FRK.lockPad)){ bd=d; best=f; } } return best; }   // FRANCIS's DOOR (THE CHARGE, 50): petFrNear's own pick off SARGE's feet + THE LOCK from Francis's (the switch off = petFrNear's man)
+function frkRig(o){ o=o||{}; if(o.reset){ for(const k in FRKN) FRKN[k]=0; } if(o.on!=null) FRK.on=o.on? 1 : 0;
+  return { cv:GVT_CV, on:FRK.on, dials:{ pad:FRK.pad, passPad:FRK.passPad, side:FRK.side, lockPad:FRK.lockPad }, n:Object.assign({},FRKN), rocks:((S.cfg && S.cfg.terrain && S.cfg.terrain.rocks)||[]).length }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.frk=frkRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (oreRig's grammar)
 // ═══ 0806r THE PETS LEVEL BY DOING · CARD B — SLUSH'S SNOWBALL (FM-GVT-PET-XP-01 §5 + §7 SLUSH; Wyatt 9/6 ~2:30 pm: "we must change the yeti's mechanic, its currently
 // not working- make it a snowball and each level it will get bigger; it gains xp on kos") — THE DIAGNOSIS (proved on the rig, build-sb/logs/measure-table.md): the 0905 wall
 // leapt when a Tan man came inside six metres of SARGE, and a ranged Sarge's men are fought 300–425 px off — the wall stood a handful of seconds a fight and knocked out
@@ -124401,7 +124485,7 @@ function petPfFire(p,u){   // THE PUFF: the aim re-read NOW (the locked man if l
 function petPfTick(p,u,dt){   // THE BEAT: true while the machine owns the feet (step · inhale · fire); the scoot home is the shared heel walk (phase 'sprint')
   if(p.state==='step'){
     const dx=p.tx-p.x, dy=p.ty-p.y, d=Math.hypot(dx,dy), sp=PET_WALK*dt;
-    if(d<=sp){ p.x=p.tx; p.y=p.ty; p.state='inhale'; p.phase='inhale'; p.t=0; } else { p.x+=dx/d*sp; p.y+=dy/d*sp; }
+    if(d<=sp){ p.x=p.tx; p.y=p.ty; p.state='inhale'; p.phase='inhale'; p.t=0; } else { frkGo(p, p.tx, p.ty, sp); }   /* CARD-FRK */
     if(p.tgt && TGT(u).indexOf(p.tgt)>=0) p.fx=(p.tgt.x>p.x)? 1 : -1;   // he walks facing his man
     return true;
   }
@@ -124548,7 +124632,7 @@ function petTtTick(p,u,dt){   // THE BEAT: true while the machine owns the feet 
     if(d<=TT_REACH){ petTtBite(p,u,m);
       if((p.tripN|0)<petTtMen(p)){ const n=petTtNear(p,u,p.x,p.y,TT_SWING,p.bit); if(n){ p.tgt=n; p.swung=0; p.fx=n.x>p.x? 1 : -1; return true; } }   // THE SECOND / THIRD BITE: another man inside reach before the run home
       petTtHome(p); return false; }
-    const sp=Math.min(d, TT_SNEAK*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.fx=dx>0? 1 : -1;
+    frkGo(p, m.x, m.y, TT_SNEAK*dt); p.fx=dx>0? 1 : -1;   /* CARD-FRK */
     return true;
   }
   p.state='idle';
@@ -124622,7 +124706,7 @@ function petFrJab(p,u){   // THE JAB from heel: the nearest live Tan man inside 
 }
 function petFrAhead(p,u){   // 1136zz THE LOCK AHEAD — the triceratops's own pick (updateFoeTrike's idle branch), pet edition: the nearest live Tan man AHEAD of FRANCIS — inside the cone FR_CONE down the way his army marches (east on the rug; petDir on the battleground) and inside FR_AGGRO of HIS OWN feet; petFrLive's skip list (machines and kings for nothing until THE OATH); dice-free
   const d9=petDir(u); let best=null, bd=FR_AGGRO;
-  for(const f of TGT(u)){ if(!petFrLive(p,f) || !petTgtOk(u,f)) continue; const dx=f.x-p.x, dy=f.y-p.y, d=Math.hypot(dx,dy); if(d>=bd || d<1 || (dx*d9)/d<FR_CONE) continue; bd=d; best=f; }
+  for(const f of TGT(u)){ if(!petFrLive(p,f) || !petTgtOk(u,f)) continue; const dx=f.x-p.x, dy=f.y-p.y, d=Math.hypot(dx,dy); if(d>=bd || d<1 || (dx*d9)/d<FR_CONE || !frkClear(p.x,p.y,f.x,f.y,FRK.lockPad)) continue; bd=d; best=f; }   /* CARD-FRK: THE LOCK (no gallop at a man behind a rock) */
   return best;
 }
 function petFrTargetable(p){ return !!p && p.k==='francis' && !S.bf && p.phase!=='gone' && !p.down && (p.state==='charge' || p.state==='rest'); }   // 1136zz THE FALL — THE ONE PREDICATE: Francis can be hit on the GALLOP and at the REST, on the rug; at heel, in the brace, on the trot home, down or gone he is what every pet is — never a target (the battleground keeps the 0947f law whole)
@@ -124674,7 +124758,7 @@ function petFrTick(p,u,dt){   // THE BEAT: true while the machine owns the feet 
   }
   p.state='idle';
   if(p.jabCd<=0 && p.phase!=='sprint' && petFrJab(p,u)) return false;
-  if(p.chCd<=0 && p.phase==='heel'){ const m=petFrAhead(p,u) || (petHas(p,'charge')? petFrNear(p,u,u.x,u.y,petFrChargeR(p),null) : null);   // THE LOCK: rested, at heel — AHEAD of Francis from rank 1 (1136zz), and THE DOOR from THE CHARGE (50): a Tan man inside the reach of SARGE on any side — read once, here
+  if(p.chCd<=0 && p.phase==='heel'){ const m=petFrAhead(p,u) || (petHas(p,'charge')? frkFrDoor(p,u,petFrChargeR(p)) : null);   /* CARD-FRK: THE DOOR under THE LOCK */   // THE LOCK: rested, at heel — AHEAD of Francis from rank 1 (1136zz), and THE DOOR from THE CHARGE (50): a Tan man inside the reach of SARGE on any side — read once, here
     if(m){ const dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy)||1; p.state='brace'; p.phase='charge'; p.tgt=m; p.braceT=FR_BRACE; p.puffT=0; p.chDir={x:dx/d, y:dy/d}; p.chRun=d+FR_OVER; p.chHit={}; p.charges=(p.charges|0)+1; p.fx=dx>0? 1 : -1;
       if(!reducedMotion()) S.fx.push({k:'puff',x:p.x-(dx/d)*14,y:p.y+4,t:0,dur:0.3,R:8});
       bfSfx(SFX.thock, p.x, p.y); return true; } }
@@ -124771,7 +124855,7 @@ function petKnSweep(p,u,x,y){   // every live Tan man inside the corridor of the
   const W=petKnW(p), dmg=petKnDmg(p)*petPotX(p);
   for(const f of TGTC(u)){ /* CARD-F6: a copy (LCA-F6) */ if(!petTtLive(p,f) || !petTgtOk(u,f) || p.hitSet[f.id]) continue; if(Math.hypot(f.x-x,f.y-y)>W) continue; p.hitSet[f.id]=1; petTtHurt(p,f,dmg); petXp(p,'hit',1); p.hits=(p.hits|0)+1; }
 }
-function petKnStart(p,u,m){ p.legs=petKnPlan(p,m); p.leg=0; p.from={x:p.x,y:p.y}; p.state='leap'; p.phase='leap'; p.t=0; p.tgt=m; if(Math.abs(m.x-p.x)>0.5) p.fx=(m.x>p.x)? 1 : -1; }
+function petKnStart(p,u,m){ p.legs=frkKnLegs(p,m); /* CARD-FRK: never LAND on a rock */ p.leg=0; p.from={x:p.x,y:p.y}; p.state='leap'; p.phase='leap'; p.t=0; p.tgt=m; if(Math.abs(m.x-p.x)>0.5) p.fx=(m.x>p.x)? 1 : -1; }
 function petKnTick(p,u,dt){   // THE BEAT: true while the machine owns the feet (the two hops); the trot home is the shared heel walk (phase 'sprint')
   if(p.state==='leap'){
     if(!p.legs){ p.state='idle'; return false; }
@@ -124842,14 +124926,14 @@ function petCyTick(p,u,dt){   // THE BEAT — true always: the machine owns his 
     p.t+=dt; const dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy); p.fx=dx>0? 1 : -1;
     if(d<=cyPounce(p)+CY2_STALK){ cyStalk(p,m); return true; }   // the last stretch: THE STALK (low, slow) as shipped
     if(p.t>CY2_RUN_MAX){ if(p.bit) p.bit[m.id]=1; cy2Next(p,u); return true; }   // he never closes: another man
-    const sp=Math.min(d, ST_RUN*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.mv=1; return true; }
+    frkGo(p, m.x, m.y, ST_RUN*dt); p.mv=1; return true; }   /* CARD-FRK */
   if(p.state==='rest'){ if(p.cd>0) return true; p.tripN=0; cy3Choose(p,u); return true; }   // CARD-CY2 THE NEXT MAN: rested where he bit, then the next man from there (nobody in reach: home)
   if(p.state==='stalk'){
     const m=p.tgt; if(!m || !petTtLive(p,m) || petTtDown(m) || TGT(u).indexOf(m)<0 || !petTgtOk(u,m)){ cy2Next(p,u); return true; }   // the man fell, left or hid: CARD-CY2 the next man on the field (home only when nobody is in reach)
     p.t+=dt; const dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy); p.fx=dx>0? 1 : -1;
-    if(d<=cyPounce(p)){ handRoll(p); p.state='crouch'; p.phase='stalk'; p.t=0; return true; }   // inside his spring: THE CROUCH (the tell)
+    if(d<=cyPounce(p) && frkStraight(p.x,p.y,m.x,m.y)){ /* CARD-FRK: the spring once the way round is done (the stalk takes him round first) */ handRoll(p); p.state='crouch'; p.phase='stalk'; p.t=0; return true; }   // inside his spring: THE CROUCH (the tell)
     if(p.t>CY_STALK_MAX){ if(p.bit) p.bit[m.id]=1; cy2Next(p,u); return true; }   // the man keeps away: CARD-CY2 another man
-    const sp=Math.min(d, cySneak(p)*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.mv=1; return true; }
+    frkGo(p, m.x, m.y, cySneak(p)*dt); p.mv=1; return true; }   /* CARD-FRK */
   if(p.state==='crouch'){ p.t+=dt; const m=p.tgt; if(m) p.fx=m.x>p.x? 1 : -1;
     if(p.t>=CY_CROUCH_T){ p.state='lunge'; p.phase='lunge'; p.t=0; p.from={x:p.x,y:p.y}; bfSfx(SFX.swish, p.x, p.y); } return true; }
   if(p.state==='lunge'){ p.t+=dt; const m=p.tgt, k=Math.min(1, p.t/CY_LUNGE_T), to=(m && !petTtDown(m))? {x:m.x-(m.x>p.from.x? 1 : -1)*12, y:m.y} : (p.to||p.from); p.to=to;
@@ -124861,9 +124945,9 @@ function petCyTick(p,u,dt){   // THE BEAT — true always: the machine owns his 
   p.state='idle';
   if(p.cd<=0 && S.mode==='play'){ const m=petTtNear(p,u,p.x,p.y,cy2Reach(p),null);   // THE TRIGGER: rested, a Tan man inside a SCREEN of carpet of HIM (CARD-CY2; was 9 m of Sarge) — the nearest
     if(m){ p.bit={}; p.tripN=0; p.hunts=(p.hunts|0)+1; if(p.hunts>1) cy3Choose(p,u,m); else cy2Run(p,m); return true; } }   // CARD-CY3: the fight's first outing runs at once; every later one PICKS its moment
-  const s9=cy3Seat(p,dt), hx=u.x+CY_AHEAD*petDir(u)+(s9? p.cy3sx : 0), hy=u.y+PET_HEEL_DY+(s9? p.cy3sy : 0), dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy);   // HIS SEAT: ahead of Sarge, the way his army marches
-  if(d>PET_LEASH || p.phase==='scout'){ const sp=ST_RUN*dt; if(d<=sp){ p.x=hx; p.y=hy; p.phase='heel'; } else { p.x+=dx/d*sp; p.y+=dy/d*sp; p.phase='scout'; p.mv=1; } }   // the run out ahead (the cubs' own 140)
-  else if(d>0.5){ const sp=Math.min(d, PET_WALK*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.mv=1; }
+  const s9=cy3Seat(p,dt), hs=frkSeat(u.x+CY_AHEAD*petDir(u)+(s9? p.cy3sx : 0), u.y+PET_HEEL_DY+(s9? p.cy3sy : 0), u.x, u.y), hx=hs.x, hy=hs.y, dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy);   /* CARD-FRK: THE SEAT */   // HIS SEAT: ahead of Sarge, the way his army marches
+  if(d>PET_LEASH || p.phase==='scout'){ const sp=ST_RUN*dt; if(d<=sp){ p.x=hx; p.y=hy; p.phase='heel'; } else { frkGo(p, hx, hy, sp); p.phase='scout'; p.mv=1; } }   /* CARD-FRK */   // the run out ahead (the cubs' own 140)
+  else if(d>0.5){ frkGo(p, hx, hy, PET_WALK*dt); p.mv=1; }   /* CARD-FRK */
   if(p.mv && Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; else if(!p.mv) p.fx=petDir(u);   // settled: he faces the way the men march
   return true; }
 function cypPose(p,RM9){ if(p.state==='lunge') return 'lunge'; if(p.state==='stalk' || p.state==='crouch' || p.state==='lurk') return 'sneak'; return (p.mv && !RM9 && Math.floor(S.t/CY_TROT)%2)? 'run' : ''; }   // the frame: the leap · the stalk + the crouch · the trot's two strides
@@ -124925,12 +125009,12 @@ function cy3Tick(p,u,dt){   // ROAM + LURK (petCyTick hands him here): the walk 
   if(n){ cyStalk(p,n); return true; }   // HE CHOOSES NOW: a man he has not bitten this outing walks inside his lunge = taken at once (the shipped crouch → lunge); the man he just bit, slowed beside him, never cuts a mood short
   if(p.state==='roam'){
     if(p.sniff>0){ p.sniff-=dt; if(p.sniff<=0){ if((p.legs|0)>0) cy3Leg(p); else cy2Next(p,u); } return true; }   // the sniff between legs; after the last, the hunt
-    const dx=p.wx-p.x, dy=p.wy-p.y, d=Math.hypot(dx,dy);
+    frkWp(p); const dx=p.wx-p.x, dy=p.wy-p.y, d=Math.hypot(dx,dy);   /* CARD-FRK: a leg's end in a rock steps out of it */
     if(d<4 || p.t>CY3_LEG_MAX){ p.sniff=CY3_SNIFF_T; return true; }
-    const sp=Math.min(d, CY3_ROAM_SPD*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.mv=1; p.fx=dx>0? 1 : -1; return true; }
-  if(!p.hid){ const dx=p.wx-p.x, dy=p.wy-p.y, d=Math.hypot(dx,dy);   // THE SLINK: low, into the shadow
+    frkGo(p, p.wx, p.wy, CY3_ROAM_SPD*dt); p.mv=1; p.fx=dx>0? 1 : -1; return true; }   /* CARD-FRK */
+  if(!p.hid){ frkWp(p); const dx=p.wx-p.x, dy=p.wy-p.y, d=Math.hypot(dx,dy);   /* CARD-FRK */   // THE SLINK: low, into the shadow
     if(d<3 || p.t>CY3_LURK_GO_MAX){ p.hid=1; p.t=0; p.fx=petDir(u); return true; }   // there: he turns to face the Tan
-    const sp=Math.min(d, CY3_ROAM_SPD*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.mv=1; p.fx=dx>0? 1 : -1; return true; }
+    frkGo(p, p.wx, p.wy, CY3_ROAM_SPD*dt); p.mv=1; p.fx=dx>0? 1 : -1; return true; }   /* CARD-FRK */
   if(p.t>=CY3_LURK_T) cy2Next(p,u);   // THE COWER ends: the hunt (nobody in reach: home)
   return true; }
 function cy3Seat(p,dt){   // AT HIS SEAT: a little wander about it while the fight is on (0, a spot, 0, a spot …: every step inside the leash)
@@ -125165,9 +125249,9 @@ function petWxNear(p,u,R,ok,from){   // the nearest live Tan man to `from` (Sarg
 function petWxHome(p,u){ const d9=petDir(u), m=p.tgt && petMeLive(p.tgt) && TGT(u).indexOf(p.tgt)>=0? p.tgt : petWxNear(p,u,wxR(p)+(p.state==='hex'? 60 : 0));
   const a=m? { x:m.x-d9*24, y:m.y-6 } : { x:u.x+d9*WX_AHEAD, y:u.y-14 }; return petMeClamp(a.x, a.y); }   // the orbit's centre: over the man she hunts, else ahead of Sarge
 function petWxFly(p,u,dt,slow){   // the broomstick: the orbit's point this instant (θ on her own clock), chased at WX_SPD (a dogfighter's lazy circle: she banks round it)
-  p.wxA=(p.wxA||0)+WX_ORBIT_W*dt; const c=petWxHome(p,u), q=petMeClamp(c.x+Math.cos(p.wxA)*WX_ORBIT_R, c.y+Math.sin(p.wxA)*WX_ORBIT_R*0.5);
-  const dx=q.x-p.x, dy=q.y-p.y, d=Math.hypot(dx,dy)||1, sp=Math.min(d*WX_ACC, WX_SPD*(slow? 0.45 : 1));
-  p.vx=dx/d*sp; p.vy=dy/d*sp; p.x+=p.vx*dt; p.y+=p.vy*dt; if(Math.abs(p.vx)>14) p.fx=p.vx>0? 1 : -1;
+  p.wxA=(p.wxA||0)+WX_ORBIT_W*dt; const c=petWxHome(p,u), q0=petMeClamp(c.x+Math.cos(p.wxA)*WX_ORBIT_R, c.y+Math.sin(p.wxA)*WX_ORBIT_R*0.5), q=frkOut(q0.x,q0.y,FRK.pad,FRK.flyR)||q0;   /* CARD-FRK: her ring bends round a big rock */
+  const dx=q.x-p.x, dy=q.y-p.y, d=Math.hypot(dx,dy)||1, sp=Math.min(d*WX_ACC, WX_SPD*(slow? 0.45 : 1)), st=frkSteer(p.x,p.y,q.x,q.y,FRK.pad,FRK.flyR);   /* CARD-FRK: THE WAY ROUND on her chase */
+  p.vx=(st? st.x : dx/d)*sp; p.vy=(st? st.y : dy/d)*sp; p.x+=p.vx*dt; p.y+=p.vy*dt; if(Math.abs(p.vx)>14) p.fx=p.vx>0? 1 : -1;
 }
 function petWxHand(p){ return { x:p.x-(p.fx>0? -1 : 1)*18, y:p.y-WX_ALT-30 }; }   // her hand on the broom (west-authored: the hand leads)
 function petWxThrowTgt(p,u){   // the fire's man: inside her throw, never one standing so close to Sarge that the ring would take him in
@@ -125234,7 +125318,7 @@ function petWxTick(p,u,dt){   // THE BEAT: true always (her machine owns her: sh
   petWxBallsStep(p,u,dt);
   if(p.state==='down'){   // the frog: hops back to Sarge's heel, then POOF
     p.wxDown=Math.max(0, p.wxDown-dt); p.wxHopT=(p.wxHopT||0)+dt;
-    if(p.wxHopT>=WX_HOP_T){ p.wxHopT-=WX_HOP_T; const hx=u.x-PET_HEEL_DX*petDir(u), hy=u.y+PET_HEEL_DY, dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy); if(d>6){ const s=Math.min(d, WX_HOP_PX); p.x+=dx/d*s; p.y+=dy/d*s; p.fx=dx>0? 1 : -1; } }
+    if(p.wxHopT>=WX_HOP_T){ p.wxHopT-=WX_HOP_T; const hs=frkHeel(u), hx=hs.x, hy=hs.y, dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy); if(d>6){ frkGo(p, hx, hy, WX_HOP_PX); p.fx=dx>0? 1 : -1; } }   /* CARD-FRK */
     if(p.wxDown<=0) petWxUp(p); return true; }
   if(p.wxAlt<1) p.wxAlt=Math.min(1, p.wxAlt+dt/WX_POP_T);
   p.wxT+=dt;
@@ -125634,18 +125718,18 @@ function petPass(dt){
     const sx=u.x-ST_REACH*petDir(u), sy=u.y+4;
     if(p.phase==='run'){ const dx=sx-p.x, dy=sy-p.y, d=Math.hypot(dx,dy), sp=ST_RUN*dt;
       if(!petStitchWant(u,p) || !petMedic(p)){ p.phase='heel'; p.t=0; continue; }   // mended on his own (the quiet clock, the Medic's circle) before Patch arrived: back to heel, no breather spent
-      if(d<=sp){ p.x=sx; p.y=sy; p.phase='stitch'; p.t=0; } else { p.x+=dx/d*sp; p.y+=dy/d*sp; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }
+      if(d<=sp){ p.x=sx; p.y=sy; p.phase='stitch'; p.t=0; } else { frkGo(p, sx, sy, sp); if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }   /* CARD-FRK */
       continue; }
     if(p.phase==='dress'){ const m=p.dressU;   // 0806q SQUAD DRESSING (50, ⚑ Q5): the trot to the hurt Green man beside Sarge, one pip, the breather, the trot home — Sarge's job always wins (under the floor → back to his own run next frame); the man mended on his own or gone → home, no breather spent
       if(petStitchWant(u,p) || !m || m.dead || S.units.indexOf(m)<0 || !medPatient(m)){ p.phase='heel'; p.t=0; p.dressU=null; continue; }
       const dx=m.x-ST_REACH*petDir(u)-p.x, dy=m.y+4-p.y, d=Math.hypot(dx,dy), sp=ST_RUN*dt;
-      if(d<=sp){ p.x=m.x-ST_REACH*petDir(u); p.y=m.y+4; petSew(p,m,1); bfSfx(SFX.stitch, m.x, m.y); p.dressU=null; p.phase='sprint'; p.t=0; p.cd=petCd(p); } else { p.x+=dx/d*sp; p.y+=dy/d*sp; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }
+      if(d<=sp){ p.x=m.x-ST_REACH*petDir(u); p.y=m.y+4; petSew(p,m,1); bfSfx(SFX.stitch, m.x, m.y); p.dressU=null; p.phase='sprint'; p.t=0; p.cd=petCd(p); } else { frkGo(p, m.x-ST_REACH*petDir(u), m.y+4, sp); if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }   /* CARD-FRK */
       continue; }
     if(petMedic(p) && p.cd<=0 && petStitchWant(u,p)){ handRoll(p); p.phase='run'; p.t=0; continue; }   // THE TRIGGER: under the floor and rested → he sprints in (0806q: the floor is petFloor's — six at 40, seven at 80, the cap at 100)
     if(petMedic(p) && p.cd<=0 && petHas(p,'dress') && petDressStart(p,u)) continue;   // 0806q SQUAD DRESSING: between jobs, the man beside Sarge
-    const hx=u.x-PET_HEEL_DX*petDir(u), hy=u.y+PET_HEEL_DY, dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy);
-    if(d>PET_LEASH || p.phase==='sprint'){ const sp=(p.k==='flappy'? FL_GLIDE : ST_RUN)*dt; if(d<=sp){ p.x=hx; p.y=hy; p.phase='heel'; } else { p.x+=dx/d*sp; p.y+=dy/d*sp; p.phase='sprint'; } }   // past the leash (a drag, a jet, a charge, a hurl) he sprints after him — the cubs' own 140 — and falls back in at heel
-    else if(d>0.5){ const sp=Math.min(d, PET_WALK*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; }   // inside the leash he pads along behind
+    const hs=frkHeel(u), hx=hs.x, hy=hs.y, dx=hx-p.x, dy=hy-p.y, d=Math.hypot(dx,dy);   /* CARD-FRK: THE SEAT (a heel in a rock steps out of it) */
+    if(d>PET_LEASH || p.phase==='sprint'){ const sp=(p.k==='flappy'? FL_GLIDE : ST_RUN)*dt; if(d<=sp){ p.x=hx; p.y=hy; p.phase='heel'; } else { frkGo(p, hx, hy, sp, frkFly(p)); p.phase='sprint'; } }   /* CARD-FRK: THE WAY ROUND home, every pet */   // past the leash (a drag, a jet, a charge, a hurl) he sprints after him — the cubs' own 140 — and falls back in at heel
+    else if(d>0.5){ frkGo(p, hx, hy, PET_WALK*dt, frkFly(p)); }   /* CARD-FRK */   // inside the leash he pads along behind
     if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; else if(p.phase==='heel') p.fx=petDir(u);   // at heel he faces the way the men march (east)
   }
 }
@@ -195496,7 +195580,7 @@ function petSmTick(p,u,dt){   // THE BEAT: true while the machine owns his feet 
   if(p.state==='march'){ const m=p.tgt; p.t+=dt;
     if(!m || !petMeLive(m) || !petTgtOk(u,m) || TGT(u).indexOf(m)<0 || p.t>SMH_MARCH_T){ smhHome(p); return false; }
     const dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy); if(d<=smhR(p)*0.8){ p.state='wind'; p.t=0; p.left=smhN(p); return true; }
-    const sp=Math.min(d, SMH_SPD*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; return true; }
+    frkGo(p, m.x, m.y, SMH_SPD*dt); if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; return true; }   /* CARD-FRK */
   if(p.state==='wind'){ p.t+=dt; if(p.t>=SMH_WIND){ handRoll(p); smhSlam(p,u); p.state='slam'; p.t=0; } return true; }
   if(p.state==='slam'){ p.t+=dt; if(p.t>=SMH_SLAM){ p.left=(p.left|0)-1; if(p.left>0 && petPfNear(u,p.x,p.y,smhR(p),null)){ p.state='wind'; p.t=0; return true; } smhHome(p); return false; } return true; }
   p.state='idle';
@@ -195573,12 +195657,12 @@ function oreBump(p,u){ const dmg=oreDmg(p), src=petTtSrc(p)||p; let n=0;   // TH
 // ═══ CARD-OWA OREO GOES AHEAD ALONE (FROM WYATT'S PHONE 10/22/2026 00:15 EDT, dictated, verbatim: "Oreo needs to go ahead alone, waddle forward like a penguin, and dive into the enemy 100m range further than he currently is."; design/oreo-ahead-1022; built on Maker 1 as M2481): THE LEAD (his station ORE_AHEAD past the squad's front, on Sarge's own line), THE WADDLE (his own feet at ORE_WADDLE px/s, a rock every ORE_WADDLE_STRIDE px of walk), THE FAR DIVE (oreR = 100 m of HIM, the slide's clock fits its plan). The machine owns his feet ALWAYS now (Scout's law, petCyTick); the shared heel walk never moves him. ═══
 function oreFront(u){ const dir=petDir(u); let fx=u.x; for(const o of S.units){ if(!o || o===u || o.dead || (o.hp!=null && o.hp<=0) || PET_W[o.type] || (o.def && (o.def.fly || o.def.mine)) || o.jetT>0 || o.falling || (S.bf && o.side!==u.side)) continue; if((o.x-fx)*dir>0) fx=o.x; } return fx; }   // THE FRONT of his squad: the living man on his feet (Sarge included) farthest the way the army marches; never a flyer, a mine or a man in the air; on the battleground his own side alone
 function oreSeat(p,u){ const dir=petDir(u), lim=(S.bf? WORLD_W : W); const x=Math.max(ORE_EDGE, Math.min(lim-ORE_EDGE, oreFront(u)+ORE_AHEAD*dir)); return { x:x, y:u.y+PET_HEEL_DY }; }   // HIS STATION: ORE_AHEAD past the front, on Sarge's own line, never within ORE_EDGE of the carpet's edge (⚑ OWA-Q1 the 4 m; ⚑ OWA-Q2 the front, not Sarge)
-function oreLead(p,u,dt){ const s=oreSeat(p,u), dx=s.x-p.x, dy=s.y-p.y, d=Math.hypot(dx,dy);   // THE WADDLE to the station on his own feet (ORE_WADDLE px/s; never the shared heel walk's 140 sprint); p.wd = the walk's own odometer (petOrDraw's rock reads it: the beat is his feet's, never the wall clock's); settled = 'heel' (drawPet's idle bob), facing the way the army marches
-  if(d>0.5){ const sp=Math.min(d, ORE_WADDLE*dt); p.x+=dx/d*sp; p.y+=dy/d*sp; p.wd=(p.wd||0)+sp; p.mv=1; p.phase='lead'; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }
+function oreLead(p,u,dt){ const s0=oreSeat(p,u), s=frkSeat(s0.x,s0.y,u.x,u.y), dx=s.x-p.x, dy=s.y-p.y, d=Math.hypot(dx,dy);   /* CARD-FRK: THE SEAT (his station ahead stops at a rock's near face) */   // THE WADDLE to the station on his own feet (ORE_WADDLE px/s; never the shared heel walk's 140 sprint); p.wd = the walk's own odometer (petOrDraw's rock reads it: the beat is his feet's, never the wall clock's); settled = 'heel' (drawPet's idle bob), facing the way the army marches
+  if(d>0.5){ const sp=Math.min(d, ORE_WADDLE*dt); frkGo(p, s.x, s.y, sp); /* CARD-FRK */ p.wd=(p.wd||0)+sp; p.mv=1; p.phase='lead'; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; }
   else { p.phase='heel'; p.fx=petDir(u); } }
 function petOrTick(p,u,dt){   // THE BEAT: true ALWAYS since CARD-OWA (Scout's law): the machine owns his feet (the slide, the get-up, the knockout, THE LEAD = the waddle to his station ahead of the squad); the shared heel walk never moves him
   p.mv=0; if(p.down){ p.state='down'; return true; }
-  if(p.state==='slide'){ p.t+=dt; const sp=ORE_SPD*dt, dx=p.tx-p.x, dy=p.ty-p.y, d=Math.hypot(dx,dy), k=(d<=sp)? 1 : sp/d; p.x+=dx*k; p.y+=dy*k; oreIceLay(p);
+  if(p.state==='slide'){ p.t+=dt; frkTo(p); const sp=ORE_SPD*dt, dx=p.tx-p.x, dy=p.ty-p.y, d=Math.hypot(dx,dy), k=(d<=sp)? 1 : sp/d; if(FRK.on) frkGo(p, p.tx, p.ty, sp); else { p.x+=dx*k; p.y+=dy*k; } oreIceLay(p);   /* CARD-FRK: the belly slide round a rock (its end point out of one) */
     if(oreBump(p,u)<0) return true;
     if(d<=sp || p.t>(p.smax||ORE_SLIDE_MAX) || p.x<-40 || p.x>(S.bf? WORLD_W : W)+40){ p.state='up'; p.t=0; oreIceEnd(p); } return true; }
   if(p.state==='up'){ p.t+=dt; if(p.t>=ORE_UP){ if((p.again|0)>0){ const m=petPfNear(u,p.x,p.y,oreR(p),null); if(m){ p.again--; oreStart(p,u,m); return true; } } oreHome(p); return true; /* CARD-OWA: his own feet from here, the shared heel walk never (one tick of its sprint once stamped 'sprint' and stepped him toward the heel) */ } return true; }
@@ -195630,7 +195714,7 @@ function shkAim(p,u){ p.sniffT=0;
   if(p.leg==='explore'){ if(p.roamT>p.pursueT){ shkWaypoint(p,u); return; } p.leg='pursue'; }   // CARD-SHC THE CURIOUS LEG: a waypoint while the clock is young (Wyatt 10/22: "curious and explore around the map before pursuing a strike"); the pursuit once pursueT is all that is left
   const m=shkMark(u,p); if(m){ p.tgt=m; const dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy)||1; p.tx=m.x+dx/d*SHK_PAST; p.ty=m.y+Math.max(-6,Math.min(6,dy/d*SHK_PAST*0.3)); return; }   // through the man and a little past him
   shkWaypoint(p,u); }   // nothing to pursue: he keeps exploring (was: a circle round Sarge at 4 m)
-function shkGlide(p,sp,dt){ const dx=p.tx-p.x, dy=p.ty-p.y, d=Math.hypot(dx,dy); if(d<=sp*dt){ p.x=p.tx; p.y=p.ty; return true; } p.x+=dx/d*sp*dt; p.y+=dy/d*sp*dt; if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; return false; }
+function shkGlide(p,sp,dt){ frkTo(p); const dx=p.tx-p.x, dy=p.ty-p.y, d=Math.hypot(dx,dy); if(d<=sp*dt){ p.x=p.tx; p.y=p.ty; return true; } if(FRK.on) frkGo(p, p.tx, p.ty, sp*dt); else { p.x+=dx/d*sp*dt; p.y+=dy/d*sp*dt; }   /* CARD-FRK: the fin swims round a rock; a point of his in one steps out */ if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1; return false; }
 function shkWake(p,u,dt){ if(p.wakeT==null) p.wakeT=0; p.wakeT+=dt; if(p.wakeT<0.15) return; p.wakeT=0; if(reducedMotion()) return; S.fx.push({k:'puff',x:p.x-6*(p.fx||1),y:p.y-1,t:0,dur:0.32,R:7,col:'#6B5A44'}); }   // the dirt his fin throws as he swims (draw-only rows on the fx list)
 function shkCanRide(u,o){ return !!o && !o.dead && o!==u && !petSarge(o) && !PET_W[o.type] && !(o.hp!=null && o.hp<=0) && !(o.dropT>0) && !(o.jetT>0) && !o.falling && !o.shv && !o.hlbAir && !(o.def && (o.def.vehicle || o.def.fly || o.def.mine || o.def.boss)) && !o.boss && !(S.drag && S.drag.unit===o) && (S.bf? (o.side===u.side) : S.units.indexOf(o)>=0); }   // a Green man who can ride in the belly: alive, on his feet, not Sarge, not a pet, not a machine, mine
 function shkCarry(p,u,o){ o.shkIn=1; o.shkBy=p.key; o.jbHop=1; o.jetAir=SHK_CARRY_T; o.jetT=SHK_CARRY_T; o.jetFrom={x:p.x,y:p.y}; o.jetTo={x:p.x,y:p.y}; o.wp=null; o.marching=false; if(S.sel===o) S.sel=null; (p.cargo||(p.cargo=[])).push(o); p.carried=(p.carried|0)+1;   // into the belly: the jet shelf parks him at the shark (no gun finds a man in the air), hidden by the drawUnit wrap, no exhaust (jbHop)
@@ -196501,7 +196585,7 @@ function petHuTick(p,u,dt){   // his machine: false = the shared heel walk (rest
     if(!m || m.dead || S.units.indexOf(m)<0){ p.state='idle'; p.huU=null; p.huCd=1; return false; }
     const sd=(p.x<=m.x)? -1 : 1, tx=m.x+sd*HU.side, ty=m.y+2;
     if(p.state==='run'){ const dx=tx-p.x, dy=ty-p.y, d=Math.hypot(dx,dy), sp=HU.run*dt;
-      if(d<=sp+0.5){ p.x=tx; p.y=ty; p.state='hug'; p.huT=HU.hugT; } else { p.x+=dx/d*sp; p.y+=dy/d*sp; }
+      if(d<=sp+0.5){ p.x=tx; p.y=ty; p.state='hug'; p.huT=HU.hugT; } else { frkGo(p, tx, ty, sp); }   /* CARD-FRK */
       p.fx=(m.x>p.x)? 1 : -1; return true; }
     p.x=tx; p.y=ty; p.fx=(m.x>p.x)? 1 : -1; p.huT-=dt; if(p.huT>0) return true;
     hunHugApply(p,u,m); p.huN=(p.huN|0)+1;
