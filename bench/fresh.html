@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.42","md5":"f7690f4cbb18dde5472b614ca92d7a84","sha":"e80369a117","at":"2026-10-26T22:50:18Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.43","md5":"dfa5b2d873dc4813d7ab2b4ffa33fb67","sha":"fbea493db6","at":"2026-10-26T23:26:47Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49003,6 +49003,7 @@ function bfTagX(){ const bf=S.bf; return bf? ((bf.team|0)===1? BF_TAGX_1V1 : BF_
 // countdown on their own clock, and rejecting theirs over a few hundred
 // milliseconds of lag would put a man on their carpet and not on ours.
 const BF_SARGE_DOWN = 10;
+const BF_REFUND=0.25, BF_HERO_BACK=10;   // CARD-BRH THE QUARTER BACK + THE HERO'S RETURN (Wyatt 10/26/2026 ~19:10 EDT, a hand session, verbatim: "If your units are killed, we want to refund 25% of their cost … if your hero scores in their enemy's toy box, your hero will be available to play again after a 10-second cooldown"): a man KILLED on the battleground pays his owner's seat a quarter of the price that seat paid (bfRefund at hitCheck's one death door; a leak is a score, not a kill) · a HERO who scores in their toy box is back on the tray after ten seconds (bfHeroScored at bfLeak starts the seat's clock; bfTick opens the royal latch again through bfHeroBack; a hero KILLED stays spent, the 8/16 once-per-battle law)
 // THE ROOKIE'S SARGE — CARD-RS (jumpr 1247e-3, THE FIRST FIVE NOTES 9/25 card 3
 // of 3; Wyatt 9/25 ~3:50 pm at the Go Machine, a brand-new save on the served
 // v12.41, verbatim: "Increase Sarge's HP by 5 at level 1; and we'll sneaky
@@ -91423,7 +91424,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.42';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.43';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -103838,6 +103839,14 @@ function bfSargeDown(u){
     if(bfVis(u.x,u.y) && !reducedMotion()) S.shake=Math.max(S.shake,0.22);
   }
 }
+function bfRefund(f){   // CARD-BRH THE QUARTER BACK: a man KILLED on the mat pays his owner's seat BF_REFUND of the price that seat paid — MY chair's purse (a cream +N float over him, the campaign half-refund's own float), a computer's purse silent; a relayed ally's man is his own screen's business (st.human && !st.me); off the books exactly as the bounty is: a paratrooper, a zombie, FLOOP's copy, a loaner, the emergency loaner, a gift; Sarge is free on the mat (0 back, no float)
+  const bf=S.bf; if(!bf || f.seat==null) return 0; const st=bf.seats[f.seat]; if(!st) return 0;
+  if(f.para || f.zomb || f.floop || f.loan || f.emgV || f.ckGift) return 0;
+  if(st.human && !st.me) return 0;
+  const cost=st.me? capBfCost(f.type) : (BF_COST[f.type]||0), back=Math.round(cost*BF_REFUND); if(!(back>0)) return 0;
+  if(st.me){ S.plastic+=back; S.floats.push({x:f.x, y:f.y-58, txt:'+'+back, t:0, col:'#FFF3C4'}); }
+  else st.purse=(st.purse||0)+back;
+  return back; }
 function bfHumanU(u){ return !S.bf || u.seat===bfMySeat(); }
 function unitSargeStats(u){
   if(u && u.coopSW) return bstStats(u,u.coopSW);   // CARD-BST: the Boomstick's reach on an ally's relayed copy too · the ally's Sarge carries the ALLY's loadout
@@ -104783,6 +104792,7 @@ function applyDeploy(seat,type,x,y,relay){
   if(typeof seat==='string') seat = seat==='foe'? bf.team : 0;   // legacy callers: first seat of that side
   const st=bf.seats[seat]; if(!st) return null;
   if(BF_TYPES.indexOf(type)<0) return null;
+  if(relay && bfHeroCd(seat,type)>0) bfHeroBack(seat,type);   // CARD-BRH THE HERO'S RETURN: that commander's hero served his ten seconds on their own clock — their word (the Sarge line below's law)
   if(bfKingSpent(seat,type)) return null;   // 0877 HEROES ON THE BATTLEGROUND (Wyatt 8/16: "you may only play them once per battle"): a seat's spent king refuses at EVERY door — the relay and the adopt included (a stale echo can never field a second)
   if(S.cfg.terrain.cq && CQBAN[type]) return null;   // 0303 THE STARSHIP: not accessible on this map — EVERY door, the relay included (Wyatt's ruling)
   x=Math.round(x); y=Math.round(y);                        // wire form and sim agree
@@ -105161,6 +105171,7 @@ function bfLeak(u){
   b.hp=Math.max(0,b.hp-dmg); b.dmgTaken+=dmg; u.dead=true;
   owLeakSay(u);   // CARD-NET (4): my man reached their box = 'ol' (the referee's copy lands the same hit)
   bfSargeDown(u);                         // spending Sarge on their toy box costs the same ten seconds
+  bfHeroScored(u);   // CARD-BRH THE HERO'S RETURN: a hero who scores is back on the tray after BF_HERO_BACK s (the 'ol' word lands here on every screen, so every sim's clock runs)
   SFX.ouch();
   // Sarge only barks when it is YOUR box being reached (v1.41) — your own men
   // leaking into theirs is the plan working, not a breach
@@ -106854,6 +106865,7 @@ function bfTick(dt){
   if(bf.resolved||bf.ending) return;
   if(S.cfg.terrain.cq) cqShipTick(dt);   // 0303 THE STARSHIP: door beat + nudge, the vent, room presence, the supply drip — all f(battle clock)
   if(bf.sargeFlash>0) bf.sargeFlash=Math.max(0,bf.sargeFlash-dt);   // the "he's back" flash on the tray card
+  if(bf.heroFlash>0) bf.heroFlash=Math.max(0,bf.heroFlash-dt);   // CARD-BRH: the returning hero's rim, the same decay
   bf.timeLeft-=dt;
   bf.age+=dt;   // 0411: the carpet's own elapsed, counting UP — sudden-death's timeLeft reset, a room's relayed tl and the rig's bfClock can never rewind it (hardQuietSeat reads this, never the HUD clock)
   const secs=Math.max(0,Math.ceil(bf.timeLeft));
@@ -106924,6 +106936,8 @@ function bfTick(dt){
         SFX.ready(); bf.sargeFlash=0.9;      // the tray card flashes him back in
       }
     }
+    if(st.heroCd) for(const h in st.heroCd){ if(!(st.heroCd[h]>0)) continue; st.heroCd[h]=Math.max(0, st.heroCd[h]-dt);   // CARD-BRH THE HERO'S RETURN: the scoring hero's ten seconds, on the sim's own dt (Sarge's clock's law)
+      if(st.heroCd[h]===0){ bfHeroBack(st.i,h); if(st.me){ const b=bf.base[bfMyTeam()]; S.floats.push({x:b.x+46, y:b.y-96, txt:TXT(heroName(h))+' READY!', t:0, col:'#BFE39A'}); SFX.ready(); bf.heroFlash=0.9; bf.heroFlashT=h; } } }   // the card flashes him back in, SARGE READY's own beat
     st.tagT += dt*otm*boost[st.team]*(st.team==='foe'? inc*gasFoe*(bf.nem?bf.nem.eff:1)*(bf.hard?HARD_INC:1) : 1);   // v2.43: the director's drip — identity (gas 1) wherever dirGain is 0. v3.12: NEMESIS pity is ONE lever — his income (and opening purse) at eff; it COMPOSES with inc and the director's gas (the mercy law: multiply, never assign)
     if(st.tagT>=10){ st.tagT-=10;
       const tick=Math.round(BF_TICK*bfTagX()*rtxTagX()*(st.human? gtxX() : 1));   /* CARD-FSQ: the recurring tags +9 % · CARD-RTX: not in a raid · CARD-TSZ: by the chairs a side (S.bf.team) · CARD-GTX: a human chair x0.95 in a group */   // 1003 THE DOG TAG BOOST: the drip × the mode × the map (a 1v1 on a regular map 30, a 2v2 there 25, a 1v1 on WESTERN LAND 35, the Desert 30) — every seat, the computers too (⚑ B-Q6); the float prints the boosted number
@@ -125990,6 +126004,7 @@ function hitCheck(f,u){
     f.dead=true; fzShatter(f); zombRoll(f);   // 0735 THE SHATTER on the battlefield (hurt → hitCheck lands HERE, not on knockKill)   // 1008 THE SEVEN HATS + THE SCOUTER'S SHINE: THE PUMPKIN's die at MY foot soldier's fall (the guard before the die)
     bombBlast(f);   // 1178 CARD-NM THE EXPLOSIVES BACKPACK: the mat's death — his blast, once (every side within 6 m through hurt)
     bfSargeDown(f);                       // if that was a Sarge, his chair starts counting
+    bfRefund(f);   // CARD-BRH THE QUARTER BACK: a quarter of his price back to the seat that paid for him (never a leak: that door is bfLeak's, a score)
     owFell(f,u);   // CARD-NET (3) A MAN FALLS ONCE, ON BOTH PHONES: my own man = 'od' (+ the chair that got him) · a copy my man felled = his number buried here + 'ox' to his owner
     if(f.type==='sarge' && !f.sdBless && roomBattle() && (f.seat===bfMySeat() || (owCpuMine(f.seat) && owCpuSpeak())) && COOP && !COOP.ended && coopHumans()>=2){   /* CARD-NET-F6: the referee says his computers' Sarges' falls */ const ks9=(u && u.seat!=null)? (u.seat|0) : -1; coopSend(Object.assign({k:'sd', n:f.seat}, (ks9>=0 && ks9<=9)? {b:ks9} : {})); }   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-11, ⚑ Q3): MY OWN Sarge fell — radio it so every other sim buries the same man on this beat (the 0313a 'ud' law, the room edition; CMD_KEYS carries n and b — an int 0..9 — ZERO server); b = the chair that got him, for its dog tag on that screen
     if(u && u.kills!=null){ u.kills++; noteKill(u,f); }
@@ -133979,6 +133994,10 @@ function TRAY0(){ const cp9=capRung(); const L=ownedUnits().filter(t9=>!(cp9 && 
 function kingSpent(t){ return HEROES.indexOf(t)>=0 && (S.bf? bfKingSpent(bfMySeat(),t) : !!(S.kingSpent && S.kingSpent[t])); }   // 0877 HEROES ON THE BATTLEGROUND (⚑ Q7): on the mat the latch is PER SEAT — my chair's own (a commander's king never locks his ally's)   // 0446: keyed on the HERO SET (jane rides — Wyatt 8/20: "once they are defeated you cannot play them again in the same battle"), never a count; the afford gate, the price-hide and the clack all ask here · 0357 (Wyatt 8/16 verbatim: "you may only play them once per battle... grayed out, and the number of their cost should go away"): the royal latch — reset() deals every fresh battle fresh crowns
 function bfKingSpent(seat,t){ return HEROES.indexOf(t)>=0 && !!(S.bfKing && S.bfKing[seat|0] && S.bfKing[seat|0][t]); }   // 0877 HEROES ON THE BATTLEGROUND: the mat's per-seat royal latch (S.bfKing[seat][type] — battle state, reset with S.kingSpent)
 function bfKingStamp(seat,t){ if(HEROES.indexOf(t)<0) return; const K=S.bfKing||(S.bfKing={}); (K[seat|0]||(K[seat|0]={}))[t]=1; }   // 0877 HEROES ON THE BATTLEGROUND: stamped at applyDeploy's placement — every door (mine, a relayed ally's, the census adopt, a computer's), so the referee and every guest agree
+function bfHeroCd(seat,t){ const bf=S.bf; if(!bf) return 0; const st=bf.seats[seat|0]; return (st && st.heroCd && st.heroCd[t]>0)? st.heroCd[t] : 0; }   // CARD-BRH THE HERO'S RETURN: the seat's clock on a hero who scored (seconds before his latch opens; 0 = no clock)
+function bfHeroScored(u){ if(!S.bf || u.seat==null || HEROES.indexOf(u.type)<0) return; const st=S.bf.seats[u.seat]; if(!st) return; (st.heroCd||(st.heroCd={}))[u.type]=BF_HERO_BACK;   // CARD-BRH: at bfLeak — he reached their box: ten seconds, then he is dealt again
+  if(st.me) S.floats.push({x:u.x, y:u.y-70, txt:TXT(heroName(u.type))+' \u00b7 '+BF_HERO_BACK+'s', t:0, col:'#FFD24A'}); }   // my chair's own hero: the gold SARGE DOWN float's shape
+function bfHeroBack(seat,t){ const bf=S.bf; if(!bf) return; const st=bf.seats[seat|0]; if(st && st.heroCd) st.heroCd[t]=0; if(S.bfKing && S.bfKing[seat|0]) delete S.bfKing[seat|0][t]; }   // CARD-BRH: the royal latch opens — every door (applyDeploy, the relay, the adopt, bfHeroCpuOk) deals him again
 function bfHeroCpuOk(seat,t){ if(HEROES.indexOf(t)<0) return true; const m=bfMir(); return !!(S.bf && m && (seat|0)===S.bf.team && !bfKingSpent(seat,t) && m.lineup.some(e=>e.t===t)); }   // 0877 HEROES ON THE BATTLEGROUND (⚑ Q4 / Q5): a computer may buy a hero only as the away / Nemesis mirror's CAPTAIN, only the one his lineup carries (heroSel()'s), only once — a plain computer, the desert's chairs and the hard bot never
 const trayRects=[], btnRects={};
 function bfClock(){
@@ -134098,7 +134117,7 @@ function drawHUD(){
       // SARGE'S TEN SECONDS, on the card (v1.25). Not a silent refusal: the card
       // goes dark, a fill climbs back up it, and the seconds count down in the
       // middle of it, so you can see exactly when he is coming back.
-      const cd = t==='sarge'? bfSargeCd(bfMySeat()) : 0;
+      const cd = t==='sarge'? bfSargeCd(bfMySeat()) : bfHeroCd(bfMySeat(),t);   // CARD-BRH: a scoring hero's ten seconds on his card, Sarge's own treatment (the count, the climb, the rim)
       const afford = !placed && cd<=0 && !(t==='sarge' && (S.tinGone || capRung())) && S.plastic>=capBfCost(t) && !kingSpent(t) && !dfCardHeld(t);   /* CARD-DF2: ONE aloft at a time, the battlefield's card too */   // CARD-SO THE OUT LAW: Sarge's card dark while he is captured; the hero in charge FREE (capBfCost)   // 1008 THE SEVEN HATS + THE SCOUTER'S SHINE: a taken Sarge's card stays dark   // 0877 HEROES ON THE BATTLEGROUND: a spent king grays (the campaign card's 0.35-alpha treatment; kingSpent reads my seat's latch on the mat)
       cx.fillStyle= afford? '#26281F':'#1A1B15';   // CARD-FF FF-24: the card is SOLID in both states (the rug, the bodies and the river never show through); can't afford = the darker slab + the dim figure and grey price below
       rr(x,y0,tw,th,10); cx.fill();
@@ -134106,7 +134125,7 @@ function drawHUD(){
         // ⚠ a 26%-alpha green here was all but invisible on a warm carpet — the
         // card behind it is only 60% opaque, so the rug shows through and eats
         // the hue. Half alpha and a solid leading edge, so the climb reads.
-        const k=1-cd/BF_SARGE_DOWN, fh=Math.max(1,th*k);
+        const k=1-cd/(t==='sarge'? BF_SARGE_DOWN : BF_HERO_BACK), fh=Math.max(1,th*k);   // CARD-BRH: the hero's climb over his own ten
         cx.save(); rr(x,y0,tw,th,10); cx.clip();
         cx.fillStyle='rgba(120,170,80,0.5)'; cx.fillRect(x,y0+th-fh,tw,fh);
         cx.fillStyle='#BFE39A'; cx.fillRect(x,y0+th-fh,tw,3);
@@ -134114,8 +134133,8 @@ function drawHUD(){
       }
       if(S.drag&&S.drag.type===t){ cx.strokeStyle='#fff'; cx.lineWidth=2; rr(x,y0,tw,th,10); cx.stroke(); }
       // he's back — a gold rim on the card, fading out over the next beat
-      else if(t==='sarge' && cd<=0 && S.bf.sargeFlash>0){
-        cx.save(); cx.globalAlpha=reducedMotion()? 0.85 : Math.min(1,S.bf.sargeFlash/0.9);
+      else if(cd<=0 && ((t==='sarge' && S.bf.sargeFlash>0) || (S.bf.heroFlashT===t && S.bf.heroFlash>0))){   // CARD-BRH: the returning hero's gold rim too
+        cx.save(); cx.globalAlpha=reducedMotion()? 0.85 : Math.min(1,(t==='sarge'? S.bf.sargeFlash : S.bf.heroFlash)/0.9);
         cx.strokeStyle='#FFD24A'; cx.lineWidth=3; rr(x,y0,tw,th,10); cx.stroke(); cx.restore();
       }
       cx.globalAlpha= cd>0? 0.16 : (afford?1:0.35);
@@ -134130,7 +134149,7 @@ function drawHUD(){
         cx.font=cf('bold '+Math.round(30*K)+'px'); cx.fillStyle='#FFD24A';   // 0628: the card's type rides K (30/11/17/12 px at 1 — the shipped strings)
         cx.fillText(Math.ceil(cd), x+tw/2, y0+th/2+11*K);
         cx.font=cf('bold '+Math.round(11*K)+'px'); cx.fillStyle='#D2B489';
-        fitText(cx, TXT('DOWN'), x+tw/2, y0+th-8*K, tw-8, 'bold', Math.round(11*K), Math.round(8*K));
+        fitText(cx, TXT(t==='sarge'? 'DOWN' : 'SCORED!'), x+tw/2, y0+th-8*K, tw-8, 'bold', Math.round(11*K), Math.round(8*K));   // CARD-BRH: the hero's card says why he is counting
       } else {
         cx.font=cf('bold '+Math.round(17*K)+'px');
         cx.fillStyle= afford? '#FFF3C4':'#8b8f7a';
