@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.65","md5":"50f120d2bf87d7d1778b6f96403f67f7","sha":"8931bd345e","at":"2026-10-27T22:19:04Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.66","md5":"3974680257e55c8baea84687b4f3ea5d","sha":"d25a36ed03","at":"2026-10-27T22:55:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -4930,6 +4930,12 @@
   #travelMap .lfp-pet.g-idle .ps-bob { animation:lfpIdle 1.7s ease-in-out infinite alternate; }
   @keyframes lfpIdle { from { transform:scale(1, 1); } to { transform:scale(1.02, .97); } }
   #travelMap .lfp-pet.lfp-copy img { filter:sepia(1) saturate(3.6) hue-rotate(168deg) brightness(1.04); }   /* FLOOP as his friend: the friend's portrait in Floop's own blue */
+  /* CARD-LFP2: the gaits by character (a slide rocks instead of bobbing; a hop is a bounce a step), Henry's puck (no rise: it slides), the stars that circle a dizzy head */
+  #travelMap .lfp-pet.g-slide .ps-bob { animation:lfpGlide 1.3s ease-in-out infinite alternate; }
+  @keyframes lfpGlide { from { transform:rotate(-1.2deg); } to { transform:rotate(1.2deg); } }
+  #travelMap .lfp-pet.g-hop .ps-bob { animation:lfpHop .36s ease-in-out infinite alternate; }
+  @keyframes lfpHop { from { transform:translateY(0) scale(1, 1); } to { transform:translateY(-6px) scale(.98, 1.03); } }
+  #travelMap .lfp-em.e-puck { width:16px; height:9px; margin:-4px 0 0 -8px; animation:none; z-index:62; }
   /* the small things */
   #travelMap .lfp-em { position:absolute; width:13px; height:12px; margin:-12px 0 0 -6.5px; z-index:160; pointer-events:none; font-style:normal; animation:lfpRise 1.2s ease-out both; }
   #travelMap .lfp-em svg { display:block; width:100%; height:100%; overflow:visible; }
@@ -91544,7 +91550,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.65';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.66';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -152672,12 +152678,26 @@ function lg3CampHTML(c){ const ch=LG3_CH[c.id]; if(!ch) return lgChapterHTML(c);
 const LGPETS=(function(){
 const E=s=>escH(String(s));
 const SEED=1001;   // the floor's own draws (none of the game's dice rolled): the same pets open on the same line-up
-const FLY={ flappy:1 }, FLOAT={ puff:1, otto:1 }, TROT={ bilbo:1, sandwiches:1 };
+// ═══ CARD-LFP2 THE LOG'S FLOOR, THE SECOND PASS (design/log-floor-pets-2-1027/00-CARD-LFP2.md; WYATT, his phone 10/27/2026 20:14 UTC: "since we've made it, there have been a lot of new pets. Let's audit this room and the pet system in this room so that the new pets are accounted for, have interactions, and fit in well instead of just stacking and standing there. After designing it, go with your recommendation. Set to live.") ═══
+// THE AUDIT: the floor was built for thirteen pets and held sixteen places; thirty pets exist now (PET_ORDER + Miss Mallow), and every pet past the sixteenth was seated on the LAST place (x 672) with no free place to stroll to: fourteen pets stood on one spot (his screenshot's pile) and the seventeen pets since v14.65 had no gait of their own and no trick of their own.
+//   · THE THREE ROWS: back · middle · front, 18 apart, close to the wall; the pitch 52, the rows staggered by half; the tallest pets dealt to the back and the shortest to the front (every face seen); the old book and the footlocker keep their ground; MORE PETS THAN PLACES = the rows pack tighter (spotsNew: never a pile, whatever the count).
+//   · THE GAITS BY CHARACTER: Flappy AND Snatch fly (Snatch hangs upside down under the plank between flights); Calvin, the Witch (on her broom) and Sir Sips hover with Puff and Otto; Hunter, Scout, Miss Mallow and Gobbles trot (Scout, Mallow and Sips in their own moving pose); the Bishop, the Rook and Sharky's fin slide; Gambit hops.
+//   · FIFTEEN NEW TRICKS, one a new pet, in the play dates' own grammar (the generic five stay): HENRY'S SLAPSHOT · OREO'S SLIDE · SHARKY'S BURST · SIR SIPS'S TOAST · MALLOW'S RAINBOW LEAP · CALVIN'S BOO · SUGARPLUM'S SPIN · SMASH'S SLAM · GOBBLES' GOBBLE · HUNTER'S HUG · THE WITCH'S HEX · SCOUT'S PROWL · POLLY'S PERCH · SNATCH'S LIFT · GAMBIT'S KNIGHT'S MOVE.
+//   · THE PAT speaks in every pet's own voice (PET_VOICE, when the game's synth holds it); A PET WHOSE PICTURE CAN'T BE MADE IS LEFT OFF THE FLOOR instead of taking the whole floor with him (Polly's molds join the sprite table with the cove's: lbwaJoin is asked once, and a floor is never empty for her sake).
+//   · ?lgp2=0 = the floor as v14.65 built it (two rows, the first pets' gaits and games), for the proofs' base frame.
+const V2=!/[?&]lgp2=0(?:&|$)/.test(location.search);
+const FLY=V2? { flappy:1, snatch:1 } : { flappy:1 }, FLOAT=V2? { puff:1, otto:1, calvin:1, witchpet:1, sips:1 } : { puff:1, otto:1 }, TROT=V2? { bilbo:1, sandwiches:1, hunter:1, coyote:1, mallow:1, gobbles:1 } : { bilbo:1, sandwiches:1 };
+const SLIDE=V2? { bishop:1, rook:1, sharky:1 } : {}, HOPS=V2? { knight:1 } : {};
+const MOVEPOSE=V2? { coyote:'coyoterun', mallow:'mallowtrot', sips:'sipsglide' } : {};   // a pet's own pose mold while he moves (the game's frames, in his coat)
 const ROWS=[{ y:50, x0:254, n:7 }, { y:68, x0:64, n:9 }];   /* CARD-CRL: a place shorter each at the east end: the footlocker CO-OP REWARDS stands there (CRL_SEAT 754 → 834), no pet's place under it or behind it */   // THE LINE-UP, close to the wall: the back row begins east of the KEPT BY label (it lies over the floor's west end to y 29); the middle row runs the floor's width and its two west places step forward under the label (y 86: the tallest pet's ears stay under the kid's name); 76 apart, staggered by half
+const PITCH=52;   // CARD-LFP2: the three rows' pitch (was 76 on two rows); the rows' ends keep clear of the footlocker (754) and, with the old book on the floor (26 → 106, z 35), of the book
+function rows3(){ const bk=cbkSeatOn(); return [ { y:44, x0:bk? 160 : 254, x1:718 }, { y:62, x0:bk? 186 : 228, x1:702 }, { y:80, x0:bk? 160 : 254, x1:690 } ]; }   // back · middle · front; the middle row staggered by half a pitch; with the KEPT BY label on (no book) every row begins east of it
 const WY={ e:106, w:94, mid:100, x0:54, x1:740, play:196 };   /* CARD-CRL: the walkway and the games end before the footlocker (x1 790 → 740) */             // THE WALKWAY at the floor's front, a clear strip of boards between it and the rows: keep right (eastbound on the near side, westbound on the far side, twelve apart: two who pass are clearly one in front of the other); the games play east of the label (play: a leap or a lift never rises in front of the kid's name)
-const zOf=y=>y<59? 30 : y<90? 40 : y<100.5? 50 : 60;   // the paint order in four bands: the back row · the middle row · the walkway's far side · its near side
+const zOf=V2? (y=>y<53? 30 : y<71? 36 : y<90? 40 : y<100.5? 50 : 60) : (y=>y<59? 30 : y<90? 40 : y<100.5? 50 : 60);   // the paint order in bands: the back row · the middle row · the front row · the walkway's far side · its near side
 const KY=y=>0.93+(y-50)/56*0.12;                 // the eye by depth, a light touch: the back row .93, the middle .97, the walkway 1.02 to 1.05
 const AIR={ cx:515, ax:262, y:44, T:38 };        // Flappy's lap: a lazy eight over the rows' heads, east of the label
+const LAPS={ flappy:AIR, snatch:{ cx:470, ax:236, y:38, T:31, ph:2.4 } };   // CARD-LFP2: Snatch's own lap (a smaller, quicker eight, a little higher)
+const roostOf=k=>k==='snatch'? { x:cbkSeatOn()? 128 : 150, y:46 } : null;   // CARD-LFP2 THE ROOST: Snatch hangs upside down under the low plank at the floor's west end (over the old book; east of the label when it is on), his feet at the plank
 const V0=27, VY=46;                              // a stroll, stage px a second (today's clocks: 9–15); a step between the rows and the walkway
 let seed=1; const R=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
 const clamp=(v,a,b)=>v<a? a : v>b? b : v, ease=u=>u<=0? 0 : u>=1? 1 : u*u*(3-2*u), hopArc=u=>u<=0||u>=1? 0 : 4*u*(1-u), hop=(t,t0,d,h)=>-h*hopArc((t-t0)/d);
@@ -152685,24 +152705,30 @@ const clamp=(v,a,b)=>v<a? a : v>b? b : v, ease=u=>u<=0? 0 : u>=1? 1 : u*u*(3-2*u
 const HEART='<svg viewBox="0 0 22 20" aria-hidden="true"><path d="M11 18.4 C3 12.4 1 8.6 1 5.8 C1 3 3.2 1 5.9 1 C8.2 1 10 2.4 11 4.2 C12 2.4 13.8 1 16.1 1 C18.8 1 21 3 21 5.8 C21 8.6 19 12.4 11 18.4 Z" fill="#E8483F" stroke="#1E1A12" stroke-width="1.7" stroke-linejoin="round"/><path d="M5.2 4.6 C6 3.6 7.2 3.4 8 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".85"/></svg>';
 const SPARK='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .8 L9.7 6.3 L15.2 8 L9.7 9.7 L8 15.2 L6.3 9.7 L.8 8 L6.3 6.3 Z" fill="#FFD24A" stroke="#1E1A12" stroke-width="1.3" stroke-linejoin="round"/></svg>';
 const BALL='<svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="#E8483F" stroke="#1E1A12" stroke-width="1.6"/><path d="M2.6 6.6 Q9 3 15.4 6.6" stroke="#FFF3D6" stroke-width="2" fill="none"/><path d="M2.6 11.6 Q9 15 15.4 11.6" stroke="#FFF3D6" stroke-width="2" fill="none"/></svg>';
-// ── THE STRIP: every pet the save owns, seated spread out on the two rows (the first frame is whole in the HTML: the page flip's clone and a reduced-motion glass show it as it stands)
+const PUCK='<svg viewBox="0 0 18 10" aria-hidden="true"><ellipse cx="9" cy="6" rx="7.6" ry="3.2" fill="#15110E" stroke="#1E1A12" stroke-width="1.2"/><ellipse cx="9" cy="4" rx="7.6" ry="3.2" fill="#3A3330" stroke="#1E1A12" stroke-width="1.2"/></svg>';   // CARD-LFP2: Henry's puck
+// ── THE STRIP: every pet the save owns, seated spread out on the rows (the first frame is whole in the HTML: the page flip's clone and a reduced-motion glass show it as it stands)
 function sizeOf(k){ const vb=(PET_BOX[petSprK(k)]||'0 0 120 140').split(' '), w=PET_W[k]*PS_K; return { w, h:w*(+vb[3])/(+vb[2]) }; }
-function spotsNew(){ const S=[], bk9=cbkSeatOn(); ROWS.forEach((r,ri)=>{ for(let i=0;i<r.n;i++){ const x=(bk9 && ri===1)? 200+59*i : r.x0+76*i; S.push({ x, y:ri===1 && x<200? 86 : r.y, row:ri, by:null }); } }); return S; }   /* CARD-CBK THE OLD BOOK: while the book lies at the floor's west end (cbkSeatOn) the middle row keeps its nine places but begins east of it (200, 59 apart, the same east end 672): no pet's place on the book or in front of it */
-const rowOf=y=>y<59? 0 : y<88? 1 : 2, dist=(ax,ay,bx,by)=>Math.abs(ax-bx)+(rowOf(ay)!==rowOf(by)? 26 : 0);   // along the floor first: two pets in one column stand on each other whatever their rows
-function seatAll(own){ seed=SEED; const S=spotsNew(), seats=[], W=own.filter(k=>!FLY[k]), n=W.length, lo=64, hi=786;   // THE FIRST FRAME: the walkers dealt along the floor's width at one even pitch, each to the place nearest his mark (the rows fill in a zigzag by themselves)
+function hasPic(k){ const sk=petSprK(k); if(typeof SPRITES_SRC[sk]==='string') return true; if(V2 && typeof lbwaJoin==='function'){ try{ lbwaJoin(); }catch(e){} } return typeof SPRITES_SRC[sk]==='string'; }   // CARD-LFP2: Polly's molds ride the cove's join (CARD-LBW-H); a pet with no picture is left off the floor, never the whole floor with him
+function spotsNew(W){ const S=[]; if(!V2){ const bk9=cbkSeatOn(); ROWS.forEach((r,ri)=>{ for(let i=0;i<r.n;i++){ const x=(bk9 && ri===1)? 200+59*i : r.x0+76*i; S.push({ x, y:ri===1 && x<200? 86 : r.y, row:ri, by:null }); } }); return S; }   /* CARD-CBK THE OLD BOOK: while the book lies at the floor's west end (cbkSeatOn) the middle row keeps its nine places but begins east of it (200, 59 apart, the same east end 672): no pet's place on the book or in front of it */
+  const RW=rows3(), per=Math.ceil((W||0)/3); RW.forEach((r,ri)=>{ const n=Math.max(Math.floor((r.x1-r.x0)/PITCH)+1, per), p=n>1? Math.min(PITCH, (r.x1-r.x0)/(n-1)) : 0; for(let i=0;i<n;i++) S.push({ x:r.x0+p*i, y:r.y, row:ri, by:null }); }); return S; }   // CARD-LFP2: three rows at the pitch, or packed tighter when the pets outnumber the places (a third of them a row): nobody shares a place
+const rowOf=V2? (y=>y<53? 0 : y<71? 1 : y<90? 2 : 3) : (y=>y<59? 0 : y<88? 1 : 2), dist=(ax,ay,bx,by)=>Math.abs(ax-bx)+(rowOf(ay)!==rowOf(by)? 26 : 0);   // along the floor first: two pets in one column stand on each other whatever their rows
+const rowPref=(h,row)=>!V2? 0 : h>=60? (row===0? 90 : row===2? -150 : -40) : h>=55? (row===0? 40 : row===2? -40 : 0) : h<=44? (row===2? 40 : row===0? -40 : 0) : (row===1? 16 : 0);   // CARD-LFP2: the tall at the back, the short in front, the middle-sized between (a taste, not a law: a stroll goes where the floor is emptiest)
+function seatAll(own){ seed=SEED; const W=own.filter(k=>!FLY[k]), n=W.length, S=spotsNew(n), seats=[], lo=64, hi=786;   // THE FIRST FRAME: the walkers dealt along the floor's width at one even pitch, each to the place nearest his mark (the rows fill in a zigzag by themselves)
   const ord=W.map((k,i)=>i); for(let i=ord.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)), t9=ord[i]; ord[i]=ord[j]; ord[j]=t9; }
-  ord.forEach((pi,slot)=>{ const u=n===1? 425 : lo+(slot+.5)/n*(hi-lo); let best=null, bd=1e9; for(const sp of S){ if(sp.by!==null) continue; const d=Math.abs(sp.x-u)+(sp.row===1? 0 : 6); if(d<bd){ bd=d; best=sp; } } if(!best) best=S[S.length-1];   /* CARD-CRL: sixteen places now (was eighteen): a seventeenth walker shares the last place instead of throwing the strip away */ best.by=W[pi]; seats.push({ k:W[pi], x:best.x, y:best.y, dir:best.x<425? 1 : -1 }); });
-  seats.sort((p,q)=>own.indexOf(p.k)-own.indexOf(q.k)); for(const k of own) if(FLY[k]) seats.push({ k, fly:1, x:AIR.cx+110, y:AIR.y, dir:1 });
+  if(V2){ ord.sort((a,b)=>sizeOf(W[b]).h-sizeOf(W[a]).h); const per=Math.ceil(n/3), byRow=[[],[],[]]; ord.forEach((pi,i)=>byRow[Math.min(2, Math.floor(i/per))].push(pi));   // the tallest third to the back row, the shortest to the front; each row dealt along its own width
+    byRow.forEach((L,ri)=>{ const RS=S.filter(s=>s.row===ri); if(!RS.length) return; const x0=RS[0].x, x1=RS[RS.length-1].x; L.forEach((pi,slot)=>{ const u=L.length===1? (x0+x1)/2 : x0+(slot+.5)/L.length*(x1-x0); let best=null, bd=1e9; for(const sp of S){ if(sp.by!==null) continue; const d=Math.abs(sp.x-u)+(sp.row===ri? 0 : 40); if(d<bd){ bd=d; best=sp; } } if(!best) best=S[S.length-1]; best.by=W[pi]; seats.push({ k:W[pi], x:best.x, y:best.y, dir:best.x<425? 1 : -1 }); }); }); }
+  else ord.forEach((pi,slot)=>{ const u=n===1? 425 : lo+(slot+.5)/n*(hi-lo); let best=null, bd=1e9; for(const sp of S){ if(sp.by!==null) continue; const d=Math.abs(sp.x-u)+(sp.row===1? 0 : 6); if(d<bd){ bd=d; best=sp; } } if(!best) best=S[S.length-1];   /* CARD-CRL: sixteen places now (was eighteen): a seventeenth walker shares the last place instead of throwing the strip away */ best.by=W[pi]; seats.push({ k:W[pi], x:best.x, y:best.y, dir:best.x<425? 1 : -1 }); });
+  seats.sort((p,q)=>own.indexOf(p.k)-own.indexOf(q.k)); for(const k of own) if(FLY[k]){ const ro=roostOf(k), L=LAPS[k]||AIR; seats.push(ro? { k, fly:1, roost:1, x:ro.x, y:ro.y, dir:1 } : { k, fly:1, x:L.cx+110, y:L.y, dir:1 }); }
   return seats; }
-function petsHTML(){ const own=PET_ORDER.filter(k=>petOwns(k)); if(!own.length) return '<div class="sls-pets lfp"></div>';
+function petsHTML(){ const own=PET_ORDER.filter(k=>petOwns(k) && hasPic(k)); if(!own.length) return '<div class="sls-pets lfp"></div>';
   let h='<div class="sls-pets lfp">';
-  const seats=seatAll(own); for(const s of seats){ const z=sizeOf(s.k), fly=!!s.fly, k=fly? 1 : KY(s.y), g=fly? 'g-fly' : FLOAT[s.k]? 'g-float' : 'g-idle';
-    h+='<div class="lfp-pet '+g+(fly? ' fly' : '')+'" data-k="'+s.k+'" data-tap data-x="'+s.x.toFixed(1)+'" data-y="'+s.y+'" data-d="'+s.dir+'" style="--w:'+z.w.toFixed(1)+'px;--h:'+z.h.toFixed(1)+'px;transform:translate3d('+(s.x-z.w/2).toFixed(2)+'px,'+(s.y-z.h).toFixed(2)+'px,0) scale('+k.toFixed(3)+');z-index:'+(fly? 140 : zOf(s.y))+'">'
-      +(fly? '' : '<i class="lfp-sh"></i>')+'<div class="lfp-sq"><div class="lfp-face"'+(s.dir>0? ' style="transform:scaleX(-1)"' : '')+'><div class="ps-bob"><img src="'+petURI(s.k)+'" alt="" draggable="false"></div></div></div></div>'; }
+  const seats=seatAll(own); for(const s of seats){ const z=sizeOf(s.k), fly=!!s.fly, k=fly? 1 : KY(s.y), g=fly? (s.roost? 'g-idle' : 'g-fly') : FLOAT[s.k]? 'g-float' : 'g-idle';
+    h+='<div class="lfp-pet '+g+(fly? ' fly' : '')+'" data-k="'+s.k+'" data-tap data-x="'+s.x.toFixed(1)+'" data-y="'+s.y+'" data-d="'+s.dir+'"'+(s.roost? ' data-roost' : '')+' style="--w:'+z.w.toFixed(1)+'px;--h:'+z.h.toFixed(1)+'px;transform:translate3d('+(s.x-z.w/2).toFixed(2)+'px,'+(s.y-z.h).toFixed(2)+'px,0) scale('+k.toFixed(3)+');z-index:'+(fly? (s.roost? 30 : 140) : zOf(s.y))+'">'
+      +(fly? '' : '<i class="lfp-sh"></i>')+'<div class="lfp-sq"'+(s.roost? ' style="transform:rotate(180deg)"' : '')+'><div class="lfp-face"'+(s.dir>0? ' style="transform:scaleX(-1)"' : '')+'><div class="ps-bob"><img src="'+petURI(s.k)+'" alt="" draggable="false"></div></div></div></div>'; }
   return h+propsHTML(seats)+'</div>'; }
-// ── THE PROPS: the hearts, the bangs, the z's, the sparks, the poofs, the balls and every pet's name tag are made ONCE with the strip, hidden, and only shown and hidden after that.
+// ── THE PROPS: the hearts, the bangs, the z's, the sparks, the poofs, the balls, the puck and every pet's name tag are made ONCE with the strip, hidden, and only shown and hidden after that.
 //    The game's own sheet restyles the WHOLE PAGE whenever a node is added or removed anywhere (its body:has(…) rows: some 3,200 elements, a frame lost on a slow phone each time), so the floor adds and removes nothing while it lives.
-const PROPS={ heart:6, bang:3, zed:4, spark:5, poof:2 }, INK={ heart:HEART, bang:'<b>!</b>', zed:'<b>z</b>', spark:SPARK, poof:'' };   /* a poof's dots are its css shadows */
+const PROPS={ heart:6, bang:3, zed:4, spark:8, poof:3, puck:1 }, INK={ heart:HEART, bang:'<b>!</b>', zed:'<b>z</b>', spark:SPARK, poof:'', puck:PUCK };   /* a poof's dots are its css shadows */
 function propsHTML(seats){ let h=''; for(const k in PROPS) for(let i=0;i<PROPS[k];i++) h+='<i class="lfp-em e-'+k+'" data-notr style="display:none">'+INK[k]+'</i>';
   for(let i=0;i<2;i++) h+='<i class="lfp-ball" data-notr style="display:none">'+BALL+'</i>';
   for(const s of seats) h+='<div class="lfp-tag" data-notr style="display:none"><b>'+E(petName(s.k))+'</b></div>'; return h; }
@@ -152710,17 +152736,23 @@ function show(d, css, secs, end){ if(d._on || Date.now()-(d._off||0)<60){ d.styl
   clearTimeout(d._tm); d._on=Date.now(); d._end=end||null; d.style.cssText=css; d._tm=secs>0? setTimeout(()=>hide(d), secs*1000) : 0; return d; }
 function hide(d){ if(!d || !d._on) return; clearTimeout(d._tm); d._tm=0; d._on=0; d._off=Date.now(); d.style.display='none'; const f=d._end; d._end=null; if(f) f(); }
 function take(list, steal){ let best=null; for(const d of list) if(!d._on && (!best || (d._off||0)<(best._off||0))) best=d; if(!best && steal) for(const d of list) if(!best || d._on<best._on) best=d; return best; }   // the one that has rested longest; a heart, a bang or a poof takes the oldest one playing when all are out
+// ── THE POSES (CARD-LFP2): a pet's own pose mold in his coat, made once a pose and kept; the picture swaps, the box stays (every pose rides its pet's own box)
+const URIS={}; function poseURI(k, sk){ const key=k+'|'+sk; if(URIS[key]!==undefined) return URIS[key]; let u=''; try{ u=typeof SPRITES_SRC[sk]==='string'? ptsPoseURI(sk, k) : ''; }catch(e){ u=''; } URIS[key]=u; return u; }
+function pose(a, sk){ if(a.pose===sk) return; const u=sk? poseURI(a.k, sk) : a.src0; if(!u) return; a.img.src=u; a.pose=sk||''; }
+function unpose(a){ if(a.pose) pose(a, ''); }
 // ── THE CLOCK: one floor at a time; the loop ends itself the frame its strip leaves the page
 let FL=null;
 function arm(){ const root=document.querySelector('#travelMap .lg-book > .lg-stage.sls > .sls-pets.lfp'); if(!root || root.__lfp) return FL; root.__lfp=1;
-  const fl={ root, pets:[], scenes:[], zones:[], spots:spotsNew(), t:0, last:0, dir:2.4, log:[], n:{ pat:0, game:0, act:0, abort:0 }, sid:0, rm:reducedMotion() }; seed=SEED+7;
+  const W0=root.querySelectorAll('.lfp-pet:not(.fly)').length;
+  const fl={ root, pets:[], scenes:[], zones:[], spots:spotsNew(W0), t:0, last:0, dir:2.4, log:[], n:{ pat:0, game:0, act:0, abort:0 }, sid:0, rm:reducedMotion() }; seed=SEED+7;
   fl.props={ ball:Array.from(root.querySelectorAll('.lfp-ball')) }; for(const k in PROPS) fl.props[k]=Array.from(root.querySelectorAll('.lfp-em.e-'+k)); const tags=root.querySelectorAll('.lfp-tag');
-  root.querySelectorAll('.lfp-pet').forEach((el,i)=>{ const k=el.getAttribute('data-k'), z=sizeOf(k), fly=!!FLY[k], x=+el.getAttribute('data-x'), y=+el.getAttribute('data-y');
-    const a={ id:i, k, el, tagEl:tags[i]||null, sq:el.querySelector('.lfp-sq'), fc:el.querySelector('.lfp-face'), sh:el.querySelector('.lfp-sh'), img:el.querySelector('img'), w:z.w, h:z.h, fly, flt:!!FLOAT[k], trot:!!TROT[k],
-      x, y, dir:+el.getAttribute('data-d')||-1, st:'rest', t:1+R()*7, goal:null, spot:null, v:V0*(TROT[k]? 1.4 : FLOAT[k]? .9 : 1)*(.93+R()*.14), wdir:1,
-      oy:0, rot:0, sx:1, sy:1, zb:0, yo:0, stuck:0, cool:2+R()*6, sc:null, patT:0, hopT:null, look:1+R()*3, gait:fly? 'g-fly' : FLOAT[k]? 'g-float' : 'g-idle', ph:fly? Math.asin(clamp((x-AIR.cx)/AIR.ax, -1, 1)) : 0, vn:0 };
+  root.querySelectorAll('.lfp-pet').forEach((el,i)=>{ const k=el.getAttribute('data-k'), z=sizeOf(k), fly=!!FLY[k], x=+el.getAttribute('data-x'), y=+el.getAttribute('data-y'), roost=el.hasAttribute('data-roost'), L=LAPS[k]||AIR;
+    const a={ id:i, k, el, tagEl:tags[i]||null, sq:el.querySelector('.lfp-sq'), fc:el.querySelector('.lfp-face'), sh:el.querySelector('.lfp-sh'), img:el.querySelector('img'), w:z.w, h:z.h, fly, flt:!!FLOAT[k], trot:!!TROT[k], sld:!!SLIDE[k], hops:!!HOPS[k], lap:L,
+      x, y, dir:+el.getAttribute('data-d')||-1, st:fly? (roost? 'roost' : 'fly') : 'rest', t:roost? 6+R()*10 : 1+R()*7, goal:null, spot:null, v:V0*(TROT[k]? 1.4 : FLOAT[k]? .9 : SLIDE[k]? .8 : 1)*(.93+R()*.14), wdir:1,
+      oy:0, rot:roost? 180 : 0, sx:1, sy:1, zb:0, yo:0, op:null, stuck:0, cool:2+R()*6, sc:null, patT:0, hopT:null, look:1+R()*3, gait:fly? (roost? 'g-idle' : 'g-fly') : FLOAT[k]? 'g-float' : 'g-idle', ph:fly? Math.asin(clamp((x-L.cx)/L.ax, -1, 1)) : 0, vn:0, pose:'', src0:'' };
+    a.src0=a.img.getAttribute('src'); if(roost) a._sq='rotate(180deg)';
     if(!fly){ const s=fl.spots.find(s=>s.y===y && Math.abs(s.x-x)<1); if(s){ s.by=a; a.spot=s; } } fl.pets.push(a); });
-  const W=fl.pets.filter(a=>!a.fly).length; fl.maxStroll=W<=2? W : W<=6? 2 : 3;   // a few at a time: the rest stand and watch
+  const W=fl.pets.filter(a=>!a.fly).length; fl.maxStroll=W<=2? W : W<=6? 2 : (V2 && W>=18)? 4 : 3;   // a few at a time: the rest stand and watch
   root.addEventListener('pointerdown', e=>{ fl.pd={ x:e.clientX, y:e.clientY, id:e.pointerId }; });
   const tapAt=e=>{ const a=petAt(fl, e.clientX, e.clientY); if(a){ pat(fl, a); return true; } return false; };
   root.addEventListener('pointerup', e=>{ const d=fl.pd; fl.pd=null; if(!d || d.id!==e.pointerId || Math.hypot(e.clientX-d.x, e.clientY-d.y)>10) return; if(tapAt(e)) fl.ate=Date.now(); });
@@ -152734,7 +152766,7 @@ function arm(){ const root=document.querySelector('#travelMap .lg-book > .lg-sta
 function petAt(fl, cx, cy){ const r=fl.root.getBoundingClientRect(), k=r.width/840||1; return petAtXY(fl, (cx-r.left)/k, (cy-r.top)/k); }
 function petAtXY(fl, x, y){ let best=null, bd=1e9, top=null, tz=-1;
   for(const a of fl.pets){ const s=a.fly? 1 : KY(a.y), hw=a.w*s/2, hh=a.h*s/2, my=a.y+a.oy-hh, dx=Math.abs(x-a.x), dy=Math.abs(y-my);
-    if(dx<=hw*.6 && dy<=hh*.7){ const z=(a.fly? 140 : zOf(a.y)+a.zb)*100+a.id; if(z>tz){ tz=z; top=a; } }   // his body holds it: the paint order (z, then the strip's order) decides between bodies
+    if(dx<=hw*.6 && dy<=hh*.7){ const z=(a.fly? (a.st==='roost'? 30 : 140) : zOf(a.y)+a.zb)*100+a.id; if(z>tz){ tz=z; top=a; } }   // his body holds it: the paint order (z, then the strip's order) decides between bodies
     if(dx>Math.max(26, hw) || dy>Math.max(26, hh)) continue; const d=Math.hypot(x-a.x, y-my); if(d<bd){ bd=d; best=a; } }
   return top || best; }
 function step(fl, dt){ fl.t+=dt;
@@ -152744,9 +152776,9 @@ function step(fl, dt){ fl.t+=dt;
   for(const a of fl.pets) paint(fl, a);
   for(const a of fl.pets) if(a.tag) tagPlace(a); }
 // ── ONE PET'S STEP
-function setGait(a, g){ if(a.gait===g) return; a.el.classList.remove(a.gait); a.el.classList.add(g); a.gait=g; }
-const walkGait=a=>a.trot? 'g-trot' : a.flt? 'g-float' : 'g-walk', restGait=a=>a.flt? 'g-float' : 'g-idle';
-const strolling=fl=>fl.pets.filter(p=>p.st==='walk' && !p.sc).length;
+function setGait(a, g){ if(a.gait===g) return; a.el.classList.remove(a.gait); a.el.classList.add(g); a.gait=g; if(MOVEPOSE[a.k] && !a.sc){ if(g==='g-walk' || g==='g-trot' || g==='g-run' || (g==='g-float' && a.st==='walk')) pose(a, MOVEPOSE[a.k]); else unpose(a); } }
+const walkGait=a=>a.trot? 'g-trot' : a.flt? 'g-float' : a.sld? 'g-slide' : a.hops? 'g-hop' : 'g-walk', restGait=a=>a.flt? 'g-float' : a.sld? 'g-slide' : 'g-idle';
+const strolling=fl=>fl.pets.filter(p=>p.st==='walk' && !p.sc && !p.home).length;   // a walker on his way home from a game is not a stroller
 function wake(a){ a.nap=0; a.sx=a.sy=1; if(a.zEl){ hide(a.zEl); a.zEl=null; } }   // a nap's one z goes with it
 function think(fl, a, dt){
   if(a.patT>0){ a.patT-=dt; const u=1-a.patT/1.1; if(a.st!=='play'){ a.vn=0; a.oy=-9*Math.abs(Math.sin(u*Math.PI*2)); a.sy=1+.06*Math.sin(u*Math.PI*4); a.sx=1-.04*Math.sin(u*Math.PI*4); setGait(a, restGait(a)); if(a.patT<=0){ a.oy=0; a.sx=a.sy=1; } return; } }
@@ -152766,12 +152798,12 @@ const cuts=(fl, xa, xb, sc)=>{ const lo=Math.min(xa,xb), hi=Math.max(xa,xb); for
 function pickGoal(fl, a, near){ let best=null, bs=-1e9;
   for(const s of fl.spots){ if(s.by && s.by!==a) continue; if(s===a.spot) continue; if(cuts(fl, a.x, s.x, null)) continue; let d=1e9;
     for(const q of fl.pets){ if(q===a || q.fly || q.sc) continue; const g=q.goal, dd=g? dist(s.x,s.y,g.x,g.y) : dist(s.x,s.y,q.x,q.y); if(dd<d) d=dd; }
-    if(d===1e9) d=200; const tr=Math.abs(s.x-a.x), sc=Math.min(d,200)+(near? -tr*.5 : .25*Math.min(tr,280)-(tr<70? 80 : 0))+R()*36; if(sc>bs){ bs=sc; best=s; } }
+    if(d===1e9) d=200; const tr=Math.abs(s.x-a.x), sc=Math.min(d,200)+(near? -tr*.5 : .25*Math.min(tr,280)-(tr<70? 80 : 0))+rowPref(a.h, s.row)+R()*36; if(sc>bs){ bs=sc; best=s; } }
   if(!best) return false; if(a.spot) a.spot.by=null; best.by=a; a.spot=best; a.goal={ x:best.x, y:best.y }; a.stuck=0; return true; }
 function depart(a){ a.st='walk'; a.wdir=a.goal.x>=a.x? 1 : -1; a.out=0; a.go=0; a.stuck=0; }
 // THE WALK: step out of the row onto the walkway, along it on the right-hand side, step in at the goal. A walker ahead who goes my way is followed; one coming the other way is on the other side: we walk by each other.
 function walk(fl, a, dt){ const g=a.goal; if(!g){ a.st='rest'; a.t=.5; return; } const dx=g.x-a.x, adx=Math.abs(dx), dir=adx>.5? (dx>0? 1 : -1) : a.dir; let v=a.v*(a.sc? 1.9 : a.hurry? 2 : 1);
-  const wy=a.wdir>0? WY.e : WY.w, need=Math.abs(g.y-wy)/VY*v+1.5, ty=adx<=need? g.y : wy; a.dir=dir; setGait(a, (a.sc || a.hurry) && !a.flt? 'g-trot' : walkGait(a));
+  const wy=a.wdir>0? WY.e : WY.w, need=Math.abs(g.y-wy)/VY*v+1.5, ty=adx<=need? g.y : wy; a.dir=dir; setGait(a, (a.sc || a.hurry) && !a.flt && !a.sld? 'g-trot' : walkGait(a));
   if(!a.out){ if(Math.abs(a.y-wy)<1.5 || ty===g.y) a.out=1;                             // stepping out: wait for a gap on my side of the walkway
     else if(!a.go){ let clear=true; for(const q of fl.pets){ if(q===a || q.fly || q.st!=='walk' || Math.abs(q.y-wy)>4) continue; if(Math.abs(q.x-(a.x+dir*12))<(a.w+q.w)/2+10){ clear=false; break; } } if(clear) a.go=1; else { a.vn=0; setGait(a, restGait(a)); return; } } }
   if(Math.abs(a.y-wy)<3 && ty===wy){                                                    // on the walkway
@@ -152780,66 +152812,88 @@ function walk(fl, a, dt){ const g=a.goal; if(!g){ a.st='rest'; a.t=.5; return; }
   if(Math.abs(a.y-ty)>.4) a.y+=clamp(ty-a.y, -VY*dt, VY*dt); else a.y=ty;
   a.vn=v; a.x+=dir*Math.min(v*dt, adx);
   if(Math.abs(g.x-a.x)<.6 && Math.abs(a.y-g.y)<.6){ a.x=g.x; a.y=g.y; a.goal=null; a.vn=0; a.go=0; a.out=0; a.hurry=0;
-    if(a.sc){ a.st='mark'; setGait(a, restGait(a)); } else { a.st='rest'; a.t=5+R()*8; if(R()<.12){ a.nap=1; a.t=7+R()*5; } } } }
-// ── FLAPPY'S LAP: a lazy eight over the rows' heads
-function flyThink(fl, a, dt){ if(a.patT>0){ a.patT-=dt; a.rot=360*ease(1-a.patT/1.1)*(a.dir>0? 1 : -1); if(a.patT<=0) a.rot=0; }
-  if(a.st==='play') return; a.ph+=dt*6.283/AIR.T; a.yo*=Math.exp(-dt*2.2); a.x=AIR.cx+AIR.ax*Math.sin(a.ph); a.dir=Math.cos(a.ph)>=0? 1 : -1; a.y=AIR.y+7*Math.sin(2*a.ph)+a.yo; }
-// ── THE PAINT: four writes a pet a frame at most, each only when it moved
+    if(a.sc){ a.st='mark'; setGait(a, restGait(a)); } else { a.st='rest'; a.home=0; setGait(a, restGait(a)); a.t=5+R()*8; if(R()<.12){ a.nap=1; a.t=7+R()*5; } } } }
+// ── THE FLIERS: Flappy's lap, a lazy eight over the rows' heads; Snatch's own lap and HIS ROOST (CARD-LFP2): he hangs upside down under the plank at the floor's west end, drops off it for a few turns of his eight, and hangs again
+function lapXY(a){ const L=a.lap; return { x:L.cx+L.ax*Math.sin(a.ph), y:L.y+7*Math.sin(2*a.ph), dir:Math.cos(a.ph)>=0? 1 : -1 }; }
+function flyThink(fl, a, dt){ if(a.patT>0){ a.patT-=dt; if(a.st!=='roost'){ a.rot=360*ease(1-a.patT/1.1)*(a.dir>0? 1 : -1); if(a.patT<=0) a.rot=0; } }
+  if(a.st==='play') return;
+  if(a.st==='roost'){ a.t-=dt; if(a.t<=0 && a.patT<=0){ a.st='takeoff'; a.t=0; const ro=roostOf(a.k); a.from={ x:a.x, y:a.y, rot:180 }; a.ph=-Math.PI/2; a.cool=0; } return; }
+  if(a.st==='takeoff'){ a.t+=dt; const u=ease(a.t/1.2), p=lapXY(a); a.x=a.from.x+(p.x-a.from.x)*u; a.y=a.from.y+(p.y-a.from.y)*u-28*hopArc(u); a.rot=180*(1-u); a.dir=p.x>=a.from.x? 1 : -1; setGait(a, 'g-fly'); if(a.t>=1.2){ a.st='fly'; a.rot=0; a.laps=(1+Math.floor(R()*2))*a.lap.T; } return; }
+  if(a.st==='land'){ a.t+=dt; const u=ease(a.t/1.3), ro=roostOf(a.k); a.x=a.from.x+(ro.x-a.from.x)*u; a.y=a.from.y+(ro.y-a.from.y)*u-16*hopArc(u); a.rot=180*u; if(a.t>=1.3){ a.st='roost'; a.x=ro.x; a.y=ro.y; a.rot=180; a.dir=1; a.yo=0; a.t=10+R()*16; setGait(a, 'g-idle'); } return; }
+  a.ph+=dt*6.283/a.lap.T; a.yo*=Math.exp(-dt*2.2); const p=lapXY(a); a.x=p.x; a.dir=p.dir; a.y=p.y+a.yo;
+  if(a.laps!==undefined && roostOf(a.k)){ a.laps-=dt; if(a.laps<=0 && a.cool<=0 && Math.abs(a.yo)<2 && a.x<a.lap.cx-a.lap.ax*.5 && a.dir<0){ a.st='land'; a.t=0; a.from={ x:a.x, y:a.y }; a.laps=undefined; } } }   // home from the west end of his eight, on the way west
+// ── THE PAINT: five writes a pet a frame at most, each only when it moved
 function paint(fl, a){ const k=a.fly? 1 : KY(a.y), tf='translate3d('+(a.x-a.w/2).toFixed(2)+'px,'+(a.y-a.h).toFixed(2)+'px,0) scale('+k.toFixed(3)+')'; if(tf!==a._tf){ a.el.style.transform=tf; a._tf=tf; }
-  const z=a.fly? 140 : zOf(a.y)+a.zb; if(z!==a._z){ a.el.style.zIndex=z; a._z=z; }
+  const z=a.fly? (a.st==='roost'? 30 : 140) : zOf(a.y)+a.zb; if(z!==a._z){ a.el.style.zIndex=z; a._z=z; }
   const sq=(a.oy||a.rot||a.sx!==1||a.sy!==1)? 'translateY('+a.oy.toFixed(2)+'px) rotate('+a.rot.toFixed(1)+'deg) scale('+a.sx.toFixed(3)+','+a.sy.toFixed(3)+')' : ''; if(sq!==a._sq){ a.sq.style.transform=sq; a._sq=sq; }
   const f=a.dir>0? 'scaleX(-1)' : ''; if(f!==a._f){ a.fc.style.transform=f; a._f=f; }
+  const op=a.op==null? '' : a.op.toFixed(2); if(op!==a._op){ a.el.style.opacity=op; a._op=op; }
   if(a.st!==a._st){ a.el.setAttribute('data-st', a.st); a._st=a.st; }
   if(a.sh){ const s=clamp(1+a.oy/70, .45, 1), sh='scale('+s.toFixed(2)+')'; if(sh!==a._sh){ a.sh.style.transform=sh; a.sh.style.opacity=(.4+.6*s).toFixed(2); a._sh=sh; } } }
-// ── THE SMALL THINGS: a heart, a bang, a spark, a z, a puff of dust; the ball; the name tag
+// ── THE SMALL THINGS: a heart, a bang, a spark, a z, a puff of dust; the ball, the puck; the name tag
 function emote(fl, kind, x, y, secs, extra, stay){ const d=take(fl.props[kind], kind==='heart' || kind==='bang' || kind==='poof'); if(!d) return null; secs=secs||1.2;
   return show(d, 'left:'+x.toFixed(1)+'px;top:'+y.toFixed(1)+'px;animation-duration:'+secs.toFixed(2)+'s;'+(extra||''), stay? 0 : secs+.08); }
 function poof(fl, x, y){ emote(fl, 'poof', x, y, .55); }   // one node: its six dots are its shadows
+function moveEm(d, x, y){ if(d){ d.style.left=x.toFixed(1)+'px'; d.style.top=y.toFixed(1)+'px'; } }   // CARD-LFP2: a spark that circles, a puck that slides: two writes a frame
 function tagFor(fl, a, secs){ const d=a.tagEl; if(!d) return; const b=d.firstChild, nm=petName(a.k); if(b.textContent!==nm) b.textContent=nm; show(d, '', secs, ()=>{ a.tag=null; }); a.tag={ el:d }; tagPlace(a); }
 function tagPlace(a){ const k=a.fly? 1 : KY(a.y), y=a.y+a.oy*.4-a.h*k-7; a.tag.el.style.transform='translate3d('+clamp(a.x, 34, 806).toFixed(1)+'px,'+Math.max(-30, y).toFixed(1)+'px,0)'; }
-// ── THE PAT (the room's own grammar: the dogs' double yip and hop; everyone else the squeak): he stops, hops twice, a heart, his name. Nothing is spent, nothing is written.
+// ── THE PAT (the room's own grammar: the dogs' double yip and hop; everyone else the squeak; CARD-LFP2: a pet with a voice of his own in the game's synth speaks in it): he stops, hops twice, a heart, his name. Nothing is spent, nothing is written.
 function pat(fl, a){ note(fl, 'pat', { pat:a.k });
-  try{ if(a.trot){ SFX.yip(); setTimeout(()=>{ try{ SFX.yip(); }catch(e){} }, 150); } else if(a.fly) SFX.pfting(); else SFX.squeak(); }catch(e){}
+  try{ const v=V2 && typeof PET_VOICE==='object'? PET_VOICE[a.k] : null, f=v && typeof SFX[v]==='function'? SFX[v] : null; if(a.trot){ (f||SFX.yip)(); setTimeout(()=>{ try{ (f||SFX.yip)(); }catch(e){} }, 150); } else if(f) f(); else if(a.fly) SFX.pfting(); else SFX.squeak(); }catch(e){}
   if(a.nap){ wake(a); a.t=2; emote(fl, 'bang', a.x, a.y-a.h*KY(a.y)-4, .8); }
+  if(a.st==='roost'){ a.t=Math.min(a.t, .4); }   // a pat on the hanging bat: he drops and flies
   a.patT=fl.rm? 0 : 1.1; emote(fl, 'heart', a.x+(a.dir>0? 10 : -10), a.y-a.h*(a.fly? 1 : KY(a.y))-2, 1.3); tagFor(fl, a, 2.4); if(fl.rm) paint(fl, a); }
 // ── THE PLAY DATES: the director picks two idle neighbours and a game; they trot to their marks on the walkway (the ground is theirs: nobody strolls through a game), play, and go back to a place in the rows
 const idle=a=>!a.fly && !a.sc && a.cool<=0 && a.patT<=0 && !a.nap && !a.hurry && (a.st==='rest' || (a.st==='walk' && Math.abs(a.y-(a.wdir>0? WY.e : WY.w))<3));
-function director(fl, dt){ fl.dir-=dt; if(fl.dir>0) return; const W=fl.pets.filter(a=>!a.fly), cap=W.length>=9? 2 : 1; if(fl.scenes.length>=cap || W.length<2){ fl.dir=1; return; }
+const OWN={ shot:'henry', slide:'oreo', burst:'sharky', toast:'sips', rainbow:'mallow', boo:'calvin', spin:'sugarplum', slam:'smash', gobble:'gobbles', hug:'hunter', hex:'witchpet', prowl:'coyote', knightmove:'knight', copy:'floop', lift:'merlin', perch:'polly' };   // CARD-LFP2: a trick's owner (the old three too)
+const AIRTRICK={ swoop:'flappy', snatch:'snatch' };   // a flier's trick, played where his friend stands
+function director(fl, dt){ fl.dir-=dt; if(fl.dir>0) return; const W=fl.pets.filter(a=>!a.fly), cap=(V2 && W.length>=18)? 3 : W.length>=9? 2 : 1; if(fl.scenes.length>=cap || W.length<2){ fl.dir=1; return; }
   const I=W.filter(idle); if(I.length<2){ fl.dir=1.2; return; } const has=k=>I.find(a=>a.k===k);
   let bag=[]; const add=(k,w)=>bag.push([k,w]);
   add('greet',18); add('chase',26); add('ball',26); add('leap',24); add('ring',16); if(has('floop')) add('copy',24); if(has('merlin')) add('lift',24);
-  const fy=fl.pets.find(a=>a.fly && !a.sc && a.cool<=0 && a.patT<=0 && a.st!=='play'); if(fy) add('swoop',18);
+  if(V2) for(const kind in OWN){ if(kind==='copy' || kind==='lift') continue; if(has(OWN[kind])) add(kind, kind==='perch'? 20 : 24); }
+  const fliers=fl.pets.filter(a=>a.fly && !a.sc && a.cool<=0 && a.patT<=0 && a.st==='fly'); for(const fy of fliers){ if(fy.k==='flappy') add('swoop',18); else if(V2 && fy.k==='snatch') add('snatch',18); }
   if(bag.length>1) bag=bag.filter(b=>b[0]!==fl.lastGame); if(!bag.length){ fl.dir=1.5; return; }
   let tot=0; for(const b of bag) tot+=b[1]; let r=R()*tot, kind=bag[0][0]; for(const b of bag){ if((r-=b[1])<=0){ kind=b[0]; break; } }
-  if(kind==='swoop'){ const T=I.filter(a=>a.y>=60 && a.st==='rest' && a.x>=300 && a.x<=730 && Math.abs(a.x-fy.x)>70 && Math.abs(a.x-fy.x)<330);   /* a friend inside Flappy's own lap: the dive never nears the label */ if(T.length && startScene(fl, kind, fy, T[Math.floor(R()*T.length)])){ fl.lastGame=kind; fl.dir=2.5+R()*3; } else fl.dir=1; return; }
-  const any=()=>I[Math.floor(R()*I.length)], A=kind==='copy'? has('floop') : kind==='lift'? has('merlin') : kind==='ring'? (I.find(a=>a.flt)||any()) : kind==='chase'? (I.find(a=>a.trot)||any()) : any();
-  let B=null, bd=1e9; for(const q of I){ if(q===A || cuts(fl, A.x, q.x, null)) continue; let d=Math.abs(q.x-A.x); if(kind==='ring' && A.flt && q.flt) d-=300; if(kind==='chase' && A.trot && q.trot) d-=300; if(d<bd){ bd=d; B=q; } }
+  if(AIRTRICK[kind]){ const fy=fliers.find(a=>a.k===AIRTRICK[kind]); const T=I.filter(a=>a.y>=60 && a.st==='rest' && a.x>=300 && a.x<=730 && Math.abs(a.x-fy.x)>70 && Math.abs(a.x-fy.x)<330);   /* a friend inside the flier's own lap: the dive never nears the label */ if(T.length && startScene(fl, kind, fy, T[Math.floor(R()*T.length)])){ fl.lastGame=kind; fl.dir=2.5+R()*3; } else fl.dir=1; return; }
+  if(kind==='perch'){ const P=has('polly'), T=I.filter(a=>a!==P && a.st==='rest' && a.y>=60 && a.x>=WY.play && a.x<=WY.x1 && Math.abs(a.x-P.x)>40 && Math.abs(a.x-P.x)<360);   /* a head in the two front rows: she never perches up among the books */ if(T.length && startScene(fl, kind, P, T[Math.floor(R()*T.length)])){ fl.lastGame=kind; fl.dir=2.5+R()*3; } else fl.dir=1; return; }
+  const any=()=>I[Math.floor(R()*I.length)], A=OWN[kind]? has(OWN[kind]) : kind==='ring'? (I.find(a=>a.flt)||any()) : kind==='chase'? (I.find(a=>a.trot)||any()) : any();
+  let B=null, bd=1e9; for(const q of I){ if(q===A || cuts(fl, A.x, q.x, null)) continue; let d=Math.abs(q.x-A.x); if(kind==='ring' && A.flt && q.flt) d-=300; if(kind==='chase' && A.trot && q.trot) d-=300; if(kind==='knightmove' && (q.k==='bishop' || q.k==='rook')) d-=300; if(d<bd){ bd=d; B=q; } }
   if(!B || bd>260){ fl.dir=1.2; return; }
   if(startScene(fl, kind, A, B)){ fl.lastGame=kind; fl.dir=(W.length>=9? 3+R()*3 : 4.5+R()*4); } else fl.dir=.9; }
 // the ground a game needs along the walkway: [west of the pair's centre, east of it]
-const NEED={ greet:[42,42], chase:[136,136], ball:[108,108], leap:[62,136], ring:[86,86], copy:[66,66], lift:[66,66] };
-function enlist(fl, sc, p){ if(p.spot){ p.spot.by=null; p.spot=null; } p.sc=sc; wake(p); p.stuck=0; p.hurry=0; p.hopT=null; p.oy=0; p.el.setAttribute('data-play', sc.kind+sc.id); }
-function startScene(fl, kind, A, B){ const sc={ kind, id:++fl.sid, a:A, b:B, ph:'gather', t:0, d:{}, y:WY.mid };
-  if(kind==='swoop'){ const keep=B.spot; enlist(fl, sc, A); enlist(fl, sc, B); if(keep){ keep.by=B; B.spot=keep; } sc.ph='act'; sc.d={ x0:A.x, y0:A.y, dir:B.x>=A.x? 1 : -1 }; A.st='play'; B.goal=null; B.st='play'; setGait(B, restGait(B)); fl.scenes.push(sc); note(fl, 'game', { game:kind, a:A.k, b:B.k }); return true; }
+const NEED={ greet:[42,42], chase:[136,136], ball:[108,108], leap:[62,136], ring:[86,86], copy:[66,66], lift:[66,66], shot:[116,116], slide:[104,104], burst:[72,72], toast:[46,46], rainbow:[90,120], boo:[70,70], spin:[62,62], slam:[62,62], gobble:[104,104], hug:[104,54], hex:[70,70], prowl:[134,64], knightmove:[96,96] };
+const SIDES={ chase:1, leap:1, shot:1, slide:1, rainbow:1, boo:1, hug:1, prowl:1, knightmove:1 };   // the owner (A) takes the west mark whatever his place: he crosses the ground
+function enlist(fl, sc, p){ if(p.spot){ p.spot.by=null; p.spot=null; } p.sc=sc; p.home=0; wake(p); p.stuck=0; p.hurry=0; p.hopT=null; p.oy=0; p.el.setAttribute('data-play', sc.kind+sc.id); }
+function startScene(fl, kind, A, B){ const sc={ kind, id:++fl.sid, a:A, b:B, ph:'gather', t:0, d:{}, y:WY.mid, props:[] };
+  if(AIRTRICK[kind]){ const keep=B.spot; enlist(fl, sc, A); enlist(fl, sc, B); if(keep){ keep.by=B; B.spot=keep; } sc.ph='act'; sc.d={ x0:A.x, y0:A.y, dir:B.x>=A.x? 1 : -1 }; A.st='play'; B.goal=null; B.st='play'; setGait(B, restGait(B)); fl.scenes.push(sc); note(fl, 'game', { game:kind, a:A.k, b:B.k }); return true; }
+  if(kind==='perch'){ if(A.st!=='rest' || B.st!=='rest') return false; const ka=A.spot, kb=B.spot; enlist(fl, sc, A); enlist(fl, sc, B); if(ka){ ka.by=A; A.spot=ka; } if(kb){ kb.by=B; B.spot=kb; } sc.ph='act'; sc.d={ x0:A.x, y0:A.y, dir:B.x>=A.x? 1 : -1 }; A.st=B.st='play'; A.goal=B.goal=null; setGait(B, restGait(B)); fl.scenes.push(sc); note(fl, 'game', { game:kind, a:A.k, b:B.k }); return true; }   // Polly flies from her place and back to it; her friend stays on his
   const need=NEED[kind], xm=(A.x+B.x)/2;
   let pick=null, ps=1e9; for(const off of [0, 36, -36, 76, -76, 114, -114, 152, -152]){ const xc=clamp(xm+off, WY.play+need[0], WY.x1-need[1]), x0=xc-need[0], x1=xc+need[1]; let free=true; for(const z of fl.zones) if(z.x1>x0-30 && z.x0<x1+30){ free=false; break; } if(!free) continue;
+    if(V2 && fl.zones.length){ const m=marksOf(kind, xc, A, B); if(cuts(fl, m.w.x, m.m[0], null) || cuts(fl, m.e.x, m.m[1], null)) continue; }
+    if(V2){ let across=false; for(const q of fl.pets){ if(!q.sc || q.sc.ph!=='gather' || !q.goal || q.fly) continue; const lo=Math.min(q.x, q.goal.x), hi=Math.max(q.x, q.goal.x); if(hi>x0-22 && lo<x1+22){ across=true; break; } } if(across) continue; }   // nor between a gathering pet of another game and his mark   // CARD-LFP2: neither walk to a mark crosses another game's ground (a walker in a game waits at its edge, and the gather would run out)
     let behind=0; for(const q of fl.pets) if(q!==A && q!==B && !q.fly && q.st==='rest' && q.y>59 && q.y<88 && q.x>x0-14 && q.x<x1+14) behind++; const score=behind*60+Math.abs(off); if(score<ps){ ps=score; pick=xc; } }
   if(pick!==null){ const xc=pick, x0=xc-need[0], x1=xc+need[1];
     sc.xc=xc; sc.zone={ sc, x0, x1 }; fl.zones.push(sc.zone);
     for(const q of fl.pets){ if(q===A || q===B || q.fly || q.sc || q.st!=='walk') continue; const inside=q.x>x0-22 && q.x<x1+22; if(inside) q.hurry=1; else if(q.goal && cuts(fl, q.x, q.goal.x, null)){ if(pickGoal(fl, q, true)) depart(q); q.out=1; } }   // a stroller on this ground hurries off it; one bound across it turns back
-    let west=A, east=B; if(kind!=='chase' && kind!=='leap' && B.x<A.x){ west=B; east=A; } sc.w=west; sc.e=east; const gw=(west.w+east.w)/2*KY(sc.y);
-    const mk=kind==='greet'? [xc-gw/2-1, xc+gw/2+1] : kind==='chase'? [xc-110, xc-64] : kind==='ball'? [xc-78, xc+78] : kind==='leap'? [xc-40, xc-40+gw*.5+17] : kind==='ring'? [xc-52, xc+52] : [xc-gw/2-9, xc+gw/2+9];
+    const M=marksOf(kind, xc, A, B), west=M.w, east=M.e, mk=M.m; sc.w=west; sc.e=east;
     for(const [p,x] of [[west,mk[0]],[east,mk[1]]]){ enlist(fl, sc, p); p.goal={ x, y:sc.y }; depart(p); p.out=Math.abs(p.y-sc.y)<8? 1 : 0; p.go=1; }
     fl.scenes.push(sc); note(fl, 'game', { game:kind, a:A.k, b:B.k, xc:Math.round(xc) }); return true; }
   return false; }
-function endScene(fl, sc){ fl.zones=fl.zones.filter(z=>z.sc!==sc); if(sc.ball){ hide(sc.ball); sc.ball=null; }
+function marksOf(kind, xc, A, B){ let west=A, east=B; if(!SIDES[kind] && B.x<A.x){ west=B; east=A; } const gw=(west.w+east.w)/2*KY(WY.mid);   // who stands west and east, and their marks on the walkway
+  const m=kind==='greet'? [xc-gw/2-1, xc+gw/2+1] : kind==='chase'? [xc-110, xc-64] : kind==='ball'? [xc-78, xc+78] : kind==='leap'? [xc-40, xc-40+gw*.5+17] : kind==='ring'? [xc-52, xc+52]
+      : kind==='shot'? [xc-92, xc+92] : kind==='slide'? [xc-84, xc+34] : kind==='burst'? [xc-26, xc+26] : kind==='rainbow'? [xc-74, xc+24] : kind==='boo'? [xc-44, xc+30] : kind==='gobble'? [xc-34, xc+34] : kind==='hug'? [xc-84, xc+22] : kind==='prowl'? [xc-114, xc+34] : kind==='knightmove'? [xc-72, xc+72] : [xc-gw/2-9, xc+gw/2+9];
+  return { w:west, e:east, m }; }
+function endScene(fl, sc){ fl.zones=fl.zones.filter(z=>z.sc!==sc); if(sc.ball){ hide(sc.ball); sc.ball=null; } for(const d of sc.props) hide(d); sc.props=[];
   if(sc.zone && sc.ph==='act') for(const q of fl.pets) if(!q.fly && !q.sc && q.st==='rest' && !q.nap && q.x>sc.zone.x0-30 && q.x<sc.zone.x1+30) q.hopT=-R()*.25;   // the ones who watched hop
-  for(const p of [sc.a, sc.b]){ if(!p) continue; if(p.el.classList.contains('lfp-copy')) uncopy(p, sc); p.sc=null; p.oy=0; p.rot=0; p.sx=p.sy=1; p.zb=0; p.el.removeAttribute('data-play'); if(p.fly){ p.st='rest'; p.cool=14; continue; }
-    p.cool=10+R()*8; p.goal=null; p.st='rest'; p.t=p.spot? 3+R()*4 : .5+R()*1.2; } }
+  for(const p of [sc.a, sc.b]){ if(!p) continue; if(p.el.classList.contains('lfp-copy') || sc.d.src) uncopy(p, sc); p.sc=null; p.oy=0; p.rot=p.st==='roost'? 180 : 0; p.sx=p.sy=1; p.zb=0; p.op=null; unpose(p); p.el.removeAttribute('data-play'); if(p.fly){ p.st='fly'; p.cool=14; continue; }
+    p.cool=10+R()*8; p.goal=null; p.st='rest'; p.home=p.spot? 0 : 1; p.t=p.spot? 3+R()*4 : .5+R()*1.2; if(sc.kind==='perch' && p===sc.a){ p.x=sc.d.x0; p.y=sc.d.y0; setGait(p, restGait(p)); } } }
 function sceneStep(fl, sc, dt){ sc.t+=dt;
   if(sc.ph==='gather'){ const ready=sc.w.st==='mark' && sc.e.st==='mark'; let clear=true; if(ready && sc.t<16) for(const q of fl.pets) if(q!==sc.w && q!==sc.e && !q.fly && q.st==='walk' && q.y>88 && q.x>sc.zone.x0-10 && q.x<sc.zone.x1+10){ clear=false; break; }
     if(ready && clear){ sc.ph='act'; sc.t=0; sc.w.st=sc.e.st='play'; sc.w.dir=1; sc.e.dir=-1; sc.x0w=sc.w.x; sc.x0e=sc.e.x; note(fl, 'act', { act:sc.kind }); } else if(sc.t>18){ note(fl, 'abort', { abort:sc.kind }); return true; } return false; }
   return ACT[sc.kind](fl, sc, sc.t, dt); }
+const face=(a,b)=>{ a.dir=b.x>a.x? 1 : -1; b.dir=-a.dir; }, top=a=>a.y-a.h*KY(a.y);   // CARD-LFP2: the pair face each other; a pet's head line
+function copyAs(F, src, w, h, sc){ const d=sc.d; d.src=F.img.src; d.w=F.w; d.h=F.h; d.who=F; F.img.src=src; F.w=w; F.h=h; F.el.style.setProperty('--w', w.toFixed(1)+'px'); F.el.style.setProperty('--h', h.toFixed(1)+'px'); }   // CARD-LFP2: the copy grammar for any picture (Floop's blue copy, the witch's toad)
 const ACT={
   // THE GREETING: nose to nose, a lean, a heart between them, a hop each
   greet(fl, sc, t){ const w=sc.w, e=sc.e, u=ease(t/.35)*(1-ease((t-1.9)/.35)); w.rot=7*u; e.rot=-7*u; if(!sc.d.h && t>.42){ sc.d.h=1; emote(fl, 'heart', (w.x+e.x)/2, sc.y-Math.max(w.h, e.h)*KY(sc.y)-3, 1.4); }
@@ -152864,13 +152918,13 @@ const ACT={
     else { const c=hopArc(clamp((u-1)/(gap/D), 0, 1)); J.x=sc.d.jx+sc.d.span; J.oy=0; J.rot=0; J.zb=0; J.sy=1-.14*c; J.sx=1+.08*c; S.sy=S.sx=1; }
     return false; },
   // RING AROUND: the two circle each other, the near one in front, two turns
-  ring(fl, sc, t){ const w=sc.w, e=sc.e, T=2.5, n=2, ry=6.5, rx=52, th=Math.PI+t/T*6.283, y0=sc.y; for(const p of [w,e]) setGait(p, p.flt? 'g-float' : 'g-trot');
+  ring(fl, sc, t){ const w=sc.w, e=sc.e, T=2.5, n=2, ry=6.5, rx=52, th=Math.PI+t/T*6.283, y0=sc.y; for(const p of [w,e]) setGait(p, p.flt? 'g-float' : p.sld? 'g-slide' : 'g-trot');
     if(t<n*T){ const b=ease(t/.5)*(1-ease((t-n*T+.5)/.5)); const P=(p,a)=>{ p.x=sc.xc+rx*Math.cos(a); p.y=y0+ry*Math.sin(a)*b; p.dir=Math.sin(a)<0? 1 : -1; }; P(w, th); P(e, th+Math.PI); return false; }
     const tt=t-n*T; w.x=sc.xc-rx; e.x=sc.xc+rx; w.y=e.y=y0; w.dir=1; e.dir=-1; w.oy=hop(tt,.05,.3,8); e.oy=hop(tt,.2,.3,8); if(!sc.d.h && tt>.1){ sc.d.h=1; emote(fl, 'heart', sc.xc, y0-Math.max(w.h, e.h)*KY(y0)-2, 1.2); } return tt>.8; },
   // FLOOP COPIES (his own trick: "He turns into whoever stands closest"): a poof, a blue copy of his friend, the friend's bang, they hop in turn, a poof back
   copy(fl, sc, t){ const F=sc.a, B=sc.b; F.dir=B.x>F.x? 1 : -1; B.dir=-F.dir;
     if(t<.5){ F.sx=1+.1*Math.sin(t*30); F.sy=1-.1*Math.sin(t*30); }
-    else if(!sc.d.on){ sc.d.on=1; F.sx=F.sy=1; poof(fl, F.x, F.y-F.h*.5); sc.d.src=F.img.src; sc.d.w=F.w; sc.d.h=F.h; const z=sizeOf(B.k); F.img.src=B.img.src; F.w=z.w; F.h=z.h; F.el.style.setProperty('--w', z.w.toFixed(1)+'px'); F.el.style.setProperty('--h', z.h.toFixed(1)+'px'); F.el.classList.add('lfp-copy'); emote(fl, 'bang', B.x, B.y-B.h*KY(B.y)-4, .9); }
+    else if(!sc.d.on){ sc.d.on=1; F.sx=F.sy=1; poof(fl, F.x, F.y-F.h*.5); const z=sizeOf(B.k); copyAs(F, B.img.src, z.w, z.h, sc); F.el.classList.add('lfp-copy'); emote(fl, 'bang', B.x, B.y-B.h*KY(B.y)-4, .9); }
     else if(t<3.7){ B.oy=hop(t,.7,.3,9)+hop(t,1.5,.3,7)+hop(t,2.3,.3,7)+hop(t,3.1,.3,7); F.oy=hop(t,1.72,.3,7)+hop(t,2.52,.3,7)+hop(t,3.32,.3,7); }
     else if(!sc.d.off){ sc.d.off=1; B.oy=F.oy=0; poof(fl, F.x, F.y-F.h*.5); uncopy(F, sc); emote(fl, 'heart', (F.x+B.x)/2, B.y-B.h*KY(B.y)-3, 1.2); }
     else { F.oy=hop(t,3.8,.32,9); return t>4.5; } return false; },
@@ -152880,17 +152934,116 @@ const ACT={
     if(t>3.8 && t<4.1){ const u=(t-3.8)/.3; B.sy=1-.14*hopArc(u); B.sx=1+.08*hopArc(u); } else if(t>=4.1){ B.sx=B.sy=1; B.oy=hop(t,4.15,.3,8); }
     return t>4.7; },
   // FLAPPY'S SWOOP (his own trick: he dives): down past a friend's nose and up again; the friend ducks, then jumps after him
-  swoop(fl, sc, t){ const Fy=sc.a, B=sc.b, D=sc.d, T=2.7, dir=D.dir; if(!D.xe){ D.xe=clamp(B.x+dir*Math.max(110, Math.abs(B.x-D.x0)*.8), AIR.cx-AIR.ax, AIR.cx+AIR.ax); if(Math.abs(D.xe-B.x)<50) D.xe=clamp(B.x-dir*130, AIR.cx-AIR.ax, AIR.cx+AIR.ax); D.ub=clamp((B.x-D.x0)/((D.xe-D.x0)||1), .2, .8); D.yb=Math.max(D.y0+10, B.y-B.h*KY(B.y)*.5); }   // down to his friend's shoulder: he passes in front of his nose
-    const u=t/T; if(u>=1){ Fy.rot=0; const c=clamp((Fy.x-AIR.cx)/AIR.ax, -1, 1); Fy.ph=Fy.dir>0? Math.asin(c) : Math.PI-Math.asin(c); Fy.yo=Fy.y-(AIR.y+7*Math.sin(2*Fy.ph)); B.sy=B.sx=1; B.oy=0; return true; }
+  swoop(fl, sc, t){ const Fy=sc.a, B=sc.b, D=sc.d, T=2.7, dir=D.dir, L=Fy.lap; if(!D.xe){ D.xe=clamp(B.x+dir*Math.max(110, Math.abs(B.x-D.x0)*.8), L.cx-L.ax, L.cx+L.ax); if(Math.abs(D.xe-B.x)<50) D.xe=clamp(B.x-dir*130, L.cx-L.ax, L.cx+L.ax); D.ub=clamp((B.x-D.x0)/((D.xe-D.x0)||1), .2, .8); D.yb=Math.max(D.y0+10, B.y-B.h*KY(B.y)*.5); }   // down to his friend's shoulder: he passes in front of his nose
+    const u=t/T; if(u>=1){ Fy.rot=0; const c=clamp((Fy.x-L.cx)/L.ax, -1, 1); Fy.ph=Fy.dir>0? Math.asin(c) : Math.PI-Math.asin(c); Fy.yo=Fy.y-(L.y+7*Math.sin(2*Fy.ph)); B.sy=B.sx=1; B.oy=0; return true; }
     const s=ease(u), dip=s<D.ub? ease(s/D.ub) : 1-ease((s-D.ub)/(1-D.ub)); Fy.x=D.x0+(D.xe-D.x0)*s; Fy.y=D.y0+(D.yb-D.y0)*dip; Fy.dir=D.xe>=D.x0? 1 : -1; Fy.rot=Fy.dir*17*(s<D.ub? Math.sin(Math.PI*s/D.ub) : -Math.sin(Math.PI*(s-D.ub)/(1-D.ub)));
     if(s<D.ub+.04){ const near=Math.abs(Fy.x-B.x)<52; B.sy=near? .74 : 1; B.sx=near? 1.1 : 1; } else { B.sy=B.sx=1; if(!D.j){ D.j=t; B.dir=Fy.dir; emote(fl, 'bang', B.x, B.y-B.h*KY(B.y)-4, .8); } B.oy=hop(t, D.j+.05, .36, 12); }
-    return false; } };
-function uncopy(F, sc){ const d=sc && sc.d; if(!d || !d.src) return; F.img.src=d.src; F.w=d.w; F.h=d.h; F.el.style.setProperty('--w', d.w.toFixed(1)+'px'); F.el.style.setProperty('--h', d.h.toFixed(1)+'px'); F.el.classList.remove('lfp-copy'); d.src=null; }
+    return false; },
+  // ═══ CARD-LFP2 THE NEW PETS' OWN TRICKS ═══
+  // SNATCH'S LIFT (the library's bat: "swoops on one Tan man and carries him off"): he dives to his friend, grips him, lifts him clear of the boards (his legs kick), sets him down with a poof and climbs away
+  snatch(fl, sc, t){ const S=sc.a, B=sc.b, D=sc.d, L=S.lap; const yb=top(B)-2; if(!D.xe){ D.xe=clamp(B.x-D.dir*160, L.cx-L.ax, L.cx+L.ax); } S.dir=D.dir;
+    if(t<1){ const u=ease(t); S.x=D.x0+(B.x-D.x0)*u; S.y=D.y0+(yb-D.y0)*u; S.rot=D.dir*14*Math.sin(Math.PI*u); S.dir=B.x>=D.x0? 1 : -1; if(u>.6 && !D.g){ D.g=1; emote(fl, 'bang', B.x, top(B)-4, .8); } }
+    else if(t<3.2){ const u=ease((t-1)/.7)*(1-ease((t-2.5)/.6)); S.x=B.x; S.y=yb-24*u; S.rot=0; B.oy=-24*u; B.zb=6; B.sx=1+.05*Math.sin(t*14)*u; B.sy=1-.05*Math.sin(t*14)*u; B.rot=4*Math.sin(t*9)*u; if(t>3 && !D.p){ D.p=1; poof(fl, B.x, B.y-B.h*.4); } }
+    else { const u=ease((t-3.2)/1.1); B.oy=0; B.zb=0; B.sx=B.sy=1; B.rot=0; B.oy=hop(t,3.3,.32,9)+hop(t,3.7,.32,7); S.x=B.x+(D.xe-B.x)*u; S.y=yb+(D.y0-yb)*u; S.dir=D.xe>=B.x? 1 : -1; S.rot=-S.dir*12*Math.sin(Math.PI*u);
+      if(u>=1){ S.rot=0; const c=clamp((S.x-L.cx)/L.ax, -1, 1); S.ph=S.dir>0? Math.asin(c) : Math.PI-Math.asin(c); S.yo=S.y-(L.y+7*Math.sin(2*S.ph)); return true; } }
+    return false; },
+  // POLLY'S PERCH (the cove's parrot: "she rides on Sarge's shoulder"): she takes wing from her place, lands on a friend's head, squawks, he looks up and hops; she flies home
+  perch(fl, sc, t){ const P=sc.a, B=sc.b, D=sc.d, hx=B.x, hy=top(B)+2; P.zb=130-zOf(P.y);   // over everyone while she flies
+    if(t<1.4){ const u=ease(t/1.4); pose(P, 'pollyfly'); setGait(P, 'g-fly'); P.x=D.x0+(hx-D.x0)*u; P.y=D.y0+(hy-D.y0)*u-22*hopArc(u); P.dir=hx>=D.x0? 1 : -1; P.rot=P.dir*10*Math.sin(Math.PI*u); }
+    else if(t<3.4){ P.x=hx; P.y=hy; P.rot=0; if(!D.s){ D.s=1; pose(P, 'pollysquawk'); setGait(P, 'g-idle'); emote(fl, 'bang', hx+(P.dir>0? 12 : -12), top(P)-3, .9); try{ if(typeof SFX.squawk==='function') SFX.squawk(); }catch(e){} } if(t<2.3) B.dir=(Math.floor((t-1.4)/.45)%2)? -1 : 1; if(t>2.3) B.oy=hop(t,2.4,.3,6)+hop(t,2.8,.3,5); }   // he looks left and right for her
+    else if(t<4.9){ const u=ease((t-3.4)/1.5); if(!D.b){ D.b=1; pose(P, 'pollyfly'); setGait(P, 'g-fly'); emote(fl, 'heart', hx, top(B)-6, 1.2); } P.x=hx+(D.x0-hx)*u; P.y=hy+(D.y0-hy)*u-22*hopArc(u); P.dir=D.x0>=hx? 1 : -1; P.rot=P.dir*8*Math.sin(Math.PI*u); B.oy=0; }
+    else { P.x=D.x0; P.y=D.y0; P.rot=0; P.zb=0; unpose(P); setGait(P, 'g-idle'); P.oy=hop(t,4.95,.3,6); return t>5.4; }
+    return false; },
+  // HENRY'S SLAPSHOT (the hockey penguin): he winds up, shoots the puck down the walkway; his friend hops it and the puck comes back off the boards for a second hop; a heart
+  shot(fl, sc, t){ const H=sc.w, B=sc.e, k=KY(sc.y); H.dir=1; B.dir=-1; if(!sc.d.pk){ const d=take(fl.props.puck); if(d){ sc.d.pk=show(d, 'z-index:62;display:block;animation:none;', 0); sc.props.push(d); } }
+    const x0=H.x+H.w*k*.5, x1=B.x-B.w*k*.3, y=sc.y-3; let px=x0, op=1;
+    if(t<.9){ pose(H, 'henrywind'); H.rot=-6*ease(t/.4); px=x0; }
+    else if(t<2.2){ const u=ease((t-.9)/1.3); if(!sc.d.s){ sc.d.s=1; pose(H, 'henryshot'); H.rot=0; } px=x0+(x1+28-x0)*u; if(Math.abs(px-B.x)<26 && !sc.d.j) sc.d.j=t; B.oy=sc.d.j? hop(t, sc.d.j, .36, 12) : 0; }
+    else if(t<3.4){ const u=ease((t-2.2)/1.2); px=x1+28-(x1+28-x0-14)*u; H.oy=hop(t,2.9,.32,8); B.oy=hop(t,2.4,.3,9); if(!sc.d.h && t>2.6){ sc.d.h=1; unpose(H); emote(fl, 'heart', (H.x+B.x)/2, sc.y-Math.max(H.h, B.h)*k-3, 1.2); } }
+    else { op=1-ease((t-3.4)/.4); px=x0+14; H.rot=0; if(t>3.9) return true; }
+    if(sc.d.pk){ sc.d.pk.style.transform='translate3d('+px.toFixed(1)+'px,'+y.toFixed(1)+'px,0)'; sc.d.pk.style.opacity=op.toFixed(2); } return false; },
+  // OREO'S SLIDE (the little silver penguin: "he belly slides into the Tan"): a poof, he drops on his belly and slides the walkway under his friend (who hops), pops up with a poof and a bow
+  slide(fl, sc, t){ const O=sc.w, B=sc.e, k=KY(sc.y); O.dir=1; B.dir=-1; const x0=sc.x0w, x1=sc.x0e+70;
+    if(t<.5){ O.sy=1-.12*hopArc(t/.5); }
+    else if(t<2.3){ const u=ease((t-.5)/1.8); if(!sc.d.on){ sc.d.on=1; pose(O, 'oreoslide'); poof(fl, O.x-8, O.y-4); O.sy=1; } O.x=x0+(x1-x0)*u; O.zb=-2; const near=Math.abs(O.x-B.x)<26; if(near && !sc.d.j){ sc.d.j=t; } if(sc.d.j) B.oy=hop(t, sc.d.j, .36, 14); if(t>1.9 && !sc.d.p){ sc.d.p=1; poof(fl, O.x+6, O.y-4); } }
+    else if(t<3.6){ if(!sc.d.up){ sc.d.up=1; unpose(O); O.zb=0; O.dir=-1; } O.rot=10*ease((t-2.3)/.3)*(1-ease((t-3.1)/.3)); O.oy=hop(t,3.0,.3,8); B.oy=hop(t,2.6,.3,8); if(!sc.d.h && t>2.5){ sc.d.h=1; emote(fl, 'heart', (O.x+B.x)/2, sc.y-B.h*k-3, 1.2); } }
+    else return true; return false; },
+  // SHARKY'S BURST (the land shark: "his fin follows … he bursts up"): the fin circles his friend's feet, then he bursts up with a bang; the friend jumps; the fin again
+  burst(fl, sc, t){ const S=sc.a, B=sc.b, y0=sc.y, rx=38; face(S, B); setGait(S, 'g-slide');
+    if(t<2.4){ const a=Math.PI+t/1.2*6.283*.5, b=ease(t/.4)*(1-ease((t-2)/.4)); S.x=sc.xc+rx*Math.cos(a)*b+(S.x-sc.xc)*(1-b); S.y=y0+5*Math.sin(a)*b; S.dir=Math.sin(a)<0? 1 : -1; B.dir=S.x>B.x? 1 : -1; }
+    else if(t<4.2){ const u=t-2.4; if(!sc.d.b){ sc.d.b=1; S.y=y0; S.x=B.x+(B.x>sc.xc? -1 : 1)*22; pose(S, 'sharkyburst'); emote(fl, 'bang', S.x, top(S)-14, .9); poof(fl, S.x, S.y-4); face(S, B); } S.oy=-18*ease(u/.25)*(1-ease((u-1.3)/.4)); S.zb=8; S.rot=(B.x>S.x? 1 : -1)*8*Math.sin(Math.PI*clamp(u/1.7, 0, 1)); B.oy=hop(u,.1,.4,16)+hop(u,.9,.3,8); B.sx=u<.1? 1.1 : 1; B.sy=u<.1? .8 : 1; }
+    else if(t<5.2){ if(!sc.d.f){ sc.d.f=1; unpose(S); S.oy=0; S.zb=0; S.rot=0; poof(fl, S.x, S.y-4); emote(fl, 'heart', (S.x+B.x)/2, top(B)-3, 1.2); } B.oy=hop(t,4.3,.3,7); }
+    else return true; return false; },
+  // SIR SIPS'S TOAST (the vampire: "he sips … through a red link"): a glide up to his friend, a lean back and a long sip from his goblet, a heart; both hop
+  toast(fl, sc, t){ const S=sc.a, B=sc.b; face(S, B); const s=S.dir;
+    if(t<.6){ S.rot=-10*s*ease(t/.6); }
+    else if(t<2.4){ if(!sc.d.on){ sc.d.on=1; pose(S, 'sipsdrain'); } S.rot=-10*s-3*s*Math.sin((t-.6)*6); S.oy=-2*Math.abs(Math.sin((t-.6)*6)); B.rot=6*s*ease((t-.6)/.5); if(!sc.d.h && t>1.6){ sc.d.h=1; emote(fl, 'heart', (S.x+B.x)/2, Math.min(top(S), top(B))-3, 1.3); } }
+    else if(t<3.6){ if(!sc.d.off){ sc.d.off=1; unpose(S); S.rot=B.rot=0; S.oy=0; } S.oy=hop(t,2.5,.3,8); B.oy=hop(t,2.8,.3,8); }
+    else return true; return false; },
+  // MALLOW'S RAINBOW LEAP (the unicorn: "she leaped out of the rainbow"): a run-up, a high leap clean over her friend in a trail of sparks; the friend ducks and then bounces after her
+  rainbow(fl, sc, t){ const M=sc.w, B=sc.e, k=KY(sc.y), x0=sc.x0w, x1=sc.x0e+92; M.dir=1; B.dir=-1;
+    if(t<.5){ M.sy=1-.1*hopArc(t/.5); setGait(M, 'g-trot'); pose(M, 'mallowtrot'); }
+    else if(t<2.1){ const u=ease((t-.5)/1.6); if(!sc.d.l){ sc.d.l=1; pose(M, 'mallowleap'); M.sy=1; sc.d.sp=[]; } M.x=x0+(x1-x0)*u; M.oy=-(B.h*k*.75+16)*hopArc(u); M.rot=-16*(1-2*u); M.zb=8; const near=Math.abs(M.x-B.x)<40; B.sy=near? .8 : 1; B.sx=near? 1.08 : 1;
+      const ns=Math.floor(u*6); if(sc.d.sp.length<ns && sc.d.sp.length<6){ const d=emote(fl, 'spark', M.x-14, M.y+M.oy-M.h*.5, 1.1, 'animation-duration:1.1s;'); sc.d.sp.push(d); if(d) sc.props.push(d); } }
+    else if(t<3.6){ if(!sc.d.d){ sc.d.d=1; unpose(M); setGait(M, 'g-idle'); M.oy=0; M.rot=0; M.zb=0; M.dir=-1; B.sx=B.sy=1; poof(fl, M.x, M.y-3); } B.oy=hop(t,2.3,.3,10)+hop(t,2.8,.3,7); M.oy=hop(t,2.6,.3,8); if(!sc.d.h && t>2.4){ sc.d.h=1; emote(fl, 'heart', (M.x+B.x)/2, sc.y-Math.max(M.h, B.h)*k-3, 1.2); } }
+    else return true; return false; },
+  // CALVIN'S BOO (the ghost: "they both go see-through"): he fades to a wisp, drifts behind his friend, and pops up with a bang; the friend jumps out of his skin, then they hop together
+  boo(fl, sc, t){ const C=sc.w, B=sc.e, x0=sc.x0w, xb=sc.x0e+8; C.dir=1; B.dir=-1;
+    if(t<1.7){ const u=ease(t/1.7); C.op=1-.86*ease(t/.6); C.x=x0+(xb-x0)*u; C.zb=-6; C.oy=-3*Math.sin(t*5); }
+    else if(t<2.3){ if(!sc.d.b){ sc.d.b=1; C.op=1; C.zb=8; C.x=xb; C.dir=-1; B.dir=1; emote(fl, 'bang', C.x+6, top(C)-6, .9); poof(fl, C.x, C.y-6); } const u=t-1.7; B.oy=hop(u,.05,.42,18); B.sx=u<.3? .9 : 1; B.sy=u<.3? 1.14 : 1; C.oy=-4; }
+    else if(t<3.6){ C.zb=0; C.oy=hop(t,2.4,.3,7)+hop(t,2.9,.3,6); B.oy=hop(t,2.65,.3,7)+hop(t,3.1,.3,6); B.sx=B.sy=1; if(!sc.d.h && t>2.5){ sc.d.h=1; emote(fl, 'heart', (C.x+B.x)/2, Math.min(top(C), top(B))-3, 1.2); } }
+    else { C.op=null; return true; } return false; },
+  // SUGARPLUM'S SPIN (the ballerina: "every few seconds she spins, and the Tan near her get too dizzy to move"): a pirouette up on her toes in a ring of sparks; her friend's head goes round and round, three stars over it, then he shakes it off
+  spin(fl, sc, t){ const P=sc.a, B=sc.b; if(!sc.d.on){ sc.d.on=1; face(P, B); sc.d.st=[0,1,2].map(i=>{ const d=emote(fl, 'spark', B.x, top(B)-6, 0, 'animation:none;display:block;', 1); if(d) sc.props.push(d); return d; }); }
+    if(t<2.6){ P.oy=-5*ease(t/.3)*(1-ease((t-2.3)/.3)); P.zb=2; if(t>.3 && t<2.3){ P.sx=Math.cos((t-.3)*4*Math.PI); if(Math.abs(P.sx)<.15) P.sx=.15*(P.sx<0? -1 : 1); } else P.sx=1; const dz=ease((t-.6)/.4)*(1-ease((t-2.4)/.3)); B.rot=12*Math.sin(t*7)*dz; B.sx=1; for(let i=0;i<3;i++) moveEm(sc.d.st[i], B.x+13*Math.cos(t*5+i*2.094), top(B)-6+4*Math.sin(t*5+i*2.094)); }
+    else if(t<3.8){ P.sx=1; P.oy=0; P.zb=0; for(const d of sc.d.st) hide(d); B.rot=8*Math.sin((t-2.6)*22)*(1-ease((t-2.6)/.6)); if(t>3.2){ B.rot=0; B.oy=hop(t,3.25,.3,8); P.oy=hop(t,3.45,.3,7); } if(!sc.d.h && t>3.3){ sc.d.h=1; emote(fl, 'heart', (P.x+B.x)/2, Math.min(top(P), top(B))-3, 1.2); } }
+    else return true; return false; },
+  // SMASH'S SLAM (the Christmas nutcracker: "he slams his big jaw down: everyone near him is knocked flat"): a long lean back, the slam with a bang and a puff of dust; his friend bounces off the boards; both hop
+  slam(fl, sc, t){ const S=sc.a, B=sc.b; face(S, B); const s=S.dir;
+    if(t<.9){ S.rot=-24*s*ease(t/.9); S.sy=1+.08*ease(t/.9); }
+    else if(t<1.15){ const u=(t-.9)/.25; S.rot=-24*s+40*s*ease(u); S.sy=1.08-.3*ease(u); S.sx=1+.12*ease(u); if(!sc.d.b){ sc.d.b=1; } }
+    else if(t<2.6){ if(!sc.d.k){ sc.d.k=1; emote(fl, 'bang', S.x+s*S.w*.5, S.y-8, .8); poof(fl, S.x+s*S.w*.6, S.y-3); poof(fl, B.x, B.y-3); } const u=t-1.15; S.rot=16*s*(1-ease(u/.5)); S.sy=.78+.22*ease(u/.4); S.sx=1.12-.12*ease(u/.4); B.oy=hop(u,.02,.4,14)+hop(u,.5,.3,6); B.sy=u<.08? .8 : 1; B.sx=u<.08? 1.12 : 1; }
+    else if(t<3.6){ S.rot=0; S.sx=S.sy=1; S.oy=hop(t,2.7,.3,8); B.oy=hop(t,2.95,.3,8); B.sx=B.sy=1; if(!sc.d.h && t>2.8){ sc.d.h=1; emote(fl, 'heart', (S.x+B.x)/2, Math.min(top(S), top(B))-3, 1.2); } }
+    else return true; return false; },
+  // GOBBLES' GOBBLE (the turkey: "he gobbles, and the Tan near him freeze up"): a strut half round his friend, a puff-up and a GOBBLE; the friend freezes stiff, then shakes it off and hops
+  gobble(fl, sc, t){ const G=sc.a, B=sc.b, y0=sc.y; if(!sc.d.a0){ sc.d.a0=G.x<B.x? Math.PI : 0; sc.d.r=Math.abs(G.x-B.x); } setGait(G, 'g-trot');
+    if(t<1.6){ const a=sc.d.a0+(t/1.6)*Math.PI; G.x=B.x+sc.d.r*Math.cos(a); G.y=y0-6*Math.sin(a); G.dir=(sc.d.a0? 1 : -1); face(B, G); }
+    else if(t<2.4){ setGait(G, 'g-idle'); G.y=y0; face(G, B); const u=(t-1.6)/.8; G.sx=1+.22*ease(u/.4)*(1-ease((u-.6)/.4)); G.sy=1+.14*ease(u/.4)*(1-ease((u-.6)/.4)); if(!sc.d.g && u>.3){ sc.d.g=1; emote(fl, 'bang', G.x+G.dir*14, top(G)-4, .9); try{ if(typeof SFX.gobble==='function') SFX.gobble(); }catch(e){} } }
+    else if(t<3.6){ G.sx=G.sy=1; B.sx=.96; B.sy=1.02; B.rot=(Math.floor(t*10)%2? 1 : -1)*(t>3.2? 5 : 0); }
+    else if(t<4.6){ B.sx=B.sy=1; B.rot=0; B.oy=hop(t,3.65,.3,9); G.oy=hop(t,3.9,.3,7); if(!sc.d.h && t>3.7){ sc.d.h=1; emote(fl, 'heart', (G.x+B.x)/2, Math.min(top(G), top(B))-3, 1.2); } }
+    else return true; return false; },
+  // HUNTER'S HUG (Willow's yellow dog: "he hugs hurt men"): he runs to his friend and hugs him tight, two hearts; two hops each
+  hug(fl, sc, t){ const H=sc.w, B=sc.e, k=KY(sc.y), x0=sc.x0w, x1=B.x-(H.w+B.w)*k*.5+6; H.dir=1; B.dir=-1;
+    if(t<.9){ const u=ease(t/.9); setGait(H, 'g-run'); H.x=x0+(x1-x0)*u; }
+    else if(t<2.9){ if(!sc.d.on){ sc.d.on=1; setGait(H, 'g-idle'); pose(H, 'hunterhug'); H.x=x1; H.zb=4; emote(fl, 'heart', (H.x+B.x)/2, Math.min(top(H), top(B))-3, 1.4); } H.rot=10*ease((t-.9)/.4); B.rot=-7*ease((t-.9)/.4); H.oy=-1.5*Math.abs(Math.sin(t*7)); if(!sc.d.h2 && t>2){ sc.d.h2=1; emote(fl, 'heart', (H.x+B.x)/2+8, Math.min(top(H), top(B))-8, 1.2); } }
+    else if(t<4.2){ if(!sc.d.off){ sc.d.off=1; unpose(H); H.rot=B.rot=0; H.oy=0; H.zb=0; } H.oy=hop(t,3,.3,8)+hop(t,3.45,.3,7); B.oy=hop(t,3.2,.3,8)+hop(t,3.65,.3,7); }
+    else return true; return false; },
+  // THE WITCH'S HEX (she "turns the Tan into toads"): a wave of the broom, a poof, and her friend is a toad for a moment: three small hops; a poof and he is himself; a heart
+  hex(fl, sc, t){ const W=sc.a, B=sc.b; face(W, B); const s=W.dir;
+    if(t<1){ W.rot=12*s*Math.sin(t*9.4); }
+    else if(!sc.d.on){ sc.d.on=1; W.rot=0; poof(fl, B.x, B.y-B.h*.4); const u=poseURI(B.k, 'wxtoad'); if(u){ const w=Math.max(28, B.w*.7); copyAs(B, u, w, w, sc); } emote(fl, 'bang', W.x+s*W.w*.5, top(W)-4, .8); try{ if(typeof SFX.wcackle==='function') SFX.wcackle(); }catch(e){} }
+    else if(t<3.6){ B.oy=hop(t,1.3,.3,7)+hop(t,1.9,.3,7)+hop(t,2.5,.3,7)+hop(t,3.1,.3,7); W.oy=-2*Math.abs(Math.sin(t*5)); }
+    else if(!sc.d.off){ sc.d.off=1; B.oy=W.oy=0; poof(fl, B.x, B.y-B.h*.4); uncopy(B, sc); emote(fl, 'heart', (W.x+B.x)/2, Math.min(top(W), top(B))-3, 1.2); }
+    else { B.oy=hop(t,3.7,.32,9); W.oy=hop(t,3.9,.32,7); return t>4.6; } return false; },
+  // SCOUT'S PROWL (the coyote: "he prowls ahead … picks his moment and lunges"): a low sneak up behind his friend, the lunge with a bang; the friend leaps; a heart
+  prowl(fl, sc, t){ const C=sc.w, B=sc.e, x0=sc.x0w, x1=B.x-(C.w+B.w)*KY(sc.y)*.5-8; C.dir=1; B.dir=1;
+    if(t<2.2){ const u=ease(t/2.2); if(!sc.d.s){ sc.d.s=1; pose(C, 'coyotesneak'); setGait(C, 'g-idle'); } C.x=x0+(x1-x0)*u; C.oy=-1.5*Math.abs(Math.sin(t*6)); }
+    else if(t<2.55){ const u=(t-2.2)/.35; if(!sc.d.l){ sc.d.l=1; pose(C, 'coyotelunge'); emote(fl, 'bang', B.x, top(B)-4, .8); } C.x=x1+26*ease(u); C.oy=-14*hopArc(u); C.zb=6; B.dir=-1; B.oy=hop(u,.1,.5,16); B.sx=u<.3? .9 : 1; B.sy=u<.3? 1.12 : 1; }
+    else if(t<3.9){ if(!sc.d.u){ sc.d.u=1; unpose(C); C.oy=0; C.zb=0; } B.sx=B.sy=1; B.oy=hop(t-2.55,.1,.5,16)+hop(t,3.3,.3,7); C.oy=hop(t,3.1,.3,8); if(!sc.d.h && t>3.2){ sc.d.h=1; emote(fl, 'heart', (C.x+B.x)/2, Math.min(top(C), top(B))-3, 1.2); } }
+    else return true; return false; },
+  // GAMBIT'S KNIGHT'S MOVE (the chess knight: "he leaps at the Tan in an L"): two squares along and one across, over his friend and back; the friend ducks each time
+  knightmove(fl, sc, t){ const K=sc.w, B=sc.e, k=KY(sc.y), x0=sc.x0w, x1=sc.x0e+64; K.dir=1; B.dir=-1;
+    if(t<1.3){ const u=ease(t/1.3); K.x=x0+(x1-x0)*u; K.oy=-(B.h*k*.6+14)*hopArc(u); K.rot=-10*(1-2*u); K.zb=8; const near=Math.abs(K.x-B.x)<34; B.sy=near? .82 : 1; B.sx=near? 1.06 : 1; }
+    else if(t<1.7){ if(!sc.d.p){ sc.d.p=1; poof(fl, K.x, K.y-3); K.oy=0; K.rot=0; K.zb=0; K.dir=-1; B.sx=B.sy=1; } }
+    else if(t<3){ const u=ease((t-1.7)/1.3); K.x=x1+(x0-x1)*u; K.oy=-(B.h*k*.6+14)*hopArc(u); K.rot=10*(1-2*u); K.zb=8; const near=Math.abs(K.x-B.x)<34; B.sy=near? .82 : 1; B.sx=near? 1.06 : 1; }
+    else if(t<4.2){ if(!sc.d.q){ sc.d.q=1; poof(fl, K.x, K.y-3); K.oy=0; K.rot=0; K.zb=0; K.dir=1; B.sx=B.sy=1; emote(fl, 'heart', (K.x+B.x)/2, sc.y-Math.max(K.h, B.h)*k-3, 1.2); } K.oy=hop(t,3.1,.3,8); B.oy=hop(t,3.35,.3,8); }
+    else return true; return false; } };
+function uncopy(F, sc){ const d=sc && sc.d; if(!d || !d.src) return; const W=d.who||F; W.img.src=d.src; W.w=d.w; W.h=d.h; W.el.style.setProperty('--w', d.w.toFixed(1)+'px'); W.el.style.setProperty('--h', d.h.toFixed(1)+'px'); W.el.classList.remove('lfp-copy'); d.src=null; d.who=null; }
 // ── THE PROOFS' TWO DOORS (no dial, no purse, nothing written): what the clock holds now, and one game dealt by name
 function note(fl, k, o){ fl.n[k]++; o.t=+fl.t.toFixed(2); fl.log.push(o); if(fl.log.length>40) fl.log.shift(); }
-function deal(kind, ak, bk){ const fl=FL; if(!fl || !ACT[kind]) return 'no floor'; const g=k=>fl.pets.find(a=>a.k===k), A=g(ak), B=g(bk); if(!A || !B || A===B) return 'no pet'; for(const p of [A,B]){ if(p.sc) return 'busy'; p.cool=0; p.patT=0; wake(p); } return startScene(fl, kind, A, B); }
-function read(){ const fl=FL; if(!fl) return null; return { t:+fl.t.toFixed(2), n:Object.assign({}, fl.n), maxStroll:fl.maxStroll, scenes:fl.scenes.map(s=>s.kind+':'+s.ph), log:fl.log.slice(), pets:fl.pets.map(a=>{ const t=petAtXY(fl, a.x, a.y+a.oy-a.h*(a.fly? 1 : KY(a.y))/2); return { k:a.k, x:+a.x.toFixed(1), y:+a.y.toFixed(1), st:a.st, wdir:a.wdir, sc:a.sc? a.sc.kind : '', nap:!!a.nap, own:t===a, who:t? t.k : '' }; }) }; }   // own: a finger at his middle is his; who: whose it is (the pet painted in front of him there, when not his)
-return { petsHTML, arm, read, deal };
+function deal(kind, ak, bk){ const fl=FL; if(!fl || !ACT[kind]) return 'no floor'; const g=k=>fl.pets.find(a=>a.k===k), A=g(ak), B=g(bk); if(!A || !B || A===B) return 'no pet'; for(const p of [A,B]){ if(p.sc) return 'busy'; p.cool=0; p.patT=0; wake(p); } if(AIRTRICK[kind]){ if(A.st!=='fly') return 'not flying'; if(B.st!=='rest') return 'not resting'; } if(kind==='perch' && (A.st!=='rest' || B.st!=='rest')) return 'not resting'; return startScene(fl, kind, A, B); }
+function read(){ const fl=FL; if(!fl) return null; return { t:+fl.t.toFixed(2), n:Object.assign({}, fl.n), maxStroll:fl.maxStroll, v2:V2, spots:fl.spots.length, scenes:fl.scenes.map(s=>s.kind+':'+s.ph), log:fl.log.slice(), pets:fl.pets.map(a=>{ const t=petAtXY(fl, a.x, a.y+a.oy-a.h*(a.fly? 1 : KY(a.y))/2); return { k:a.k, x:+a.x.toFixed(1), y:+a.y.toFixed(1), st:a.st, wdir:a.wdir, sc:a.sc? a.sc.kind : '', nap:!!a.nap, home:!!a.home, pose:a.pose||'', own:t===a, who:t? t.k : '' }; }) }; }   // own: a finger at his middle is his; who: whose it is (the pet painted in front of him there, when not his)
+return { petsHTML, arm, read, deal, ACTS:Object.keys(ACT) };
 })();
 // ═══ CARD-CLS THE CAPTAIN'S LOG: A BOOK'S STARS ARE YOUR RATING (design/log-rating-1010/00-BUILD-CLS.md; WYATT by phone 10/10/2026 02:49 UTC, jumpr remote, dictated: "In Captain's log, the stars are now going to be your average rating of that place, so if you got 3 stars on every level, you will have a 3, but if you had 3 stars on every level but one level where you had 2 stars, it becomes a 2.5-star rating. That's the algorithm that we're going to use for this rating system, and we'll just shelf the idea of displaying the difficulty on the books for now") ═══
 // THE RATING (clsRate): a book's three seats (LSW.stars) show the AVERAGE of your BEST medal count (1..3, the verdict's own strip) over EVERY level of that place (an unbeaten level counts 0; clsTotal), stepped UP to the half star: ceil(2*sum/T)/2, at least 0.5 once a level is beaten, and 3 only when every level stands at three stars (else 2.5 at most): Wyatt on Discord 10/10/2026 10:15, "Book ratings need to round up to the nearest 0.5 decimal, except Zero, even if you have just one level beat, 0 should always round up to 0.5 stars. If you have any levels that are at 3 stars, you'll be rounded down from 3 stars to 2.5 stars." (it was the levels WON, stepped DOWN, v19.06). No level won yet = three dim seats. A fourth medal (an elite boss rung) counts 3. The difficulty numbers (LSW.STARS, 10/5) are SHELVED: kept, painted by nothing.
