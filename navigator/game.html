@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.66","md5":"3974680257e55c8baea84687b4f3ea5d","sha":"d25a36ed03","at":"2026-10-27T22:56:02Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.67","md5":"05a82c1d176bdb8ba1c335080acbd5ee","sha":"bda24fe51d","at":"2026-10-27T23:02:30Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91550,7 +91550,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.66';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -91596,11 +91596,18 @@ function nxBeat(def,nx,srvDef){ const m=nxMul(nx,srvDef); if(m<=1) return def;
 //       that hugs the painted pixels, the shop's beckon grammar) — never
 //       the hotspot's tap box; and it is a NEWBIE light: ROOM_IDLE_S on
 //       the first ten rungs, ROOM_IDLE_VET_S (30 s AFK) above them.
+//       CARD-QNU (Wyatt 10/27 by phone: "For new accounts under level 5
+//       … almost immediately upon being idle. I'd say 3 seconds tops"):
+//       a NEW ACCOUNT (META.lvl, the HUD's LV, below ROOM_BEACON_NEW_LV)
+//       is on ROOM_IDLE_NEW_S, and its light lands ON its second
+//       (qnuDueArm), never a tick late. ?qnu=0 = the two clocks above.
 let HIDDEN_BEAT=20;                              // s — the worker-driven hidden party beat
 let IDLE_SOFT=90, IDLE_HARD=240, IDLE_RING=25;   // s — stamp · pill · ring (design §4 dials)
 let ROOM_IDLE_S=12;                              // s — 0494d THE IDLE BEACON: quiet on the room before the doors breathe — the NEWBIE clock since 0503 (⚑ 8 / 10 / 15)
 let ROOM_IDLE_VET_S=30;                          // s — 0503 THE NEWBIE GATE: the clock once the first ten rungs are cleared (⚑ 45 / veterans never)
 let ROOM_BEACON_NEWBIE_LV=10;                    // 0503: META.campaign below this (the next rung ≤ 10) = a newbie on ROOM_IDLE_S; at/above = ROOM_IDLE_VET_S (⚑ 15)
+let ROOM_IDLE_NEW_S=3;                           // s — CARD-QNU THE QUICK NUDGE (Wyatt 10/27 "3 seconds tops"): the clock while the ACCOUNT is new (⚑ QNU-Q3: 2 / 3 / 4)
+let ROOM_BEACON_NEW_LV=5;                        // CARD-QNU: META.lvl (the HUD's LV, the commander level) below this = a new account on ROOM_IDLE_NEW_S ("under level 5"); at/above = 0503's two clocks (⚑ QNU-Q1: the account level, not the campaign rung)
 const ROOM_BEACON=['campaign','bf','plane'];     // CARD-ON ONE NUDGE AT A TIME (jumpr 1235; Wyatt 9/22 N11): THE RING — the doors that call, ONE per idle spell, in this order (nudPick); 'plane' = #ro-warplane's halo through shipNudgeTick's rule + its own pill (#rtag-warplane); the SWEEP's mv keys live in ddFamily   // 0494d: the doors that call — ROOM_SPOTS mv keys (#ro-/#rtag-<mv> since 0503: the art group + the pill); the campaign leads by CSS (⚑ campaign alone)
 let IDLE_BEATS={ door:10000, room:20000, duel:60000 };   // ms — the M3 stretches
 let IDLE={ last:Date.now(), pill:0, ringT:0, ringLeft:0, beacon:0 };   // 0494d: beacon = the room's light is on (runtime only, never persisted)
@@ -91684,6 +91691,7 @@ function roomQuiet(x){   // 0559: x = one body-parented card that may stand (the
     const el=document.getElementById(id); if(el && !el.classList.contains('hidden')) return false; }   // the .hidden overlays (cards, rites, scenes, the shop, the rankings)
   for(const id of ['ageGate','adAsk','partyPop','crewhold','idlePill','nbCard']) if(id!==x && document.getElementById(id)) return false;   // the body-parented cards (present = up) · 0559: the UPDATE NOW chip too
   if(document.querySelector('#roomModal .rmback') || document.querySelector('#comms .cm-win')) return false;   // a room modal · a Sarge comm window
+  if(QNU.on && document.querySelector('#rupHost > *')) return false;   // CARD-QNU: the fort's NEW RECRUITS screen (CARD-RUP's #rupHost with a child — THE BACK PAY's seat at a landing, full-bleed over the room) is a LOUD room: no door lights behind it (0494d's list never named it; the quick clock made it show; ?qnu=0 = the gap)
   return true;
 }
 // ═══ 0632 THE DAILY DOORS BLIP (FM-GVT-JUICE-01 §6 P8 — surfaced by the data; design/juice-reach-0830/00-DESIGN.md §3 / §3c /
@@ -91716,7 +91724,25 @@ function ddDue(){ return (META.campaign|0)>=DD_MIN_CAMP && ddAwayOpen(); }   // 
 const MOON_DOOR='moongate';   // 0988 THE HEDGE DOOR (A6): the hedge door's mv key (#ro-moongate = the door's group, #rtag-moongate = its pill) — lit with the family only while the moon door is still shut (the chest's law: lit only while there is news; after the deed — or the code GARDEN — it never breathes again)
 function ddFamily(){ return ['campaign','bf', DD_DOOR, RAID_DOOR, CHEST_DOOR, MOON_DOOR]; }   // CARD-ON: the SWEEP's mv keys (#ro-/#rtag-<mv>) — every door the old family lit, swept every second; only the nudge's ONE door wears .beacon now (the trophy's daily blip, the raid's, the chest's and the hedge door's idle halos folded into the one-at-a-time law — their own pills and marks stand; ⚑ ON-Q5)   // 0900 OUTLAW TOWN COMES TO THE RANGE: THE MINE left the family with its row (0866b's 'wmine')   // 0904 THE TREASURE CHEST: + the chest's door (lit with the family only while a NEW! mark waits on its lid)      // the doors one sweep touches (ROOM_BEACON byte-still — the rig's own read of it stands); 0904: + THE RAID tile
 function ddLabel(){ return (DD_PILL_WORD && ddDue())? 'LEADERBOARD' : ''; }     // the pill's word for the day: '' in every state while DD_PILL_WORD is 0 (0865y THE QUIET TROPHY — renderMenu's empty-label idiom renders no #rtag-board, roomBeaconSet's if(el) guard stands, the cup #ro-board still glows while due); at 1 = LEADERBOARD only while today's away fight waits, nothing otherwise (0757d THREE FIXES, Wyatt 9/4: never A COMMANDER WAITS; the loop row's quiet shelf); renderMenu paints it through the spot's label; a claim lands through the room's own repaint
-function roomBeaconS(){ return META.campaign<ROOM_BEACON_NEWBIE_LV ? ROOM_IDLE_S : ROOM_IDLE_VET_S; }   // 0503 THE NEWBIE GATE: the live clock — the first ten rungs on 12 s, everyone above on 30 s AFK
+// ═══ CARD-QNU THE QUICK NUDGE (TASK FROM WYATT'S PHONE 10/27/2026 17:33 EDT, jumpr 2736, built on Maker 1 as M2736; design/quick-nudge-1027/00-CARD-QNU.md). Wyatt, verbatim: "For new accounts under
+// level 5, make sure that the prompting to either load up the campaign or the battlefield, or use the plane, is happening almost immediately upon being idle. I'd say 3 seconds tops without prompting a
+// suggested open." THE READ: the prompting IS the idle nudge (0494d / 0503 / CARD-ON: ONE door per idle spell — the campaign crate, the battlefield tablet or the plane on the sill — its pill speaking the
+// line), and its clock was 12 s for every save under campaign rung 10 (30 s above): his LV 3 Papa John waited 12 to 13 s. THE RULE: a NEW ACCOUNT = META.lvl (the HUD's "name · LV n", the commander
+// level) below ROOM_BEACON_NEW_LV (5) is on ROOM_IDLE_NEW_S (3 s), and the light lands ON its second: the room's 1 s tick reads the clock at its own phase (0 to 1 s late — a third of a 3 s clock), so when
+// the due moment falls inside the coming second ONE short timer re-runs the tick exactly then (qnuDueArm: cleared on every tick, idle until then, never while lit, off the room or hidden). Everything else
+// is the family's own: the quiet-watch (roomQuiet), the tour hand's hold (ffiBeaconHold), the pick (nudPick: the smartest first, then the ring campaign · bf · plane under CARD-PP's one-tell law), the
+// tap's clear (idleStamp). LV 5 and up keep 0503's two clocks and today's landing byte for byte (qnuDueArm's timer is the new account's alone). ?qnu=0 (a device key gvt_qnu) = today's clocks, no timer;
+// ?qnu=1 clears it. GVT.qnu() = the rig's read + the dials {newS, newLv, on}. Zero save keys, zero words, zero css, zero server bytes.
+var QNU={ on:(function(){ try{ const q=/[?&]qnu=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_qnu','0'); else localStorage.removeItem('gvt_qnu'); } return localStorage.getItem('gvt_qnu')==='0'? 0 : 1; }catch(e){ return 1; } })(), t:0 };   // on = the switch · t = the one short timer that lands a new account's light on its second
+function qnuNew(){ return !!QNU.on && (META.lvl|0)<ROOM_BEACON_NEW_LV; }   // a new account: the HUD's LV under ROOM_BEACON_NEW_LV (Wyatt's "new accounts under level 5")
+function qnuDueArm(on){   // roomBeaconTick's tail: a new account's light lands on its second. Lit / off the room / hidden / not new = nothing armed; the due moment inside the coming second = one timer at that moment (the tick's own read again)
+  if(QNU.t){ clearTimeout(QNU.t); QNU.t=0; }
+  if(on || IDLE.beacon || !qnuNew() || S.mode!=='menu' || document.hidden) return;
+  const rem=roomBeaconS()-idleQuiet(); if(!(rem>0 && rem<1)) return;
+  QNU.t=setTimeout(function(){ QNU.t=0; try{ roomBeaconTick(); }catch(e){} }, Math.ceil(rem*1000)+10);
+}
+// ═══ END CARD-QNU ═══
+function roomBeaconS(){ if(qnuNew()) return ROOM_IDLE_NEW_S; return META.campaign<ROOM_BEACON_NEWBIE_LV ? ROOM_IDLE_S : ROOM_IDLE_VET_S; }   // 0503 THE NEWBIE GATE: the live clock — the first ten rungs on 12 s, everyone above on 30 s AFK · CARD-QNU: a NEW ACCOUNT (META.lvl under ROOM_BEACON_NEW_LV) on ROOM_IDLE_NEW_S first
 function roomBeaconSet(on){   // CARD-ON ONE NUDGE AT A TIME: ONE door wears the light — picked on the RISING EDGE (nudPick — the smartest first, then the ring), re-applied every second (a repaint bakes nothing), cleared once on the tap (idleStamp); the tile's own pill speaks the line while lit (nudPillSwap), the plane wears its own pill (nudPlanePill) and shipNudgeTick's halo   // 0503: #ro-<mv> = the crate / the tablet, never the hotspot box
   if(on && !IDLE.beacon){ NUD.door=nudPick(); NUD.n=(NUD.n|0)+1; }   // a new idle spell = a new pick (the ring's next door); the same spell keeps its door
   IDLE.beacon=on?1:0;
@@ -91799,6 +91825,7 @@ function planeNudStamp(){ if(META.planeNud!==1){ META.planeNud=1; saveMeta(); } 
 function roomBeaconTick(){   // rides evDoorTick — the room's 1 s tick
   const on=S.mode==='menu' && !document.hidden && roomQuiet() && idleQuiet()>=roomBeaconS() && !ffiBeaconHold();   // CARD-FFI N5 NO AUTOCLICK: while a tour hand waits for HIS tap, the idle beacon stays dark (one pointer at a time)   // 0503: the newbie gate picks the clock
   if(on || IDLE.beacon) roomBeaconSet(on);   // on: re-applied every second (a repaint bakes nothing); off: cleared once
+  qnuDueArm(on);   // CARD-QNU THE QUICK NUDGE: a new account's light lands ON its second (its clock is 3 s: a tick late is a third of it) — one short timer when the due moment is inside the coming second, nothing otherwise
 }
 // ---- the Sarge pill (IDLE_HARD, solo at a door scene only) ----
 function idlePillClear(){
@@ -204846,6 +204873,7 @@ window.GVT = {
     if(p.ring!=null) IDLE_RING=p.ring; if(p.hb!=null) HIDDEN_BEAT=p.hb;
     if(p.beats) Object.assign(IDLE_BEATS,p.beats); if(p.roomIdle!=null) ROOM_IDLE_S=+p.roomIdle; if(p.last!=null) IDLE.last=+p.last;   // 0494d: roomIdle dials ROOM_IDLE_S
     if(p.vet!=null) ROOM_IDLE_VET_S=+p.vet; if(p.newbieLv!=null) ROOM_BEACON_NEWBIE_LV=+p.newbieLv; return GVT.idle(); },   // 0503: vet / newbieLv dial the gate
+  qnu(p){ p=p||{}; if(p.newS!=null) ROOM_IDLE_NEW_S=+p.newS; if(p.newLv!=null) ROOM_BEACON_NEW_LV=+p.newLv; if(p.on!=null) QNU.on=p.on? 1 : 0; return { cv:GVT_CV, on:!!QNU.on, lvl:META.lvl|0, campaign:META.campaign|0, newLv:ROOM_BEACON_NEW_LV, newS:ROOM_IDLE_NEW_S, isNew:qnuNew(), clock:roomBeaconS(), quiet:+idleQuiet().toFixed(3), armed:!!QNU.t, lit:!!IDLE.beacon, door:nudLit() }; },   // CARD-QNU THE QUICK NUDGE: the rig's read + the dials {newS, newLv, on}
   // ---- 0294 REVOLVING DOOR rig: the chip clock, the AVOID mirror (server
   // round-trip), and the leader's seat-release — read/act doors for batteries ----
   breather(){ return { until:BR.until, left:Math.max(0,Math.ceil((BR.until-Date.now())/1000)),
