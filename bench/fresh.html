@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.62","md5":"71a4ab0df56779675812f9b713b0286c","sha":"354e0938e6","at":"2026-10-27T21:04:51Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.63","md5":"849361fe625d657005a5ec361560abed","sha":"7b11c661d9","at":"2026-10-27T21:40:45Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84021,7 +84021,7 @@ const PREM_SC=1.2;             // ⚑ 0904 THREE SMALL FIXES (the second card) �
 const PREM_UNITS=TRAY_ORDER.concat(['medic','spy','grenadier'], HEROES, VEH_ORDER, ['dogfighter']);   /* CARD-FF5 (Wyatt 9/30: "Everybody, including Sarge, currently doesn't have one"): SARGE PREMIERES TOO, at his first placement like any man's (0904's "he is always there" overruled) */   /* CARD-SF3-D2: the plane premieres at its first launch (dfDrop's premTry) */   // who premieres: every tray class but Sarge, the medic and the spy, every hero, the two machines (the V2s map onto them)
 const PREM={ up:null, freeze:0, t0:0, q:[], timer:0, cv:null, n:0, wt:0, wu:null, play:0 };   /* CARD-FTU: play = the film has run a frame on this card */   /* CARD-FF2 AW-06: wt = the landing wait's timer · wu = the man it waits on */   // up = the key on the card · freeze = a solo fight stands still under it · t0 = when it opened · q = the cards owed (one at a time) · timer = the people seat's fold clock · cv = the card's own canvas · n = cards dealt this page
 function premKey(t){ return (t==='jeep2'||t==='jeep3' /* CARD-V3J */)? 'bfjeep' : ((t==='tank2'||t==='tank3' /* CARD-OCR-B3 */)? 'bftank' : t); }   // the V2s share their base's premiere (one garage, one first time)
-function premPeople(){ return !!(S.coop || (S.bf && (S.bf.room || S.bf.bd || S.bf.away)) || evBattle() || S.rival); }   // a fight with people in it: co-op / the party (S.coop), a private room, the desert, the away duel, the invasion (+ the classic rival sortie — 0719's own exclusion; its clocks are shared)
+function premPeople(){ return !!(S.coop || (S.bf && (S.bf.room || S.bf.bd || S.bf.away)) || evBattle() || S.rival || gnpLive()); }   // a fight with people in it: co-op / the party (S.coop), a private room, the desert, the away duel, the invasion (+ the classic rival sortie — 0719's own exclusion; its clocks are shared) · CARD-GNP: + a gauntlet match, the computer's too (Wyatt 10/27: "There is no pausing the match": the card deals in its people seat over the running fight)
 function premFrozen(){ return !!(PREM_ON && PREM.up && PREM.freeze && S.mode==='play'); }   // frame()'s read: the card is up over a solo fight
 function premiereDue(k){ k=premKey(k); return !!(PREM_ON && k && PREM_UNITS.indexOf(k)>=0 && !(META.premiered||{})[k]); }   // CARD-FF5: Sarge too
 function premTry(t){   // CARD-PF THE PREMIERE ON THE FIRST DROP (jumpr 1247e-2; design/premiere-first-drop-0925/00-BUILD-PF.md; Wyatt 9/25/2026 between 3:44 and 3:52 pm, verbatim: "Have the first-time you play Rifleman video show up the first time you play it instead of the second time."): the placement landed on MY finger — deal the card before the next frame, COACH OR NO COACH. 0904's ⚑ Q23 hold (every premiere held while the boot-camp coach stood at step 1 or 2 and dealt at the drop that landed step 3 = the SECOND drop; the builder's call, never put to Wyatt) is REVERSED: the Rifleman's card opens at the boot camp's FIRST drop, over the frozen fight, step 2's finger pill waiting behind it (placeUnit's coachEvent('place') has already moved the step; premOpen's one draw() paints the man and the pill under the card); GOT IT resumes the coach exactly where it stood — the pill takes no input and the close tap is consumed before the canvas sees it (never a drop, never a step)
@@ -91543,7 +91543,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.62';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.63';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -194190,6 +194190,20 @@ function bftRead(){ const pre=/^data:image\/svg\+xml;charset=utf-8,/, lit=[];
   return { cv:GVT_CV, on:BFT.on, live:BFT_LIVE, stats:Object.assign({}, BFT.stats), lit }; }   // every lit door the still room holds: asleep in a picture, and how many halo references that picture carries (0 = the cure)
 setTimeout(function(){ try{ if(window.GVT && !GVT.bft) GVT.bft=function(){ return bftRead(); }; }catch(e){} }, 0);
 // ═══ END CARD-BFT ═══
+// ═══ CARD-GNP THE GAUNTLET NEVER PAUSES (TASK FROM WYATT'S PHONE 10/27/2026 16:16 EDT, jumpr 2730, built on Maker 1 as M2730; design/gauntlet-no-pause-1027/00-CARD-GNP.md). Wyatt, verbatim:
+// "When you're challenging a gauntlet, whether it's a fake person or a real person, when you hit the Pause HQ button, it should not pause the game because it's a live game. It should proceed. On your
+// screen, you have the pause menu, but on the opponent's screen, he should just be able to keep playing. You should never be able to pause a game for somebody, if that makes sense. Please make this fix
+// set to live. And to be extra clear, it does not matter if it's a real opponent or a fake opponent when the gauntlet match is going on. There is no pausing the match"
+// THE READ: v1.44's law holds a SOLO sim under the open HQ sheet (frame). A torch room has company (S.coop): it already ran on behind the card on both screens. The Gauntlet's computer fights (the knock
+// on a holder and the challenge to a computer holder: gaFightCPU) are solo sims, so BACK TO THE BATTLE · SOUND · SPEED · RETREAT TO HQ stood the whole match still (the computer, both purses, the march,
+// the clock). The FIRST TIME ON THE FIELD card froze them the same way (premPeople() never named the computer). THE RULE: a gauntlet match (gaTorchFight: the computer's knock, the challenge to a computer
+// holder, a torch room) is a LIVE match whoever the opponent is: the HQ sheet opens over a fight that runs on (hqHolds), a first-time card deals in its people seat (the top card over the running fight).
+// BACK TO THE BATTLE, RETREAT TO HQ and the verdict close the sheet as ever. Every other fight byte-what-it-was (the campaign, the parks, the raids, the war table's own solo battles still hold under
+// the sheet and the card). Zero server, wire, save, sw, css or word bytes. Rig: GVT.gnp() · design/gauntlet-no-pause-1027/rig/.
+function gnpLive(bf){ try{ return gaTorchFight(bf||S.bf); }catch(e){ return false; } }   // a gauntlet match on this screen: the computer's fight (bf.ga) or a torch room (0896's own read)
+function hqHolds(){ return !!(HQS.on && !S.coop && !gnpLive()); }   // frame()'s read: the open HQ sheet holds a solo sim (v1.44), never a gauntlet match
+setTimeout(function(){ try{ if(window.GVT && !GVT.gnp) GVT.gnp=function(){ return { live:gnpLive(), hq:!!HQS.on, holds:hqHolds(), people:premPeople(), coop:!!S.coop, ga:!!(S.bf&&S.bf.ga), room:!!(S.bf&&S.bf.room), t:+(+S.t||0).toFixed(3), mode:S.mode }; }; }catch(e){} }, 0);   // the rig's one read (read-only)
+// ═══ END CARD-GNP ═══
 function frame(ts){
   requestAnimationFrame(frame);
   if(!ready) return;
@@ -194208,6 +194222,7 @@ function frame(ts){
              : (S.hitStop>0 ? 0.2 : 1);                                                 // ...and the sniper's punch lands
   // v1.44: an open HQ sheet HOLDS the solo sim (the v1.41 law). With company the
   // sims must stay in lockstep, so the war runs on behind the card.
+  // CARD-GNP: and a gauntlet match runs on behind it, the computer's too (hqHolds).
   // 0484 THE HOLD (§4.3): an event room waits for the bell on THIS sim's synced
   // clock — update() never runs (no sqTick, no foes, no marching, no bot clock,
   // S.t frozen); placement + the relay + the camera live (evHoldTick). Each
@@ -194218,7 +194233,7 @@ function frame(ts){
   if(S.mode==='play' && !S.evHold && S.sq && S.sq.ev && !S.sq.bots && S.coop && COOP && COOP.ev){
     if(COOP.ev.rung) evBotsArm(COOP.ev.pc||(COOP.members||[]).length);
     else if(evNow()>=evRingOf(S.sq.ev)+EV_ARM_GRACE) evBotsArm(Math.max(1,(COOP.members||[]).length)); }
-  if(S.mode==='play' && !(HQS.on && !S.coop) && !S.evHold){
+  if(S.mode==='play' && !hqHolds() && !S.evHold){
     // 0559 C: g ≤ one step = ONE step of the gap (byte-what-it-was); longer =
     // ≤ SIM_STEPS_MAX equal steps under the cap; the 2 % slack keeps a device
     // sitting exactly on 20 fps at one step
