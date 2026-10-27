@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.69","md5":"c887f5770df7f0fd3076ee0ac0957735","sha":"a3765ba10a","at":"2026-10-27T23:15:42Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.70","md5":"6d7dedef021f3c11f41828f83728f992","sha":"e28c81fe78","at":"2026-10-27T23:23:40Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91551,7 +91551,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.70';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -161422,17 +161422,30 @@ let AD_WD_MS=25000;     // 0380: the never-DISPLAYED belt — how long a sent sh
 const AD_REP_MS=3000;   // 0505 THE REPORT-AD CHIP LIVES THREE SECONDS: how long SEE A BAD AD? REPORT IT stays up in the room after a real creative — 25 s became 3 (Wyatt 8/23: "Only have that exist for 3 seconds. Currently, it goes on way too long"; 0494f had cut the literal 30 to 25 on 8/22). The clock starts at append and #adRep wears no entry/exit transition, so the chip is legibly ON for the whole 3 s; still a REAL <a> to the support page, room-only, localizeTree'd. ⚑ 3000 · 4000 · 5000 · a tap-away dismiss — NOT built
 const MAXA={ ok:false, initSent:false, int:false, rew:false, pend:{}, seq:1, last:null, lastShow:0, sess:0, repPend:0, tvPrev:null, log:[] };
 function maxPost(m){ try{ webkit.messageHandlers.gvtAds.postMessage(m); MAXA.log.push(m.cmd+(m.kind?(':'+m.kind):'')); if(MAXA.log.length>24) MAXA.log.shift(); }catch(e){} }
+// ═══ CARD-BDY THE BIRTHDAY QUESTION RETIRED (TASK FROM WYATT'S PHONE 10/27/2026 17:34 EDT, jumpr 2740, built on Maker 1 as M2740; design/birthday-question-1027/00-CARD-BDY.md). Wyatt, verbatim:
+// "Birthday: It turns out we did some research, and we actually do not need to ask this question, at least not on Apple and Android devices. Please, let's remove this prompt so we can get the
+// players playing quicker. We don't need to ask them for their birthday."
+// THE READ: the prompt in his screenshot (WHEN'S YOUR BIRTHDAY, SOLDIER? · MONTH DAY YEAR · THAT'S ME · ✕) is FM-GVT-MAX-01's neutral age gate (the block under this one, v4.35): it rode the room's
+// first visit in an ad-capable shell (the gvtAds bridge: the iOS and Android shells, never web, never Steam) and sorted the player onto the 13+ track (META.adTrack 'teen': MAX inits, real ads)
+// or the child track ('child': the placeholder, no SDK byte); a skip re-asked next boot, and until an answer the player rode the child track. THE RULE NOW: nobody is asked. ageGateNeeded reads
+// BDAY_ASK first, and only ?bday=1 (a rig, a look) turns the question back on. An UNASKED player in an ad-capable shell rides the 13+ track (adTeen: MAX inits at boot exactly as an answered 13+
+// did, the No Ads product shows): the stores' own age rules and the SDK's own consent flow stand in for the question. An ANSWERED child (META.adTrack==='child', the sticky law of §V3.3) stays on
+// the child track: the game knew. An answered 13+ is what it was. META.adTrack is never written by this card (null = never asked; the beacon's track letter stays '-'). The gate's own code
+// (ageGateShow, ageGateAnswer, UI.ageOk, UI.ageSkip, the css, the words ×7) stays whole under the switch. Zero server, wire, save, sw, css or word bytes. Rig: GVT.bdy() · design/birthday-question-1027/rig/.
+var BDAY_ASK=(function(){ try{ return /[?&]bday=1(?:&|$)/.test(location.search||''); }catch(e){ return false; } })();   // THE SWITCH (a var, SIPL's grammar): ?bday=1 = the question as shipped (HEAD's read, byte for byte); off = nobody is asked
+function bdyTeenDefault(){ try{ return !BDAY_ASK && !STEAM_SHELL && META.adTrack!=='child'; }catch(e){ return false; } }   // the unasked player's track: 13+ (never under ?bday=1, never Steam, never an answered child)
+// ═══ END CARD-BDY ═══
 // ---- the neutral age gate (§V3.3/§V3.4; Wyatt gate 1 defaults) ----
 // EEA/UK ages of digital consent: 13 globally, member-state raise inside the
 // EEA, 16 where unknown (a HIGHER threshold is never a violation, so any
 // state not pinned here rides the 16 floor via the region check below).
 const AGE_EEA={ AT:14,BE:13,BG:14,HR:16,CY:14,CZ:15,DK:13,EE:13,FI:13,FR:15,DE:16,GR:15,HU:16,IE:16,IT:14,LV:13,LT:14,LU:16,MT:13,NL:16,PL:16,PT:13,RO:16,SK:16,SI:16,ES:14,SE:13,IS:13,LI:16,NO:13,GB:13 };
 function ageThreshold(){ try{ return AGE_EEA[String(window.__GVT_REGION||'').toUpperCase()]||13; }catch(e){ return 13; } }
-function adTeen(){ try{ return META.adTrack==='teen'; }catch(e){ return false; } }
+function adTeen(){ try{ return META.adTrack==='teen' || bdyTeenDefault(); }catch(e){ return false; } }   // CARD-BDY (jumpr 2740): the unasked player rides the 13+ track too, the question retired (bdyTeenDefault; ?bday=1 = the read as shipped)
 // in an ad-capable shell, anything but an ANSWERED 13+ is the child/unknown
 // track (§V3.2): placeholder shows only, zero MAX code, zero real ads.
 function adChildTrack(){ return ADS_BRIDGE && !adTeen(); }
-function ageGateNeeded(){ return ADS_BRIDGE && !STEAM_SHELL && !META.adTrack && !S.ageAsked; }
+function ageGateNeeded(){ return BDAY_ASK && ADS_BRIDGE && !STEAM_SHELL && !META.adTrack && !S.ageAsked; }   // CARD-BDY (jumpr 2740): only ?bday=1 asks; the question retired (Wyatt 10/27: "we actually do not need to ask this question")
 function ageGateAnswer(m,d,y){
   // an ANSWER is forever — the §V3.3 sticky law, both directions, no
   // retry-to-lie; a skip is not an answer and knocks again next boot. The
@@ -161553,6 +161566,7 @@ function adAskShow(){
 }
 // boot: an already-answered teen re-arms on every launch, before any ad could
 // be asked for (§V3.6 — gate-pass strictly precedes the first SDK byte).
+// CARD-BDY (jumpr 2740): and the unasked player too, the question retired (adTeen's default, bdyTeenDefault): the init rides the boot, no gate before it.
 try{ if(adTeen()) maxInit(); }catch(e){}
 function adGate(kind, launch){
   // 0383 — THE PLACEHOLDER RETIRES (Wyatt 8/17 verbatim: "the five-second
@@ -204885,6 +204899,7 @@ window.GVT = {
     if(p.wd!=null) AD_WD_MS=p.wd;   // 0380: the never-displayed belt (rig legs shrink it)
     return GVT.ads(); },
   age(m,d,y){ return ageGateAnswer(m,d,y); },   // FM-GVT-MAX-01 rig: answer the gate (null = rejected input); GVT.ads().track reads it back
+  bdy(o){ if(o && o.ask!=null) BDAY_ASK=!!o.ask; return { ask:!!BDAY_ASK, bridge:ADS_BRIDGE, steam:STEAM_SHELL, track:(META.adTrack||null), teen:adTeen(), child:adChildTrack(), need:ageGateNeeded(), gate:!!document.getElementById('ageGate'), init:!!MAXA.initSent, noads:noAdsCanOccur(), asked:!!S.ageAsked }; },   // CARD-BDY (jumpr 2740) rig: the switch (ask) + the track as the game reads it (read-only but for ask)
   // ---- 0333a NO ADS rig: read-only entitlement state ----
   noads(){ return { t:META.adFreeT||0, f:META.adFreeF||0, off:META.naOff||0, day:META.naDay||'', free:adFree(), offer:!!NAOFF.el }; },   // 0410: day = the daily-pitch latch (off = the superseded 0333a flag, save archaeology only)
   // ---- 0291 CADENCE rig: commanded beats, dials and cv — read-only (beats
