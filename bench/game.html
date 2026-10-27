@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.55","md5":"f3fcd86f5554bf62e8f7bd4ca0fc98d8","sha":"95c416eef4","at":"2026-10-27T19:29:33Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.56","md5":"766c5d7efe2df6a164aede0877dad141","sha":"f35f17ba55","at":"2026-10-27T20:03:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -72454,7 +72454,7 @@ let TOOTHRITE={ sel:null, done:false };
 function toothOwned(){ const c=META.caves; return !!(c && c.m); }   // MEDIUM's cell alone (CARD-TF2: the tooth is earned by beating MEDIUM; was m||h||g, "the higher tier never pays less")
 function toothIs(t){ return META.tooth === 'u:'+t; }
 function toothRiteOwed(){ return toothOwned() && !META.tooth; }
-function toothU(u){ if(!u || u.type==='sarge') return false; if(u.coopMods || u.coopBy) return false; if(S.bf && !bfHumanU(u)) return false; return toothIs(u.type); }
+function toothU(u){ if(!u || u.type==='sarge') return false; if(u.coopMods || u.coopBy) return !!(u.coopGift && u.coopGift.th); /* CARD-GOW: a relayed copy answers its owner's token */ if(S.bf && !bfHumanU(u)) return false; return toothIs(u.type); }
 function toothDmg(u){ return toothU(u)? (PICK_RAPID[u.type]? TOOTH_DMG_RAPID : TOOTH_DMG) : 0; }
 function toothSVG(){ return '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="#0E1E2C" stroke="#7FC4E8" stroke-width="2"/><path d="M20 16 C26 12 38 12 44 16 C46 26 44 40 32 54 C20 40 18 26 20 16 Z" fill="#F4FAFF" stroke="#8FB2C8" stroke-width="2" stroke-linejoin="round"/><path d="M26 20 C30 18 34 18 38 20 C39 28 37 36 32 46 C27 36 25 28 26 20 Z" fill="#BFEFFF" opacity=".7"/><path d="M24 14 L26 20 M40 14 L38 20" stroke="#8FB2C8" stroke-width="1.6" stroke-linecap="round"/></svg>'; }
 function toothRiteIsOpen(){ const el=document.getElementById('toothrite'); return !!el && !el.classList.contains('hidden'); }
@@ -77134,7 +77134,7 @@ function pickRiteOwed(){ return pickOwned() && !META.pick; }
 function pickPool(){ return ownedUnits().filter(k=>k!=='sarge').map(k=>'u:'+k); }
 function pickU(u){
   if(!u || u.type==='sarge') return false;
-  if(u.coopMods || u.coopBy) return false;             // a relayed ally's men are the ally's
+  if(u.coopMods || u.coopBy) return !!(u.coopGift && u.coopGift.fv);   // CARD-GOW: a relayed ally's man answers HIS OWNER's token (was: never — the favor stayed home)
   if(S.bf && !bfHumanU(u)) return false;               // every other chair is factory stock
   return pickIs(u.type);
 }
@@ -89928,11 +89928,12 @@ function petHeroLand(u,cm){   // THE FAR DOOR: a hero's word carrying the ph1 ma
 function coopRedress(u,cm){   // A BARE SARGE IS RE-DRESSED (the campaign, roomRedress's grammar): a relayed copy standing with NO worn list — the census spawn door births him bare (coopMods=[], no coopSW: sargeWearU answers null → no pet, no hats, for his whole life) — takes the identity fields off a later word for the same cid from his OWN owner (a rebroadcast, a replay, the kit heartbeat): the bag, the bench, the rank, the laser, the soul flag; NEVER the hp side (it landed at his birth); a hero with no pet yet takes his through petHeroLand. A dressed copy, my own man, a computer's, another seat's word: nothing.
   if(!u || !cm || u.coopBy==null || u.coopBy==='bot' || String(u.coopBy)!==String(cm.p)) return false;
   if(u.type==='sarge'){ if(u.coopSW || !(cm.sw && typeof cm.sw==='object')) return false;
-    if(cm.um) u.coopUM=Math.max(1,Math.min(1.6,+cm.um||1));
+    if(cm.um) u.coopUM=gowUM(cm);   /* CARD-GOW: the owner's own rank product (exact off his mr token; the band's ceiling = the type's summit, was 1.6: CARD-HPL F9) */
     u.coopSoul=(Array.isArray(cm.mo) && cm.mo.indexOf('sl')>=0)?1:0;
     u.evOwner=(Array.isArray(cm.mo) && cm.mo.indexOf('ev1')>=0)?1:0;
     bondWarRelay(u, cm, false);   // CARD-OCR-B6: the stamp off the re-spoken word (no plastic twice: campaign grit reads it live)
     { const mr=Array.isArray(cm.mo)? cm.mo.find(m=>/^mr\d{1,3}$/.test(String(m))) : null; if(mr) u.coopMR=Math.min(RANK_MAX,+String(mr).slice(2)||0); } { const c1=Array.isArray(cm.mo)? cm.mo.find(m=>typeof m==='string' && m.slice(0,3)==='c1:') : null; u.coopL100=c1? String(c1).slice(3,4) : null; }   /* CARD-L100: the owner's level-100 gift off the token (raw read before the ENH filter, the coopSoul law) */
+    gowWireIn(u, cm);   /* CARD-GOW: the owner's one-time gifts off his tokens (raw read before the ENH filter, the c1 law) */
     { const lt=Array.isArray(cm.mo)? cm.mo.find(m=>typeof m==='string'&&m.slice(0,3)==='lz:') : null; u.coopLz=lt? lt.slice(3) : null; }
     u.coopMods=Array.isArray(cm.mo)? cm.mo.filter(id=>ENH_ORDER.indexOf(id)>=0) : [];
     if(u.saberState && u.saberState!=='idle'){ sgDashEnd(u); cmdDashEnd(u); u.saberState='idle'; }
@@ -91431,7 +91432,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.55';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.56';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -92885,6 +92886,7 @@ function coopPlaceCmd(u, bot, bi, re){
   if(META.laserOn) cm.mo=(cm.mo||[]).concat('lz:'+META.laserOn);
   { const sq9=sqlToken(); if(sq9) cm.mo=(cm.mo||[]).concat(sq9); }   /* CARD-SQL: my squad's level + the squadmate bit ride the order (the 'sl' law) */
   { const c1=l100Tok(u.type); if(c1) cm.mo=(cm.mo||[]).concat(c1); }   /* CARD-L100: MY class's level-100 gift rides the order beside mr (the 'sl' law: an old client's ENH filter drops it) */
+  { const g9=gowToks(u.type); if(g9) cm.mo=(cm.mo||[]).concat(g9); }   /* CARD-GOW: MY class's one-time gifts (the favor fv1 · the tooth th1 · the masters mstN · the sharp eye se1) ride the order beside c1 (the 'sl' law: an old client's ENH filter drops them) */
   // THE DROP crosses as an ORDINARY PLACEMENT (v1.45) with one optional flag on
   // it. ⚠ This is deliberately NOT a new `k`: a new word would fall off an old
   // client's dispatch chain and their screen would simply be missing one of my
@@ -93151,7 +93153,7 @@ function coopApply(cm){
     if(cm.b!=null && S.sq && S.sq.ev){   // 0484: a COMPUTER's man (the referee's relayed order, b = its seat) — coopBy 'bot' / botIx / the seeded colour, never the sender's seat
       u.coopBy='bot'; u.botIx=cm.b|0;
       const bb=S.sq.bots && S.sq.bots[cm.b|0]; const bh=(bb&&bb.hex)||ohex||BOT_HEX; buildUnitTint(bh); u.coopHex=bh; }
-    if(cm.um) u.coopUM=Math.max(1,Math.min(1.6,+cm.um||1));
+    if(cm.um) u.coopUM=gowUM(cm);   /* CARD-GOW: the owner's own rank product (exact off his mr token; the band's ceiling = the type's summit, was 1.6: CARD-HPL F9) */
     // v2.42: an ally's SPY re-cloaks off the um his order already carries
     // (um = 1 + SPY_DMG_RANK×ru, so his true rank crosses the wire FREE — no
     // new word for CMD_KEYS to strip; an order with no um reads base cloak).
@@ -93179,6 +93181,7 @@ function coopApply(cm){
     { const mr=Array.isArray(cm.mo)? cm.mo.find(m=>/^mr\d{1,3}$/.test(String(m))) : null;
       if(mr) u.coopMR=Math.min(RANK_MAX,+String(mr).slice(2)||0); }
       { const c1=Array.isArray(cm.mo)? cm.mo.find(m=>typeof m==='string' && m.slice(0,3)==='c1:') : null; u.coopL100=c1? String(c1).slice(3,4) : null; }   /* CARD-L100: the owner's level-100 gift off the token (raw read before the ENH filter, the coopSoul law) */
+      gowWireIn(u, cm);   /* CARD-GOW: the owner's one-time gifts off his tokens (raw read before the ENH filter, the c1 law) */
     { const kt=(cm.t==='kingbear' && Array.isArray(cm.mo))? cm.mo.find(m=>typeof m==='string' && m.slice(0,3)==='kb:') : null;   // 0910 REV 2 THE COURT CROSSES THE WIRE: the owner's Emperor ledger — raw read before the ENH filter (the coopSoul law); absent on an old build's orders = yesterday's mirror
       u.coopHM=kt? kbWireParse(kt) : null;
       const el=(cm.t==='kingbear' && Array.isArray(cm.mo))? cm.mo.find(m=>m==='el:0'||m==='el:1') : null; if(el) u.kbLine=+el.slice(3); }   // 0941 THE PLAY LINE: the owner's roll → this copy speaks the same line at its own birth latch
@@ -101782,6 +101785,7 @@ function roomPlaced(seat,type,x,y,para,kit9){   // 1022z THE TORCH FIGHT'S ENEMY
     if(META.laserOn) cm.mo=(cm.mo||[]).concat('lz:'+META.laserOn);   // v2.36: the laser token, same seat, same law — your men fight at YOUR tune
     { const sq9=sqlToken(); if(sq9) cm.mo=(cm.mo||[]).concat(sq9); }   /* CARD-SQL: my squad's level + the squadmate bit ride the room's placement word (the 'sl' law) */
     { const c1=l100Tok(type); if(c1) cm.mo=(cm.mo||[]).concat(c1); }   /* CARD-L100: MY class's level-100 gift rides the room's placement word beside mr (the 'sl' law) */
+    { const g9=gowToks(type); if(g9) cm.mo=(cm.mo||[]).concat(g9); }   /* CARD-GOW: MY class's one-time gifts ride the room's placement word beside c1 (the place word and the kit word alike; the 'sl' law) */
     if(type==='kingcroak') cm.mo=(cm.mo||[]).concat(ckWireTok());   // HS THE CROAK FAMILY ON EVERY FIELD — THE WIRE: MY King Croak's learned list rides the room's placement word (after 'lz:', before the bench — 1001's seat); ZERO new wire words
     if(type==='kingbear'){ let u9=null; for(let i9=S.units.length-1;i9>=0;i9--){ const q9=S.units[i9]; if(q9.type==='kingbear' && q9.seat===seat && !q9.dead){ u9=q9; break; } } if(u9){ if(u9.kbLine==null) u9.kbLine=(Math.random()<0.5)? 1 : 0; cm.mo=(cm.mo||[]).concat(kbWireTok(),'el:'+u9.kbLine); } }   // 1001 THE COURT ON EVERY FIELD — THE WIRE: MY Emperor's ledger + his one line roll ride the room's placement word exactly as the campaign's (coopPlaceCmd's 'kb:' + 'el:' — after 'lz:', before the bench; the server passes mo opaque, ≤ 40 × 16; an old client's ENH filter drops both with zero errors) — the far seat's copy seats the SAME court on their screen (the twin-sim law); ZERO new wire words
     { const mo=enhWire(type); if(mo) cm.mo=(cm.mo||[]).concat(mo); }   // 0735 THE RIM: his own ids alone   // 0486: the bench ids LAST (the campaign door's own clamp law)
@@ -101997,9 +102001,10 @@ function roomSeatSW(u){ if(!u || u.type!=='sarge' || !S.bf || !roomBattle() || b
 // milestones) landed at his birth and must never land twice; a dash in flight is ended (the campaign receiver's own re-home idiom), the blade re-homed at the word's spot.
 function roomRedress(u, cm){
   bondWarRelay(u, cm, false);   // CARD-OCR-B6: the stamp off a new word for a standing Sarge (the hp side landed at his birth)
-  if(cm.um) u.coopUM=Math.max(1,Math.min(1.6,+cm.um||1));
+  if(cm.um) u.coopUM=gowUM(cm);   /* CARD-GOW: the owner's own rank product (exact off his mr token; the band's ceiling = the type's summit, was 1.6: CARD-HPL F9) */
   u.coopSoul=(Array.isArray(cm.mo) && cm.mo.indexOf('sl')>=0)?1:0;
   { const mr=Array.isArray(cm.mo)? cm.mo.find(m=>/^mr\d{1,3}$/.test(String(m))) : null; if(mr) u.coopMR=Math.min(RANK_MAX,+String(mr).slice(2)||0); } { const c1=Array.isArray(cm.mo)? cm.mo.find(m=>typeof m==='string' && m.slice(0,3)==='c1:') : null; u.coopL100=c1? String(c1).slice(3,4) : null; }   /* CARD-L100: the owner's level-100 gift off the token (raw read before the ENH filter, the coopSoul law) */
+  gowWireIn(u, cm);   /* CARD-GOW: the owner's one-time gifts off his tokens (raw read before the ENH filter, the c1 law) */
   { const lt=Array.isArray(cm.mo)? cm.mo.find(m=>typeof m==='string'&&m.slice(0,3)==='lz:') : null; u.coopLz=lt? lt.slice(3) : null; }
   u.coopMods=Array.isArray(cm.mo)? cm.mo.filter(id=>ENH_ORDER.indexOf(id)>=0) : [];
   if(cm.sw && typeof cm.sw==='object'){
@@ -102014,7 +102019,7 @@ function roomDressUnit(u, cm){
   // unitSargeStats all read the OWNER's kit off the unit without knowing a room
   // exists. `coopMods` is always set: its presence is what marks a figure as
   // "relayed, not mine".
-  if(cm.um) u.coopUM=Math.max(1,Math.min(1.6,+cm.um||1));
+  if(cm.um) u.coopUM=gowUM(cm);   /* CARD-GOW: the owner's own rank product (exact off his mr token; the band's ceiling = the type's summit, was 1.6: CARD-HPL F9) */
   // v2.42: a friend's SPY re-cloaks off the um his order already carries
   // (the campaign door's own law — his rank crosses the wire free).
   if(cm.t==='spy') u.cloakT=spyCloakRk(spyWireRu(cm, u.coopUM));   // CARD-HPL: his rank off the mr token (the um clamp cannot carry the house slope)
@@ -102033,6 +102038,7 @@ function roomDressUnit(u, cm){
   { const mr=Array.isArray(cm.mo)? cm.mo.find(m=>/^mr\d{1,3}$/.test(String(m))) : null;
     if(mr) u.coopMR=Math.min(RANK_MAX,+String(mr).slice(2)||0); }
     { const c1=Array.isArray(cm.mo)? cm.mo.find(m=>typeof m==='string' && m.slice(0,3)==='c1:') : null; u.coopL100=c1? String(c1).slice(3,4) : null; }   /* CARD-L100: the owner's level-100 gift off the token (raw read before the ENH filter, the coopSoul law) */
+    gowWireIn(u, cm);   /* CARD-GOW: the owner's one-time gifts off his tokens (raw read before the ENH filter, the c1 law) */
   { const kt=(cm.t==='kingbear' && Array.isArray(cm.mo))? cm.mo.find(m=>typeof m==='string' && m.slice(0,3)==='kb:') : null;   // 1001 THE COURT ON EVERY FIELD — THE WIRE (the campaign door's 0910 REV 2 read, word for word): the owner's Emperor ledger — raw read before the ENH filter; absent on an old build's orders = yesterday's mirror (no court on my screen)
     u.coopHM=kt? kbWireParse(kt) : null;
     const el=(cm.t==='kingbear' && Array.isArray(cm.mo))? cm.mo.find(m=>m==='el:0'||m==='el:1') : null; if(el) u.kbLine=+el.slice(3); }   // 0941 THE PLAY LINE: the owner's roll → this copy speaks the same line at its own birth latch
@@ -104615,7 +104621,7 @@ function seyOwned(){ return SARGE_ORDER.some(wk=>ultRank(wk)>=SEY.rank); }   // 
 function seyKey(){ const m=/^u:(.+)$/.exec(String(META.sey||'')); return (m && (TRAY_ORDER.indexOf(m[1])>=0 || SOUL_EXTRA.indexOf(m[1])>=0))? m[1] : null; }   // the given type, or null (grammar only)
 function seyOwed(){ return seyOwned() && !seyKey(); }
 function seyMine(u){ if(!u || u.coopBy || u.coopMods) return false; return S.bf? bfHumanU(u) : !(S.foes && S.foes.indexOf(u)>=0); }   // MY man: no relayed copy; on the battleground my chair; in the campaign never a foe
-function seyOn(u){ const k=seyKey(); return !!k && !!u && u.type===k && seyMine(u); }
+function seyOn(u){ if(u && (u.coopBy || u.coopMods)) return !!(u.coopGift && u.coopGift.se); /* CARD-GOW: a relayed copy answers its owner's token (never MY key) */ const k=seyKey(); return !!k && !!u && u.type===k && seyMine(u); }
 function seyCrit(u){ return seyOn(u)? SEY.crit : 0; }   // critChance's add for the crit club, after the ceiling
 function seyX(f,src){   // the other units' roll, one per hit they land: 1 = no crit, else critMult (CRIT! on the man)
   if(!f || !src || TK_REFL || SEY_CLUB[src.type] || !seyOn(src)) return 1;
@@ -157350,7 +157356,7 @@ function mstAdopt(list){   // HQ's word: stamp every plaque I do not hold yet (n
   for(const x of list){ if(!Array.isArray(x) || !MST_N[x[0]] || M[x[0]]) continue; M[x[0]]={ t:x[1]|0, crew:String(x[2]||'').slice(0,24), unit:null, seen:0 }; n++; }
   if(n){ saveMeta(); if(fortSceneOpen()) renderFortScene(); mgpSync(); /* CARD-MGP: the plate turns gold on the globe's bar, on the spot */ } return n; }
 function mstGiftDmg(u,card){   // the gifts on this figure's TYPE, flat (every sum adds it AFTER its multipliers); the favor's own refusals: a relayed ally's man, a chair that is not mine on the battlefield
-  const M=META.master; if(!M || !u || !u.type) return 0; if(!card){ if(u.coopMods || u.coopBy) return 0; if(S.bf && !bfHumanU(u)) return 0; }
+  if(!card && u && u.type && (u.coopMods || u.coopBy)) return (u.coopGift && u.coopGift.ms)? u.coopGift.ms*(PICK_RAPID[u.type]? MST_DMG_RAPID : MST_DMG) : 0; /* CARD-GOW: a relayed copy's plaques off its owner's token (never MY save) */ const M=META.master; if(!M || !u || !u.type) return 0; if(!card){ if(S.bf && !bfHumanU(u)) return 0; }
   let n=0; for(const c in M){ if(M[c] && M[c].unit===u.type) n++; } return n? n*(PICK_RAPID[u.type]? MST_DMG_RAPID : MST_DMG) : 0; }
 function mstSwGift(u){ return (u && u.type==='sarge')? mstGiftDmg(u)+l100Dmg(u) : 0; }   /* CARD-L100: + the level-100 gift on every iron, where the masters' gift rides (the shotgun, the sniper, the saber, the Claymore, the jet pack's shots) */   // CARD-P72 (Wyatt 10/10 PND-72: "Go with recommendations for all here" = RSA-F1 the masters' gift counts on every gun): Sarge's arsenal (the shotgun, the sniper, the saber, the Claymore, the jet pack's shots) reads the gift HERE, flat after every multiplier, once on every man a hit lands on (lbX's own grammar); mstGiftDmg's refusals ride it (a relayed ally's mirror, a chair not mine)
 function mstUnitName(k){ return t(soulName('u:'+k)); }
@@ -206297,6 +206303,7 @@ window.GVT = {
       hp:(u.hp!=null? +(+u.hp).toFixed(2) : null), hpMax:(u.hpMax!=null? +(+u.hpMax).toFixed(2) : null),
       spd:u.def&&u.def.moveSpd } : null; },
   wireRoom(cm){ roomApply(cm||{}); return true; },
+  gow(t,cm){ t=t||'medic'; return { cv:GVT_CV, toks:gowToks(t), um:cm? +gowUM(cm).toFixed(4) : null, top:+upMulR(t,RANK_MAX).toFixed(4), band:GOW_UM_BAND }; },   // CARD-GOW's rig door (read-only): the tokens MY class would send, the product a word lands at, the type's summit
   tagX(){ const bf=S.bf; return { cv:GVT_CV, x:+bfTagX().toFixed(4), mode:bf? ((bf.team|0)===1? '1v1' : 'team') : null, team:bf? bf.team : null, map:bf? bf.mapId : null, mapX:bf? bfMapTagX(bfMap(bf.mapId)) : null, dials:{ v1:BF_TAGX_1V1, team:BF_TAGX_TEAM, reg:BF_TAGX_MAP_REG, long:BF_TAGX_MAP_LONG, west:BF_TAGX_MAP_WEST }, tick:BF_TICK, pour:BD_POUR, start:BF_START, croak:{ cost:COSTS.kingcroak, bf:BF_COST.kingcroak, bounty:BF_BOUNTY.kingcroak }, rifle:bfBounty('rifleman'), croakNow:bfBounty('kingcroak'), tiers:BF_MAPS.map(m=>[m.id, bfMapTagX(m)]) }; },   // 1003 THE DOG TAG BOOST — THE RIG (read-only): the dials, the live factor, the tiers, King Croak's three numbers
   heroBF(k){ const K=(k&&HEROES.indexOf(k)>=0)? k : heroSel(); const r=K? { k:K, row:Object.assign({},BF_MOVE[K]||{}), top:HP_RANK100[K]||null, bounty:BF_BOUNTY[K]||null, cost:BF_COST[K], grit:UDEF[K].grit, cq:!!CQBAN[K], owned:unitOwned(K), sel:heroSel()===K, idx:BF_TYPES.indexOf(K), hpAt:[0,10,20,30,50,100].map(r9=>bfHpAt(K,r9)), mine:S.bf? kingSpent(K) : null } : null;   // 0877 HEROES ON THE BATTLEGROUND — THE RIG (read-only): the row, the ladder, the bounty, the price, the ban, the deal, the latch
     return { cv:GVT_CV, x:HERO_BF_HP_X, heroes:HEROES.slice(), types:BF_TYPES.length, tray:S.bf? bfTray() : null, spent:S.bf? JSON.parse(JSON.stringify(S.bfKing||{})) : null, hero:r }; },
@@ -207323,6 +207330,23 @@ function digRead(o){ o=o||{}; if(o.on!=null) DIG.on=o.on? 1 : 0; if(o.clear){ DI
     trails:DIG.trails.map(T=>({ id:T.id, who:T.who? T.who.type : null, fid:T.who? T.who.id : null, ally:T.ally, g:T.g, w:r(T.w), n:T.pts.length/2, x0:r(T.pts[0]), y0:r(T.pts[1]), xl:r(T.pts[T.pts.length-2]), yl:r(T.pts[T.pts.length-1]), t0:r(T.t0), tc:T.tc? r(T.tc) : 0, xe:r(T.xe), ye:r(T.ye), clods:T.clods.length, burrow:!!(T.who && T.who.burrow) })) }; }
 setTimeout(()=>{ try{ if(window.GVT && !GVT.dig) GVT.dig=digRead; }catch(e){} }, 0);
 // ═══ END CARD-DIG ═══
+// ═══ CARD-GOW THE GIFTS GO OVER THE WIRE (jumpr 2724 from Wyatt's phone, built on Maker 1 as M2724; design/gifts-wire-1027/00-BUILD-GOW.md). Wyatt 10/27/2026 15:03 EDT, verbatim: "In Battlegrounds and PvP, can we
+// make sure that the medics who have attack bonuses, like here with one-time bonuses, are actually accounted for in Battlegrounds? Currently, I'm not seeing the damage scaling as it works in campaign." ═══
+// THE FIND: on MY OWN screen every carpet already counts them — the fire loop's base cell (def.dmg + the favor + the tooth + the rifle) x the rank's product + the flat tail (the masters, the war gift, the level-100
+// gift): his level-100 medic hits 20.4 on the rug AND on the mat, the sheet's own number. The copy of that medic on EVERY OTHER SCREEN (a room = the battlegrounds with people and the PvP events; the campaign's
+// co-op) hit 1.6: the four apply doors clamped the owner's rank product to the band [1, 1.6] (a fossil of the six-rung ladder — the house climbs to x3.472 at 100; CARD-HPL's flag F9) and pickU / toothU /
+// mstGiftDmg / seyOn refused a relayed copy outright ("never a relayed ally's man"). In a room each sim buries its own dead and the referee's screen decides the verdict, so the far screen is the one that counted.
+// THE FIX, the 'sl' law (ZERO server bytes: CMD_KEYS carries mo untouched, strings cut at 24, the list at 96; an old client's ENH filter drops the tokens and sims him as it did yesterday — the accepted class):
+//  · the placement word (coopPlaceCmd on the rug; roomPlaced in a room, the place word and the kit word alike) carries fv1 (THE GENERAL'S FAVOR on this type) · th1 (THE FROZEN TOOTH) · mstN (N masters' plaques
+//    on this type, 1..7) · se1 (THE SHARP EYE) beside c1:/mr (gowToks);
+//  · the four doors (coopApply's place, coopRedress, roomRedress, roomDressUnit) read them raw into u.coopGift (gowWireIn); pickU / toothU / mstGiftDmg / seyOn answer a relayed copy off its owner's token;
+//  · the um band = the type's own summit, upMulR(t, RANK_MAX) (x3.472 for the house lane, x1.49 a hero), and EXACT off the mr token when the word carries one (gowUM: the HP side's own parity since CARD-HPL);
+//  · the owner's screen, the sheets (hitDmgNowAt), the away battle's stored army (lo.mo: a server cap away, GOW-Q3), every AI chair and the level-100 gift's own c1 token: byte-what-they-were.
+const GOW_UM_BAND=1.6;   // the retired band's ceiling (nothing reads it but the rig door: the NEG proves a pristine door still lands 1.6)
+function gowToks(t){ if(!t) return null; const o=[]; if(pickIs(t)) o.push('fv1'); if(toothIs(t)) o.push('th1'); { const M=META.master; let n=0; if(M) for(const c in M){ if(M[c] && M[c].unit===t) n++; } if(n) o.push('mst'+Math.min(7,n)); } { const k=seyKey(); if(k && k===t) o.push('se1'); } return o.length? o : null; }   // MY class's one-time gifts as wire tokens (short strings, never a bench id: every build's ENH filter drops them)
+function gowWireIn(u,cm){ if(!u) return; const mo=(cm && Array.isArray(cm.mo))? cm.mo : null; if(!mo){ u.coopGift=null; return; } const ms=mo.find(m=>typeof m==='string' && /^mst[1-7]$/.test(m)); u.coopGift={ fv:mo.indexOf('fv1')>=0? 1 : 0, th:mo.indexOf('th1')>=0? 1 : 0, ms:ms? +ms.slice(3) : 0, se:mo.indexOf('se1')>=0? 1 : 0 }; }   // the far door: the owner's gifts off his word (raw read before the ENH filter, the c1 law)
+function gowUM(cm){ const t=cm? cm.t : null, top=upMulR(t, RANK_MAX), mr=hplMrOf(cm); if(mr!=null) return Math.max(1, Math.min(top, upMulR(t, mr))); return Math.max(1, Math.min(top, +(cm && cm.um)||1)); }   // the rank product a relayed man fires at: exact off his mr token; else his um inside [1, the type's summit] (a computer's word carries um 1 and no token: 1)
+// ═══ END CARD-GOW ═══
 // ═══ CARD-MKC · THE MEGA KING CROAK FIGHT: HIS WHOLE SIDE x6 HEALTH, x2 DAMAGE (sec:CARD-MKC; design/mega-croak-team-1027/00-BUILD-MKC.md; jumpr 2721, built on Maker 1 as M2721; WYATT by phone 10/27/2026 18:43:10 UTC = 14:43 EDT, verbatim: "Increase the health of every unit in the Mega King Croak fight on King Croak's team, including King Croak himself, by 6 times. Increase the damage of everyone on King Croak's team, including him, on Mega by 2.") ═══
 // TODAY in KING CROAK'S HIDEOUT on MEGA (tier g, one commander): the king's bar 432 (160 x CROAK_HPX.g 2.25 x CK_MEGA.king 1.2) · LITTLE KING CROAK 91 and the brood of four at 20 % 91 each · a lady 11 · the rattlesnake 144 · a bandit or a sharpshooter 3 (the posse's x1.5), the gated waves and the fight-long pour alike.
 //   And every hit they land on your men, in grit pips (tanHit's pip write): a bandit's round 1 · a sharpshooter's 3 · a lady's 2 · the king's strong shot 2 x 1.2 · each of his storm's eight waves 3/8 x 1.2 · the son's at x1.02 · the snake's lunge 2 (his swallow = the man's whole grit + 1).
