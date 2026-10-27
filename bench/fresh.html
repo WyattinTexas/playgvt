@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.58","md5":"a47f696eaa476bc975fb5fc051813016","sha":"0ff1002605","at":"2026-10-27T20:16:32Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.59","md5":"1cf420fae9414e0284dfb99bf5944aa6","sha":"7de5c128a2","at":"2026-10-27T20:30:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91524,7 +91524,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.58';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -196144,6 +196144,26 @@ SPRITES_SRC.sipsdrain=petTokenise('<g><ellipse cx="70" cy="131" rx="33" ry="4.8"
 FH_PET_BOX.sips=[44,48]; FR_PACE.sips=50; PTS_VERB.sips='SIPS'; PTS_WEST.sips=1;   // the fort's box (the fort paints every owned pet), his pace on the fort's rug (a glide), the pets sheet's ONE VERB (CARD-PT), west-authored
 const SIP_CD=4.0, SIP_CD_QUICK=3.0, SIP_R=4*TK_M, SIP_R_LONG=5.6*TK_M, SIP_DMG=1, SIP_DMG_BIG=1.6, SIP_HEAL=0.5, SIP_HEAL_BETTER=0.8, SIP_T=0.6, SIP_LINK=0.5, SIP_LINK_LONG=2.5, SIP_LINK_BEATS=5, SIP_N=1, SIP_N2=2, SIP_SH_CAP=0.25, SIP_SH_T=10, SIP_BAT_N=2, SIP_BAT_R=3*TK_M, SIP_BAT_X=0.5, SIP_BAT_T=0.45, SIP_FEAST_N=4, SIP_FEAST_X=2.5, SIP_MF_CD=20, SIP_MF_MIN=3, SIP_MF_RX=1.25, SIP_MF_R=8*TK_M, SIP_MF_LEFT=0.5, SIP_LINK_FADE=0.15, SIP_BOB=2, SIP_HEX='#FF3B55', SIP_HEX_PLUS='#FF8FA3';   // THE DRAIN's dials, one each (the design's §3 RECs): LITTLE SIP every 4.0 s (÷ petMul; QUICK SIPS 3.0) at the nearest enemy within 4 m of HIM (LONGER FANGS ×1.4 = 5.6 m) · a sip = 1 (BIGGER BITE 1.6) through the pets' one door; Sarge mends 0.5 of it (BETTER BLOOD 0.8), capped at his whole · THE SIP frame 0.6 s, the link 0.5 s (LINGERING LINK 2.5 s and one more sip's worth over it in five beats) · DOUBLE DRAIN two links · BLOOD SHIELD: the overflow, capped at a quarter of his whole, 10 s · BAT BEAM: two bats within 3 m of the bitten man, half a sip each, a 0.45 s hop · CRIMSON FEAST every 4th sip ×2.5, mended in full · MIDNIGHT FEAST every 20 s (÷ petMul) with three or more within reach ×1.25: every one drained a sip, Sarge in full, what is left (plus half again) shared by his men within 8 m · the link fades over its last 0.15 s · the float bob 2 px · his crimson
 function sipR(p){ return petHas(p,'sip10')? SIP_R_LONG : SIP_R; }   // LONGER FANGS (10): 4 m → 5.6 m of HIM
+// ═══ CARD-SIPA · SIR SIPS-A-LOT'S AGGRO RING: HE TARGETS FROM FURTHER AWAY, GOES IN AND ATTACKS (WYATT by phone 10/27/2026 19:43 EDT, Wispr Flow, verbatim: "Sir sips alot needs to target enemies from further away and go in and attack. Increase aggro range by 100m"; jumpr 2727, built on Maker 1 as M2727; design/sips-aggro-1027/00-BUILD-SIPA.md). As shipped his trigger reads his REACH alone (4 m of HIM; LONGER FANGS 5.6 m) and his feet are the heel walk's: a Tan man 6 m off went unsipped all fight. NOW his AGGRO RING = his reach + 100 m (SIP_AGGRO_M × TK_M = 2,800 px: every live enemy on the carpet, on every glass). Nobody in reach and a live enemy inside the ring → THE HUNT: he leaves the heel and GLIDES IN at SIP_FLY toward the nearest (THE GLIDE frame; frkGo's way round the rocks) until he floats SIP_HOLD of his reach from the man, and there he SIPS him on his own clock as ever (the trigger below is byte-still: the sip, the links, the ladder, the moon all his), FOLLOWS him while his clock runs, takes the next nearest after. Nobody inside the ring (the field clear), the fight over (S.mode), no Sarge standing → the shared heel walk glides him home (phase 'sprint'). Not hittable on the hunt (nobody aims at a pet: Scout's law, SIP-Q3). ?sipaggro=0 = the heel-bound drain as shipped (no device key: a party's twin sims must agree). GVT.sipAggro({on}) the rig's door + the read. ═══
+const SIP_AGGRO_M=100, SIP_AGGRO=SIP_AGGRO_M*TK_M, SIP_FLY=300, SIP_HOLD=0.75;   // his +100 m (Wyatt's number) over his reach · the glide in, px/s (under Tiny's sprint 320, over the heel walk's run 140) · he holds at three quarters of his reach from the man (84 px at level 1: the link short, never on top of him)
+var SIPA={ on:(function(){ try{ return /[?&]sipaggro=0(?:&|$)/.test(location.search||'')? 0 : 1; }catch(e){ return 1; } })() };   // THE SWITCH (a var, SIPL's grammar): ?sipaggro=0 = the drain as shipped, the heel-bound trigger alone
+function sipaOn(){ return !!(SIPA && SIPA.on); }
+function sipAggro(p){ return sipR(p)+SIP_AGGRO; }   // his ring: the reach (LONGER FANGS and all) + 100 m
+function sipHuntTgt(p,u){ const R=sipAggro(p), m=p.tgt; if(m && sipLive(p,m) && TGT(u).indexOf(m)>=0 && petTgtOk(u,m) && Math.hypot(m.x-p.x,m.y-p.y)<=R) return m; return sipNear(p,u,p.x,p.y,R,null); }   // the man he is on while he stands and is in the ring (no dithering between two at one distance); else the nearest live enemy in the ring
+function sipHunt(p,u,dt){   // → true while THE HUNT owns his feet (the glide in, the hold by the man); false = nobody in his ring: the shared heel walk takes him home
+  if(!u || u.dead || p.phase==='gone'){ p.tgt=null; p.hunting=0; return false; }
+  const m=sipHuntTgt(p,u); if(!m){ p.tgt=null; p.hunting=0; return false; }
+  if(!p.hunting){ p.hunting=1; p.hunts=(p.hunts|0)+1; }   // a sortie: the hunt entered from rest (the rig's count)
+  p.tgt=m; p.state='hunt'; p.phase='sprint';
+  const dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy), hold=sipR(p)*SIP_HOLD;
+  if(d>hold){ const x0=p.x, y0=p.y; frkGo(p, m.x, m.y, Math.min(SIP_FLY*dt, d-hold)); p.flew=+((p.flew||0)+Math.hypot(p.x-x0,p.y-y0)).toFixed(1); }   // the glide in, never past his hold; the px glided (the rig's number)
+  if(Math.abs(dx)>0.5) p.fx=dx>0? 1 : -1;
+  return true; }
+function sipAggroRig(o){ o=o||{}; if(o.on!=null) SIPA.on=o.on? 1 : 0;   // the door: { on } flips the switch in-page; the read: the dials and every Sir Sips on the field (his state, his man and the distance, the sorties, the px glided, his distance from the heel seat)
+  return { cv:GVT_CV, on:sipaOn()? 1 : 0, dials:{ aggroM:SIP_AGGRO_M, aggro:SIP_AGGRO, fly:SIP_FLY, hold:SIP_HOLD, r:SIP_R, rLong:SIP_R_LONG, tkm:TK_M, W:W, worldW:WORLD_W },
+    pets:(S.pets||[]).filter(q=>q.k==='sips').map(q=>({ key:q.key, r:q.r|0, state:q.state, phase:q.phase, pose:sipPose(q), x:+q.x.toFixed(1), y:+q.y.toFixed(1), fx:q.fx|0, cd:+(q.cd||0).toFixed(3), aggro:sipAggro(q), reach:sipR(q), hold:+(sipR(q)*SIP_HOLD).toFixed(1), tgt:q.tgt? { id:q.tgt.id, type:q.tgt.type, d:+Math.hypot(q.tgt.x-q.x,q.tgt.y-q.y).toFixed(1) } : null, hunting:q.hunting|0, hunts:q.hunts|0, flew:+(q.flew||0), sips:q.sips|0, heel:(q.own && !q.own.dead)? +Math.hypot(q.x-frkHeel(q.own).x, q.y-frkHeel(q.own).y).toFixed(1) : null })) }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.sipAggro=sipAggroRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (sipRig's own grammar)
+// ═══ END CARD-SIPA (+ the gate: one line in petSipTick before its last return — `if(sipaOn() && sipHunt(p,u,dt)) return true;` — and petSipFresh clears the sortie flag p.hunting with the fresh Sarge) ═══
 function sipCd(p){ return (petHas(p,'sip20')? SIP_CD_QUICK : SIP_CD)/petMul(p.r|0); }   // QUICK SIPS (20): 4.0 → 3.0 s, under the pets' own slope (2.3 → 1.7 s at 100)
 function sipDmg(p){ return (petHas(p,'sip30')? SIP_DMG_BIG : SIP_DMG)*petPotX(p); }   // BIGGER BITE (30): 1 → 1.6 a sip; the handler's hat ×2 while it burns (Slush's grammar)
 function sipHealX(p){ return petHas(p,'sip40')? SIP_HEAL_BETTER : SIP_HEAL; }   // BETTER BLOOD (40): Sarge mends 0.5 → 0.8 of the drain
@@ -196196,7 +196216,7 @@ function sipMidnight(p,u,L){   // MIDNIGHT FEAST (100): a crimson moon pulse, EV
   if(left>0){ const men=S.units.filter(o=>o && !o.dead && o!==u && !PET_W[o.type] && (!S.bf || o.side===u.side) && Math.hypot(o.x-u.x,o.y-u.y)<=SIP_MF_R && sipDeficit(o)>0); if(men.length){ const each=left/men.length; for(const o of men){ tkLeech(o, each); if(!reducedMotion()) S.fx.push({k:'ring',x:o.x,y:o.y-unitH(o.type)*0.5,r:3,R:14,t:0,dur:0.3,col:SIP_HEX}); } p.shared=+((p.shared||0)+left).toFixed(3); p.fed=(p.fed|0)+men.length; } }
   p.feastsM=(p.feastsM|0)+1; S.floats.push({x:p.x,y:p.y-64,txt:t('MIDNIGHT FEAST!'),t:0,col:SIP_HEX});
   if(!reducedMotion()) S.fx.push({k:'ring',x:p.x,y:p.y-30,r:12,R:sipR(p)*SIP_MF_RX,t:0,dur:0.6,col:SIP_HEX}); try{ bfSfx(SFX.sting,p.x,p.y); }catch(e){} }
-function petSipFresh(p){ p.state='idle'; p.phase='heel'; p.t=0; p.cd=0; p.tgt=null; p.links=[]; p.bats=[]; p.mfT=null; p.sx=p.x; p.sy=p.y; p.moving=0; }   // a fresh Sarge stands: no link in the air, the moon's clock from the top
+function petSipFresh(p){ p.state='idle'; p.phase='heel'; p.t=0; p.cd=0; p.tgt=null; p.links=[]; p.bats=[]; p.mfT=null; p.sx=p.x; p.sy=p.y; p.moving=0; p.hunting=0; /* CARD-SIPA: the hunt's sortie flag, with the fresh Sarge */ }   // a fresh Sarge stands: no link in the air, the moon's clock from the top
 function sipPose(p){ return p.state==='sip'? 'drain' : (p.moving || p.phase==='sprint')? 'glide' : null; }   // drawPet's frame (petImg's pose: sipsdrain THE SIP / sipsglide THE GLIDE in his coat); READY at rest
 function petSipTick(p,u,dt){   // THE BEAT: true while THE SIP holds his feet (0.6 s: the frame, the links born); false at rest: the shared heel walk glides him after Sarge (the glide frame while he moves). Not hittable (nobody aims at a pet: Scout's law, SIP-Q3)
   if(u && u.sipShT>0){ u.sipShT=Math.max(0,u.sipShT-dt); if(u.sipShT<=0) u.sipSh=0; }
@@ -196208,6 +196228,7 @@ function petSipTick(p,u,dt){   // THE BEAT: true while THE SIP holds his feet (0
   if(S.mode!=='play') return false;
   if(petHas(p,'sip100')){ p.mfT-=dt; if(p.mfT<=0){ const L=sipInReach(p,u,sipR(p)*SIP_MF_RX,null); if(L.length>=SIP_MF_MIN){ sipMidnight(p,u,L); p.mfT=SIP_MF_CD/petMul(p.r|0); return true; } p.mfT=0.5; } }   // the moon waits for a crowd (three or more in reach), looked for again in half a second
   if(p.cd<=0){ const m=sipNear(p,u,p.x,p.y,sipR(p),null); if(m){ sipStart(p,u,m); return true; } }   // THE TRIGGER: rested, and a live enemy within his reach of HIM
+  if(sipaOn() && sipHunt(p,u,dt)) return true;   // CARD-SIPA THE HUNT: nobody in reach (or his clock running) and a live enemy in his aggro ring (reach + 100 m) → his feet are his: the glide in, the hold by the man; nobody in the ring → the heel walk below
   return false; }
 let SIP_BAT_IMG=null;
 function sipBatImg(){ if(SIP_BAT_IMG) return SIP_BAT_IMG; const im=new Image(); SIP_BAT_IMG=im; im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -56 120 100"><defs><filter id="sipRed" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.9 0.5 0.3 0 0.2  0.1 0.15 0.05 0 0  0.15 0.1 0.2 0 0  0 0 0 1 0"/></filter></defs><g filter="url(#sipRed)">'+gmyIBatSVG(0,0,1,{ id:'sipb' })+'</g></svg>'); return im; }   // the game's own cute bat (gmyIBatSVG) under a crimson wash, rastered once
