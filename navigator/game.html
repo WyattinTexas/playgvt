@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.74","md5":"cbf87509c02e5771454b3fa351cddc63","sha":"dded58566e","at":"2026-10-28T16:39:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.75","md5":"487eef5d1265a8c60d74430ef396aeae","sha":"1c0e18e0ec","at":"2026-10-28T17:06:00Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91551,7 +91551,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -133276,7 +133276,7 @@ function drawBFUnit(u,w,im){
   // in) the OPPOSING team's screens draw NOTHING — not the ghost, not the
   // shadow, not a bar. "For the enemy player, he is invisible." His own
   // team (and every spectating ally seat on it) sees him see-through below.
-  if((u.type==='spy'||u.type==='sarge') && (u.cloakT>0 || u.dropT>0) && u.side!==bfMyTeam()) return;   // v3.11: a VANISHED Sarge keeps the spy's invisibility law
+  if(((u.type==='spy' && (u.cloakT>0 || u.dropT>0)) || (u.type==='sarge' && u.cloakT>0)) && u.side!==bfMyTeam()) return;   // v3.11: a VANISHED Sarge keeps the spy's invisibility law · CARD-SDV (Wyatt 10/28/2026: "the Sarge is always invisible until he lands … needs to be fixed"): a DROPPING Sarge does NOT — the enemy's Sarge falls in before you like any other toy (the ghost, the shadow, the ring below, the shared landing beat); the spy alone lands unseen
   if(u.dropT>0 && u.prT){ prDrawFlare(u); return; }   // CARD-PMC PARA RESCUE: the green flare, then the game's own chute (both armies see it)
   if(u.dropT>0){
     const k=1-u.dropT/DROP_T, lift=(1-k*k)*84;                               // a real drop speeds UP
