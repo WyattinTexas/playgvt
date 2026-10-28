@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.84","md5":"047b49bac8c182d7de5e98c698607da5","sha":"77cdd52a8b","at":"2026-10-28T19:16:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"27.85","md5":"efbf683457173dc219ffa23ed442f53b","sha":"f9361ba53a","at":"2026-10-28T19:49:10Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84016,6 +84016,7 @@ function audio(){
   if(qtHeld()) return null;                // 0719 THE HOLD: a put-away page never creates, resumes or plays a thing (no SFX from a pocket) — the release (takeOut → qtRelease → sfxWake) is the one road back
   if(AC && AC.state==='closed') AC=null;   // a closed context never comes back — drop the corpse
   if(!AC){ sfxSession(); try{ AC=new (window.AudioContext||window.webkitAudioContext)(); SFXW.gen++; SFXW.t0=-1; SFXW.frozen=0; }catch(e){} }   // CARD-AU: the session type declared before every birth
+  btyAudioAsk();   /* CARD-BTY (5): every sound's door: the ask is stamped; a context this card put to sleep is woken here (its resume = the proof's window, SFXW.rp) */
   if(AC && AC.state!=='running'){          // 'suspended' AND iOS's 'interrupted'
     try{ const p=AC.resume(); if(p&&p.catch) p.catch(()=>{}); }catch(e){}
   }
@@ -84041,7 +84042,7 @@ function sfxRebuild(){
 // taps counts as one attempt, not three.
 function sfxPoke(){
   SFXW.touched=true;
-  if(AC && AC.state!=='running' && AC.state!=='closed'){
+  if(AC && AC.state!=='running' && AC.state!=='closed' && !SFXW.idle){   /* CARD-BTY (5): a context this card put to sleep is no strike (audio() below wakes it) */
     const now=performance.now();
     if(now-SFXW.sT>600){ SFXW.sT=now; if(++SFXW.strikes>=3){ sfxRebuild(); return; } }
   } else SFXW.strikes=0;
@@ -84113,6 +84114,7 @@ window.addEventListener('focus', sfxWake);
 // ticks RESET the count instead of adding to it, and a suspended/interrupted
 // context is left for the gesture and visibility paths above.
 setInterval(()=>{
+  btyAudioTick();   /* CARD-BTY (5): the audio graph's nap (off the field, BTY_AUDIO_MS of silence) rides the ward round */
   locMedic();          // 0432c: the music rides the ward round — a pass on a swapped-out context is let go and re-knocked
   if(!AC) return;
   if(AC.state==='closed'){ if(sfxCanAuto()) sfxRebuild(); return; }
@@ -90496,7 +90498,7 @@ function resSceneBeat(F, n){ const bt=F.list[n]||{}, ow=F.ow, cl=F.el.classList,
     else if(ow.foil){ if(n===1) later(()=>{ SFX.thock(); }, 900); }
     else if(n===1) SFX.snap(); else if(n===2) SFX.clack(); else if(n===3) later(()=>{ SFX.snap(); }, 1050); }catch(e){}
   if(bt.a) F.timer=setTimeout(()=>{ if(CAP_SC===F && F.beat===n) capSceneNext(); }, RM? Math.max(CAP_DWELL, 900) : bt.a); }
-function hideAllOverlays(){ telPickOut('door'); shakeTeardown(); rupTeardown();   /* CARD-RUP: the unlock popup dies at every door (no reveal; its held pour handed back for the xpTeardown below) */   // 0624 D1: the picker torn down with picks still owed = 'upx' (read BEFORE the hide below)   // SH-01: the dance dies at every door — music hard-stopped, held juice handed to the xpTeardown right after (which clears it, the pristine navigation law)
+function hideAllOverlays(){ btyWake('door'); /* CARD-BTY (2): every door wakes the loops */ telPickOut('door'); shakeTeardown(); rupTeardown();   /* CARD-RUP: the unlock popup dies at every door (no reveal; its held pour handed back for the xpTeardown below) */   // 0624 D1: the picker torn down with picks still owed = 'upx' (read BEFORE the hide below)   // SH-01: the dance dies at every door — music hard-stopped, held juice handed to the xpTeardown right after (which clears it, the pristine navigation law)
   xpTeardown();   // a ceremony must never survive into the next screen
   winFaceClear();                           // ...nor the campaign win's face (0552c: its timers, its classes, its tap listener)
   commClear();                              // ...and neither may a comm window (v1.41)
@@ -91736,7 +91738,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.84';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -95853,7 +95855,7 @@ function evDoorStart(){   // showMenu's seat: the 1 s tick + the truth (once now
 function evDoorPoll(){
   clearTimeout(EVD.pollT);
   if(S.mode!=='menu') return;
-  EVD.pollT=setTimeout(evDoorPoll, nxBeat(EV_POLL_MS, (EV.last&&EV.last.nx)|0, EV_POLL_MS));
+  EVD.pollT=setTimeout(evDoorPoll, nxBeat(btyRadioMs() /* CARD-BTY (6): 60 s once the kid has been idle a minute */, (EV.last&&EV.last.nx)|0, EV_POLL_MS));
   if(document.hidden) return;   // a hidden tab is not really at HQ (the v2.95 law) — the clock keeps ticking, the wire goes quiet
   EVD.lastPoll=Date.now();
   nbPoll();   // 0559 THE NEW BUILD: the cache-busted HEAD on this page's own path rides this beat (every NB_EVERY-th) — the page learns a deploy landed
@@ -183363,6 +183365,7 @@ function settingsHTML(){
   s+=settingsRow('setNgp', 'helmet', t('YOUR SARGES'), ngpRowSub(), "ngpOpen('set')", META.account? '' : 'mute');   // CARD-NGP-B2: YOUR SARGES (up to three a signed-in account; a guest's row opens SIGN IN TO START)
   s+=settingsRow('setZoom', 'magnifier', 'ZOOM', '', 'UI.zoomPanel()');
   s+=settingsRow('setCbn', 'hitnum', 'SHOW COMBAT NUMBERS', '<span class="set-state">'+(cbnOn()? 'ON' : 'OFF')+'</span>', 'UI.setCbn()', cbnOn()? '' : 'mute'); if(cbnOn()) s+=cbnHintHTML();   // CARD-CBN SHOW COMBAT NUMBERS: THE SWITCH (META.opt.cbn, OFF by default) + what the two colours mean, under it while ON
+  s+=btyRowHTML();   // CARD-BTY (7) BATTERY SAVER: AUTO / ON / OFF, under SHOW COMBAT NUMBERS
   s+=settingsRow('setReset', 'broom', 'RESET ROOM', '', 'UI.setReset()', resetRoomList().length? '' : 'off');
   s+=settingsRow('setMove', 'move', 'MOVE MENU ITEMS', '<span class="set-state">'+(mmOn()? 'ON' : 'OFF')+'</span>', 'UI.setMenuMove()', mmOn()? '' : 'mute');   // v11.10 CARD-MM THE MENU MOVES: THE SWITCH — OFF by default; every flip puts the six shelf items back at their authored seats
   s+=settingsRow('setTmk', 'bell', 'NIGHT EVENT NOTIFICATIONS', '<span class="set-state">'+(tmkOn()? 'ON' : 'OFF')+'</span>', 'UI.setTmk()', tmkOn()? '' : 'mute');   // CARD-TMK THE TWO-MINUTE KNOCK: THE SWITCH — OFF until his yes (META.opt.tmk); always present (Wyatt: "they can always switch that on in the options in-game")
@@ -186809,7 +186812,8 @@ window.UI = {
   setMenuMove(){ audio(); SFX.blip(); META.opt=Object.assign({}, META.opt||{}, { menuMove:(mmOn()? 0 : 1) }); META.menuPos={}; saveMeta(); settingsSync(); if(S.mode==='menu') renderMenu(); },   // v11.10 CARD-MM THE MENU MOVES: the row flips in place (a fresh object — the alias law); EVERY flip empties META.menuPos (Wyatt: "turning it off and on resets the origin positions"); the room under the card repaints at the authored seats
   setPetSide(){ audio(); SFX.blip(); META.opt=Object.assign({}, META.opt||{}, { petSide:(petSideOn()? 0 : 1) }); saveMeta(); settingsSync(); if(S.mode==='menu') renderMenu(); },   // 1037 THE PET AT SARGE'S SIDE: the row flips in place — the save's ONE new key (a fresh object: the v1.22 alias law), the card re-deals its rows, the room under the card repaints with or without him
   setMsm(){ const on=!msmOn(); META.opt=Object.assign({}, META.opt||{}, { msm:(on? 1 : 0) }); saveMeta(); msmWatch(); msmApply(); audio(); SFX.blip(); settingsSync(); },   // CARD-MSM MUSIC MODE: the row flips in place (a fresh object: the alias law); the session type changes BEFORE the blip sounds
-  setCbn(){ audio(); SFX.blip(); META.opt=Object.assign({}, META.opt||{}, { cbn:(cbnOn()? 0 : 1) }); saveMeta(); CBN.T.clear(); CBN.L.length=0; settingsSync(); },   // CARD-CBN SHOW COMBAT NUMBERS: the row flips in place (a fresh object: the alias law)
+  setCbn(){ audio(); SFX.blip(); META.opt=Object.assign({}, META.opt||{}, { cbn:(cbnOn()? 0 : 1) }); saveMeta(); CBN.T.clear(); CBN.L.length=0; settingsSync(); },
+  setBty(){ btySet(BTY.mode==='auto'? 'on' : BTY.mode==='on'? 'off' : 'auto', 'tap'); audio(); SFX.blip(); settingsSync(); },   // CARD-BTY (7) BATTERY SAVER: AUTO → ON → OFF → AUTO, the row re-dealt in place   // CARD-CBN SHOW COMBAT NUMBERS: the row flips in place (a fresh object: the alias law)
   setTmk(){ audio(); SFX.blip(); const on=!tmkOn(); META.opt=Object.assign({}, META.opt||{}, { tmk:(on? 1 : 0) }); if(!META.tmkAsk) META.tmkAsk='s'; saveMeta(); if(on) tmkAskPerm(); tmkSched(); settingsSync(); },   // CARD-TMK: the NIGHT EVENT HEADS-UP row flips in place (a fresh object: the alias law); ON asks the OS permission where it was never answered and hands the shell its schedule, OFF cancels it; the flip spends the question's once (META.tmkAsk 's')
   setInk(){ audio(); SFX.blip(); META.amInk=(AM_INK_ON()? 0 : 1); saveMeta(); amInkFlip(); settingsSync(); },   // 1022 CARD-AM-A: the INKED MEN row flips in place — the men + every dyed set that stood re-mint (amInkFlip), the card re-deals its rows   // the MUSIC row flips in place (themeChip's law repaints the room under the card; the card re-deals its rows)
   setReset(){ if(!resetRoomList().length){ audio(); SFX.thock(); return; } UI.closeModal(); UI.resetRoom(); },   // the confirm card deals over the room, the settings card folded first
@@ -190303,7 +190307,7 @@ function gvSet(t){ t=Math.max(0, Math.min(GV_MAX, t|0)); GV.tier=t; const m=docu
 function gvStats(){ const n=GV.g.length; if(!n) return { fps:0, p95:0, worst:0, n:0 }; const q=GV.g.slice().sort((a,b)=>a-b); let s=0; for(const v of GV.g) s+=v; return { fps:Math.round(1000/(s/n)), p95:Math.round(q[Math.min(n-1, Math.floor(n*0.95))]), worst:Math.round(q[n-1]), n }; }
 function gvMeterPaint(){ let e=GV.meter; if(!e){ e=document.createElement('div'); e.id='fpsMeter'; e.setAttribute('data-notr',''); e.style.cssText='position:fixed;left:max(6px,env(safe-area-inset-left));bottom:max(6px,env(safe-area-inset-bottom));z-index:31;font:11px/1.25 ui-monospace,Menlo,monospace;color:#EDEADF;background:rgba(0,0,0,0.62);padding:3px 6px;border-radius:5px;pointer-events:none;white-space:pre'; document.body.appendChild(e); GV.meter=e; }
   const s=gvStats(), mn=document.getElementById('menu'); let an=0; try{ an=document.getAnimations().filter(a=>a.playState==='running').length; }catch(e){} const nd=mn? mn.getElementsByTagName('*').length : 0;
-  const rs=gvRestN(); GV.last={ fps:s.fps, p95:s.p95, nodes:nd, anims:an, tier:GV.tier, rested:rs }; e.textContent=s.fps+' '+s.p95+' '+nd+' '+an+' '+GV.tier+'/'+rs; }   // CARD-TA 1199z (⚑ TA-Q4): the fifth digit reads tier/rested — the loops the governor holds at their rest pose
+  const rs=gvRestN(); GV.last={ fps:s.fps, p95:s.p95, nodes:nd, anims:an, tier:GV.tier, rested:rs }; e.textContent=s.fps+' '+s.p95+' '+nd+' '+an+' '+GV.tier+'/'+rs+' '+btyMeter(); }   /* CARD-BTY: the sixth word = the saver (a/o/f), z while a loop sleeps, the display's rate in a fight, q while the audio graph naps */   // CARD-TA 1199z (⚑ TA-Q4): the fifth digit reads tier/rested — the loops the governor holds at their rest pose
 // ═══ CARD-MFP THE ROOM'S CLOCK — THE FLOOR UNDER THE ROOM'S FRAME (design/menu-fps-1003/00-BUILD-MFP.md; Wyatt 10/3/2026 00:36 UTC, his phone, verbatim: "Audit the low FPS on the main menu. We need this smooth, running at 30 FPS at a minimum."). THE CAUSE (measured on v15.23–v15.24): the room is one inline svg; ~75–150 looping CSS animations in it each repaint it on every frame on their own beats, and two paint traps made each repaint dear (the night wash's full-room mask, the platoon's three-rect clip: both cured at their own seats, roomNightSVG and patrolSVG). THE FLOOR: while the room holds its frame nothing here touches a thing (every loop on the engine's own frame). When it cannot (MFP_SLOW of the frames over 20 ms for MFP_WIN with the room shown) the room's LOOPS (an svg element's CSS animation with infinite iterations; never a one-shot, a tap's answer, a transition or an html chip) are held by the Web Animations API and stepped TOGETHER, MFP_HZ times a second, on this one clock (CARD-ATSUN's attic law): every loop still moves, the frames between two steps paint nothing — a phone that cannot draw the room at 60 draws it at a steady 30, never a freeze. It steps first, before THE GOVERNOR's slower verdict (GV_SLOW) would rest anything. Back up after MFP_UP_MS at full speed again, the wait doubling per bounce (CARD-LB's grammar). THE SHEET STILL RULES: a held loop steps only while its own computed animation-play-state reads running (the covers, the shop, the map, the fort, the borrowed ball's hold); THE GOVERNOR still rests a loop at its own iteration boundary (gvRestable) and lets it go at tier 0; reduced motion and a fight hold nothing new; the attic keeps its own clock (ATSUN). MFP.pin (−1 auto · 0 full · 1 the floor) is the rig's. Zero words, css, saves, wire, server bytes. ═══
 const MFP_HZ=30, MFP_SLOW=0.2, MFP_WIN=3000, MFP_UP_MS=20000, MFP_BOUNCE_MS=30000, MFP_BOUNCE_MAX=4, MFP_SWEEP_MS=400;   // the floor's steps a second (CARD-ATSUN's 30) · the share of frames over 20 ms that means the room cannot hold its frame (under GV_SLOW: the floor comes before any rest) · the window it is judged on · the first wait before full speed is tried again (×2 per bounce, at most ×16) · a fall within this of a step up is a bounce · how often the floor looks for new loops (a repaint deals new ones)
 const MFP={ raf:0, pin:-1, half:0, last:0, sweep:0, gap:16.7, prev:0, g:[], t:[], halfAt:0, upAt:0, bounce:0, A:new Set(), cs:new WeakMap(), tm:new WeakMap(), steps:0, adopted:0, downs:0, ups:0 };
@@ -190328,7 +190332,7 @@ function mfpJudge(ts, g){   // the verdict, on the clock's own frame gaps, with 
   if(MFP.t.length<30 || ts-MFP.t[0]<MFP_WIN*0.9) return; let over=0; for(const v of MFP.g) if(v>20) over++; const share=over/MFP.g.length;
   if(!MFP.half){ if(share>=MFP_SLOW){ MFP.bounce=(MFP.upAt && ts-MFP.upAt<MFP_BOUNCE_MS)? Math.min(MFP_BOUNCE_MAX, MFP.bounce+1) : 0; MFP.half=1; MFP.halfAt=ts; MFP.downs++; MFP.sweep=0; MFP.g.length=0; MFP.t.length=0; } }
   else if(ts-MFP.halfAt>=MFP_UP_MS*(1<<MFP.bounce) && share<=0.05){ MFP.half=0; MFP.upAt=ts; MFP.ups++; MFP.g.length=0; MFP.t.length=0; } }   // up: the loops it holds step on every frame from here (the sheet still rules them); new loops are left to the engine
-function mfpFrame(ts){ MFP.raf=requestAnimationFrame(mfpFrame); const g=MFP.prev? ts-MFP.prev : 0; MFP.prev=ts; if(g>0 && g<250) MFP.gap+=(g-MFP.gap)*0.1;
+function mfpFrame(ts){ MFP.raf=btyArm('m')? -1 : requestAnimationFrame(mfpFrame);   /* CARD-BTY (2): the room clock's watch rides the heartbeat while it holds no loop (prev 0 on a beat: no judge) */ const g=MFP.prev? ts-MFP.prev : 0; MFP.prev=ts; if(g>0 && g<250) MFP.gap+=(g-MFP.gap)*0.1;
   if(S.mode!=='menu'){ MFP.last=ts; MFP.g.length=0; MFP.t.length=0; return; }   // a fight: the room is put away, its held loops hold where they stood
   let ok=false; try{ ok=mfpRoomOk(); }catch(e){}
   if(ok && MFP.pin<0) mfpJudge(ts, g);
@@ -194286,7 +194290,7 @@ function dlgScrM(svg){ const r=svg.getBoundingClientRect(), cs=getComputedStyle(
     const fx=al.indexOf('xMin')>=0? 0 : al.indexOf('xMax')>=0? 1 : 0.5, fy=al.indexOf('YMin')>=0? 0 : al.indexOf('YMax')>=0? 1 : 0.5;
     tx=(al==='none'? 0 : (W-v.width*sx)*fx)-v.x*sx; ty=(al==='none'? 0 : (H-v.height*sy)*fy)-v.y*sy; }
   return { a:kx*sx, b:0, c:0, d:ky*sy, e:r.left+kx*tx, f:r.top+ky*ty }; }
-function dlgDots(){ const dpr=window.devicePixelRatio||1; return Math.min(dpr, (GV.tier>=1 || (window.GVT_TIER|0)>=1)? 2 : 3); }
+function dlgDots(){ const dpr=window.devicePixelRatio||1; return Math.min(dpr, (GV.tier>=1 || (window.GVT_TIER|0)>=1)? 2 : btyDots()); }   /* CARD-BTY (3): 2 dots a point at tier 0 too (3 was every iPhone's raw devicePixelRatio; ⚑ Q3), 1.5 under BATTERY SAVER On, 3 with it Off */
 // ═══ CARD-RBL THE DENSITY LAW (design/room-blur-1013/00-CARD-RBL.md; Wyatt 10/13/2026 by phone: "A few items in the main room were appearing blurry … When I clicked the Go button … it fixed the issue"): a picture is made at the density the room NEEDS, never under the settled scale,
 //   and a picture under the needed density is re-made (the lay checks every sleeper; the 500 ms poll asks for a lay when the scale stands still). The bug: a tapped door is re-pictured when its scene closes; the stage transiently small in that instant (iOS: the keyboard's end, FR-Q1's law) = a low picture that nothing re-checked (his shot: the castle, WORLD RANKS, the TV, the campaign crate, the tablet, the Nemesis; the untouched furniture crisp).
 function dlgNeed(m){ m=m||(DLGP.svg? dlgScrM(DLGP.svg) : null); if(!m) return 0; return Math.max(Math.abs(m.a), DLGP.sc||0)*(DLGP.dd||dlgDots()); }   // dots per room unit this picture needs: the live scale or the settled one, whichever is larger (a transient shrink never shrinks a picture; a real one re-settles within the poll)
@@ -194358,7 +194362,7 @@ function dlgSvg(id, after){ const svg=DLGP.svg; let t=document.getElementById(id
 //   THE LAW: (1) the three canvases are born at the settle, sized and cleared, and never leave the tree (an empty one stays, cleared, visibility hidden: unpainted, never re-born as a new layer); (2) the bitmap is sized at a lay or its birth, never at a wake; (3) a sleeper the ORDER keeps in the svg stands there as its own parked
 //   drawing (its loops at time 0 = its picture's pose), never as a PNG copy: nothing loads, nothing encodes; (4) the FEW rule is retired (DLG_FEW 0). ?fcg=0 = every byte-behaviour as before. The glass's twins (dlgGlass) and the halo boxes (dlgeSync) read the same sleep set and stand. ═══
 function dlgDrawTo(cv, list, lay){ if(!FCG_ON && !list.length){ if(cv.style.display!=='none') cv.style.display='none'; return 0; } if(cv.style.display==='none') cv.style.display=''; if(FCG_ON){ const v=list.length? '' : 'hidden'; if(cv.style.visibility!==v) cv.style.visibility=v; }   // an empty layer leaves the glass (measured: every glass-sized canvas is composited every frame, the GPU's extra on Chrome) — CARD-FCG (the law's (1)): it stays in the tree, cleared and unpainted (visibility hidden: not composited, never a new layer); display none made its return a layer born over the room at a wake
-  const r=DLGP.svg.getBoundingClientRect(), dpr=window.devicePixelRatio||1, kf=dlgFloorK(r), W=Math.round(r.width*kf*dpr), H=Math.round(r.height*kf*dpr); if(!FCG_ON || lay || !cv.__fcg){ if(cv.width!==W) cv.width=W; if(cv.height!==H) cv.height=H; } cv.__fcg=1;   /* CARD-RBL: the bitmap never under the settled scale (sx/sy below read the live box: the blits land the same) */   // CARD-FCG (2): sized at a lay or its birth, never at a wake (a resize empties the bitmap: the same frame behind)
+  const r=DLGP.svg.getBoundingClientRect(), dpr=btyLayerDpr() /* CARD-BTY (3): the three layers' backing density, 2 at most under the saver (was the raw devicePixelRatio: 3 on every iPhone) */, kf=dlgFloorK(r), W=Math.round(r.width*kf*dpr), H=Math.round(r.height*kf*dpr); if(!FCG_ON || lay || !cv.__fcg){ if(cv.width!==W) cv.width=W; if(cv.height!==H) cv.height=H; } cv.__fcg=1;   /* CARD-RBL: the bitmap never under the settled scale (sx/sy below read the live box: the blits land the same) */   // CARD-FCG (2): sized at a lay or its birth, never at a wake (a resize empties the bitmap: the same frame behind)
   const g=cv.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); if(!list.length) return 0; const m=dlgScrM(DLGP.svg); if(!m || !r.width) return 0; const sx=cv.width/r.width, sy=cv.height/r.height;
   let n=0; for(const u of list){ const P=u.__p; if(!P) continue; g.drawImage(P.rec.cv, (m.a*P.x+m.e-r.left)*sx, (m.d*P.y+m.f-r.top)*sy, m.a*P.w*sx, m.d*P.h*sy); n++; } return n; }   // a blit from the decoded bitmap, never a decode
 // once per paint the belt and the TOP get their own svgs and the canvases their seats; then (on every wake, sleep or cut, in the same task) the canvases drawn and the in-svg pictures shown only for the squeezed
@@ -194434,10 +194438,10 @@ function dlgParkStep(list){ let all=true; for(const L of list){ const a=L.a, mf=
     if(cross || Math.abs(ph)<=34 || (ph>0 && L.P-ph<=34)){ try{ a.pause(); a.currentTime=(cross? kc : (ph>0 && L.P-ph<=34? k+1 : k))*L.P; if(mf) MFP.A.delete(a); }catch(e){} } else all=false; }
   return all; }
 // the room's small clock: the rotation, the roam, the zoom, and the sleepers put down on their boundary (cheap reads a frame while nothing is pending)
-function dlgTick(ts){ DLGP.raf=requestAnimationFrame(dlgTick); if(!DLGP.on || S.mode!=='menu' || !DLGP.svg || !DLGP.svg.isConnected || DLGP.busy || msRoomHid()) return;
+function dlgTick(ts){ DLGP.raf=btyArm('d')? -1 : requestAnimationFrame(dlgTick);   /* CARD-BTY (2): the still room's clock rides the heartbeat while nothing is parking, due or moving (-1 = the loop stands, asleep) */ if(!DLGP.on || S.mode!=='menu' || !DLGP.svg || !DLGP.svg.isConnected || DLGP.busy || msRoomHid()) return;
   if(!DLGP.rotT) DLGP.rotT=ts;
   { const ck=dlgCaps().join(); if(ck!==DLGP.capK){ DLGP.capK=ck; dlgTrim(); dlgFill(); DLGP.pend=1; } }   // CARD-DLG-B practice 7: the tier stepped (down: the newest park; up: the next in line wake)
-  if(!DLGP.touchT) DLGP.touchT=ts; { const dz=DLG_DOZE_MS>0 && ts-DLGP.touchT>DLG_DOZE_MS; if(dz!==!!DLGP.dozing){ DLGP.dozing=dz? 1 : 0; if(dz) DLGP.dozeN++; DLGP.rotT=ts; DLGP.pend=1; } }   // CARD-DLG-B THE DOZE (⚑ Q3): 45 s with no touch, the budget's toys park and go to their pictures; the life list, the held and the stirred move on (dlgAwake)
+  if(!DLGP.touchT) DLGP.touchT=ts; { const dz=btyDozeMs()>0 && ts-DLGP.touchT>btyDozeMs();   /* CARD-BTY ⚑ Q2: 20 s under the saver */ if(dz!==!!DLGP.dozing){ DLGP.dozing=dz? 1 : 0; if(dz) DLGP.dozeN++; DLGP.rotT=ts; DLGP.pend=1; } }   // CARD-DLG-B THE DOZE (⚑ Q3): 45 s with no touch, the budget's toys park and go to their pictures; the life list, the held and the stirred move on (dlgAwake)
   { const f=++DLGP.fr; if((f % 120)===60) dlgChaosSoon();   /* CARD-DLG-D (B): the count looked at again while the room shows */ if((f % 120)===0 || (DLGP.moved.size && (f % 3)===0)) setTimeout(dlgRoam, 0, (f % 120)===0); }   // read just after this frame's paint (the style is clean: no second recalc in the frame)
   if(ts-DLGP.scT>500){ DLGP.scT=ts; const m=dlgScrM(DLGP.svg), sc=m? +Math.abs(m.a).toFixed(3) : 0; if(sc && DLGP.sc && sc!==DLGP.sc){ if(DLGP.scW===sc){ DLGP.scW=0; dlgRelay(); return; } DLGP.scW=sc; } else { DLGP.scW=0; if(m && dlgLow(m)) DLGP.pend=1; } }   /* CARD-RBL: the scale standing still, a sleeper's picture under the needed density = a lay (dlgLay makes it again) */   // the room zoomed (the hand's pinch, a new fit) and held there: pictures at the new scale
   if(DLG_ROT_MS>0 && !DLGP.dozing && DLGP.queue.length && dlgCaps()[0]>0 && ts-DLGP.rotT>DLG_ROT_MS){ DLGP.rotT=ts; const out=DLGP.budget.shift(); if(out){ DLGP.queue.push(out); if(dlgNl(out)>DLG_LOOPS) DLGP.budget.length=0; } for(const u of DLGP.budget){ const i=DLGP.queue.indexOf(u); if(i>=0) DLGP.queue.splice(i, 1); } const was0=new Set(DLGP.budget); dlgFill(); DLGP.pend=1; dlgPlayTurn(DLGP.budget.filter(u=>!was0.has(u))); }   // ⚑ DLG-Q5 a fair round in paint order · CARD-DLG-D (A) THE ROOM PLAYS BY ITSELF: the toys this turn woke, the 6th wake answers unprompted
@@ -194764,13 +194768,93 @@ function gnpLive(bf){ try{ return gaTorchFight(bf||S.bf); }catch(e){ return fals
 function hqHolds(){ return !!(HQS.on && !S.coop && !gnpLive()); }   // frame()'s read: the open HQ sheet holds a solo sim (v1.44), never a gauntlet match
 setTimeout(function(){ try{ if(window.GVT && !GVT.gnp) GVT.gnp=function(){ return { live:gnpLive(), hq:!!HQS.on, holds:hqHolds(), people:premPeople(), coop:!!S.coop, ga:!!(S.bf&&S.bf.ga), room:!!(S.bf&&S.bf.room), t:+(+S.t||0).toFixed(3), mode:S.mode }; }; }catch(e){} }, 0);   // the rig's one read (read-only)
 // ═══ END CARD-GNP ═══
+// ═══ CARD-BTY THE BATTERY SAVER (sec:CARD-BTY; design/battery-1028/00-CARD-BTY.md; TASK FROM THE GO MACHINE 10/28/2026 12:42 EDT, jumpr 2753, built on Maker 1 as M2753). WYATT 10/28 ~12:00 pm ET, verbatim:
+// "What engine are we currently using for Green vs tan? We are facing some seriously bad battery numbers right now. Check these out. Battery Optimization 76% of battery for 3.5 hours of play. 53% of battery for 1.5 hours of play. Iphone 18 Pro"
+// ~12:40 pm, verbatim: "Right, but these other engines have ways of dealing with a lot of this drain, and those techniques we should be using here. So I don't want to hurt any gameplay. I like that the things are looping, but when it's not on the
+// screen, it probably shouldn't be. That's just the most important game dev lesson that I know. Here's what I want to know: our two data inputs of battery burn, how much less can we get it? Can we get that 1.5-hour session to just be 8% without reducing the quality of the game at all?"
+// THE QUALITY LAW: nothing a kid can see changes. The savings are work nobody sees. THE READ (the card's record, measured on this blob's base with design/battery-1028/rig/measure.mjs: Chrome for Testing + Playwright WebKit at his phone's glass 874 x 402 @3):
+//   (1) THE TITLE DRAWS NOTHING UNDER ITSELF: frame() painted the whole field and the HUD (12 pictures, 23 words a frame) 60 times a second under the opaque PRESS START screen (#title.arcade is #10140D edge to edge, cvCovered reads the MENU alone). It skips the paint there now, as it does under the menu (btyTitleCovers).
+//   (2) THE HEARTBEAT: off the field (the title, the menu and everything over it: the shop, the map, the parks, the lobbies, the fort), once BTY_IDLE_MS have passed with no touch, the three main-thread loops that only watch there (frame, the still room's dlgTick, the room clock's mfpFrame)
+//       stand down from 60 a second to one beat every BTY_HB_MS (5 a second: btyArm → btyBeat); the first touch, a key, a scroll, a door (hideAllOverlays), a mode change, a return to the page wakes them within one frame (btyWake: the pending beat cancelled, a rAF asked at once).
+//       A loop that has work in hand never sleeps: the still room with a toy parking, a lay due or a drag moving; the room clock while it holds loops on its 30-step floor. Every CSS loop on the glass keeps looping (the engine's compositor runs them); every self-armed rAF (the attic's clock, a salute, the lens demo) runs as it did.
+//   (3) THE LAYERS AT 2 DOTS: the still room's three canvases were sized at the raw devicePixelRatio (3 on every iPhone since the X: 5,068 x 742 x 3 = 11.3 million backing pixels composited on every frame, ~45 MB of GPU memory) and its pictures made at 3 at tier 0 (dlgDots): both at 2 now, as the battle canvas has been since v4.49 (Math.min(2, devicePixelRatio)); 1.5 under BATTERY SAVER On; 3 with it Off (⚑ Q3).
+//   (4) THE DISPLAY'S RATE: a ProMotion WKWebView may hand requestAnimationFrame 120 a second, and every fight frame would be simmed and drawn twice; the loop draws at most BTY_CAP a second (btyCap: a rAF closer than ~12.7 ms to the last drawn frame stands aside WITHOUT touching `last`, so the next frame's gap covers both = one 0.05-or-less sim step of the doubled gap, 0559 C's own law; a display under BTY_CAP_HZ, a jittery 60 among them, never has a frame stood aside: the median rate gates the gap law). GVT.bty().hz reads the display's rate off the raw rAF gaps (the ?debug=1 meter's sixth word in a fight).
+//   (5) SILENCE COSTS NOTHING: off the field, after BTY_AUDIO_MS with nothing asked of the audio graph (audio() is every sound's door: the ask is stamped there) and no music live or on its way (the theme, a bed, the dance), the AudioContext is suspended on the ward's own round (btyAudioTick); the next sound wakes it at its door (btyAudioAsk: the resume's promise = the 0462a proof's own window, SFXW.rp; the music the nap kept from starting is knocked when it settles, qtKnock);
+//       a context this card put to sleep is never a strike at a tap (sfxPoke) and never a corpse to the ward (a context that is not running is left to the medic's roads, as 0719 wrote); the 0719 put-away road stands byte-what-it-was (qtHold suspends a RUNNING context; a napping one is left alone; qtRelease asks ANY sleeping context once).
+//   (6) THE RADIO AT REST: the menu's /event/state + /bd/state beat (EV_POLL_MS 30 s) doubles once the kid has been idle BTY_RADIO_MS (the 1 s tick, the bells, the knocks, the party and lobby beats: untouched; the next touch's beat is a plain 30 s one again).
+//   (7) BATTERY SAVER in SETTINGS: AUTO (the default: 1-6, invisible) · ON (+ a fight draws 30 a second through CARD-ODV-B's own half-skip: the same 0.05 s steps, 0559 C; + the layers at 1.5) · OFF (everything as it was before this card, for the A/B on his phone). The row re-deals in place (UI.setBty); META.opt.bty remembers it (the MUSIC MODE grammar: no META_DEFAULT row, an older save reads AUTO).
+// THE DOORS: ?saver=auto|on|off (remembered on the device) · ?bty=0 = OFF for this load alone · GVT.bty() = the rig's read (o.mode sets it, o.wake wakes the loops). Zero server, wire or save bytes past the switch; no sim byte: update(), the steps, the clamps, the referee's clock are byte-what-they-were (the parity rig proves update's text and a stepped fight equal on both blobs). ═══
+var BTY_HB_MS=200, BTY_IDLE_MS=20000, BTY_STILL_MS=20000, BTY_AUDIO_MS=20000, BTY_RADIO_MS=60000, BTY_DOTS=2, BTY_DOTS_ON=1.5, BTY_CAP=60, BTY_CAP_HZ=100;   // ⚑ the dials: the heartbeat's period (5 a second) · the quiet before the heartbeat · the still room's doze under the saver (⚑ Q2: DLG_DOZE_MS 45 s → 20 s) · the silence before the audio graph naps · the quiet before the radio's beat doubles · the still room's dots (AUTO / ON) · the fight's drawn frames a second at most · the display rate from which the cap stands frames aside (a jittery 60 never)
+var BTY={ mode:'auto', src:'default', at:0, mode9:null, hb:{ f:0, d:0, m:0 }, hbN:0, wakes:0, wakeWhy:'', drawAt:-1e9, capN:0, hz:0, hzG:new Float64Array(32), hzN:0, hzT:0, audioN:0, audioW:0, radioN:0, titleN:0, titleEl:null };   // var on purpose (CARD-ODV-B's grammar): read from the loop, the ward and the doors wherever they run
+function btyOn(){ return BTY.mode!=='off'; }
+function btySaverHalf(){ return BTY.mode==='on'; }   // (7) ON: a fight draws 30 a second (frame's odvHalfSkip seat)
+function btyDots(){ return !btyOn()? 3 : (BTY.mode==='on'? BTY_DOTS_ON : BTY_DOTS); }   // (3) the still room's dots a point: 2 (AUTO) · 1.5 (ON) · 3 (OFF, as shipped)
+function btyLayerDpr(){ const d=window.devicePixelRatio||1; return btyOn()? Math.min(d, btyDots()) : d; }   // (3) the three layer canvases' backing density (dlgDrawTo)
+function btyDozeMs(){ return (typeof window.__DLG_DOZE==='number' || !btyOn())? DLG_DOZE_MS : Math.min(DLG_DOZE_MS, BTY_STILL_MS); }   // ⚑ Q2 THE STILL ROOM: the toys rest in their pictures after 20 s without a touch (45 as shipped; a rig's pin wins)
+function btyTitleUp(){ let t=BTY.titleEl; if(!t || !t.isConnected) t=BTY.titleEl=document.getElementById('title'); return !!(t && !t.classList.contains('hidden')); }
+function btyTitleCovers(){ if(S.mode!=='title' || !btyOn() || !btyTitleUp()) return false; BTY.titleN++; return true; }   // (1) the opaque PRESS START screen covers the canvas: no paint under it
+function btyCovered(){ return S.mode==='title'? btyTitleUp() : (S.mode==='menu' && (cvCovered() || foCovers())); }   // nothing of the canvas shows: the loop has nothing to paint
+function btySleepy(k){ if(!btyOn() || document.hidden) return false;
+  if(k!=='f' && S.mode!=='menu') return true;   // the still room's clock and the room clock's watch do nothing off the menu (a fight, the title, a verdict): they sleep there at once, and the mode change wakes them (btyModeTick)
+  if(!btyCovered() || performance.now()-BTY.at<BTY_IDLE_MS) return false;
+  if(k==='d') return !(DLGP.park || DLGP.layDue || DLGP.pend || DLGP.busy || (DLGP.moved && DLGP.moved.size));   // the still room with work in hand keeps its 60
+  if(k==='m') return msRoomHid() || !(MFP.A.size || MFP.half);   // the room clock holding loops on its floor steps them on this very clock: never asleep while the room shows; under a cover (the shop, the map, a park, a lobby: msRoomHid, the room paused and unpainted) its held loops are held by the sheet and every step was a read for nothing
+  return true; }
+function btyLoopOf(k){ return k==='f'? frame : k==='d'? dlgTick : mfpFrame; }
+function btyArm(k){ if(BTY.hb[k]) return true; if(!btySleepy(k)) return false; BTY.hb[k]=setTimeout(btyBeat, BTY_HB_MS, k); return true; }   // (2) true = this loop sleeps till the beat (the caller asks no rAF)
+function btyBeat(k){ BTY.hb[k]=0; BTY.hbN++; if(k==='f') last=0; else if(k==='m') MFP.prev=0; requestAnimationFrame(btyLoopOf(k)); }   // the beat: one rAF; frame's samplers read a beat's gap as no sample (last 0 = a gap over GV_SKIP / ODF.maxGap), the room clock's judge the same (prev 0 = g 0)
+function btyWake(why){ BTY.at=performance.now(); let n=0; for(const k in BTY.hb){ const id=BTY.hb[k]; if(!id) continue; clearTimeout(id); BTY.hb[k]=0; if(k==='f') last=0; else if(k==='m') MFP.prev=0; requestAnimationFrame(btyLoopOf(k)); n++; } if(n){ BTY.wakes++; BTY.wakeWhy=String(why||''); } return n; }   // (2) the wake: every sleeping loop asked for a frame at once
+function btyModeTick(){ if(S.mode!==BTY.mode9){ BTY.mode9=S.mode; btyWake('mode'); } }   // a mode change (a fight's end, a landing, a verdict) counts as a touch and wakes every sleeping loop on its first frame
+function btyCap(ts){ if(!btyOn()) return false;
+  { const g=ts-BTY.hzT; BTY.hzT=ts; if(g>2 && g<60){ BTY.hzG[(BTY.hzN++) & 31]=g; if((BTY.hzN & 15)===0) BTY.hz=btyHzRead(); } }   // the display's own rate, read off the raw rAF gaps (every rAF passes here before any skip): the median of the last 32, refreshed every 16
+  if(BTY.hz<BTY_CAP_HZ || ts-BTY.drawAt >= 1000/BTY_CAP-4){ BTY.drawAt=ts; return false; }   // (4) a display under BTY_CAP_HZ (60, a jittery 60, 90) never stands a frame aside; at 120 the in-between frame (closer than ~12.7 ms to the last drawn one) does, and a rate that falls back to 60 draws every frame again at once (the gap law, not the median)
+  BTY.capN++; return true; }
+function btyHzRead(){ const n=Math.min(32, BTY.hzN); if(n<8) return 0; const q=Array.prototype.slice.call(BTY.hzG, 0, n).sort(function(a, b){ return a-b; }); return Math.round(1000/q[n>>1]); }
+function btyHz(){ return BTY.hz; }
+function btyAudioAsk(){ SFXW.at=performance.now(); if(!SFXW.idle || !AC) return; SFXW.idle=0; BTY.audioW++;   // (5) a sound asked of a napping graph: the resume, and the music the nap kept from starting knocked once it settles
+  try{ const p=AC.resume(); if(p && p.then){ SFXW.rp=p; const k=function(){ if(SFXW.rp===p) SFXW.rp=null; try{ if(THEME.armed && !THEME.started && !THEME.dead){ themeDisarm(); themeTry(); } qtKnock(); }catch(e){} }; p.then(k, k); } }catch(e){} }
+function btyAudioTick(){ try{ if(!btyOn() || !AC || qtHeld()) return;
+  if(SFXW.idle){ if(AC.state==='running' || AC.state==='closed') SFXW.idle=0; return; }   // woken at its door, or gone by the ward's own roads: the nap is over
+  if(S.mode==='play' || AC.state!=='running' || QT.wait) return;
+  if(THEME.src || THEME.want || THEME.armed || LOC.src || LOC.armed || LOC.busy || (SHAKE && SHAKE.src)) return;   // music live, or music on its way: never
+  if(performance.now()-(SFXW.at||0) < BTY_AUDIO_MS) return;
+  const p=AC.suspend(); if(p && p.catch) p.catch(function(){}); SFXW.idle=1; BTY.audioN++; }catch(e){} }
+function btyRadioMs(){ if(btyOn() && S.mode==='menu' && !document.hidden && performance.now()-BTY.at>BTY_RADIO_MS){ BTY.radioN++; return EV_POLL_MS*2; } return EV_POLL_MS; }   // (6) the menu beat at rest
+function btySet(m, src){ m=(m==='on' || m==='off')? m : 'auto'; const was=BTY.mode; BTY.mode=m; BTY.src=src||'tap'; try{ META.opt=Object.assign({}, META.opt||{}, { bty:m }); saveMeta(); }catch(e){}
+  if(was!==m){ btyWake('set'); try{ if(SFXW.idle && AC){ SFXW.idle=0; const p=AC.resume(); if(p && p.catch) p.catch(function(){}); } }catch(e){} try{ if(DLGP.on && DLGP.svg && S.mode==='menu') dlgRelay(); }catch(e){} } return m; }   // a change: the loops woken, the graph woken, the still room laid again at the new dots
+function btyWord(){ return BTY.mode==='on'? 'ON' : BTY.mode==='off'? 'OFF' : 'AUTO'; }
+function btyRowHTML(){ return settingsRow('setBty', 'battery', 'BATTERY SAVER', '<span class="set-state">'+btyWord()+'</span>', 'UI.setBty()', BTY.mode==='off'? 'mute' : ''); }   // (7) the row: AUTO / ON / OFF, dim when OFF (the MUSIC MODE grammar)
+function btyMeter(){ return BTY.mode.charAt(0)+((BTY.hb.f || BTY.hb.d || BTY.hb.m)? 'z' : '-')+(S.mode==='play'? btyHz() : (SFXW.idle? 'q' : '')); }   // the ?debug=1 meter's sixth word: a/o/f · z = a loop asleep · the display's rate in a fight · q = the audio graph napping
+GLY.battery='<rect x="2" y="7" width="17" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M20.6 10.2v3.6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><rect x="4.6" y="9.6" width="8.2" height="4.8" rx="1" fill="currentColor"/>';   // the row's glyph: a drawn battery, two thirds full (never an emoji)
+Object.assign(TR.ar||(TR.ar={}), {"BATTERY SAVER":"موفّر البطارية","AUTO":"تلقائي"});
+Object.assign(TR.ja||(TR.ja={}), {"BATTERY SAVER":"バッテリー せつやく","AUTO":"じどう"});
+Object.assign(TR.ko||(TR.ko={}), {"BATTERY SAVER":"배터리 절약","AUTO":"자동"});
+Object.assign(TR['zh-Hans']||(TR['zh-Hans']={}), {"BATTERY SAVER":"省电模式","AUTO":"自动"});
+Object.assign(TR.de||(TR.de={}), {"BATTERY SAVER":"AKKUSPARMODUS","AUTO":"AUTO"});
+Object.assign(TR.ru||(TR.ru={}), {"BATTERY SAVER":"ЭКОНОМИЯ БАТАРЕИ","AUTO":"АВТО"});
+Object.assign(TR.es||(TR.es={}), {"BATTERY SAVER":"AHORRO DE BATERÍA","AUTO":"AUTO"});
+(function(){ try{ const q=/[?&]saver=(auto|on|off)(&|#|$)/.exec(location.search||''); if(q){ BTY.mode=q[1]; BTY.src='url'; META.opt=Object.assign({}, META.opt||{}, { bty:q[1] }); saveMeta(); }
+  else if(/[?&]bty=0(&|#|$)/.test(location.search||'')){ BTY.mode='off'; BTY.src='url-off'; }
+  else { const m=META.opt && META.opt.bty; if(m==='on' || m==='off' || m==='auto'){ BTY.mode=m; BTY.src='save'; } } }catch(e){} BTY.at=performance.now(); })();   // the switch at the boot: the URL's word (remembered), ?bty=0 (this load), the save's word, else AUTO
+window.addEventListener('pointerdown', function(){ btyWake('touch'); }, { capture:true, passive:true });
+window.addEventListener('keydown', function(){ btyWake('key'); }, { capture:true, passive:true });
+window.addEventListener('wheel', function(){ btyWake('wheel'); }, { capture:true, passive:true });
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) btyWake('return'); });
+window.addEventListener('pageshow', function(){ btyWake('pageshow'); });
+setTimeout(function(){ try{ if(window.GVT && !GVT.bty) GVT.bty=function(o){ if(o && o.mode) btySet(o.mode, 'rig'); if(o && o.wake) btyWake('rig');
+  const idleFor=Math.round(performance.now()-BTY.at), radioMs=(btyOn() && S.mode==='menu' && !document.hidden && idleFor>BTY_RADIO_MS)? EV_POLL_MS*2 : EV_POLL_MS;
+  return { cv:GVT_CV, on:btyOn(), mode:BTY.mode, src:BTY.src, idleMs:idleFor, covered:btyCovered(), sleepy:{ f:btySleepy('f'), d:btySleepy('d'), m:btySleepy('m') }, hb:{ f:!!BTY.hb.f, d:!!BTY.hb.d, m:!!BTY.hb.m }, hbN:BTY.hbN, wakes:BTY.wakes, wakeWhy:BTY.wakeWhy,
+    hz:btyHz(), capN:BTY.capN, half:btySaverHalf(), dots:btyDots(), layerDpr:btyLayerDpr(), dozeMs:btyDozeMs(), titleN:BTY.titleN, audio:{ idle:SFXW.idle|0, state:AC? AC.state : null, sinceAsk:Math.round(performance.now()-(SFXW.at||0)), naps:BTY.audioN, wakes:BTY.audioW }, radioN:BTY.radioN, radioMs,
+    dials:{ hb:BTY_HB_MS, idle:BTY_IDLE_MS, still:BTY_STILL_MS, audio:BTY_AUDIO_MS, radio:BTY_RADIO_MS, dots:BTY_DOTS, dotsOn:BTY_DOTS_ON, cap:BTY_CAP, capHz:BTY_CAP_HZ } }; }; }catch(e){} }, 0);   // the rig's door, hung once the GVT object stands
+// ═══ END CARD-BTY ═══
 function frame(ts){
-  requestAnimationFrame(frame);
+  if(!btyArm('f')) requestAnimationFrame(frame);   /* CARD-BTY THE HEARTBEAT (2): off the field and idle the loop stands down to 5 a second (btyArm); a touch, a door, a return wakes it within one frame (btyWake) */ btyModeTick();
   if(!ready) return;
   if(ts-MS_SYNC_T>500){ MS_SYNC_T=ts; msPauseSync(); }   // 0974: the living paintings' overlays pause under a covering panel / a hidden tab (one class write when the answer changes)
   if((qtHeld() && qtFreezes()) || premFrozen()){ last=ts; return; }   // 0904 THE PREMIERE CARD: a SOLO fight under the card stands still on this same seat (never QT.held — the music plays on; the next frame's gap is one frame, no catch-up) · 0719 THE FROZEN FIGHT (Wyatt 9/2: "Yes in campaign; no in Battlefields or Raid/pvp events"): a solo campaign fight put away ticks NOTHING — no sim, no wall clock, no draw (where a platform runs rAF hidden at all)
   if(QT.skip){ QT.skip=0; last=ts; return; }        // ...and the first frame back reads the hidden span as NO gap: every clock resumes from the moment it left. A battlefield, a raid, a party fight and the room run as today — one capped catch-up frame (0559 C)
-  if(S.mode==='play' && (odvTier()>=1 || dfrHalf()) && odvHalfSkip(ts)) return;   // CARD-DFR G2: + a battleground that cannot hold 60 · CARD-ODV-B: 30 drawn frames a second in a fight at tier >= 1 — this rAF stands aside WITHOUT touching last, so the next frame's gap covers both and 0559 C takes it (SIM_STEP_S 0.05: one step of ~33 ms)
+  if(S.mode==='play' && btyCap(ts)) return;   /* CARD-BTY (4): at most BTY_CAP drawn frames a second: a 120 Hz display's in-between rAF stands aside WITHOUT touching last (one sim step of the doubled gap: 0559 C); a 60 Hz display never */
+  if(S.mode==='play' && (odvTier()>=1 || dfrHalf() || btySaverHalf()) && odvHalfSkip(ts)) return;   /* CARD-BTY (7): + BATTERY SAVER On draws 30 a second on the same seat */   // CARD-DFR G2: + a battleground that cannot hold 60 · CARD-ODV-B: 30 drawn frames a second in a fight at tier >= 1 — this rAF stands aside WITHOUT touching last, so the next frame's gap covers both and 0559 C takes it (SIM_STEP_S 0.05: one step of ~33 ms)
   const gap=(ts-last)/1000||0.016; last=ts; gvTick(ts, gap);   // 1162z THE FRAME RATE: the menus' sampler (the governor + the meter) reads the gap the loop already has
   odfFrame(ts, gap);   // CARD-ODV-FIELD: the speed counts read the same gap (per screen kind; nothing is sent from here)
   if(S.mode==='play') odvDynTick(ts, gap);   // CARD-ODV-B: the dynamic notch's vote (moves only with window.GVT_AUTO or ?odvdyn=1)
@@ -194809,7 +194893,7 @@ function frame(ts){
   }
   coopOwe(gap, slow);   // CARD-HLT-B: a fight with company pays back the span the cap dropped
   if(S.mode==='play'){ velTick(dt); glideTick(dt); tapFlyTick(dt); }   // CARD-TP: the tap's flight rides the wall clock beside them (a gesture — never the sim's speed)   // 0343 (item 2): census corrections glide on the WALL clock — beside vflag, never inside update's scaled dt · FIX-D: the velocity tracker rides beside it
-  if(S.mode==='menu' && (cvCovered() || foCovers())) return;   // 1102 THE LAG (fruit f): the room / a park / a lobby / the fort / the Surplus covers the canvas edge to edge (coverLG: 0 px through at four windows) — no full-canvas clear, no rug, no HUD under it; the canvas keeps its last frame, the first frame of any other mode draws as ever; the sim + every clock above byte-what-they-were
+  if((S.mode==='menu' && (cvCovered() || foCovers())) || btyTitleCovers()) return;   /* CARD-BTY (1): + the opaque PRESS START screen covers the canvas edge to edge: no field, no HUD painted under it */   // 1102 THE LAG (fruit f): the room / a park / a lobby / the fort / the Surplus covers the canvas edge to edge (coverLG: 0 px through at four windows) — no full-canvas clear, no rug, no HUD under it; the canvas keeps its last frame, the first frame of any other mode draws as ever; the sim + every clock above byte-what-they-were
   draw();
 }
 function cvCovered(){ const m=document.getElementById('menu'); return !!(m && !m.classList.contains('hidden')); }   // 1102: the menu stands (showMenu removes 'hidden'; every fight door hides it through hideAllOverlays before its first play frame)
