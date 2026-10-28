@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.78","md5":"b976e48ecf474a46361311849a540b3b","sha":"0049b7e2b9","at":"2026-10-28T18:16:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.79","md5":"2a89cb691c6d70a7b00804e9e741736f","sha":"b17511a788","at":"2026-10-28T18:23:50Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91582,7 +91582,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.78';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.79';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -96371,15 +96371,55 @@ const SALLY_EVERY=20;      // s between columns while the fire holds
 // own S.coop gate, so no wire and no sim mirroring; the yeti L20 NEMESIS
 // ambush (D18) is structurally out of reach — rung 20 fields no crate, so
 // campRegroup's !S.tanBase gate returns before either clock.
+// ═══ CARD-WFI · BACKUPS FALL IN: THE WAVE LOGIC'S REINFORCEMENTS DROP IN LIKE BATTLEFIELD (sec:CARD-WFI; design/wave-fallin-1028/00-DESIGN.md; TASK FROM THE GO MACHINE 10/28/2026 ~12:30 ET, jumpr 2749, built on Maker 1 as M2749). Wyatt, verbatim: "Currently, when you play
+// campaign and the wave logic kicks in to give you a more entertaining fight, the units spawn instantly. What needs to happen is they need to fall in just like they do in Battlefield, so you see them coming in. It's the same timer: okay, now they're dropped. That way, it's less of a
+// surprise and feels more like, 'Oh wow, these are backups that they're putting in.'" THE MEASUREMENT: every column campSallyPush pushes (THE SALLY, THE TAN REGROUP, the parks' dino/yeti/outlaw sallies — the only men the wave logic ADDS to the authored set) was born at edgePt('right')
+// = x W+60, sixty px off a canvas exactly W wide: a man simply there at the edge beside their crate, at full speed, firing 0.8 s later — the instant spawn. THE RULE: such a column is seated at the crate's EAST SHOULDER (the head at crate.x+WFI_SHOULDER = W-60; the lane drawn as today —
+// edgePt is still called first, so the shared dice are spent in the same order; the ranks keep their 36 px file east of the head) and every man of it is born with f.dropT=DROP_T — the battleground's own const — and painted by wfiGhost, which IS drawBFUnit's ghost block (the shadow
+// rushing up, the man coming down with the sway, the draining arc in the foe's colour, no bar). Through the drop he is INERT (the foe loop skips his body: no feet, no gun, no reload, no ram, no leak), UNTARGETABLE (bfCanTarget) and INVULNERABLE (hurt, the campaign shell door in splash,
+// cmdoReflLand — the four seats CARD-SPC guarded for the Bear Park chutes on Wyatt's 10/8 word), and his block's anchor HOLDS (the forms mover) so anchor and ranks drop together. The landing is bfUnitStep's own: thock, the white ring, the puff; from that tick he is a tan rifleman like
+// any other. The scheduled waves, THE SURGE's pull, the box alarm's finale, the VANGUARD's tease and every boss keep their east-edge walk-on byte for byte (a ghost at W+60 is off the glass); the sally and the regroup never run in co-op (v1.81), so no twin sim is touched. ?wfi=0 (device
+// key gvt_wfi) = today's edge spawn byte for byte; ?wfi=1 clears it. GVT.wfi() = the rig's read. Zero server / sw / css / word / save bytes; zero new dice. ⚑ WFI-Q1 the seat (WFI_SHOULDER 70 → W-60; W-10 = the rug's edge keeps the tan rifle within ±0.3 s of today; W-130 = on the
+// crate) · WFI-Q2 the rim floods and the spouts keep their own tells · WFI-Q7 the hold (the anchor waits for the last man; the alternative = a 1.8x sprint to the slots after the landing).
+var WFI={ on:(function(){ try{ const q=/[?&]wfi=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_wfi','0'); else localStorage.removeItem('gvt_wfi'); } return localStorage.getItem('gvt_wfi')==='0'? 0 : 1; }catch(e){ return 1; } })(), log:[] };
+let WFI_SHOULDER=70;   // px east of the crate's centre for the column's head: W-130+70 = W-60 (the head whole on the glass, the second man at the rug's edge) — ⚑ WFI-Q1, one number
+const WFI_COL='rgba(232,160,140,0.85)';   // the foe side's arc colour — drawBFUnit's own string (the Tan's deploys wear it on the battleground)
+function wfiOn(){ return !!WFI.on && !S.bf && !S.coop; }   // the campaign's solo carpet (campRegroup's own gates)
+function wfiSeat(ep){ ep.x=Math.min(W-60, (S.tanBase? S.tanBase.x : W-130)+WFI_SHOULDER); return ep; }   // the seat: edgePt's lane (y) kept, x to the crate's east shoulder, never past W-60
+function wfiStamp(f){ f.dropT=DROP_T; f.vx=0; f.vy=0; }   // born a ghost on the battleground's clock
+function wfiFoeDrop(f,dt){   // the foe loop's head: bfUnitStep's drop lines, the campaign edition — the whole body is skipped after this (inert: no feet, no gun, no reload)
+  f.dropT-=dt;
+  if(f.dropT<=0){ f.dropT=0; bfSfx(SFX.thock, f.x, f.y);
+    S.fx.push({k:'ring',x:f.x,y:f.y-4,r:6,R:30,t:0,dur:0.3,col:'rgba(255,255,255,0.85)'});
+    S.fx.push({k:'puff',x:f.x,y:f.y-8,t:0,dur:0.3,R:18});
+    if(WFI.log.length<200) WFI.log.push({ t:+(S.t||0).toFixed(3), id:f.id, type:f.type, x:Math.round(f.x), y:Math.round(f.y) }); }   // the rig's landing log (product-inert)
+  f.vx=0; f.vy=0;
+}
+function wfiFormHolds(fo){ for(const m of fo.members){ if(m.dropT>0) return true; } return false; }   // a block whose men are still dropping holds its anchor (anchor + ranks on one clock)
+function wfiGhost(o,w,im,flip,col){   // THE DROP-IN GHOST: drawBFUnit's own block, one copy for both carpets (o = a unit or a foe; the phase = the unit's phase or the foe's wob)
+  const k=1-o.dropT/DROP_T, lift=(1-k*k)*84, ph=(o.phase!=null? o.phase : (o.wob||0));   // a real drop speeds UP
+  const sway=Math.sin(ph+k*6.5)*4*(1-k);
+  cx.globalAlpha=0.24+0.16*k; cx.fillStyle='#000';
+  cx.beginPath(); cx.ellipse(o.x,o.y,8+16*k,3+6*k,0,0,7); cx.fill();      // the shadow rushes up to meet him
+  cx.globalAlpha=0.38+0.5*k;
+  drawSprite(o.type,o.x+sway,o.y-lift,w,0,Math.sin(ph+k*9)*0.06,im,flip);
+  cx.globalAlpha=1;
+  cx.strokeStyle=col; cx.lineWidth=2.5; cx.lineCap='round';               // the countdown drains away
+  cx.beginPath(); cx.arc(o.x,o.y-3,21,-Math.PI/2,-Math.PI/2+6.283*(1-k)); cx.stroke();
+  cx.lineCap='butt';
+}
+function wfiRead(){ const g=[]; for(const f of (S.foes||[])){ if(f.dropT>0) g.push({ id:f.id, type:f.type, x:Math.round(f.x), y:Math.round(f.y), dropT:+f.dropT.toFixed(3) }); }
+  return { cv:GVT_CV, on:!!WFI.on, live:wfiOn(), dropT:DROP_T, shoulder:WFI_SHOULDER, seatX:Math.min(W-60,(S.tanBase? S.tanBase.x : W-130)+WFI_SHOULDER), W:W, ghosts:g, landed:WFI.log.slice() }; }
+// ═══ END CARD-WFI ═══
 function campSallyPush(){
   const pk=S.park&&S.park.id;
   const deep=!!(S.park&&S.park.n>=11);
   const sm=pk==='dino'?'sdino':pk==='yeti'?'syeti':pk==='western'?'wbandit':'tanrifle';   // 0339: the outlaw crate rushes its own men
   const bg=deep? (pk==='dino'?'bdino':pk==='yeti'?'byeti':pk==='western'?'wteddy':null) : null;
   const nS=Math.max(2,Math.round(1.5*S.cfg.cntMul));
-  if(bg&&nS>2){ S.queue.push({f:'column',t:sm,n:nS-1,e:'right',at:S.waveT});
-    S.queue.push({f:'column',t:bg,n:1,e:'right',at:S.waveT}); }
-  else S.queue.push({f:'column',t:sm,n:nS,e:'right',at:S.waveT});
+  if(bg&&nS>2){ S.queue.push({f:'column',t:sm,n:nS-1,e:'right',at:S.waveT,fall:1});   // CARD-WFI: fall:1 = the column drops in at the crate's shoulder (spawnGroup9's seat + stamp)
+    S.queue.push({f:'column',t:bg,n:1,e:'right',at:S.waveT,fall:1}); }
+  else S.queue.push({f:'column',t:sm,n:nS,e:'right',at:S.waveT,fall:1});
   S.waveActive=true;   // the spawn drain (and its waveT clock) is gated on this — a cleared set had parked it
 }
 function campRegroup(){
@@ -103956,6 +103996,7 @@ function bfCanTarget(u,o){
   if(o && o.gsFlat && oc9Flat(o)) return false;   // OC-9 THE HONOUR RULE, his army's half: a man the general has put on his back is left alone until he rises — no aimed trigger engages him (area still finds him by radius, the cloak's own law); false for every man on every other rug
   if(o && o.gmyLp && gmyLeapAir(o)) return false;   // CARD-HL5: THE GIANT MUMMY / FRANKENSTEIN mid-leap cannot be engaged
   if(o && o.paraSt==='drop' && !S.bf) return false;   /* AIR SPC (Wyatt 10/8): a Bear Park chute still in the air cannot be ENGAGED (nobody wastes a round on an immune man; 0573a's blind is back, now with hurt()'s immunity under it) */
+  if(o && o.dropT>0 && !S.bf) return false;   /* CARD-WFI: a reinforcement still dropping in cannot be ENGAGED (the battleground's own ghost law on the campaign carpet; CARD-SPC's seat) */
   if(o && o.falling) return false;   // 8/8 v2.76: a falling man is below the plane — nobody wastes a round on him
   // 0573a's AIR SHIELD clause retired here by 0601 (FM-GVT-BEAR-FEEDBACK-0827-NIGHT §2 D3): TEDDY_DROP_SHIELD is a SOAK now, not a blind — a dropping chute stays targetable the WHOLE fall ("never immune", exactly how the shipped 0 behaved) and a bullet on him lands at ×(1−TEDDY_DROP_SHIELD) in hurt()'s funnel (the bags-soak grammar; splash bypasses whole — the big-banger law)
   // 8/8 v2.75 THE FOG HIDES (Wyatt: "really hide the units… they can kind of
@@ -104454,6 +104495,7 @@ function hurt(f,dmg,src,fire9){ if(f.trk && trkTurn(f)) return; dmg*=sqlArmX(f);
   if(!S.bf && f.kit==='bags' && (f.mgRootT>0 || (f.form&&f.form.halted))) dmg*=ELITE_KIT.bagsSoak;   // 0583 THE SANDBAGS: a gun crew dug in (rooted for the burst, or halted in rank) takes bullets at bagsSoak — shells bypass (splash never asks; the saber/commander law)
   if(f.gmyLp && gmyLeapAir(f)) return;   // CARD-HL5: mid-leap he takes nothing
   if(!S.bf && f.paraSt==='drop') return;   /* AIR SPC (Wyatt 10/8: "in Bear Park, when the parachuters come in, they should be invulnerable until they land on the ground, giving them a more formidable chance"): a teddy under his canopy takes NOTHING until his boots touch (the tangle and after pay full); supersedes 0601's half soak (TEDDY_DROP_SHIELD now reads nowhere in the sim) */   /* CARD-PAD 14: THE CANOPY SHIELD */   // 0601 THE CANOPY SHIELD (FM-GVT-BEAR-FEEDBACK-0827-NIGHT §2 D3; Wyatt: "They need to be a little formidable."): a bullet on a chute still under the canopy lands at half — the tangle and the ground pay full, splash bypasses whole (the saber/commander/bags law), and the soak is never a blind (0 = off, NEVER 1)
+  if(!S.bf && f.dropT>0) return;   /* CARD-WFI: a reinforcement still dropping in takes nothing (the battleground's own ghost law; CARD-SPC's seat) */
   if(!S.bf && f.def.armor) dmg*=gnArmorX(f,src,fire9);   // 0947b THE GNOMES' ARMOUR: bullets ×0.5, blasts ×2, fire ×1
   dmg=counterDmg(f,dmg,src);   // v1.40: a jeep hull shrugs the long rifle and the blade
   if(S.bf && f.side && !pndThru(src) && (f.cmdWallT>0 || cmdWallTry(f))) cmdWallSkid(f);   /* CARD-PAD 15a: THE STONE WALL neither arms nor skids on the cut */   // 0510 THE STONE WALL on the battleground: the hp funnel's own arm, fenced to a sided unit (a campaign f here is always a tan foe) — the very next line soaks the arming round too
@@ -106262,6 +106304,7 @@ function campNearestFoe(u){
   let best=null, bd=1e9;
   for(const f of S.foes){
     if(f.burrow||f.pendDie) continue;   // 0559 B
+    if(f.dropT>0 && !S.bf) continue;   /* CARD-WFI: a reinforcement still dropping in is no march goal either (bfNearestEnemy's own skip on the battleground) */
     if((f.def.fly||f.skyDrop) && !airOk(u) && !hrtS3Grd(f)) continue;   /* CARD-HRT-S3: … but THE WRECK on the roof is his fight */   // CARD-SF THE AIR LAW: a melee man, a hero, a captured king walks past the sky (the troopers on the roof are his fight)
     if(f.type==='skyfort' && !hrtS1Reach(u,f)) continue;   // CARD-HRT-S1 THE REACH: nobody marches at a bomber his gun cannot reach
     if(f.x>W-10||f.x<-40||f.y<-30||f.y>WORLD_H+30) continue;
@@ -114425,6 +114468,7 @@ function cmdoReflLand(sh){
     if(!S.bf && ((f.lrRide && !f.lrRide.dead) || btAir(f))) continue;   // OC-2 THE RIDE: a shell at the rider bursts on the hull he rides (the hull is inside the burst; the shell door's own vehicle law prices it); a thrown man is in the air
     if(f.gmyLp && gmyLeapAir(f)) continue;   // CARD-HL5: nor a thrown-back shell mid-leap
     if(!S.bf && f.paraSt==='drop') continue;   /* CARD-SPC: the thrown-back shell spares a chute in the air too (the shell door's own guard, splash()'s twin) */
+    if(!S.bf && f.dropT>0) continue;   /* CARD-WFI: the thrown-back shell spares a dropping ghost too */
     if(Math.hypot(f.x-sh.tx,f.y-sh.ty)<=sh.splash+f.def.w*0.3){
       f.hp -= sh.dmg*(f.def.vehicle&&sh.vx2?VX2_MUL:1);               // splash()'s own vehicle rule (×2.4 since v2.98 — the tan tubes' mirror of the bazooka dial)
       hitCheck(f,sh.src);
@@ -118706,7 +118750,7 @@ function spawnGroup9(g){
     if(pts.length && !g.quiet) S.shake=Math.max(S.shake,0.5);
     return;
   }
-  const ep=edgePt(g.e);
+  const ep=(g.fall && wfiOn())? wfiSeat(edgePt(g.e)) : edgePt(g.e);   // CARD-WFI: a reinforcement column's seat is the crate's east shoulder (edgePt first — the lane and the dice as today)
   const list=[];
   if(g.f==='column'){ for(let i=0;i<g.n;i++) list.push({t:g.t, fx:-i*36, fy:0}); }
   else if(g.f==='line'){ for(let i=0;i<g.n;i++) list.push({t:g.t, fx:0, fy:(i-(g.n-1)/2)*42}); }
@@ -118791,6 +118835,7 @@ function spawnGroup9(g){
     const sx=form.x+form.dir.x*o.fx-form.dir.y*o.fy, sy=form.y+form.dir.y*o.fx+form.dir.x*o.fy;
     const foe=spawnFoe(o.t, sx, foeBandY(sy), form, false);   // v1.60: no rank seeds off the rug
     foe.off=o;
+    if(g.fall && wfiOn()) wfiStamp(foe);   // CARD-WFI: born a ghost on DROP_T (the battleground's own clock)
     // 0384: formation groups honour the hpX/spdx wave stamps exactly like
     // the boss/guerrilla/solo branches always have (audited: NO shipped
     // line/column/creep/push row carries one — the reader lands with zero
@@ -122471,6 +122516,7 @@ function update(dt){
     const fo=S.forms[i];
     fo.members=fo.members.filter(m=>S.foes.indexOf(m)>=0);
     if(fo.members.length===0){ S.forms.splice(i,1); continue; }
+    if(wfiFormHolds(fo)) continue;   // CARD-WFI: anchor + ranks drop together — the block holds till its last man lands
     let spd=fo.speed*bbsFormGroundX(fo);   /* CARD-BBS-C2: THE MUD on a block's anchor (x1 everywhere else) */
     fo.rushX=teddyFormRush(fo); spd*=fo.rushX;   // 0554c THE RUSH, the anchor's seat: a block of rushers rushes as a block (×1 for every block without one — byte-still); the members' spring reads fo.rushX below
     fo.rollX=teddyFormRoll(fo); spd*=fo.rollX;   // 0586 THE ROLL, the anchor's seat: a line of bear guns EAST of THE GUN LINE rolls on at ×TEDDY_GUN_ROLL (every other block ×1 — byte-still); the members' spring reads fo.rollX below
@@ -122532,6 +122578,7 @@ function update(dt){
   FAU_IN=1;   // CARD-FAU: a backpack blast inside this loop holds its hits for fauDrain
   for(let i=S.foes.length-1;i>=0;i--){
     const f=S.foes[i]; if(!f) continue;   // CARD-FAU THE BELT: a step that took two or more off S.foes leaves this seat empty (every seat below is still unvisited)
+    if(f.dropT>0 && !S.bf){ wfiFoeDrop(f,dt); continue; }   // CARD-WFI: a reinforcement still dropping in is inert — nothing below runs for him (bfUnitStep's own early return)
     let aura=1; f.fireAura=1; f.rngAura=1; f.laid=0; f.mwf=0;   // 0943: + the MWF stamp (a planted commander's circle) · 0595: + the laid stamp (KING BEAR's circle)
     for(const o of casters){
       if(o.type===f.type) continue;
@@ -126792,6 +126839,7 @@ function splash(x,y,R,dmg,vx2,src,mach,refl,bigSelf,rb,air,msh){ if(!S.bf && S.c
       if(!S.bf && f.gjAir) continue;   // OC-5: a shell bursting under a JET TROOPER's flight lands nothing (the air column alone reaches him)
       if(f.gmyLp && gmyLeapAir(f)) continue;   // CARD-HL5: nor a burst mid-leap
       if(!S.bf && f.paraSt==='drop') continue;   /* CARD-SPC (Wyatt 10/8: "invulnerable until they land on the ground"): a shell bursting on a Bear Park chute still under his canopy lands nothing — this door decrements hp direct, never through hurt()'s canopy return; the tangle and after pay full */
+      if(!S.bf && f.dropT>0) continue;   /* CARD-WFI: a shell bursting on a reinforcement still dropping in lands nothing — the ghost eats nothing (the battleground's own law at this door) */
       if(!S.bf && chrDomeHolds(f,src,x,y)) continue;
       if(!S.bf && olvShellHolds(f,src,x,y)) continue;   // CARD-OLV-B1: a dull pad takes no shell · YOUR SHELLS BOUNCE off the duel's dome · a shell is one of his three hits   // OC-11 THE CHARGER: a CABLED dome never flickers — a shell from OUTSIDE it lands nothing on a man under it (a CLANG at the rim); a gunner standing inside, and a charge that goes off inside, land whole; false on every rug without a feeder
       if(!S.bf && ((f.lrRide && !f.lrRide.dead) || btAir(f))) continue;   // OC-2 THE RIDE at the campaign SHELL door (the bangers, the mines, the rockets): the rider's shell bursts on the hull under him; a thrown man is in the air
@@ -133311,20 +133359,7 @@ function drawBFUnit(u,w,im){
   // team (and every spectating ally seat on it) sees him see-through below.
   if(((u.type==='spy' && (u.cloakT>0 || u.dropT>0)) || (u.type==='sarge' && u.cloakT>0)) && u.side!==bfMyTeam()) return;   // v3.11: a VANISHED Sarge keeps the spy's invisibility law · CARD-SDV (Wyatt 10/28/2026: "the Sarge is always invisible until he lands … needs to be fixed"): a DROPPING Sarge does NOT — the enemy's Sarge falls in before you like any other toy (the ghost, the shadow, the ring below, the shared landing beat); the spy alone lands unseen
   if(u.dropT>0 && u.prT){ prDrawFlare(u); return; }   // CARD-PMC PARA RESCUE: the green flare, then the game's own chute (both armies see it)
-  if(u.dropT>0){
-    const k=1-u.dropT/DROP_T, lift=(1-k*k)*84;                               // a real drop speeds UP
-    const sway=Math.sin(u.phase+k*6.5)*4*(1-k);
-    cx.globalAlpha=0.24+0.16*k; cx.fillStyle='#000';
-    cx.beginPath(); cx.ellipse(u.x,u.y,8+16*k,3+6*k,0,0,7); cx.fill();      // the shadow rushes up to meet him
-    cx.globalAlpha=0.38+0.5*k;
-    drawSprite(u.type,u.x+sway,u.y-lift,w,0,Math.sin(u.phase+k*9)*0.06,im,flip);
-    cx.globalAlpha=1;
-    const col=(u.side==='you'?'rgba(191,227,154,0.85)':'rgba(232,160,140,0.85)');
-    cx.strokeStyle=col; cx.lineWidth=2.5; cx.lineCap='round';               // the countdown drains away
-    cx.beginPath(); cx.arc(u.x,u.y-3,21,-Math.PI/2,-Math.PI/2+6.283*(1-k)); cx.stroke();
-    cx.lineCap='butt';
-    return;
-  }
+  if(u.dropT>0){ wfiGhost(u,w,im,flip,(u.side==='you'?'rgba(191,227,154,0.85)':WFI_COL)); return; }   // CARD-WFI: the ghost block is wfiGhost now — one copy of the shadow math for both carpets (sec:CARD-WFI; the lines moved there verbatim)
   // on the march he waddles like the campaign armies do; halted he settles
   // into the gentle idle sway — the difference is what makes the field read.
   // A vehicle does NEITHER: a rocking chassis reads as broken, not alive (the
@@ -133811,6 +133846,7 @@ function drawFoeCmdSword(f,fl){
   if(!fl) cx.restore();
 }
 function drawFoe(f){
+  if(f.dropT>0 && !S.bf){ wfiGhost(f,f.def.w,foeImgF(f),foeFl(f),WFI_COL); return; }   // CARD-WFI: a reinforcement still dropping in is the battleground's ghost and nothing else
   if(f.cpGen && !S.bf && OC10_CP!==f){ const p10=OC10_CP; OC10_CP=f; try{ drawFoe(f); } finally { OC10_CP=p10; } return; }   // OC-10 A COPY IS PAPER: his own row's draw, whole (the pose, the prop, the tell, the bar), with every picture it asks foeImg for handed back in paper (the latch — read by foeImg's one clause); no other foe on any rug carries cpGen
   if(f.falling && f.chs && f.cfaGone) return;   // CARD-CFA-A: a taken chess piece is the topple's (cfaDrawTopples), never the men's faller
   if(f.falling){ drawFaller(f, foeCmdImg(f), f.def.w, false); return; }
@@ -205171,6 +205207,7 @@ window.GVT = {
     if(p.ring!=null) IDLE_RING=p.ring; if(p.hb!=null) HIDDEN_BEAT=p.hb;
     if(p.beats) Object.assign(IDLE_BEATS,p.beats); if(p.roomIdle!=null) ROOM_IDLE_S=+p.roomIdle; if(p.last!=null) IDLE.last=+p.last;   // 0494d: roomIdle dials ROOM_IDLE_S
     if(p.vet!=null) ROOM_IDLE_VET_S=+p.vet; if(p.newbieLv!=null) ROOM_BEACON_NEWBIE_LV=+p.newbieLv; return GVT.idle(); },   // 0503: vet / newbieLv dial the gate
+  wfi(p){ p=p||{}; if(p.on!=null) WFI.on=p.on? 1 : 0; if(p.shoulder!=null) WFI_SHOULDER=+p.shoulder; return wfiRead(); },   // CARD-WFI: the rig's read (the switch, the seat, every ghost on the rug, the landing log) + the dials {on, shoulder}
   qnu(p){ p=p||{}; if(p.newS!=null) ROOM_IDLE_NEW_S=+p.newS; if(p.newLv!=null) ROOM_BEACON_NEW_LV=+p.newLv; if(p.on!=null) QNU.on=p.on? 1 : 0; return { cv:GVT_CV, on:!!QNU.on, lvl:META.lvl|0, campaign:META.campaign|0, newLv:ROOM_BEACON_NEW_LV, newS:ROOM_IDLE_NEW_S, isNew:qnuNew(), clock:roomBeaconS(), quiet:+idleQuiet().toFixed(3), armed:!!QNU.t, lit:!!IDLE.beacon, door:nudLit() }; },   // CARD-QNU THE QUICK NUDGE: the rig's read + the dials {newS, newLv, on}
   // ---- 0294 REVOLVING DOOR rig: the chip clock, the AVOID mirror (server
   // round-trip), and the leader's seat-release — read/act doors for batteries ----
