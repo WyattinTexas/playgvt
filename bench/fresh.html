@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.76","md5":"a3d5a1bd8a66d6d214d99c26f93b5100","sha":"b7acb4749f","at":"2026-10-28T17:43:38Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.77","md5":"898422e93fa1a1e87aa4593f5aebd195","sha":"237235e921","at":"2026-10-28T17:58:29Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -76398,9 +76398,11 @@ function hrdWave(n){
   let src=null, mul=1;
   if(horde){ const bs=lc.waves.filter(w=>clean(w) && w.boss); src=bs.length? bs[bs.length-1] : null; }
   if(!src){ src=lc.waves.filter(w=>clean(w) && !w.boss && !w.piece).reduce((b,w)=>(!b || size(w)>size(b))? w : b, null) || lc.waves.filter(clean)[0] || null; if(horde) mul=HRD_BIG; }
-  const rn=mul*s2xK()*(1+HRD_RAMP.n*(n-1));   // B2: THE RAMP rides every ordinary group (a boss stays one)   // CARD-S2X (Wyatt 10/21): ×2 on every wave's count, before the ramp (s2xK)
-  const groups=(src? src.groups : [{f:'column',t:'tanrifle',n:5,e:'right'}]).map(g=>smtGroup(Object.assign({}, g, (rn!==1 && g.f!=='boss')? {n:Math.max(1,Math.round((g.n|0)*rn))} : {})));   // CARD-SMT: a cheese-mice group comes as the Tan mortar battery
-  const w={ groups, name:(src && src.name) || '', hrdN:n, hrdL:L };
+  const rn=mul*s2xK()*(1+HRD_RAMP.n*(n-1));   // B2: THE RAMP rides every ordinary group (a boss stays one)   // CARD-S2X (Wyatt 10/21): ×2 on every wave's count, before the ramp (s2xK)   // CARD-SBL (Wyatt 10/28): today's count rule stays = the wave's TOTAL health, the reference the bodies' health is read against
+  const bn=sblBodies(n, mul, rn);   // CARD-SBL: the count factor the BODIES ride (×1 at wave 1, the slow ramp, the ceiling ×2); = rn with the switch off
+  let sz0=0; const groups=(src? src.groups : [{f:'column',t:'tanrifle',n:5,e:'right'}]).map(g=>{ const n0=g.n|0, boss=(g.f==='boss'), o=(rn!==1 && !boss)? Math.max(1,Math.round(n0*rn)) : n0, c=(bn!==1 && !boss)? Math.max(1,Math.round(n0*bn)) : n0; if(!boss) sz0+=o;
+    const q=smtGroup(Object.assign({}, g, (bn!==1 && !boss)? {n:c} : {})); if(bn!==rn) q.hrdHp=boss? sblBossHp(rn/bn, lc) : o/c; return q; });   // CARD-SMT: a cheese-mice group comes as the Tan mortar battery   // CARD-SBL: c bodies where o walked on today, each carrying o ÷ c of the health (exact, group by group); the boss his half share of rn ÷ bn
+  const w={ groups, name:(src && src.name) || '', hrdN:n, hrdL:L }; if(bn!==rn) w.hrdSz0=sz0;   // CARD-SBL: today's count of the wave, for the party over the rim (hrdFlank)
   if(horde && src && src.boss) w.boss=true;
   return { w, hp:(lc.hpMul||1)*(n>100? 1+0.05*(n-100) : 1)*(1+HRD_RAMP.hp*(n-1)), rate:lc.rateMul||1, bossF:(lc.bossF!=null? lc.bossF : 0.5) };
 }
@@ -76503,7 +76505,8 @@ function hrdFlank(n){   // B2 THE FLANKS (HRD-Q1 A): from HORDE 3 a party over t
   const g=w.groups.find(x=>x.f!=='boss' && FDEF[x.t] && !FDEF[x.t].fly && smtInf(x)) || { t:'tanrifle', n:5 };   // CARD-SMT: never the mortar battery (a tube at the rim is a statue inside its minRng)
   const sz=w.groups.reduce((a,x)=>a+(x.f==='boss'? 0 : (x.n|0)),0), k=Math.max(2, Math.round(sz*HRD_FLANK_K));
   const eds=(n%HRD_EVERY===0)? ['top','bottom'] : [(n%2)? 'top' : 'bottom'];
-  for(const e of eds){ const i0=S.foes.length; spawnGroup({ f:'solo', t:g.t, n:k, e, k:n });
+  const hp9={}; if(w.hrdSz0>0){ const k0=Math.max(2, Math.round(w.hrdSz0*HRD_FLANK_K)); if(k0!==k) hp9.hrdHp=k0/k; }   // CARD-SBL: today's party (a third of today's wave) ÷ this one = the health each man over the rim carries (empty with the switch off)
+  for(const e of eds){ const i0=S.foes.length; spawnGroup(Object.assign({ f:'solo', t:g.t, n:k, e, k:n }, hp9));
     for(let i=i0, j=0;i<S.foes.length;i++, j++){ const f=S.foes[i]; f.x=HRD_FX0+30+((j*0.6180339887+n*0.29)%1)*(HRD_FX1+160-HRD_FX0); f.hrdFl=e; } }
   if(!S.hrd.flankSaid){ S.hrd.flankSaid=n; S.ann={ txt:"THEY'RE COMING OVER THE TOP!", t:2.8 }; try{ SFX.horn(); }catch(e){} }
 }
@@ -76511,10 +76514,12 @@ function hrdTick(dt){
   const H9=S.hrd, sq=S.sq;
   if(S.wave!==H9.w){   // a push landed this frame (sqPushWave set its own gap; the horde's drum is the clock)
     H9.w=S.wave; H9.pushT=sq.t;
-    sq.nextT=sq.t+hrdGapOf(S.wave+1)+((S.wave%HRD_EVERY===0)? HRD_REST : 0);   // CARD-STW (Dylan 10/14): the next wave's gap by its band (10 s through wave 25, 15 s through 75, 20 s after), the breather after every 5th wave as he set it 10/11
+    sq.nextT=sq.t+hrdGapOf(S.wave+1)+((S.wave%HRD_EVERY===0)? sblRest() : 0);   // CARD-STW (Dylan 10/14): the next wave's gap by its band (10 s through wave 25, 15 s through 75, 20 s after), the breather after every 5th wave as he set it 10/11   // CARD-SBL (Wyatt 10/28): the bands +5 s (hrdGapOf reads sblGaps), the breather 15 s (sblRest); today's with ?hrdbal=0
+    sblHoldArm(H9, sq);   // CARD-SBL: after a 5th wave the next wave waits for the field to be down (the latest: the gap + the hold), then the rest runs
     if(S.wave>(META.hrdBest|0)){ META.hrdBest=S.wave; saveMeta(); }
     if(S.wave>=HRD_FLANK0) hrdFlank(S.wave);
   }
+  sblHoldTick(H9, sq);   // CARD-SBL: the hold's clock — the field down pulls the next wave in to the rest; the cap lets it come regardless
   if(S.cfg.waves.length<=S.wave) hrdLoad(hrdWave(S.wave+1));   // ONE ahead: sqTick's `more` stays true for ever, the full clear never fires
   if(S.mode!=='play' || S.lives<=0) return;
   hrdSarge(); hrdSeat(); hrdWalls(dt);
@@ -76671,7 +76676,7 @@ function hrdSecsLoad(H9,P){   // hsvResume's sections seat: the walls come back 
 // it (S.hrd.sel; S.sel let go); drawHUD's hrdPill seats ★ VETERAN GUN · ×1.5 DAMAGE · 60 over it (COSTS.rifleman × VET_COST_MUL, the man's own price law; btnRects.hvet); the tap buys it
 // (P.vet, the purse, META.stats.vets, VETERAN!, blip) as the man's pill does; the gun wears the stripe (hrdGunStripe) and its reach ring while selected; no grit (a gun has no health).
 // A saved run keeps its veteran guns (hsvSave's tv, hsvResume's seat; an older save = stock guns). Rig dials: HRD_TUR.dmg / cd / crit (null = the rifleman's row).
-function hrdGapOf(n){ for(const b of HRD_GAPS) if(n<=b[0]) return b[1]; return HRD_GAPS[HRD_GAPS.length-1][1]; }   // the seconds before wave n
+function hrdGapOf(n){ const G=sblGaps(); for(const b of G) if(n<=b[0]) return b[1]; return G[G.length-1][1]; }   // the seconds before wave n   // CARD-SBL: HRDBAL.gaps (15 / 20 / 25) when the rebalance is on, HRD_GAPS when it is off
 function hrdGunRow(){ const d=UDEF.rifleman; return { dmg:(HRD_TUR.dmg!=null)? HRD_TUR.dmg : d.dmg*upMul('rifleman'), cd:(HRD_TUR.cd!=null)? HRD_TUR.cd : 1/d.rate, crit:(HRD_TUR.crit!=null)? HRD_TUR.crit : usCritAt('rifleman', (META.up && META.up.rifleman)|0) }; }   // the rifleman's round as the kid's rifleman fires it (dfDmg's law), his trigger, his crit ladder
 function hrdGunFire(P, f, R){ const mx=P.x+Math.cos(P.aim)*32, my=P.y-6+Math.sin(P.aim)*32; let d=R.dmg*(P.vet? VET_DMG_MUL : 1);   // the barrel's end (hrdDrawUnder's gun: 4..32 along the aim at P.y-6)
   if(R.crit>0 && Math.random()<R.crit){ d*=CRIT_MULT; critFx(f); }   // dfRound's grammar: the rifleman's crit at his rank
@@ -76723,6 +76728,32 @@ function smtInf(g){ return !g.smt; }   // the flank party's pick (hrdFlank): nev
 // hrdWave), the words, the server. S2X.on 0 = the shipped counts (a rig's dial; the proofs' NEG). Measured: design/survival-x2-1021/00-BUILD-S2X.md § THE MEASUREMENT.
 const S2X={ on:1, k:2 };   // ⚑ S2X-Q1 the lever = the count (not the hp) · Q2 a flat ×2 on every wave (not the ramp's slope) · Q3 a boss stays one
 function s2xK(){ return (S2X.on && S2X.k>0)? S2X.k : 1; }   // the count factor every survival wave's ordinary groups ride (identity when off)
+// ═══ CARD-SBL SURVIVAL MODE REBALANCED: FEWER, TOUGHER INVADERS, A REAL BREATH BETWEEN WAVES (design/survival-rebalance-1028/00-DESIGN.md, FM-GVT-SURVIVAL-BAL-01; Wyatt 10/28/2026 ~12:20 EDT at the Go Machine,
+// verbatim: "Balance Tower Defense mode. Less Incoming Units. Instead give the invaders more HP. Have a little more time between waves so players can save and exit. This is less taxing on the phone and is more
+// visually appealing because, currently, there are just so many stacked up that it just doesn't look good."). THE BODY BUDGET: a wave's TOTAL health stays what it is today — the shipped count rule
+// rn = mul × s2xK() × (1 + HRD_RAMP.n·(n−1)) is kept in hrdWave as the reference — and only its SHAPE moves: the bodies that walk on ride sblBodies(n) = mul × HRDBAL.k × min(HRDBAL.cap, 1 + HRDBAL.ramp·(n−1))
+// (×1 at wave 1 where it was ×2, ×1.4 at wave 11 where it was ×4, the ceiling ×2 from wave 26 where it was ×6 … ×12), and every body carries the health the missing ones gave up, × HRDBAL.hpX 1.5 (the bench's
+// dial: the Tan's threat rides bodies, not health — at ×1 the fort held almost twice as long; the dog tags ride the count factor alone, so a wave pays what it paid): g.hrdHp = today's count ÷ the
+// new count, group by group (hrdWave's stamp rides the queue to spawnGroup's door, where sblStamp multiplies f.hp / f.hpMax AND f.bountyMul by it — the wave's total health and its dog tags are what they
+// were, CARD-SMT's cut and remainder untouched); a boss stays one body at today's health (HRDBAL.boss 0; 1 = his half share, 1 + (k−1)·min(bossF, ½), the bench's ⚑ SBL-Q3). The party over the rim (hrdFlank) is a third of the smaller wave and
+// carries today's party ÷ this one. THE BREATH: the clock's bands +5 s (sblGaps 15 / 20 / 25 where Dylan's were 10 / 15 / 20); after every 5th wave the next wave WAITS for the field to be down
+// (sblHoldArm at the push: the latest = the gap + HRDBAL.hold; sblHoldTick every frame: the field down → the rest HRDBAL.rest 15 s runs from then, no sooner than the gap's end; the cap passed → the wave
+// comes regardless, a stalled straggler never freezes the run), so SAVE & EXIT has a guaranteed window every five waves; a continued run gets HRDBAL.rest0 15 s before its next wave (was 10). The HUD's own
+// lines count it (WAVE N · NEXT IN / BREATHER · WAVE N IN read sq.nextT: the latest while the field stands, the rest once it is down). ?hrdbal=0 (a device key gvt_hrdbal) = today's numbers byte for byte
+// (every reader routes back to HRD_GAPS / HRD_REST / HSV_REST0 and the shipped count rule; no stamps, no hold); ?hrdbal=1 clears it. GVT.sbl() = the rig's read. Zero words, zero save keys, zero server bytes,
+// zero sw.js bytes. Wyatt's next ruling is one cell of HRDBAL. Measured: design/survival-rebalance-1028/00-DESIGN.md § THE BENCH.
+var HRDBAL={ on:(function(){ try{ const q=/[?&]hrdbal=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_hrdbal','0'); else localStorage.removeItem('gvt_hrdbal'); } return localStorage.getItem('gvt_hrdbal')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  k:1, ramp:0.04, cap:2, hpX:1.5, gaps:[[25,15],[75,20],[1e9,25]], rest:15, hold:45, rest0:15, boss:0 };   // ⚑ SBL-Q2 k 1 = wave 1 is the level's own biggest wave (1.25 lifts the floor), ramp 0.04 to the ceiling cap 2 · hpX 1.5 = the health the bodies carry OVER today's total (1 = the wave's total health exactly today's; THE BENCH forced it: at 1 the average squad ran to wave 12-13 where it falls at 6-7 today, because the Tan's threat rides bodies — bites on the gate, leaks, rifles — not health; at 1.5 it falls at 7.0 over 5 seeds and the kid line at 5 as today) · the bands (seconds before wave n, by the band n falls in) · rest = the breather after every 5th wave · Q6 hold = the field's wait past the gap, at most · rest0 = a continued run's dig-in · Q3 boss 0 = the boss as today (the wave's total health exact on EVERY wave; the bench: Q3's REC share made boss waves ×1.2 … ×1.8 tougher at waves 10-50), 1 = his half share, built as the one-cell alternative
+function sblOn(){ return !!(HRDBAL.on && hrdOn()); }   // the rebalance is on and this is a survival run
+function sblGaps(){ return HRDBAL.on? HRDBAL.gaps : HRD_GAPS; }   // hrdGapOf's table
+function sblRest(){ return HRDBAL.on? HRDBAL.rest : HRD_REST; }   // the breather after every 5th wave (the drum; hsvSave / hsvResume's ceiling)
+function sblRest0(){ return HRDBAL.on? HRDBAL.rest0 : HSV_REST0; }   // the fewest seconds before the next wave after a continue
+function sblBodies(n, mul, rn){ return HRDBAL.on? mul*HRDBAL.k*Math.min(HRDBAL.cap, 1+HRDBAL.ramp*(n-1)) : rn; }   // the count factor the BODIES ride (the shipped rn with the switch off)
+function sblBossHp(k, lc){ return HRDBAL.boss? 1+(k-1)*Math.min(0.5, (lc && lc.bossF!=null)? lc.bossF : 0.5) : 1; }   // HRDBAL.boss 1: the boss's share of the wave's health factor k = the campaign's half curve, HALF at most (cfg.bossF climbs to 1 by L50: the full factor is never his, SBL-Q3's own word); 0 (shipped): the boss as today
+function sblStamp(g, i0){ const k=+g.hrdHp; if(!(k>0) || k===1) return; const x=(HRDBAL.hpX>0)? HRDBAL.hpX : 1; for(let i=i0;i<S.foes.length;i++){ const f=S.foes[i]; f.hpMax=Math.max(1, Math.round(f.hpMax*k*x)); f.hp=f.hpMax; f.bountyMul=(f.bountyMul||1)*k; f.sblK=k; } }   // the bodies a group just bore: their health rides the factor (× hpX, the bench's dial), their dog tag the factor alone (a wave pays what it paid) — spawnGroup's door
+function sblFieldDown(){ if(S.queue && S.queue.length) return false; for(const f of S.foes) if(!(f.dead || f.pendDie || f.hp<=0)) return false; return true; }   // the rug is clear and nothing is queued (hsvBetween's own test)
+function sblHoldArm(H9, sq){ H9.hold=0; if(!HRDBAL.on || S.wave%HRD_EVERY) return; H9.hold=S.wave; H9.holdT=sq.t+hrdGapOf(S.wave+1); sq.nextT=H9.holdT+HRDBAL.hold; }   // at a push: after a 5th wave the next wave waits — at the LATEST the gap + the hold; sblHoldTick pulls it in
+function sblHoldTick(H9, sq){ if(!(H9.hold && H9.hold===S.wave)) return; if(sblFieldDown()){ H9.hold=0; sq.nextT=Math.min(sq.nextT, Math.max(H9.holdT, sq.t)+HRDBAL.rest); } else if(sq.t>=H9.holdT+HRDBAL.hold){ H9.hold=0; } }   // every frame while a hold is armed: the field down → the rest runs from now (no sooner than the gap's end, never past the cap); the cap → the wave comes regardless
 function hrdEnd(){
   const n=S.wave|0, best=Math.max(META.hrdBest|0, n), isNew=n>0 && n>(S.hrd.best0|0);
   for(const b of S.blobs){ const v9=gtxTag(b.v); S.plastic+=v9; if(META.stats) META.stats.tags=(META.stats.tags|0)+v9; } S.blobs.length=0;   // B2: the tags still in the air land (the blob road's own sum) — the fort fell before they reached the purse
@@ -76931,7 +76962,7 @@ function hsvSave(){
   const men=[];
   for(const u of S.units){ if(!u || u.dead || u.coopBy || HSV_SKIP[u.type] || !UDEF[u.type]) continue;
     men.push([u.type, Math.round(u.x), Math.round(u.y), u.hits|0, u.vet? 1 : 0, u.kills|0, u.hrdWall? 1 : 0]); }
-  META.hrdPark={ v:HSV_V, n, rest:Math.max(HSV_REST0, Math.min(HRD_GAP+HRD_REST, Math.ceil(sq.nextT-sq.t))), secs:H9.secs.map(s=>Math.round(s.hp*10)/10), men, tv:H9.tur.map(P=>P.vet? 1 : 0),   /* CARD-STW: the veteran guns */
+  META.hrdPark={ v:HSV_V, n, rest:Math.max(sblRest0(), Math.min(HRD_GAP+sblRest(), Math.ceil(sq.nextT-sq.t))), /* CARD-SBL: 15 s at least after a continue */ secs:H9.secs.map(s=>Math.round(s.hp*10)/10), men, tv:H9.tur.map(P=>P.vet? 1 : 0),   /* CARD-STW: the veteran guns */
     plastic:Math.round(S.plastic)|0, lives:S.lives|0, fl:H9.flankSaid|0, best0:H9.best0|0, king:Object.keys(S.kingSpent||{}), run:HRDB.run||'', s:hrdSeasonOf(Date.now()), t:Date.now(), cv:GVT_CV };
   const M=hrdMine(); if(n>(M.w|0)) M.w=n;   // this phone's season best = the wave reached (a guest's flag)
   META.hrdBest=Math.max(META.hrdBest|0, n);
@@ -76955,7 +76986,7 @@ function hsvResume(P){
   const H9=S.hrd, sq=S.sq, n=Math.max(1, Math.min(100000, P.n|0));
   for(let i=2;i<=n+1;i++) hrdLoad(hrdWave(i));   // the drum's list as it stood: waves 1..n dealt, n+1 queued (one ahead), the cfg on n+1's numbers
   S.wave=n; H9.w=n; H9.pushT=-HRD_GAP; H9.best0=P.best0|0; H9.flankSaid=P.fl|0;
-  sq.t=0; sq.nextT=Math.max(HSV_REST0, Math.min(HRD_GAP+HRD_REST, P.rest|0));
+  sq.t=0; sq.nextT=Math.max(sblRest0(), Math.min(HRD_GAP+sblRest(), P.rest|0));   // CARD-SBL: a continued run sees the field for 15 s at least (sblRest0) before its next wave; a save from before this client resumes under the new clock
   hrdSecsLoad(H9, P);   // CARD-HFG: the walls whole (solid now), the gate's HP kept, an older save's 45-point gate scaled to the 3000
   if(Array.isArray(P.tv)) H9.tur.forEach((Q,i)=>{ if(P.tv[i]) Q.vet=1; });   // CARD-STW: the veteran guns come back (a save from before this client has no tv: stock guns)
   H9.art=null;
@@ -91551,7 +91582,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.76';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.77';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -118506,7 +118537,9 @@ function spawnGroup(g,wk9){   // 0590: wk9 = an optional KEY in the wave's seat 
     const t=(S.levelN|0)+':'+(wk9!=null? String(wk9) : (S.wave|0))+':'+String(g.t||'')+':'+((q0[g.t]|0)+1)+':'+String(g.f||'')+':'+String(g.e||'')+':'+(g.n|0);
     for(let i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
     S.dq9=dice9(h); }
+  const i0=S.foes.length;   // CARD-SBL: the bodies this call bears start here
   try{ spawnGroup9(g); } finally { S.dq9=null; }
+  if(g.hrdHp>0) sblStamp(g, i0);   // CARD-SBL: a survival wave's tougher bodies (hrdWave's stamp): their health and their dog tag ride the factor; no stamp (every other fight, the switch off) = this line never reads
 }
 function spawnGroup9(g){
   if(g.f==='boss'){
@@ -205179,6 +205212,7 @@ window.GVT = {
   olDeal(){ return olDeal(); },
   start(){ spawnWave(); },
   step(sec){ const n=Math.round(sec*60); for(let i=0;i<n;i++){ if(S.mode==='play') update(1/60); } draw(); },
+  sbl(){ const H9=S.hrd||{}, sq=S.sq||{}; return { cv:GVT_CV, bal:JSON.parse(JSON.stringify(HRDBAL)), on:sblOn(), gaps:[hrdGapOf(1),hrdGapOf(26),hrdGapOf(76)], rest:sblRest(), rest0:sblRest0(), wave:S.wave|0, hold:H9.hold|0, holdT:+(+H9.holdT||0).toFixed(2), t:+(+sq.t||0).toFixed(2), nextIn:+((+sq.nextT||0)-(+sq.t||0)).toFixed(2), down:S.foes? sblFieldDown() : null, between:(typeof hsvBetween==='function')? hsvBetween() : null, live:(S.foes||[]).filter(f=>!(f.dead||f.hp<=0)).length, hud:(hrdOn() && S.sq && typeof hrdHudLine==='function')? hrdHudLine() : '', park:META.hrdPark? { n:META.hrdPark.n, rest:META.hrdPark.rest, cv:META.hrdPark.cv } : null }; },   // CARD-SBL: the rig's read (read-only)
   // 0248 THE TRAINING RANGE rig — read-only state for batteries (the v2.60
   // law: rig doors never gate and never tick anything)
   train(){ const d=S.foes.find(f=>f.type==='dummy'), el=document.getElementById('trainbar');
