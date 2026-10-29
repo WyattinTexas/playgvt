@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.33","md5":"21176935ed3de9916f2b3b71f0c7bab3","sha":"c9d44fd3c3","at":"2026-10-29T21:10:51Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.34","md5":"ccd80bde5387d346721d2758d74b43b0","sha":"2c24ceb45f","at":"2026-10-29T21:32:21Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -84530,7 +84530,7 @@ const QT_RESUME_MAX=800;      // ms — the longest the return proof waits for t
 const QT={ held:0, wait:0, sus:0, had:0, skip:0, n:0, rel:0, t0:0, out:[], late:[] };   // held = THE flag (putAway / takeOut alone write it) · wait = the release's resume in flight · sus = this page suspended the context · had = a context stood at the hide · skip = the first frame back reads no gap · out = passes fading on the clock · late = a frozen fight's own timers, held with their remainder
 function qtHeld(){ return !!(QT_ON && QT.held); }
 function qtWait(){ return !!(QT_ON && (QT.held || QT.wait)); }   // held, or the release's resume not yet settled — a bed, the theme and the dance wait for the knock instead of arming to a tap or dying
-function qtFreezes(){ return !!(QT_ON && QT_FREEZE && S.mode==='play' && !S.bf && !S.raid && !S.coop && !S.rival); }   // the solo campaign family: the road, the parks, mom's raid at home, the range — never a battlefield, a raid, a party fight or a rival sortie (their clocks are shared, 0394 / 0322 own them)
+function qtFreezes(){ return !!(QT_ON && QT_FREEZE && !tckOn() /* CARD-TCK: the freeze stands down while the clock ticks in the pocket (?tck=0 = 0719's frozen fight back) */ && S.mode==='play' && !S.bf && !S.raid && !S.coop && !S.rival); }   // the solo campaign family: the road, the parks, mom's raid at home, the range — never a battlefield, a raid, a party fight or a rival sortie (their clocks are shared, 0394 / 0322 own them)
 function qtOut(s){ if(!s) return; QT.out.push(s); if(QT.out.length>6) QT.out.shift(); }   // a pass fading out on the context's clock — ended at once if the page is put away mid-fade
 function qtTimer(fn, ms){   // cell (e): a wall-clock timer a SOLO campaign fight owns (the crate's 900 ms KO beat) — fired in the pocket it is held with its REMAINDER and lands after the release; anywhere else it is a setTimeout
   const t0=performance.now();
@@ -92180,7 +92180,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.33';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -96156,8 +96156,8 @@ function bdTitleAlpha(){
 // never freezes for him (Wyatt 9/2 21:38: only a SOLO campaign fight freezes while hidden), his army fights on under the relay laws.
 let PUTAWAY={ hidden:0, t0:0, n:0, why:'' };
 let BD_AWAY_LOG=[];   // the rig's ledger of the words this page sent {on, why, t} — runtime, never saved
-function putAway(why){ if(PUTAWAY.hidden) return false; PUTAWAY.hidden=1; PUTAWAY.t0=Date.now(); PUTAWAY.n++; PUTAWAY.why=String(why||''); qtHold(why); bdAwayWord(1, why); coopAwayBeat(why); return true; }   // 0719: the sound hold + the frozen fight ride this one seam (qtHold, the AUDIO block)
-function takeOut(why){ if(!PUTAWAY.hidden) return false; const away=Date.now()-(PUTAWAY.t0||Date.now()); PUTAWAY.hidden=0; PUTAWAY.why=''; qtRelease(why); bdAwayWord(0, why); try{ roomNightSync(); }catch(e){} try{ if(away>=SALE_AWAY_MIN*60000) saleReturn(); }catch(e){} return true; }   // 0821 SUPPLY DROP: a return after SALE_AWAY_MIN minutes hidden counts as a launch (saleReturn)   // 0719: ...and come back through it (qtRelease) · 0904 PART TWO: the room re-reads the night on the return (the one hook — foregrounding repainted nothing before)
+function putAway(why){ if(PUTAWAY.hidden) return false; PUTAWAY.hidden=1; PUTAWAY.t0=Date.now(); PUTAWAY.n++; PUTAWAY.why=String(why||''); qtHold(why); bdAwayWord(1, why); coopAwayBeat(why); tckHide(why); /* CARD-TCK */ return true; }   // 0719: the sound hold + the frozen fight ride this one seam (qtHold, the AUDIO block)
+function takeOut(why){ if(!PUTAWAY.hidden) return false; const away=Date.now()-(PUTAWAY.t0||Date.now()); PUTAWAY.hidden=0; PUTAWAY.why=''; qtRelease(why); tckBack(away/1000, why); /* CARD-TCK: the pocket's span by the wall clock, owed unless paused */ bdAwayWord(0, why); try{ roomNightSync(); }catch(e){} try{ if(away>=SALE_AWAY_MIN*60000) saleReturn(); }catch(e){} return true; }   // 0821 SUPPLY DROP: a return after SALE_AWAY_MIN minutes hidden counts as a launch (saleReturn)   // 0719: ...and come back through it (qtRelease) · 0904 PART TWO: the room re-reads the night on the return (the one hook — foregrounding repainted nothing before)
 function bdInRoom(){ return !!(COOP && COOP.code && COOP.plc==='bd' && S.bf && S.bf.bd && S.mode==='play'); }   // a desert chair, hold or battle
 function bdInShell(){ try{ return !!((window.webkit&&webkit.messageHandlers)||/GVTShell|; wv\)/.test(navigator.userAgent)); }catch(e){ return false; } }   // the iOS bridge · the Android WebView's UA
 // ═══ CARD-ARF THE AWAY WHISTLE: A BATTLEGROUND ROOM'S REFEREE PUT AWAY HANDS THE WHISTLE AT ONCE (design/away-whistle-rooms-1010/00-BUILD-ARF.md; Wyatt 10/10/2026 12:58 EDT by phone, verbatim: "If someone minimizes the app while in multiplayer its currently stalling games. This cannot happen. Fix this."). THE CAUSE: in a room battle only the referee blows the whistle (bfTick's time door returns on a guest; a guest's KO waits for the word), and the chair moved only when his SEAT was pruned: a hidden browser tab's worker keeps it fresh (hid:1) for good, a frozen phone for ROOM_STALE_BATTLE 90 s — so a party's war or a private room stood at 0:00 until he came back. THE CURE WAS ON THE SERVER SINCE v53 (0902 THE DESERT ROUND TWO): POST /room/away {away:1} marks the chair away and an away HOST hands the whistle to the next awake commander at once (_room_rehost); the page's own poll is the BACK word. The client sent that word only for the desert (bdInRoom) and the torch fight (torchRoom). Now EVERY room battle with company sends it: bdAwayWord + bdAwayOnHide read arfRoom() beside the two. No new word, no save field, no listener, no server byte. ARF_ON 0 = HEAD.
@@ -195758,6 +195758,47 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.bty) GVT.bty=function(o){ if(o
     hz:btyHz(), capN:BTY.capN, half:btySaverHalf(), dots:btyDots(), layerDpr:btyLayerDpr(), dozeMs:btyDozeMs(), titleN:BTY.titleN, audio:{ idle:SFXW.idle|0, state:AC? AC.state : null, sinceAsk:Math.round(performance.now()-(SFXW.at||0)), naps:BTY.audioN, wakes:BTY.audioW }, radioN:BTY.radioN, radioMs,
     dials:{ hb:BTY_HB_MS, idle:BTY_IDLE_MS, still:BTY_STILL_MS, audio:BTY_AUDIO_MS, radio:BTY_RADIO_MS, dots:BTY_DOTS, dotsOn:BTY_DOTS_ON, cap:BTY_CAP, capHz:BTY_CAP_HZ } }; }; }catch(e){} }, 0);   // the rig's door, hung once the GVT object stands
 // ═══ END CARD-BTY ═══
+// ═══ CARD-TCK THE CLOCK KEEPS TICKING IN THE POCKET (sec:CARD-TCK; design/clock-ticks-away-1029/00-CARD-TCK.md; from Maker 1, account J, lane card M2798). FROM WYATT by phone 10/29/2026 19:20 UTC (jumpr 2798), verbatim: "If I minimize, the clock needs to keep ticking in games. Even if it's a single-player game, if I minimize, the clock should keep
+// ticking unless you hit the pause button in single-player. Of course, in multiplayer, if you hit the pause button, it still doesn't matter. The clock should keep ticking. Even though the app is not in the full main screen".
+// THE LAW TODAY (v28.22): a hidden page runs no frame (iOS suspends the WebContent process; Chromium stops rAF). 0719 cell (e) FROZE a solo campaign fight in the pocket (QT_FREEZE: the first frame back read NO gap, every clock resumed where it left); every other fight swallowed ONE capped catch-up frame on return (0559 C: SIM_CATCH_S 0.2 s;
+// DFR.catchS 0.6 s on a battleground) and booked the rest in FRAME_STATS.lagS. Either way a put-away was a pause. Only a party fight (S.coop, no battleground) paid its span back (CARD-HLT-B coopOwe, off the rAF gap).
+// THE LAW NOW: a put-away is NOT a pause. A fight whose clock lives on this page — a solo campaign rung, a park, the range, mom's raid, a solo raid, a rival sortie, a war-table battle against the computer, the gauntlet's computer fight, the away duel: every fight with no company (tckLocal) — OWES the span it was put away for and pays it back on return in the same
+// 0.05 s steps, TCK.steps a frame inside TCK.ms, muted (HLT-B's grammar): the sim clock, the waves and the lull, the match clock, every man and shell run the span the player was away, then the fight plays on — UNLESS it was PAUSED when put away: the HQ sheet open over a solo sim (hqHolds, v1.44's law; the campaign's pause glyph is the same door), the premiere
+// card (premFrozen), the opener's lesson (ftnHolds) — then nothing is owed and the clock resumes where it left, as before. The sheet opened mid-payback holds the payback too (the debt waits). A room battle (the torch, the desert, a private room, a party's war: S.coop) owes nothing here: the referee's / HQ's clock ran on the whole time (CARD-GNP · CARD-ARF ·
+// CARD-GAW), the sheet never held it, and the beacon re-pins this page's clock on the first poll back. A party campaign fight keeps CARD-HLT-B's own payback, byte-what-it-was.
+// THE SPAN: the wall clock across putAway → takeOut (Date.now(): performance.now() and the rAF clock stand still through a phone's sleep), less whatever the loop itself stepped in the pocket (TCK.walk, the wall seconds the frames simulated: a WebView whose rAF never stopped pays no war twice), less the one capped frame the return runs anyway (0559 C); capped at TCK.max s (a fight long decided
+// is decided inside it: the verdict ends the payback, a new battle owes nothing). The cap's own stall law is byte-what-it-was: a long FRAME is still the war's loss; only the POCKET is paid.
+// ?tck=0 = all of it off, the fight frozen / capped exactly as v28.22 (remembered on the device: gvt_tck; ?tck=1 forgets it) · GVT.tck() = the rig's read (+ its dials). Zero server, save, wire, sw, css or word bytes. ═══
+var TCK={ on:(function(){ try{ const q=/[?&]tck=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tck','0'); else localStorage.removeItem('gvt_tck'); } return localStorage.getItem('gvt_tck')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  max:600, steps:60, ms:24,   // ⚑ the most a pocket may owe (s) · steps a frame · the frame's budget (ms) — CARD-HLT-B pays the party at 40 / 24
+  owe:0, back:0, k:null, walk:0, walk0:0, hid:null, n:0, held:0, paid:0, pays:0, log:[] };   // owe = the seconds owed to THIS battle (k = its S) · back = a pocket's span handed to the first frame back · walk = the wall seconds the loop has simulated (walk0 = at the hide) · hid = what stood at the hide · the rig's counts
+function tckOn(){ return !!(typeof TCK!=='undefined' && TCK && TCK.on); }   // safe before the dial stands (a page that opens hidden is put away from its first breath: 0719)
+function tckLocal(){ return !!(S && S.mode==='play' && !S.coop && !S.tex && !S.evHold); }   // the clock lives on this page: no company (a room's clock is the beacon's; a party pays by HLT-B), no toy express, no hold for a bell
+function tckHeld(){ return !!(hqHolds() || premFrozen() || ftnHolds() || qtFreezes()); }   // paused: the sheet over a solo sim, the premiere card, the opener's lesson, 0719's frozen fight when its dial is back (?tck=0)
+function tckHide(why){ if(!tckOn()) return; TCK.walk0=TCK.walk; TCK.hid={ at:Date.now(), t:+(+S.t||0).toFixed(2), local:tckLocal(), held:tckHeld(), why:String(why||'') }; }   // the hide: what stood (the sheet cannot open in a pocket; the card and the lesson wait for a tap)
+function tckBack(awayS, why){
+  if(!tckOn()) return false; const h=TCK.hid; TCK.hid=null; TCK.back=0; if(!h) return false;
+  const stepped=Math.max(0, TCK.walk-TCK.walk0);   // a pocket whose rAF never stopped ran its own frames (their capped spans, as the loop counts them): that war is not owed twice
+  const span=Math.max(0, Math.min(TCK.max, (+awayS||0)-stepped));
+  const owe=!!(h.local && !h.held && tckLocal() && !tckHeld() && span>0);
+  TCK.n++; if(owe) TCK.back=span; else TCK.held++;
+  TCK.log.push({ at:h.t, away:+(+awayS||0).toFixed(1), stepped:+stepped.toFixed(2), owe:owe? +span.toFixed(1) : 0, held:h.held? 1 : 0, local:h.local? 1 : 0, why:String(why||'') }); if(TCK.log.length>12) TCK.log.shift();
+  return owe;
+}
+function tckOwe(gap, slow){
+  if(!tckOn()) return;
+  if(S.mode==='play' && !S.evHold && !hqHolds() && !ftnHolds()) TCK.walk+=Math.min(dfrCatchS(), +gap||0);   // the frame above stepped this much wall time (0559 C's cap; a held frame steps nothing): the pocket's own frames are read off it
+  if(TCK.k!==S){ TCK.k=S; TCK.owe=0; }   // a new battle owes nothing (S is new each battle)
+  if(TCK.back>0){ const b=TCK.back; TCK.back=0; if(tckLocal() && !tckHeld()) TCK.owe=Math.min(TCK.max, TCK.owe+Math.max(0, b-Math.min(dfrCatchS(), +gap||0))); }   // the pocket's span lands on the first frame back, less the capped catch-up that frame ran itself (0559 C)
+  if(!(TCK.owe>0) || !tckLocal() || tckHeld()) return;   // paused mid-payback (the sheet, a card) = the debt waits; the verdict (S.mode) ends it
+  const t0=performance.now(), so=soundOn; let n=0; soundOn=false;
+  try{ while(TCK.owe>1e-6 && n<TCK.steps && S.mode==='play' && !S.evHold && performance.now()-t0<TCK.ms){ const d=Math.min(SIM_STEP_S,TCK.owe); TCK.owe-=d; update(d*S.speed*S.slowmo*slow); n++; } }
+  finally{ soundOn=so; }
+  if(n){ TCK.paid+=n; TCK.pays++; } FRAME_STATS.tckPaid=(FRAME_STATS.tckPaid||0)+n; FRAME_STATS.tckOwed=+TCK.owe.toFixed(2);
+}
+setTimeout(function(){ try{ if(window.GVT && !GVT.tck) GVT.tck=function(o){ if(o && typeof o.on==='number') TCK.on=o.on? 1 : 0; if(o && o.max>0) TCK.max=+o.max; if(o && o.ms>0) TCK.ms=+o.ms; if(o && o.steps>0) TCK.steps=o.steps|0;
+  return { cv:GVT_CV, on:tckOn(), local:tckLocal(), held:tckHeld(), freeze:QT_FREEZE, freezes:qtFreezes(), owe:+TCK.owe.toFixed(3), back:+TCK.back.toFixed(3), n:TCK.n, heldN:TCK.held, paid:TCK.paid, pays:TCK.pays, hid:TCK.hid, walk:+TCK.walk.toFixed(2), steps:FRAME_STATS.steps, lagS:+(+FRAME_STATS.lagS||0).toFixed(2), dials:{ max:TCK.max, steps:TCK.steps, ms:TCK.ms }, log:TCK.log.slice() }; }; }catch(e){} }, 0);   // the rig's read (+ its dials; GVT:a — attached outside the literal, CARD-GNP's grammar)
+// ═══ END CARD-TCK ═══
 function frame(ts){
   if(!btyArm('f')) requestAnimationFrame(frame);   /* CARD-BTY THE HEARTBEAT (2): off the field and idle the loop stands down to 5 a second (btyArm); a touch, a door, a return wakes it within one frame (btyWake) */ btyModeTick();
   if(!ready) return;
@@ -195804,6 +195845,7 @@ function frame(ts){
       if(coach.step===4&&coach.lostT>0){ coach.lostT-=dt; if(coach.lostT<=0){ coach.lostT=0; if(!coach.lostSarge){ coach.step=5; coach.t=0; } } } }   // 0668: Sarge's line over = step 4 still ARMED (the refund lesson waits for a regular man); the refund line over = graduated (step 5); the dog-tag toast clock is gone
   }
   coopOwe(gap, slow);   // CARD-HLT-B: a fight with company pays back the span the cap dropped
+  tckOwe(gap, slow);   // CARD-TCK: a fight whose clock lives on this page pays back the span it was put away for (never a paused one: the sheet holds it; never a room: its clock is the beacon's)
   if(S.mode==='play'){ velTick(dt); glideTick(dt); tapFlyTick(dt); }   // CARD-TP: the tap's flight rides the wall clock beside them (a gesture — never the sim's speed)   // 0343 (item 2): census corrections glide on the WALL clock — beside vflag, never inside update's scaled dt · FIX-D: the velocity tracker rides beside it
   if((S.mode==='menu' && (cvCovered() || foCovers())) || btyTitleCovers()) return;   /* CARD-BTY (1): + the opaque PRESS START screen covers the canvas edge to edge: no field, no HUD painted under it */   // 1102 THE LAG (fruit f): the room / a park / a lobby / the fort / the Surplus covers the canvas edge to edge (coverLG: 0 px through at four windows) — no full-canvas clear, no rug, no HUD under it; the canvas keeps its last frame, the first frame of any other mode draws as ever; the sim + every clock above byte-what-they-were
   draw();
