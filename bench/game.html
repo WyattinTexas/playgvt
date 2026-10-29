@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.08","md5":"8eb2245218dccedf7960b8acbb56fb4f","sha":"8107c01832","at":"2026-10-29T16:34:42Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.09","md5":"fc4d4e9d381e8cde32307f29e48a603b","sha":"6934c63475","at":"2026-10-29T16:41:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91378,6 +91378,30 @@ function hardRanks(){ const up={}; for(const k of ownedUnits()) up[k]=Math.min(R
 // 0917 THE BRASS ON THE TORCH'S COMPUTER (design/gauntlet-0907/00-DESIGN.md §9.3; Wyatt 9/10: "raise the difficulty of the cpu opponents. Make sure the units the cpu attacks you with are mostly higher level"): the Gauntlet's own brass table — EVERY type the computer can field walks on at max(your rank in it, your average owned rank) + GA_RANK_UP, capped RANK_MAX (a type you never ranked is never stock); the torch's computer rides the whole 0417/0418 hard package through startBattlefield's gate (gaCpu). ⚑ Q4 10 = 0418's original number (0421 measured the FARMER's bot down to 3; the arena is where the cheat is sanctioned) · ⚑ Q5 the floor = the average.
 const GA_RANK_UP=10;
 function gaRanks(){ const own=ownedUnits(), avg=own.length? Math.round(own.reduce((s,k)=>s+(META.up[k]|0),0)/own.length) : 0, up={}; for(const k of BF_TYPES) up[k]=Math.min(RANK_MAX, Math.max(META.up[k]|0, avg)+GA_RANK_UP); return up; }
+// ═══ CARD-CB THE CONFIDENCE BOOSTER (TASK FROM WYATT'S PHONE 10/29/2026 15:56 EDT, jumpr 2781, built on Maker 1 as M2781; design/confidence-booster-1029/00-CARD-CB.md). Wyatt, verbatim:
+// "Add confidence booster logic. What I mean is, the computer players (the fake humans who attack the gauntlet player, the guy who holds the torch), their troops, and Sarge should be the same
+// level as the player. If the player is, say, level 10 and only has level 5 bazookas, it should match all that until the player is over level 50, at which point the computer opponents go back to
+// our current default computer fake human opponent. This way, low-level players will enjoy picking up the gauntlet."
+// THE READ: the Gauntlet's computer (the knock on a holder and the challenge to a computer holder: gaFightCPU → startBattlefield's hard cell, gaCpu) fields EVERY type at max(your rank in it, your
+// average owned rank) + 10 (0917's gaRanks), and one seed in three walks in DEADLY (CARD-DLY: a rank-100 Sarge with a rank-100 iron and the lab's parts). A level-10 commander with rank-5 bazookas
+// met rank-15 bazookas at best and a rank-100 Sarge one fight in three. THE RULE: while the COMMANDER LEVEL (META.lvl, the HQ card's LV; 1 on a fresh save) is CB.lvl (50) or under, the computer's
+// men and his Sarge walk on at YOUR OWN rank in each type, exactly (cbRanks: a type you never ranked is stock, no floor, no +10; up.sarge = your figure's own rank), and the deadly draw is boxed
+// (cbDeadly: the seed's stream is drawn as ever, so the callsign and the colour keep their parity with HQ; the challenger just walks in plain). Over level 50 (51 and up) everything is
+// byte-what-it-was: gaRanks, the deadly third. The rest of the hard package stands at every level as 0917 shipped it (the chest +30, the drip ×1.10, ×1.03 hp / ×1.02 dmg, the captain's +5 plate and
+// his rank-0 OUTLAW / DUELIST kit with its presses, the smart march, the quiet hand): the booster matches LEVELS, which is what he asked (⚑ CB-Q3). Scope = the torch's computer only: the war
+// table's own hard bot (hardRanks, +3), a torch room's real player, the party's RIVAL and every other carpet untouched. Zero server, wire, save, sw, css or word bytes. Rig: GVT.cb() ·
+// design/confidence-booster-1029/rig/.
+const CB={ lvl:50 };   // ⚑ CB-Q1 the rung: the booster holds through commander level 50 ("until the player is over level 50"); 51 and up = the shipped computer
+function cbOn(lvl){ return ((lvl==null? META.lvl : lvl)|0) <= CB.lvl; }   // the gate: the commander level on the save (a what-if level for the rig)
+function cbRanks(){ const up={}; for(const k of BF_TYPES) up[k]=Math.max(0, Math.min(RANK_MAX, META.up[k]|0)); return up; }   // the booster's brass table: every type the computer can field at YOUR rank in it, exactly (Sarge too)
+function gaCpuRanks(){ return cbOn()? cbRanks() : gaRanks(); }   // startBattlefield's one read for the torch's computer: the booster's table through level 50, 0917's brass over it
+function cbDeadly(dl){ return cbOn()? null : dl; }   // gaFightCPU's one read: the deadly draw (CARD-DLY) stands over level 50; boxed under the booster (the draw itself is still taken off the stream)
+function cbProbe(o){ const lvl=(o && o.lvl!=null)? (o.lvl|0) : (META.lvl|0); const bf=S.bf, cell=bf&&bf.hard;   // read-only: the gate, the three tables, the live cell, the captain's kit, the computer's standing men
+  const men=(bf&&cell)? S.units.filter(u=>u.side==='foe' && u.seat===bf.team && !u.dead).map(u=>({ id:u.id, t:u.type, nrk:(u.nrk==null? null : u.nrk), rank:perkRank(u), hpMax:+(+u.hpMax).toFixed(2), dmg:(u.def&&u.def.dmg!=null)? +(+u.def.dmg).toFixed(3) : null })) : [];
+  return { dials:{ lvl:CB.lvl }, lvl:lvl, on:cbOn(lvl), mine:Object.assign({}, META.up||{}), up:cbRanks(), gaUp:gaRanks(), hardUp:hardRanks(),
+    cell:cell? { cb:cell.cb|0, up:Object.assign({}, cell.up||{}), dl:cell.dl? Object.assign({}, cell.dl) : null, kitW:cell.kitW, col:cell.col, mo:(cell.mo||[]).slice() } : null,
+    fight:(bf&&bf.ga)? Object.assign({}, bf.ga) : null, kit:(bf&&bf.seats&&bf.seats[bf.team]&&bf.seats[bf.team].kit)? Object.assign({}, bf.seats[bf.team].kit) : null, men:men }; }
+// ═══ END CARD-CB ═══
 // 0411: the embargo predicate — hardSmartU's sibling in seat form. Answers
 // "is THIS seat's hand quiet right now": the hard cell's foe seats, and
 // (⚑ HARD_VEH_T0_AWAY) the away captain's one chair — the only wallets
@@ -92027,7 +92051,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.09';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -103190,7 +103214,7 @@ function startBattlefield(mapId,diffOverride,teamSize,plan,rivX){
     const hq9=seats[team], pre9=!!(hq9 && !hq9.human && hq9.hk && !gaCpu);   // CARD-IQ2 THE DEALT IRON: the queue dealt the hard captain's kit at the deal (bfqArm — the same 50/50, the same four crystals): the DUELIST or the OUTLAW who ported in is the one who fights
     const duel=pre9? hq9.kw==='lightsaber' : Math.random()<0.5;
     const hcol=duel? ((pre9 && HARD_CRYSTALS.indexOf(hq9.hc)>=0)? hq9.hc : HARD_CRYSTALS[(Math.random()*HARD_CRYSTALS.length)|0]) : null;
-    S.bf.hard={ up:(gaCpu? gaRanks() : hardRanks()), kitW:(duel?'lightsaber':'sniper'), col:hcol,   // 0917: the torch's computer wears the Gauntlet's own brass table
+    S.bf.hard={ up:(gaCpu? gaCpuRanks() : hardRanks()), cb:(gaCpu && cbOn())? 1 : 0, kitW:(duel?'lightsaber':'sniper'), col:hcol,   // 0917: the torch's computer wears the Gauntlet's own brass table · CARD-CB: at the player's own ranks while the commander is level 50 or under (gaCpuRanks; cb 1 marks the cell)
       mo:(duel? ['telekinesis'] : ['outlawsniper','flamestrike']),
       tkCd:HARD_T0, snpCd:HARD_T0, gsCd:HARD_T0, rpCd:HARD_T0, fsCd:HARD_T0, sgId:0 };
     const hcap=S.bf.seats[team];
@@ -158021,7 +158045,7 @@ function gaFightCPU(cpu, asChal){   // the knock (asChal false: the holder defen
   if(!cpu || S.mode!=='menu' || BFQ || S.coop || coopLaunching || GA.wait || (asChal? GA.hold : !GA.hold)) return false;
   const rnd=gaRand(cpu.seed|0); const mn=mintCallsign(rnd); const ar=ARMIES[(rnd()*ARMIES.length)|0];
   const name=(typeof cpu.name==='string' && cpu.name)? String(cpu.name).slice(0,40) : mn, hex=(typeof cpu.hex==='string' && /^#[0-9A-Fa-f]{6}$/.test(cpu.hex))? cpu.hex : ar.hex;
-  const riv={ id:'ga', name:name, hex:hex, blurb:'', mod:{}, dl:dlyDraw(rnd) };   // CARD-DLY THE DEADLY CHALLENGER: the third draw of the same stream (after the two parity-proved ones) says whether this computer is deadly, and which iron (dl = { w, col } or null)
+  const riv={ id:'ga', name:name, hex:hex, blurb:'', mod:{}, dl:cbDeadly(dlyDraw(rnd)) };   // CARD-DLY THE DEADLY CHALLENGER: the third draw of the same stream (after the two parity-proved ones) says whether this computer is deadly, and which iron (dl = { w, col } or null) · CARD-CB: the draw is still taken off the stream (the parity stands), the deadly one boxed while the commander is level 50 or under (cbDeadly)
   const map=(cpu.map && BF_MAPS.some(m=>m.id===cpu.map) && !BF_BENCH[cpu.map])? cpu.map : 'winter';   // CARD-OB: HQ's persona on a benched carpet (THE STARSHIP, 9/25) fights on the seat's own default
   UI.closeModal(); if(wartableOpen()) closeWarTable();
   startBattlefield(map, 'hard', 1, null, riv);   // the map by NAME (never 'random'): startBattlefield's write-back guard leaves META.bfMap as it was
@@ -205802,6 +205826,7 @@ window.GVT = {
     return { on:!!C, dials:CHS9, book:CHS9_BOOK, hunt:chsTD().hunt, bag:A? { seen:+A.seen.toFixed(2), due:+A.due.toFixed(2), bi:A.bi, turns:A.turns, moves:A.moves, caps:A.caps, adv:A.adv, bookMoves:A.book, skips:A.skips, alive:A.alive, falls:A.falls, log:A.log.slice(-80) } : null, clock:C? { t:+C.t.toFixed(2), clock:C.clock, moveT:+C.moveT.toFixed(2), oi:C.oi, moves:C.moves, knocks:C.knocks, shoves:C.shoves, p2:!!(C.p2 && C.p2.on), p3:!!C.p3, split:C.p3? +Math.max(0,C.p3.split).toFixed(2) : 0 } : null, mine:chs9Mine().map(P), goal:C? chs9Goal(chsBodies()) : null }; },
   chs7(v){ v=v||{}; const rd=S.raid, C=(rd && rd.k==='chess' && rd.cfg===S.cfg && rd.chs)||null, row=(typeof ROOM_SPOTS!=='undefined')? ROOM_SPOTS.find(r=>r.id==='atchess') : null, nm=S.foes.find(f=>f.chsNem && !f.dead)||null, rs=document.getElementById('raidscene');   // CARD-CHS7 THE CHESS EDITS: the rig's read (the dials, the attic row, the clocks, the ransom latch, Nemesis's gear, the board screen's pieces)
     return { cv:GVT_CV, dy:CHS_ATC_DY, inf:CHS_INF, sortie:CHS_SORTIE, T:CHS_T, row:row? { x:row.x, y:row.y, w:row.w, h:row.h, lx:row.lx, ly:row.ly } : null, clock:C? C.clock : null, oi:C? C.oi : null, moves:C? C.moves : null, rs:(META.chess && META.chess.rs)||null, hush:chsHush(), nem:nm? { hp:nm.hp, hpMax:nm.hpMax, spd:nm.def.spd, dash:nm.def.saber.dash, ret:nm.def.saber.ret } : null, first:CHS2.first, lit:CHS2.lit, ring:!!document.getElementById('chsRing'), line:!!(rs && rs.querySelector('.chs-line')), dark:!!document.getElementById('chsDark'), lamp:!!document.getElementById('chs7Lamp'), frame:!!document.getElementById('chs7Frame'), plaque:(rs && rs.querySelector('.chs-plates'))? getComputedStyle(rs.querySelector('.chs-plates')).borderTopWidth : null }; },
+  cb(o){ return cbProbe(o); },   // CARD-CB THE CONFIDENCE BOOSTER: the rig's read-only door (GVT.cb() the gate, the tables, the live cell, the computer's men; GVT.cb({lvl}) a what-if at that commander level)
   dly(o){ return dlyProbe(o); },   // CARD-DLY THE DEADLY CHALLENGER: the rig's read-only door (GVT.dly({seed}) replays a seed's callsign, colour and draw; GVT.dly() reads the live cell, the captain's kit, rank, plastic and lit bench)
   bbh(){ const st=document.getElementById('bbStage'), h=document.getElementById('bbHarp'), seat=document.getElementById('bbHarpSeat'); return { cv:GVT_CV, up:bbUp(), harp:!!h, inLeft:!!(h && h.closest('.bb-l')), seat:seat? seat.getAttribute('transform') : null, react:!!(h && h.classList.contains('react')), on:BBH.on|0, gen:BBH.gen|0, song:!!(st && st.classList.contains('bbh-song')), open:!!(st && st.classList.contains('open')), parted:!!(st && st.classList.contains('parted')), owns:decOwns('harp'), deed:!!META.teddyDeed, harpDeed:!!META.teddyHarp, find:[META.parkTeddy|0, META.parkTeddySeen|0], bank:META.starBank|0, life:META.starsLifetime|0, park:(parkSceneOpen()? PARK_CUR : null), ask:!!document.getElementById('shConfirm'), seatXY:Object.assign({},BBH_SEAT), ms:HS_MS }; },   // CARD-BBH THE HARP AT THE BARRICADE: the rig's one read (read-only): the wall, her presence + seat + latch, the stage's classes, the stamps, the bank
   chs5(v){ const rd=S.raid, C=(rd && rd.k==='chess' && rd.cfg===S.cfg && rd.chs)||null;   // CARD-CHS5 PHASE THREE: the rig's door (p3 = the king to 24 %: the unveil on the next tick · backup(n) = a call · the read)
