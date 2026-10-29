@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.34","md5":"ccd80bde5387d346721d2758d74b43b0","sha":"2c24ceb45f","at":"2026-10-29T21:32:18Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.35","md5":"7bb945337aeeef44068a6eab426b81e8","sha":"2d920d2ec6","at":"2026-10-29T21:43:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83678,6 +83678,66 @@ function cwlRig(o){ o=o||{}; if(typeof o.on==='number') CWL.on=o.on? 1 : 0; if(o
     is:cwlIs, hex:cwlHex, code:cwlCode, hu:cwlHU, rgb:cwlRgb, tone:cwlTone, can:cwlCan, open:cwlOpen, shut:cwlShut, back:cwlBack, orig:cwlOrig, off:cwlOff, seat:cwlSeat, pick:cwlPick, geo:cwlGeo, panel:cwlPanelHTML, img:cwlRingImg, trim:cwlTrim }; }
 setTimeout(()=>{ cwlWire(); try{ if(typeof GVT==='object' && GVT) GVT.cwl=cwlRig; }catch(e){} }, 0);   // UI and GVT stand once the page's last section has run
 // ═══ CARD-CWL ends ═══
+// ═══ CARD-CWL2 EVERY PIECE TAKES THE WHEEL (board R2785, lane relay: the relay's wake of jumpr 2785's session; design/colour-wheel-every-piece-1029/00-CARD-CWL2.md). FROM LAURA by WhatsApp 10/29/2026 16:11:06 EDT (id 3BB699B2C28DA2315F12, her reply to card 2785's message), verbatim: "Just the bucket hat has a color wheel, every piece of clothing, sunglasses, etc should have a color wheel option". CARD-CWL's wheel (v28.08) opens on a worn piece that has colour art (DJS_ART); thirty-one pieces had none (CWL-Q3): the face set, the gloves, the platform, and the sets painted as pictures on the carpet man. ═══
+// THE BUILD: each of the thirty-one gets its art entry (DJS_ART[id] = its portrait fragments, byte for byte the strings outfitDress appends), so the wheel opens on its press at SARGE'S QUARTERS (cwlCan), the little wheel marks its card, the tile and the portrait tint (djsPartSVG, djsDress) and the carpet man's painter maps its colours (djsCvOn's setters), as for every other piece. Two roads needed more:
+//   THE GLOVES' PORTRAIT: their paths are drawn for the pose's own arms (ofGloves reads the limbs group), so no fixed fragment stands in every pose: the tint goes on at the draw (ofGloves wrapped by name; outfitDress wrapped by name so the draw knows whose wardrobe it dresses: mine, never a partner's or a mold's: djsDress's law).
+//   THE TAIL PAINTERS: the outlaw stash and the clown nose paint after the engine's setters are lifted (CARD-DJS's off line stands before them): each gets the setters back for its own call. THE CAPTAIN'S HAT'S TILE: CARD-LBW-A answers it by name ahead of the engine's hook: one late wrap tints it. THE FAMILIES' SEATS: six pieces whose heaviest shape is a rim or a shadow name their body colour (CWL2_MAIN), so the pick lands on the body.
+//   THE PICTURES: the wraps (gmyWrapCanvas), the squad set (sqgCanvas), the Nutcracker set (ncbOfCanvas), the feast set (tkhOfCanvas) and the captain's tricorn while CPN is dark (chbImg) paint the carpet man from an image minted once from the piece's SVG; the setters never see a picture. While the piece wears a colour, the painter is handed a picture minted from the SAME fragment through djsTint (one image a colour, a bounded cache), swapped into its cache for the one call and put back. The body wraps and the foot wraps (shaded since CARD-DJS, pictures in battle) take their colour in battle through the same door.
+// THE CELLS: CWL2.on (?cwl2=0 on a device, gvt_cwl2 '0'; ?cwl2=1 clears it: the thirty-one keep their press and no wheel = HEAD; ?cwl=0 = HEAD's rows, these pieces without one) · CWL2.face (1: the face set and the gloves take the wheel; 0: they stay out: Wyatt's 10/11 "only for visible armor", the shades' reading; CWL2-F1: his word is one number) · CWL2.pics (1: the picture painters tint; 0: the pictures stay stock while the portrait and the tile tint).
+// Zero words, css, META keys, server, sw or sim bytes; the save is CARD-CWL's own key djsShade[id] (a wheel code), the wire sw.dsh as before (an older client reads a code on these pieces as the stock colour: djsShOf's DJS_ART gate). HONK'S HORN has no picture on Sarge (it rides the jeep): nothing to colour (CWL2-Q2). The feast set has no portrait seat today (the stand never showed it): its wheel tints the tile and the carpet man (CWL2-F2). Rig door GVT.cwl2.
+const CWL2={ on:(function(){ try{ const q=/[?&]cwl2=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cwl2','0'); else localStorage.removeItem('gvt_cwl2'); } return localStorage.getItem('gvt_cwl2')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  face:1, pics:1, cap:64, wear:undefined, lastMap:null, mine:[], img:{}, imgN:0, n:{ gl:0, pic:0, swap:0, tail:0 },
+  ids:['platform','headwraps','legwraps','sqtunic','sqpants','sqboots','nutshako','nutcoat','nutboots','nutcrown','tkhhat','tkhapron','tkhboots','captainshat','mustache','handlebar','outlawstash','clownnose','monocle','eyepatch','aviators','rspecs','banditmask','dogglasses','scouter','robovisor','skygoggles','gnomebeard','pilotgloves','acegloves','duelglove'],
+  faceIds:['mustache','handlebar','outlawstash','clownnose','monocle','eyepatch','aviators','rspecs','banditmask','dogglasses','scouter','robovisor','skygoggles','gnomebeard','pilotgloves','acegloves','duelglove'] };   // the thirty-one (CWL-Q3's list, + the clown nose since) · the face set and the gloves (the 10/11 cell)
+function cwl2On(){ try{ return !!(CWL2 && CWL2.on && cwlOn()); }catch(e){ return false; } }   // CARD-CWL's own switch rules
+// ── THE GLOVES' PORTRAIT (ofGloves + outfitDress wrapped by name; the fragments for the engine's reading of their colours come from the unwrapped draw on the stock mold)
+const cwl2Dress0=outfitDress; outfitDress=function(art,wk,wear){ CWL2.wear=wear; try{ return cwl2Dress0.apply(this, arguments); } finally{ CWL2.wear=undefined; } };
+const cwl2Gl0=ofGloves; ofGloves=function(art,ace){ const s=cwl2Gl0.apply(this, arguments); try{ if(!cwl2On() || !CWL2.face) return s; const w=CWL2.wear, map=(!Array.isArray(w) || w.djsMine)? djsShMine() : null; if(!map) return s; const id= ace===2? 'duelglove' : ace? 'acegloves' : 'pilotgloves'; const n=djsShOf(id,map); if(!n) return s; CWL2.n.gl++; return djsTint(id,n,s); }catch(e){ return s; } };
+// ── THE ART (each entry = the strings the portrait appends for the piece, both pose families where the legs differ; the generators are the page's own, cached)
+const CWL2_ART={ platform:()=>[OF_PLAT], headwraps:()=>[OF_HEADWRAP], legwraps:()=>[hl6dLegArt(1),hl6dLegArt(0)],
+  sqtunic:()=>[sqgArt().tunic], sqpants:()=>[sqgArt().pantB,sqgArt().pantA], sqboots:()=>[sqgArt().bootB,sqgArt().bootA],
+  nutshako:()=>[OF_NUTSHAKO], nutcoat:()=>[OF_NUTCOAT], nutboots:()=>[OF_NUTBOOT_B,OF_NUTBOOT_A], nutcrown:()=>[OF_NUTCROWN],
+  tkhhat:()=>[OF_TKHHAT], tkhapron:()=>[OF_TKHAPRON], tkhboots:()=>[OF_TKHBOOT_A], captainshat:()=>[lbwaHatArt()],
+  mustache:()=>[OF_MUS], handlebar:()=>[DJS_HBAR], outlawstash:()=>[ostashSvg()], clownnose:()=>[cnzSvg()], monocle:()=>[OF_MONOCLE], eyepatch:()=>[OF_EPATCH,OF_EPSTRAP], aviators:()=>[OF_AVIATORS], rspecs:()=>[DJS_SPECS], banditmask:()=>[OF_WMASK], dogglasses:()=>[OF_DOGGL], scouter:()=>[OF_SCOUTER], robovisor:()=>[OF_ROBOVISOR], skygoggles:()=>[OF_SKYGOG], gnomebeard:()=>[OF_GBEARD],
+  pilotgloves:()=>[cwl2Gl0(SPRITES_SRC.sarge,0)], acegloves:()=>[cwl2Gl0(SPRITES_SRC.sarge,1)], duelglove:()=>[cwl2Gl0(SPRITES_SRC.sarge,2)] };
+// THE FAMILIES' SEATS: the engine reads a piece's main colour as its heaviest shape's (djsMain); on six of these the heaviest shape is a rim, a shadow or a base plate, darker than the body, and a pick would turn the body near white (the ratio law). Each names its body colour: the pick is the body's, the rim a shade deeper, as on every other piece.
+const CWL2_MAIN={ clownnose:['hue',0,'#E2342A'], scouter:['hue',150,'#B9FFD6'], platform:['gold',30,'#D9A544'], monocle:['gold',30,'#D9A544'], rspecs:['gold',30,'#D9A866'], gnomebeard:['neutral',0,'#C9C4B4'] };   // the ball, the luminous lens, the gold, the gold ring, the amber lens, the beard
+function cwl2Flush(id){ for(const k in DJS_HEX){ if(k.indexOf(id+'|')===0) delete DJS_HEX[k]; } }   // the tint cache for one piece (its family moved)
+function cwl2Install(){ cwl2Uninstall(); if(!cwl2On()) return 0; for(const id of CWL2.ids){ if(DJS_ART[id] || !CWL2_ART[id]) continue; if(!CWL2.face && CWL2.faceIds.indexOf(id)>=0) continue; DJS_ART[id]=CWL2_ART[id]; CWL2.mine.push(id); }   // a piece that has art of its own by then keeps it
+  for(const id in CWL2_MAIN){ if(CWL2.mine.indexOf(id)<0) continue; const q=CWL2_MAIN[id]; DJS_MAIN[id]={ kind:q[0], hue:q[1], top:q[2], cwl2:1 }; cwl2Flush(id); } return CWL2.mine.length; }
+function cwl2Uninstall(){ for(const id of CWL2.mine){ if(DJS_ART[id]===CWL2_ART[id]) delete DJS_ART[id]; if(DJS_MAIN[id] && DJS_MAIN[id].cwl2){ delete DJS_MAIN[id]; cwl2Flush(id); } } CWL2.mine.length=0; }
+// ── THE PICTURES (the five painters wrapped by name; the map = the one djsCvOn seated for the man now painting: mine, or an ally's sw.dsh; nothing while no shaded piece is worn)
+function cwl2Map(){ try{ return (DJS_CV.on && DJS_CV.map)? DJS_CV.map : null; }catch(e){ return null; } }
+function cwl2Code(id){ if(!cwl2On() || !CWL2.pics) return 0; const m=cwl2Map(); return m? djsShOf(id,m) : 0; }
+function cwl2Img(id,n,inner){ const k=id+'|'+n; let im=CWL2.img[k]; if(im) return im; if(CWL2.imgN>=CWL2.cap){ CWL2.img={}; CWL2.imgN=0; }   // one image a colour; the cache bounded (a drag at the quarters paints the portrait, never these)
+  im=CWL2.img[k]=new Image(); CWL2.imgN++; CWL2.n.pic++; im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140">'+djsTint(id,n,inner)+'</svg>'); return im; }
+function cwl2Swap(cache,list,fn){ const sw=[]; try{ for(const r of list){ const n=cwl2Code(r[0]); if(!n) continue; const im=cwl2Img(r[0],n,r[1]); if(!(im.complete && im.naturalWidth)) continue;   // not decoded yet: the stock picture this frame
+      sw.push([r[0], Object.prototype.hasOwnProperty.call(cache,r[0]), cache[r[0]]]); cache[r[0]]=im; CWL2.n.swap++; } }catch(e){}
+  try{ return fn(); } finally{ for(const q of sw){ if(q[1]) cache[q[0]]=q[2]; else delete cache[q[0]]; } } }
+const cwl2Gmy0=gmyWrapCanvas; gmyWrapCanvas=function(u,on){ if(!cwl2Map() || !cwl2On() || !CWL2.pics) return cwl2Gmy0.apply(this, arguments);
+  const L=[]; for(const id of GMY_WRAPS_ALL){ if(!on(id)) continue; L.push([id, id==='headwraps'? '<g transform="translate(57,50)">'+OF_HEADWRAP+'</g>' : id==='bodywraps'? OF_BODYWRAP : id==='legwraps'? hl6dLegArt(0) : OF_FOOTWRAP_A]); }   // the painter's own fragments
+  return cwl2Swap(GMY_WRAP_IMG, L, ()=>cwl2Gmy0.apply(this, arguments)); };
+const cwl2Sqg0=sqgCanvas; sqgCanvas=function(on,X,Y,seat){ const r=SQG.find(q=>q.seat===seat); if(!r || !cwl2Code(r.id)) return cwl2Sqg0.apply(this, arguments); const A=sqgArt(); return cwl2Swap(SQG_IMG, [[r.id, r.id==='sqtunic'? A.tunic : r.id==='sqboots'? A.bootA : A.pantA]], ()=>cwl2Sqg0.apply(this, arguments)); };
+const cwl2Ncb0=ncbOfCanvas; ncbOfCanvas=function(id,x,y){ if(!cwl2Code(id)) return cwl2Ncb0.apply(this, arguments); return cwl2Swap(NCB_OF_IMG, [[id, id==='nutcrown'? '<g transform="translate(60,50)">'+OF_NUTCROWN+'</g>' : id==='nutshako'? '<g transform="translate(60,50)">'+OF_NUTSHAKO+'</g>' : id==='nutcoat'? OF_NUTCOAT : OF_NUTBOOT_A]], ()=>cwl2Ncb0.apply(this, arguments)); };
+const cwl2Tkh0=tkhOfCanvas; tkhOfCanvas=function(id,x,y){ if(!cwl2Code(id)) return cwl2Tkh0.apply(this, arguments); return cwl2Swap(TKH_OF_IMG, [[id, tkhOfFrag(id)]], ()=>cwl2Tkh0.apply(this, arguments)); };
+const cwl2Chb0=chbImg; chbImg=function(){ const n=cwl2Code('captainshat'); if(!n) return cwl2Chb0.apply(this, arguments); const im=cwl2Img('captainshat',n,'<g transform="translate(60,50)">'+lbwaHatArt()+'</g>'); return (im.complete && im.naturalWidth)? im : cwl2Chb0.apply(this, arguments); };
+// ── THE TAIL PAINTERS: the outlaw stash and the clown nose paint AFTER the engine lifts its setters (CARD-DJS's off line stands before them in the face run), so no colour ever reached them; each gets the setters back for its own call, from the map the engine seated for the man now painting (djsCvOn wrapped by name to remember it), lifted again after
+const cwl2CvOn0=djsCvOn; djsCvOn=function(on,u,aly){ CWL2.lastMap=null; const r=cwl2CvOn0.apply(this, arguments); try{ CWL2.lastMap=DJS_CV.on? DJS_CV.map : null; }catch(e){} return r; };
+function cwl2SetOn(id,n){ try{ const P=CanvasRenderingContext2D.prototype, F=Object.getOwnPropertyDescriptor(P,'fillStyle'), K=Object.getOwnPropertyDescriptor(P,'strokeStyle'); if(!F || !K || !F.set || !K.set) return false; const c=cx, fx=v=>(typeof v==='string')? djsShadeHex(id,n,v) : v;
+  Object.defineProperty(c,'fillStyle',{ configurable:true, get(){ return F.get.call(this); }, set(v){ F.set.call(this,fx(v)); } }); Object.defineProperty(c,'strokeStyle',{ configurable:true, get(){ return K.get.call(this); }, set(v){ K.set.call(this,fx(v)); } }); return true; }catch(e){ return false; } }   // djsCvOn's own grammar, one piece
+function cwl2SetOff(){ try{ delete cx.fillStyle; delete cx.strokeStyle; }catch(e){} }
+function cwl2Tail(id,f){ return function(on){ if(!cwl2On() || DJS_CV.on) return f.apply(this, arguments); let n=0; try{ const m=CWL2.lastMap; n=(m && on(id))? djsShOf(id,m) : 0; }catch(e){} if(!n || !cwl2SetOn(id,n)) return f.apply(this, arguments); CWL2.n.tail++; try{ return f.apply(this, arguments); } finally{ cwl2SetOff(); } }; }
+const cwl2Ost0=ostashCv; ostashCv=cwl2Tail('outlawstash', cwl2Ost0);
+const cwl2Cnz0=cnzCv; cnzCv=cwl2Tail('clownnose', cwl2Cnz0);
+// ── THE RIG DOOR (GVT.cwl2: the reads; o.on / o.face re-seat the entries, o.pics the pictures, o.flush the picture cache; seated once window.GVT exists)
+function cwl2Rig(o){ o=o||{}; let re=false; if(o.on!=null){ CWL2.on=o.on? 1 : 0; re=true; } if(o.face!=null){ CWL2.face=o.face? 1 : 0; re=true; } if(o.pics!=null) CWL2.pics=o.pics? 1 : 0; if(re) cwl2Install(); if(o.flush){ CWL2.img={}; CWL2.imgN=0; }
+  const main={}; try{ for(const id of CWL2.ids){ const M=DJS_ART[id]? djsMain(id) : null; main[id]=M? [M.kind,M.hue,M.top] : null; } }catch(e){}
+  return { cv:GVT_CV, on:CWL2.on, live:cwl2On(), face:CWL2.face, pics:CWL2.pics, ids:CWL2.ids.slice(), faceIds:CWL2.faceIds.slice(), mine:CWL2.mine.slice(), art:CWL2.ids.filter(id=>!!DJS_ART[id]).length, n:Object.assign({},CWL2.n), imgN:CWL2.imgN, main, code:cwl2Code, img:cwl2Img, install:cwl2Install }; }
+// ── THE CAPTAIN'S HAT'S TILE: CARD-LBW-A answers its tile by name ahead of the engine's hook (outfitPartSVG wrapped at the cove's join), so the hat's tile never reaches djsPartSVG: one late wrap (after the page has run) tints that one tile when the hat wears a colour; every other tile is the engine's
+function cwl2Late(){ try{ if(outfitPartSVG.cwl2) return; const t0=outfitPartSVG; const f=function(id){ const s=t0.apply(this, arguments); if(id!=='captainshat' || !cwl2On() || typeof s!=='string') return s; const n=djsShOf(id,djsShMine()); return n? djsTint(id,n,s) : s; }; f.cwl2=1; outfitPartSVG=f; }catch(e){} }
+(function seat(){ try{ if(typeof GVT==='object' && GVT){ GVT.cwl2=cwl2Rig; cwl2Late(); return; } }catch(e){} setTimeout(seat,50); })();
+cwl2Install();
+// ═══ CARD-CWL2 ends ═══
 function sargeWepURI(wk, bodyHex, bladeHex, vb, wear){   // 0577: + the optional wear pass-through (the fitting room's try — every shipped caller passes nothing, byte-identical URIs)
   // SARGE'S OUTFITS (v2.16): every owned-by-YOU portrait dresses through this
   // one door — the room, the academy, the picker, the case, the reveal cards,
@@ -92180,7 +92240,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
