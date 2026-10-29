@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.01","md5":"d1909d764e7650d20033b81952191bff","sha":"1f776adb6f","at":"2026-10-29T02:33:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.02","md5":"9efb1080f1cc285332e023afa6318974","sha":"f052845a3c","at":"2026-10-29T03:13:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91818,7 +91818,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -156382,6 +156382,48 @@ function ckuRig(o){ o=o||{}; if(o.on!=null){ CKU.on=o.on? 1 : 0; } if(o.deal) ck
   const g=f=>{ try{ return f(); }catch(e){ return null; } };
   return { cv:GVT_CV, v:CKU.v, on:CKU.on, lvl:META.lvl|0, fgt:g(()=>fgtOn()), gates:{ flx:g(()=>FGT_LVL.flx), east:g(()=>FGT_LVL.east), bells:g(()=>NIGHT_MIN_LVL|0) }, open:{ flx:g(()=>fgtOpen('flx')), east:g(()=>fgtOpen('east')), bells:g(()=>nightGateOpen()) }, locks, key:CKU.key, deals:CKU.deals, up:CKL.up|0, lines, wrapped:!!CKU.old, tid:!!CKU.tid, err:CKU.err }; }   // the rig's read: the dials, the gates and their state, what the standing card says under each row
 // ═══ END CARD-CKU ═══
+// ═══ CARD-CKV · THE SECOND LIST FOR EVERY EXISTING PLAYER (sec:CARD-CKV; design/checklist-everyone-list2-1028/00-CARD-CKV.md; FROM WYATT by phone 10/28/2026 ~21:12 EDT (jumpr 2774, built on Maker 1 as M2774), verbatim: "Set all existing players to have the second list, unless they've already finished it. If Loop Lab, they've already had an upgrade, have it pre-checked. If they've already purchased the Jeep, have it pre-checked. For Completed Daily Mission and Win the Gauntlet (one gauntlet match), have those by default not checked. When the checklist opens up the first time and they click it, they're going to see the stars animate and go up. It's going to look great. Let's have that design, then go with the recommendations. Push it live."):
+//   THE MIGRATION (ckvMigrate, once a save, the mark META.ckl.ckv): a VETERAN who never met the list (given -1: a save already past the tour when sec CARD-CKL first read it on 10/19, or seeded so today) is handed YOUR SECOND ORDERS: list 2, given 0, tapped 0 (the camo tab tweens in at his next quiet bedroom moment and wiggles until he taps it, CKW's word). A player with list 2 in hand keeps it; one past it (list 3, or all 1) is untouched (his "unless they've already finished it"). A player on list 1 is a rookie of the last nine days (list 1 is only ever seeded in or before the tour) and keeps his road, list 1 then 2 then 3 (CKV-Q1: his "all existing players" read as the installed base; CKV_ROOKIES_TOO 1 sends the list-1 rookies on as well).
+//   THE PRE-CHECKS: FLOOP'S LAB = a part the lab sells, owned (ckvLabMade: an id of META.enh.own that labSold says the lab sells; the trophies the ranks and the Showdown hand out and the spellbook's two starting spells are TROPHY_IDS and never count), read at every tick beside CKL3's own reads; THE JEEP = CKL3's read vehOwns('bfjeep') as shipped. Both stamp at the list's first open as the list does today: the check slams in, the chip turns green, +N★ rises and the six stars fly to the piggy with the head's ★ counting up (cklStamp + CARD-SFY's starFly, CKL_STAMP_GAP_MS apart): his "the stars animate and go up".
+//   THE FRESH ROWS (CKV_FRESH: msn, ga): COMPLETE A DAILY MISSION and WIN 1 GAUNTLET MATCH are never read off history (his "by default not checked"): cklGot wrapped by name refuses CKL3's history reads of the two ids (why 'read') and any deed of theirs while list 2 is not the list in hand; they are earned FRESH: the moment list 2 is the list in hand (the bow, the migration, the rig) META.ckl.base snapshots the mission board's day row (dk, done, the secondary orders done) and the torch count META.tv; ckvTick stamps msn when the board's row grows past the snapshot (today's prime done where it was not, a secondary done, another day's row done) and ga when META.tv grows (the gaVerdict wrap's own live stamp passes the gate on list 2 too). A list-2 player's unpaid got.msn / got.ga from the old history reads is cleared at the migration (a paid row stays: one pay an id ever).
+//   HOW: cklKeys wrapped by name (the migration at its first call after this sec loads, never under a standing card; the baseline the moment list 2 is in hand without one); cklGot wrapped by name (the gate); ckvTick at CKL's cadence (the lab read, the fresh reads, the one save after the migration). Sec CARD-CKL, CARD-CKU and CARD-SFY byte-still. ?ckv=0 on a device = the game as shipped (no migration, no gate, no lab read; the device key gvt_ckv; ?ckv=1 back). Zero server bytes, zero sw.js, no css, no new words. Rig door: GVT.ckv(o) (hung at the first tick) = { on, mig, keys, base, labMade, fresh, snap, refused, held, err }; {on:0|1}, {mig:1} runs the migration again on this save (the mark cleared first), {tick:1}.
+const CKV={ on:(function(){ try{ const m=/[?&]ckv=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_ckv','0'); else localStorage.removeItem('gvt_ckv'); } return localStorage.getItem('gvt_ckv')==='0'? 0 : 1; }catch(e){ return 1; } })(), v:1, err:0, old:{}, log:[], mig:null, saved:0, refused:0, held:0, fresh:0, tid:0 };   // the switch (CKL's grammar) · the errors swallowed · the wrapped originals · the beats · the migration's road this session · the save after it · the history reads refused · the deeds held off another list · the fresh stamps · the tick
+const CKV_FRESH={ msn:1, ga:1 };   // the two rows earned fresh, never from history (his "by default not checked")
+const CKV_ROOKIES_TOO=0;   // CKV-Q1: 1 = a rookie still on list 1 is sent to list 2 as well (his "all" to the letter); 0 = he finishes list 1 first, as the lists were built
+function ckvOn(){ return !!CKV.on; }
+function ckvLog(s){ CKV.log.push([s, Math.round(performance.now())]); if(CKV.log.length>40) CKV.log.shift(); try{ CKL.log.push(['ckv:'+s, Math.round(performance.now())]); }catch(e){} }
+function ckvLabMade(){ try{ const own=(META.enh && Array.isArray(META.enh.own))? META.enh.own : []; return own.some(id=>labSold(id)); }catch(e){ CKV.err++; return false; } }   // an upgrade made in FLOOP'S LAB = a part the lab sells, owned (labLand is the one road into META.enh.own besides the trophies)
+function ckvSnap(){ const g=f=>{ try{ return f()|0; }catch(e){ return 0; } }; const m=META.msb, row=(m && typeof m==='object')? m : null;
+  return { dk:row? String(row.dk||'') : '', done:(row && row.done)? 1 : 0, dn:g(()=>(row && row.dn && typeof row.dn==='object')? Object.keys(row.dn).length : 0), tv:g(()=>META.tv|0), t:Date.now() }; }   // where the player stands the moment list 2 is his: the mission board's day row (its key, the prime done, the secondary orders done) and the torch count; never the board's lifetime marks (META.msbAdv), which its own tick writes late for a row already done (CKV-F4)
+function ckvFresh(id, k){ const b=k && k.base; if(!b || typeof b!=='object') return false; const n=ckvSnap();
+  if(id==='ga') return n.tv>(b.tv|0);
+  if(id==='msn'){ if(!n.dk && !n.done && !n.dn) return false; if(n.dk!==String(b.dk||'')) return !!(n.done || n.dn>0); return n.done>(b.done|0) || n.dn>(b.dn|0); }
+  return false; }   // fresh = grown past the snapshot: a torch won; the board's prime done today where it was not, a secondary done, another day's row done
+function ckvMigrate(k){ if(!k || typeof k!=='object' || k.ckv) return null; if(CKL.up || CKL.busy) return null;   // once a save, never under a standing card (the next read)
+  const L=(k.list|0)||1, was={ list:L, given:k.given, all:k.all|0, got:Object.keys(k.got||{}).join(','), paid:Object.keys(k.paid||{}).join(',') }; let road;
+  if(k.all || L>=3) road='past';   // finished list 2, or the lot: untouched
+  else if(L===2) road='has';   // list 2 in hand: kept; its two fresh rows start unchecked
+  else if(k.given===-1 || CKV_ROOKIES_TOO) road='to2';   // THE VETERAN who never met the list: YOUR SECOND ORDERS are his
+  else road='rookie';   // list 1 = a rookie of the last nine days (seeded in or before the tour): his road as today (CKV-Q1)
+  if(road==='to2'){ k.list=2; k.given=0; k.tapped=0; k.all=0; CKL.tabKey=''; }
+  if(road==='to2' || road==='has'){ for(const id in CKV_FRESH) if(k.got && k.got[id] && !(k.paid && k.paid[id])) delete k.got[id]; k.base=null; }   // the fresh rows never from history: an unpaid stamp of the old read goes, a paid one stays (one pay an id ever); the baseline follows at once
+  k.ckv=1; CKV.mig={ road:road, was:was, t:Date.now() }; ckvLog('mig:'+road); return road; }
+(function(){ if(!ckvOn() || typeof cklKeys!=='function' || typeof cklGot!=='function' || typeof cklOn!=='function' || !cklOn()) return; try{   // AT LOAD (never under ?ckv=0 or ?ckl=0): the two wraps by name, the migration, the tick
+  CKV.old.keys=cklKeys; cklKeys=function(){ const k=CKV.old.keys.apply(this, arguments); try{ if(k && typeof k==='object'){ if(!k.ckv) ckvMigrate(k); if(((k.list|0)||1)===2 && (!k.base || typeof k.base!=='object')){ k.base=ckvSnap(); ckvLog('base'); } } }catch(e){ CKV.err++; } return k; };   // the save's keys: the migration once, the baseline the moment list 2 is the list in hand without one (the bow, the migration, the rig)
+  CKV.old.got=cklGot; cklGot=function(k, why){ try{ if(CKV_FRESH[k]){ if(why==='read'){ CKV.refused++; return false; } if(((cklKeys().list|0)||1)!==2){ CKV.held++; return false; } } }catch(e){ CKV.err++; } return CKV.old.got.apply(this, arguments); };   // THE GATE: a fresh row is never read off history and counts only while list 2 is in hand
+  cklKeys();   // the migration now (the seed already stands: sec CARD-CKL read the save at its own load)
+  CKV.tid=setInterval(ckvTick, CKL_TICK_MS);
+}catch(e){ CKV.err++; } })();
+function ckvTick(){ try{ if(window.GVT && !GVT.ckv) GVT.ckv=ckvRig; if(!ckvOn() || !cklOn()) return; const k=cklKeys(); if(!k || !k.ckv) return;
+  if(CKV.mig && !CKV.saved){ CKV.saved=1; saveMeta(); }   // the migration written once the page is up (sec CARD-CKL's own seed waits for the next write the same way)
+  if(k.given===-1 || k.all) return;
+  if(!k.got.lab && !k.paid.lab && ckvLabMade()) cklGot('lab', 'read');   // THE LAB'S HISTORY READ: a part the lab sells, owned
+  if(((k.list|0)||1)===2 && k.base){ for(const id in CKV_FRESH) if(!k.got[id] && !k.paid[id] && ckvFresh(id, k)){ if(cklGot(id, 'fresh')) CKV.fresh++; } }   // THE FRESH READS: the board and the torch grown past the snapshot
+}catch(e){ CKV.err++; } }
+function ckvRig(o){ o=o||{}; if(o.on!=null){ CKV.on=o.on? 1 : 0; } if(o.mig){ try{ const k=cklKeys(); delete k.ckv; k.base=null; CKV.mig=null; CKV.saved=0; cklKeys(); }catch(e){ CKV.err++; } } if(o.tick) ckvTick();
+  const g=f=>{ try{ return f(); }catch(e){ return null; } }; const k=g(()=>CKV.old.keys? CKV.old.keys() : cklKeys());
+  return { cv:GVT_CV, v:CKV.v, on:CKV.on, mig:CKV.mig, saved:CKV.saved, keys:k? JSON.parse(JSON.stringify({ ckv:k.ckv|0, list:k.list, given:k.given, all:k.all|0, tapped:k.tapped|0, got:k.got, paid:k.paid })) : null, base:k? (k.base||null) : null, labMade:ckvLabMade(), fresh:{ msn:g(()=>ckvFresh('msn', k)), ga:g(()=>ckvFresh('ga', k)), n:CKV.fresh }, snap:ckvSnap(), refused:CKV.refused, held:CKV.held, rookiesToo:CKV_ROOKIES_TOO, wrapped:!!(CKV.old.keys && CKV.old.got), tid:!!CKV.tid, log:CKV.log.slice(), err:CKV.err, tour:META.tour|0, tv:META.tv|0, own:g(()=>((META.enh && META.enh.own)||[]).slice()), jeep:g(()=>vehOwns('bfjeep')) }; }   // the rig's read: the switch, the migration's road and what the save was, the keys, the baseline, the two reads as they stand now
+// ═══ END CARD-CKV ═══
 // ═══ CARD-FFI THE FIRST FIVE, ISAAC'S SEVEN NOTES (FROM ISAAC by his guest link, jumpr 2307, 10/16/2026 15:18:46 UTC, built on Maker 1 as a design pass; design/first-five-isaac-1016/00-DESIGN-FFI.md, his words verbatim in §0) ═══
 // N1 the briefing's "They will show us no mercy." page out (COMM_LINES.camp) · N2 THE FIRST TIME card 10 % smaller (css) · N3 the piggy's page "Watch out for thieves!" (TOUR_LINES) — words and css, no code here.
 // N4 THE RING ON THE ROCKETS: the lab legs' light is re-seated on its seat's LIVE rect on every tick of the script (the tile rises into place after the room's page turn; a light measured at the leg's start stood ~23 px low).
