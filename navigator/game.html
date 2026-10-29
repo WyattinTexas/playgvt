@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.07","md5":"f2cf5f6f9b7e5b475bf4f71c509ff345","sha":"eefc8ae1bc","at":"2026-10-29T16:17:32Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.08","md5":"8eb2245218dccedf7960b8acbb56fb4f","sha":"8107c01832","at":"2026-10-29T16:34:45Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83456,6 +83456,111 @@ const dpoDress0=djsDress; djsDress=function(s,on,wear){ s=dpoDress0.apply(this, 
     for(const f of [DJS_SUIT_LA, DJS_SUIT_LB]){ const t=djsTint('discosuit',n,f); if(t===f) continue; let i=s.indexOf(f); while(i>=0){ s=s.slice(0,i)+t+s.slice(i+f.length); i=s.indexOf(f, i+t.length); } } }catch(e){}
   return s; };
 function dpoRig(o){ if(o && typeof o==='object' && typeof o.on==='number') DPO.on=o.on? 1 : 0; return { cv:GVT_CV, on:dpoOn(), cut:DPO.cut, n:DPO.n, cvn:DPO.cvn, la:DJS_SUIT_LA.length, lb:DJS_SUIT_LB.length }; }
+// ═══ CARD-CWL THE COLOUR WHEEL AT SARGE'S QUARTERS (FROM LAURA by the jumpr guest link, sent 10/29/2026 15:10:48 UTC, jumpr 2779; built on Maker 1 as M2779; design/colour-wheel-1029/00-CARD-CWL.md), her words verbatim: "instead of each clothing item have its own shade, everything should just have a color wheel when you press on it while the sarge is wearing it in sarges quarters. Trying to streamline and make it look more aesthetically pleasing to the eye" ═══
+// THE ROWS GO: CARD-DJS's SHADE rows under the rails (djsRailHTML) are not dealt; the rack is the cards alone. A worn piece that takes a colour (DJS_ART) wears a little wheel on its card's corner (.cwl-mk), so the press is found.
+// THE PRESS: a press on a piece Sarge is WEARING (owned, worn, DJS_ART) opens THE WHEEL in the rails' place (UI.fortWear wrapped by name); a piece he is not wearing goes on with its press as before; the fort's gear lesson keeps the old press (FXT.on).
+//   The stage, the A/B/C plates, Sarge and his line stay where they are; the rails hold the piece's name, the wheel round the piece's own tile, and ORIGINAL · TAKE OFF · DONE. DONE, the ✕ and the backdrop go back to the rack where it was (the crystal card's law).
+// THE WHEEL: every hue round the ring (red at the top, clockwise), light by the hub to deep at the rim (HSL lightness 0.88 -> 0.50 -> 0.15, saturation 0.72 -> 0.68 -> 0.55, eased so the rich middle holds the most of the ring); a touch or a drag anywhere on the ring picks, and Sarge, the tile and the knob take the colour under the finger.
+//   The ring is painted pixel by pixel from the one function (cwlRgb), so it shows exactly what he gets; its two rims are its own colour a shade darker at 55 % (the style guide's soft outline), on a cream dish with a light top and a deeper foot.
+// THE SAVE: META.djsShade[id] = a wheel code (CWL.base + hue step x CWL.T + tone step: 180 hues x 21 tones), the shades' own key and wire (sw.dsh 'gnomecap.1234'); the tint is CARD-PDC's (pdcTarget names the colour, djsShadeHex maps the piece's main family onto it by its own ratios).
+//   An older client (or ?cwl=0) reads a wheel code as the stock colour (djsShOf's bound); the shades and the pads' colours already saved keep painting; TAKE OFF keeps the colour for the next time he wears it.
+// THE SWITCH: ?cwl=0 on a device (gvt_cwl '0'; ?cwl=1 clears it) = HEAD's rows and HEAD's press. Rig door GVT.cwl. One new word x7 (TAKE OFF); zero META keys, server, sw or sim bytes.
+const CWL={ on:(function(){ try{ const q=/[?&]cwl=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cwl','0'); else localStorage.removeItem('gvt_cwl'); } return localStorage.getItem('gvt_cwl')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  base:100, H:180, T:21, L:[0.88,0.50,0.15], S:[0.72,0.68,0.55], e:1.45, ri:0.46, id:null, st:0, drag:null, pt:0, live:0, raf:0, img:{}, nc:0, n:0, w0:null };   // the codes · the tones (hub, middle, rim) · the hub's share of the ring · the open piece · the rack's scroll · the finger · the last code shown · the frame · the painted rings by size
+function cwlOn(){ return !!(CWL && CWL.on); }
+function cwlIs(v){ return typeof v==='number' && (v|0)===v && v>=CWL.base && v<CWL.base+CWL.H*CWL.T; }   // a wheel code (never a shade 1..3 or a pads colour 4..11)
+function cwlTone(u){ const v=0.5+0.5*Math.sign(u-0.5)*Math.pow(Math.abs(2*u-1), CWL.e), i=v<=0.5? 0 : 1, k=i? (v-0.5)/0.5 : v/0.5; return [CWL.S[i]+(CWL.S[i+1]-CWL.S[i])*k, CWL.L[i]+(CWL.L[i+1]-CWL.L[i])*k]; }   // [saturation, lightness] at u (0 = by the hub, 1 = the rim), eased so the rich middle tones hold the most of the ring
+function cwlRgb(h,u){ const t=cwlTone(u); return djsFromHsl(h,t[0],t[1]); }
+function cwlCode(h,u){ const n=CWL.H, hq=((Math.round(h*n/360)%n)+n)%n, uq=Math.max(0,Math.min(CWL.T-1,Math.round(u*(CWL.T-1)))); return CWL.base+hq*CWL.T+uq; }
+function cwlHU(c){ const k=c-CWL.base; return [Math.floor(k/CWL.T)*360/CWL.H, (k%CWL.T)/(CWL.T-1)]; }
+function cwlHex(c){ if(!cwlIs(c)) return null; const p=cwlHU(c), q=cwlRgb(p[0],p[1]); return '#'+((1<<24)|(q[0]<<16)|(q[1]<<8)|q[2]).toString(16).slice(1); }
+// ── the shade engine takes a wheel code (three names wrapped; their bytes untouched)
+const cwlShOf0=djsShOf; djsShOf=function(id,map){ const v=map? map[id] : 0; return (cwlOn() && cwlIs(v) && DJS_ART[id])? v : cwlShOf0.apply(this, arguments); };   // a wheel code paints (CARD-DJS's bound reads it as the stock colour)
+const cwlTgt0=pdcTarget; pdcTarget=function(id,n){ return (cwlOn() && cwlIs(n))? cwlHex(n) : cwlTgt0.apply(this, arguments); };   // the colour a code stands for: CARD-PDC's branch of djsShadeHex maps the piece onto it
+const cwlRail0=djsRailHTML; djsRailHTML=function(g){ return cwlOn()? '' : cwlRail0.apply(this, arguments); };   // THE ROWS GO
+function cwlTrim(){ for(const k in DJS_HEX){ const n=+k.split('|')[1]; if(n>=CWL.base) delete DJS_HEX[k]; } }   // a long drag's tints leave the cache (the shades' stay)
+// ── THE PRESS
+function cwlCan(id){ try{ if(!cwlOn() || !OUTFIT_INFO[id] || !DJS_ART[id] || !outfitOn(id)) return false; if(!fortStands() || FORT_TAB!=='outfitter' || !document.querySelector('#roomModal .eq-fit')) return false; if(typeof FXT==='object' && FXT && FXT.on) return false; return true; }catch(e){ return false; } }   // a piece he wears, at the quarters, no lesson running
+function cwlWire(){ try{ if(!window.UI || typeof UI.fortWear!=='function' || UI.fortWear.cwl) return false; const w0=UI.fortWear; CWL.w0=w0; const f=function(id){ if(cwlCan(id)) return cwlOpen(id); return w0.apply(this, arguments); }; f.cwl=1; UI.fortWear=f; return true; }catch(e){ return false; } }
+function cwlOpen(id){ const sc=document.querySelector('#roomModal .rmback'); CWL.st=sc? sc.scrollTop : 0; CWL.id=id; CWL.live=0; CWL.drag=null; CWL.n++; try{ audio(); SFX.blip(); }catch(e){}
+  fortDeal('outfitter'); const s2=document.querySelector('#roomModal .rmback'); if(s2) s2.scrollTop=0; return true; }
+function cwlBack(ev){ if(ev && ev.target!==ev.currentTarget) return; if(!CWL.id){ try{ UI.closeModal(); }catch(e){} return; } try{ SFX.clack(); }catch(e){} cwlShut(); }   // DONE · the ✕ · the backdrop: back to the rack
+function cwlShut(){ CWL.id=null; CWL.drag=null; try{ saveMeta(); renderMenu(); shopRefresh(); }catch(e){}
+  if(fortStands()){ fortDeal('outfitter'); const s2=document.querySelector('#roomModal .rmback'); if(s2) s2.scrollTop=CWL.st; } }
+function cwlOrig(){ const id=CWL.id; if(!id) return; const m=djsShMine(); if(m) delete m[id]; CWL.live=0; try{ audio(); SFX.blip(); }catch(e){} try{ saveMeta(); }catch(e){} cwlLive(); cwlKnobSeat(); }   // the piece's own colours
+function cwlOff(){ const id=CWL.id; if(!id) return; CWL.id=null; CWL.drag=null; const st=CWL.st; try{ (CWL.w0||UI.outfit).call(UI, id); }catch(e){} const s2=document.querySelector('#roomModal .rmback'); if(s2) s2.scrollTop=st; }   // TAKE OFF: the shipped toggle (its blip, save, re-deal), the rack where it was
+// ── THE CARD: the rails hold the wheel while a piece is open (outfitterHTML and xbeBk wrapped by name)
+const cwlFit0=outfitterHTML; outfitterHTML=function(){ if(!fortStands()) CWL.id=null;   // a fresh open lands on the rack (EQT_VIEW's law)
+  const h=cwlFit0.apply(this, arguments); if(!cwlOn()) return h; const id=CWL.id;
+  if(id && !(OUTFIT_INFO[id] && DJS_ART[id] && outfitOn(id))) CWL.id=null;
+  if(CWL.id){ const i=h.indexOf('<div class="fh-rails eq-rails">'); if(i>=0){ Promise.resolve().then(()=>{ try{ cwlSeat(); }catch(e){} }); return h.slice(0,i)+'<div class="fh-rails eq-rails cwl-rails">'+cwlPanelHTML(CWL.id)+'</div></div>'; } CWL.id=null; }
+  return h.replace(/<button type="button" class="sh-ofit worn" id="shof-([A-Za-z0-9_]+)"[^>]*>/g, (m,k)=> DJS_ART[k]? m+'<i class="cwl-mk" aria-hidden="true"></i>' : m); };   // the worn pieces that take a colour wear the little wheel
+const cwlBk0=xbeBk; xbeBk=function(inner){ const b=cwlBk0.apply(this, arguments); return b || ((typeof inner==='string' && inner.indexOf('<div class="fh-rails eq-rails cwl-rails">')>=0)? 'cwlBack' : ''); };
+function cwlPanelHTML(id){ const m=djsShMine(), cur=m? m[id] : 0, M=djsMain(id), wh=cwlIs(cur);
+  return '<div class="cwl" id="cwlPanel" data-id="'+id+'"><h3 class="cwl-hd" id="cwlHead">'+escH(OUTFIT_INFO[id].name)+'</h3><div class="cwl-bd" id="cwlBody">'
+    +'<div class="cwl-dish" id="cwlDish" onpointerdown="cwlDown(event)" onpointermove="cwlMove(event)" onpointerup="cwlUp(event)" onpointercancel="cwlUp(event)" onlostpointercapture="cwlUp(event)" onclick="cwlClick(event)"><canvas class="cwl-ring" id="cwlRing" aria-hidden="true"></canvas>'
+    +'<span class="cwl-hub" id="cwlHub">'+outfitPartSVG(id)+'</span><i class="cwl-knob'+(wh? '' : ' off')+'" id="cwlKnob"'+(wh? ' style="background:'+cwlHex(cur)+'"' : '')+'></i></div>'
+    +'<div class="cwl-col" id="cwlCol"><button type="button" class="cwl-b cwl-org'+(cur? '' : ' on')+'" id="cwlOrig" onclick="cwlOrig()"><i style="background:'+M.top+'"></i><span>ORIGINAL</span></button>'
+    +'<button type="button" class="cwl-b cwl-off" id="cwlOff" onclick="cwlOff()"><span>TAKE OFF</span></button>'
+    +'<button type="button" class="cwl-b cwl-done" id="cwlDone" onclick="cwlBack()"><span>DONE</span></button></div></div></div>'; }
+// the seat (a microtask after the card stands, and at every resize): the wheel as big as the rails allow beside its buttons (under them on a tall glass), the ring painted at that size, the knob on the colour
+function cwlSeat(){ const P=document.getElementById('cwlPanel'), B=document.getElementById('cwlBody'), D=document.getElementById('cwlDish'), cv=document.getElementById('cwlRing'), C=document.getElementById('cwlCol'); if(!P || !B || !D || !cv || !C) return false;
+  const bw=B.clientWidth, bh=B.clientHeight; if(!(bw>0 && bh>0)) return false; const tall=bh>bw; P.classList.toggle('cwl-tall', tall);
+  const cr=C.getBoundingClientRect(), d=Math.floor(Math.max(150, Math.min(470, tall? Math.min(bw-8, bh-cr.height-20) : Math.min(bh-8, bw-cr.width-26)))), b=Math.max(7, Math.round(d*0.035)), w=d-2*b;
+  D.style.setProperty('--cwl-d', d+'px'); D.style.setProperty('--cwl-b', b+'px'); cv.style.left=b+'px'; cv.style.top=b+'px'; cv.style.width=w+'px'; cv.style.height=w+'px';
+  const px=Math.max(64, Math.round(w*Math.min(2, window.devicePixelRatio||1))); if(cv.width!==px){ cv.width=px; cv.height=px; }
+  let im=CWL.img[px]; if(!im) im=CWL.img[px]=cwlRingImg(px); cv.getContext('2d').putImageData(im,0,0); cwlKnobSeat(); return true; }
+window.addEventListener('resize', ()=>{ try{ if(document.getElementById('cwlPanel')) cwlSeat(); }catch(e){} });
+function cwlRingImg(px){ const im=document.createElement('canvas').getContext('2d').createImageData(px,px), d=im.data, c=px/2, R=c-0.5, Ri=R*CWL.ri, rim=Math.max(1.6, px*0.007);   // the ring, pixel by pixel from cwlRgb (its rims a shade darker at 55 %, the edges smoothed)
+  for(let y=0;y<px;y++) for(let x=0;x<px;x++){ const dx=x+0.5-c, dy=y+0.5-c, r=Math.sqrt(dx*dx+dy*dy); if(r>R+0.5 || r<Ri-0.5) continue;
+    let h=Math.atan2(dx,-dy)*180/Math.PI; if(h<0) h+=360; const q=cwlRgb(h, Math.max(0,Math.min(1,(r-Ri)/(R-Ri)))), e=Math.min(R-r, r-Ri), k=(e<rim)? 1-0.55*0.38*Math.min(1, rim-e) : 1, i=(y*px+x)*4;
+    d[i]=Math.round(q[0]*k); d[i+1]=Math.round(q[1]*k); d[i+2]=Math.round(q[2]*k); d[i+3]=Math.round(255*Math.max(0, Math.min(1, R+0.5-r, r-Ri+0.5))); }
+  return im; }
+// the finger: a touch on the ring picks and holds (pointer capture); a drag keeps picking (the ring's edges hold the finger in); the save at the lift
+function cwlGeo(){ const cv=document.getElementById('cwlRing'), dish=document.getElementById('cwlDish'); if(!cv || !dish) return null; const r=cv.getBoundingClientRect(), o=dish.getBoundingClientRect(); if(!(r.width>0)) return null; const R=r.width/2; return { cx:r.left+R, cy:r.top+R, R, Ri:R*CWL.ri, ox:o.left, oy:o.top }; }
+function cwlAt(ev,hold){ const g=cwlGeo(); if(!g) return null; const dx=ev.clientX-g.cx, dy=ev.clientY-g.cy, r=Math.sqrt(dx*dx+dy*dy); if(!hold && (r<g.Ri-6 || r>g.R+16)) return null;
+  let h=Math.atan2(dx,-dy)*180/Math.PI; if(h<0) h+=360; return { h, u:Math.max(0,Math.min(1,(r-g.Ri)/(g.R-g.Ri))) }; }
+function cwlDown(ev){ CWL.pt=Date.now(); if(!CWL.id || CWL.drag) return; const p=cwlAt(ev,false); if(!p) return; try{ ev.preventDefault(); ev.currentTarget.setPointerCapture(ev.pointerId); }catch(e){} CWL.drag={ pid:ev.pointerId }; try{ audio(); SFX.blip(); }catch(e){}
+  const k=document.getElementById('cwlKnob'); if(k) k.classList.add('dn'); cwlPick(p); }
+function cwlMove(ev){ const d=CWL.drag; if(!d || d.pid!==ev.pointerId) return; try{ ev.preventDefault(); }catch(e){} const p=cwlAt(ev,true); if(p) cwlPick(p); }
+function cwlUp(ev){ const d=CWL.drag; if(!d || (ev && ev.pointerId!=null && d.pid!==ev.pointerId)) return; CWL.drag=null; const k=document.getElementById('cwlKnob'); if(k) k.classList.remove('dn'); cwlKnobSeat(); try{ saveMeta(); }catch(e){} }
+function cwlClick(ev){ if(!CWL.id || CWL.drag || Date.now()-(CWL.pt||0)<800) return; const p=cwlAt(ev,false); if(!p) return; cwlPick(p); cwlKnobSeat(); try{ saveMeta(); }catch(e){} }   // a glass with no pointer events: the click picks (a pointer's own press already did)
+function cwlPick(p){ const id=CWL.id; if(!id || !outfitOn(id)) return false; const c=cwlCode(p.h,p.u); cwlKnobAt(p.h,p.u,cwlHex(c)); if(c===CWL.live) return false; CWL.live=c;
+  let m=djsShMine(); if(!m) m=META.djsShade={}; m[id]=c; if(++CWL.nc>240){ CWL.nc=0; cwlTrim(); } if(!CWL.raf) CWL.raf=requestAnimationFrame(()=>{ CWL.raf=0; cwlLive(); }); return true; }
+function cwlLive(){ const id=CWL.id, md=document.getElementById('roomModal'); if(!id || !md) return; const fig=md.querySelector('.eq-stage > img.eq-fig');   // Sarge on his stand, the tile in the hub, ORIGINAL's light: the colour under the finger
+  if(fig){ try{ fig.src=ftxStageURI(dyeHex()||undefined, shopTryLive()? wearWith(SHOP_TRY) : undefined); }catch(e){} }
+  const hub=document.getElementById('cwlHub'); if(hub) hub.innerHTML=outfitPartSVG(id); const o=document.getElementById('cwlOrig'), m=djsShMine(); if(o) o.classList.toggle('on', !(m && m[id])); }
+function cwlKnobAt(h,u,hex){ const k=document.getElementById('cwlKnob'), g=cwlGeo(); if(!k || !g) return; const r=g.Ri+u*(g.R-g.Ri), a=h*Math.PI/180;
+  k.style.left=(g.cx-g.ox+Math.sin(a)*r).toFixed(1)+'px'; k.style.top=(g.cy-g.oy-Math.cos(a)*r).toFixed(1)+'px'; if(hex) k.style.background=hex; k.classList.remove('off'); }
+function cwlKnobSeat(){ const id=CWL.id, k=document.getElementById('cwlKnob'); if(!id || !k) return; const m=djsShMine(), c=m? m[id] : 0; if(cwlIs(c)){ const p=cwlHU(c); cwlKnobAt(p[0],p[1],cwlHex(c)); } else k.classList.add('off'); }
+(function(){ try{ const st=document.createElement('style'); st.id='cwlCss'; st.textContent=
+  '#roomModal .fh-fit.eq-fit > .fh-rails.eq-rails.cwl-rails{height:var(--eq-vh,100vh);display:flex;flex-direction:column;overflow:hidden;padding-bottom:calc(10px + var(--chin,0px))}'
+  +'.cwl{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}'
+  +'.cwl-hd{margin:0;min-height:42px;flex:0 0 auto;display:flex;align-items:center;padding:0 calc(var(--eq-xr,17.5px) + var(--eq-xs,42px) + 6px) 0 2px;font-family:var(--ui);font-size:21px;font-weight:700;letter-spacing:.05em;line-height:1.05;color:#EDEADF;text-shadow:0 2px 0 rgba(0,0,0,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+  +'.cwl-bd{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;gap:26px}'
+  +'.cwl.cwl-tall .cwl-bd{flex-direction:column;gap:18px}'
+  +'.cwl-dish{position:relative;flex:0 0 auto;width:var(--cwl-d,280px);height:var(--cwl-d,280px);border-radius:50%;background:radial-gradient(circle at 50% 28%,#F7EED6 0%,#E8D8B2 52%,#C8AF80 100%);box-shadow:0 5px 10px rgba(0,0,0,.5),inset 0 0 0 2px rgba(124,96,56,.55),inset 0 3px 0 rgba(255,255,255,.35);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;cursor:pointer}'
+  +'.cwl-ring{position:absolute;display:block;border-radius:50%}'
+  +'.cwl-hub{position:absolute;left:50%;top:50%;width:calc((var(--cwl-d,280px) - 2 * var(--cwl-b,10px)) * .46 - 12px);height:calc((var(--cwl-d,280px) - 2 * var(--cwl-b,10px)) * .46 - 12px);transform:translate(-50%,-50%);border-radius:50%;background:linear-gradient(170deg,#F7EED6,#E4D3AB 58%,#CDB68A);box-shadow:inset 0 0 0 2px rgba(124,96,56,.55),inset 0 3px 6px rgba(0,0,0,.26);display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}'
+  +'.cwl-hub svg{width:76%;height:76%;display:block}'
+  +'.cwl-knob{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;box-sizing:border-box;border:3px solid #F7EED6;box-shadow:0 0 0 1.5px rgba(46,34,18,.6),0 3px 5px rgba(0,0,0,.45);pointer-events:none;transition:transform .12s ease-out}'
+  +'.cwl-knob.dn{transform:scale(1.22)}.cwl-knob.off{display:none}'
+  +'.cwl-col{flex:0 0 auto;width:clamp(124px,27%,184px);display:flex;flex-direction:column;gap:12px}'
+  +'.cwl.cwl-tall .cwl-col{flex-direction:row;flex-wrap:wrap;justify-content:center;width:100%;max-width:100%}'
+  +'.cwl-b{position:relative;min-height:48px;margin:0;padding:6px 12px;border-radius:12px;border:2px solid rgba(0,0,0,.35);background:linear-gradient(#F3E7C8,#D9C49A);box-shadow:0 3px 0 rgba(0,0,0,.35);color:#3A2E1E;font-family:var(--ui);font-size:16px;font-weight:700;letter-spacing:.06em;line-height:1.1;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation}'
+  +'.cwl-b i{flex:0 0 auto;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.5)}'
+  +'.cwl-b.on{border:3px solid #7DC35A;box-shadow:0 0 0 2px rgba(125,195,90,.35),0 3px 0 rgba(0,0,0,.35)}'
+  +'.cwl-b.cwl-done{background:linear-gradient(#A6D97C,#6BAA48);border-color:rgba(30,60,16,.55);color:#1F3A12}'
+  +'.cwl-b:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35)}'
+  +'.sh-ofit .cwl-mk{position:absolute;left:7px;top:7px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#F7EED6 0 27%,rgba(247,238,214,0) 31%),conic-gradient(#D83A3A,#E8A33A,#E8D23A,#6CC24A,#3AB7B0,#3A6FD8,#8A4AD0,#D84AA0,#D83A3A);box-shadow:0 0 0 1.5px rgba(70,46,20,.55),0 1px 2px rgba(0,0,0,.35);pointer-events:none;z-index:2}'
+  +'@media (prefers-reduced-motion: reduce){.cwl-knob{transition:none}.cwl-b:active{transform:none}}';
+  document.head.appendChild(st); }catch(e){} })();
+try{ for(const L9 of [['ar',{"TAKE OFF":"اخلعه"}],['ja',{"TAKE OFF":"はずす"}],['ko',{"TAKE OFF":"벗기"}],['zh-Hans',{"TAKE OFF":"脱下"}],['de',{"TAKE OFF":"AUSZIEHEN"}],['ru',{"TAKE OFF":"СНЯТЬ"}],['es',{"TAKE OFF":"QUITAR"}]]){ const tb=TR[L9[0]]||(TR[L9[0]]={}); for(const k in L9[1]) if(!(k in tb)) tb[k]=L9[1][k]; } }catch(e){}   // the one new word x7 (CARD-XPL-2's grammar; drafts, no native review); ORIGINAL and DONE are already x7
+function cwlRig(o){ o=o||{}; if(typeof o.on==='number') CWL.on=o.on? 1 : 0; if(o.wire) cwlWire();
+  return { cv:GVT_CV, on:cwlOn(), id:CWL.id, n:CWL.n, live:CWL.live, base:CWL.base, H:CWL.H, T:CWL.T, L:CWL.L.slice(), S:CWL.S.slice(), e:CWL.e, ri:CWL.ri, wired:!!(window.UI && UI.fortWear && UI.fortWear.cwl), rings:Object.keys(CWL.img).map(Number),
+    is:cwlIs, hex:cwlHex, code:cwlCode, hu:cwlHU, rgb:cwlRgb, tone:cwlTone, can:cwlCan, open:cwlOpen, shut:cwlShut, back:cwlBack, orig:cwlOrig, off:cwlOff, seat:cwlSeat, pick:cwlPick, geo:cwlGeo, panel:cwlPanelHTML, img:cwlRingImg, trim:cwlTrim }; }
+setTimeout(()=>{ cwlWire(); try{ if(typeof GVT==='object' && GVT) GVT.cwl=cwlRig; }catch(e){} }, 0);   // UI and GVT stand once the page's last section has run
+// ═══ CARD-CWL ends ═══
 function sargeWepURI(wk, bodyHex, bladeHex, vb, wear){   // 0577: + the optional wear pass-through (the fitting room's try — every shipped caller passes nothing, byte-identical URIs)
   // SARGE'S OUTFITS (v2.16): every owned-by-YOU portrait dresses through this
   // one door — the room, the academy, the picker, the case, the reveal cards,
@@ -91922,7 +92027,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
