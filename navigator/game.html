@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.23","md5":"5fbf74f4b5a9b7a2d6bb977d1596a6c3","sha":"76a9a99ae8","at":"2026-10-29T19:30:04Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.24","md5":"ae29cc94ccea2a40658715dfe3983e69","sha":"9dc1bc59e6","at":"2026-10-29T19:46:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92134,7 +92134,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.23';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.24';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -101965,8 +101965,35 @@ function roomStartBattle(){
 // the referee's numbers land on top of this sim's own. Only the four that decide
 // a result — everything else (where the men are, who shot whom) is allowed to
 // drift, exactly as it does in the campaign co-op.
+// ═══ CARD-GAW THE GAUNTLET: AWAY IS NOT A LOSS (design/gauntlet-away-1029/00-CARD-GAW.md; jumpr 2792 / M2792; Wyatt 10/29/2026 18:21 UTC by phone, verbatim: "the enemy Sarge kept scoring, but then
+// the score would undo. You can see that in the score on top. It went from 28 to 10 to 28, and then the player must have got disconnected or something because it said I won, even though I was
+// losing"; ~14:45 EDT typed on Maker 1 while the card ran, verbatim: "he is switching apps, like scrolling out. If a player does that, they shouldn't be disconnected or desynced. The game needs to
+// continue on ... When he comes back, he might win or he might lose, but it shouldn't be a disconnect and auto loss"). THE CAUSE, read in the wire as shipped: a GUEST's screen adopts the
+// referee's beacon (both toy boxes, the clock, the phase, one chair's census) on every poll reply (roomAdoptBeacon). When the referee's phone goes SILENT without the away word (put away
+// with the away beacon lost on the way out, a dead wifi, a suspended app) HQ keeps echoing his LAST beacon on every reply, so every beat re-pins the frozen clock (his 0:36) and the two
+// untouched boxes (70 / 28) over the guest's own running sim, and re-births the enemy Sarge the guest's copy just spent on the box (CARD-NET's wire reads quiet past OW_FRESH, so the copy
+// leaks by his own brain: the Sarge's 18 = 28 -> 10 -> 28, again and again); 15 s of silence (GA_RENT_S) then booked the referee's app as CLOSED = THE WALK-OUT = YOU WON while losing.
+// THE FIX, the client's half: a beacon identical to the last one adopted (HQ's echo of a silent referee; a hidden referee's frozen sim) adopts nothing — my own sim runs on until a fresh
+// word or the whistle; and the owner's wire is judged by the beat HQ commands, not a flat 2.6 s. The server's half (v152, kit/applyGAW_srv.py): a silent referee hands the whistle in
+// GAW_REF_S, a stale beacon is never echoed, silence alone is not a walk-out (GAW_SILENT_S), a hidden worker's poll is the away word. ?gaw=0 = as shipped. GVT.gaw() the rig's read.
+const GAW_ON=!/[?&]gaw=0(&|$)/.test(location.search);
+function gawEcho(b){   // true = this beacon is the one I already adopted (the same JSON, census and all): skip it, count it
+  if(!GAW_ON) return false; const bf=S.bf; if(!bf) return false;
+  let k=''; try{ k=JSON.stringify(b); }catch(e){ return false; }
+  if(k===bf.gawK){ bf.gawRep=(bf.gawRep|0)+1; bf.gawSkip=(bf.gawSkip|0)+1; return true; }
+  bf.gawK=k; bf.gawRep=0; bf.gawFresh=(bf.gawFresh|0)+1; bf.gawAt=Date.now(); return false;
+}
+function owFreshS(){   // CARD-GAW (F1): seconds a chair's numbered census may be old before its copies go back to their own brains — the commanded beat (NX_DEF battle 1 s = 500 ms here, x1.5..x4 under pressure, x the misses' stretch) x 2.2, never under OW_FRESH, never over 10
+  if(!GAW_ON || !COOP) return OW_FRESH;
+  const m=Math.max(1, nxMul(COOP.nx, COOP.nxD||2000))*Math.min(4, 1+((COOP.misses|0)*0.5));
+  return Math.min(10, Math.max(OW_FRESH, coopBeatBase()/1000*m*2.2));
+}
+setTimeout(()=>{ try{ if(window.GVT) GVT.gaw=function(){ const bf=S.bf; return { cv:GVT_CV, on:GAW_ON, rep:bf? (bf.gawRep|0) : null, skip:bf? (bf.gawSkip|0) : null, fresh:bf? (bf.gawFresh|0) : null, at:bf? (bf.gawAt||0) : null,
+  host:!!(COOP && COOP.host), code:(COOP && COOP.code)||null, tl:bf? +(+bf.timeLeft).toFixed(2) : null, hy:bf? bf.base.you.hp : null, hf:bf? bf.base.foe.hp : null, owFresh:+owFreshS().toFixed(2), beat:COOP? coopBeatMs() : null,
+  nx:COOP? (COOP.nx|0) : null, misses:COOP? (COOP.misses|0) : null, resolved:!!(bf && bf.resolved), ended:!!(COOP && COOP.ended), seq:COOP? (COOP.seq|0) : null }; }; }catch(e){} }, 0);
 function roomAdoptBeacon(b){
   const bf=S.bf; if(!bf || bf.resolved) return;
+  if(gawEcho(b)) return;   // CARD-GAW: the same beacon again (HQ echoing a silent referee's last word; a hidden referee's frozen sim) adopts nothing: my own sim runs on until a fresh word or the whistle
   if(typeof b.hy==='number') bf.base.you.hp=Math.max(0,Math.min(bf.base.you.hpMax,b.hy|0));
   if(typeof b.hf==='number') bf.base.foe.hp=Math.max(0,Math.min(bf.base.foe.hpMax,b.hf|0));
   if(typeof b.dy==='number') bf.base.you.dmgTaken=Math.max(0,b.dy|0);
@@ -102307,7 +102334,7 @@ const OW_ON=true,
       OW_HP=35;         // the row's hp cell (one base36 digit)
 function owRoom(){ const bf=S.bf; if(!OW_ON || !bf || bf.resolved || !roomBattle() || !COOP || COOP.ended) return false; let n9=0; for(const st of bf.seats) if(st.human) n9++; return n9>=2; }   // CARD-NET-F1 (Wyatt 10/8 12:09: "Fix it in every room now"): EVERY room fight of two or more people (2v2, 3v3, the desert, the tundra), computers in the other chairs or not. A computer's chair keeps the referee's rows; every person's men carry their owner's numbers   // ⚑ the law's room: ONE AGAINST ONE, both people (what the two-phone tape proved; a wider room of people is one number here)
 function owSpeak(){ if(!owRoom()) return false; const me=bfMySeat(), ss=S.bf.seats; for(let i=0;i<ss.length;i++) if(i!==me && ss[i].human && !ss[i].away && !ss[i].owS) return false; return true; }   // every other PERSON who is here said the hello (CARD-NET-F1: a computer's chair has no phone to say it; a put-away chair, bdRoster's away, is not waited for: its phone reads nothing until it is back, and it says its hello then)
-function owLive(seat){ const st=OW_ON && S.bf && S.bf.seats[seat]; return !!(st && (st.human? st.owS : st.owG) && !owCpuMine(seat) && st.owT!=null && S.t-st.owT<OW_FRESH && roomBattle()); }   // that chair's numbered census is fresh
+function owLive(seat){ const st=OW_ON && S.bf && S.bf.seats[seat]; return !!(st && (st.human? st.owS : st.owG) && !owCpuMine(seat) && st.owT!=null && S.t-st.owT<owFreshS() && roomBattle()); }   // that chair's numbered census is fresh · CARD-GAW (F1): fresh by the commanded beat (owFreshS), not a flat OW_FRESH
 // CARD-NET-F6 THE COMPUTERS' MEN (Wyatt 10/9/2026 14:52 EDT: "Go with Recs."): the REFEREE is the owner of every computer chair's men. owCpuMine = that chair is a computer's and I am the referee ·
 // owCpuSpeak = every person here said the hello n:2 (an older phone in the room = CARD-NET-F1's bytes for the computers) · owNum = a man's number (mine: owRid; a computer's: his chair's own counter, a number
 // he already carries from an earlier owner kept) · owCpuSay = ONE census word 'og' a beat for all the computers' chairs (blocks: '@chair,n' then that chair's rows, '!wp' its marching Sarge's sub-goal; whole chairs
