@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.25","md5":"cd8c090be14e7d7780a36ed742ed1605","sha":"6d0dd9b4a0","at":"2026-10-29T19:50:51Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.26","md5":"259eb9f4a157218c88911452482e5896","sha":"f8f795d17c","at":"2026-10-29T20:11:59Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92153,7 +92153,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.25';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -208447,7 +208447,7 @@ window.GVT = {
 //   ?sqz=0 on a device = the game as v27.13 in behaviour (gvt_sqzoff: no class on <html>, no listener armed, no retire; ?sqz=1 clears it). GVT.sqz({feel, on, sweep}) = the rigs' door (the bag: on, feel, presses, log, retired; the feels SQUISH (the one Isaac got) · FIRM · JELLY · TSUBI stay one word away);
 //   window.GVT_SQZ = the same bag (the press lab's name, so the lab runs this very engine). Zero words, zero server bytes, zero sw.js, zero save keys (one device key, gvt_sqzoff), no random numbers, no iOS-15 trap (WeakSet, Element.animate, the scale / translate properties: Safari 14.1).
 const SQZ=(function(){
-  const S={ v:1, on:0, off:false, feel:'squish', presses:0, log:[], retired:null, swept:0, err:0 };
+  const S={ v:2, on:0, off:false, feel:'squish', presses:0, log:[], retired:null, swept:0, err:0 };   // CARD-PIN: v 2 = the press pins the finger (jumpr 2793)
   try{ const q=/[?&]sqz=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_sqzoff','1'); else localStorage.removeItem('gvt_sqzoff'); } S.off=localStorage.getItem('gvt_sqzoff')==='1'; }catch(e){ S.off=false; }
   const RM=(function(){ try{ return matchMedia('(prefers-reduced-motion: reduce)'); }catch(e){ return { matches:false }; } })();
   // THE FEELS. depth scales the squash; zeta = the spring's damping (lower = more ringing); kick = how hard the squashed button springs out when the finger lets go (it pops past its size, then settles); settle = ms to rest;
@@ -208462,6 +208462,7 @@ const SQZ=(function(){
   const MIN_HOLD=90;                           // a 30 ms tap still squashes all the way before it springs back
   const SCROLL_WAIT=60;                        // inside a scroller: wait this long (or for the lift) so a swipe never squashes
   const SLOP2=100;                             // a finger that travels 10 px from where it landed is dragging, not pressing: the press is cancelled (eases home, no pop)
+  const SINK=6, PIN_EDGE=2;                    // CARD-PIN: the house slab's sink (the css block's 6 px) rides the press's own translate now, clamped so the finger's point stays PIN_EDGE px inside the slab's top edge
   const SLAB='.btn, .mbtn, .mb-take, .shc-yes, .shc-no, .wt-play, .agok';   // CARD-BT's family: the eased sink rides the css block's .sqz-on / .sqz-up
   const TAP=SLAB+', button, a[href], [role=button], [role=tab], [onclick], input[type=button], input[type=submit], input[type=checkbox], input[type=radio], label[for], summary, select';
   const SKIP='[data-sqz=off], input[type=range], input[type=text], input[type=number], input[type=email], input[type=password], input[type=search], input[type=tel], textarea, canvas, video';
@@ -208491,7 +208492,20 @@ const SQZ=(function(){
     const fx=bb.x+bb.width/2, fy=feet? bb.y+bb.height : bb.y+bb.height/2, px=m? m.a*fx+m.c*fy+m.e : fx, py=m? m.b*fx+m.d*fy+m.f : fy;
     const o=(cs.transformOrigin||'0px 0px').split(' ').map(parseFloat); let ox=o[0]||0, oy=o[1]||0; if(cs.transformBox==='fill-box'){ ox+=bb.x; oy+=bb.y; }
     return { px:px, py:py, ox:ox, oy:oy }; }catch(e){ return null; } }
-  function frameOf(p, sx, sy, off){ const f={ scale:sx.toFixed(4)+' '+sy.toFixed(4) }; if(p.anc) f.translate=((1-sx)*(p.anc.px-p.anc.ox)).toFixed(3)+'px '+((1-sy)*(p.anc.py-p.anc.oy)).toFixed(3)+'px'; if(off!=null) f.offset=off; return f; }
+  // ═══ CARD-PIN THE PRESS PINS THE FINGER (design/press-pin-1029/00-CARD-PIN.md; jumpr 2793, built on Maker 1 as M2793; WYATT BY PHONE 10/29/2026 18:23 EDT, Wispr Flow, verbatim: "We're having a lot of issues with buttons right now. It's taking a bunch of presses to make
+  //   them happen, whether they're X's, Join Game, or Okay. It's just not working on the first one, and it should. I hit X, and that should go. Right now, I hit the X, and I hit the X five more times. I hit the X, and now it worked. Please audit what's going on here and go with your recommendations and push to live")
+  //   THE CAUSE (measured, rig/probePIN.mjs): the squash scaled a button about its own middle the moment the finger landed, so a finger near the rim (a 42 px ✕ loses 3 px a side at .875; a quarter of its face) was over the card or the dark when it lifted. iOS commits a one-finger tap only when the node under
+  //   the finger's FIRST point is still that node at the lift (WebKit's potential tap: the node changed = no click for anyone), so the ✕, JOIN and OKAY took several presses; Chrome and a mouse click whatever stands at the point instead (the card: nothing; the dark: the dark's door).
+  //   THE FIX: the squash scales about the finger's own point — the point under the finger is the transform's fixed point, so the button still stands under it at the lift however close to the rim it landed. The toys' own anchor math (translate = (I − S)(P − O), P the finger, O the transform-origin, in the element's
+  //   units: an ancestor's zoom read off the box) with the finger for P. The house slab's 6 px sink joins the same translate (the css block's translate is overridden while the animation runs) and is clamped so the finger's point stays PIN_EDGE px inside the slab's top edge (a finger at the very top: the squash alone).
+  //   At the middle of a button nothing changes; at the rim the button squashes toward the finger (the rubber pinned where it is pressed). A box that cannot be read (zero size) keeps today's middle. Zero words, zero css bytes, zero save keys; ?sqz=0 still turns the whole engine off. GVT.sqz().v = 2.
+  function pin(p){ try{ const el=p.el, r=p.r; if(!r || !(r.width>0 && r.height>0)) return null; const cs=getComputedStyle(el), o=String(cs.transformOrigin||'').split(' ').map(parseFloat);
+    const kx=(el.offsetWidth>0)? r.width/el.offsetWidth : 1, ky=(el.offsetHeight>0)? r.height/el.offsetHeight : 1;   // glass px per local px (an ancestor's scale)
+    const ox=r.left+(isFinite(o[0])? o[0]*kx : r.width/2), oy=r.top+(isFinite(o[1])? o[1]*ky : r.height/2);   // the transform-origin's point on the glass
+    const fx=Math.min(r.right, Math.max(r.left, p.x0)), fy=Math.min(r.bottom, Math.max(r.top, p.y0));   // the finger's point, inside the box
+    return { px:(fx-ox)/kx, py:(fy-oy)/ky, ox:0, oy:0, top:(fy-r.top)/ky }; }catch(e){ return null; } }
+  // ═══ END CARD-PIN ═══
+  function frameOf(p, sx, sy, off, dip){ const f={ scale:sx.toFixed(4)+' '+sy.toFixed(4) }; if(p.anc) f.translate=((1-sx)*(p.anc.px-p.anc.ox)).toFixed(3)+'px '+((1-sy)*(p.anc.py-p.anc.oy)+(p.sink||0)*(dip==null? 1 : dip)).toFixed(3)+'px'; if(off!=null) f.offset=off; return f; }   // CARD-PIN: + the slab's sink, dip = its share (1 sunk · 0 home · past 0 the spring's pop)
   function press(p){
     if(p.down) return; p.down=true; p.t0=performance.now(); S.presses++;
     const F=FEELS[S.feel]||FEELS.squish, el=p.el;
@@ -208503,10 +208517,11 @@ const SQZ=(function(){
     if(art){ const d=1-sy; sy=+(1-d*1.35).toFixed(4); sx=+(1+d*0.45).toFixed(4); }   // a toy squashes flat and wide, like rubber
     if(F.swell){ sx=+(2-sx).toFixed(4); sy=+(2-sy).toFixed(4); }   // tsubi: it grows by what the squish would shrink
     p.sx=sx; p.sy=sy; p.swell=!!F.swell;
-    p.anc=p.art.ownerSVGElement? anchor(p.art, !!art) : null; p.flat=!!(p.art.ownerSVGElement && !p.anc);   // a drawing whose box cannot be read takes the shade alone
+    p.anc=p.art.ownerSVGElement? anchor(p.art, !!art) : pin(p); p.flat=!!(p.art.ownerSVGElement && !p.anc);   // a drawing whose box cannot be read takes the shade alone   // CARD-PIN: an html button's anchor is the finger's own point
     p.slab=el.matches(SLAB) && !F.swell; if(p.slab){ el.classList.remove('sqz-up'); el.classList.add('sqz-on'); }
+    p.sink=(p.slab && p.anc && !RM.matches)? Math.max(0, Math.min(SINK, sy*p.anc.top-PIN_EDGE)) : 0;   // CARD-PIN: the slab's sink rides the press's translate, clamped so the finger's point stays inside the slab's top edge
     try{
-      if(!RM.matches && !p.flat){ const c0=curScale(p.art); p.a=p.art.animate([frameOf(p, c0[0], c0[1]), frameOf(p, sx, sy)], { duration:F.inMs, easing:IN_EASE, fill:'forwards' }); }
+      if(!RM.matches && !p.flat){ const c0=curScale(p.art); p.a=p.art.animate([frameOf(p, c0[0], c0[1], null, 0), frameOf(p, sx, sy)], { duration:F.inMs, easing:IN_EASE, fill:'forwards' }); }   // CARD-PIN: from home (no sink) to the pinned squash + the sink
       p.fEl=(art && !p.flat)? null : (p.flat? p.art : el);
       if(!p.slab && !F.swell && p.fEl && getComputedStyle(p.fEl).filter==='none') p.f=p.fEl.animate([{ filter:'brightness(1)' },{ filter:'brightness('+F.shade+')' }], { duration:F.inMs, easing:IN_EASE, fill:'forwards' });
     }catch(e){ S.err++; }
@@ -208526,7 +208541,7 @@ const SQZ=(function(){
         if(getComputedStyle(el).filter==='none' || el.matches(SLAB)){ const w=el.animate([{ filter:'brightness('+F.shade+')' },{ filter:'brightness('+F.shade+')', offset:0.3 },{ filter:'brightness(1)' }], { duration:190, easing:'ease-out' }); w.onfinish=function(){ w.cancel(); }; }
       } else if(p.a && !RM.matches){
         const n=40, z=cancelled? 0.95 : F.zeta, d=cancelled? 200 : F.settle, kk=cancelled? 0 : F.kick, yv=spring(z, d, n, 1, kk), xv=spring(z, d, n, F.wobble, kk), kf=[];
-        for(let i=0;i<=n;i++) kf.push(frameOf(p, p.sx+(1-p.sx)*xv[i], p.sy+(1-p.sy)*yv[i], i/n));
+        for(let i=0;i<=n;i++) kf.push(frameOf(p, p.sx+(1-p.sx)*xv[i], p.sy+(1-p.sy)*yv[i], i/n, 1-yv[i]));   // CARD-PIN: the sink springs home with the height
         const b=p.art.animate(kf, { duration:d, easing:'linear' }); p.b=b; p.a.cancel(); b.onfinish=function(){ b.cancel(); if(el.__sqz===p) el.__sqz=null; };
       }
       if(p.f){ const fb=p.fEl.animate([{ filter:'brightness('+F.shade+')' },{ filter:'brightness(1)' }], { duration:220, easing:IN_EASE }); p.fb=fb; p.f.cancel(); fb.onfinish=function(){ fb.cancel(); }; }
@@ -208565,7 +208580,7 @@ const SQZ=(function(){
   S.setFeel=function(f){ if(FEELS[f]) S.feel=f; try{ const F=FEELS[S.feel]; if(CSS.supports('transition-timing-function', 'linear(0, 1)')) document.documentElement.style.setProperty('--sqz-spring', 'linear('+spring(F.zeta, F.settle, 40, 1, F.kick).map(function(v){ return v.toFixed(4); }).join(', ')+')'); document.documentElement.style.setProperty('--sqz-out', F.settle+'ms'); }catch(e){} return S.feel; };
   S.setOn=function(v){ S.on=v? 1 : 0; try{ document.documentElement.classList.toggle('sqz', !!S.on); }catch(e){} if(S.on){ arm(); sweep(); } else dropAll(); return S.on; };
   S.sweep=sweep; S.probe=function(el){ const f=findTarget(el); return f? { el:f.el, locked:!!f.locked, toy:!!S.artOf(f.el), amount:amount(f.el, f.r) } : null; };
-  S.read=function(){ return { cv:(typeof GVT_CV!=='undefined')? GVT_CV : null, v:S.v, on:S.on, off:S.off, feel:S.feel, presses:S.presses, live:live.size, log:S.log.slice(), retired:S.retired, swept:S.swept, err:S.err, rm:!!RM.matches }; };
+  S.read=function(){ return { cv:(typeof GVT_CV!=='undefined')? GVT_CV : null, v:S.v, pin:1, on:S.on, off:S.off, feel:S.feel, presses:S.presses, live:live.size, log:S.log.slice(), retired:S.retired, swept:S.swept, err:S.err, rm:!!RM.matches }; };   // CARD-PIN: pin 1
   S.setFeel(S.feel); S.setOn(!S.off);
   try{ window.GVT_SQZ=S; }catch(e){}
   return S;
