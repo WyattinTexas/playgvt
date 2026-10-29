@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"27.99","md5":"298acee313aebd5d81ee7805ebd3e0a5","sha":"c1125ef6c9","at":"2026-10-29T01:51:05Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.00","md5":"2ce82b733fb5193a2c28f308ed22e222","sha":"93367d0666","at":"2026-10-29T01:57:33Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -82931,6 +82931,18 @@ const DJS={ sh:4,   // the default + three near shades
   sav:{ hp:2, crit:[8,12], def:OF_RESC_DEF, m:OF_RESC_M, t:OF_RESC_T, hex:'#C9A86A' },   // THE SAVIOR HELMET: the rescue helmet's reach, clock and armor; 2 a heal, a crit heals 8 to 12 (CARD-RSV: one even draw a crit; the rack never says the number)
   rs:{ tags:3, t:5 },   // CARD-RSV THE RESEARCHER SPECS: +3 dog tags every 5 s of battle while MY side is losing
   suit:{ def:0.16, at0:40, at1:60, dur:20, spd:2, as:2, crit:2, refl:10 } };   // THE DISCO JUMPSUIT: +16% armor; once a battle at a moment between 40 and 60 s, DUR s of x2 / x2 / x2 and every 10th hit bounces back (⚑ DJS-Q3 the length)
+// ═══ CARD-PDC THE SHOULDER PADS IN MORE COLOURS · THE JUMPSUIT WITHOUT ITS BELT (FROM LAURA by the jumpr guest link, sent 10/29/2026 01:03:44 UTC, jumpr 2770; built on Maker 1 as M2770; design/pads-colors-1028/00-CARD-PDC.md), her words verbatim: "let the shoulder pads change into more colors give more color options. also, the disco jumpsuit should not have a belt print because Sarge has the option to wear different belts." ═══
+// THE PADS: THE MUSKETEER'S SHOULDER PADS keep their four shades (gold, deep gold, silver, bronze: CARD-DJS) and take EIGHT COLOURS after them on the same SHADE row (scarlet, royal blue, emerald, violet, turquoise, pink, ivory, black: PDC.pal), twelve discs in all. A disc past the shades maps the
+// piece's main family onto its colour by the piece's own ratios (the fill the colour itself, the rim and the fringe a shade deeper, as the gold is: the soft-outline rule) through the one tint (djsShadeHex), so the portrait, the rack tile, the mirror and the carpet man agree; saved as META.djsShade.muskpads
+// 4..11 (an older client reads a colour as the stock gold: djsShOf's bound). The row of a piece with a palette wraps its discs onto their own line (.djs-wide); only the pieces named in PDC.pal widen, every other piece keeps its four swatches and its row byte-same.
+// THE JUMPSUIT: its painted white belt and buckle leave DJS_SUIT_C_OPS (both roads read the one table): the belt on him is the belt he wears (the duty belt, the fancy belt, the gnome belt paint over the suit's chest as they did). ?pdc=0 = HEAD's row and HEAD's suit (the TBO grammar). Zero words, META keys, server or shell bytes.
+const PDC={ on:(function(){ try{ const q=/[?&]pdc=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pdc','0'); else localStorage.removeItem('gvt_pdc'); } return localStorage.getItem('gvt_pdc')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  pal:{ muskpads:['#C8352B','#2F5FC4','#2E9E4F','#7A3FB8','#22A9A4','#E8559E','#F2ECD8','#2E2E36'] } };   // the pads' colours after the four shades: scarlet · royal blue · emerald · violet · turquoise · pink · ivory · black (a piece not named here keeps its four)
+const PDC_BELT=[['l',[49.6,90.9,64.4,90.1],'#F4F2EC',3.4],['f',[55.2,88.9,59.5,88.7,59.6,91.8,55.3,92],'#FFB547','#B8720E',0.5]];   // HEAD's painted belt and buckle: drawn only under ?pdc=0
+function djsShN(id){ const p=PDC.on && PDC.pal[id]; return DJS.sh+(p? p.length : 0); }   // the swatches a piece shows: the four shades, plus its palette
+function pdcTarget(id,n){ const p=PDC.on && PDC.pal[id]; return (p && n>=DJS.sh && p[n-DJS.sh])? p[n-DJS.sh] : null; }   // the colour a disc past the shades stands for (null = a shade, or no palette)
+(function(){ try{ const st=document.createElement('style'); st.id='pdcCss'; st.textContent='.djs-row.djs-wide{flex-wrap:wrap}.djs-wide .djs-sws{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 100%;margin-top:2px}'; document.head.appendChild(st); }catch(e){} })();   // the wide row: the name and SHADE on their line, the discs on theirs
+// ═══ CARD-PDC's names end; its hunks sit in the suit's table, djsShadeHex, djsShOf, djsRailHTML, djsPick and the rig door ═══
 // ── the rails: each new piece takes its twin's exclusions (the handlebar the mustache's, the specs the aviators', the savior the rescue helmet's); the jumpsuit leaves the chest AND the legs seats to nobody else. Run now and once more after the page's last section (late heads and chest pieces).
 function djsExcl(){ const X=OUTFIT_EXCL, add=(a,b)=>{ if(a===b) return; const r=X[a]||(X[a]=[]); if(r.indexOf(b)<0) r.push(b); };
   const same=(id,tw)=>{ add(id,tw); add(tw,id); for(const k of (X[tw]||[]).slice()){ add(id,k); add(k,id); } for(const k in X) if(k!==id && X[k].indexOf(tw)>=0){ add(id,k); add(k,id); } };
@@ -82967,12 +82979,12 @@ function djsCv(ops,ox,oy,k){ const X=x=>ox+k*x, Y=y=>oy+k*y, A=a=>{ cx.beginPath
     else if(t==='a'){ cx.beginPath(); cx.arc(X(o[1]),Y(o[2]),o[3]*k,Math.PI,0); cx.closePath(); cx.fillStyle=o[4]; cx.fill(); if(o[5]) st(o[5],o[6]); }
     else if(t==='r'){ cx.beginPath(); if(typeof rr==='function') rr(X(o[1]),Y(o[2]),o[3]*k,o[4]*k,o[5]*k); else cx.rect(X(o[1]),Y(o[2]),o[3]*k,o[4]*k); cx.fillStyle=o[6]; cx.fill(); if(o[7]) st(o[7],o[8]); } }
   cx.restore(); }
-// THE DISCO JUMPSUIT (the picture: a shiny turquoise suit, orange flame swooshes, a deep V with a striped lapel, a white belt, flared legs with orange flare cuffs): the chest in the coats' own torso space (chlG lifts it like every coat), the legs on OF_PANT's axis
+// THE DISCO JUMPSUIT (the picture: a shiny turquoise suit, orange flame swooshes, a deep V with a striped lapel, a white belt that CARD-PDC takes off him (Laura 10/28: the belt is the one he wears), flared legs with orange flare cuffs): the chest in the coats' own torso space (chlG lifts it like every coat), the legs on OF_PANT's axis
 const DJS_SUIT_C_OPS=[['l',[58,71,56.4,92],'#0E6E96',18],['l',[58,71.5,56.4,91.5],'#1FA6D4',13],['l',[53.4,75,52.6,88.6],'#8FEFFF',1.6,0.55],
   ['q',50.6,86.8,55.4,82.2,52.4,76.2,'#FF8A1E',2.3],['q',64.2,86,59.8,81.6,62.8,75.6,'#FF8A1E',2.3],['q',50.6,86.8,55.4,82.2,52.4,76.2,'#FFD24A',0.8],['q',64.2,86,59.8,81.6,62.8,75.6,'#FFD24A',0.8],
   ['f',[51.4,71.6,57.6,84.4,63.8,71],'#0B4F6B'],['l',[51.4,71.6,57.6,84.4],'#35D0C0',2.6],['d',51.4,71.6,57.6,84.4,'#0A2A33',2.6,'0.9 0.9'],['l',[63.8,71,57.6,84.4],'#35D0C0',2.6],['d',63.8,71,57.6,84.4,'#0A2A33',2.6,'0.9 0.9'],
   ['q',54.6,72.6,57.7,79.4,60.8,72.3,'#E8C24A',0.7],['c',57.7,79.2,1.15,'#E8C24A','#8a6a24',0.4],
-  ['l',[49.6,90.9,64.4,90.1],'#F4F2EC',3.4],['f',[55.2,88.9,59.5,88.7,59.6,91.8,55.3,92],'#FFB547','#B8720E',0.5],['c',54.4,86.4,0.45,'#E9FDFF'],['c',61.4,80.6,0.4,'#E9FDFF'],['c',60.2,87.6,0.35,'#E9FDFF']];
+  ].concat(PDC.on? [] : PDC_BELT, [['c',54.4,86.4,0.45,'#E9FDFF'],['c',61.4,80.6,0.4,'#E9FDFF'],['c',60.2,87.6,0.35,'#E9FDFF']]);   // CARD-PDC: no belt print on the suit (Laura 10/28: "Sarge has the option to wear different belts"); HEAD's belt and buckle only under ?pdc=0
 function djsLegOps(L){ const dx=L[2]-L[0], dy=L[3]-L[1], n=Math.hypot(dx,dy), o=(L[0]<L[2])? -1 : 1, P=(t,k)=>[L[0]+dx*t-dy/n*(k||0), L[1]+dy*t+dx/n*(k||0)], J=(...a)=>[].concat(...a);
   return [['l',J(P(1),P(0.2)),'#0E6E96',13],['l',J(P(0.97),P(0.22)),'#1FA6D4',9.4],['l',J(P(0.9,o*-2.6),P(0.32,o*-2.6)),'#8FEFFF',1.2,0.5],
     ['q',...P(0.66,o*3.7),...P(0.5,o*0.4),...P(0.34,o*3.9),'#FF8A1E',2],['q',...P(0.66,o*3.7),...P(0.5,o*0.4),...P(0.34,o*3.9),'#FFD24A',0.7],
@@ -83042,7 +83054,9 @@ function djsMain(id){ if(DJS_MAIN[id]) return DJS_MAIN[id]; const W={};   // eac
 const DJS_HEX={};
 function djsShadeHex(id,n,c){ const key=id+'|'+n+'|'+c; if(DJS_HEX[key]!=null) return DJS_HEX[key];
   const q=djsRgb(String(c).trim()); if(!q) return (DJS_HEX[key]=c); const M=djsMain(id); let [h,s,l]=djsHsl(q[0],q[1],q[2]); let hit=false;
-  if(M.kind==='neutral'){ if(s<0.18 && l<0.85 && l>0.02){ hit=true; if(n===1){ h=215; s=Math.max(s,0.3); } else if(n===2){ h=26; s=Math.max(s,0.32); } else { h=78; s=Math.max(s,0.26); l=Math.min(0.85,l*1.05); } } }
+  const T9=pdcTarget(id,n);   // CARD-PDC: a disc past the four shades = one of the piece's own colours
+  if(T9){ if(M.kind==='neutral'? (s<0.18 && l<0.85 && l>0.02) : (s>=0.18 && l>0.08 && l<0.92 && Math.abs(((h-M.hue+540)%360)-180)<=42)){ hit=true; const qt=djsRgb(T9), t=djsHsl(qt[0],qt[1],qt[2]), q0=djsRgb(M.top), m0=djsHsl(q0[0],q0[1],q0[2]); h=t[0]; s=(m0[1]>0.01)? Math.min(1,t[1]*s/m0[1]) : t[1]; l=(m0[2]>0.01)? Math.min(0.97,t[2]*l/m0[2]) : t[2]; } }   // the main family onto the colour by the piece's own ratios: the fill the colour itself, the rim and the fringe deeper as they were
+  else if(M.kind==='neutral'){ if(s<0.18 && l<0.85 && l>0.02){ hit=true; if(n===1){ h=215; s=Math.max(s,0.3); } else if(n===2){ h=26; s=Math.max(s,0.32); } else { h=78; s=Math.max(s,0.26); l=Math.min(0.85,l*1.05); } } }
   else if(s>=0.18 && l>0.08 && l<0.92 && Math.abs(((h-M.hue+540)%360)-180)<=42){ hit=true;
     if(M.kind==='gold'){ if(n===1){ h-=14; l*=0.78; } else if(n===2){ s=0.07; l=Math.min(0.93,l*1.1); } else { h-=28; s*=0.8; } }
     else { if(n===1){ h-=26; l*=0.88; } else if(n===2){ h+=24; l=Math.min(0.9,l*1.06); } else { s*=0.42; l*=0.9; } } }
@@ -83052,7 +83066,7 @@ function djsShadeHex(id,n,c){ const key=id+'|'+n+'|'+c; if(DJS_HEX[key]!=null) r
 function djsTint(id,n,svg){ if(!n || typeof svg!=='string') return svg;
   return svg.replace(/(["':\s,])(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})(?![0-9a-zA-Z_-])|rgba?\([^)]*\)/g, (m,pre,hx)=> hx? pre+djsShadeHex(id,n,hx) : djsShadeHex(id,n,m)); }
 function djsShMine(){ const m=META.djsShade; return (m && typeof m==='object' && !Array.isArray(m))? m : null; }
-function djsShOf(id,map){ const v=map? map[id] : 0; return (typeof v==='number' && v>0 && v<DJS.sh && DJS_ART[id])? v|0 : 0; }
+function djsShOf(id,map){ const v=map? map[id] : 0; return (typeof v==='number' && v>0 && v<djsShN(id) && DJS_ART[id])? v|0 : 0; }   // CARD-PDC: a piece with a palette takes its colours past the shades (an older client reads them as the stock colour)
 function djsShList(){ const m=djsShMine(), a=[]; if(!m) return a; for(const id in m) if(djsShOf(id,m) && outfitOn(id) && a.length<16) a.push(id+'.'+m[id]); return a; }   // the wire: 'muskarmor.2' (sw.dsh)
 function djsShFromU(u){ const d=u && u.coopSW && u.coopSW.dsh; if(!Array.isArray(d)) return null; const m={}; for(const x of d){ if(typeof x!=='string') continue; const i=x.lastIndexOf('.'); if(i>0) m[x.slice(0,i)]=+x.slice(i+1)|0; } return m; }
 // the portrait (outfitDress's last line): MY wardrobe (no list, or my own try-on list) swaps each shaded piece's fragment for its tinted twin; a partner's or a mold's list is never mine
@@ -83073,11 +83087,12 @@ function djsCvOff(){ if(!DJS_CV.on) return; const c=DJS_CV.ctx; try{ delete c.fi
 function djsPadsLate(on){ return !!(on('pilotgloves') || on('acegloves') || on('duelglove')); }
 // SARGE'S EQUIPMENT: under each rail, every worn piece that has shades shows its four swatches (the default first)
 function djsRailHTML(g){ let h=''; for(const id of OUTFIT_ORDER){ if(g.ids.indexOf(id)<0 || !DJS_ART[id] || !outfitOn(id)) continue; const cur=djsShOf(id,djsShMine()), M=djsMain(id);
-    h+='<div class="djs-row" id="djsRow-'+id+'"><span class="djs-nm">'+escH(OUTFIT_INFO[id].name)+'</span><span class="djs-lb">SHADE</span>';
-    for(let n=0;n<DJS.sh;n++) h+='<button type="button" class="djs-sw'+(n===cur?' on':'')+'" id="djsSw-'+id+'-'+n+'" style="background:'+(n? djsShadeHex(id,n,M.top) : M.top)+'" aria-label="SHADE '+(n+1)+'" onclick="djsPick(\''+id+'\','+n+')"></button>';
-    h+='</div>'; }
+    const N9=djsShN(id), wide=N9>DJS.sh;   // CARD-PDC: a piece with a palette shows every colour, its discs on their own line; every other row byte-same
+    h+='<div class="djs-row'+(wide?' djs-wide':'')+'" id="djsRow-'+id+'"><span class="djs-nm">'+escH(OUTFIT_INFO[id].name)+'</span><span class="djs-lb">SHADE</span>'+(wide? '<span class="djs-sws">' : '');
+    for(let n=0;n<N9;n++) h+='<button type="button" class="djs-sw'+(n===cur?' on':'')+'" id="djsSw-'+id+'-'+n+'" style="background:'+(n? djsShadeHex(id,n,M.top) : M.top)+'" aria-label="SHADE '+(n+1)+'" onclick="djsPick(\''+id+'\','+n+')"></button>';
+    h+=(wide? '</span>' : '')+'</div>'; }
   return h; }
-function djsPick(id,n){ if(!outfitOwns(id) || !DJS_ART[id]) return; n=n|0; let m=djsShMine(); if(!m) m=META.djsShade={}; if(n>0 && n<DJS.sh) m[id]=n; else delete m[id];
+function djsPick(id,n){ if(!outfitOwns(id) || !DJS_ART[id]) return; n=n|0; let m=djsShMine(); if(!m) m=META.djsShade={}; if(n>0 && n<djsShN(id)) m[id]=n; else delete m[id];   /* CARD-PDC: the piece's own bound */
   saveMeta(); try{ SFX.blip(); }catch(e){} try{ renderMenu(); shopRefresh(); if(fhFitStands()) fortSync(); }catch(e){} }
 (function(){ try{ const st=document.createElement('style'); st.id='djsCss'; st.textContent='.djs-row{display:flex;align-items:center;gap:8px;margin:2px 0 10px;padding:6px 10px;border-radius:12px;background:rgba(20,26,16,0.42);color:#F4ECD2;font-weight:800;font-size:13px;letter-spacing:0.03em}'
   +'.djs-nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.djs-lb{opacity:0.75;font-size:11px}'
@@ -83237,7 +83252,7 @@ function djsLens(id){ const p=lensPct;
   if(id==='discosuit') return ['+'+p(DJS.suit.def)+'% armor', 'chest and legs in one piece', 'DISCO! once a battle, between '+DJS.suit.at0+' and '+DJS.suit.at1+' s: '+DJS.suit.dur+' s of double speed, attack speed and CRIT chance', (100/DJS.suit.refl)+'% of hits bounce back during the disco'];
   return null; }
 // the rig's door
-setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.djs={ D:DJS, st:DJS_D, song:DJS_SONG, main:djsMain, shade:djsShadeHex, art:DJS_ART, pass:djsPass, refl:djsRefl, rs:DJS_RS, rsvPass, rsvLosing, savCrit:djsSavCrit, inGame:djsInGame, battleOn:djsBattleOn, dig:DIG, pass0:djsPass0 /* CARD-DIG */ }; }catch(e){} },0);   // GVT stands later in the page
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.djs={ D:DJS, st:DJS_D, song:DJS_SONG, main:djsMain, shade:djsShadeHex, art:DJS_ART, pass:djsPass, refl:djsRefl, rs:DJS_RS, rsvPass, rsvLosing, savCrit:djsSavCrit, inGame:djsInGame, battleOn:djsBattleOn, dig:DIG, pass0:djsPass0 /* CARD-DIG */, pdc:PDC, shN:djsShN, target:pdcTarget /* CARD-PDC */ }; }catch(e){} },0);   // GVT stands later in the page
 // ═══ CARD-DJS ends ═══
 // ═══ CARD-DSF THE DISCO JUMPSUIT'S SPARKLES + THE DISCO FINGER (board J112, lane gvt-p4; Wyatt by phone 10/11/2026 16:33 UTC, jumpr remote) ═══
 // His words, verbatim: "The disco jumpsuit needs sparkles always glistening around him and while waiting for the battle to start, does the disco finger classic disco move"
@@ -91803,7 +91818,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
