@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.12","md5":"8a029a21cbaf0ff9ad547a5ad2c53907","sha":"12c14c8ef2","at":"2026-10-29T17:19:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.13","md5":"9896e147e6d755b52e2eeb357eaca0e1","sha":"921e905728","at":"2026-10-29T17:27:58Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92099,7 +92099,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.13';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -138660,7 +138660,7 @@ function byRoofSVG(nt){
   const H=BY_HOUSE, R=H.ridge, E=H.eave;
   const wash=roofNightSVG(nt).replace(' id="nw-night"', ' id="by-roofwash"').replace(/<style>[^<]*<\/style>/, '');   // the roof's own night (the .40 navy + THE POOL — moon-white since 0883, never red) arrives through the crop; NW_FADE was read by the yard before this call
   let s='<g id="by-roof" clip-path="url(#byRoofClip)"><svg x="'+H.x+'" y="'+R+'" width="'+H.w+'" height="'+(E-R)+'" viewBox="34 150 892 310" preserveAspectRatio="none">'
-    +rfDefsFloor(nt)+rfSlopeSVG()+wash+roofGapSVG(nt).replace(/<g class="rf-eyes">[\s\S]*?<\/g>/, '')+'</svg></g>';   // 1173 THE ROOF FROM THE YARD (CARD-RF; Wyatt 9/21: "In the backyard scene, don't show eyes coming from the roof … it was a little more intriguing when it's just the light with some bubbles"): 0872's law on the yard's crop (the map's noShadow lives in the map's own scope, so the ONE painter's string drops the eyes' group by text — no nested <g> inside it) — the eyes' nodes gone, the light (.rf-breath + the well's glow) and the bubbles (.rf-motes) as ever; #rf-red stays (empty) for the rigs; the rooftop's own room and the map untouched
+    +rfDefsFloor(nt)+rfSlopeSVG()+wash+roofGapSVG(nt).replace(/<g class="rf-eyes">[\s\S]*?<\/g>/, '')+'</svg></g>';   // 1173 THE ROOF FROM THE YARD (CARD-RF; CARD-RHE 10/29: the painter itself draws no eyes now, so this cut finds nothing and stands for the day they return; Wyatt 9/21: "In the backyard scene, don't show eyes coming from the roof … it was a little more intriguing when it's just the light with some bubbles"): 0872's law on the yard's crop (the map's noShadow lives in the map's own scope, so the ONE painter's string drops the eyes' group by text — no nested <g> inside it) — the eyes' nodes gone, the light (.rf-breath + the well's glow) and the bubbles (.rf-motes) as ever; #rf-red stays (empty) for the rigs; the rooftop's own room and the map untouched
   // the yard's own ridge cap + the hip caps (REV 2 note 2: the cap 276..644 — the rooftop board's full cap read as an overhang)
   s+='<path d="M278 '+R+' L'+H.x+' '+E+' M642 '+R+' L'+(H.x+H.w)+' '+E+'" stroke="#4A3328" stroke-width="11" stroke-linecap="round"/><rect x="276" y="'+(R-6)+'" width="368" height="12" rx="3" fill="#4A3328"/><path d="M280 '+(R-4)+' H640" stroke="#6E4B3E" stroke-width="2" opacity=".8"/>';
   // THE RIDGE SET from the rooftop's sky band: the aerial with the kite, the string of lights (lit at night), the chimney (smoke by day, the ember by night), the fish vane re-seated to the ridge's east end (x 782 of the board = 636 of the yard)
@@ -143031,8 +143031,8 @@ function atticGate(){   // CARD-HKS: the hole's tap and the rig's tap
   audio();
   if(decOwns('hook')){ hksRide(); return; }   // with the hookshot: THE RIDE, every time
   if(roomOwns('attic')){ atticOpen(); return; }   /* CARD-ATC: the code's key opens the hole too */
-  rfReact('rf-hole','rf-blinknow',520);
-  if(ATTIC_SAID) return;   // a repeat tap = the blink only (⚑ Q20)
+  rfReact('rf-hole','rf-flare',900); rfReact('rf-hole','rf-burst',900);   // CARD-RHE: no eyes to blink (Wyatt 10/29) — the tap's answer is the light's own flare + a puff of the motes (the attic stub's grammar, cell 13); the .rf-blinknow rule stands unread
+  if(ATTIC_SAID) return;   // a repeat tap = the flare only (⚑ Q20)
   SFX.sigh();
   if(commInviteLine(TXT("WE CAN'T GET DOWN THERE. WE'LL NEED TO UNLOCK THE HOOKSHOT FIRST. BEAT KING REX OR YETI ON MEDIUM."))) ATTIC_SAID=1;   // CARD-HKS: the line names the way to earn it · CARD-RLT: in his words (Wyatt 10/5)
 }
@@ -143098,12 +143098,8 @@ function roofGapSVG(nt){   // 0862 THE HATCH IN THE LANTERN ROOF (cell 3): nt = 
     +'<path d="'+RF_LIP+'" fill="#1E120B" stroke="#4A3328" stroke-width="2.4" stroke-linejoin="round"/>'
     +'<rect x="'+g.x+'" y="'+g.y+'" width="'+g.w+'" height="'+g.h+'" rx="6" fill="url(#rfWell)"/>'
     +'<rect x="'+g.x+'" y="'+g.y+'" width="'+g.w+'" height="'+g.h+'" rx="6" fill="url(#rfWellLight)"/>'
-    // THE EYES (0883 THE EYES IN THE ROOF — Wyatt 9/8: "make the eyes a little less. They're not going to be red. They're just going to be white, almost like eyes you see in the night. We can remove the red glow"; his 9/7 15:57 ruling = SHAPE B THE TALL OVALS): two small WHITE ovals rx 11 ry 16 at 431/461,352 drawn as arc PATHS (the rig reads .rf-eyes path — never <ellipse>), a pupil r 3.4 + a glint each (circle in a circle, the South Park look, the pupils where his mock sat them), NO glow, NO brows, NO rim; the two fill="none" ellipses paint nothing — they hold the group's fill-box so the blink and the 4 px glance (rf-blink, 9 s; quicker as the hole is fed) pivot on the pair's own centre (446,352). #rf-red keeps its id (the sisters' rigs read it) and holds the eyes alone — the red pool and the rise are gone; the coyote (card 0887) may re-cut these two paths later
-    +'<g id="rf-red">'
-    +'<g class="rf-eyes"><ellipse cx="431" cy="352" rx="31" ry="19" fill="none"/><ellipse cx="461" cy="352" rx="31" ry="19" fill="none"/>'
-    +'<path d="M420 352 a11 16 0 1 0 22 0 a11 16 0 1 0 -22 0 Z" fill="#FFFFFF"/>'
-    +'<path d="M450 352 a11 16 0 1 0 22 0 a11 16 0 1 0 -22 0 Z" fill="#FFFFFF"/>'
-    +'<circle cx="434" cy="355" r="3.4" fill="#2A1C10"/><circle cx="458" cy="355" r="3.4" fill="#2A1C10"/><circle cx="436" cy="353" r="1.2" fill="#FFFFFF"/><circle cx="460" cy="353" r="1.2" fill="#FFFFFF"/></g></g>'
+    // CARD-RHE THE EYES OUT OF THE ROOF (design/roof-hole-eyes-1029/00-CARD-RHE.md; Wyatt's phone 10/29/2026 12:15 EDT, verbatim: "Remove the eyes from the roof area. Just the darkness with the light and the little particles is enough."): 0883's two white ovals, their pupils and their glints (SHAPE B, the blink and the glance with them) are gone from THE ONE PAINTER the sisters share, so the roof's own room, the yard's crop and the map show the same eyeless hole — the darkness (the well), the light (.rf-breath + the well's under-light) and the little particles (.rf-motes) exactly as they were. #rf-red keeps its id, EMPTY (the sisters' rigs read it; the yard's own text-cut of the eyes now finds nothing); the .rf-eyes CSS stands unread for the day they return
+    +'<g id="rf-red"></g>'
     // THE BREATH (a cool moon-blue bloom since 0883 — never red; 7 s; brighter at night), ONE broken joist (two offset halves + a splinter each — nothing that points), THE BROKEN LADDER (⚑ Q18: the top two rungs out of the far edge, the rails snapped just under it, no rungs inside — someone climbed through here once; the way down is gone), the motes (dust since 0883, not embers), the board ends over the lip
     +'<ellipse class="rf-breath'+(nt? ' n' : '')+'" cx="448" cy="376" rx="60" ry="24" fill="url(#rfGlow)"/>'
     +'<path d="M496 234 L497 298" stroke="#2A1C10" stroke-width="8" fill="none" stroke-linecap="butt"/><path d="M489 306 L493 402" stroke="#2A1C10" stroke-width="8" fill="none" stroke-linecap="butt"/>'
