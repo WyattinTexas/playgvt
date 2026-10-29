@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.00","md5":"2ce82b733fb5193a2c28f308ed22e222","sha":"93367d0666","at":"2026-10-29T01:57:33Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.01","md5":"d1909d764e7650d20033b81952191bff","sha":"1f776adb6f","at":"2026-10-29T02:33:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91818,7 +91818,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -108629,6 +108629,95 @@ function saberNext(u,sw,r9){
 const SSP={ on:1, ring:4 };   // the switch (a rig's NEG sets on:0 = the shipped walk) and the ring all four walks stop inside
 function sspOver(d,st){ return !!(SSP.on && st-d>SSP.ring); }   // true = this step would land him more than the ring beyond his post
 // ═══ end of sec:CARD-SSP ═══
+// ═══ CARD-TRL · TRAILING: THE HOOKSHOT ON A RUNNING MAN (Wyatt by phone 10/29/2026 01:08 EDT, jumpr 2772, built on Maker 1 as M2772; design/trailing-hook-1028/00-CARD-TRL.md) ═══
+// HIS WORDS (verbatim, Wispr Flow): "When a character is using a dash on a moving target (currently like the shotgun guy or the saber guy, and I think even the claymore can be in that situation), it usually happens against
+// a character on a horse or something moving quickly. It looks very jittery because the character keeps dashing. What needs to happen is we need to identify this condition. We can call this trailing and demonstrate to the
+// player that trailing is currently happening. Let's have each of these respective characters do the same thing: through one of their free hands, if they don't have a free hand, they can come from the pistol barrel. A hookshot
+// will shoot out, so a thin metal wire will shoot out, connecting to what they are attached to, and then we will smooth the movement. It recognizes the position of our character, and then it's like, 'Okay, it's currently
+// trailing.' While it's trailing, we will make it smooth the whole way."
+// THE FINDING: the four dash machines (updateSaber 'out', updateSgDash 'out', updateCmdDash 'out' + 'land', updateFoeSaber 'out') close on a man with ONE step law: fly at the dash speed while the gap is past the stop ring,
+// stand inside it. A man who MOVES (a rider at KB_RIDE_SPD 140, a charge at 420, Bill's horse, the cavalry's trot, a jeep) carries the gap across the ring every few frames: 680 px/s one frame, nothing the next, the stutter.
+// The Commander's 'land' is worse: the man slips out of the sword's reach, the clocks go quiet, and cmdStepGo LAUNCHES again (the puff, the swish): "the character keeps dashing".
+// THE RULE, TRAILING: a dash machine 'out' at a LIVING man whose own pace (frame to frame, smoothed over TRL.ema) has held TRL.minSpd for TRL.arm, once the dasher has closed to the ring (the gap ≤ stop + TRL.near). While it holds:
+//   THE HOOKSHOT: a thin steel wire from a free hand to the man: the saber's and the claymore's raised fist (the blade rides the forward one), a tan saber man's off hand, the shotgun's barrel bead (both his hands are on the gun:
+//   "they can come from the pistol barrel"). The hook flies out over TRL.shootT, the wire stays taut after, and reels back over TRL.reelT when it lets go. Drawn at the dasher's own depth in the actors pass (trlDraw), the four
+//   rules on it (a crisp dark line that IS the drawing, the light along it, the hook's rim its own steel a shade darker).
+//   THE TOW: every frame the feet glide to the ring point (stop px from the man) and swing round into his wake (TRL.swing): his velocity carried (feed-forward), the rest eased over TRL.tau, never a step faster than the machine's
+//   own dash speed. No stop/go, no re-launch, no puff; the heel dust every TRL.dustPx says he is being pulled. The shooting and the cutting stay the weapons' own: the shotgun's cone fires from the ring, the Commander swings from
+//   'land' (the tow keeps him inside the sword's reach; past it the flight resumes QUIETLY, 'out' again with no cmdStepGo), the saber strikes inside 26 (sabStand's standing cuts included).
+//   IT ENDS when the man dies or is lost (each machine's own law, byte-still, judged BEFORE the tow), when he stands still for TRL.hold, when the wire would have to reach past TRL.wire, or the frame the machine stops ticking it
+//   (a knock → 'back', a jet, a moved post, the Duelist's flourish: no new seats; a state nobody ticks is stale and gone).
+// TWO SIMS: positions + clocks only (no dice; reducedMotion gates the dust and the draw alone). ?trl=0 (device key gvt_trl) = every machine the shipped byte for byte (trlTick answers false first). GVT.trl(o) = the rig's door.
+const TRL={ on:(function(){ try{ const m=/[?&]trl=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_trl','0'); else localStorage.removeItem('gvt_trl'); } return localStorage.getItem('gvt_trl')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  minSpd:80, arm:0.15, near:48, away:-0.2, hold:0.6, wire:200, tau:0.10, ema:0.20, swing:0.6, shootT:0.14, reelT:0.16, sabStop:22, dustPx:24, maxJump:1500 };   // the dials: the pace that counts as running (a tan marches 24..45, a green 44..70; the king's gallop is 140, the cavalry's 180, a charge 420), the arm before the hook, the ring's slack, the heading that still counts (away: the man's pace along the line from the dasher, as a share of his pace; a man running AT him is no hook), the let-go after a standstill, the wire's length, the tow's ease, the pace filter, the swing into the wake, the shot, the reel, the saber's ring, the dust stride, the warp filter
+function trlEnd(u){ const T=u.trl; if(!T) return; if(T.on){ const a=trlHookPt(u,T); u.trlReel={ x:a.x, y:a.y, t0:S.t }; } u.trl=null; }   // the wire reels back from where the hook was (presentation; the state goes)
+function trlTick(u,f,d,stop,dt,m){   // THE JUDGE, ticked by a machine every frame it stands 'out' (the Commander: 'land' too) at a LIVING man f at gap d: true while trailing holds (the caller then tows)
+  if(!TRL.on || !f || !(dt>0)){ if(u.trl) trlEnd(u); return false; }
+  let T=u.trl;
+  if(T && (T.f!==f || T.m!==m || S.t-T.at>Math.max(0.12,dt*2.5))){ trlEnd(u); T=null; }   // a new man, another machine, or a state nobody ticked (the machine left 'out'): gone
+  if(!T){ u.trl=T={ f:f, m:m, at:S.t, px:f.x, py:f.y, vx:null, vy:0, sp:0, fastT:0, lo:0, on:0, hk:0, dust:0 }; return false; }   // the first frame only samples him
+  T.at=S.t;
+  const jx=f.x-T.px, jy=f.y-T.py; T.px=f.x; T.py=f.y;
+  if(Math.hypot(jx,jy)>TRL.maxJump*dt) return !!T.on;   // a warp (a spawn seat, a drag) is not a pace
+  if(T.vx==null){ T.vx=jx/dt; T.vy=jy/dt; } else { const a=1-Math.exp(-dt/TRL.ema); T.vx+=(jx/dt-T.vx)*a; T.vy+=(jy/dt-T.vy)*a; } T.sp=Math.hypot(T.vx,T.vy);   // the pace: the second frame's reading whole (a Commander lands in one), smoothed after
+  const fast=T.sp>=TRL.minSpd; T.fastT=fast? T.fastT+dt : 0;
+  const away=(d>1e-3)? (T.vx*(f.x-u.x)+T.vy*(f.y-u.y))/d >= TRL.away*T.sp : true;   // his heading: running off or across counts; running AT the dasher does not (he arrives on his own)
+  if(!T.on){ if(T.fastT>=TRL.arm && away && d<=stop+TRL.near){ T.on=1; T.hk=0; T.lo=0; T.t0=S.t; bfSfx(SFX.clack,u.x,u.y); } return !!T.on; }   // the hook goes out the frame he has closed on a man who keeps running
+  if(fast) T.lo=0; else { T.lo+=dt; if(T.lo>TRL.hold){ trlEnd(u); return false; } }   // he stood still long enough: let go
+  if(d>TRL.wire){ trlEnd(u); return false; }   // the wire has a length
+  T.hk=Math.min(1,T.hk+dt/TRL.shootT);
+  return true;
+}
+function trlTow(u,f,stop,dt,spd){   // THE TOW: the feet to the ring point, on the dasher's own side swung round into the man's wake, his velocity carried, the rest eased (TRL.tau), the step capped at the machine's own dash speed; returns the gap after the step
+  const T=u.trl; const dx=f.x-u.x, dy=f.y-u.y, d=Math.hypot(dx,dy);
+  if(T.vx==null){ T.vx=0; T.vy=0; }
+  let th=(d>1e-3)? Math.atan2(-dy,-dx) : (T.sp>1e-3? Math.atan2(-T.vy,-T.vx) : Math.PI);   // where he stands round the man
+  if(T.sp>1e-3){ const tw=Math.atan2(-T.vy,-T.vx); let rel=tw-th; rel=Math.atan2(Math.sin(rel),Math.cos(rel)); th+=rel*(1-Math.exp(-dt/TRL.swing)); }   // the swing into the wake
+  const gx=f.x+Math.cos(th)*stop, gy=f.y+Math.sin(th)*stop, k=1-Math.exp(-dt/TRL.tau);
+  let mx=T.vx*dt+(gx-u.x)*k, my=T.vy*dt+(gy-u.y)*k; const mv=Math.hypot(mx,my), cap=spd*dt; if(mv>cap){ mx*=cap/mv; my*=cap/mv; }
+  u.x+=mx; u.y+=my;
+  T.dust+=Math.hypot(mx,my); if(T.dust>TRL.dustPx){ T.dust=0; if(!reducedMotion()) S.fx.push({k:'puff',x:u.x-mx*3,y:u.y+3,t:0,dur:0.28,R:7}); }   // heel dust on a fixed stride (no dice): the read that he is being pulled
+  return Math.hypot(f.x-u.x,f.y-u.y);
+}
+function trlHand(u){   // where the wire leaves him, mirrored by the figure's own facing (the hardware's law: unitFl for a green, foeFl for a tan)
+  if(u.def && u.def.saber){ const fs=foeFl(u)? 1 : -1; return { x:u.x+fs*6, y:u.y-34 }; }   // a tan saber man: his off hand (the mold faces west; foeFl true = turned east)
+  const fs=unitFl(u)? -1 : 1, sw=(u.type==='sarge')? unitSargeStats(u) : null;
+  if(sw && sw.w==='shotgun') return { x:u.x+fs*34, y:u.y-34 };   // the bead at the barrel's end (drawSargeWeapon's own seat, the kick left out): both his hands are on the gun
+  return { x:u.x+fs*6.5, y:u.y-36 };   // the raised fist (the pistol's seat), empty while the blade rides the forward one
+}
+function trlAnchor(f){ const w=(f.def && f.def.w)||44; return { x:f.x, y:f.y-Math.min(64,w*0.5) }; }   // the man's middle: a tan by his mold's width (a mounted king's saddle sits there), a green by the Sarge mold's
+function trlHookPt(u,T){ const o=trlHand(u), a=trlAnchor(T.f), k=reducedMotion()? 1 : T.hk, e=1-Math.pow(1-k,3); return { x:o.x+(a.x-o.x)*e, y:o.y+(a.y-o.y)*e, ox:o.x, oy:o.y, k:k }; }   // the hook: flying out (eased) or on the man
+function trlLive(u){ const T=u.trl; return !!(TRL.on && T && T.on && T.f && (S.t-T.at)<=0.12); }   // a wire on the glass = a state the sim ticked this frame (or the game stands still): a man who fell takes his wire with him within a sim step or two
+function trlShow(u){ const T=u.trl; return !!(TRL.on && !u.dead && ((T && T.on && (S.t-T.at)<=0.12+TRL.reelT) || u.trlReel)); }   // the actors pass asks: a live wire, a reel, or the short reel of a state nobody ticked
+function trlWire(x0,y0,x1,y1,sag){   // a thin steel wire: the crisp dark line that IS the drawing + the light along it; a little sag when it is slack
+  const mx=(x0+x1)/2, my=(y0+y1)/2+sag;
+  cx.save(); cx.lineCap='round';
+  cx.strokeStyle='rgba(38,44,50,0.92)'; cx.lineWidth=1.5; cx.beginPath(); cx.moveTo(x0,y0); cx.quadraticCurveTo(mx,my,x1,y1); cx.stroke();
+  cx.strokeStyle='rgba(226,234,240,0.85)'; cx.lineWidth=0.6; cx.beginPath(); cx.moveTo(x0,y0-0.6); cx.quadraticCurveTo(mx,my-0.6,x1,y1-0.6); cx.stroke();
+  cx.restore();
+}
+function trlHook(x,y,ang){   // the grapple at the wire's end: a short shank and two prongs curling back, steel with its own rim a shade darker (the soft-outline rule), tiny and crisp
+  cx.save(); cx.translate(x,y); cx.rotate(ang);
+  cx.fillStyle='#9AA4AD'; cx.strokeStyle='rgba(58,65,72,0.75)'; cx.lineWidth=0.9; cx.lineJoin='round';
+  cx.beginPath(); cx.moveTo(-5,-1.1); cx.lineTo(1.5,-1.1); cx.lineTo(1.5,1.1); cx.lineTo(-5,1.1); cx.closePath(); cx.fill(); cx.stroke();   // the shank
+  cx.beginPath(); cx.moveTo(1,0); cx.quadraticCurveTo(4.5,-4.2,-0.5,-5.2); cx.lineTo(0.2,-3.4); cx.quadraticCurveTo(2.6,-3,1,-0.6); cx.closePath(); cx.fill(); cx.stroke();   // the upper prong
+  cx.beginPath(); cx.moveTo(1,0); cx.quadraticCurveTo(4.5,4.2,-0.5,5.2); cx.lineTo(0.2,3.4); cx.quadraticCurveTo(2.6,3,1,0.6); cx.closePath(); cx.fill(); cx.stroke();   // the lower prong
+  cx.restore();
+}
+function trlDraw(u){   // the actors pass's seat, right after the dasher (his own depth): the live wire, else the reel
+  const T=u.trl;
+  if(trlLive(u)){ const h=trlHookPt(u,T), sag=(h.k>=1 && T.sp<TRL.minSpd)? 4 : 0; trlWire(h.ox,h.oy,h.x,h.y,sag); trlHook(h.x,h.y,Math.atan2(h.y-h.oy,h.x-h.ox)); return; }   // slack only while the man stands (the wire is about to let go)
+  let R=u.trlReel; if(!R && T && T.on){ const a=trlAnchor(T.f); R={ x:a.x, y:a.y, t0:T.at, stale:1 }; }   // a state nobody ticked (the man fell, a knock): the reel from his seat, no write
+  if(!R) return;
+  const k=reducedMotion()? 1 : (S.t-R.t0)/TRL.reelT;
+  if(k>=1){ if(!R.stale) u.trlReel=null; return; }
+  const o=trlHand(u), e=1-Math.pow(1-k,2), x=R.x+(o.x-R.x)*e, y=R.y+(o.y-R.y)*e;
+  trlWire(o.x,o.y,x,y,0); trlHook(x,y,Math.atan2(y-o.y,x-o.x));
+}
+function trlRig(o){ o=o||{}; if('on' in o) TRL.on=o.on? 1 : 0; for(const k of ['minSpd','arm','near','away','hold','wire','tau','ema','swing','shootT','reelT','sabStop','dustPx','maxJump']) if(k in o) TRL[k]=+o[k];   // the rig's door: the dials, then every live wire
+  const row=x=>{ const T=x.trl; return { id:x.id, type:x.type, side:x.side||null, x:+x.x.toFixed(2), y:+x.y.toFixed(2), st:x.sgDash||x.cmdDash||x.saberState||null, m:T? T.m : null, on:!!(T && T.on), live:trlLive(x), f:(T && T.f)? (T.f.type+'#'+T.f.id) : null, d:(T && T.f)? +Math.hypot(T.f.x-x.x,T.f.y-x.y).toFixed(2) : null, sp:T? +T.sp.toFixed(1) : null, hk:T? +T.hk.toFixed(3) : null, fastT:T? +T.fastT.toFixed(2) : null, reel:!!x.trlReel, hand:trlHand(x) }; };
+  return { cv:GVT_CV, on:TRL.on, cfg:Object.assign({},TRL), units:S.units.filter(u=>u.trl||u.trlReel).map(row), foes:S.foes.filter(f=>f.trl||f.trlReel).map(row) }; }
+// ═══ end of sec:CARD-TRL ═══
 function updateSaber(u,dt,sw){
   if(!u.home) u.home={x:u.x,y:u.y};
   if(!u.saberState) u.saberState='idle';
@@ -108650,7 +108739,8 @@ function updateSaber(u,dt,sw){
     u.saberSwing=(u.saberSwing||0)-dt;            // recovery between chained strikes
     const dx=f.x-u.x, dy=f.y-u.y, d=Math.hypot(dx,dy);
     if(SAB2_ON && u.sabStand) cmdWkStamp(u, dx>=0? 30 : -30);   // 0904: a standing man faces the man he is cutting (the walk stamp's 0.15 s hold, refreshed each frame he stands; presentation only)
-    if(d>26){
+    const trl9=trlTick(u,f,d,TRL.sabStop,dt,'sab'); if(trl9){ cmdWkStamp(u, dx>=0? 30 : -30); if(unarmedU(u,sw)) uaGround(u); if(trlTow(u,f,TRL.sabStop,dt,680*infDashX(u))>26) return; }   /* CARD-TRL TRAILING: hooked to a running man, the tow owns the feet (he faces him; a bare-handed man stays grounded); inside 26 the strike below is legal this frame, past it nothing more (sec CARD-TRL) */
+    if(!trl9 && d>26){   /* CARD-TRL: the shipped flight / standing step when he is not on the wire */
       if(SAB2_ON && u.sabStand){ const mv=Math.min(d-22,SAB2_STEP*dt); u.x+=dx/d*mv; u.y+=dy/d*mv; u.marching=true; }   // 0904 THE STEP: the man he already cut drifted past the blade — he WALKS after him (SAB2_STEP, the legs stride), never the flight (Wyatt: "more of a standing animation"); the flight below is for a NEW man
       else { const sp=680*infDashX(u); /* CARD-CHS13 THE INFILTRATION SET: the dash x1.25 */ if(unarmedU(u,sw)) uaFlyStep(u,d,dx); u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; }   // a real dash — he's IN quick · 0487b THE LEAP: a fitted man FLIES it (the draw-only arc + the face; the feet on the ground line)
     }
@@ -109014,11 +109104,15 @@ function updateCmdDash(u,dt,sw){
     }
     const dx=f.x-u.x, dy=f.y-u.y, d=Math.hypot(dx,dy);
     const stop=Math.max(26, reach-8);   // land a hair INSIDE the sword's reach so the swing is legal this frame
+    if(trlTick(u,f,d,stop,dt,'cmd')){ const d2=trlTow(u,f,stop,dt,CMD_DASH.spd); cmdWkStamp(u, dx>=0? 30 : -30); if(d2>reach) return true; u.cmdDash='land'; u.cmdTarget=null; return false; }   /* CARD-TRL TRAILING: towed at the man he is hooked to (he faces him); inside the sword's reach he LANDS and the swing below is this frame's: no puff, no swish (sec CARD-TRL) */
     if(d>stop){ const sp=CMD_DASH.spd; u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; cmdWkStamp(u,dx/d*sp); return true; }   // 0517: the flight faces its man
     u.cmdDash='land'; u.cmdTarget=null;   // ARRIVED: the swing below arms NOW (its hurt lands on the CUT frame) · 0522c: no quiet armed here — the cadence is the beat (D19's landing quiet retired)
     return false;
   }
   if(u.cmdDash==='land'){
+    { const T9=u.trl, f9=(T9 && T9.m==='cmd')? T9.f : null;   /* CARD-TRL TRAILING at a landing: the hooked man (or the one the judge is still weighing) alive -> the tow holds him at the ring every frame and the swing below fires from there as its cadence frees; past the reach the flight resumes QUIETLY ('out', no cmdStepGo, no puff) (sec CARD-TRL) */
+      if(f9 && !(S.bf ? (f9.dead||f9.hp<=0) : (f9.burrow||f9.pendDie||S.foes.indexOf(f9)<0))){ const d9=Math.hypot(f9.x-u.x,f9.y-u.y), stop9=Math.max(26, reach-8);
+        if(trlTick(u,f9,d9,stop9,dt,'cmd')){ const d2=trlTow(u,f9,stop9,dt,CMD_DASH.spd); cmdWkStamp(u, f9.x>=u.x? 30 : -30); if(d2<=reach) return false; u.cmdDash='out'; u.cmdTarget=f9; u.cmdDashHits=u.hits|0; return true; } } }
     if(S.bf ? bfNearestEnemy(u,reach) : campFoeInReach(u,reach)) return false;   // work at the sword — he swings from where the dash put him
     const nx=cmdStepNext(u,cmdStepR(sw));   // 0522c: nobody at the sword — the next man in the window is the next step-in FROM HERE once the beat is stood out (no walk home between men); a knock's quiet sends him home
     if(nx){ if(cmdStepClocks(u)){ cmdStepGo(u,nx); return true; } if(!(u.cmdDashCd>0)) return true; }
@@ -109097,6 +109191,7 @@ function updateSgDash(u,dt,sw){
     }
     const dx=f.x-u.x, dy=f.y-u.y, d=Math.hypot(dx,dy);
     const stop=Math.max(26, fireR-8);             // land a hair INSIDE the cone so the first blast is legal
+    if(trlTick(u,f,d,stop,dt,'sg')){ trlTow(u,f,stop,dt,WPN_MILE.sgSpd*fzWalk(u)); return; }   /* CARD-TRL TRAILING: hooked to a running man, the tow holds him a hair inside the cone every frame; the cone code below keeps firing from the ring (sec CARD-TRL) */
     if(d>stop){ const sp=WPN_MILE.sgSpd*fzWalk(u); u.x+=dx/d*sp*dt; u.y+=dy/d*sp*dt; }   // 0735: the frozen feet
     // in reach: STAND — the cone code below does the shooting; the man stays
     // on the hook so his death chains the dash forward or sends us home
@@ -109332,7 +109427,8 @@ function updateFoeSaber(f,dt){
     }
     f.saberSwing=(f.saberSwing||0)-dt;                // recovery between chained strikes
     const dx=u.x-f.x, dy=u.y-f.y, d=Math.hypot(dx,dy);
-    if(d>26){ f.x+=dx/d*sb.dash*dt; f.y+=dy/d*sb.dash*dt; }
+    const trl9=trlTick(f,u,d,TRL.sabStop,dt,'foe'); if(trl9){ cmdWkStamp(f, dx>=0? 30 : -30); if(trlTow(f,u,TRL.sabStop,dt,sb.dash)>26) return; }   /* CARD-TRL TRAILING, tan edition: a tan saber man hooked to a running green (a rider, a jeep): the tow, the same law (sec CARD-TRL) */
+    if(!trl9 && d>26){ f.x+=dx/d*sb.dash*dt; f.y+=dy/d*sb.dash*dt; }   /* CARD-TRL: the shipped flight when he is not on the wire */
     else if(f.saberSwing<=0){
       if(u.saberState==='out'&&u.saberFirstT===f) return;   // 0278l THE CHARGE ADVANTAGE — the man is mid-charge AT THIS duelist: the charged unit holds his blow until the charge strike lands (poised at contact, swing unspent — he answers the very tick the hold lifts; a knockdown from anyone ELSE ends the charge and the hold with it)
       if(olvStrike(f,u)){}   /* CARD-OLV-B1 THE SWORD FIGHT: in the bubble his blade costs YOUR Sarge pips, never the whole knock */ else if(!hatAvoidKnock(u)){ knock(u, f.x, f.y); bleCountKill(f,u); }   /* CARD-BLE #8: his blade's kills count too */   // 0556 THE ADVENTURER'S HAT turns every second saber strike (a knock carries no number to halve) · unrolled — one roll per strike, inside the funnel
@@ -130665,8 +130761,10 @@ function draw(){
   // actors sorted by y
   const actors=[];
   for(const u of S.units) if(!u.dead && !(S.drag&&S.drag.unit===u)) actors.push({y:kbHurlY(u),f:()=>{ (u.pcBig? pchBigDraw(u) : oc9Flat(u)? oc9FlatDraw(u) : drawUnit(u)); if(u.stkT>0 || u.stkPopT>0) stkDraw(u); }});   // 0901 Card C P7: a man mid-hurl inside a mounted king's box sorts a hair below the rider (kbHurlY) — drawn OVER the charger, never hidden behind the 148-wide sprite
+  if(TRL.on) for(const u of S.units) if(trlShow(u)) actors.push({y:u.y+0.01,f:()=>trlDraw(u)});   /* CARD-TRL: the hookshot's wire at the dasher's own depth, right after him (sec CARD-TRL) */
   for(const p9 of S.pets) if(p9.phase!=='gone') actors.push({y:p9.y+0.5, f:()=>drawPet(p9)});   // 0882 THE PET LEAVES WITH SARGE: a gone pet is not pushed at all (drawPet refuses him too — belt and braces)   // 0905 THE PETS: a pet sorts WITH the men (an actor, not wallpaper) — a hair below his own y so he stands in front of the Sarge he heels
   for(const f of S.foes) actors.push({y:f.y,f:()=>{ drawFoe(f); if(f.stkT>0 || f.stkPopT>0) stkDraw(f); }});   // CARD-STK: the peg is drawn with the man it holds (his own depth)
+  if(TRL.on) for(const f of S.foes) if(trlShow(f)) actors.push({y:f.y+0.01,f:()=>trlDraw(f)});   /* CARD-TRL: a tan saber man's wire, the same seat (sec CARD-TRL) */
   if(!S.bf) for(const f of S.foes) if(f.def.claw){ actors.push({y:-1e6,f:()=>clawDrawUnder(f)}); actors.push({y:1e6,f:()=>clawDrawOver(f)}); }   // OC-6 THE CLAW: its shadow + the tell's ring UNDER every man, the gantry arm · the cable · the claw and whoever hangs in it OVER every man
   if(!S.bf) for(const f of S.foes) if(f.def.o9){ actors.push({y:-1e6,f:()=>oc9Under(f)}); actors.push({y:1e6,f:()=>oc9Over(f)}); }   // OC-9: the tells UNDER every man (the salute's mark, the landing ring and the giant's shadow, a drone's shadow) · whatever flies OVER every man (the drones, the giant in the air)
   if(!S.bf) for(const f of S.foes) if(f.def.o10){ actors.push({y:-1e6,f:()=>oc10Under(f)}); actors.push({y:1e6,f:()=>oc10Over(f)}); }   // OC-10: the tells UNDER every man (the song's reach and its rings on the beat, the jam's static, the whistle's ring, the mark on the man a copier is copying) · the notes OVER every man
@@ -205895,6 +205993,7 @@ window.GVT = {
   olSet(rows){ olSave(Array.isArray(rows)? rows : []); return olLine(); },   // the rig's write — through the ONE writer
   olDeal(){ return olDeal(); },
   start(){ spawnWave(); },
+  trl(o){ return trlRig(o); },   /* CARD-TRL: the rig's door (the dials + every live wire) */
   step(sec){ const n=Math.round(sec*60); for(let i=0;i<n;i++){ if(S.mode==='play') update(1/60); } draw(); },
   sbl(){ const H9=S.hrd||{}, sq=S.sq||{}; return { cv:GVT_CV, bal:JSON.parse(JSON.stringify(HRDBAL)), on:sblOn(), gaps:[hrdGapOf(1),hrdGapOf(26),hrdGapOf(76)], rest:sblRest(), rest0:sblRest0(), wave:S.wave|0, hold:H9.hold|0, holdT:+(+H9.holdT||0).toFixed(2), t:+(+sq.t||0).toFixed(2), nextIn:+((+sq.nextT||0)-(+sq.t||0)).toFixed(2), down:S.foes? sblFieldDown() : null, between:(typeof hsvBetween==='function')? hsvBetween() : null, live:(S.foes||[]).filter(f=>!(f.dead||f.hp<=0)).length, hud:(hrdOn() && S.sq && typeof hrdHudLine==='function')? hrdHudLine() : '', park:META.hrdPark? { n:META.hrdPark.n, rest:META.hrdPark.rest, cv:META.hrdPark.cv } : null }; },   // CARD-SBL: the rig's read (read-only)
   // 0248 THE TRAINING RANGE rig — read-only state for batteries (the v2.60
