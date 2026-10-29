@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.97","md5":"fa2a45df44ffb9fa402b3c6e0b963cba","sha":"0dbee1e774","at":"2026-10-29T01:02:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.98","md5":"139f745e4c44deabf2b9821c82de6d42","sha":"f03161e877","at":"2026-10-29T01:43:35Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -82843,6 +82843,7 @@ function outfitDress(art, wk, wear){
   if(on('larsonboots')) body+=(st[2]==='B'? OF_LBB_B : OF_LBB_A);   // CARD-OCR-B5 LARSON'S BOOTS on the boots' seat (the FEET set; over the cuffs)
   if(on('hoverboots')) body+=(st[2]==='B'? OF_HVB_B : OF_HVB_A);   // CARD-GGB HOVER BOOTS on the boots' seat (the FEET set; over the cuffs)
   if(on('sqboots')) body+=(st[2]==='B'? sqgArt().bootB : sqgArt().bootA);   // CARD-SQG THE SQUAD BOOTS on the boots' seat (the FEET set; over the cuffs)
+  if(on('discosuit') && dpoOn()) body+=dpoLegsSvg(st);   // CARD-DPO THE DISCO JUMPSUIT's flares OVER every boot (Laura 10/28): the legs again, below the torso's hem only, after the last feet piece (sec CARD-DPO)
   if(on('poncho')) body+=chlG('poncho',OF_PONCHO);   // 0340: the serape on the chest seam
   if(on('bodyarmor')) body+=OF_BARMOR;   // IG BODY ARMOR: the slim plate carrier over the chest piece — the poncho's seat (the two are exclusive), under the belts, the badge, the pads, the sash and the corsage
   if(on('sacredrobe')) body+=SRB_SVG;   // CARD-SRB THE SACRED ROBE over the armor (the poncho's seat: under the belts, the badge, the pads, the sash and the corsage)
@@ -83320,6 +83321,22 @@ function srbX(u,x){ const m=srbTk(u); return m===1? x : +(x*m).toFixed(4); }   /
 function srbLens(id){ const p=lensPct; return id==='sacredrobe'? ['+'+p(SRB.sab)+'% saber damage while the saber is in hand', 'telekinesis hits '+p(SRB.tk)+'% harder and lasts '+p(SRB.tk)+'% longer'] : null; }   // the two rows on the rack (both up)
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.srb={ S:SRB, on:srbOn, ops:SRB_OPS, svg:SRB_SVG, tk:srbTk, x:srbX, lens:srbLens }; }catch(e){} },0);   // the rig's door (GVT stands later in the page)
 // ═══ CARD-SRB ends ═══
+// ═══ CARD-DPO THE DISCO JUMPSUIT'S FLARES RIDE OVER HIS SHOES, ALWAYS (design/disco-pants-over-shoes-1028/00-CARD-DPO.md; board J2, lane gvt-p2; Laura by WhatsApp 10/28/2026 21:04 EDT, verbatim: "I want his disco pants to go over his shoes always.") ═══
+// WHAT WAS WRONG: the suit's legs (DJS_SUIT_LA / LB) sit on the LEGS seam of both renderers, and the seam order is the layering (0579: every boot paints OVER the cuff), so any feet piece covered the bell-bottoms and the cuff poked out behind the boot (her screenshot: the buckle boots over the flare).
+// THE FIX: a SECOND copy of the suit's legs painted AFTER the last feet piece (outfitDress: after the squad boots, before the trim; the carpet man: after Larson's boots, before the gloves), CLIPPED to below the torso's hem (DPO.cut = the chest's first stroke's bottom, 92 + 18/2, less CHL.lift 4 = 97 in the figure's 120x140 box):
+// above the cut nothing is repainted (the torso's hem over the hips, the crotch and the belts byte-what-they-were); below it the legs, the flares and the orange cuffs ride over whatever he wears on his feet; the boot's toe and sole still peek under the hem, as shoes do under bell-bottoms. The first copy stays where it was (under the torso, as shipped).
+// THE SHADES (CARD-DJS): djsDress tints the FIRST occurrence of a piece's fragment; it is wrapped by name here so every later occurrence of the legs' fragments takes the same tint. The carpet man's tint rides the predicate stamp (on('discosuit') right before the paint, CARD-DJS's own law).
+// THE SWITCH: ?dpo=0 on a device (gvt_dpo '0'; ?dpo=1 clears it) = as shipped. Rig door: GVT.dpo(o) (o.on). Zero server / sw / css / word / save bytes; no sim byte.
+const DPO={ on:(function(){ try{ const q=/[?&]dpo=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dpo','0'); else localStorage.removeItem('gvt_dpo'); } return localStorage.getItem('gvt_dpo')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  cut:(function(){ try{ const o=DJS_SUIT_C_OPS[0], y=o[1][3]+o[3]/2-CHL.lift; return (y>80 && y<110)? y : 97; }catch(e){ return 97; } })(), n:0, cvn:0 };   // the cut = the torso's dark hem: the chest's first stroke's bottom (92 + 9) less the coats' lift (4) = 97
+function dpoOn(){ return !!(DPO && DPO.on); }
+function dpoLegsSvg(st){ DPO.n++; return '<clipPath id="dpoCut"><rect x="-40" y="'+DPO.cut+'" width="200" height="120"/></clipPath><g clip-path="url(#dpoCut)">'+((st && st[2]==='B')? DJS_SUIT_LB : DJS_SUIT_LA)+'</g>'; }   // the portrait: the legs again, below the hem only (the pose's own pair, as the first copy)
+function dpoCvLegs(on,X,Y){ if(!dpoOn() || !on('discosuit')) return false; DPO.cvn++; cx.save(); cx.beginPath(); cx.rect(X-27-40*0.45, Y-58+DPO.cut*0.45, 200*0.45, 120*0.45); cx.clip(); djsCv(DJS_SUIT_LA_OPS,X-27,Y-58,0.45); cx.restore(); return true; }   // the carpet man: the same cut at the figure's 0.45 (canvas = X-27+0.45 sx, Y-58+0.45 sy)
+const dpoDress0=djsDress; djsDress=function(s,on,wear){ s=dpoDress0.apply(this, arguments); if(!dpoOn()) return s;   // CARD-DJS's own tint first (the first occurrence of every fragment), then the legs' later occurrences
+  try{ const map= !Array.isArray(wear)? djsShMine() : wear.djsMine? djsShMine() : null; if(!map) return s; const n=djsShOf('discosuit',map); if(!n || !on('discosuit')) return s;
+    for(const f of [DJS_SUIT_LA, DJS_SUIT_LB]){ const t=djsTint('discosuit',n,f); if(t===f) continue; let i=s.indexOf(f); while(i>=0){ s=s.slice(0,i)+t+s.slice(i+f.length); i=s.indexOf(f, i+t.length); } } }catch(e){}
+  return s; };
+function dpoRig(o){ if(o && typeof o==='object' && typeof o.on==='number') DPO.on=o.on? 1 : 0; return { cv:GVT_CV, on:dpoOn(), cut:DPO.cut, n:DPO.n, cvn:DPO.cvn, la:DJS_SUIT_LA.length, lb:DJS_SUIT_LB.length }; }
 function sargeWepURI(wk, bodyHex, bladeHex, vb, wear){   // 0577: + the optional wear pass-through (the fitting room's try — every shipped caller passes nothing, byte-identical URIs)
   // SARGE'S OUTFITS (v2.16): every owned-by-YOU portrait dresses through this
   // one door — the room, the academy, the picker, the case, the reveal cards,
@@ -91786,7 +91803,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.98';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -132138,6 +132155,7 @@ function drawSargeOutfit(u){
     cx.beginPath(); cx.moveTo(X+0.9,Y-8.3); cx.lineTo(X+5,Y-11.8); cx.stroke();
     cx.fillStyle='#E0C27A'; cx.beginPath(); cx.arc(X-7.1,Y-5.6,0.75,0,7); cx.fill(); cx.beginPath(); cx.arc(X+5.3,Y-7.4,0.75,0,7); cx.fill(); cx.lineCap='butt';
   }
+  dpoCvLegs(on,X,Y);   // CARD-DPO THE DISCO JUMPSUIT's flares OVER every boot on the carpet man (Laura 10/28): the legs again below the torso's hem, after the last feet block (sec CARD-DPO)
   if((on('pilotgloves') || on('acegloves') || on('duelglove')) && !(u.toadT>0)){   /* CARD-OLV-B1: + THE DUELLIST'S GLOVE (cream leather, the gold cuff, a red stone) */   // CARD-GGB THE GLOVES on the carpet man: a mitt on each hand of the mold he is drawn with (ggbArms: the limbs group's two arms, read once a mold), the pilot's plain brown or the ace's cognac gauntlet with its brass snap; the gun in his fist paints over it (drawSargeWeapon follows)
     const dg9=on('duelglove'), ace9=dg9 || on('acegloves'), k9=unitSkin('sarge',u), A9=GGB_ARMS[k9] || (GGB_ARMS[k9]=ggbArms(SPRITES_SRC[k9]||''));
     for(const a9 of A9){ const gx9=X-27+0.45*a9[0], gy9=Y-58+0.45*a9[1], d9=Math.hypot(a9[0]-a9[2],a9[1]-a9[3])||1, vx9=(a9[0]-a9[2])/d9, vy9=(a9[1]-a9[3])/d9, qx9=-vy9, qy9=vx9;
@@ -205724,7 +205742,8 @@ window.GVT = {
   fg(){ const sh=document.querySelector('.ptySheet:not(.hidden)'); if(!sh) return null; const R=el=>{ if(!el) return null; const b=el.getBoundingClientRect(); return { l:+b.left.toFixed(1), t:+b.top.toFixed(1), r:+b.right.toFixed(1), b:+b.bottom.toFixed(1), w:+b.width.toFixed(1), h:+b.height.toFixed(1) }; }; const fs=el=>el? +parseFloat(getComputedStyle(el).fontSize).toFixed(1) : null; const q=sel=>sh.querySelector(sel); const gb=document.getElementById('grpBtn'); const box=q('.pts-ninv'), hero=q('.pts-share'), grid=q('.pts-recs');
     return { fat:sh.classList.contains('fat'), ih:innerHeight, iw:innerWidth, sheet:R(sh), head:{ box:R(q('.pts-head')), fs:fs(q('.pts-t')) }, box:R(box), cap:{ box:R(q('.pf-head')), fs:fs(q('.pf-head')) }, field:{ box:R(q('#pfName-h')), fs:fs(q('#pfName-h')) }, invite:{ box:R(q('#pfGo-h')), fs:fs(q('#pfGo-h')), bg:q('#pfGo-h')? getComputedStyle(q('#pfGo-h')).backgroundImage : null }, hero:hero? { box:R(hero), fs:fs(hero), inBox:!!(box && box.contains(hero)), cls:hero.className, shadow:getComputedStyle(hero).boxShadow } : null, rows:[...sh.querySelectorAll('.pf-row')].map(r=>({ box:R(r), fs:fs(r.querySelector('.pf-nm')) })), lab:{ box:R(q('.pts-lab')), fs:fs(q('.pts-lab')) }, grid:grid? { box:R(grid), disp:getComputedStyle(grid).display, cols:getComputedStyle(grid).gridTemplateColumns.split(' ').length, sh:grid.scrollHeight, ch:grid.clientHeight, cards:[...sh.querySelectorAll('.pts-rec')].map(c=>({ box:R(c), fs:fs(c), pill:R(c.querySelector('small')), pillFs:fs(c.querySelector('small')), sent:c.classList.contains('sent'), txt:String(c.textContent||'').replace(/\s+/g,' ').trim() })) } : null, foot:R(q('.pts-gobar')), grp:(gb && !gb.classList.contains('hidden'))? R(gb) : null }; },   // 0638 THE EMPTY SHEET FILLS ITS GLASS — read-only: the fat face's boxes and type (the battery reads the percentages off it); `fg`, not `glass` — GVT.glass is the spyglass rig's
   qg(){ return { cv:GVT_CV, on:QG_ON, any:qgAny(), lobby:!!ptyLobby(), host:!!(COOP&&COOP.host), place:ptyPlace(), here:ptyPlaceNow(), locked:{ camp:partyLocked('camp'), bf:partyLocked(), lead:partyLocked(null,1) }, wish:!!(COOP&&COOP.campWish), golvl:(COOP&&COOP.campWish)? COOP.campWish.lvl|0 : null, want:COOP? { b:!!COOP.wantBattle, lvl:COOP.wantLvl|0, park:COOP.wantPark||null } : null, dep:!!PTY.dep, fired:!!(COOP&&CREW.leadFired===COOP.code), mates:qgMates(), label:S.bf? qgLabel() : null, mode:S.mode }; },   // 0634 THE QUEUE PULLS THE GROUP — the rig's one read (read-only)
-  lnf(o){ return lnfRig(o); },   // CARD-LNF: the rig's read + its span dial (o.due ms from now), o.drop, o.arm, o.on
+  lnf(o){ return lnfRig(o); },
+  dpo(o){ return dpoRig(o); },   // CARD-DPO: the rig's read (the cut, the copies painted) + o.on the switch   // CARD-LNF: the rig's read + its span dial (o.due ms from now), o.drop, o.arm, o.on
   vhq(o){ return vhqRig(o); },   // CARD-VHQ: the rig's read (the gaps between a face's buttons, the states, the bar's label) + o.on
   rvl(o){ return rvlProbe(o); },   // CARD-RVL: the rig's read (the cell, the seats, his Sarge, his men, the reflect's ledger; {on} the switch)
   qgCfg(p){ p=p||{}; if(p.on!=null) QG_ON=+p.on; return GVT.qg(); },   // 0634: the one dial (⚑ QG_ON)
