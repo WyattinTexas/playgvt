@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.02","md5":"9efb1080f1cc285332e023afa6318974","sha":"f052845a3c","at":"2026-10-29T03:13:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.03","md5":"8e2462ff49c353623449579ae70dff94","sha":"53fc6d379e","at":"2026-10-29T11:47:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91818,7 +91818,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -201248,6 +201248,19 @@ function lbwr11On(){ return !!(LBWR11.on && !LBWR11_OFF); }
 { const t0=lbwr10Turn; lbwr10Turn=function(f, R, Q){ const r=t0.apply(this, arguments); try{ if(lbwr11On() && f && f.lbwr6 && f.lbwr6.st==='vicious'){ f.hp=f.hpMax=LBWR11.hp; LBWR11.turns++; } }catch(e){ LBWR11.err++; } return r; }; }   // THE BAR: 3,000 on every level, set right after round 10's turn (which set 150 x the level)
 setTimeout(function(){ try{ GVT.lbwr11=function(){ const n=Math.max(1, (S.park && S.park.n)|0); return { v:LBWR11.v, on:lbwr11On()? 1 : 0, off:LBWR11_OFF? 1 : 0, hp:LBWR11.hp, n:n, period:(typeof lbwr10Period==='function')? lbwr10Period(n) : null, cap:(typeof lbwr10Cap==='function')? lbwr10Cap(n) : null, turns:LBWR11.turns, err:LBWR11.err }; }; }catch(e){ LBWR11.err++; } }, 0);
 // ═══ END CARD-LBW-R11 ═══
+// ═══ CARD-LBW-R12 · THE PIRATE COVE: 5,000 HEALTH, TWICE THE PIRATES IN EVERY WAVE (Layla, designer, by WhatsApp 10/29/2026 07:29 EDT on round 11 live; jumpr 2702 round 12; board J13; the record design/boss-world-layla-1022/build-lbwr12/00-DESIGN-LBW-R12.md) ═══
+// Her words, verbatim: "the cove battles are great now. lets have way more troops coming out and lets have A LOT of sand worms jump out of the sand and on the players side and they attack them. and lets have the demon crabs have 5000 health". This round takes the two numbers; her sand worms, a new creature, are round 13.
+// TWICE THE PIRATES: lbwl20Cfg (the twenty levels' cfg: the waves, each a list of groups with a count n) re-answered by name: every group's count x 2 in every wave (rounded, at least one); parkCfg calls lbwl20Cfg by name for the cove, so every play of a cove level, host and guest alike, builds the doubled waves. The waves' kinds, formations and timing are as they were.
+// 5,000: lbwr10Turn re-answered by name once more: after round 10's turn (150 x the level) and round 11's (3,000), the vicious crab's bar is 5,000 on every level.
+// Nothing else moves: the crabs' stream, the walkway, the shooting line, the claw, the silence over the creature (Wyatt 13:28), the sheet's name.
+// ?lbwr12=0 on a device = round 11's numbers (localStorage gvt_lbwr12off); GVT.lbwr12() reads the card. Zero save bytes, zero wire bytes, nothing on the server.
+const LBWR12_OFF=(function(){ try{ const q=/[?&]lbwr12=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_lbwr12off','1'); else localStorage.removeItem('gvt_lbwr12off'); } return localStorage.getItem('gvt_lbwr12off')==='1'; }catch(e){ return false; } })();
+const LBWR12={ v:1, on:1, hp:5000, troops:2, turns:0, cfgs:0, err:0 };   // hp: the vicious crab's bar on every level (her number); troops: every wave group's count, times this
+function lbwr12On(){ return !!(LBWR12.on && !LBWR12_OFF); }
+{ const c0=lbwl20Cfg; lbwl20Cfg=function(n){ const cfg=c0.apply(this, arguments); try{ if(lbwr12On() && cfg && cfg.waves){ for(const w of cfg.waves){ if(!w || !w.groups) continue; for(const g of w.groups){ if(g && g.n>0) g.n=Math.max(1, Math.round(g.n*LBWR12.troops)); } } cfg.lbwr12=LBWR12.troops; LBWR12.cfgs++; } }catch(e){ LBWR12.err++; } return cfg; }; }   // TWICE THE PIRATES: every group's count in every wave, at the cfg's birth
+{ const t0=lbwr10Turn; lbwr10Turn=function(f, R, Q){ const r=t0.apply(this, arguments); try{ if(lbwr12On() && f && f.lbwr6 && f.lbwr6.st==='vicious'){ f.hp=f.hpMax=LBWR12.hp; LBWR12.turns++; } }catch(e){ LBWR12.err++; } return r; }; }   // 5,000 on every level, set right after rounds 10 and 11
+setTimeout(function(){ try{ GVT.lbwr12=function(){ const W=(S.cfg && S.cfg.waves)? S.cfg.waves : null; const sum=function(w){ let k=0; if(w && w.groups) for(const g of w.groups) k+=(g && g.n)|0; return k; }; return { v:LBWR12.v, on:lbwr12On()? 1 : 0, off:LBWR12_OFF? 1 : 0, hp:LBWR12.hp, troops:LBWR12.troops, mark:(S.cfg && S.cfg.lbwr12)|0, wave1:W && W.length? sum(W[0]) : null, all:W? W.map(sum) : null, turns:LBWR12.turns, cfgs:LBWR12.cfgs, err:LBWR12.err }; }; }catch(e){ LBWR12.err++; } }, 0);
+// ═══ END CARD-LBW-R12 ═══
 // ═══ CARD-RSL · THE iPHONE KEEPS THE GAME OPEN (sec:CARD-RSL; design/radio-silence-1023/00-CARD-RSL.md). RADIO SILENCE 10/23/2026: Layla's iPhone ends the game's page for its memory at every open since the night's landings (WhatsApp 07:02 EDT, verbatim: "everytime I open the app it keeps saying 'radio silence' and it keeps on saying press to start and I press it and it keeps poping up"). ═══
 // THE CAUSE (measured on HER army, WebKit at a phone's shape @3, the page process's phys_footprint, CARD-ODL's measure): her bedroom after PRESS START 680 MB on v26.09 -> 770-790 MB on v26.53, from two
 // cards: CARD-STF (v26.27, Laura's nine stuffies: +67 MB in the bedroom) and CARD-PCF (v26.42, Laura's felt Princess Croak: +66 MB at the title, +56 MB in the bedroom). Both cards' own switches off = 685 MB.
