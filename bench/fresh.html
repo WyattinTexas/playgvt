@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.03","md5":"8e2462ff49c353623449579ae70dff94","sha":"53fc6d379e","at":"2026-10-29T11:47:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.04","md5":"e98c1bd7783c60f2f603dd4680b12680","sha":"f325a355a1","at":"2026-10-29T15:23:23Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91818,7 +91818,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -208572,8 +208572,13 @@ try{ if(window.GVT && !GVT.fgt) GVT.fgt=fgtRig; }catch(e){ FGT.err++; }
 // ROUND 9 (Isaac 10/27 13:30, on the live screen): the featured tile and the right column both centred on the Dynamic Island's centre and on each other: in landscape the
 // island sits at the screen's vertical middle, and the table fills the screen (position:fixed; inset:0), so both groups' middles = the table's middle, measured at every lay
 // and on a resize into --bmt-midy (the column's own units); round 8's two side nudges (the tile's, the doors') go; its third (the tabs + PLAY down 27) stays; the band under PLAY as before.
+// ROUND 10 (Isaac 10/29 10:53, a bug on the live screen: after a fight the tile and the doors no longer clear the Dynamic Island; his screenshot shows the game's own GROUP
+// button at the bare edge with them, so the phone hands the whole page zero side insets after a fight while the first open reads them true): the side insets are read through
+// a laid-out probe on the body (its width = the left inset, its height = the right) at every lay, re-read late after a resize, a turn or a return to the page and on a 2.5 s
+// heartbeat while the table shows, and REMEMBERED per glass shape, so a 0 handed back later cannot undo a value once seen (CARD-NFS's cure for the chin, carried to the sides);
+// the CSS env() declarations stay as the fallback before the first measure. The rig door: GVT.bmt({ins:[l,r]}) stands the insets in, {forget:1} clears the memory.
 // ?bmt=0 (a device key gvt_bmt) = the shipped screen. The rig door GVT.bmt({on, mode}).
-const BMT={ on:1, err:0, rs:0, ro:null };
+const BMT={ on:1, err:0, rs:0, ro:null, ins:{}, ov:null, late:[], hb:0 };   // ins = the side insets remembered per glass shape; ov = the rig's stand-in; late = the late looks' timers; hb = the heartbeat
 try{ const m=location.search.match(/[?&]bmt=([01])/); if(m) localStorage.setItem('gvt_bmt', m[1]); BMT.on=(localStorage.getItem('gvt_bmt')==='0')? 0 : 1; }catch(e){ BMT.on=1; }
 function bmtMode(){ return ((META.bfMode|0)===2)? 2 : 1; }   // the lit tab: 1v1 unless 2v2 was lit (META.bfMode, the save's own field from here on; absent = 1v1)
 function bmtPty(){ try{ return partyLive().length>=2; }catch(e){ return false; } }   // a live party: the row follows the party's size and locks
@@ -208611,7 +208616,16 @@ function bmtFeatLay(card){   // the card's own data laid as the left tile: the b
   card.innerHTML='<span class="bmt-band" data-notr>★ '+escH(TXT('FEATURED BATTLE'))+'</span><span class="n" data-notr>'+ft.size+'v'+ft.size+'</span>'
     +'<small class="bmt-map" data-notr>'+escH(bfMapLabel(ft.map))+'</small><small class="bmt-hook" data-notr>'+escH(done? TXT('WON TODAY · REPLAY ANYTIME') : tf('FIRST WIN +%1★', starX(FEAT_STARS)))+'</small>';
   card.classList.add('bmt-feat'); }
+function bmtProbe(){ let p=document.getElementById('bmtProbe'); if(!p && document.body){ p=document.createElement('div'); p.id='bmtProbe'; p.setAttribute('aria-hidden', 'true'); p.style.cssText='position:fixed;left:0;top:0;width:env(safe-area-inset-left, 0px);height:env(safe-area-inset-right, 0px);visibility:hidden;pointer-events:none;z-index:-1;'; document.body.appendChild(p); } return p; }   // on the body, laid out whether the table shows or not (env() must lay out to resolve: CARD-NFS's lesson); its width = the left inset, its height = the right
+function bmtKey(){ return (innerWidth>innerHeight? 'L' : 'P')+Math.max(innerWidth, innerHeight); }   // the glass's shape: a turn to the other landscape keeps it (the phone's insets are the same both ways), portrait is another
+function bmtInsets(){   // the phone's side insets: read live, and remembered per glass shape, so a 0 handed back after a fight (Isaac 10/29: the game's own GROUP button at the bare edge with the tile) cannot undo a value once seen; a larger live read wins
+  let l=0, r=0; if(BMT.ov){ l=BMT.ov[0]|0; r=BMT.ov[1]|0; } else { try{ const p=bmtProbe(); if(p){ const b=p.getBoundingClientRect(); l=Math.round(b.width); r=Math.round(b.height); } }catch(e){ BMT.err++; } }
+  const k=bmtKey(), m=BMT.ins[k]||[0,0]; if(l>m[0]) m[0]=l; if(r>m[1]) m[1]=r; if(m[0]||m[1]) BMT.ins[k]=m;   // a glass is remembered only once it has shown an inset
+  return [l>0? l : m[0], r>0? r : m[1]]; }
+function bmtLook(){ try{ if(document.hidden) return; const wt=document.getElementById('wartable'); if(!wt || !BMT.on || wt.classList.contains('hidden')) return; bmtBand(); }catch(e){ BMT.err++; } }   // one look while the table shows: the measure again, a value that did not change moves nothing
+function bmtLate(){ for(const t of BMT.late) clearTimeout(t); BMT.late=[120,450,1200].map(ms=>setTimeout(bmtLook, ms)); }   // the three late looks (the inset lands late on iOS: CARD-NFS)
 function bmtBand(){ const wt=document.getElementById('wartable'); if(!wt || !BMT.on) return; const play=wt.querySelector('.wt-play'), mid=wt.querySelector('.wt-mid'); if(!play || !mid) return;   // the band's top = PLAY's foot, measured on the table; the side groups' middle = the table's middle (fixed, inset 0: the screen's, the island's mid-height in landscape)
+  const ins=bmtInsets(); wt.style.setProperty('--bmt-sal', ins[0]+'px'); wt.style.setProperty('--bmt-sar', ins[1]+'px');   // ROUND 10: the side insets by the probe, remembered (a fight can leave env() at 0); set before the hidden guard so a table shown later wears them at once
   const w=wt.getBoundingClientRect(), p=play.getBoundingClientRect(), m=mid.getBoundingClientRect(); if(!(p.height>0) || !(w.height>0) || !(m.height>0)) return;   // hidden (the opener draws before it shows): the observer below measures once it shows
   wt.style.setProperty('--bmt-pairtop', Math.max(0, Math.round(p.bottom-w.top))+'px');
   wt.style.setProperty('--bmt-midy', (Math.round((w.top+w.height/2-m.top)*2)/2)+'px'); }   // ROUND 9: the screen's middle in the column's own units, to the half px
@@ -208625,7 +208639,8 @@ function bmtLay(){   // after the table's own draw: the pieces re-seated; nothin
   if(!mid.querySelector('.bmt-tabs')) pw.insertAdjacentHTML('beforebegin', bmtTabsHTML());
   let pair=wt.querySelector('.bmt-pair'); if(!pair){ pair=document.createElement('div'); pair.className='bmt-pair'; wt.appendChild(pair); }   // on the table, not in the column: the band runs to the screen's bottom
   bmtPairSeat(); bmtBand(); bmtWatch(wt, wt.querySelector('.wt-play'), mid);
-  if(!BMT.rs){ BMT.rs=1; try{ addEventListener('resize', ()=>{ try{ bmtBand(); }catch(e){ BMT.err++; } }); }catch(e){} }
+  if(!BMT.rs){ BMT.rs=1; try{ addEventListener('resize', ()=>{ try{ bmtBand(); bmtLate(); }catch(e){ BMT.err++; } }); addEventListener('orientationchange', bmtLate); addEventListener('pageshow', bmtLate); document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) bmtLate(); }); BMT.hb=setInterval(bmtLook, 2500); }catch(e){ BMT.err++; } }   // ROUND 10: the late looks after a resize, a turn or a return to the page, and the heartbeat while the table shows (CARD-NFS's road for the chin)
+  bmtLate();   // ROUND 10: three late looks after every lay (the opener draws, then shows: an inset landing late is caught)
   for(const m2 of mid.querySelectorAll('.wt-m2:not(.wt-feat)')){ if(!m2.hasAttribute('data-notr')) m2.classList.add('bmt-hide'); }   // the plain 2v2 GRAB AN ALLY pill goes; a party's face keeps its own button
   const feat=mid.querySelector('.wt-feat'); if(feat && !feat.classList.contains('bmt-feat')) bmtFeatLay(feat);
   let side=wt.querySelector('.bmt-side'); if(!side){ side=document.createElement('div'); side.className='bmt-side'; mid.appendChild(side); }   // in the column's own box: its middle is the tile's middle on every glass (round 8)
@@ -208636,7 +208651,8 @@ UI.bmtTab=function(k){ audio(); SFX.blip(); if(bmtPty()) return; META.bfMode=((k
 const bmtPlay0=UI.wtPlay; UI.wtPlay=function(n){ if(BMT.on && (n|0)===1 && bmtMode()===2 && !bmtPty()) n=2; return bmtPlay0.call(this, n); };   // PLAY queues the lit tab's size; a party rides the table's own law
 const bmtRWT0=renderWarTable; renderWarTable=function(){ const r=bmtRWT0.apply(this, arguments); try{ bmtLay(); }catch(e){ BMT.err++; } return r; };
 const bmtGLS0=glSquare; glSquare=function(){ const r=bmtGLS0.apply(this, arguments); try{ bmtPairSeat(); }catch(e){ BMT.err++; } return r; };
-function bmtRig(o){ o=o||{}; if(o.on!=null) BMT.on=o.on? 1 : 0; if(o.mode){ META.bfMode=o.mode|0; saveMeta(); } return { on:BMT.on, mode:bmtMode(), err:BMT.err, pty:bmtPty() }; }
+function bmtRig(o){ o=o||{}; if(o.on!=null) BMT.on=o.on? 1 : 0; if(o.mode){ META.bfMode=o.mode|0; saveMeta(); } if('ins' in o) BMT.ov=(o.ins && o.ins.length===2)? [o.ins[0]|0, o.ins[1]|0] : null; if(o.forget) BMT.ins={};
+  return { on:BMT.on, mode:bmtMode(), err:BMT.err, pty:bmtPty(), ins:bmtInsets(), mem:JSON.parse(JSON.stringify(BMT.ins)), probe:!!document.getElementById('bmtProbe') }; }   // ROUND 10: ins stands the insets in (a rig has none), forget clears the memory; the read reports both
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.bmt=bmtRig; }catch(e){} }, 0);
 // ═══ END CARD-BMT ═══
 // ═══ CARD-BPU · THE BATTLEFIELD WITH A PARTY: THE TABS, PLAY AND THE PARTY'S OWN BUTTON RIDE HIGHER, CLEAR OF THE GLOBE AND THE TORCH (WYATT typed on Maker 1 10/28/2026 ~18:20 EDT: "while I was in a party with one other person, the 2v2 is currently being blocked by the globe and the Take the Torch buttons. What needs to happen is, when you are in a party with two or more people, the 1v1, 2v2 play button, and the new 2v2 button should all just be higher. That way, there's room for all of them there."; built on Maker 1 as M2760, jumpr 2760; design/battlefield-party-row-1028/00-CARD-BPU.md) ═══
