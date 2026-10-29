@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.14","md5":"a4ecaca1864cb73b5ecfe1eee0e21f5d","sha":"17478f481b","at":"2026-10-29T17:35:47Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.15","md5":"adf6f89e3d8f879c2ed74acc6ce62af3","sha":"b633247713","at":"2026-10-29T17:43:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92099,7 +92099,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.14';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -185639,7 +185639,11 @@ function sabHeld(){ if(NOTNOW){ NOTNOW=0; return true; } return !!M.lightsaber &
 
 // ───── THE STAGE: the deal, the fit, the clock, the tap, the guard ─────
 const LANE_L=452, LANE_PAD=24, LANE_GAP=10, TX0=705;   // the title's lane: from clear of his gun's muzzle (the hold's figure ends at 436) to the glass's safe right edge; the proto's centre line where it fits
-const GUARD={ N:3, SKIP:2, PACE:22, FLOOR:42, LEAD:700 };   // ⚑ the guard's two lines, in ms a frame (the MIDDLE one of N frames, the first SKIP after a deal or a step left out: one long frame never steps it down, one short one never holds it up): over PACE = one level down; over FLOOR with the finish off = the title frame alone · LEAD = the leader's longest (ms)
+const GUARD={ N:3, SKIP:2, PACE:22, FLOOR:42, LEAD:700 }, TAP_GRACE=700;   // ⚑ the guard's two lines, in ms a frame (the MIDDLE one of N frames, the first SKIP after a deal or a step left out: one long frame never steps it down, one short one never holds it up): over PACE = one level down; over FLOOR with the finish off = a MARK in the steps (CARD-SMP: it was the title frame alone; the act plays on) · LEAD = the leader's longest (ms) · TAP_GRACE (CARD-SMP) = the stage's first ms in which a finger is no skip
+// ───── CARD-SMP THE SABER MOMENT PLAYS (design/saber-moment-plays-1029; Wyatt 10/29/2026 by phone: "I unlocked the saber, but the video didn't play. It just kind of cut to the end of the animation"): the act is never thrown away. The guard's floor (42 ms a frame with the finish already off) used to call still(C) = the title frame alone,
+// and on his phone's engine the saber's own lamp-up (t 0.3) and the blade's ignition (t 2.6 to 3.1) cost 50 to 90 ms a frame at level 2: 6 of 6 WebKit runs on the base died there (logs/perf-smp-base-webkit.log). Now the floor is a mark ([t, 3, ms] in the steps, once; the rig door's floor) and the clock, the wall's, carries the act to its title in its own 3.3 s
+// with the frames the phone can draw. The other road to the same cut, a finger on the stage in its first moments (the tap that opened the moment, a double tap, a tap on the dark leader) = UI.wpmTap → WPM.skip: a tap in the stage's first TAP_GRACE ms is no skip now (WPM.young; WPM.skip itself untouched: a rig's and EQUIP's own road). Reduced motion keeps the title frame alone as B1 built it. ?smp=0 = as shipped. ─────
+const SMP_ON=(function(){ try{ const q=/[?&]smp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_smp','0'); else localStorage.removeItem('gvt_smp'); } return localStorage.getItem('gvt_smp')!=='0'; }catch(e){ return true; } })();   // CARD-SMP's switch (CARD-WFI's grammar): ?smp=0 = the floor cuts to the title frame and a tap skips at once, as shipped (the device key gvt_smp; ?smp=1 puts it back)
 let CUR=null, LOD=2, LODSET=0, RSZ=0;   // the standing stage · the page's level of detail (0 the whole finish · 1 without its grain · 2 no finish: the room's colour baked into the art) and whether a moment has found it (it holds for the page's life, never saved) · the resize hook, once
 const SVG0='<svg preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg>';
 function skeleton(wk, m, cryOn){ const q=m.eq||['wep',wk], take=m.take||'riteTake';   // a row may name its own EQUIP (eq: [the kind, the id] for nmCan / nmDo) and its own fold (take: the UI door its card's take was); the weapons' are these
@@ -185716,13 +185720,13 @@ function draw(C){ if(!C.S && !fit(C)) return; const m=C.m, ph=C.t<m.T.slam? 0 : 
   doors(C); tvTick(C); C.frames++; }   // CARD-R5G: the film plate at the slam + TV_AT (a gift row)
 function boom(C){ for(const n of ['boom','fanfare']){ if(C.hit[n]) continue; C.hit[n]=1; try{ SFX[n](); }catch(e){} } }   // the title's two sounds, once a deal
 function cues(C){ const q=C.m.cues; while(C.cue<q.length && q[C.cue][0]<=C.t){ const n=q[C.cue++][1]; if(n==='boom' || n==='fanfare'){ if(C.hit[n]) continue; C.hit[n]=1; } try{ if(SFX[n]) SFX[n](); }catch(e){} } }
-function still(C){ C.still=true; C.paused=false; C.t=C.m.T.slam+1; C.cue=C.m.cues.length; if(C.raf){ cancelAnimationFrame(C.raf); C.raf=0; } boom(C); draw(C); }   // the title frame alone (reduced motion; the guard's floor): no flash, no slam, the doors up
+function still(C){ C.still=true; C.paused=false; C.t=C.m.T.slam+1; C.cue=C.m.cues.length; if(C.raf){ cancelAnimationFrame(C.raf); C.raf=0; } boom(C); draw(C); }   // the title frame alone (reduced motion; a rig's o.still; the guard's floor only under ?smp=0 — CARD-SMP): no flash, no slam, the doors up
 // THE GUARD (a phone is not this Mac). MEASURED on WebKit, his phone's engine, at his phone's 874x402 x3: the finish costs 91 ms a frame, without its grain 47, and with no finish the stage holds 60 a second; Chrome holds 60 at every
 // level with the CPU held back 4x (01-BUILD-B1.md has the table). So a moment opens on THE LEADER: its own dark first frame, the clock held at 0, the figure's layer drawn again each frame while the level is found. It starts at level 2
 // and CLIMBS a level each time the pace holds (nothing of it shows on a black figure in an unlit room); the first level that does not hold is taken back. Then the clock runs, and the level can only step down.
 function guard(C, ms){ if(ms>250) return; if(++C.gn<=GUARD.SKIP) return; C.gb.push(ms); if(C.gb.length<GUARD.N) return;   // a stall (the tab left) is no measure
   const best=C.gb.slice().sort((a,b)=>a-b)[GUARD.N>>1], at=+f(C.t); C.avg=best; C.gb=[]; C.gn=0;   // the middle one of the N
-  if(best>GUARD.PACE){ if(C.lod<2){ C.lod++; C.set=1; LOD=C.lod; LODSET=1; C.steps.push([at, C.lod, +f(best)]); } else if(C.pre) C.set=1; else if(best>GUARD.FLOOR){ C.steps.push([at, 3, +f(best)]); still(C); } }
+  if(best>GUARD.PACE){ if(C.lod<2){ C.lod++; C.set=1; LOD=C.lod; LODSET=1; C.steps.push([at, C.lod, +f(best)]); } else if(C.pre) C.set=1; else if(best>GUARD.FLOOR){ if(!SMP_ON){ C.steps.push([at, 3, +f(best)]); still(C); } else if(!C.floor){ C.floor=1; C.steps.push([at, 3, +f(best)]); } } }   // CARD-SMP THE SABER MOMENT PLAYS: over the floor with the finish off = a MARK (once), never the title frame alone (that was the cut he saw); ?smp=0 = the cut as shipped
   else if(C.pre && !C.set){ C.ok=C.lod; if(C.lod>0){ C.lod--; C.steps.push([at, C.lod, +f(best)]); } else { C.set=1; LOD=0; LODSET=1; } } }
 function found(C){ if(!C.set && C.ok!=null){ if(C.lod!==C.ok) C.steps.push([+f(C.t), C.ok, 0]); C.lod=C.ok; LOD=C.lod; LODSET=1; } C.set=1; C.pre=0; C.gn=0; C.gb=[]; }   // the leader ends: a level still on trial falls back to the last one that held
 function tick(now){ const C=CUR; if(!C) return; C.raf=0; if(!C.root.isConnected){ CUR=null; return; }   // the fold emptied the host: the clock ends with it
@@ -185741,7 +185745,7 @@ function open(wk, o){ const m=M[wk], p=document.getElementById('milePop'); if(!m
   const root=p.querySelector('.wpm'), nodes={}; root.querySelectorAll('.wpm-l').forEach(d=>{ nodes[d.getAttribute('data-l')]={ div:d, svg:d.firstChild }; });
   const C=CUR={ wk:wk, m:m, root:root, nodes:nodes, cam:root.querySelector('.wpm-cam'), box:root.querySelector('.wpm-box'), doors:root.querySelector('.wpm-doors'), safe:root.querySelector('.wpm-safe'), ruler:root.querySelector('.wpm-ruler'), crys:root.querySelector('.wpm-crys'),
     flash:root.querySelector('.wpm-flash'), bt:root.querySelector('.wpm-bt'), bb:root.querySelector('.wpm-bb'),
-    t:0, st:(m.cry && !cryOn && sabHasSaber())? { crystal:saberHex() } : {}, ph:-1, env:null, cue:0, hit:{}, last:{}, lod:(o.lod==null? LOD : clamp(o.lod|0,0,2)), set:(o.lod!=null || LODSET)? 1 : 0, ok:null, pre:0, pre0:0, pgaps:[], still:false, paused:!!o.paused, k:1, S:null, ub:null, gn:0, gb:[], avg:0, steps:[], gaps:[], frames:0, raf:0, lastT:0, jump:0, tvNow:0 };
+    t:0, st:(m.cry && !cryOn && sabHasSaber())? { crystal:saberHex() } : {}, ph:-1, env:null, cue:0, hit:{}, last:{}, lod:(o.lod==null? LOD : clamp(o.lod|0,0,2)), set:(o.lod!=null || LODSET)? 1 : 0, ok:null, pre:0, pre0:0, pgaps:[], still:false, paused:!!o.paused, k:1, S:null, ub:null, gn:0, gb:[], avg:0, steps:[], gaps:[], frames:0, raf:0, lastT:0, jump:0, tvNow:0, born:performance.now(), floor:0 };   // CARD-SMP: born = the deal's moment (the tap grace, WPM.young) · floor = the guard's floor mark (once)
   if(m.tvFirst && m.tv && r5fOn() && o.first!==false){ C.jump=1; C.t=m.T.slam; C.set=1; const q=m.cues; while(C.cue<q.length && q[C.cue][0]<C.t) C.cue++; if(!cryOn){ C.tvNow=1; C.box.classList.add('wpm-tvon'); } }   // CARD-R5F THE FILM IS THE MOMENT (design/rank5-film-1028; Wyatt 10/28: "they already saw the shotgun video … You just need to show the Riot Shield video … This goes for all the classes on their leveling-up upgrade"): a gift row (tvFirst) opens AT the slam: the weapon's act never plays (its cues skipped; the title's two sounds at the slam stay for the first tick; no leader, no flash frame), the title slams in, the doors rise at +0.5 s; with a crystal in his hilt (no crystal face owed) the plate stands from the first paint (.now) over the box's .wpm-tvon, so the fig / sh / glow / fx layers are never shown; the crystal face (the free pick owed, R5G-Q2) keeps its order: the hold with the hero, EQUIP, the pick, then the plate (tvAfterPick). ?r5f=0 = as shipped; a rig may say first:false. The box wears .wpm-tvon BEFORE fit's first style flush (so the four layers never fade: they are never shown); the plate itself needs the fit's scale, so it is dealt right after
   fit(C);
   if(C.tvNow) tvDeal(C);   // CARD-R5F: the plate before the first paint (.now)
@@ -185753,6 +185757,7 @@ function open(wk, o){ const m=M[wk], p=document.getElementById('milePop'); if(!m
   return true; }
 function skip(){ const C=CUR; if(!C || !C.root.isConnected || C.still || C.t>=C.m.T.slam) return false;   // a tap before the title: the title slams in now (its two sounds once)
   C.t=C.m.T.slam; C.cue=C.m.cues.length; boom(C); if(C.paused) draw(C); return true; }
+function young(){ const C=CUR; return !!(SMP_ON && C && C.root.isConnected && !C.still && !C.paused && performance.now()-C.born<TAP_GRACE); }   // CARD-SMP: the stage's first TAP_GRACE ms (the finger that opened the moment, a double tap, a tap on the dark leader): UI.wpmTap lets such a tap pass; a paused (rig) stage is never young
 function cmd(k){ const C=(CUR && CUR.root.isConnected)? CUR : null; if(!C || !C.m.cmd || C.wk!==k || C.st.mode) return false;   // CARD-HJM-B1 TAKE COMMAND on the stage: the hop and the IN COMMAND stamp (the doors stand down); the write is UI.hjmCmd's, the fold follows it there
   if(C.t<C.m.T.slam) skip(); C.st.mode='command'; C.st.at=C.still? C.t-1 : C.t; C.ub=null; if(C.paused || C.still) draw(C); return true; }   // on the title frame alone (still) the stamp stands at once
 function heroKey(){ const C=(CUR && CUR.root.isConnected)? CUR : null; return (C && C.m.hero)? C.wk : null; }   // the hero whose moment stands (UI.hjmLater's JF_SPOT)
@@ -185765,12 +185770,12 @@ function rig(cmd, a, b){ const C=(CUR && CUR.root.isConnected)? CUR : null;
   if(cmd==='fresh'){ LOD=2; LODSET=0; return LOD; }   // the page's level forgotten (a rig that reads the guard's own climb)
   if(cmd==='sword') return swordOf(a);   // CARD-WPM-B4: a portrait's sword as this stage reads it (a proof's probe: the foot, the turn, the grip, the tip, the fists' seats, the pose)
   const R=e=>{ const q=e.getBoundingClientRect(); return { l:q.left, t:q.top, r:q.right, b:q.bottom, w:q.width, h:q.height }; };
-  return { cv:GVT_CV, keys:Object.keys(M), guard:Object.assign({}, GUARD), LOD:LOD, LODSET:LODSET, set:C? C.set : null, open:!!C, wk:C? C.wk : null, t:C? C.t : null, slam:C? C.m.T.slam : null, lod:C? C.lod : null, still:C? C.still : null, paused:C? C.paused : null, jump:C? C.jump|0 : null, tvNow:C? C.tvNow|0 : null, ph:C? C.ph : null, k:C? C.k : null,
+  return { cv:GVT_CV, keys:Object.keys(M), guard:Object.assign({}, GUARD), LOD:LOD, LODSET:LODSET, set:C? C.set : null, open:!!C, wk:C? C.wk : null, t:C? C.t : null, slam:C? C.m.T.slam : null, lod:C? C.lod : null, still:C? C.still : null, paused:C? C.paused : null, floor:C? C.floor|0 : null, age:C? Math.round(performance.now()-C.born) : null, young:young(), smp:SMP_ON? 1 : 0, grace:TAP_GRACE, /* CARD-SMP */ jump:C? C.jump|0 : null, tvNow:C? C.tvNow|0 : null, ph:C? C.ph : null, k:C? C.k : null,
     env:(C && C.env)? { ZL:C.env.ZL, win:C.env.win.slice() } : null, S:C? Object.assign({}, C.S) : null, avg:C? C.avg : null, steps:C? C.steps.slice() : null, gaps:C? C.gaps.slice() : null, pgaps:C? C.pgaps.slice() : null, pre:C? C.pre : null, frames:C? C.frames : null, cue:C? C.cue : null, hit:C? Object.assign({}, C.hit) : null, dye:DYE, ink:AM_INK_ON(), swd:SWD? { key:SWD.key, foot:SWD.foot.slice(), ang:SWD.ang, grip:SWD.grip, tip:SWD.tip, fists:SWD.fists.slice() } : null,
     dress:(C && DRESS)? { ids:DRESS.ids.slice(), cls:JSON.parse(JSON.stringify(DRESS.cls)), miss:DRESS.miss.slice(), off:Object.assign({}, DRESS.off) } : null,
     mode:C? (C.st.mode||'') : null, crystal:C? (C.st.crystal||null) : null, cry:(C && C.crys)? { on:C.crys.classList.contains('on'), vials:[].slice.call(C.crys.querySelectorAll('.wpm-cry')).map(e=>({ hex:e.getAttribute('data-hex'), on:e.classList.contains('on'), label:e.textContent, r:R(e) })), eq2:(e=>e? { dis:!!e.disabled, label:e.textContent, r:R(e) } : null)(C.crys.querySelector('.wpm-eq2')) } : null,
     box:C? R(C.box) : null, safe:C? R(C.safe) : null, doors:C? [].slice.call(C.doors.querySelectorAll('button')).map(e=>({ cls:e.className, label:e.textContent, r:R(e) })) : null }; }
-return { M:M, open:open, skip:skip, cmd:cmd, heroKey:heroKey, rig:rig, cry:cry, tvAfterPick:tvAfterPick /* CARD-R5G */, sabHeld:sabHeld, sarge:sarge, dressBuild:dressBuild, hero:hero, dark:dark, GUARD:GUARD,
+return { M:M, open:open, skip:skip, young:young /* CARD-SMP */, cmd:cmd, heroKey:heroKey, rig:rig, cry:cry, tvAfterPick:tvAfterPick /* CARD-R5G */, sabHeld:sabHeld, sarge:sarge, dressBuild:dressBuild, hero:hero, dark:dark, GUARD:GUARD,
   K:{ W:W, H:H, FLOOR:FLOOR, HOR:HOR, SC:SC, FX0:FX0, f:f, lerp:lerp, clamp:clamp, EZ:EZ, tr:tr, seg:seg, hit:hit, mix:mix, mul:mul, rot:rot, add:add, m2s:m2s, pt:pt, WIDE:WIDE, star:star, muzzle:muzzle, brass:brass, fly:fly, smoke:smoke, motes:motes, crate:crate } };
 })();
 // the weapon card — the gear card's own grammar (band · name · art · one kid
@@ -188576,7 +188581,7 @@ window.UI = {
     audio(); const o9=(HERO_PICKS[k].opts.find(q9=>q9.id===id)||{}); if(o9.sfx && SFX[o9.sfx]) SFX[o9.sfx](); else SFX.snap();
     mileFold();
     if(!ceremonyNext()) renderMenu(); },   // 0564 THE CARDS LINE UP: the next banked choice first (as before), then the rest of the line
-  wpmTap(ev){ if(ev && ev.target && ev.target.closest && ev.target.closest('button')) return; WPM.skip(); },   // CARD-WPM-B1: a tap on the stage (never on a door) before the title jumps to the title
+  wpmTap(ev){ if(ev && ev.target && ev.target.closest && ev.target.closest('button')) return; if(WPM.young()) return; /* CARD-SMP: a finger in the stage's first TAP_GRACE ms (0.7 s) is no skip */ WPM.skip(); },   // CARD-WPM-B1: a tap on the stage (never on a door) before the title jumps to the title
   wpmEquip(el,k,id){ audio(); nmDo(k,id); const ok=document.querySelector('#milePop .wpm .mb-take'); if(ok) ok.click(); else UI.riteTake(); },   // CARD-WPM-B1 EQUIP: CARD-NM's own write (nmDo: the iron in his hands, its snap, the save, the room and a standing fort card follow), then the stage's ONE .mb-take (PROCEED = the card's own fold; riteFire re-aimed that very door, so the picker it interrupted goes on)
   wpmCry(){ audio(); if(WPM.cry('open')) SFX.blip(); },   // CARD-WPM-B3 THE FIRST CRYSTAL: the saber's EQUIP at the title goes on to the crystal face (nothing is written yet; a door's own blip)
   wpmCryPick(hex){ if(WPM.cry('pick',hex)) SFX.laser(); },   // a vial: fitted for the eye (the blade, the rays, the room's light); the rite's own pick sound (UI.sabRitePick's)
