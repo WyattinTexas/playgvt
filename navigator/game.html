@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.19","md5":"0de8a241c6093b6e9d726a279d703f09","sha":"cdc520080c","at":"2026-10-29T18:16:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.20","md5":"fba1719f27dc3fbfb9d8344c155cf7f2","sha":"b94a3a292f","at":"2026-10-29T18:22:21Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92107,7 +92107,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -180547,6 +180547,23 @@ function openShop(store){
 }
 function closeShop(){ const up9=flxUpDue(); shopCardClose(); shopTryClear(); shopDyeTryClear(); const el=document.getElementById('toyshop'); if(el) el.classList.add('hidden'); if(up9) flxUp(); }   /* CARD-TL: the dye try washes off at the ✕ (⚑ TL-Q1: green again, nothing owned) */   // 0320: a shut store holds no question · 1023 CARD-HL HL-T: nor a try — the fitting room empties at the close (⚑ HL-T-Q4)
 
+// ═══ CARD-SCN THE CRYSTAL COMES RIGHT AFTER THE SABER (design/saber-crystal-now-1029/00-CARD-SCN.md; Wyatt by phone 10/29/2026 16:55 EDT, verbatim: "Upon unlocking the saber, I was not given the option to choose the color until the next battle. What should happen is that after unlocking the saber, it plays the animation: boom, you equip it or you don't equip it. Regardless, you should get to choose your crystal color immediately after.") ═══
+// THE SABER'S MOMENT (CARD-WPM-B3, const WPM) carries the free crystal's six vials behind its gold EQUIP door alone; its PROCEED door folded with the pick still owed and the old rite below knocked on a LATER landing (B3-F1: the next battle, as he saw it). Now PROCEED goes on to the same vials.
+// HOW: the stage's PROCEED (.wpm .mb-take), tapped while the free pick is owed and the tray is still corked, is taken at the document (a capture listener: before the stage's own NOTNOW read and the door's fold; not a byte of the stage changes). The stage is marked data-scn=later, the face opens by the stage's own door
+// (WPM.cry('open'): the doors stand down, the tray rises, PICK A CRYSTAL where the title stood) and the tray's gold door is re-worded CLAIM (a word the seven tables carry). The tray's gold door (UI.wpmCryTake) reads the mark: on the later road the colour is owned and fitted and the free pick spent, the saber stays where PROCEED
+// left it (not in his hands, no snap), then the stage folds as every moment folds (a gift row: its film first, tvAfterPick). The EQUIP road is byte-what-it-was. The old rite, the Fort's rack and the Surplus's case stand as they were for a save that still owes the pick (one that pressed PROCEED before this card, or said not yet on the rite).
+// A stage without the tray (the shotgun's, the sniper's; a saber moment dealt with the pick already spent) is not this card's: its PROCEED is the fold. ?scn=0 (the device key gvt_scn, CARD-WFI's grammar) = as shipped (PROCEED folds, the knock waits one landing); ?scn=1 clears it. The rig door GVT.scn().
+const SCN={ on:(function(){ try{ const q=/[?&]scn=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_scn','0'); else localStorage.removeItem('gvt_scn'); } return localStorage.getItem('gvt_scn')==='0'? 0 : 1; }catch(e){ return 1; } })(), pass:0 };
+function scnOn(){ return !!(SCN && SCN.on); }
+function scnStage(){ const w=document.querySelector('#milePop .wpm'); return (w && w.querySelector('.wpm-crys'))? w : null; }   // the standing stage that carries the crystal tray (the saber's row or the rank-5 gift's, the free pick owed at the deal); any other stage is not this card's
+function scnLater(){ const w=scnStage(); return !!(w && w.getAttribute('data-scn')==='later'); }   // PROCEED brought him to the tray (the tray's gold door reads it)
+function scnTap(e){ if(!scnOn() || SCN.pass) return; const b=(e.target && e.target.closest)? e.target.closest('#milePop .wpm .mb-take') : null; if(!b) return;
+  const w=scnStage(); if(!w || !w.contains(b) || !sabRiteOwed() || w.querySelector('.wpm-crys.on')) return;   // no tray on this stage, the pick spent (the tray's own door clicks PROCEED after its writes), or the tray already up: the door is the fold's
+  e.stopPropagation(); e.preventDefault(); audio(); w.setAttribute('data-scn','later');
+  if(!WPM.cry('open')){ w.removeAttribute('data-scn'); SCN.pass=1; try{ b.click(); }finally{ SCN.pass=0; } return; }   // the stage's own door refused (never today: the tray is on this stage and corked): the fold as shipped
+  const g=w.querySelector('.wpm-eq2'); if(g) g.textContent=t('CLAIM'); SFX.blip(); }   // the gold door's word for this road (grey until a vial is picked, the tray's own law); a door's own blip
+document.addEventListener('click', scnTap, true);
+// ═══ END CARD-SCN ═══
 // ===== THE BLADE CEREMONY =====
 // Sarge earns the saber exactly once, and that is when its colour is chosen: free,
 // on the house, and never again. It's two taps on purpose — a crystal to light the
@@ -188599,8 +188616,9 @@ window.UI = {
   wpmCryTake(){ const hex=WPM.cry('sel');   // the second EQUIP = UI.sabRiteTake's own writes (the colour owned and fitted, the free pick spent, the saber in his hands, its two sounds), then the stage's fold as every moment folds (its ONE .mb-take: riteNext goes on), not the rite's walk to SARGE'S EQUIPMENT
     if(!hex || !sabRiteOwed() || !SABER_COLORS.some(c=>c.hex===hex && !c.earn)) return;
     if(!sabOwns(hex)) META.sabColOwned.push(hex);
-    META.saberColor=hex; META.sabColFree=false; META.sargeWeapon='lightsaber';
-    SFX.laser(); setTimeout(()=>SFX.snap(), 160); saveMeta(); closeSabRite();
+    const hand=!scnLater();   // CARD-SCN THE CRYSTAL COMES RIGHT AFTER THE SABER: PROCEED brought him to the tray = the colour is his and the free pick spent, the saber stays where PROCEED left it (not in his hands, no snap); EQUIP's road as shipped
+    META.saberColor=hex; META.sabColFree=false; if(hand) META.sargeWeapon='lightsaber';
+    SFX.laser(); if(hand) setTimeout(()=>SFX.snap(), 160); saveMeta(); closeSabRite();
     if(S.mode==='menu') renderMenu(); if(fortStands()) fortSync();   // nmDo's own tail: the room's Sarge and a standing fort card follow
     if(WPM.tvAfterPick()) return;   // CARD-R5G: on a gift row (sab5 with the free pick owed) the pick's EQUIP goes on to the film of the pick, not the fold
     const ok=document.querySelector('#milePop .wpm .mb-take'); if(ok) ok.click(); else UI.riteTake(); },
@@ -206886,6 +206904,9 @@ window.GVT = {
     return o; },
   // THE BLADE test rig: GVT.blades() reads the whole colour economy in one call,
   // GVT.rite() forces the ceremony open, GVT.blade('teal') asserts what a tap does
+  scn(){ const w=scnStage(), g=w? w.querySelector('.wpm-eq2') : null, pr=w? w.querySelector('.mb-take') : null, r=(typeof WPM!=='undefined' && WPM.rig)? WPM.rig('state') : null, mp=document.getElementById('milePop');   // CARD-SCN THE CRYSTAL COMES RIGHT AFTER THE SABER: the rig's read of the road (the switch, the stage's tray and mark, the face, the gold door's word, the save's crystal and iron, the old rite)
+    return { on:scnOn(), tray:!!w, wk:w? w.getAttribute('data-wk') : null, later:scnLater(), face:!!(w && w.querySelector('.wpm-crys.on')), mode:r? r.mode : null, crystal:r? r.crystal : null, word:g? g.textContent : null, dis:g? !!g.disabled : null, proceed:pr? { vis:getComputedStyle(pr.parentNode).visibility, pe:getComputedStyle(pr.parentNode).pointerEvents, door:pr.getAttribute('onclick')||'' } : null,
+      owed:sabRiteOwed(), free:!!META.sabColFree, hex:META.saberColor||null, owned:(META.sabColOwned||[]).slice(), wep:META.sargeWeapon, seen:(META.riteSeen||[]).indexOf('w:lightsaber')>=0, rite:sabRiteIsOpen(), up:!!(mp && !mp.classList.contains('hidden')), key:(function(){ try{ return localStorage.getItem('gvt_scn'); }catch(e){ return null; } })() }; },
   blades(){ return { price:sabPrice(), base:SABER_PRICE, step:SABER_ESCALATOR, saber:sabHasSaber(), free:!!META.sabColFree,
     owed:sabRiteOwed(), riteOpen:sabRiteIsOpen(), sel:SABRITE.sel,
     chosen:META.saberColor, chosenName:META.saberColor?sabName(META.saberColor):null,
