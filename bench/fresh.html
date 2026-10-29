@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.15","md5":"adf6f89e3d8f879c2ed74acc6ce62af3","sha":"b633247713","at":"2026-10-29T17:43:36Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.16","md5":"7e04f4455b388ce95fb1b1db3b2ec2e5","sha":"8ba43ee70a","at":"2026-10-29T17:54:16Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -57635,7 +57635,7 @@ const RSC={ T:4.6, T0:3.3, per:0.05, rise:0.5, hop:0.62, sayAt:0.95, dx:-96, dy:
 function rscLvl(k){ const r=RSC_ROAD.find(r9=>r9.t===k); return r? r.n : 0; }   // the rung that hands this man over (0 = not a rescue)
 function rscName(k){ let it=null; try{ it=SHOP_ITEMS.find(s9=>s9.t===k); }catch(e){} return (it && it.name) || (UDEF[k] && UDEF[k].name) || ''; }   // the pegboard's word for him (x7 since the Surplus)
 function rscGive(){ const got=[]; if(!Array.isArray(META.unlocked)) META.unlocked=[]; for(const r of RSC_ROAD){ if((META.campaign|0)>=r.n && META.unlocked.indexOf(r.t)<0){ META.unlocked.push(r.t); got.push(r.t); } } return got; }   // every rung on the record pays its man, once (raw META fields only: the boot heal reads this before the tables below it exist)
-function rscGrant(prizes){ let got=[]; try{ got=rscGive(); for(const k of got) prizes.push({ o:1, t:rscName(k), f:'force', a:'<img src="'+sprURI(k, dyeHex()||undefined)+'" alt="">' }); }catch(e){} try{ if(got.length) RUP.due={ ks:got.slice(), cfg:S.cfg }; }catch(e){} return got.length; }   /* CARD-RUP: the men just handed over wait for the verdict's foot (rupHold: their unlock popup, the first screen) */   // the verdict's door: the man + his JOINS THE FORCE ticket, at the commando's rank (o 1: a man who joins leads the win's ticket) (the verdict's own checkAch + saveMeta carry him)
+function rscGrant(prizes){ let got=[]; try{ got=rscGive(); for(const k of got) aplEnlist(k); /* CARD-RJP: the man just rescued takes a free slot at the door (the ledger's own law: a full platoon benches him) */ for(const k of got) prizes.push({ o:1, t:rscName(k), f:'force', a:'<img src="'+sprURI(k, dyeHex()||undefined)+'" alt="">' }); }catch(e){} try{ if(got.length) RUP.due={ ks:got.slice(), cfg:S.cfg }; }catch(e){} return got.length; }   /* CARD-RUP: the men just handed over wait for the verdict's foot (rupHold: their unlock popup, the first screen) */   // the verdict's door: the man + his JOINS THE FORCE ticket, at the commando's rank (o 1: a man who joins leads the win's ticket) (the verdict's own checkAch + saveMeta carry him)
 function rscRow(){ if(S.bf || S.rival || S.momRaid || S.park || S.tex || (S.raid && S.raid.cfg===S.cfg) || hrdOn()) return null; const n=S.levelN|0; return RSC_ROAD.find(r9=>r9.n===n) || null; }   // the plain campaign alone (endBattle's last branch)
 function rscArm(v, foeWin){ try{ if(!v || foeWin || !S.tanBase) return; const r=rscRow(); if(!r || (META.campaign|0)>=r.n) return; let n9=60; try{ n9=String(TXT(r.say)).length; }catch(e9){} const T9=Math.max(RSC.T, RSC.T0+RSC.per*n9); v.rsc={ k:r.t, say:r.say, t0:v.dur, T:T9, pop:0, land:0, said:0 }; v.dur+=T9; }catch(e){} }   // the FIRST win of a rescue rung (the record still under it as the flag starts); the scene is as long as his line reads in this tongue
 function rscTick(v){ const R=v.rsc, e=v.t-R.t0; if(e<0) return;
@@ -60321,6 +60321,7 @@ function heroDown(){ return META.heroSel==='none' && heroesOwned().length>0; }  
 // CARD-APL-3 THE RIDE'S OWN TAP + NO HERO (design/active-platoon-0930/03-BUILD-APL3.md; Wyatt 10/1/2026, dictated from his phone: "when selecting a vehicle, dont send the player to sarges surplus. Keep them in the screen and add them to the platoon.
 // Also allow a player to not use any heros, and instead use a unit/vehicle instead."): a ride's card on the GARAGE tab fields or benches it in place (the Surplus button under the grid is the garage's one door); the hero's slot's tap STANDS HIM DOWN (META.heroSel 'none',
 // the one reader answers null) and his seat opens as an ELEVENTH free slot (aplFree); a hero taking command again sends the platoon's last pick to the bench (THE HERO TOOK HIS SEAT BACK). ZERO server bytes, ZERO new save fields.
+// CARD-RJP THE RECRUIT JOINS THE PLATOON (design/recruit-joins-1029/00-CARD-RJP.md; jumpr 2782, built on Maker 1 10/29/2026; Wyatt by phone 10/29/2026: "Upon unlocking the Flame unit, he wasn't automatically added to our army, which he should have been because there's plenty of space"): the grant doors (rscGrant, UI.buy) seat the man themselves through aplEnlist (right after aplToggle), and aplSix's ledger, when born over a picked platoon, starts as the platoon's own picks: a man never seated is met by the loop (a free slot, else the bench), never swallowed. Zero server bytes, zero new save fields, zero words.
 const APL_N=12, APL_FREE=10; let APL_SAT='';   // CARD-APL-3: APL_SAT = who sat down for the returning hero this session (the head's line)   // CARD-APL-2 (Wyatt 9/30 20:46: "Extend the active platoon roster by 4 slots"): twelve cards = Sarge + the hero + TEN you choose (CARD-APL dealt 8 / 6, ⚑ APL-Q1)
 function aplFree(){ return APL_FREE + ((heroDown() && !capDuo())? 1 : 0); }   // CARD-APL-3: the free slots this platoon has today — TEN, or ELEVEN while the heroes stand down (the hero's seat is a man's or a ride's; TWO HEROES keeps the seat)
 function aplHeroFree(){ return aplFree()>APL_FREE; }   // the hero's seat is a free slot (no hero slot on the rail, no hero on the shelf)
@@ -60331,7 +60332,7 @@ function aplDefault(C){ return C.filter(k=>!aplRide(k)).slice().sort((a,b)=>((ME
 function aplSix(){ const C=aplCands();
   if(!Array.isArray(META.platoon)){ const d9=aplDefault(C); return C.filter(k=>d9.indexOf(k)>=0); }   /* CARD-PLO: the same ten, in the SHELF's own seats (they stood by rank here while the shelf dealt them by seat: the rail now shows what the shelf deals) */   // never picked: the live default (a recruit lands by his rank; a save with six men or fewer has them all — the cap is invisible until the seventh man)
   const six=META.platoon.filter(k=>C.indexOf(k)>=0); let moved=six.length!==META.platoon.length;
-  if(!Array.isArray(META.platoonMet)){ META.platoonMet=C.slice(); moved=true; }
+  if(!Array.isArray(META.platoonMet)){ META.platoonMet=six.slice(); moved=true; }   // CARD-RJP THE RECRUIT JOINS THE PLATOON (Wyatt by phone 10/29/2026: "Upon unlocking the Flame unit, he wasn't automatically added to our army, which he should have been because there's plenty of space"): a ledger born over a PICKED platoon starts as the platoon's own picks, never every owned man (C): a man the platoon never seated (one handed over before this read, the boot's back pay among them) is MET by the loop below (a free slot, else the bench), never swallowed as met-and-benched. A never-picked platoon never reaches this line (the live default above).
   if(!META.aplBmb){ META.aplBmb=1; moved=true; if(C.indexOf('bomber')>=0 && META.platoonMet.indexOf('bomber')<0) META.platoonMet.push('bomber'); }   // CARD-PRP: the first read on this build: a bomber already owned is MET and BENCHED (his word: no bomber button unless you run him; one tap fields him); one earned later takes a free slot like any recruit
   C.forEach(k=>{ if(META.platoonMet.indexOf(k)>=0) return; META.platoonMet.push(k); moved=true; if(six.length<aplFree()) six.push(k); else META.aplBench=k; });
   if(!META.aplDf){ META.aplDf=1; moved=true; if(C.indexOf('dogfighter')>=0 && six.indexOf('dogfighter')<0 && six.length<aplFree()) six.push('dogfighter'); }   // CARD-HPP THE PLANE COMES BACK, ONCE: a platoon picked before this build may have lost its plane to a battleground (aplCands' note); the first read on this build seats an owned plane in a FREE slot, once ever (aplDf), and never pushes a man out; a plane benched on purpose comes back with it, and one tap on its slot benches it again (CARD-APL-2's own law for the four new slots)   // ⚑ APL-Q10 REC: a recruit the platoon has not met takes a free slot at once, else lands BENCHED (the met-list is the ledger: a benched man never creeps back)
@@ -60343,6 +60344,13 @@ function aplIn(k){ return aplSix().indexOf(aplKey(k))>=0; }
 function aplToggle(k){ k=aplKey(k); const C=aplCands(); if(C.indexOf(k)<0) return 'none'; const six=aplSix().slice(), i=six.indexOf(k); let r;
   if(i>=0){ six.splice(i,1); r='bench'; } else if(six.length>=aplFree()) return 'full'; else { six.push(k); r='in'; }   // ⚑ APL-Q5 REC: the seventh tap is refused (the rail shakes), never an auto-swap
   META.platoon=six; META.aplCap=APL_FREE; META.aplDf=1; if(!Array.isArray(META.platoonMet)) META.platoonMet=C.slice(); META.aplBench=''; saveMeta(); return r; }   // CARD-HPP: aplDf: a platoon first picked on this build never lost a plane, so it is owed no heal
+function aplEnlist(k){   // CARD-RJP THE RECRUIT JOINS THE PLATOON (design/recruit-joins-1029/00-CARD-RJP.md; Wyatt by phone 10/29/2026: "Upon unlocking the Flame unit, he wasn't automatically added to our army, which he should have been because there's plenty of space"): THE GRANT SEATS HIM. The man just handed over (the campaign's rescue at rscGrant, the Surplus's sale at UI.buy) takes a free slot AT THE DOOR, his ledger line written with the seat, so no read of the platoon between the grant and his seat can list him as met-and-benched. A never-picked platoon (null) deals its live default, where he already stands by rank (nothing written); a full platoon benches him as ever (the head's A NEW MAN IS ON THE BENCH). The word is for the rig: 'in' seated now · 'had' already seated · 'full' benched · 'default' never picked · 'none' not a candidate (a hero, Sarge, a stranger) · 'err' (fail-open: the grant itself never waits on this)
+  try{ k=aplKey(k); if(!Array.isArray(META.platoon)) return 'default'; const C=aplCands(); if(C.indexOf(k)<0) return 'none';
+    const six=META.platoon.filter(k9=>C.indexOf(k9)>=0); if(!Array.isArray(META.platoonMet)) META.platoonMet=six.slice(); if(META.platoonMet.indexOf(k)<0) META.platoonMet.push(k);   // the ledger as aplSix would bear it (its own picks), his line on it
+    if(six.indexOf(k)>=0){ META.platoon=six; saveMeta(); return 'had'; }
+    if(six.length>=aplFree()){ META.aplBench=k; META.platoon=six; saveMeta(); return 'full'; }   // ⚑ APL-Q10 REC: the platoon full = BENCHED, never an auto-swap
+    six.push(k); META.platoon=six; saveMeta(); return 'in'; }
+  catch(e){ return 'err'; } }
 // ═══ CARD-PLO THE PLATOON'S ORDER (design/platoon-order-1005/01-BUILD-PLO.md; DYLAN's guest note 10/5/2026 14:45 EDT, verbatim: "Allow player to move the placement of where each unit can be chosen in battle, from the roster setup
 // selection via drag and drop method."; Wyatt's go on the look 10/5/2026 16:26 EDT, verbatim: "100% build that in. That is so good."): THE RAIL IS THE SHELF. A man held on the ROSTER card's rail lifts (a finger: a quarter second still,
 // or a sideways move at once; a mouse: 10 px), rides the finger while the others slide over, and the up seats him. META.platoon is the rail's order (it always kept an order; no reader used it) and ONE new flat field, aplOrd, says the
@@ -92099,7 +92107,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -187709,7 +187717,7 @@ window.UI = {
     if(META.unlocked.indexOf(t)>=0){ rfSalute(t); return; }   // 1093: an enlisted man's tap = his small salute on the fort's card (never a second sale - the owned guard stands first, as ever)
     if(META.starBank<it.cost && !ticketHeld()){ shopDeny('shpk-'+t); return; }   // 0544: a held ticket opens the ask on any shelf
     if(!shopAsk('buy',[t],it.cost,it.name)) return;   // 0320: ask first
-    META.starBank-=till(it.cost); META.unlocked.push(t); checkAch(); saveMeta(); renderMenu();
+    META.starBank-=till(it.cost); META.unlocked.push(t); aplEnlist(t); /* CARD-RJP: the man just sold takes a free slot at the door */ checkAch(); saveMeta(); renderMenu();
     rfUnlockBeat(t); },   // 1093 THE RECRUITS MOVE INTO THE FORT: the packs hang on the fort's NEW RECRUITS card now - the unboxing, the burst and the ADDED TO YOUR ARSENAL card play there (the Surplus's own tail - #shStars, the aisle's refresh - left with dept 1)
   // STAR SHIPMENTS (0097): real money only ever leaves through the native
   // sheet. Page busy-guard + native one-sheet guard; every unbuyable state
