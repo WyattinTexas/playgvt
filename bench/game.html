@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.91","md5":"910cd126b1a71ed961a2b76c9b8a13f4","sha":"fbc603e450","at":"2026-10-28T23:53:15Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"27.92","md5":"721ffdbcd7b95e42f64241712486a529","sha":"53308d189c","at":"2026-10-29T00:00:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91746,7 +91746,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='27.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='27.92';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -120654,7 +120654,7 @@ function bklLoseFace(){ const lo=document.getElementById('lose'); if(!lo) return
 // THE VOICE: silence is the default; at most ONE line a verdict, in the whisper's own row ('w': Sarge's quiet line under the win); never a number; the player's name only
 // when he chose one (else COMMANDER, as today); the line is chosen when the verdict lands and costs the tap-through nothing.
 const ROD_N_MAX=120, ROD_F_MAX=400;   // the moments kept (newest last; past this the oldest leaves) · the firsts' ceiling (only 'ally:' keys are open-ended; past it a new ally waits)
-const ROD_SAY={ first:'YOUR FIRST BATTLE, %1. I WAS THERE.', win:'YOUR FIRST WIN, %1. I WAS THERE.', boss:'%2 IS DOWN, %1. FIRST TIME ON YOUR WATCH.',
+const ROD_SAY={ first:'YOUR FIRST BATTLE, %1. I WAS THERE.', win:'YOUR FIRST WIN, %1. I WAS THERE.', boss:'%2 IS DOWN, %1. FIRST TIME ON YOUR WATCH.' /* CARD-RDH 10/28: HUSHED (rodPick drops the boss candidate unless its key is in ROD_ICONIC; ?rdh=0 = the line back) */,
   king:'THE KING FELL AND YOU WERE THERE, %1.', kingb:'THE KING FELL. YOU STOOD WITH %2, %1.', bd:'YOUR FIRST DESERT NIGHT, %1. YOUR SIDE HELD.', bdt:'YOUR FIRST TUNDRA NIGHT, %1. YOUR SIDE HELD.', bdr:'YOUR FIRST ROOFTOP NIGHT, %1. YOUR SIDE HELD.',   /* CARD-RDL: the duel's first night */   /* CARD-FZT3 8a: the Tundra's first night (Wyatt 10/9 "8a yes") */
   ally:'WON BESIDE %1. I SAW IT.', last1:'ONE MAN LEFT STANDING, %1. THAT WAS ENOUGH.', box1:'ONE MORE AND THE TOY BOX WAS GONE, %1. YOU HELD IT.' };
 const ROD_KING={ kingrex:'kingrex', kingyeti:'kingyeti', kingcroak:'kingcroak', princess:'princess', mom:'mom' };   // PANTHEON rows whose id IS the boss type (kingbear reads raidInfo('fields').king)
@@ -120738,7 +120738,7 @@ function rodLine(c, mates){   // the one line, as html for the whisper row (the 
   if(k==='kingb') return tf(key, a, '<span data-notr>'+escH(mates.slice(0,2).map(m=>m.n).join(' & '))+'</span>');
   return tf(key, a);
 }
-function rodPick(cand, mates){ if(!cand.length) return ''; cand.sort((x,y)=>x[0]-y[0]); try{ return rodLine(cand[0], mates); }catch(e){ return ''; } }
+function rodPick(cand, mates){ cand=cand.filter(c=>c[1]!=='boss' || rdhSpeaks(c[2]));   /* CARD-RDH: the boss deed's line is never dealt (every boss, every tier, first fall or not; rodCampaign and rodBf alike) unless the boss is on ROD_ICONIC or ?rdh=0; the deed itself was kept above */ if(!cand.length) return ''; cand.sort((x,y)=>x[0]-y[0]); try{ return rodLine(cand[0], mates); }catch(e){ return ''; } }
 function rodCampaign(win){   // endBattle, after the level-1 net and before any write: the record writes (win or loss), the line rides S.rodLine to the win's foot
   S.rodLine='';
   if(S.rodDone===S.cfg) return; S.rodDone=S.cfg;
@@ -120779,6 +120779,23 @@ function rodBf(bf, won){   // endBattlefield, after the desert's spoils (the ope
   }catch(e){ S.rodLine=''; }
 }
 function rodRig(){ const r=rodSt(); return { v:r.v, b:JSON.parse(JSON.stringify(r.b)), f:Object.keys(r.f).length, n:r.n.length, line:S.rodLine||'', addr:rodAddr() }; }   // the batteries' read (no writer)
+// ═══ CARD-RDH THE BOSS LINE UNDER THE VERDICT GOES (design/boss-line-hush-1028/00-CARD-RDH.md; Wyatt typed on Maker 1 10/28/2026 ~18:20 EDT, verbatim: "let's remove the unnecessary text after some boss fights.
+// In this instance, "Runaway Piggies down, first time on your watch" means nothing to a player. It's just gibberish. Please remove that, and unless it's truly an iconic fight, I don't want to see any text like that.").
+// THE HUSH BY DEFAULT: ROD_SAY.boss ('%2 IS DOWN, %1. FIRST TIME ON YOUR WATCH.') is never dealt: rodPick drops the boss candidate for every boss, every tier, first fall or not (the campaign's rodCampaign; the
+// battleground's rodBf never had a boss candidate, so it holds there by the same seat). THE DEED IS STILL KEPT: rodCampaign's rodPut of boss:<type> is byte-still, the Captain's Log and rodList() read it as before;
+// only the spoken line goes. THE ICONIC LIST: ROD_ICONIC = the BOSSDEF keys whose first fall may still speak the line, shipped EMPTY (his "unless it's truly an iconic fight": nothing today; a later word adds a
+// key in one line). CHECKMATE (chsHush) and Bill (CARD-BBW's wrap of chsHush) stay hushed by their own cards whatever the list says. The other deed lines (the first battle, the first win, the king fell, the
+// nights, won beside, one man left, the toy box) stand: they are not boss lines (RDH-Q1). THE EMPTY SEAT (RDH-Q3): the 0552c D6 whispers (the Rex tip, the academy tip: once a session, on a ticket-less
+// win at rung >= VD_WHISPER_FROM, where the boss line used to stand) would step onto the very same boss face (measured: a fresh playthrough lands the academy tip on the rung-6 BOSS DEFEATED face); by his
+// words ("any text like that") they do NOT speak on a boss face (S.bossKilled) and wait for the next plain win instead (their once-a-session latch flips only when they speak); RDH.tipOnBoss 1 = let them.
+// ?rdh=0 (device key gvt_rdh) = the line back as it was, the tips as they were; ?rdh=1 clears it. Zero words, zero server bytes, zero CSS. ═══
+const ROD_ICONIC=[];   // ⚑ RDH-Q2: the boss keys (BOSSDEF ids: 'kingrex', 'kingyeti', 'kingcroak', 'rollpig' ...) whose first fall may still speak ROD_SAY.boss; EMPTY by his word
+const RDH={ on:(function(){ try{ const q=/[?&]rdh=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_rdh','0'); else localStorage.removeItem('gvt_rdh'); } return localStorage.getItem('gvt_rdh')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  tipOnBoss:0 };   // the switch (CARD-WFI's grammar, as CARD-MGB) · ⚑ RDH-Q3: 1 = the 0552c D6 whispers may speak on a boss face (the card's REC); 0 = a boss face carries no tip either (his words)
+function rdhOn(){ return !!(RDH && RDH.on); }
+function rdhSpeaks(k){ return !rdhOn() || ROD_ICONIC.indexOf(String(k))>=0; }   // may the boss line speak for this boss: the switch off (yesterday's game) or the boss on the iconic list
+function rdhTipOk(){ return !rdhOn() || !!RDH.tipOnBoss || !S.bossKilled; }   // may a 0552c D6 whisper take the empty seat on this face: always off the boss faces, on a boss face only by the dial
+function rdhRig(){ const r=rodSt(); return { on:rdhOn(), tipOnBoss:RDH.tipOnBoss, iconic:ROD_ICONIC.slice(), line:S.rodLine||'', boss:Object.keys(r.f).filter(k=>k.indexOf('boss:')===0), f:Object.keys(r.f).length, n:r.n.length }; }   // the batteries' read (no writer)
 // ═══ 0534 THE FIRST SIGN (FM-GVT-NEWBIE-01 §10; Wyatt 8/24: "when you have dino park unlocked … we should whisper some
 // insentive to beat the 20 level campaign & defeat King Rex") — THE WHISPER: while DINO PARK is open (META.parkDino — the bone
 // gate's own due read, the door a kid can actually walk through) and King Rex's Easy is uncleared (bone.e unset — the
@@ -121547,7 +121564,7 @@ function endBattle(win){
   if(lensGift()) prizes.push({ o:8, t:'THE MAGIC LENS', f:'room', a:'<svg viewBox="0 0 120 168">'+lensArt()+'</svg>' });   // campaign LENS_FREE_CAMP (30) beaten above hands the lens over on this very screen (the commander door is retired); 0552c: the GRANT stays, the line becomes the ticket (lensSweep deals the card at home)
   if(paintDue) prizes.push({ o:9, t:'PAINT DAY', f:'room', a:jarSVG(GREEN,'sealed') });   // 0552c: the paint ticket (the jar), last by WIN_HEAD_ORDER; openPaintRite is the ceremony at home
   if(S.rodLine) say('w', S.rodLine);   // CARD-ROD: Sarge's ONE true line about a deed just done (the whisper's own row); silence when nothing worth keeping happened
-  if(!S.rodLine && plain && !prizes.length && S.levelN>=VD_WHISPER_FROM){   // 0552c D6 (0534/0535's whispers): ONE whisper, only on a ticket-less win at rung ≥ VD_WHISPER_FROM, once per session (the flag flips only when it speaks), Rex first; the emoji prefix stays in the key and leaves the screen
+  if(!S.rodLine && plain && !prizes.length && S.levelN>=VD_WHISPER_FROM && rdhTipOk()){   /* CARD-RDH (RDH-Q3): never on a boss face unless RDH.tipOnBoss; the latch below is untouched, so the tip waits for the next plain win */   // 0552c D6 (0534/0535's whispers): ONE whisper, only on a ticket-less win at rung ≥ VD_WHISPER_FROM, once per session (the flag flips only when it speaks), Rex first; the emoji prefix stays in the key and leaves the screen
     const w=rexWhisperDue()? (REX_WHISPERED=1, TXT(REX_LINE)) : rankWhisperDue()? (RANK_WHISPERED=1, TXT(RANK_LINE)) : '';
     if(w) say('w', escH(vdPlain(w))); }
   if(S.coop && COOP && coopSquad()){
