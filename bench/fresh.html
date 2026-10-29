@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.30","md5":"7b7335c53050244bf7012043f8b4494a","sha":"faf218332c","at":"2026-10-29T20:42:22Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.31","md5":"3d524fa8824d988af75247229dafa4c5","sha":"890ff548b2","at":"2026-10-29T20:48:54Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92162,7 +92162,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -184916,6 +184916,7 @@ function mboxPool(){
 // saveMeta; the caller pops the returned entry AFTER it routes screens, and the
 // pop is not in hideAllOverlays' list, so it rides above whatever came next.
 function mboxRoll(key, rank){
+  if(mbxOn()) return null;   // CARD-MBX THE MYSTERY BOX RETIRES (Wyatt by phone 10/29/2026, jumpr 2800): no promotion rolls a box, grants a thing or marks the ledger (sec CARD-MBX below; ?mbx=0 = as shipped)
   if(rank<5 || META.mbox[key]) return null;
   const pool=mboxPool();
   if(!pool.length) return null;              // owns the whole shop — the debt stays open
@@ -184923,6 +184924,27 @@ function mboxRoll(key, rank){
   e.g(); META.mbox[key]=1; checkAch();
   return e;
 }
+// ═══ CARD-MBX THE MYSTERY BOX RETIRES (design/mystery-box-retires-1029/00-CARD-MBX.md; TASK FROM WYATT'S PHONE 10/29/2026 15:26 EDT by Wispr Flow, jumpr 2800, built on Maker 1 as M2800, verbatim: "I just played a level and leveled up my mortar from level 2 to 3, but for some reason I ended up getting a mystery gift, which is not how it works. A mystery gift is what you get when your troops reach level 5 for the first time. It might be time to just remove that from the game, as it's just confusing for the player to be getting all these things, especially because it's not working correctly. I got the mirror blade from Floop's Lab, but all I did was beat a level and I leveled up a guy to level 2. That's not helping anybody. Let's just remove the gift every 5 levels and remove the text that says you get a gift every 5 levels. This is separate from the Halloween decorations,") ═══
+// WHY HIS MORTAR PAID: the box (v1.63) is paid by mboxRoll at the pick that lands a promotions card on rank 5 or past it, once a card (the META.mbox ledger), a uniform draw over every star-bought thing the save lacks (THE MIRROR BLADE,
+// a 1,700-star lab part, among them). His save at HQ (10/29 15:25 EDT) reads up.mortar 5 and the ledger u:mortar + w:shotgun: the mortar's box paid at the pick that put him on rank 5, and its card waits out the pick's beat
+// (ppSettle: after the LAST of a quick run of taps), so it reads as a prize for whatever was promoted. His word: no gift for a promotion, and no line promising one.
+// THE GIFT: mboxRoll's first line returns null while MBX.on: no pick (UI.pick and UI.pickW: the verdict's picker, the HQ head's PROMOTION! door, the fort's PROMOTIONS tab) rolls a box, grants a thing or marks META.mbox;
+// promoBeat queues no box card and ppPop deals none. Anything a box already gave stays owned (the 0363 no-claw law); the ledger's marks stay in the save.
+// THE WORDS: the promotions screen's line "Earn a mystery box every time you reach level five." (#pickMb, v1.63; unseen on the full-screen picker since CARD-PM6) leaves the page at load, and CARD-EDR's SPECIAL ISSUE note in the
+// Surplus drops aisle loses its last clause, THE MYSTERY BOX CAN HAND IT OVER TOO (mbxEmgNote; the seven tongues = CARD-EDR's own sentences, the last clause cut). The supply drops stay the package's door.
+// STANDS, byte-still: mboxPool (the NEMESIS's HE LEFT A GIFT draws from it), mboxOpen and #mboxPop, MB_LINES, the ledger's normalise, THE HALLOWEEN TREASURES (1110: a decoration every 5 COMMANDER levels through 11/01,
+// his "separate from the Halloween decorations"), CARD-R5G's named rank-5 gifts (the saber's TELEKINESIS, the shotgun's RIOT SHIELD), the milestone and stripe cards, the level-100 gift.
+// ?mbx=0 (device key gvt_mbx) = the box as shipped (the roll, the line, the note); ?mbx=1 clears it. Rig door mbxRig(). Zero server, sw.js, html, css, save-key or wire bytes. ═══
+const MBX={ on:(function(){ try{ const q=/[?&]mbx=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_mbx','0'); else localStorage.removeItem('gvt_mbx'); } return localStorage.getItem('gvt_mbx')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  note:'THE EMERGENCY PACKAGE IS A RARE \u00b7 ONE RESCUE PER BATTLE, FIVE SURPRISES INSIDE',   // CARD-EDR's note, its last clause cut (the new key; its seven tongues below)
+  note0:'THE EMERGENCY PACKAGE IS A RARE \u00b7 ONE RESCUE PER BATTLE, FIVE SURPRISES INSIDE \u00b7 THE MYSTERY BOX CAN HAND IT OVER TOO' };   // as shipped (?mbx=0; its seven tongues stand in sec CARD-SDR)
+function mbxOn(){ return !!(MBX && MBX.on); }   // 1 = the box is retired (today), 0 = the box as shipped on this device
+function mbxEmgNote(){ return mbxOn()? MBX.note : MBX.note0; }   // emgHTML's SPECIAL ISSUE note (sec CARD-SDR)
+for(const L9 of [["es","EL PAQUETE DE EMERGENCIA ES RARO · UN RESCATE POR BATALLA, CINCO SORPRESAS DENTRO"],["de","DAS NOTFALL-PAKET IST SELTEN · EINE RETTUNG PRO SCHLACHT, FÜNF ÜBERRASCHUNGEN DRIN"],["ru","АВАРИЙНЫЙ НАБОР: РЕДКАЯ НАХОДКА · ОДНО СПАСЕНИЕ ЗА БОЙ, ПЯТЬ СЮРПРИЗОВ ВНУТРИ"],["ja","きんきゅうパックは レア · バトルごとに 1かい きゅうえん、なかに 5つの サプライズ"],["ko","긴급 패키지는 희귀 · 전투마다 한 번 구조, 안에 다섯 가지 깜짝 선물"],["zh-Hans","紧急包裹是稀有品 · 每场战斗一次救援，内有五种惊喜"],["ar","طرد الطوارئ نادر · إنقاذ واحد في كل معركة، وخمس مفاجآت في داخله"]]) Object.assign(TR[L9[0]]||(TR[L9[0]]={}), { [MBX.note]:L9[1] });   // the short note x7 (kit/applyMBX.py reads each off CARD-EDR's table and cuts the last clause)
+if(mbxOn()){ try{ const p=document.getElementById('pickMb'); if(p) p.remove(); }catch(e){} }   // the promotions screen's line leaves the page (its css and its seven keys stand for ?mbx=0)
+function mbxRig(){ const g=f=>{ try{ return f(); }catch(e){ return 'ERR:'+String(e && e.message || e).slice(0,80); } }, p=document.getElementById('mboxPop');   // the rig's read (no writes)
+  return { on:mbxOn(), dev:g(()=>localStorage.getItem('gvt_mbx')), line:!!document.getElementById('pickMb'), note:mbxEmgNote(), noteT:g(()=>t(mbxEmgNote())), paid:Object.assign({}, META.mbox||{}), pool:g(()=>mboxPool().length),
+    q:g(()=>PP_Q.map(e=>e[0])), pop:!!p && !p.classList.contains('hidden'), band:g(()=>{ const b=p && p.querySelector('.mb-band'); return b? b.textContent : null; }), name:g(()=>{ const b=p && p.querySelector('.mb-name'); return b? b.textContent : null; }) }; }
 const MB_RAYS='<svg class="mb-rays" viewBox="0 0 100 100"><g fill="#D9A544" opacity="0.5">'
   +Array.from({length:12},(_,i)=>'<path d="M50 50 L'+(50+46*Math.cos(i*Math.PI/6-0.09)).toFixed(1)+' '
   +(50+46*Math.sin(i*Math.PI/6-0.09)).toFixed(1)+' L'+(50+46*Math.cos(i*Math.PI/6+0.09)).toFixed(1)+' '
@@ -208801,7 +208823,7 @@ const SDR=(function(){
   UI.sdgNudge=function(id){ try{ shopDeny('sdgc-'+id); }catch(e){} float('WIN IT IN A SUPPLY DROP!'); };   // CARD-SDG: the aisle's gear card shakes and says where it is won (the buy door is the quarters')
   function gearHTML(){ const g=gear(); if(!g.length) return ''; return '<b class="sdr-h">GEAR FROM SARGE\'S QUARTERS · '+g.filter(own).length+' / '+g.length+' FOUND</b><span class="sdr-note">EVERY PIECE HERE IS ALSO SOLD AT SARGE\'S QUARTERS · A PIECE YOU WIN GOES STRAIGHT ON THE RACK</span><div class="sdr-grid sdg-grid">'+byTier(g).map(gearCard).join('')+'</div>'; }
   function emgCard(){ const o=emgOwned(); return '<div class="sh-dbox"><button type="button" class="sh-dec'+(o? ' own' : '')+'" id="sdgc-emg" onclick="'+(o? 'SFX.blip()' : 'UI.sdgNudge(\'emg\')')+'">'+pill(EMG_ID)+'<span class="sh-dwin"><img src="'+emgURI()+'" alt=""></span><span class="sh-dn">THE EMERGENCY PACKAGE</span><span class="sh-dsub">ONE RESCUE PER BATTLE</span>'+(o? '<span class="sh-dstamp">IN THE KIT \u2713</span>' : '')+'</button></div>'; }   // CARD-EDR: the package's card in the drops' aisle (the toys' card grammar, the RARE pill where a price would sit, no sticker: it is won, never bought; a tap = the gear's nudge, WIN IT IN A SUPPLY DROP!)
-  function emgHTML(){ if(!emgIn().length) return ''; const o=emgOwned()? 1 : 0; return '<b class="sdr-h">SPECIAL ISSUE \u00b7 '+o+' / 1 FOUND</b><span class="sdr-note">THE EMERGENCY PACKAGE IS A RARE \u00b7 ONE RESCUE PER BATTLE, FIVE SURPRISES INSIDE \u00b7 THE MYSTERY BOX CAN HAND IT OVER TOO</span><div class="sdr-grid sdg-grid">'+emgCard()+'</div>'; }   // CARD-EDR: the aisle's SPECIAL ISSUE block after the gear
+  function emgHTML(){ if(!emgIn().length) return ''; const o=emgOwned()? 1 : 0; return '<b class="sdr-h">SPECIAL ISSUE \u00b7 '+o+' / 1 FOUND</b><span class="sdr-note">'+mbxEmgNote()+'</span><div class="sdr-grid sdg-grid">'+emgCard()+'</div>'; }   // CARD-EDR: the aisle's SPECIAL ISSUE block after the gear · CARD-MBX: the note reads mbxEmgNote() (THE MYSTERY BOX CAN HAND IT OVER TOO goes with the box; ?mbx=0 = as shipped)
   const nameOf=id=>isEmg(id)? 'THE EMERGENCY PACKAGE' : isGear(id)? OUTFIT_INFO[id].name : DECOR_INFO[id].name;   // CARD-EDR: the package's name
   const artOf=id=>{ if(isEmg(id)) return '<img src="'+emgURI()+'" alt="">'; /* CARD-EDR: the shop card's own picture */ if(!isGear(id)) return old.decShopArt(id); const a=outfitPartSVG(id); return /^\s*<svg/.test(a)? a : '<svg viewBox="-34 -24 68 58">'+a+'</svg>'; };   // the reveal draws the rack's own tile
   shopDecHTML=function(id, twin){ const h=old.shopDecHTML(id, twin); if(!isDrop(id)) return h;
