@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.58","md5":"f88e1b6a7206169fe70292087fd0b533","sha":"d464078f5e","at":"2026-10-30T21:47:23Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.59","md5":"d03534a0a717e2194f42cf8e280e928d","sha":"3ad9cbadfd","at":"2026-10-30T22:16:54Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80456,7 +80456,7 @@ function cfaTick(dt){ const rd=S.raid, C=rd&&rd.chs; cfaBoxSeat(); if(!C) return
   if(CFA_C!==C){ CFA_C=C; CFA_LIVE=[]; CFA_TOPS.length=0; }   // a new fight: the last fight's watch and topples are void (CFA-B's find: the second fight in a session counted the first's fifteen as taken)
   if(!C.taken) C.taken={ e:[], p:[] }; cfaWidths(); cfaFloats(); cfaWatch(C); }
 function cfaFloats(){ const c=S.cCam; if(!c) return; const z=zoomZ(), y0=(c.y||0)+(CHS12_T.top+CFA_A.floatPad)/z;   // a float born under the boss plate (a piece's word on the back rank) moves below it, once
-  for(const f of S.floats){ if(f.cfaY) continue; f.cfaY=1; if(f.y<y0) f.y=y0; } }
+  for(const f of S.floats){ if(f.cfaY || f.hud) continue; /* CARD-PSF: a purse float rides the chip, not the board */ f.cfaY=1; if(f.y<y0) f.y=y0; } }
 function cfaWatch(C){ const now=[];   // THE TOPPLE's watch: a piece standing last frame and dead (or falling, or gone) now is taken
   for(const e of CFA_LIVE){ const o=e.o, gone=o.dead || o.falling || (e.side==='e'? S.foes.indexOf(o)<0 : S.units.indexOf(o)<0) || (e.side==='e' && !(o.hp>0)); if(gone && !o.cfaGone){ o.cfaGone=1; if(e.kind!=='k') cfaTopple(C,o,e); } }
   for(const p of chsPieces()){ if(!p.cfaGone && p.chs.kind!=='k' && !p.falling) now.push({ o:p, kind:p.chs.kind, side:p.chs.side, x:p.x, y:p.y }); }   // the king never topples (his end is the crack and the breakout)
@@ -83293,7 +83293,7 @@ function rsvPass(dt){ const R=DJS_RS;
   if(!rsvLosing()) return;
   R.t+=dt; if(R.t<DJS.rs.t) return; R.t-=DJS.rs.t; S.plastic+=DJS.rs.tags; R.paid+=DJS.rs.tags;
   const b9=(S.bf && S.bf.base && S.bf.base[bfMyTeam()])? S.bf.base[bfMyTeam()] : null;
-  if(S.floats) S.floats.push(b9? {x:b9.x+46, y:b9.y-72, txt:'+'+DJS.rs.tags, t:0, col:'#FFF3C4'} : {x:166, y:280, txt:'+'+DJS.rs.tags, t:0, col:'#FFF3C4'}); }
+  if(S.floats) S.floats.push(b9? {x:b9.x+46, y:b9.y-72, txt:'+'+DJS.rs.tags, t:0, col:'#FFF3C4'} : psfFloat('+'+DJS.rs.tags) /* CARD-PSF: off the purse chip */); }
 function djsSavCrit(){ const a=DJS.sav.crit[0]|0, b=DJS.sav.crit[1]|0; return a+Math.floor(Math.random()*(b-a+1)); }   // a crit heal: 8, 9, 10, 11 or 12, each as likely
 // THE SAVIOR HELMET's pass (beside rescuePass, its grammar): every OF_RESC_T s each helmeted Sarge mends every other live man of his side inside 8 m by 2; a heal crits on his own crit chance and mends 8 to 12 (CARD-RSV)
 function djsSavPass(dt){
@@ -92256,7 +92256,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.58';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -119161,7 +119161,7 @@ function spawnFoe(type,x,y,form,gu){
     best:null, stall:0, squeeze:false, goalTag:null,   // ground-gained watch — see the squeeze backstop in update()
     boss:!!d.boss, spin:0 };
   if(type==='mom'){ f.phaseN=S.momRaid? (S.wave||1) : 1;   // v1.79 raid: which fill of her bar this is — the phase arrays key off it. v2.29: a CAMPAIGN mom defaults CALM — the authored TEMPER lands in spawnGroup, never the stream's wave index (measured: wave 12 read as permanent FURIOUS)
-    if(S.momRaid && f.phaseN>=3) S.floats.push({x:166,y:280,txt:'DOG TAGS ×'+MOM_P3_TAGX+'!',t:0,col:'#FFD24A'}); }   // 0662 Card I THE VISIBILITY (0648 D2's float grammar verbatim — the 0645 lesson): one gold float over the purse the frame her round-3 mom walks on (one mom per round = fires once, after the round-2 clear float has flown); the raw key resolves the castle's own string, so the shipped DOG TAGS ×{0}! row ×7 translates it — ZERO new l10n rows
+    if(S.momRaid && f.phaseN>=3) S.floats.push(psfFloat('DOG TAGS ×'+MOM_P3_TAGX+'!','#FFD24A'));   /* CARD-PSF: off the purse chip */ }   // 0662 Card I THE VISIBILITY (0648 D2's float grammar verbatim — the 0645 lesson): one gold float over the purse the frame her round-3 mom walks on (one mom per round = fires once, after the round-2 clear float has flown); the raw key resolves the castle's own string, so the shipped DOG TAGS ×{0}! row ×7 translates it — ZERO new l10n rows
   // 0313a: the MUSTER NUMBER — foe identity for the referee's 'fd' word.
   // Per-type ordinal since battle start (every sim spawns the same authored
   // stream in the same order; reset() zeroes the counters) + the wave he
@@ -123251,7 +123251,7 @@ function update(dt){
     if(S.tagT>=CAMP_TICK_EVERY){ S.tagT-=CAMP_TICK_EVERY;   // v1.40: three pours where there was one — “about three times faster income”
       const pour=smtTagV(Math.round(((S.raid && S.raid.t==='u')? EV_TICK_U : CAMP_TICK)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()*rtxTagX()*gtxX()*bbsTagX()));   /* CARD-BBS-C5 THE DOG TAG MODIFIER: x BBS_TAGX[p] in the Showdown (bbsTagX; 20 -> 11 at four, 6 at ten; the house's x0.95 on top) */   /* CARD-SMT: ×0.3 in a survival run (smtTagV), identity everywhere else */   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   /* CARD-FSQ: the faucet +9 % · CARD-RTX: x1 in a raid · CARD-TSZ: by the commanders at the table (S.sq.p) · CARD-GTX: x0.95 in a group */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the faucet is gated !S.bf) · 0842 THE FAUCET CUT (the ADDENDUM, Wyatt 9/5 ~9:57 pm: "okay- lets do it."): the ULTRA MEGA room pours EV_TICK_U 15 (0824-NIGHT poured CAMP_TICK+10 = 30); everywhere else the same 20 it always was · 0648 D2: the castle's third act pours ×ICE_P3_TAGX (30; the 'u' room 23, was 45) — this float prints the poured number · 0662: ×momP3TagX rides for the one-grammar law — her fight never pours (S.sq stays null at startMomRaid), so the mom factor is provably 1 wherever this line runs
       S.plastic+=pour;
-      S.floats.push({x:166, y:280, txt:'+'+pour, t:0, col:'#FFF3C4'});
+      S.floats.push(psfFloat('+'+pour));   // CARD-PSF (Wyatt 10/30: "the plus resources popup is really high"): the +N rises off the purse chip above the tray, in screen space — {166,280} was the toy box's v1.32 seat on a flat rug; a tall or grand rug's camera carried it into the sky
     }
   }
   // 0723 THE TOP HAT'S POUR: +OF_TUX_HAT_TAGS dog tags every OF_TUX_HAT_TAGS_T s of battle time into MY purse in every battle that has
@@ -123261,19 +123261,19 @@ function update(dt){
   if(S.mode==='play' && outfitTagPour()>0){ S.tuxT=(S.tuxT||0)+dt;
     if(S.tuxT>=OF_TUX_HAT_TAGS_T){ S.tuxT-=OF_TUX_HAT_TAGS_T; const n9=outfitTagPour(); S.plastic+=n9;
       const b9=(S.bf && S.bf.base && S.bf.base[bfMyTeam()])? S.bf.base[bfMyTeam()] : null;
-      S.floats.push(b9? {x:b9.x+46, y:b9.y-72, txt:'+'+n9, t:0, col:'#FFF3C4'} : {x:166, y:280, txt:'+'+n9, t:0, col:'#FFF3C4'}); } }
+      S.floats.push(b9? {x:b9.x+46, y:b9.y-72, txt:'+'+n9, t:0, col:'#FFF3C4'} : psfFloat('+'+n9) /* CARD-PSF: off the purse chip */); } }
   // 0906 THE BOSS NUMBERS PASS, Part D — THE POUR: +MOM_POUR every MOM_POUR_T s of sim while Mom is on the rug (momOnRug — her raid whole, or a
   // campaign rug that fielded her), on its own clock beside the faucet above (which keeps its beat and rate; her raid has none — S.sq is null
   // there, so this is her fight's only drip), the faucet's float seat and colour; per-sim like the faucet; every rug without her byte-still.
   if(MOM_POUR>0 && MOM_POUR_T>0 && S.mode==='play' && !S.bf && momOnRug()){
     S.momPourT=(S.momPourT||0)+dt;
-    if(S.momPourT>=MOM_POUR_T){ S.momPourT-=MOM_POUR_T; const m9=gtxTag(MOM_POUR); S.plastic+=m9; S.floats.push({x:166, y:280, txt:'+'+m9, t:0, col:'#FFF3C4'});   /* CARD-GTX */ }
+    if(S.momPourT>=MOM_POUR_T){ S.momPourT-=MOM_POUR_T; const m9=gtxTag(MOM_POUR); S.plastic+=m9; S.floats.push(psfFloat('+'+m9));   /* CARD-GTX */ /* CARD-PSF: off the purse chip */ }
   }
   // 0904 RE-LAND (0747-1) THE POUR: +KB_POUR every KB_POUR_T s of sim during THE PILLOW FIELDS raid (fieldsRaid — every tier, from the raid's first tick to the verdict, ⚑ P-Q1), ON TOP of what the raid pays
   // (the faucet above keeps its beat and rate), on its own clock S.kbPourT (reset() zeroes it; never S.tagT), the faucet's float seat and colour; per sim like the faucet; every other purse byte-still.
   if(KB_POUR>0 && KB_POUR_T>0 && S.mode==='play' && !S.bf && fieldsRaid()){
     S.kbPourT=(S.kbPourT||0)+dt;
-    if(S.kbPourT>=KB_POUR_T){ S.kbPourT-=KB_POUR_T; const k9=gtxTag(KB_POUR); S.plastic+=k9; S.floats.push({x:166, y:280, txt:'+'+k9, t:0, col:'#FFF3C4'});   /* CARD-GTX */ }
+    if(S.kbPourT>=KB_POUR_T){ S.kbPourT-=KB_POUR_T; const k9=gtxTag(KB_POUR); S.plastic+=k9; S.floats.push(psfFloat('+'+k9));   /* CARD-GTX */ /* CARD-PSF: off the purse chip */ }
   }
   if(S.raid) raidTick(dt); if(S.bf&&S.bf.fzt) fztTick(dt);   /* CARD-FZT: the Tundra's gun + capture (the bag on S.bf.fzt, never S.raid) */   // v3.39: the raid's own clocks — win door, capture, crush, turrets
   if(S.coop && !S.bf) evTick(dt);   // 0313a THE REFEREE'S WORD: pending words, the 6s valve, the honest wait
@@ -131775,7 +131775,7 @@ function draw(){
 
   // floats
   const snowFl=lightField();   // 0303: ink outlines read on any pale ground
-  for(const fl of S.floats){ if(hlbHushFl(fl)) continue;   /* CARD-HLB3: no word over the library's field */
+  for(const fl of S.floats){ if(fl.hud || hlbHushFl(fl)) continue;   /* CARD-PSF: a pour's float (hud) rises off the purse chip in drawHUD, never inside the world transform */   /* CARD-HLB3: no word over the library's field */
     cx.globalAlpha=Math.min(1,2-fl.t*1.8); cx.font=cf('bold 22px'); cx.textAlign='center';   // CARD-HT: the floats 19 → 22 (14.4 px on the phone)
     if(fl.flame) drawFlameGlyph(cx, fl.x-(fl.txt? cx.measureText(TXT(fl.txt)).width/2+10 : 0), fl.y-7, 9, fl.col, snowFl);   // 0582: the 🔥 was a picture — a drawn flame beside the digit (×3) or alone (the burn tell)
     // the tag and damage floats are cream and pale green — on snow they keep
@@ -132288,6 +132288,25 @@ function hudCaption(txt, low, px, min, pad){   // CARD-FF FF-30: pad = a plated 
   return 0;
 }
 // 1191b CARD-HB-2 THE PURSE OVER THE TRAY: the dog tag + the count, the strip's own glyph and face (drawTag 11 · bold 23 · CREAM), on the tray cards' own dark chip, seated above the tray's FIRST card — the currency beside the cards it buys, on their material. x0/y0 = the first card's corner; the chip sits 3 px clear of the cards; the coach's pill (H−158, centred) and the right column never reach this corner.
+// ═══ CARD-PSF THE POUR'S FLOAT OVER THE PURSE (Wyatt on Maker 1 10/30/2026 ~17:05 EDT, a screenshot of THE HILL VILLAGE: "in the town map in the campaign, the plus resources popup is really high. Take a look, please fix this, and set to live"):
+// the faucet's +N (v1.32: "floated off your toy box") — and the top hat's, Mom's, the pillow fields' and the researcher specs' pours, and the two DOG TAGS ×N! banners — were born at ONE FIXED WORLD SEAT {166,280}, where the toy box stood on a flat 960×600 rug.
+// Floats draw inside the world transform; a tall rug (THE HILL VILLAGE, WESTERN LAND: campGrandArm / raidArm open the view on the waist, S.cCam.y=300), a grand rug's walk, a pan or a zoom carry that seat anywhere — on his village it rose in the sky at the top-left.
+// Now a pour's float is a HUD float (hud:1): drawHUD draws it right after the purse chip (CARD-HB-2's seat above the tray's first card, the number it feeds), centred on the chip and rising off its crown, in screen space, whatever the camera does.
+// The floats' own grammar kept (bold 22, the cream, 22 px/s, 1.1 s, the fade, the ink rim on a pale ground); update's loop lifts fl.y as ever. The world loop skips a hud float; the chess arena's cfaFloats leaves it alone. The battleground's drip (over my base, a world seat) is not a hud float.
+// ?psf=0 (device key gvt_psf) = as shipped (the old world seat); ?psf=1 clears it. PSF.at = the chip's seat + the floats drawn this frame (the rig's read). Zero server, sw, css, save, wire or word bytes. ═══
+const PSF={ on:(function(){ try{ const q=/[?&]psf=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_psf','0'); else localStorage.removeItem('gvt_psf'); } return localStorage.getItem('gvt_psf')==='0'? 0 : 1; }catch(e){ return 1; } })(), at:null, lift:9 };   // on: the switch (CARD-RDH's grammar) · at: the last chip seat drawn · lift: the float's baseline above the chip's crown at birth
+function psfFloat(txt, col){ return PSF.on? { x:0, y:0, txt:txt, t:0, col:col||'#FFF3C4', hud:1 } : { x:166, y:280, txt:txt, t:0, col:col||'#FFF3C4' }; }   // a pour's float: on the chip (x,y = the offset from its crown; the loop lifts y) — off = v1.32's world seat
+function psfDraw(x0,y0){   // drawHUD, right after drawPurse: the hud floats rise off the chip, centred on it (the chip: x0-2, y0-33, w9+46 × 30 — drawPurse's own rect)
+  let n=0; for(const fl of S.floats){ if(fl.hud) n++; } if(!n){ PSF.at=null; return; }
+  const f9=cx.font, a9=cx.textAlign, b9=cx.textBaseline, g9=cx.globalAlpha, c9=cx.fillStyle;
+  cx.font=cf('bold 23px'); const w9=cx.measureText(String(S.plastic)).width, mx=x0-2+(w9+46)/2, top=y0-33, snow=lightField(); let d=0;
+  cx.font=cf('bold 22px'); cx.textAlign='center'; cx.textBaseline='alphabetic';
+  for(const fl of S.floats){ if(!fl.hud || hlbHushFl(fl)) continue; const x=mx+fl.x, y=top-PSF.lift+fl.y; cx.globalAlpha=Math.min(1,2-fl.t*1.8);
+    if(snow){ cx.strokeStyle='rgba(20,26,20,0.85)'; cx.lineWidth=3.5; cx.lineJoin='round'; cx.strokeText(TXT(fl.txt),x,y); }
+    cx.fillStyle=fl.col; cx.fillText(TXT(fl.txt),x,y); d++; }
+  PSF.at={ x:mx, y:top, w:w9+46, n:d };
+  cx.globalAlpha=g9; cx.font=f9; cx.textAlign=a9; cx.textBaseline=b9; cx.fillStyle=c9; }
+// ═══ CARD-PSF ends ═══
 function drawPurse(x0,y0){
   const y=y0-17; cx.font=cf('bold 23px'); const w9=cx.measureText(String(S.plastic)).width; cx.fillStyle='rgba(38,40,31,0.92)'; rr(x0-2,y0-33,w9+46,30,9); cx.fill(); drawTag(x0+14,y,11); cx.font=cf('bold 23px'); cx.fillStyle=CREAM; cx.textAlign='left'; cx.textBaseline='middle'; cx.fillText(S.plastic, x0+34, y); cx.textBaseline='alphabetic';   // 1191b CARD-HB-2: THE CHIP — the tray cards' own dark plate behind the tag + the count (a pale rug — the snow, the deck — swallowed the cream digits); 3 px above the first card, the same material: the purse reads as the tray's own tab
 }
@@ -135226,7 +135245,7 @@ function drawHUD(){
     const K=uiK(), tw=Math.min(112*K,((VW-60)-(n-1)*10)/n)|0, th=Math.round(84*K), gap=10, total=n*tw+(n-1)*gap, x0=(VW-total)/2, y0=H-th-chinLift();   // CARD-NFF (10/6): one bar higher inside the field (chinLift: max(18, the chin in field units); 18 wherever the chin is 0) · 0628 BIG BUTTONS AT THE START: the shelf's boxes ride uiK() (1.25 under campaign 5, 1 after — byte-what-it-was at 1); trayRects follow, so the taps land where the cards draw
     trayRects.length=TT.length;   // CARD-BSL: the units' cards alone (the drag loop's index); the bomber's card is btnRects.bmb
     cx.textBaseline='alphabetic';
-    drawPurse(x0, y0); ffrChipDraw(x0, y0);   /* CARD-FFR: the chip again, MAGNIFIED, on the tags pages */   // 1191b CARD-HB-2: the dog tags above the tray's first card
+    drawPurse(x0, y0); ffrChipDraw(x0, y0); psfDraw(x0, y0);   /* CARD-PSF: the pours' floats rise off the chip, in screen space */   /* CARD-FFR: the chip again, MAGNIFIED, on the tags pages */   // 1191b CARD-HB-2: the dog tags above the tray's first card
     TT.forEach((t,i)=>{
       const x=x0+i*(tw+gap);
       trayRects[i]=[x,y0,tw,th];
@@ -135335,7 +135354,7 @@ function drawHUD(){
   const nT9=tray.length+(bslOn()?1:0) /* CARD-BSL: the bomber's card counts in the shelf */, K=uiK(), tw=Math.min(112*K,((VW-60)-(nT9-1)*10)/nT9)|0, th=Math.round(84*K), gap=10, total=nT9*tw+(nT9-1)*gap, x0=(VW-total)/2, y0=H-th-chinLift();   // CARD-NFF (10/6): one bar higher inside the field, the same lift as the battlefield shelf's · 0628 BIG BUTTONS AT THE START: the campaign shelf's boxes ride uiK() the same way (the first thing a seven-year-old must hit on a 375-tall phone)
   trayRects.length=tray.length;
   cx.textBaseline='alphabetic';
-  drawPurse(x0, y0); ffrChipDraw(x0, y0);   /* CARD-FFR: the chip again, MAGNIFIED, on the tags pages */   // 1191b CARD-HB-2: the dog tags above the tray's first card
+  drawPurse(x0, y0); ffrChipDraw(x0, y0); psfDraw(x0, y0);   /* CARD-PSF: the pours' floats rise off the chip, in screen space */   /* CARD-FFR: the chip again, MAGNIFIED, on the tags pages */   // 1191b CARD-HB-2: the dog tags above the tray's first card
   tray.forEach((s,i)=>{
     const x=x0+i*(tw+gap);
     trayRects[i]=[x,y0,tw,th];
@@ -168064,7 +168083,7 @@ function raidTick(dt){
   // phase bookkeeping + the win door: the P3 king walked on, then fell
   if(S.wave>=S.cfg.waves.length){
     if(rd.p3T==null){ rd.p3T=Math.round(rt);   // 0305 BF-0S: time-to-phase (folds into META.stats.boss at the verdict) — 0406: the raid's own clock (S.t was the page's; the stamps read page-play seconds)
-      if(rd.k==='ice' && rd.t!=='u') S.floats.push({x:166,y:280,txt:'DOG TAGS ×'+ICE_P3_TAGX+'!',t:0,col:'#FFD24A'});   // CARD-KT (9/26): the ULTRA room's third act pays ×EV_P3_TAGX_U (below 1) — no float promises a bonus there; the e/m/h/g castles keep their ×1.5 word   // 0648 D2 THE VISIBILITY (the 0645 lesson — a reward that doesn't appear didn't happen): one float over the purse the frame the third act opens, every sim; raw key — floats translate at draw (the {0} row, dial-proof)
+      if(rd.k==='ice' && rd.t!=='u') S.floats.push(psfFloat('DOG TAGS ×'+ICE_P3_TAGX+'!','#FFD24A'));   /* CARD-PSF: off the purse chip */   // CARD-KT (9/26): the ULTRA room's third act pays ×EV_P3_TAGX_U (below 1) — no float promises a bonus there; the e/m/h/g castles keep their ×1.5 word   // 0648 D2 THE VISIBILITY (the 0645 lesson — a reward that doesn't appear didn't happen): one float over the purse the frame the third act opens, every sim; raw key — floats translate at draw (the {0} row, dial-proof)
     }
     rd.p3=true;
     if(!rd.p3King && S.foes.some(f=>f.type===bt && !f.dead)){ rd.p3King=true; rd.p3kT=Math.round(rt); }
