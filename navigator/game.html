@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.44","md5":"54b1fc92ef8c21bcba6bde019f2f1741","sha":"7d40fb0ecd","at":"2026-10-30T12:50:22Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.45","md5":"2ee5809f9991f640798babd92adea5d2","sha":"1ba556f348","at":"2026-10-30T16:36:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91573,20 +91573,24 @@ function gaRanks(){ const own=ownedUnits(), avg=own.length? Math.round(own.reduc
 // "Add confidence booster logic. What I mean is, the computer players (the fake humans who attack the gauntlet player, the guy who holds the torch), their troops, and Sarge should be the same
 // level as the player. If the player is, say, level 10 and only has level 5 bazookas, it should match all that until the player is over level 50, at which point the computer opponents go back to
 // our current default computer fake human opponent. This way, low-level players will enjoy picking up the gauntlet."
+// CARD-CB2 THE RUNG TO 200 (Wyatt on Maker 1, 10/30/2026, verbatim: "When adding on to the mercy logic that we've added to the gauntlet, let's expand its level to up to commander level 200.
+// If you're level 200 or less and you do the gauntlet and the computer challenges you, that computer's troop levels are all just going to be identical to yours versus our tough computer
+// opponents That you would regularly face in the gauntlet"): CB.lvl 50 -> 200, one number; every reader as it was. Both roads already run through gaFightCPU (the knock on a holder and the
+// challenge to a computer holder), so "the computer challenges you" is covered. The commander level has no cap (xpNeed grows by 50 a level), so 201 and up is a real, if far, rung.
 // THE READ: the Gauntlet's computer (the knock on a holder and the challenge to a computer holder: gaFightCPU → startBattlefield's hard cell, gaCpu) fields EVERY type at max(your rank in it, your
 // average owned rank) + 10 (0917's gaRanks), and one seed in three walks in DEADLY (CARD-DLY: a rank-100 Sarge with a rank-100 iron and the lab's parts). A level-10 commander with rank-5 bazookas
-// met rank-15 bazookas at best and a rank-100 Sarge one fight in three. THE RULE: while the COMMANDER LEVEL (META.lvl, the HQ card's LV; 1 on a fresh save) is CB.lvl (50) or under, the computer's
+// met rank-15 bazookas at best and a rank-100 Sarge one fight in three. THE RULE: while the COMMANDER LEVEL (META.lvl, the HQ card's LV; 1 on a fresh save) is CB.lvl (200 since CARD-CB2; 50 at birth) or under, the computer's
 // men and his Sarge walk on at YOUR OWN rank in each type, exactly (cbRanks: a type you never ranked is stock, no floor, no +10; up.sarge = your figure's own rank), and the deadly draw is boxed
-// (cbDeadly: the seed's stream is drawn as ever, so the callsign and the colour keep their parity with HQ; the challenger just walks in plain). Over level 50 (51 and up) everything is
+// (cbDeadly: the seed's stream is drawn as ever, so the callsign and the colour keep their parity with HQ; the challenger just walks in plain). Over the rung (201 and up since CARD-CB2; 51 at birth) everything is
 // byte-what-it-was: gaRanks, the deadly third. The rest of the hard package stands at every level as 0917 shipped it (the chest +30, the drip ×1.10, ×1.03 hp / ×1.02 dmg, the captain's +5 plate and
 // his rank-0 OUTLAW / DUELIST kit with its presses, the smart march, the quiet hand): the booster matches LEVELS, which is what he asked (⚑ CB-Q3). Scope = the torch's computer only: the war
 // table's own hard bot (hardRanks, +3), a torch room's real player, the party's RIVAL and every other carpet untouched. Zero server, wire, save, sw, css or word bytes. Rig: GVT.cb() ·
 // design/confidence-booster-1029/rig/.
-const CB={ lvl:50 };   // ⚑ CB-Q1 the rung: the booster holds through commander level 50 ("until the player is over level 50"); 51 and up = the shipped computer
+const CB={ lvl:200 };   // ⚑ CB-Q1 the rung: the booster holds through commander level 200 (CARD-CB2, Wyatt on Maker 1 10/30/2026: "expand its level to up to commander level 200"; 50 at birth, "until the player is over level 50"); 201 and up = the shipped computer
 function cbOn(lvl){ return ((lvl==null? META.lvl : lvl)|0) <= CB.lvl; }   // the gate: the commander level on the save (a what-if level for the rig)
 function cbRanks(){ const up={}; for(const k of BF_TYPES) up[k]=Math.max(0, Math.min(RANK_MAX, META.up[k]|0)); return up; }   // the booster's brass table: every type the computer can field at YOUR rank in it, exactly (Sarge too)
-function gaCpuRanks(){ return cbOn()? cbRanks() : gaRanks(); }   // startBattlefield's one read for the torch's computer: the booster's table through level 50, 0917's brass over it
-function cbDeadly(dl){ return cbOn()? null : dl; }   // gaFightCPU's one read: the deadly draw (CARD-DLY) stands over level 50; boxed under the booster (the draw itself is still taken off the stream)
+function gaCpuRanks(){ return cbOn()? cbRanks() : gaRanks(); }   // startBattlefield's one read for the torch's computer: the booster's table through CB.lvl (200 since CARD-CB2), 0917's brass over it
+function cbDeadly(dl){ return cbOn()? null : dl; }   // gaFightCPU's one read: the deadly draw (CARD-DLY) stands over CB.lvl (200 since CARD-CB2); boxed under the booster (the draw itself is still taken off the stream)
 function cbProbe(o){ const lvl=(o && o.lvl!=null)? (o.lvl|0) : (META.lvl|0); const bf=S.bf, cell=bf&&bf.hard;   // read-only: the gate, the three tables, the live cell, the captain's kit, the computer's standing men
   const men=(bf&&cell)? S.units.filter(u=>u.side==='foe' && u.seat===bf.team && !u.dead).map(u=>({ id:u.id, t:u.type, nrk:(u.nrk==null? null : u.nrk), rank:perkRank(u), hpMax:+(+u.hpMax).toFixed(2), dmg:(u.def&&u.def.dmg!=null)? +(+u.def.dmg).toFixed(3) : null })) : [];
   return { dials:{ lvl:CB.lvl }, lvl:lvl, on:cbOn(lvl), mine:Object.assign({}, META.up||{}), up:cbRanks(), gaUp:gaRanks(), hardUp:hardRanks(),
@@ -92242,7 +92246,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.44';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.45';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -103432,7 +103436,7 @@ function startBattlefield(mapId,diffOverride,teamSize,plan,rivX){
     const hq9=seats[team], pre9=!!(hq9 && !hq9.human && hq9.hk && !gaCpu);   // CARD-IQ2 THE DEALT IRON: the queue dealt the hard captain's kit at the deal (bfqArm — the same 50/50, the same four crystals): the DUELIST or the OUTLAW who ported in is the one who fights
     const duel=pre9? hq9.kw==='lightsaber' : Math.random()<0.5;
     const hcol=duel? ((pre9 && HARD_CRYSTALS.indexOf(hq9.hc)>=0)? hq9.hc : HARD_CRYSTALS[(Math.random()*HARD_CRYSTALS.length)|0]) : null;
-    S.bf.hard={ up:(gaCpu? gaCpuRanks() : hardRanks()), cb:(gaCpu && cbOn())? 1 : 0, kitW:(duel?'lightsaber':'sniper'), col:hcol,   // 0917: the torch's computer wears the Gauntlet's own brass table · CARD-CB: at the player's own ranks while the commander is level 50 or under (gaCpuRanks; cb 1 marks the cell)
+    S.bf.hard={ up:(gaCpu? gaCpuRanks() : hardRanks()), cb:(gaCpu && cbOn())? 1 : 0, kitW:(duel?'lightsaber':'sniper'), col:hcol,   // 0917: the torch's computer wears the Gauntlet's own brass table · CARD-CB: at the player's own ranks while the commander is level 200 or under (CARD-CB2; 50 at birth) (gaCpuRanks; cb 1 marks the cell)
       mo:(duel? ['telekinesis'] : ['outlawsniper','flamestrike']),
       tkCd:HARD_T0, snpCd:HARD_T0, gsCd:HARD_T0, rpCd:HARD_T0, fsCd:HARD_T0, sgId:0 };
     const hcap=S.bf.seats[team];
@@ -158332,7 +158336,7 @@ function gaFightCPU(cpu, asChal){   // the knock (asChal false: the holder defen
   if(!cpu || S.mode!=='menu' || BFQ || S.coop || coopLaunching || GA.wait || (asChal? GA.hold : !GA.hold)) return false;
   const rnd=gaRand(cpu.seed|0); const mn=mintCallsign(rnd); const ar=ARMIES[(rnd()*ARMIES.length)|0];
   const name=(typeof cpu.name==='string' && cpu.name)? String(cpu.name).slice(0,40) : mn, hex=(typeof cpu.hex==='string' && /^#[0-9A-Fa-f]{6}$/.test(cpu.hex))? cpu.hex : ar.hex;
-  const riv={ id:'ga', name:name, hex:hex, blurb:'', mod:{}, dl:cbDeadly(dlyDraw(rnd)) };   // CARD-DLY THE DEADLY CHALLENGER: the third draw of the same stream (after the two parity-proved ones) says whether this computer is deadly, and which iron (dl = { w, col } or null) · CARD-CB: the draw is still taken off the stream (the parity stands), the deadly one boxed while the commander is level 50 or under (cbDeadly)
+  const riv={ id:'ga', name:name, hex:hex, blurb:'', mod:{}, dl:cbDeadly(dlyDraw(rnd)) };   // CARD-DLY THE DEADLY CHALLENGER: the third draw of the same stream (after the two parity-proved ones) says whether this computer is deadly, and which iron (dl = { w, col } or null) · CARD-CB: the draw is still taken off the stream (the parity stands), the deadly one boxed while the commander is level 200 or under (CARD-CB2; 50 at birth) (cbDeadly)
   const map=(cpu.map && BF_MAPS.some(m=>m.id===cpu.map) && !BF_BENCH[cpu.map])? cpu.map : 'winter';   // CARD-OB: HQ's persona on a benched carpet (THE STARSHIP, 9/25) fights on the seat's own default
   UI.closeModal(); if(wartableOpen()) closeWarTable();
   startBattlefield(map, 'hard', 1, null, riv);   // the map by NAME (never 'random'): startBattlefield's write-back guard leaves META.bfMap as it was
