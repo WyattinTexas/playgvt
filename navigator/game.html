@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.55","md5":"0d16d5c999ab4a7df97889931a316b07","sha":"63ccb9e737","at":"2026-10-30T20:50:19Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.56","md5":"4db56e63ca56bb6e6cb0a7d220119e8a","sha":"a259bb7283","at":"2026-10-30T21:05:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -55311,6 +55311,10 @@ const OF_WRAP_SPD=0.2;   // "-20% movement speed", each
 const OF_WRAP_SPD_ID={ legwraps:0.3 };   // CARD-HL6D: THE LEG WRAPS "30% slower movement speed"
 function gmyWrapSpdOf(id){ return (OF_WRAP_SPD_ID[id]!=null)? OF_WRAP_SPD_ID[id] : OF_WRAP_SPD; }
 const GMY_WRAP_FIRE_X=2;   // "Each takes 2x incoming damage from any fire"
+function wroOwed(won){ const L=META.gmy||{}; let n=0; for(const k of ['m','h','g']) if(L[k] || k===won) n++; return n; }   // CARD-WRO: one wrap per tier beaten at Medium or above
+function wroPay(won){ if(wroOff()) return []; const got=[]; let have=GMY_WRAPS.filter(id=>outfitOwns(id)).length; const want=wroOwed(won); const order=['bodywraps','headwraps','footwraps'];
+  for(const id of order){ if(have>=want) break; if(!outfitOwns(id)){ META.outfit.own.push(id); got.push(id); have++; } } return got; }
+function wroOff(){ try{ return /[?&]wro=0/.test(location.search); }catch(e){ return false; } }   // CARD-WRO: ?wro=0 turns the owed wraps off (the verdict's top-up and the boot heal both)
 let GMY_WRAP_PICK=null;   // the rig's pick (an index into the unowned list); null = the dice
 const OF_WRAPFOOT=(L)=>{ const k=0.45, bx=+(L[0]+(L[2]-L[0])*k).toFixed(2), by=+(L[1]+(L[3]-L[1])*k).toFixed(2), dx=bx-L[0], dy=by-L[1], n=Math.hypot(dx,dy)||1, px=-dy/n, py=dx/n;   // the boot's own seat (OF_BOOT's L): the shin wrapped from the foot to 45 % up
   let s='<path d="M '+L[0]+' '+L[1]+' L '+bx+' '+by+'" stroke="#22262E" stroke-opacity=".9" stroke-width="13.8" stroke-linecap="round" fill="none"/>'
@@ -57809,6 +57813,7 @@ META.fortName=(typeof META.fortName==='string' && cleanFortName(META.fortName))|
   if(META.sky && META.sky.g && !outfitOwns('skygoggles')) META.outfit.own.push('skygoggles');   // CARD-SKG THE SKY GOGGLES heal off the same MEGA cell: a veteran who won the cap before the goggles left it finds them on his rack (unequipped; the MEGA BEATEN! card at home)
   if(META.sky && (META.sky.e || META.sky.m || META.sky.h || META.sky.g) && !outfitOwns('pilotgloves')) META.outfit.own.push('pilotgloves');   // CARD-GGB THE PILOT GLOVES heal off the sky's ledger: a veteran who beat ANY tier before this build has fought there (a loss left no mark: his next battle pays); lands UNEQUIPPED; the card deals at the landing (outfitSweep)
   if(META.gmy && META.gmy.g && !outfitOwns('legwraps')) META.outfit.own.push('legwraps');   // CARD-HL6D THE LEG WRAPS heal off THE HAUNTED LIBRARY's MEGA cell
+  wroPay();   // CARD-WRO: a ledger with Medium/Hard/Mega beaten owns that many mummy wraps (a Hard or Mega won before Medium used to pay none): Isaac finds his on the rack at his next load
   if(META.sky && META.sky.g && !outfitOwns('marshalcap')) META.outfit.own.push('marshalcap');   // CARD-SF3-D1 THE MARSHAL'S CAP heals off the sky's MEGA cell alone (the prize's OWN cell: a tier never beaten pays nothing at the boot either): a veteran who beat MEGA before this build finds it on the rack at the next boot (META.sky normalised above, the v1.26 TDZ law); lands UNEQUIPPED; the card deals at the landing (outfitSweep)
   if((META.texLaps|0)>=1 && !outfitOwns('condcap')) META.outfit.own.push('condcap');   // CARD-TRN-B3 THE CONDUCTOR'S CAP heals off the laps ledger alone
   if(META.xmas && (META.xmas.n|0)>=25 && !outfitOwns('santahat')) META.outfit.own.push('santahat');   // CARD-XMAS-15 SANTA'S HAT heals off the advent ledger alone (META.xmas normalised above): a save whose twenty-fifth door opened before this build finds the hat on the rack at the next boot; lands UNEQUIPPED; the card deals at the landing (outfitSweep, FROM THE CHRISTMAS BOX!)
@@ -92246,7 +92251,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.55';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.56';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -197458,6 +197463,7 @@ function gmyPrizeRows4(prizes,led,tb9){
     else if(tb9==='m') prizes.push({ o:4, sky:1, t:'ALL THREE MUMMY WRAPS', f:'own', a:outfitPartSVG('bodywraps') }); }
   if(pnTierPays(led,tb9,'h') && typeof ENH_INFO!=='undefined' && ENH_INFO.frankbolt){   // HARD · FRANKENSTEIN'S BOLT (the BOLT build's part; no row = no grant)
     if(trophyGrant('frankbolt')) prizes.push({ o:(tb9==='h'? 4 : 6), sky:1, t:ENH_INFO.frankbolt.name, f:vdPartFoot('frankbolt'), a:enhPartSVG('frankbolt') }); else if(tb9==='h') prizes.push({ o:4, sky:1, t:ENH_INFO.frankbolt.name, f:'own', a:enhPartSVG('frankbolt') }); }
+  { for(const id of wroPay(tb9)) prizes.push({ o:5, sky:1, t:OUTFIT_INFO[id].name, f:'rack', a:outfitPartSVG(id) }); }   // CARD-WRO: every tier from Medium up owes a wrap (a Hard or Mega won before Medium used to pay none)
   if(tb9==='g' && !outfitOwns('legwraps')){ META.outfit.own.push('legwraps'); prizes.push({ o:4, sky:1, t:OUTFIT_INFO.legwraps.name, f:'rack', a:outfitPartSVG('legwraps') }); }   // CARD-HL6D: MEGA · THE LEG WRAPS (the card deals at the room: outfitSweep)
   if(tb9==='g'){ gmxHalloweenRow(prizes);   /* CARD-HL6 T10: HAPPY HALLOWEEN! +500 stars, once ever */ const fresh=gmyPumpkinGrant(); prizes.push({ o:3, sky:1, t:DECOR_INFO.gmypumpkin.name, f:fresh? 'room' : 'own', a:decShopArt('gmypumpkin') });   // MEGA · THE GIANT PUMPKIN leads MEGA's verdict (o 3: ahead of the figure's o 4; sky: the ransom may stand beside it)
     if(!prizes.some(q=>q.t==='THE GIANT MUMMY') && decOwns('gmyfig')) prizes.push({ o:4, sky:1, t:'THE GIANT MUMMY', f:'own', a:decShopArt('gmyfig') }); } }   // the figure named on a replay too (its grant stays the first clear's, byte-still)
