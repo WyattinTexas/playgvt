@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.64","md5":"524a29dd1cee0b6b8999fd0bbb0ff288","sha":"9e07a196d8","at":"2026-10-30T23:14:18Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.65","md5":"41080b3f094e6fc2f6275b0599089a4f","sha":"fcc5997d90","at":"2026-10-30T23:38:54Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -60222,7 +60222,7 @@ const RANK_U_SUMMIT=rankUnits(RANK_MAX);   // ≈24.722 — the normaliser that 
 function bfHpAt(t,r){ const base=(BF_MOVE[t]&&BF_MOVE[t].hp)||3, top=(HP_RANK100[t] && HEROES.indexOf(t)>=0)? Math.max(base, HP_RANK100[t]-hhbWords(t)) : HP_RANK100[t];   /* CARD-HHB: a hero's summit = THE BOOK minus the words a bare rank-100 hero carries already (hhbWords), never below his base; a man's row as it was */
   if(!top) return base; const o=UHB_HPL[t];   /* CARD-UHB THE RUNGS: a book row reads CARD-HPL's curve (UHB_HPL) at levels 0-9 and, from level 10, max(that curve, the rung); a hero's row (no UHB_HPL row) reads his own taper, byte what it was */
   const cur=base+Math.round(((o!=null)? o-base : top-base)*rankUnits(r)/RANK_U_SUMMIT);
-  return (o==null || !(r>=UHB.rungFrom))? cur : Math.max(cur, uhbRung(uhbHplAt(t,UHB.rungFrom-1), top, r)); }
+  return xhpAt(t,r)+((o==null || !(r>=UHB.rungFrom))? cur : Math.max(cur, uhbRung(uhbHplAt(t,UHB.rungFrom-1), top, r))); }   /* CARD-LRB (1/4): + THE TENTH-RANK HP (xhpAt; 0 for a class without an XHP row) */
 // CARD-HPL (HPL-Q6): Sarge's plate at the IRON's own rank, bfHpAt's curve exactly (rank 0 = SARGE_WPN_HP, the summit lands on SARGE_WPN_HP100).
 // Every AI kit carries r 0 (bfSargeKit, BF_AI_SARGE), so a computer's plate is byte what it was; the away captain reads THEIR iron's rank.
 function wpnPlateAt(w,r,rs){ const b=SARGE_WPN_HP[w]||0, top=SARGE_WPN_HP100[w]; if(top==null) return b;   /* CARD-UHB: + rs = the MAN's rank (placeUnit's perkRank, the sheet's rank); only the commander's plate reads it */
@@ -60251,6 +60251,14 @@ function bfHpRk(u){ if(!HP_RANK100[u.type]) return 0;
 const UHB={ rungFrom:10, standRk:10, n:0 };   // n: every last stand taken (the rig's counter, never read by the sim)
 const UHB_HPL={ rifleman:11, mgunner:28, bazooka:10, flame:21, minesweeper:10, radioman:10, spy:7, sarge:21, medic:7, grenadier:10, mortar:10, commando:24 };   // CARD-HPL's summits (v17.70 .. v20.25): the 0-9 curve + the floor
 const UHB_PLATE_HPL={ commander:28 };   // CARD-HPL's commander plate at 100: his 0-9 plate curve + the floor
+// ═══ CARD-LRB (1/4) THE TENTH-RANK HP (design/lair-rebalance-1030/00-CARD-LRB.md; Wyatt on Maker 1, 10/30/2026 ~18:00-18:30 EDT, verbatim: "Please add the following health scaling to the game. Adjust people's units accordingly. [...] Every 10 levels, please
+// give the machine gunner 1 extra HP. Every 10 levels, please give the bazooka 2 extra HP. For the Grenadier, 1 extra HP every 10 levels, and increase the Grenadier's grenade range by 5 m. [...] The Flame unit: we're going to give him 3 HP every
+// 10 levels. The Commando will give 2 HP every 10 levels. The Spy will give 1 HP every 10 levels.") ═══ ON TOP of THE BOOK's rungs (bfHpAt): + XHP.per[class] at every tenth rank (10, 20 ... 100), so at rank 100 the M. GUNNER stands
+// 55 + 10 = 65 · the bazooka 42 + 20 = 62 · the grenadier 44 + 10 = 54 · the flame 50 + 30 = 80 · the commando 52 + 20 = 72 · the spy 40 + 10 = 50. "Adjust people's units": the pool is worked out from the rank at every read (the sheet,
+// placeUnit's delta, a relayed ally's mr token, CARD-LRB 2/4's campaign scale), so every man already promoted wears his extra at his next fight; no save byte, no wire byte. Every other class, Sarge and the heroes read 0.
+// The grenadier's reach: UDEF's cell 150 -> 290 (+ 5 m = 5 x TK_M; BF_MOVE carries no override, so both carpets). XHP.on 0 = the book as it was.
+const XHP={ on:1, per:{ mgunner:1, bazooka:2, grenadier:1, flame:3, commando:2, spy:1 } };
+function xhpAt(t,r){ const k=XHP.on? (XHP.per[t]|0) : 0; return k? k*Math.floor(Math.max(0,Math.min(RANK_MAX,r|0))/10) : 0; }   // the extra HP a class carries at a rank (0 below rank 10, 0 for a class without a row)
 function uhbHplAt(t,r){ const base=(BF_MOVE[t]&&BF_MOVE[t].hp)||3, o=UHB_HPL[t]; return (o==null)? base : base+Math.round((o-base)*rankUnits(r)/RANK_U_SUMMIT); }   // CARD-HPL's pool at a rank (the floor)
 function uhbRung(h9,top,r){ return Math.round(h9+(top-h9)*Math.floor(Math.max(0,Math.min(RANK_MAX,r|0))/10)/10); }   // the rung at a level: ten equal steps from the level-9 pool to the book
 function uhbStand(f,dmg){ if(!S.bf || !f || !f.side || !(dmg>=f.hp) || !(f.hp>1) || UHB_HPL[f.type]==null || !(f.hpMax>0) || f.hp<f.hpMax-1e-6 || perkRank(f)<UHB.standRk) return dmg;
@@ -74864,7 +74872,7 @@ const UDEF = {
   // lobbed grenade on the mortar's arc at the LINE's reach (150: between the flame's 85 and the rifle's 198, no minimum range), a throw every ~3 s, harder than the shell (1.5) and softer than the
   // tube (4), the mortar's own 60 px splash through the mortar's own landing law (splash — the campaign's friendly-fire knock, ⚑ GR-Q5), the rifleman's plastic; `fuse` = the half-second the
   // grenade SITS where it lands before it bursts (a kid sees it coming — grLand / grFuse). ⚑ GR-Q1 the numbers. ⚠ RAW literals like every row here — the campaign dump rig extracts this band verbatim.
-  grenadier:{ rng:150, rate:0.35, dmg:2.5, air:false, grit:3, name:'GRENADIER', splash:60, scatter:70, fuse:0.5 },
+  grenadier:{ rng:290, rate:0.35, dmg:2.5, air:false, grit:3, name:'GRENADIER', splash:60, scatter:70, fuse:0.5 },   // CARD-LRB (1/4) (Wyatt 10/30: "increase the Grenadier's grenade range by 5 m"): rng 150 -> 290 = + 5 x TK_M (28 px a metre); BF_MOVE carries no override, so both carpets
   sarge:   { rng:108, rate:PISTOL_RATE, dmg:1.5, air:true,  grit:4, name:'SARGE' },
   minesweeper:{ rng:130, rate:0.25, dmg:0, air:false, grit:3, name:'SWEEPER', mine:true },   // v2.52 (Wyatt 8/5): "a mine after a few seconds" — one charge every 4s (was 6), the consistent drum; the defuse lives at the trip loop (the field cap is retired — v2.96)
   flame:   { rng:85,  rate:8,   dmg:0.5, air:false, grit:3, name:'FLAME', multi:3 },
@@ -75263,7 +75271,7 @@ const FDEF = {
   spitter: { hp:5,  spd:30, bounty:12, leak:1, w:52,  rng:240, fireCd:3.6, slow:0.2, slowCap:0.9, dmg:2, globHex:'#8CC152', globRim:'#4E7D2A' },
   bdino:   { hp:12, spd:31, bounty:20, leak:2, w:66,  elite:true, stompCd:2.6, stompR:64, stompWind:0.5 },
   eggling: { hp:4,  spd:16, bounty:8,  leak:1, w:40,  hatch:9.6 },   // 0903 DINO EARLY RUNGS (Wyatt 9/2: "Monster Eggs need to hatch 20% faster and move 20% slower"): hatch 12 x0.8 = 9.6 (a NUMBER, the campaign reader's law; the lair's clutch reads it as the base of its 0.9 s stagger) · spd 20 x0.8 = 16
-  trike:   { hp:12, spd:30, bounty:20, leak:2, w:74,  elite:true, ram:{aggro:300, brace:0.45, dash:470, lane:30, over:120, rest:1.4} },   // 0903 DINO EARLY RUNGS (Wyatt 9/2: "Buff the triceratops hp by 50%"): 8 x1.5 = 12 at the ROW, every rung and rug inherits; btrike keeps its 40 (his word named the trike alone)
+  trike:   { hp:36, spd:30, bounty:20, leak:2, w:74,  elite:true, ram:{aggro:300, brace:0.45, dash:470, lane:30, over:120, rest:1.4} },   // 0903 DINO EARLY RUNGS (Wyatt 9/2: "Buff the triceratops hp by 50%"): 8 x1.5 = 12 at the ROW, every rung and rug inherits; btrike keeps its 40 (his word named the trike alone) · CARD-LRB (Wyatt 10/30: "for the Triceratops, please tripple his health throughout the board"): 12 x3 = 36 at the ROW (every rung, rug and tier; the ULTRA guard's 190 -> 570 through its hpX); btrike keeps its 40 again (⚑ LRB-Q4)
   // 0410 THE BIG TRIKE (Wyatt 8/18: "Add a large triceratops that appears in
   // later dino campaign levels 35-50. He has 5x the regular hp and a bigger
   // charge radius & hitbox.") — a NEW KIND, never a retune: the trike's own
@@ -75285,7 +75293,7 @@ const FDEF = {
   btrike:  { hp:40, spd:30, bounty:60, leak:3, w:112, elite:true, ram:{aggro:450, brace:0.45, dash:470, lane:45, over:120, rest:2.2} },
   ptero:   { hp:2,  spd:78, bounty:14, leak:1, w:56,  swoop:{aggro:260, dive:520, climb:2.2, lane:26} },
   stego:   { hp:10, spd:18, bounty:24, leak:2, w:88,  elite:true, rng:400, minRng:120, fireCd:3.6, boulder:{spd:190, r:24, range:760, wind:0.5} },
-  dilo:    { hp:7,  spd:29, bounty:30, leak:2, w:70,  elite:true, rng:250, fireCd:2.1, aim:0.7, multi:4, cone:0.5 },
+  dilo:    { hp:21, spd:29, bounty:30, leak:2, w:70,  elite:true, rng:250, fireCd:2.1, aim:0.7, multi:4, cone:0.5 },   // CARD-LRB (Wyatt 10/30: "Please triple his current health values across the board"): 7 x3 = 21 at the ROW (every rung, rug and tier inherits)
   dinoboss1:{ hp:60, spd:26, bounty:80, leak:4, w:92,  rng:170, fireCd:3.2, boss:true },
   dinoboss2:{ hp:90, spd:24, bounty:100,leak:4, w:104, rng:180, fireCd:3.0, boss:true },
   dinoboss3:{ hp:70, spd:28, bounty:90, leak:4, w:96,  rng:175, fireCd:2.9, boss:true },
@@ -92297,7 +92305,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.64';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.65';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -109000,6 +109008,21 @@ function csPress(u,sn){   // MY tap on his rung (0522d: the right column — the
   if(!csCast(u,false,false,sn)) return false;
   if(S.coop){ const cm={k:'cs'}; if(two) cm.e=sn; if(roomBattle()) cm.n=u.seat|0; else if(u.cid) cm.id=u.cid; coopSend(cm); }   // 0650 THE WIRE: the stance rides 'e' — an int 0..7 already on the server's CMD_KEYS since v41/0551 (the 0561a reuse law, ZERO server bytes) — stamped ONLY off a two-seat bag (the 0509/0603 silence fence: a bladeless or one-philosophy save's word stays byte-identical); a ≤v7.46 receiver ignores it and walks the shipped chain (the accepted 0517a divergence class, re-converging on the next snap)
   return true; }   // the orange channel's break law verbatim (dead/down/jet/falling/shove/lunge/drop/dragged) + a foe at the sword (D17)
+// ═══ CARD-LRB (2/4) ONE HP NUMBER (Wyatt on Maker 1, 10/30/2026 ~18:00-18:30 EDT, verbatim, on the note that the campaign's hits and the unit sheet's HP are two scales: "This is a great point. Let's apply our changes to the enemy troops as well in
+// campaign. Not as much, but more, since our troops are going to have more HP. They are going to need more as well. We only need a slight advantage.") ═══ A man's HP is the number on his unit sheet in every mode now: the battleground pool at
+// his rank (bfHpAt + THE TENTH-RANK HP + his gifts, CARD-USH's readers usBfHP / sgBfHP). The campaign rug keeps its grit machine as the way it counts (u.hits out of gritCap, the 4 s mend, the medic's pips, the bars), and every enemy's round grows
+// WITH the man's HP, by DSM.k of the growth ("not as much, but more"): one enemy pip = 1 + (H/g - 1) x k of his sheet HP (H = his sheet HP, g = his campaign hits), so the pip lands (k + (1 - k) x g/H) of what it landed before, never more.
+// k 0.9: a rank-0 rifleman (H 3 = g 3) takes what he took; a rank-100 rifleman (H 45, g 8) takes 8 % less; a rank-100 flame (H 80) 9 % less ("only a slight advantage"). Read per round in tanHit's two writes (the round, the ball); the twelve men
+// and Sarge only (dsmH): a hero, a machine, a zombie, a mouse read 1. The lair's dinos (CARD-LRB 3/4) price their hits in sheet HP outright and skip it (src.dsmRaw). The battleground is untouched (its pools ARE the sheet). DSM.on 0 = the rug as it was.
+const DSM={ on:1, k:0.9 };
+function dsmH(u){   // his HP on the unit sheet: the battleground pool he lands with at his rank (mine read my gifts, an ally's / a mirror's / a loaner's the bare ladder); 0 = no sheet row of the twelve + Sarge
+  if(!u || !u.type || u.zomb || u.mmd || (u.def && u.def.vehicle)) return 0;
+  const r=perkRank(u), mine=!(u.coopMods || u.coopBy || u.coopMR!=null || u.nrk!=null || u.loan);
+  if(u.type==='sarge'){ const b=unitSargeStats(u); return b? sgBfHP(b, r) : 0; }
+  if(UHB_HPL[u.type]==null) return 0;
+  return mine? usBfHP(u.type, r) : bfHpAt(u.type, r); }
+function dsmX(u,src){ if(!DSM.on || S.bf || !u || (src && src.dsmRaw)) return 1; const H=dsmH(u); if(!(H>0)) return 1; const g=gritCap(u); if(!(g>0)) return 1;
+  return Math.max(0, Math.min(1, DSM.k+(1-DSM.k)*g/H)); }   // the share of an enemy pip that lands now (1 = as before; never above 1: a veteran's extra hit never turns into extra damage)
 function tanHit(u,fx,fy,src,fire9){ if(hunHugSkip(u)) return;   /* CARD-HUN THE HUNTER HUG: of every hit on a hugged man only half lands (hunHugSkip counts) */ if(u.gb13 && !S.bf && src && !u.dead && olvGrabTurn(u,fx,fy,src,fire9)) return;   /* CARD-OVF-B13 THE GRAB: a round at a commando holding a man lands on the man he holds */ if(u.pd11 && !S.bf && src && !u.dead && olvPocketTurn(u,fx,fy,src,fire9)) return;   /* CARD-OVF-B11 THE POCKET DOME: a round from outside the medic's circle turns on the man he mends */ if(!S.bf && src && S.cfg && S.cfg.olv==='mirror' && !u.dead && olvMirBack(u,fx,fy,src,fire9)) return; olvCrank9Hit(u,src,fire9);   /* CARD-OLV-B9 THE CRANK: a hit on a carrying M. gunner turns the crank back */   /* CARD-OLV-B2 THE BACKFIRE: a round of theirs fired through the mirror line bounces back at its shooter */   // 0906 THE FLAME BLADE: fire9 = this beat is FIRE (the same flag as hurt's — every fire caller passes 1, nothing else does)
   if(u.dead) return;
   if(u.jetT>0 || u.dropT>0) return;          // airborne (v1.39): no grit ticks mid-arc   /* AIR SPC: + the drop-in */
@@ -109065,7 +109088,7 @@ function tanHit(u,fx,fy,src,fire9){ if(hunHugSkip(u)) return;   /* CARD-HUN THE 
   if(src && src.def && src.def.slow && !(u.def&&u.def.vehicle)){
     const per=((u.tkSAurT&&!S.bf)? src.def.slow*0.5 : src.def.slow)*(megaActive()? 2 : 1);   // 0341 MEGA: the snow is more potent — 2× the weather effect per ball (the −90% cap below still rules)
     u.slowF=Math.min(src.def.slowCap||0.9, (u.slowF||0)+per*sqlSlowX(u));   /* CARD-SQL L6 THE SQUAD BOOTS: a slow stacks at a fifth */
-    u.hits += lrmSoak(u, src.def.dmg*(megaActive()? 1.2 : 1)*mgCtr(src.type,u.type)*enhSoakM(u)); u.hitT=0;   /* CARD-LRM: the radio's half point off the ball's pip too */   // 0408: the intake scalar rides the ball too (enhSoakM — plate ×0.5 / AMBUSH ×1.1)   // 0341 MEGA: +20% foe damage rides the ball too   // 0354: a snowMAN's ball lands ×1.2 on the M.GUNNER (the counter-list's pip door; the dino spitter shares the seam, never the table)
+    u.hits += dsmX(u,src)*lrmSoak(u, src.def.dmg*(megaActive()? 1.2 : 1)*mgCtr(src.type,u.type)*enhSoakM(u)); u.hitT=0;   /* CARD-LRM: the radio's half point off the ball's pip too */   // 0408: the intake scalar rides the ball too (enhSoakM — plate ×0.5 / AMBUSH ×1.1)   // 0341 MEGA: +20% foe damage rides the ball too   // 0354: a snowMAN's ball lands ×1.2 on the M.GUNNER (the counter-list's pip door; the dino spitter shares the seam, never the table)
     S.fx.push({k:'ring',x:u.x,y:u.y-22,r:4,R:20,t:0,dur:0.22,col:'rgba(255,255,255,0.9)'});
     S.fx.push({k:'puff',x:u.x,y:u.y-26,t:0,dur:0.3,R:13});
     bfSfx(SFX.thock, u.x, u.y);
@@ -109078,7 +109101,7 @@ function tanHit(u,fx,fy,src,fire9){ if(hunHugSkip(u)) return;   /* CARD-HUN THE 
   // exactly. Every other shooter and every other green man pays the whole pip.
   if(fire9 && fbU(u)){ u.fbAcc=(u.fbAcc|0)+Math.round(FB_SOAK*FB_M); if(u.fbAcc<FB_M){ fbTell(u); return; } u.fbAcc-=FB_M; }   // 0906 THE FLAME BLADE — FIREPROOF on the pip funnel: whole pips cannot be scaled, so the seven-in-ten is COUNTED — a fire beat fills the meter by 30 of 100; under 100 the beat is shrugged (the tell, no pip, no hitT reset), at 100 the meter spends it and the pip lands below as shipped — every save above kept its say first; integer, dice-free, the same on every sim; the meter lives on the unit (born 0 at every placement)
   if(u.kbMount){ kbSaddleHit(u,src,fx,fy); return; }   // 0909 THE SADDLE (⚑ Q7): mounted, every pip lands on the saddle first — his own bar waits
-  u.hits += lrmSoak(u, ((src&&src.pipN)? src.pipN*(src.dmgX||1) : ((src && src.type==='tanrifle' && u.type==='mgunner')? MG_RIFLE_RESIST : 1))*(megaActive()? 1.2 : 1)*mkcX(src) /* CARD-MKC: a hit from King Croak's side on MEGA counts x2 */*mgCtr(src&&src.type,u.type)*enhSoakM(u)*hatSoakM(u,src)*gmyWrapFireX(u,fire9));   /* CARD-LRM LARSON'S RADIO: a flat half point off every pip inside the circle */   // 0556 THE ADVENTURER'S / THE FURRY HAT: half a pip from their classes (the tan mortar's half-knock rides this same seat) · 0408 THE INTAKE SCALAR on the pip (plate ×0.5 / AMBUSH ×1.1) — the funnel's own MG_RIFLE_RESIST grammar, deterministic · 0340: a pip-stamped round (KING CROAK) lands its own weight, tier-scaled; every shipped foe reads byte-what-it-was (0341: MEGA lands +20% on every pip) (0354: + the counter-list — the tan flame's pellets land ×1.3 on the MG)
+  u.hits += dsmX(u,src)*lrmSoak(u, ((src&&src.pipN)? src.pipN*(src.dmgX||1) : ((src && src.type==='tanrifle' && u.type==='mgunner')? MG_RIFLE_RESIST : 1))*(megaActive()? 1.2 : 1)*mkcX(src) /* CARD-MKC: a hit from King Croak's side on MEGA counts x2 */*mgCtr(src&&src.type,u.type)*enhSoakM(u)*hatSoakM(u,src)*gmyWrapFireX(u,fire9));   /* CARD-LRM LARSON'S RADIO: a flat half point off every pip inside the circle */   // 0556 THE ADVENTURER'S / THE FURRY HAT: half a pip from their classes (the tan mortar's half-knock rides this same seat) · 0408 THE INTAKE SCALAR on the pip (plate ×0.5 / AMBUSH ×1.1) — the funnel's own MG_RIFLE_RESIST grammar, deterministic · 0340: a pip-stamped round (KING CROAK) lands its own weight, tier-scaled; every shipped foe reads byte-what-it-was (0341: MEGA lands +20% on every pip) (0354: + the counter-list — the tan flame's pellets land ×1.3 on the MG)
   u.hitT=0;
   if(u.type==='jane' && u.hits<gritCap(u) && jhsReady(u)) jhsFire(u,src);   /* CARD-JHS JANE'S HOOKSHOT: the FIRST pip of the battle fires it, beside her flinch stamp (a pip that fells her fires nothing) */
   if(u.type==='jane') u.jHitAt=S.t;   // 0434: her flinch pose reads THIS stamp, never hitT (the 4s regen resets hitT and would replay the flinch); presentation only — nothing in the sim reads it
@@ -110010,7 +110033,7 @@ function updateFoePounce(f,dt){
     f.hopZ=0;
     if(f.pounceSwing<=0){
       if(u.saberState==='out'&&u.saberFirstT===f) return;   // 0278l THE CHARGE ADVANTAGE (Wyatt 8/13: "he dashes in and just instantly dies") — Saber Sarge is mid-charge AT THIS foe: the charged unit cannot land its hit before his charge strike does. Held POISED at contact, swing unspent — it answers the very tick the hold lifts, if it survives the blow. Scope: only HIS charge target holds; any OTHER pouncer hits him as ever (legitimate damage, the card's own line), and ranged fire at the dash keeps v1.19's law. Order is by CONSTRUCTION — GVT.step's 1/60 quantization can never flip it.
-      if(pb.pips){ f.pipN=pb.pips; tanHit(u,f.x,f.y,f); f.pipN=0; ggShove(u,f.x,f.y-18,f,null,60); } else knock(u, f.x, f.y);   // 0947e THE POND FROG's splat = a pip + the bowl-over (a row-gated branch — every shipped pounce row keeps the knock) · UNROLLED — one roll per strike, inside the funnel (the v1.19 law)
+      if(dhtOn(f,u)) dhtHit(f,u); /* CARD-LRB (3/4): THE SPRINTER's bite = HP off his sheet, never the KO */ else if(pb.pips){ f.pipN=pb.pips; tanHit(u,f.x,f.y,f); f.pipN=0; ggShove(u,f.x,f.y-18,f,null,60); } else knock(u, f.x, f.y);   // 0947e THE POND FROG's splat = a pip + the bowl-over (a row-gated branch — every shipped pounce row keeps the knock) · UNROLLED — one roll per strike, inside the funnel (the v1.19 law)
       S.fx.push({k:'ring',x:f.x,y:f.y-14,r:6,R:44,t:0,dur:0.26,col:'#EAF4FF'});
       bfSfx(SFX.thock, f.x, f.y);
       f.pounceSwing=pb.swing;
@@ -111398,6 +111421,27 @@ function gnCasterTick(f,dt){
   if(f.gnFireCd<=0){ const gs=S.units.filter(u=>!u.dead&&!(u.jetT>0)&&!u.falling&&!(u.dropT>0)); if(gs.length){ const fx9=Math.max(...gs.map(u=>u.x)); const rear=gs.filter(u=>u.x<=fx9-3*TK_M).sort((a,b)=>a.x-b.x).slice(0,cb.fireN); f.gnRings=(rear.length? rear : gs.slice().sort((a,b)=>a.x-b.x).slice(0,1)).map(u=>({x:u.x,y:u.y})); } else f.gnRings=[{x:90,y:f.y}]; f.gnRaise=0.6; f.gnFireCd=cb.fireCd; bfSfx(SFX.rumble,f.x,f.y); return; }
   if(f.gnCurseCd<=0){ for(const u of S.units){ if(u.dead||u.type!=='sarge'||u.toadT>0||u.jetT>0||u.falling) continue; if(Math.hypot(u.x-f.x,u.y-f.y)<cb.curseR){ f.gnCurse=0.6; f.gnCurseU=u; f.gnCurseCd=cb.curseCd; foeAim(f,u); bfSfx(SFX.laser,f.x,f.y); break; } } }
 }
+// ═══ CARD-LRB (3/4) THE DINOS HIT FOR HP (Wyatt on Maker 1, 10/30/2026 ~18:00-18:30 EDT, verbatim: "Please adjust the following enemy boss damage in King Rex's lair as well. For the Sprinter, the Sprinter is no longer going to KO this in the park or in
+// this battle. Instead, the Sprinter does 15 damage on easy & in the park & 30 damage on medium, 45 damage on hard, 60 damage on mega, 65 damage on ultramega. For the pterodactyl, let's use the same numbers as the sprinter and triceratops as
+// well. It shouldn't be a complete instant kill for everybody. Same numbers. We'll keep the Boulder a KO. The Bruiser, let's use double the damage of the sprinter." and "DILOPHOSAURUS - On medium, hard let's have the damage be 50 damage per
+// second. On Ultra or higher, please set to 90 damage per second.") ═══ THE SPRINTER's bite, THE TRICERATOPS' charge, THE PTERODACTYL's dive and THE BRUISER's slam leave the one-hit KO (knock) for a hit of HP off the man's unit-sheet HP
+// (CARD-LRB 2/4's number): the hit takes D / H of his bar, so a rank-20 M. GUNNER (25 HP) bitten on EASY keeps 40 %, and a man whose sheet HP is D or less is still KO'd. The tier = the raid's (S.raid.t: every King Rex fight, any other raid that
+// fields them); everywhere else (THE DINO PARK, the campaign) reads the EASY cell (his "in the park"). THE DILOPHOSAURUS's breath: DHT_DILO HP a second paid per beat (x BR_TICK 0.5 s = 25 / 45 a beat); a 0 cell (EASY, the park) = his beat
+// as it was (one enemy pip). The stego's boulder stays a KO; THE BIG TRIKE (btrike) and every other ram, swooper, pouncer and stomper keep the knock; a machine on the rug keeps the knock's dent (one hit of its hull). A hero's sheet HP is his
+// pool (heroBfHP); a figure with no sheet takes D off its hits. The hit rides tanHit (every save keeps its say: the shields, the dome, the absorbs, the blade, the dodges, the plates) as src.pipN = D x g / H with src.dsmRaw (2/4 skipped).
+// The five tables sit in THE BOSS LAB's RULES (bone) for Raziya. DHT.on 0 = the KOs as they were.
+const DHT={ on:1, n:0, last:null };
+const DHT_SPRINTER={ e:15, m:30, h:45, g:60, u:65 }, DHT_PTERO={ e:15, m:30, h:45, g:60, u:65 }, DHT_TRIKE={ e:15, m:30, h:45, g:60, u:65 }, DHT_BRUISER={ e:30, m:60, h:90, g:120, u:130 }, DHT_DILO={ e:0, m:50, h:50, g:50, u:90 };   // HP a hit (the dilo: HP a second)
+const DHT_OF={ sdino:()=>DHT_SPRINTER, ptero:()=>DHT_PTERO, trike:()=>DHT_TRIKE, bdino:()=>DHT_BRUISER, dilo:()=>DHT_DILO };
+function dhtTier(){ const R=S.raid; return (R && R.cfg===S.cfg && R.t && 'emhgu'.indexOf(R.t)>=0)? R.t : 'e'; }   // the raid's tier; the park and the campaign read EASY
+function dhtDmg(type){ const T=DHT_OF[type]; if(!T) return 0; const v=+T()[dhtTier()]; return (v>0 && isFinite(v))? v : 0; }
+function dhtOn(f,u){ return !!(DHT.on && f && f.type!=='dilo' && DHT_OF[f.type] && !S.bf && u && !u.dead && !(u.def && u.def.vehicle) && u.hp==null && dhtDmg(f.type)>0); }   // a strike that hits for HP (a machine keeps the knock's dent)
+function dhtH(u){ const h=dsmH(u); if(h>0) return h; if(HEROES.indexOf(u.type)>=0){ try{ const hh=heroBfHP(u.type, perkRank(u)); if(hh>0) return hh; }catch(e){} } return gritCap(u); }   // his sheet HP (a hero's pool; else his hits: D comes off whole)
+function dhtHit(f,u,D,fire9,fx,fy){ if(!(D>0)) D=dhtDmg(f.type); const g=gritCap(u), H=Math.max(1e-6,dhtH(u)), p0=f.pipN, r0=f.dsmRaw;
+  f.pipN=D*g/H; f.dsmRaw=1; DHT.n++; const L=DHT.last={ t:f.type, u:u.type, id:u.id, tier:dhtTier(), D:D, H:+H.toFixed(3), g:+g.toFixed(3), pips:+f.pipN.toFixed(3), h0:+(u.hits||0).toFixed(3) };
+  tanHit(u, fx==null? f.x : fx, fy==null? f.y : fy, f, fire9? 1 : 0); f.pipN=p0||0; f.dsmRaw=r0||0; L.h1=+(u.hits||0).toFixed(3); L.dead=!!u.dead; }   // D HP off his sheet = D x g / H of his hits, through every save
+function dhtFireOn(f,u){ return !!(DHT.on && f && f.type==='dilo' && !S.bf && u && !u.dead && !(u.def && u.def.vehicle) && u.hp==null && dhtDmg('dilo')>0); }   // the dilo's beat on a tier with a number
+function dhtFireBeat(){ return dhtDmg('dilo')*BR_TICK; }   // HP a beat (50 a second x the 0.5 s beat = 25)
 function updateFoeTrike(f,dt){
   const rb=f.def.ram; if(!rb) return;
   if(!f.ramState) f.ramState='idle';
@@ -111445,7 +111489,7 @@ function updateFoeTrike(f,dt){
       if(f.ramHit[u.id]) continue;
       if(Math.hypot(u.x-f.x,u.y-f.y)<rb.lane+12){ f.ramHit[u.id]=1;
         if(f.def.jab && u.def && u.def.vehicle && !S.bf){ u.hits=gritCap(u); knockKill(u); S.fx.push({k:'puff',x:u.x,y:u.y-20,t:0,dur:0.5,R:30}); bfSfx(SFX.boom,u.x,u.y); }   // 0947b THE JEEP RULE (Wyatt): a CHARGING gnome guard destroys the vehicle on the spear (the grit-out path — the wreck stays); a marching guard is run down by the wheels (hitCheck's shipped law)
-        else knock(u,f.x,f.y); }
+        else if(dhtOn(f,u)) dhtHit(f,u); else knock(u,f.x,f.y); }   /* CARD-LRB (3/4): THE TRICERATOPS' charge = HP off his sheet; the big trike and every other ram keep the knock */
     }
     if(!f.ramHit.fr9){ const p9=petFrLane(f.x,f.y,rb.lane+12); if(p9){ f.ramHit.fr9=1; petHitAny(p9,f); } }   // 1136zz FRANCIS — THE FALL: a ram's lane runs a galloping / resting Francis down ONCE a charge (the men's own once-law, ramHit)
     if(f.ramRun<=0 || f.x<40 || f.y<FOE_TOP || f.y>FOE_BOT){ f.ramState='rest'; f.ramT=rb.rest; }
@@ -111493,7 +111537,7 @@ function updateFoeSwoop(f,dt){
       if(f.def.sting){ const st=f.def.sting; f.pipN=st.pips||1; tanHit(u,f.x,f.y,f); f.pipN=0; f.swoopSting=0.35; bfSfx(SFX.sting,f.x,f.y);   // 0947c THE STING: pips through tanHit's pipN grammar (the jab's)
         if(!u.dead && st.stun>0) u.kyHeldT=Math.max(u.kyHeldT||0, st.stun);   // STUNG: the held-man lease (no march, no gun, targetable — the shipped kyHeldT seat)
         if(!u.dead && (st.pips|0)>1 && !(u.def&&u.def.vehicle)) ggShove(u,f.x,f.y,f,null,FL_SHOVE); }   // THE HEAVY STING's bowl-over (the flappy's shove length)
-      else knock(u,f.x,f.y); }
+      else if(dhtOn(f,u)) dhtHit(f,u); else knock(u,f.x,f.y); }   /* CARD-LRB (3/4): THE PTERODACTYL's dive = HP off his sheet; every other swooper the knock */
   }
   if(wall9 || f.swoopRun<=0 || f.x<20 || f.x>W+60 || f.y<FOE_TOP-30 || f.y>FOE_BOT+30){
     f.swoopState='glide'; f.swoopCd=wb.climb/(f.bigX||1);   // 0947c a BIG wasp dives ×1.5 as often
@@ -112266,7 +112310,7 @@ function updateFoeStomp(f,dt){
       SFX.stomp(); S.shake=Math.max(S.shake,0.4);
       S.fx.push({k:'ring',x:f.x,y:f.y+6,r:10,R:f.def.stompR,t:0,dur:0.4,col:'rgba(255,210,74,0.75)'});
       S.fx.push({k:'puff',x:f.x-10,y:f.y-6,t:0,dur:0.4,R:16});
-      for(const u of S.units){ if(!u.dead && Math.hypot(u.x-f.x,u.y-f.y)<f.def.stompR) knock(u,f.x,f.y); }
+      for(const u of S.units){ if(!u.dead && Math.hypot(u.x-f.x,u.y-f.y)<f.def.stompR){ if(dhtOn(f,u)) dhtHit(f,u); else knock(u,f.x,f.y); } }   /* CARD-LRB (3/4): THE BRUISER's slam = HP off each man's sheet; any other stomper the knock */
     }
     return;
   }
@@ -113978,7 +114022,7 @@ function rxdOn(){ return rxdLair() && !rbnParty(); }   // ...in a solo fight: th
 function rexSpeaker(){ return { name:'KING REX', hex:'#E8713A', img:sprURI('kingrex', null, RXD_PORT_VB) }; }   // his own window: his face in the kings' tight crop, his name in lava orange
 function rxdUp(u){ return !!(u && !u.dead && S.units.indexOf(u)>=0 && !(u.jetT>0) && !u.falling && !(u.cloakT>0)); }   // a man he can reach right now (the hop's own filters)
 function rxdKing(){ for(const f of S.foes){ if(f.type==='kingrex' && f.boss && !f.dead) return f; } return null; }
-function rxdClutch(){ let n=0; for(const e of S.foes){ if(e.type==='eggling' && e.hatchTo && !e.dead && !e.hatched) n++; } return n; }   // his clutch's eggs still whole
+function rxdClutch(){ let n=0; for(const e of S.foes){ if(e.type==='eggling' && e.hatchTo && !e.dead && !e.hatched) n++; } return n+egsPend(); }   /* CARD-LRB (4/4): + the eggs still in the air */   // his clutch's eggs still whole
 function rxdEggFell(e,u){   // foeFell's seat: a clutch egg felled by one of your men marks him
   if(!e || !e.hatchTo || !u || S.units.indexOf(u)<0 || !rxdOn()) return;
   const q=S.raid.rxdQ||(S.raid.rxdQ=[]);
@@ -114183,9 +114227,9 @@ function rxmErupt(f){   // THE BLAST: bigger than the first, the tier's whole cl
     S.fx.push({k:'smoke',x:p[0],y:p[1]-24,t:0,dur:1.1}); S.fx.push({k:'smoke',x:p[0]+14,y:p[1]-40,t:0,dur:1.3}); S.fx.push({k:'puff',x:p[0],y:p[1]-10,t:0,dur:0.5,R:40}); } }
   S.fx.push({k:'ring',x:1000,y:330,r:20,R:320,t:0,dur:0.8,col:'#FF8A3A'}); S.fx.push({k:'ring',x:1000,y:330,r:10,R:200,t:0,dur:0.6,col:'#FFD24A'}); S.fx.push({k:'ring',x:1000,y:330,r:30,R:460,t:0,dur:1.1,col:'rgba(255,90,42,0.7)'});   // the lava bowl's own blast, three rings
   if(!prm) for(let j=0;j<10;j++){ const a=j*0.628, r=60+(j%3)*40; S.fx.push({k:'smoke',x:1000+Math.cos(a)*r,y:330+Math.sin(a)*r*0.5-20,t:0,dur:1.2+(j%3)*0.2}); S.fx.push({k:'wisp',x:1000,y:300,vx:Math.cos(a)*160,vy:Math.sin(a)*60-90,up:40,r0:3,r1:9,t:0,dur:0.9}); }
-  const n0=S.foes.length;
+  const n0=S.foes.length, egsQ0=EGS.dealt;   // CARD-LRB (4/4): the eggs this clutch deals into the air are counted as dealt
   for(const g of rows){ if(g.t==='eggling') spawnGroup(Object.assign({},g)); }   // ALL THE TIER'S CLUTCH AGAIN: the same cells, the same hatch pools, the same stagger, beat:1
-  const born=S.foes.slice(n0).filter(o=>o.type==='eggling'); eggs=born.length;
+  const born=S.foes.slice(n0).filter(o=>o.type==='eggling'); eggs=born.length+(EGS.dealt-egsQ0);   /* CARD-LRB (4/4): + the eggs dealt into the air */
   if(RXM_ER_SPOUTS) for(const g of rows){ if(g.t!=='eggling') spawnGroup(Object.assign({},g)); }
   for(const o of S.foes){ if(o.type==='eggling' && born.indexOf(o)<0) o.hatchBeat=0; }   // the first clutch's eggs never take the new clutch's line
   R.hatchAnn=0;   // the new clutch's first crack plays THE EGGS ARE HATCHING! again (updateFoeEgg's own latch)
@@ -115112,6 +115156,7 @@ function breathBurn(b){
     if(!breathHitsU(b,u)) continue;
     b.hit.set(u,b.t+BR_TICK);
     if(rexBreathPips(b.src)){ const p0=b.src.pipN; b.src.pipN=rexBreathN(b.src); tanHit(u,b.fx0,b.fy0,b.src,1); b.src.pipN=p0; }   // 0869 KING REX DEFENDS HIS LAIR: the BOSS king's beat is REX_BREATH_PIPS pips — stamped for the beat, restored after (the stomp's grammar); every save above + FIREPROOF keep their say
+    else if(dhtFireOn(b.src,u)) dhtHit(b.src,u,dhtFireBeat(),1,b.fx0,b.fy0);   /* CARD-LRB (3/4): THE DILOPHOSAURUS's beat on MEDIUM / HARD / MEGA / ULTRA = DHT_DILO HP a second x BR_TICK off his sheet (EASY and the park: the line below) */
     else tanHit(u,b.fx0,b.fy0,b.src,1);          // 0906: a FIRE beat (the flame blade's meter reads the flag) · one grit pip PER BEAT on the standard save path — every save keeps its say each beat (⚑ FIRE_PIPS: a pipN row seat is the one-line dial, NOT moved) — the dilo's tongue, byte-what-it-was
     breathTell(u);                               // 0461: the pip SHOWS now — 0462b: every beat
   }
@@ -119480,6 +119525,39 @@ function rnd9(){ return S.dq9? S.dq9() : Math.random(); }
 function kcJukeRoll(u){ let h=2166136261>>>0; const t=(S.levelN|0)+':'+(u.cid||('u'+(u.id|0)))+':'+(u.kcN|0);
   for(let i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
   return dice9(h)(); }
+// ═══ CARD-LRB (4/4) THE CLUTCH LANDS ONE EGG AT A TIME (Wyatt on Maker 1, 10/30/2026 ~18:00-18:30 EDT, verbatim: "For the King Right Rex fight, when the eggs spawn, please have them spawn sequentially, 0.2 seconds after each other. Each one
+// should spawn and be a little more cinematically great.") ═══ In a King Rex fight (rexFight) a clutch (an eggling spout group: THE LAIR ERUPTS' nests on every tier, THE LAST ERUPTION's clutch again) is dealt one egg every EGS.gap s per
+// nest (the nests side by side: a six-egg EASY nest lands in 1.2 s, a sixteen-egg nest in 3.2 s): each egg ERUPTS out of the nest's middle (a burst and a puff there) and arcs onto its cell (EGS.fall s: it swells as it rises, a warm glow, a
+// little tumble, its shadow running along the ground under it; an arc stays on the glass where a drop from above would start under the HUD over the top nest), lands with the thock and a chime
+// that climbs the clutch, a ring, dust and three embers, then squashes and bounces on the ground. Each egg is its own S.queue item on the wave's own clock (the swept-field gate and a party's sims alike; THE BRAKE lets a dealt egg through, as
+// it let the clutch through), born where and as the shipped loop births it (the cell and its jitter, foeBandY, the pool's kind in order, beat, hpX); its hatch moment stays where the clutch's stagger put it (eggHatch0 + k x hatchStep after the
+// clutch, and never sooner than EGS.minHatch after it lands), so the cracks keep their beat. rxdClutch counts the eggs still in the air (the king guards a nest that is landing). Any other spout, any egg outside a King Rex fight: the loop as it was.
+// EGS.on 0 = the clutch all at once.
+const EGS={ on:1, gap:0.2, fall:0.36, h0:46, hd:0.35, minHatch:1.5, dealt:0, chime:[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51] };   // gap = his 0.2 s; fall = the arc's time; the arc's top = h0 + hd x the hop's length (px)
+function egsWant(g){ return !!(EGS.on && g && g.f==='spout' && g.t==='eggling' && !g.egsOne && rexFight() && S.waveActive && S.mode==='play'); }
+function egsDeal(g){ const pts=g.pts||[], per=Math.max(1,g.per||1), n=pts.length*per, h0=eggHatch0(FDEF[g.t]);   // the clutch into the queue, one egg a cell, EGS.gap apart in the shipped order (cell by cell, per by per)
+  let mx=0, my=0; for(const p of pts){ mx+=p[0]; my+=p[1]; } mx/=Math.max(1,pts.length); my=foeBandY(my/Math.max(1,pts.length));   // the nest's middle: every egg of this clutch erupts from here
+  for(let i=0;i<pts.length;i++) for(let j=0;j<per;j++){ const k=i*per+j, x=pts[i][0]+(j? ((j*17)%29)-14 : 0), y=pts[i][1]+(j? ((j*11)%21)-10 : 0), d=k*EGS.gap+EGS.fall;
+    S.queue.push({ f:'spout', t:g.t, egsOne:1, egsK:k, egsN:n, x:x, y:y, at:S.waveT+d, hatchT:(g.hatchStep!=null)? Math.max(EGS.minHatch, h0+k*g.hatchStep-d) : null, hatchTo:g.hatchTo? g.hatchTo[k%g.hatchTo.length] : null, beat:g.beat? 1 : 0, hpX:g.hpX||0 });
+    S.fx.push({ k:'egsDrop', x0:mx, y0:my, x:x, y:foeBandY(y), t:-k*EGS.gap, dur:EGS.fall, spin:(((k*37)%13)-6)*0.09 }, { k:'ring', x:mx, y:my, r:4, R:28, t:-k*EGS.gap, dur:0.26, col:'#FF8A3A' }, { k:'puff', x:mx, y:my-6, t:-k*EGS.gap, dur:0.3, R:10 }); }   // the arc + the burst at the nest, born t = -k x gap (the fx law: nothing draws till its clock passes zero)
+  EGS.dealt+=n; return n; }
+function egsLand(g){ const fo=spawnFoe(g.t, g.x, foeBandY(g.y), null, false); if(!fo) return null;   // one egg lands: the shipped loop's own birth and stamps, then the landing
+  if(g.hatchT!=null) fo.hatchT=g.hatchT; if(g.hatchTo) fo.hatchTo=g.hatchTo; if(g.beat) fo.hatchBeat=1; if(g.hpX) fo.hp=fo.hpMax=Math.max(1,Math.round(fo.hpMax*g.hpX));
+  fo.egsT=S.t; const x=fo.x, y=fo.y, R=reducedMotion(), last=((g.egsK|0)===(g.egsN|0)-1);
+  S.fx.push({k:'ring',x:x,y:y,r:6,R:40,t:0,dur:0.38,col:'#FFB347'}); S.fx.push({k:'ring',x:x,y:y,r:3,R:22,t:0,dur:0.24,col:'#FFF3C4'}); S.fx.push({k:'puff',x:x,y:y-4,t:0,dur:0.32,R:12}); S.fx.push({k:'smoke',x:x,y:y-14,t:0,dur:0.6});
+  if(!R) for(let e=0;e<3;e++){ const a=-Math.PI/2+(e-1)*0.75+((((g.egsK|0)*7+e*3)%5)-2)*0.08; S.fx.push({k:'wisp',x:x,y:y-6,vx:Math.cos(a)*90,vy:Math.sin(a)*120,up:30,r0:1.5,r1:4,t:0,dur:0.5,col:'#FF8A3A'}); }   // three embers
+  bfSfx(SFX.thock, x, y); { const f0=EGS.chime[(g.egsK|0)%EGS.chime.length]; bfSfx(()=>tone(f0, f0*1.5, 0.12, 'sine', 0.035), x, y); }   // the thock as shipped + a chime that climbs the clutch
+  if(!R) S.shake=Math.max(S.shake||0, last? 0.5 : 0.1);   // a tick a landing, the shipped clutch's 0.5 on the nest's last egg
+  return fo; }
+function egsPend(){ let n=0; for(const q of (S.queue||[])) if(q.egsOne && q.hatchTo) n++; return n; }   // clutch eggs still in the air
+function egsSquash(f){ if(f.egsT==null || reducedMotion()) return null; const a=S.t-f.egsT; if(!(a>=0 && a<0.42)) return null;   // the landed egg: squash 0.09 s, then a stretch and a little bounce
+  if(a<0.09){ const q=a/0.09; return { sx:1+0.28*q, sy:1-0.3*q, lift:0 }; }
+  const q=(a-0.09)/0.33, s=Math.min(1,q*1.6), b=Math.sin(Math.PI*Math.min(1,q*1.15)); return { sx:1.28-0.28*s-0.06*b, sy:0.7+0.3*s+0.1*b, lift:10*b*(1-q) }; }
+function egsDrawDrop(e,k){ const p=Math.max(0,Math.min(1,k)), gx=e.x0+(e.x-e.x0)*p, gy=e.y0+(e.y-e.y0)*p, top=EGS.h0+EGS.hd*Math.hypot(e.x-e.x0,e.y-e.y0), hy=top*4*p*(1-p), s9=0.55+0.45*Math.min(1,p/0.45), w=((FDEF.eggling && FDEF.eggling.w)||40)*s9;   // the egg in the arc: out of the nest's middle, swelling as it rises, its shadow on the ground under it
+  cx.save(); cx.globalAlpha=0.14+0.22*(1-hy/Math.max(1,top)); cx.fillStyle='#000'; cx.beginPath(); cx.ellipse(gx,gy+4,w*0.34,4.2,0,0,7); cx.fill();
+  for(let j=1;j<=3;j++){ const q=p-0.07*j; if(q<=0) break; const hq=top*4*q*(1-q); cx.globalAlpha=0.5-0.13*j; cx.fillStyle='#FFB347'; cx.beginPath(); cx.arc(e.x0+(e.x-e.x0)*q, e.y0+(e.y-e.y0)*q-hq-w*0.4, 3.4-0.6*j, 0, 7); cx.fill(); }   // three embers trailing the arc
+  { const gx9=gx, gy9=gy-hy-w*0.42, R9=w*0.7, G9=cx.createRadialGradient(gx9,gy9,0,gx9,gy9,R9); G9.addColorStop(0,'rgba(255,190,90,0.55)'); G9.addColorStop(0.55,'rgba(255,140,50,0.22)'); G9.addColorStop(1,'rgba(255,110,40,0)'); cx.globalAlpha=1; cx.fillStyle=G9; cx.beginPath(); cx.arc(gx9,gy9,R9,0,7); cx.fill(); }   // the lava's warmth round it, soft at the edge
+  cx.globalAlpha=1; drawSprite('eggling', gx, gy-hy, w, (e.spin||0)*(1-p), 0, foeImg('eggling')); cx.restore(); }
 function spawnGroup(g,wk9){   // 0590: wk9 = an optional KEY in the wave's seat of the seed (the family's revenge births pass 'rev' — the referee's kingDown flush moves S.wave to the end while a guest's stays at the last relayed index, so the wave would split twin sims); every shipped caller passes nothing — byte-behaviour
   if(S.coop && !S.bf){ const q0=(S.foeSeq||{}); let h=2166136261>>>0;
     const t=(S.levelN|0)+':'+(wk9!=null? String(wk9) : (S.wave|0))+':'+String(g.t||'')+':'+((q0[g.t]|0)+1)+':'+String(g.f||'')+':'+String(g.e||'')+':'+(g.n|0);
@@ -119634,6 +119712,8 @@ function spawnGroup9(g){
   // set's ONE loud cue is the sweep's rumble on the same beat (the P4 mix
   // law); each mouth speaks a QUIET distance-faded thock of its own.
   if(g.f==='spout'){
+    if(g.egsOne){ egsLand(g); return; }   // CARD-LRB (4/4): one dealt egg lands (its queue item came due)
+    if(egsWant(g)){ egsDeal(g); return; }   // CARD-LRB (4/4): a King Rex clutch is dealt one egg every EGS.gap s
     const pts=g.pts||[], per=Math.max(1,g.per||1);
     for(let i=0;i<pts.length;i++){
       for(let j=0;j<per;j++){
@@ -123347,7 +123427,7 @@ function update(dt){
   if(S.waveActive){
     S.waveT+=dt;
     for(let i=S.queue.length-1;i>=0;i--){ if(S.queue[i].at<=S.waveT){
-      if(EV_SWARM_CAP>0 && S.foes.length>=EV_SWARM_CAP && evBattle()) continue;   // 0490 THE BRAKE: the field is full — this group waits its turn (0 = off: the guard never reads)
+      if(EV_SWARM_CAP>0 && S.foes.length>=EV_SWARM_CAP && evBattle() && !S.queue[i].egsOne) continue;   /* CARD-LRB (4/4): a dealt egg passes (the brake let its clutch through) */   // 0490 THE BRAKE: the field is full — this group waits its turn (0 = off: the guard never reads)
       spawnGroup(S.queue[i]); S.queue.splice(i,1); } }
     if(S.queue.length===0 && S.foes.length===0){
       S.waveActive=false;
@@ -131736,6 +131816,7 @@ function draw(){
       cx.globalAlpha=1; cx.lineCap='butt'; }
     else if(e.k==='rbblast'){ rbDrawBlast(e,k); }   // CARD-RB THE ROCKET'S BLAST
     else if(e.k==='mtrcrump'){ mtrDrawCrump(e); }   // CARD-MTR THE CRUMP
+    else if(e.k==='egsDrop'){ egsDrawDrop(e,k); }   // CARD-LRB (4/4) THE CLUTCH: an egg's arc out of the nest onto its cell
     else if(e.k==='smoke'){ cx.globalAlpha=(1-k)*0.4; cx.fillStyle='#bbb'; cx.beginPath(); cx.arc(e.x,e.y,3+5*k,0,7); cx.fill(); cx.globalAlpha=1; }
     else if(e.k==='wisp'){ // gun smoke off a muzzle: drifts with the shot, curls upward, thins out
       cx.globalAlpha=(1-k)*0.42; cx.fillStyle=e.col||'#b8b6ae';   // 0481: an optional col — powder-white for the Baker (the 0397 slug-renderer grammar; zero-byte for every other wisp)
@@ -135114,7 +135195,9 @@ function drawFoe(f){
     // (punctuation glyphs, zero l10n — the ❄-glyph law).
     const hT0=eggHatch0(f.def), hTd=(f.hatchT==null? hT0 : Math.max(0,f.hatchT));   // 0906 BOSS NUMBERS Part A: the cook ring reads the base the clock was seeded from (7.2 in the lair)
     const cook=1-hTd/hT0;
+    const egq9=egsSquash(f); if(egq9){ cx.save(); cx.translate(f.x,f.y-egq9.lift); cx.scale(egq9.sx,egq9.sy); cx.translate(-f.x,-f.y); }   // CARD-LRB (4/4): the landing's squash and bounce (0.42 s; reduced motion = none)
     drawSprite(f.type,f.x,f.y,f.def.w,0,Math.sin(S.t*(5+cook*9)+f.wob)*(0.05+0.14*cook),foeImg(f.type));
+    if(egq9) cx.restore();
     cx.font=cf('bold 15px'); cx.textAlign='center';
     cx.globalAlpha=0.5+0.3*Math.sin(S.t*3);
     cx.fillStyle='#FFF3C4'; cx.strokeStyle='rgba(20,24,16,0.8)'; cx.lineWidth=3;
@@ -206693,6 +206776,12 @@ window.GVT = {
     return { cv:GVT_CV, own:{ bunbun:decOwns('bunbun'), erniedog:decOwns('erniedog') }, nw:['bunbun','erniedog'].filter(k=>chestNew().indexOf(k)>=0), home:{ bunbun:decorHome('bunbun'), erniedog:decorHome('erniedog') }, atc:{ bun:!!document.getElementById('wbAtcBun'), ern:!!document.getElementById('wbAtcErnie') }, rows:ROOM_SPOTS.filter(r=>/^wb/.test(r.id) && r.due()).map(r=>r.id), order:['bunbun','erniedog'].map(k=>DECOR_EARN_ORDER.indexOf(k)), allN:DECOR_ALL_N, drag:['bunbun','erniedog'].map(k=>RDRAG_DECOR.indexOf(k)), seat:{ bunbun:Object.assign({},DECOR_SPOTS.bunbun), erniedog:Object.assign({},DECOR_SPOTS.erniedog) } }; },
   fztk(){ return { pair:fztPairLine(), knockBd:evKnockName('bd'), knockEv:evKnockName('ev'), kind:bdKind(), bdBell:BD.bell, evBell:EV.bell, evKing:evKing(), bdDay:evTZDay(BD.bell||0), evDay:evTZDay(EV.bell||0) }; },   // CARD-FZT-K: the rig's read
   thb(v){ v=v||{}; if(v.on!=null){ META.opt=Object.assign({}, META.opt||{}, { thb:(v.on? 1 : 0) }); saveMeta(); } return { cv:GVT_CV, on:thbOn(), frac:(S.units||[]).filter(u=>!u.dead).map(u=>+thbFrac(u).toFixed(3)) }; },   // CARD-THB: the rig's door (v.on = flip the switch) + the read (every live man's fraction)
+  lrb(v){ v=v||{}; if(v.on) for(const k in v.on){ const D={ xhp:XHP, dsm:DSM, dht:DHT, egs:EGS }[k]; if(D) D.on=v.on[k]? 1 : 0; }   // CARD-LRB's door (the rig): flip a part (v.on = {xhp, dsm, dht, egs}), read the dials, the ladders and every live man's numbers
+    const L={}; for(const k of Object.keys(XHP.per)) L[k]=[0,9,10,19,20,50,90,99,100].map(r=>[r, bfHpAt(k,r), xhpAt(k,r)]);
+    return { cv:GVT_CV, xhp:{ on:XHP.on, per:Object.assign({},XHP.per), ladder:L }, gren:UDEF.grenadier.rng, dsm:Object.assign({},DSM), hp:{ trike:FDEF.trike.hp, dilo:FDEF.dilo.hp, btrike:FDEF.btrike.hp },
+      dht:{ on:DHT.on, n:DHT.n|0, last:DHT.last, tier:dhtTier(), sprinter:Object.assign({},DHT_SPRINTER), ptero:Object.assign({},DHT_PTERO), trike:Object.assign({},DHT_TRIKE), bruiser:Object.assign({},DHT_BRUISER), dilo:Object.assign({},DHT_DILO) },
+      egs:{ on:EGS.on, gap:EGS.gap, fall:EGS.fall, dealt:EGS.dealt, pend:egsPend() },
+      men:(S.units||[]).filter(u=>!u.dead).map(u=>({ id:u.id, t:u.type, r:perkRank(u), H:+dsmH(u).toFixed(3), g:+gritCap(u).toFixed(3), x:+dsmX(u).toFixed(4), hits:+(u.hits||0).toFixed(3) })) }; },
   cbn(v){ v=v||{}; if(v.on!=null){ META.opt=Object.assign({}, META.opt||{}, { cbn:(v.on? 1 : 0) }); saveMeta(); CBN.T.clear(); CBN.L.length=0; }   // CARD-CBN: the rig's door (v.on = flip the switch) + the read
     return { cv:GVT_CV, on:cbnOn(), tracked:CBN.T.size, n:CBN.L.length, list:CBN.L.map(n=>({ txt:n.txt, col:n.col, x:Math.round(n.x), y:Math.round(n.y), t:+n.t.toFixed(3) })) }; },
   bbm(v){ v=v||{};   // CARD-BBM BUBBLE MAN: the rig's door (v.pops = set the count · v.take = own him outright, the ledger's two rows · v.out = put him out on this floor) + the read
@@ -209138,6 +209227,7 @@ const BLB_RULES=[
   ['SKY_T', ()=>SKY_T, 'THE SKY FORTRESS: hp · spd · stick · every · drop · dropEvery · open · warn · aax · rarm · aceOpen · fhp · ahp · fcd ...', 'sky'], ['SKY_RANSOM', ()=>SKY_RANSOM, 'FIRST-CLEAR STARS', 'sky'],
   ['BBS_HP', ()=>BBS_HP, "BILL'S HEALTH (flat)", 'bbs'], ['BBS_PIP', ()=>BBS_PIP, 'HIS FAN: SECONDS A PIP', 'bbs'], ['BBS_X', ()=>BBS_X, 'THE STANDING RAID COUNT x', 'bbs'], ['BBS_RIDER', ()=>BBS_RIDER, 'THE RIDERS: hpX · spdx', 'bbs'], ['BBS_GUNS', ()=>BBS_GUNS, 'BIG GUNS DUG IN', 'bbs'], ['BBS_PLANES', ()=>BBS_PLANES, 'PLANES: fighter every (s) · v2 every (s) · first (s)', 'bbs'] ];
 const BLB_TIERS=['e','m','h','g','u'];
+BLB_RULES.push(['DHT_SPRINTER', ()=>DHT_SPRINTER, 'THE SPRINTER: A BITE (HP; EASY = THE PARK TOO)', 'bone'], ['DHT_PTERO', ()=>DHT_PTERO, 'THE PTERODACTYL: A DIVE (HP)', 'bone'], ['DHT_TRIKE', ()=>DHT_TRIKE, 'THE TRICERATOPS: A CHARGE (HP)', 'bone'], ['DHT_BRUISER', ()=>DHT_BRUISER, 'THE BRUISER: A SLAM (HP)', 'bone'], ['DHT_DILO', ()=>DHT_DILO, 'THE DILOPHOSAURUS: FIRE (HP A SECOND; 0 = ONE HIT A BEAT)', 'bone']);   // CARD-LRB (3/4): the dinos' HP tables in the lab's RULES for King Rex (a changed cell is written into the live table, kept in gvt_blb, shipped value under it)
 // ---- CARD-BLP THE STOCK ARMY + SKIP THE ROOM (Wyatt on Maker 1 10/30/2026: "Skip the room, and in its place, just give him default characters that are of appropriate levels.") ----
 // THE STOCK ARMY: a lab fight is fought by a stock player at a LEVEL (Wyatt's table per fight, retypable on the page): the commander level, the campaign rung, every man's rank and every iron's rank = that one number; the men = the opening four + the rescue
 // road's men by that rung (medic 1, flame 5, sweeper 10, radio man 15, grenadier 20), the commando past campaign 50 and the spy past the lens at 30 (their own readers), the scout jeep from 20 and the heavy tank from 40; Sarge's irons by sargeDue's own
