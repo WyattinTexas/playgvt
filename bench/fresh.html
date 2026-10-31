@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.77","md5":"4f65649a70d62716e5f0aa4183f5f7c8","sha":"c3af9d6a83","at":"2026-10-31T05:45:55Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.78","md5":"39f2181626ed5966f41d1ff013c7fd8e","sha":"da1b8bbd95","at":"2026-10-31T17:02:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -7094,12 +7094,22 @@
   .sh-naband.gold { background:#241C08; border-color:#C9A43A; color:#F2C531;
     box-shadow:0 0 14px rgba(242,197,49,0.22), inset 0 0 8px rgba(0,0,0,0.4);
     text-shadow:0 0 8px rgba(242,197,49,0.35); }
+  /* ═══ CARD-NAO THE TIER CARDS FIT THE GLASS (Skylar by the jumpr guest link 10/31/2026 16:06 UTC: "when this screen pops up after an ad the
+     30 days box and forever box are cut off on the left and right side. It also lets you scroll/move the boxes which is unnecessary.";
+     jumpr 2854, Maker 1 M2854; design/no-ads-offer-fit-1031/00-CARD-NAO.md). THE CAUSE: a card's width came from its height through
+     aspect-ratio while its padding was a PERCENT OF THE ROW (0 3% 4%). WebKit (every iPhone) resolves that padding when it lays the card
+     out but not when it asks the card how wide it will be, so each card came out ~17 px wider than the row was told; the row of three
+     outgrew the pitch's card by ~30 px, and that card, a scroll box, cut the outer two and slid under a finger. Chrome never did.
+     THE FIX: one dial, --nah = the card's height (0347's clamp, byte-still); the width, the side padding and the foot padding are all
+     calc'd from it in px, so every engine declares and lays out the same box (0.0965 / 0.129 of the width = what 3% / 4% of a
+     three-card row came to in Chrome, within a pixel). .mbstar sets its own --nah (its shorter card) further down the sheet. Zero bytes
+     of the cards' ids, strings, order or renderer. ═══ */
   .sh-narow { flex:0 0 auto; display:flex; align-items:center; justify-content:center;
-    gap:clamp(8px,2vw,22px); margin-top:clamp(15px,3.2vh,20px); }   /* clears the BEST VALUE overhang */
-  .sh-nacard { position:relative; flex:0 0 auto; height:clamp(128px,50vh,250px);
-    aspect-ratio:150/190; border-radius:12px; cursor:pointer; display:flex; flex-direction:column;
+    gap:clamp(8px,2vw,22px); margin-top:clamp(15px,3.2vh,20px); max-width:100%; }   /* clears the BEST VALUE overhang */
+  .sh-nacard { position:relative; flex:0 0 auto; --nah:clamp(128px,50vh,250px); --naw:calc(var(--nah) * 150 / 190); height:var(--nah); width:var(--naw);
+    border-radius:12px; cursor:pointer; display:flex; flex-direction:column;
     align-items:center; justify-content:flex-start; gap:2%; font-family:inherit; color:#FFF;
-    padding:0 3% 4%; border:2px solid #4C6288;
+    padding:0 calc(var(--naw) * 0.0965) calc(var(--naw) * 0.129); border:2px solid #4C6288;
     background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><g fill='%23F7E9C4'><circle cx='28' cy='39' r='1.6' opacity='.85'/><circle cx='67' cy='17' r='1.1' opacity='.5'/><circle cx='244' cy='28' r='1.5' opacity='.8'/><circle cx='263' cy='84' r='1' opacity='.45'/><circle cx='17' cy='154' r='1.2' opacity='.55'/><circle cx='260' cy='179' r='1.7' opacity='.85'/><circle cx='28' cy='241' r='1.4' opacity='.7'/><circle cx='84' cy='263' r='1' opacity='.45'/><circle cx='202' cy='266' r='1.5' opacity='.75'/><circle cx='252' cy='246' r='.9' opacity='.4'/><circle cx='13' cy='92' r='.9' opacity='.4'/><circle cx='154' cy='13' r='1.2' opacity='.6'/><circle cx='118' cy='118' r='.8' opacity='.3'/><circle cx='176' cy='205' r='.9' opacity='.35'/></g><path d='M38 126l2.2 6 6 2.2-6 2.2-2.2 6-2.2-6-6-2.2 6-2.2z' fill='%23F2C531' opacity='.85'/><path d='M226 120l1.6 4.4 4.4 1.6-4.4 1.6-1.6 4.4-1.6-4.4-4.4-1.6 4.4-1.6z' fill='%23F7E9C4' opacity='.55'/></svg>") 50% 0/170px,
       linear-gradient(180deg,#2E5188 0%,#16294A 55%,#0C1830 100%);
     box-shadow:0 6px 14px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 -18px 30px rgba(6,10,24,0.55); }
@@ -7163,7 +7173,8 @@
   .nao-sky::after { content:'✦'; bottom:13%; right:11%; font-size:clamp(8px,2.2vh,15px);
     color:#F7E9C4; opacity:0.5; text-shadow:0 0 8px rgba(247,233,196,0.8); }
   .nao-card { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center;
-    max-height:100%; overflow-y:auto; }
+    max-height:100%; overflow-y:auto; max-width:100%; overflow-x:hidden; }   /* CARD-NAO: never wider than the glass, never a sideways slide (Skylar 10/31) */
+  .nao-card .sh-nacard { --nah:min(clamp(128px,50vh,250px), calc((100vw - 24px - 2 * clamp(8px,2vw,22px)) * 190 / 450)); }   /* CARD-NAO: a glass too narrow for three cards at the height's size (no phone is: the shortest, 568x320, has 146 px to spare) shrinks the three to its width: (100vw - the pitch's sides - two gaps) / 3 wide, 190/150 of that tall */
   .nao-card h1 { margin:0; font-size:clamp(13px,4.3vh,30px); letter-spacing:0.1em; color:#F7E9C4;
     text-shadow:0 0 16px rgba(242,197,49,0.5), 0 2px 0 rgba(0,0,0,0.4); }
   .nao-card small { font-weight:normal; font-size:clamp(7px,1.9vh,13px); letter-spacing:0.1em;
@@ -14809,7 +14820,7 @@ html.tfh-on #wpfly { z-index:40; }   /* CARD-TFH R2 (Wyatt on Discord 10/18/2026
   .mbstar .sh-pkstar { height:clamp(112px,34vh,190px); max-height:none; }
   .mbstar .sh-counsel { color:#A08A5A; margin:4px 0 0; }
   .mbstar .sh-nawin { width:min(100%,780px); margin:clamp(8px,1.8vh,14px) auto 0; }
-  .mbstar .sh-nacard { height:clamp(100px,30vh,170px); }
+  .mbstar .sh-nacard { --nah:clamp(100px,30vh,170px); }   /* CARD-NAO: the pop-up's shorter card turns the one dial (height, width and padding follow it) */
   .mbstar .sh-narow { margin-top:clamp(12px,2.6vh,18px); }
   .mbstar .mb-take.sp-no { margin-top:clamp(8px,2vh,14px); }
   /* ═══ PASS-PS THE PURCHASE STARS PASS (Wyatt 9/25) — E2 the head row · E3 the FOMO crates · E4 the universe ═══ */
@@ -92383,7 +92394,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.77';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.78';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
