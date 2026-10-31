@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.73","md5":"2a310597921dcad13991c8636c7771da","sha":"4296e3a000","at":"2026-10-31T04:08:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"28.74","md5":"2a61393330d9966f905557ffb052f34a","sha":"0fb0b26193","at":"2026-10-31T04:12:03Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -60275,7 +60275,7 @@ const UHB_PLATE_HPL={ commander:28 };   // CARD-HPL's commander plate at 100: hi
 // 55 + 10 = 65 · the bazooka 42 + 20 = 62 · the grenadier 44 + 10 = 54 · the flame 50 + 30 = 80 · the commando 52 + 20 = 72 · the spy 40 + 10 = 50. "Adjust people's units": the pool is worked out from the rank at every read (the sheet,
 // placeUnit's delta, a relayed ally's mr token, CARD-LRB 2/4's campaign scale), so every man already promoted wears his extra at his next fight; no save byte, no wire byte. Every other class, Sarge and the heroes read 0.
 // The grenadier's reach: UDEF's cell 150 -> 290 (+ 5 m = 5 x TK_M; BF_MOVE carries no override, so both carpets). XHP.on 0 = the book as it was.
-const XHP={ on:1, per:{ mgunner:1, bazooka:2, grenadier:1, flame:3, commando:2, spy:1 } };
+const XHP={ on:1, per:{ mgunner:1, bazooka:5, grenadier:4, flame:6, commando:5, spy:1 } };   /* CARD-HP3 THREE MORE HP A TENTH RANK (design/hp-plus3-1030/00-CARD-HP3.md; Wyatt on Maker 1, 10/30/2026 ~20:45 EDT, verbatim: "Add 3 more HP to the bazooka, the Grenadier, and the flame unit. And the commando. Every 10 levels. Pushed live."): + 3 on CARD-LRB's extra for the four (bazooka 2 -> 5 · grenadier 1 -> 4 · flame 3 -> 6 · commando 2 -> 5; the M. gunner's 1 and the spy's 1 as they were), so at rank 100 the bazooka stands 42 + 50 = 92 · the grenadier 44 + 40 = 84 · the flame 50 + 60 = 110 · the commando 52 + 50 = 102 (rank 10: 15 · 14 · 21 · 22; rank 50: 49 · 45 · 61 · 58). Read from the rank at every read like CARD-LRB's: no save byte, no wire byte; every other class as it was */
 function xhpAt(t,r){ const k=XHP.on? (XHP.per[t]|0) : 0; return k? k*Math.floor(Math.max(0,Math.min(RANK_MAX,r|0))/10) : 0; }   // the extra HP a class carries at a rank (0 below rank 10, 0 for a class without a row)
 function uhbHplAt(t,r){ const base=(BF_MOVE[t]&&BF_MOVE[t].hp)||3, o=UHB_HPL[t]; return (o==null)? base : base+Math.round((o-base)*rankUnits(r)/RANK_U_SUMMIT); }   // CARD-HPL's pool at a rank (the floor)
 function uhbRung(h9,top,r){ return Math.round(h9+(top-h9)*Math.floor(Math.max(0,Math.min(RANK_MAX,r|0))/10)/10); }   // the rung at a level: ten equal steps from the level-9 pool to the book
@@ -92383,7 +92383,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.73';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
