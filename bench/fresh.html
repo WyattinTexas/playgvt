@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.79","md5":"699ed47a0f095d3e9d08f511240b45b6","sha":"483d09d129","at":"2026-10-31T17:32:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.80","md5":"47f2878caaedbf731a5a630c9c36acb0","sha":"e2fcb03745","at":"2026-10-31T18:13:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92394,7 +92394,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.79';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.80';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -211638,6 +211638,52 @@ if(dwfOn()) try{
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.dwf=()=>({ cv:GVT_CV, on:dwfOn()? 1 : 0, n:Object.assign({},DWF.n), fit:JSON.parse(JSON.stringify(DWF.fit)), err:DWF.err, e:DWF.e, files:Object.keys(DWF_ART.files).map(k=>({ k, sha:DWF_ART.files[k].sha256.slice(0,16), n:DWF_ART.files[k].n })), old:Object.keys(DWF.old),
   frozen:(function(){ try{ return SGP_FREEZE['*'].indexOf('dwffig')>=0; }catch(e){ return null; } })(), art:{ tortoise:DSRT_ART.tortoise.length, coyote:DSRT_ART.coyote.length, bird:(function(){ try{ return wfBirdSVG().length; }catch(e){ return -1; } })(), pig:(function(){ try{ return rfPigeonsSVG(false).length; }catch(e){ return -1; } })() } }); }catch(e){} }, 0);
 // ═══ END CARD-DWF ═══
+// ═══ CARD-TPI · THE TIDE PHASES IN: EVERY TIDE DROP ON THE BATTLEFIELD'S GHOST, TWICE AS SLOW (sec:CARD-TPI; design/tide-phase-in-1031/00-CARD-TPI.md; TASK FROM WYATT'S PHONE 10/31/2026 16:43 (jumpr 2857), built on Maker 1 as M2857). Wyatt, verbatim (dictated): "In the
+// campaign, the tide logic is currently happening too fast in the animation of them coming down. Let's have them phase in twice as slow. We're really trying to make it look like it does in Battlefield when people drop units, and currently it just feels like the things
+// appear. Whether that is just an illusion or not, that needs to be accounted for. It really needs to feel like these units are phasing in when the tide logic kicks in, and that goes for the campaign or anywhere we're using tide logic throughout the game."
+// THE MEASUREMENT (eaaf3ce954, v28.77): THE TIDE's men (sec CARD-TDL, rungs 1-25 solo) were born whole by spawnFoe in tdlDrop: full colour, walking and firing from their first frame; the one motion was the computer's landing ring closing 56 -> 15 px round each in 0.55 s.
+// No ghost, no shadow, no landing: they appeared (no illusion). THE WAVE LOGIC's backups (sec CARD-WFI: the sally, the regroup, the parks' sallies) and THE TUTORIAL's rush clusters (sec CARD-APT A + B, sec CARD-BAL C, the opener on the battlefield) already came down on the
+// battlefield's own ghost, DROP_T (2 s). THE RULE: every tide drop in the game phases in on the battlefield's ghost at TPI.X (2) times the battlefield's own clock: the ghost DROP_T x 2 = 4 s, the landing ring 0.55 x 2 = 1.1 s.
+// (1) THE TIDE (tdlDrop, wrapped by name): each man of a cluster is born a ghost on the tide's clock (dropT = dropD = 4 s, standing still), painted by wfiGhost (the man hanging high and see-through, coming down with the sway while his shadow rushes up to meet him, the
+// countdown arc draining in the foe's colour, no bar); INERT, UNTARGETABLE and INVULNERABLE through the drop by CARD-WFI's own doors (the foe loop, bfCanTarget, campNearestFoe, hurt, splash, cmdoReflLand, the forms mover: each keys on dropT > 0 off the battlefield); he lands
+// by wfiFoeDrop (the thock, the white ring, the puff) and from that tick he is the wave's man as before. His ring closes in 1.1 s. (2) THE WAVE LOGIC'S BACKUPS (wfiStamp, wrapped by name): their ghost 2 -> 4 s; CARD-WFI's look and seat as they are.
+// (3) THE TUTORIAL'S RUSH CLUSTERS (aptSpawn, wrapped by name: A, B and CARD-BAL's C): placeUnit's foe road stamps DROP_T, the tide's stamp lands on top before his first step: their ghost 2 -> 4 s, their ring 1.1 s (a medic with PARA RESCUE keeps his own flare and chute).
+// (4) THE GHOST'S PICTURE (wfiGhost, wrapped by name): a man carrying his own drop length (dropD) is drawn at k = 1 - dropT/dropD, the battlefield's picture at the same fraction of the drop stretched over his length; every other ghost (each battlefield deploy) as today.
+// The battlefield's own deploys keep DROP_T (the reference); the tide's trigger, counts, pace, spots, hp, reach and purse stand. ?tpi=0 on a device (the device key gvt_tpi; ?tpi=1 back) = today byte for byte (no wrap is installed). GVT.tpi() = the rig's read and the dials
+// { on, x, tdl, wfi, apt, reset }. Zero words, zero save keys, zero server bytes, zero sw.js, zero css, zero new dice; four wraps at load, no existing line changed. TPI-Q1 the number (TPI.X) · TPI-Q2 the sallies (TPI.wfi) · TPI-Q3 the tutorial (TPI.apt).
+var TPI={ on:(function(){ try{ const q=/[?&]tpi=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tpi','0'); else localStorage.removeItem('gvt_tpi'); } return localStorage.getItem('gvt_tpi')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  X:2, tdl:1, wfi:1, apt:1, RING:0.55, n:{ tdl:0, wfi:0, apt:0, ring:0 }, log:[], old:{}, err:0 };   // X = the tide's drop over the battlefield's (twice as slow) · tdl / wfi / apt = the three roads (TPI-Q2, Q3) · RING = the landing ring's battlefield length · n = the men stamped per road + the rings slowed
+function tpiOn(){ return TPI.on===1; }
+function tpiT(){ return DROP_T*TPI.X; }   // the tide's drop: the battlefield's DROP_T (2 s) x TPI.X (2) = 4 s
+function tpiStamp(o, road){ const T=tpiT(); if(!o || !(T>0)) return;   // a ghost on the tide's clock (dropD = his drop's whole length: the picture reads it)
+  o.dropT=T; o.dropD=T; if(road!=='apt'){ o.vx=0; o.vy=0; }
+  TPI.n[road]=(TPI.n[road]|0)+1; if(TPI.log.length<200) TPI.log.push({ t:+(S.t||0).toFixed(3), road, id:o.id, type:o.type, x:Math.round(o.x), y:Math.round(o.y), T }); }   // the rig's log (product-inert)
+function tpiRings(n0){ const d=TPI.RING*TPI.X; for(let j=n0;j<S.fx.length;j++){ const e=S.fx[j]; if(e && e.k==='ring' && e.r===56 && e.R===15 && e.dur===TPI.RING && !(e.t>0)){ e.dur=d; TPI.n.ring++; } } }   // the landing rings this drop just pushed (the computer's: r 56 -> 15 in 0.55 s) close at the tide's pace
+function tpiRig(o){ o=o||{}; if(o.on!==undefined) TPI.on=o.on? 1 : 0; if(o.x!=null && +o.x>0) TPI.X=+o.x; for(const k of ['tdl','wfi','apt']) if(o[k]!==undefined) TPI[k]=o[k]? 1 : 0;   // the rig door: { on } flips the gate (the wraps stand as loaded), { x } the dial, { tdl, wfi, apt } the roads
+  if(o.reset){ TPI.n={ tdl:0, wfi:0, apt:0, ring:0 }; TPI.log=[]; }
+  const g=[]; for(const f of (S.foes||[])) if(f && f.dropT>0) g.push({ foe:1, id:f.id, type:f.type, x:Math.round(f.x), y:Math.round(f.y), dropT:+f.dropT.toFixed(4), dropD:f.dropD||null, tdl:f.tdl? 1 : 0 });
+  for(const u of (S.units||[])) if(u && u.dropT>0) g.push({ foe:0, side:u.side||null, id:u.id, type:u.type, x:Math.round(u.x), y:Math.round(u.y), dropT:+u.dropT.toFixed(4), dropD:u.dropD||null });
+  return { cv:GVT_CV, on:TPI.on, live:tpiOn(), X:TPI.X, T:tpiT(), DROP_T:DROP_T, ring:+(TPI.RING*TPI.X).toFixed(3), tdl:TPI.tdl, wfi:TPI.wfi, apt:TPI.apt, n:Object.assign({}, TPI.n), ghosts:g, log:TPI.log.slice(), err:TPI.err, wraps:Object.keys(TPI.old) }; }
+if(tpiOn()) try{
+  if(typeof tdlDrop==='function'){ TPI.old.tdlDrop=tdlDrop;   // (1) THE TIDE: the cluster's men are born ghosts on the tide's clock (the wrap rides tdlPush's and tdlPend's own calls by name)
+    tdlDrop=function(w, i){ const n0=S.fx.length, out=TPI.old.tdlDrop.apply(this, arguments);
+      try{ if(tpiOn() && TPI.tdl && out && out.length){ for(const f of out) tpiStamp(f, 'tdl'); tpiRings(n0); } }catch(e){ TPI.err++; }
+      return out; }; }
+  if(typeof wfiStamp==='function'){ TPI.old.wfiStamp=wfiStamp;   // (2) THE WAVE LOGIC'S BACKUPS: spawnGroup9's stamp, then the tide's clock on top
+    wfiStamp=function(f){ TPI.old.wfiStamp.apply(this, arguments); try{ if(tpiOn() && TPI.wfi) tpiStamp(f, 'wfi'); }catch(e){ TPI.err++; } }; }
+  if(typeof aptSpawn==='function'){ TPI.old.aptSpawn=aptSpawn;   // (3) THE TUTORIAL'S RUSH CLUSTERS: the men placeUnit just stood on the Tan's side, still on DROP_T, take the tide's clock (CARD-BAL's C rides the same door by name)
+    aptSpawn=function(bf, A, w){ const n0=S.fx.length, u0=S.units.length, r=TPI.old.aptSpawn.apply(this, arguments);
+      try{ if(tpiOn() && TPI.apt){ const me=bfMyTeam(); let k=0;
+        for(let j=u0;j<S.units.length;j++){ const u=S.units[j]; if(!u || u.dead || u.side===me || u.dropT!==DROP_T) continue; if(u.type==='medic' && typeof enhU==='function' && enhU(u,'pararescue')) continue; tpiStamp(u, 'apt'); k++; }
+        if(k) tpiRings(n0); } }catch(e){ TPI.err++; }
+      return r; }; }
+  if(typeof wfiGhost==='function'){ TPI.old.wfiGhost=wfiGhost;   // (4) THE GHOST'S PICTURE: a man on his own drop length is drawn at the same fraction of HIS drop (the battlefield's k), every other ghost as today
+    wfiGhost=function(o, w, im, flip, col){ const D=o && o.dropD; if(!(D>0) || D===DROP_T || !(o.dropT>0)) return TPI.old.wfiGhost.apply(this, arguments);
+      const t=o.dropT; o.dropT=Math.min(D, t)*DROP_T/D;
+      try{ return TPI.old.wfiGhost.apply(this, arguments); } finally{ o.dropT=t; } }; }
+}catch(e){ TPI.err++; }
+if(window.GVT && !GVT.tpi) GVT.tpi=tpiRig;
+// ═══ END CARD-TPI ═══
 // ═══ CARD-KYF KING YETI'S FIELD: THE THIRD TURRET, BOTH GUNS FAST, THE POKE, THE SNOWBALL (Wyatt by phone, jumpr remote 2855, sent 10/31/2026 16:16 UTC; built on Maker 1 as M2855; design/king-yeti-field-1031/00-CARD-KYF.md) ═══
 // HIS WORDS (Wispr Flow, verbatim): "We're looking to make the following changes to the King Yeti fight: easy, medium, hard, and, of course, mega. ... the turrets are just going to fire fast now for both players, the player and the enemy.
 //   The enemy turret is going to clean up riflemen really quickly. For heavier units, like bazooka, flame, or any commando, they're going to take not only reduced damage, but it should really only feel like a poke to them, maybe 5
