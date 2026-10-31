@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.74","md5":"2a61393330d9966f905557ffb052f34a","sha":"0fb0b26193","at":"2026-10-31T04:12:00Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.75","md5":"1245906be915de15c78894e4342e81f2","sha":"a5e827d063","at":"2026-10-31T04:24:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92383,7 +92383,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -206270,6 +206270,60 @@ function bnfRead(o){ o=o||{}; if(o.on!=null) BNF.on=o.on? 1 : 0; if(o.reset){ fo
     wraps:Object.assign({}, BNF.wraps) }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bnf) GVT.bnf=function(o){ return bnfRead(o); }; }catch(e){} }, 0);
 // ═══ END CARD-BNF ═══
+// ═══ CARD-BFE BILL'S FALL ENDS THE FIGHT FOR THE WHOLE ROOM: ONE BILL ON EVERY GLASS (sec:CARD-BFE; design/bill-fall-ends-1030/00-CARD-BFE.md; Maker 1's M2849 on air/m1-2849, 10/30/2026;
+// WYATT by phone 10/30/2026 22:39 EDT (jumpr 2849, dictated, verbatim): "After defeating Buffalo Bill on his horse, it looked like he was defeated. He ran out of health. He was gone, but the troops kept
+// coming. What should have happened is that it should have ended, and we should have been awarded victory. Instead, we fought a few extra waves. A minute went by. Waves just kept coming, and we eventually lost.")
+// THE CAUSE (the live box's log of his room FC5UB, the 22:30 encore, read in mode=ro): two commanders, Hugh Jass the referee (seat 0) and Zorgy Bababa (seat 1, the glass of his screenshot: the tray in
+//   its tan dye). Every glass plays Bill's bar on its own dice (0559 A, MY KILL IS MY KILL: a guest's own zero fells a foe at once there, the referee's late fd is a receipt), but THE ROOM'S VERDICT IS THE
+//   REFEREE'S: the box, the pour, the win door (raidTick's kingDown flush reads sqRef()). His glass emptied the horse's bar and threw Bill; the referee's never did: no fd for bbshow in the room's last 1,600
+//   words, the referee's horse mind (bbm) spoke to the end, its waves rolled on (sqw 38..44), the box fell at 22:37:28 (end lose). His loss line read his glass's last frame before Bill left it (1 % = otsp2Line's floor).
+// THE FIX: THE FASTEST GLASS LEADS AT BILL'S TWO EDGES. Two words on the wire, relayed opaque by the server (its CMD_KEYS k, n, id, x, y: zero server bytes):
+//   1 THE TURN {k:'bbx', n:1}: the glass whose own dice empty Bill's FIRST bar (C3's bbsMount from hitCheck) says it once; every glass that hears it with Bill still on foot mounts him there (bbsMount by
+//     name, every wrap on it: the knee, the whistle, the horse, the horse's half bar). One phase on every glass, so the referee's horse mind (bbm) drives every horse from the same second.
+//   2 THE FALL {k:'bbx', n:2}: a GUEST whose own dice empty the HORSE's bar (Bill thrown on its glass, foeFell) says it once; the REFEREE that hears it with Bill turned fells its own Bill through the
+//     referee's word door (evKillByWord: fdBless, the one death door): kingDown, the pour flushed, the win door, the verdict on every glass. The referee's own fall already speaks fd (0313a).
+//   A guest that hears n:2 waits for the referee's fd (the verdict is his). No Bill standing = no act (a late glass; a lobby's log starts empty at each deploy). Solo and one-human rooms say nothing.
+// THE SWITCH: BFE_LIVE 1; ?bfe=0 on a device = the room as it was (gvt_bfe), ?bfe=1 clears it. GVT.bfe() the rigs' read. Zero server, sw.js, CSS, save keys, words on screen.
+const BFE_LIVE=1;
+const BFE={ on:(function(){ try{ const q=/[?&]bfe=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bfe','0'); else localStorage.removeItem('gvt_bfe'); } return localStorage.getItem('gvt_bfe')==='0'? 0 : BFE_LIVE; }catch(e){ return BFE_LIVE; } })(),
+  hear:0, stats:{ said1:0, said2:0, heard1:0, heard2:0, mounted:0, felled:0, waited:0, idle:0, errs:0 }, err:null, last:null };
+function bfeOn(){ return !!(BFE.on && !S.bf && bbsOn()); }
+function bfeParty(){ return !!(S.coop && COOP && !COOP.ended && !COOP.watch && coopHumans()>=2); }   // a second human glass in the room to hear the word (coopSend is a no-op for a watcher)
+function bfeTurned(f){ return !!(f && (f.bbsRide || (f.bbs && (f.bbs.st==='mount' || f.bbs.st==='ride')))); }   // on the horse, or mounting it
+function bfeErr(e){ BFE.stats.errs++; BFE.err=String((e && e.message) || e).slice(0,200); }
+function bfeSay(n,f){ const cm={ k:'bbx', n:n|0, id:(f && (f.foN|0)) || 0 }; if(f){ cm.x=Math.round(f.x); cm.y=Math.round(f.y); }
+  coopSend(cm); BFE.stats[n===1? 'said1' : 'said2']++; BFE.last={ said:n|0, t:+S.t.toFixed(2), ref:sqRef()? 1 : 0 }; }
+function bfeHear(cm){ try{
+  if(!bfeOn() || !S.coop || !COOP || COOP.ended || S.mode!=='play'){ BFE.stats.idle++; return; }
+  const rd=S.raid; if(rd.won || rd.kingDown || S.cleared){ BFE.stats.idle++; return; }
+  const n=cm.n|0, bill=bbsBill();
+  if(n===1){ BFE.stats.heard1++;   // THE TURN: Bill on foot here mounts now
+    if(!bill){ BFE.stats.idle++; return; }
+    rd.bfeTurn=1; if(bfeTurned(bill)) return;
+    BFE.hear=1; try{ bbsMount(bill,null); }finally{ BFE.hear=0; }
+    BFE.stats.mounted++; BFE.last={ heard:1, t:+S.t.toFixed(2), from:String(cm.p==null? '' : cm.p) }; return; }
+  if(n===2){ BFE.stats.heard2++;   // THE FALL: the referee fells his Bill; a guest waits for the referee's fd
+    if(!sqRef()){ BFE.stats.waited++; return; }
+    if(!bill || !bfeTurned(bill)){ BFE.stats.idle++; return; }
+    rd.bfeFall=1; evKillByWord(bill);
+    BFE.stats.felled++; BFE.last={ heard:2, t:+S.t.toFixed(2), from:String(cm.p==null? '' : cm.p) }; return; }
+  BFE.stats.idle++;
+}catch(e){ bfeErr(e); } }
+{ const m0=bbsMount; bbsMount=function(f,u){ const was=bfeTurned(f); const r=m0.apply(this, arguments);   // C3's turn wrapped by name (hitCheck calls bbsMount by name): a mount by this glass's own dice says THE TURN
+  try{ const rd=S.raid; if(!BFE.hear && !was && bfeOn() && f && f.type==='bbshow' && bfeTurned(f) && !rd.bfeTurn){ rd.bfeTurn=1; if(bfeParty()) bfeSay(1,f); } }catch(e){ bfeErr(e); }
+  return r; }; }
+{ const f0=foeFell; foeFell=function(f,u){ let go=false;   // the one death door wrapped by name: a GUEST's own dice through the horse's bar says THE FALL (never the referee's fd: fdBless)
+  try{ go=!!(bfeOn() && f && f.type==='bbshow' && !f.fdBless && bfeTurned(f) && S.foes.indexOf(f)>=0 && coopGuest() && bfeParty() && !S.raid.bfeFall); }catch(e){ bfeErr(e); }
+  const r=f0.apply(this, arguments);
+  if(go){ try{ S.raid.bfeFall=1; bfeSay(2,f); }catch(e){ bfeErr(e); } }
+  return r; }; }
+{ const ca0=coopApply; coopApply=function(cm){ if(cm && cm.k==='bbx'){ bfeHear(cm); return; } return ca0.apply(this, arguments); }; }   // the word's door (the poll's loop and the live wire both dispatch through coopApply; my own echo is skipped before it)
+function bfeRead(){ const b=bbsBill(), rd=S.raid;
+  return { on:BFE.on, live:BFE_LIVE, active:bfeOn()? 1 : 0, party:bfeParty()? 1 : 0, ref:sqRef()? 1 : 0, guest:coopGuest()? 1 : 0, turn:(rd && rd.bfeTurn)? 1 : 0, fall:(rd && rd.bfeFall)? 1 : 0,
+    bill:b? { st:b.bbs? b.bbs.st : null, ride:b.bbsRide|0, hp:Math.round(b.hp), max:b.hpMax, foN:b.foN|0 } : null, won:!!(rd && rd.won), kingDown:!!(rd && rd.kingDown), mode:S.mode,
+    stats:Object.assign({}, BFE.stats), last:BFE.last? Object.assign({}, BFE.last) : null, err:BFE.err }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bfe) GVT.bfe=function(){ return bfeRead(); }; }catch(e){} }, 0);   // GVT.bfe(): the rigs' door
+// ═══ END CARD-BFE ═══
 // ═══ CARD-NCL · THE PIRATE COVE STAYS OUT OF THE CAPTAIN'S LOG (sec:CARD-NCL; design/no-cove-log-1023/00-CARD-NCL.md; Maker 1's M2595 on air/m1-2595, 10/23/2026). WYATT by phone (jumpr 2595, 10/23/2026 03:51 EDT, dictated, verbatim: "Do not show the pirate's cove in the captain's log."). ═══
 // THE LAW: the Captain's Log never shows THE PIRATE COVE: no book on the shelf, no spread, no page in the turn order, no token on the Known World. CARD-LBW-B's lbwbBook writes the cove's row into LG_CH, LG_PAGES, SLB.ORDER + SLB.PG and its seats into LG3_TOK / LG_SEATS at the join (the boot with META.pirate, the code typed at the counter, the rig's door). This section takes those rows OUT: once here at load (every section above has run by now, the boot's own join included), and again at every paint of a page of the Log (lgPageHTML re-pointed by name: a join made while the game runs, or a later card's token, never shows), and lbwbBook is re-pointed by name to a no-op so no later join writes them back.
 // WHAT STANDS: everything of the cove outside the Log. The code PIRATE, the pond and the bottle, the deed, the ship and the pill TO THE COVE, THE SUNKEN SHIP's row (RAID_INFO.wreck) with its lobby wordmark THE PIRATE COVE, the fight, the ledger, the four prizes' rows in their own tables, the king's name row: not a byte of them is touched; the cove stays playable, it is only out of the book. LG3_NAME.wreck, LG3_THRONE.wreck and LG3_MENU.wreck stay in their tables too: keyed lookups no page of the Log reaches without the row (CARD-LBW-B's rig door still reads them).
