@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.80","md5":"47f2878caaedbf731a5a630c9c36acb0","sha":"e2fcb03745","at":"2026-10-31T18:13:13Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"28.81","md5":"15c2c435f8389c95e3c3d692d642c9a9","sha":"b0884a268b","at":"2026-10-31T18:20:22Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92394,7 +92394,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.80';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.81';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -211701,7 +211701,7 @@ if(window.GVT && !GVT.tpi) GVT.tpi=tpiRig;
 //  4 THE SNOWBALL SPARES THE HEAVIES: Sergeant Snowman's rolling snowball (phase 2) KOs a light man as before; a heavy takes KYF_BALLX of his bar through tanHit, is shoved along the roll, and stands. The rest of THAT volley
 //    rolls through him (KYF_BALL_GRACE: the fan's neighbour balls land a beat apart); the next volley can fell a heavy still hurt from the last.
 //  5 THE SNOWBALL SETS OFF MINES: the Sergeant's rolling snowball trips every armed charge of yours it reaches (the boot's own reach: 52 a sapper's charge, 76 a big banger, 26 a jack), the charge's own blast on the yetis (the trip
-//    loop's own splash, its owner credited) and NEVER on your men (THEIR ball set it off: the castle's kamikaze law, 'a gift must not backfire'; measured with the campaign's friendly fire on: 155 of your men in 9 fights), and the
+//    loop's own splash, its owner credited) and, since Wyatt's 10/31 14:04 word "Full blast with friendly fire" (KYF_MINE_FF 1), on your men too, the campaign's own friendly fire (the 12:58 build hid your men from that one blast, 'a gift must not backfire', 155 of your men in 9 fights with it on; he chose the full blast), and the
 //    ball bursts in it (spent: a minefield is a wall against the snowballs).
 // THE HOOKS (five one-line hunks, each reads kyfOn() first so the castle without this sec is byte-behaviour): raidTick's fire gate (kyfFire), the crush's two picks (!P.kyfHome), gboulTick's men loop (kyfBall before the knock), gboulTick's
 //   step (kyfBallMine before the roll's hits). THE SWITCH: KYF_LIVE 1; ?kyf=0 on a device = the castle as it was (gvt_kyf), ?kyf=1 clears it. GVT.kyf() the rigs' read. Zero server, sw.js, CSS, save keys, words on screen.
@@ -211718,6 +211718,7 @@ const KYF_BALL_GRACE=1.0;                                 // seconds a heavy the
 const KYF_BIG={ byeti:1, sgtcold:1, sgtsnow:1, kingyeti:1 };   // "the big ones" (+ any boss on the castle's rug)
 const KYF_HEAVY={ bazooka:1, grenadier:1, flame:1, commando:1 };   // "heavier units, like bazooka, flame, or any commando" + the grenadier (CARD-HP3's four: KYF-Q3)
 const KYF_CUE=1.0;                                        // a post's laser cue: at most one a second
+const KYF_MINE_FF=1;                                      // the snowball-tripped charge's blast: 1 = the FULL blast, your men included, the campaign's own friendly fire (Wyatt by Discord 10/31/2026 14:04 EDT: "Full blast with friendly fire"); 0 = the yetis only (the 12:58 build)
 const KYF={ on:(function(){ try{ const q=/[?&]kyf=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_kyf','0'); else localStorage.removeItem('gvt_kyf'); } return localStorage.getItem('gvt_kyf')==='0'? 0 : KYF_LIVE; }catch(e){ return KYF_LIVE; } })(),
   n:{ mint:0, bursts:0, gR:0, gBig:0, yR:0, yHeavy:0, yKO:0, ball:0, ballKO:0, graced:0, mine:0, burst:0 }, err:0, e:'' };
 function kyfOn(){ try{ const R=S.raid; return !!(KYF.on && R && R.k==='ice' && R.cfg===S.cfg && KYF_TIERS[R.t] && !S.bf); }catch(e){ return false; } }   // safe before this sec runs (the TDZ caught)
@@ -211768,7 +211769,7 @@ function kyfBallMine(B){
     S.mines.splice(i,1); hit=true; KYF.n.mine++;
     if(mn.jx) jaxPop(mn.x,mn.y);
     const src=S.units.find(u=>u.id===mn.owner && !u.dead) || (mn.jx? {side:mn.side,seat:mn.seat} : null), U=S.units;
-    S.units=[]; MN_BOOM++; try{ splash(mn.x,mn.y, mn.big? MINE_BLAST*ENH_MINE_R : MINE_BLAST, 3*(mn.sl? SOUL_MUL : 1), false, src, !!mn.big); } finally{ MN_BOOM--; S.units=U; }   // the trip loop's own blast, its owner credited; splash's last loop (the friendly fire) finds none of your men
+    if(!KYF_MINE_FF) S.units=[]; MN_BOOM++; try{ splash(mn.x,mn.y, mn.big? MINE_BLAST*ENH_MINE_R : MINE_BLAST, 3*(mn.sl? SOUL_MUL : 1), false, src, !!mn.big); } finally{ MN_BOOM--; S.units=U; }   // the trip loop's own blast, its owner credited; KYF_MINE_FF 1 (Wyatt 10/31 14:04): splash's last loop finds your men too, the full blast; 0: your men hidden from that one call (the 12:58 build's yetis-only blast)
   }
   if(hit){ B.run=0; KYF.n.burst++; }   // the ball bursts in the blast (gboulTick's crumble: the puff, the ring, the thock)
   return hit; }
