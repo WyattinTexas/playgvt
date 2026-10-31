@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.68","md5":"94162b964535d82afaee6a070a3c7543","sha":"1591d96504","at":"2026-10-31T03:32:44Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"28.69","md5":"b348529339817f3bc6ce659795549eb0","sha":"7d75d386e7","at":"2026-10-31T03:36:40Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80410,7 +80410,7 @@ function chsNemMint(key){ if(IMGU[key] && IMGU[key].chs5) return IMGU[key].sarge
   art=String(art).split('currentColor').join(hex).split('BLADEHEX').join(CHS_NM.bladeHex)+chsNemBootsSVG();
   const im=new Image(); im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140">'+art+'</svg>'); const B=IMGU[key]||(IMGU[key]={}); Object.defineProperty(B,'sarge',{ get:()=>im, set:()=>{}, configurable:true, enumerable:true }); B.chs5=1; return im; }   // the seat is pinned: buildUnitTint's own late decode (nem200Born's call) cannot put the plain mold back over him
 function chsVeilSet(a){ if(!CHS_VEIL){ CHS_VEIL=document.createElement('div'); CHS_VEIL.id='chsVeil'; CHS_VEIL.style.cssText='position:fixed;inset:0;background:#000;pointer-events:none;z-index:40;opacity:0;transition:opacity 0.1s linear'; document.body.appendChild(CHS_VEIL); } CHS_VEIL.style.opacity=String(Math.max(0,Math.min(1,a||0))); }   // THE LIGHTS DIP: a veil over the whole glass (the 230 LIGHTS OUT read), pointer-free
-function chsNemCrit(){ const r=(META.up && META.up.sarge)|0; return Math.min(0.75, CRIT_SCALE*Math.min(0.75, 0.05*rankUnitsFast(r)) + CHS_NB_CRIT + IB_CRIT); }   // his crit: Sarge's own ladder at the player's Sarge rank (the mirror, nemesisLineup's grammar) + NEMESIS BOOTS + THE ICE BLADE, under Sarge's 0.75 ceiling
+function chsNemCrit(){ const r=(META.up && META.up.sarge)|0; return Math.min(0.75, sgCritAt(r) + CHS_NB_CRIT + IB_CRIT); }   /* CARD-SCR: Sarge's new line (was CRIT_SCALE x min(0.75, 0.05 x rankUnitsFast)) */   // his crit: Sarge's own ladder at the player's Sarge rank (the mirror, nemesisLineup's grammar) + NEMESIS BOOTS + THE ICE BLADE, under Sarge's 0.75 ceiling
 function chsNemPips(src,u){ const N=src.chsNm; if(!N || src.chsBackT) return; let p=(src.pipN>0)? src.pipN : 1; N.hits++;   // tanHit's head: every pip hit of his (the dash-slash's cuts, the tornado, a crystal's pip) rolls the crit; a reflected pip never does
   if(N.firstCut){ N.firstCut=0; p*=RFC.cut.x; S.floats.push({x:u.x,y:u.y-84,txt:t(RFC_WORD.green[0]),t:0,col:tkHexOf('green')}); }   // GREEN a THE FIRST CUT: the first hit out of the cloak x3
   if(Math.random()<chsNemCrit()){ p*=CRIT_MULT*(1+IB_CRITDMG); N.crits++; S.floats.push({x:u.x,y:u.y-70,txt:'CRIT!',t:0,col:CHS_NM.bladeHex}); }
@@ -92323,7 +92323,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='28.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='28.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -105344,6 +105344,14 @@ const CRIT_UNIT_MAX=0.20;
 // the field manual quotes the base odds as "one shot in N" — N comes off the
 // same knob (the v1.29 law), so the prose cannot drift from the mechanic
 const CRIT_ONE_IN=Math.round(1/(0.05*CRIT_SCALE));
+// ═══ CARD-SCR SARGE'S CRIT CURVE (design/sarge-crit-1030/00-CARD-SCR.md; Wyatt on Maker 1, 10/30/2026 ~22:00 EDT, verbatim: "For Sarge, please lower his crit chance to a base 18% at level 100. At level 15, he'll have 10%.
+// At level 10, he has 5%, and scale it up from there. Connect the tissue there.") ═══ His base odds are a line through his three points on the RAW rank of the iron in his hands (sw.r, as before): 0 % at rank 0, 5 % at 10,
+// 10 % at 15, 18 % at 100, straight between the points and flat past 100 (the 7/25 fast taper and the 7/28 x0.92 no longer touch him: the numbers he gave ARE the odds). Gear still adds on top as before (the orange beam, the monocle,
+// the belt, the chest, the boots, the blade, the cutlass, GO TIME, the ring, the disco's x2) under his 0.75 ceiling; THE SHARP EYE after it. The Nemesis's mirror (chsNemCrit) and the rig door GVT.curve read the same line.
+// The trigger-men and the spy keep their own ladder under THE 20% LAW. SCR.on 0 = the old law (0.92 x min(0.75, 0.05 x rankUnitsFast)).
+const SCR={ on:1, knots:[[0,0],[10,0.05],[15,0.10],[100,0.18]] };
+function sgCritAt(r){ r=Math.max(0,Math.min(RANK_MAX,+r||0)); if(!SCR.on) return CRIT_SCALE*Math.min(0.75, 0.05*rankUnitsFast(r|0)); const K=SCR.knots; if(r>=K[K.length-1][0]) return K[K.length-1][1];
+  for(let i=1;i<K.length;i++){ if(r<=K[i][0]){ const a=K[i-1], b=K[i]; return a[1]+(b[1]-a[1])*(r-a[0])/(b[0]-a[0]); } } return K[0][1]; }   // Sarge's base crit at a rank: the line through his knots (no scale, no gear)
 function critChance(u,tgt){   // CARD-OCR-B5: + the optional target (the fire site's man): every old caller unchanged
   // v2.36 THE ORANGE BEAM/CRYSTAL: +1 point of crit odds, added after the
   // scale and capped with everything else. Crit stays the trigger-men's and
@@ -105356,7 +105364,7 @@ function critChance(u,tgt){   // CARD-OCR-B5: + the optional target (the fire si
   // flat 5-point base comes OFF both formulas — rank 0 crits nothing now
   // (the BF AI's stock seats included), and every rank buys back what it
   // always did. The orange beam's +1 point below is gear, not base — kept.
-  if(u.type==='sarge'){ sw=unitSargeStats(u); c=CRIT_SCALE*Math.min(0.75, 0.05*rankUnitsFast(sw.r||0)); }
+  if(u.type==='sarge'){ sw=unitSargeStats(u); c=sgCritAt(sw.r||0); }   /* CARD-SCR: his base odds off the line through Wyatt's three points (was CRIT_SCALE x min(0.75, 0.05 x rankUnitsFast)) */
   else if(u.type!=='rifleman' && u.type!=='mgunner' && u.type!=='spy') return 0;   // 0243: the spy joins the crit club — the silenced round learns the seam
   else { const r=(S.bf && !bfHumanU(u))? ((((S.bf.nem&&(S.bf.nem.park||S.bf.nem.bank))||S.bf.away||S.bf.hard)&&u.side==='foe'&&u.nrk!=null)? u.nrk : 0) : (META.up[u.type]||0); c=CRIT_SCALE*((u.type==='spy'?SPY_CRIT_RANK:0.01)*rankUnits(r)); }   // 0243: spy at half slope; 0305 BF-03 (D10) + 0346: an ambush's foe ranks reach crit too; 0418: the hard army's promoted nrk too (the blanket brass)
   if(lzOf(u)==='orange') c+=LZ_CRIT;
@@ -208228,7 +208236,7 @@ window.GVT = {
     const u=rankUnits(r), f=rankUnitsFast(r), keep=[META.sargeWeapon].concat(SARGE_ORDER.map(w=>META.sargeUp[w]));
     const at=w=>{ META.sargeWeapon=w; META.sargeUp[w]=r; return sargeStats(); };
     const out={ rank:r, units:+u.toFixed(3), unitsFast:+f.toFixed(3), dmgMul:+(1+0.1*u).toFixed(3),
-      critTrigger:+(CRIT_SCALE*(0.05+0.01*u)).toFixed(4), critSarge:+(CRIT_SCALE*Math.min(0.75,0.05+0.05*f)).toFixed(4),
+      critTrigger:+(CRIT_SCALE*(0.05+0.01*u)).toFixed(4), critSarge:+sgCritAt(r).toFixed(4) /* CARD-SCR: the line (the door carried a stale +5 base) */,
       pistolRate:+pistolRate(r).toFixed(4),
       shotgun:at('shotgun'), sniper:at('sniper'), saber:at('lightsaber') };
     META.sargeWeapon=keep[0];
