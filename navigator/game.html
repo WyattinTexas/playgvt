@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"29.03","md5":"f66085a9d671b1ae96b4c031222c017a","sha":"7d4fbc6ba9","at":"2026-11-01T22:34:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"29.04","md5":"2b2b1819a9e4a3a9f8cceb40db119fdc","sha":"f959eec6db","at":"2026-11-01T22:38:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92438,7 +92438,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='29.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='29.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -163063,13 +163063,26 @@ function maxPost(m){ try{ webkit.messageHandlers.gvtAds.postMessage(m); MAXA.log
 var BDAY_ASK=(function(){ try{ return /[?&]bday=1(?:&|$)/.test(location.search||''); }catch(e){ return false; } })();   // THE SWITCH (a var, SIPL's grammar): ?bday=1 = the question as shipped (HEAD's read, byte for byte); off = nobody is asked
 function bdyTeenDefault(){ try{ return !BDAY_ASK && !STEAM_SHELL && META.adTrack!=='child'; }catch(e){ return false; } }   // the unasked player's track: 13+ (never under ?bday=1, never Steam, never an answered child)
 // ═══ END CARD-BDY ═══
+// ═══ CARD-AKA1 ADS OFF ON FIRE TABLETS (design/amazon-kids-ads-audit-1101/00-CARD-AKA.md; TASK FROM WYATT'S PHONE 11/1/2026 16:34 EST, verbatim: "On the Amazon Kids app, right now, when they get an ad, they can't get out of
+// it. If they even try to hit the X or something, it says, "This feature is not supported," and they have to just close the app. Then they're even given the option to select "Purchase no ads moving forward," and they don't have
+// access to any of those options as well."; his Discord reply 17:22 EST to the audit: "Why cant we fix this?"). THE READ: a child profile in Amazon Kids blocks the road out of an ad (the store and the browser are walled, so a tap
+// on the creative or on its fake X gets Amazon's message and the ad stays); the X and the inside are the advertiser's and the engine's (no dismiss API, no click-off, the child flag gone in MAX 13); the daily NO MORE ADS? pitch sits
+// behind Amazon's parent toggle (off by default). Fire OS showed 2 ads in 45 days for $0.004 (409 asks). THE RULE: on the Amazon app the engine never starts. amazonShell() = iapCounsel's own tell (window.GVTBillingAmazon; that
+// shell also exposes GVTShellAndroid). adTeen() is false there whatever META.adTrack says, so adChildTrack() is true: no {cmd:'init'} is ever posted (zero MAX bytes, §V3.5), the provider stays the placeholder (no verdict break:
+// soloDue / brk read it), naMaybeOffer never fires (no served interstitial, and noAdsCanOccur false), the NO ADS shelf, chip and pop-up tiers are hidden (noAdsRowHTML / noAdsChipHTML read noAdsCanOccur), the TV set pays its +30
+// without a show (tvGrant, the web's own road). The star packs stay (IAP.avail reads the gvtIAP handler alone). iOS, Android, web and Steam byte-identical by trace. ?aka1=0 = HEAD's read. GVT.aka1() the rig's read. Zero words,
+// META fields, server or sw bytes.
+var AKA1_ON=(function(){ try{ return !/[?&]aka1=0(?:&|$)/.test(location.search||''); }catch(e){ return true; } })();   // THE SWITCH (a var, SIPL's grammar): ?aka1=0 = HEAD's read
+function amazonShell(){ try{ return !!window.GVTBillingAmazon; }catch(e){ return false; } }   // the Amazon app's tell, as iapCounsel reads it
+function aka1NoAds(){ return AKA1_ON && amazonShell(); }   // THE RULE: on a Fire tablet the engine never starts
+// ═══ END CARD-AKA1 ═══
 // ---- the neutral age gate (§V3.3/§V3.4; Wyatt gate 1 defaults) ----
 // EEA/UK ages of digital consent: 13 globally, member-state raise inside the
 // EEA, 16 where unknown (a HIGHER threshold is never a violation, so any
 // state not pinned here rides the 16 floor via the region check below).
 const AGE_EEA={ AT:14,BE:13,BG:14,HR:16,CY:14,CZ:15,DK:13,EE:13,FI:13,FR:15,DE:16,GR:15,HU:16,IE:16,IT:14,LV:13,LT:14,LU:16,MT:13,NL:16,PL:16,PT:13,RO:16,SK:16,SI:16,ES:14,SE:13,IS:13,LI:16,NO:13,GB:13 };
 function ageThreshold(){ try{ return AGE_EEA[String(window.__GVT_REGION||'').toUpperCase()]||13; }catch(e){ return 13; } }
-function adTeen(){ try{ return META.adTrack==='teen' || bdyTeenDefault(); }catch(e){ return false; } }   // CARD-BDY (jumpr 2740): the unasked player rides the 13+ track too, the question retired (bdyTeenDefault; ?bday=1 = the read as shipped)
+function adTeen(){ try{ return !aka1NoAds() && (META.adTrack==='teen' || bdyTeenDefault()); }catch(e){ return false; } }   // CARD-BDY (jumpr 2740): the unasked player rides the 13+ track too, the question retired (bdyTeenDefault; ?bday=1 = the read as shipped) · CARD-AKA1: never on the Amazon app (aka1NoAds: ads off on every Fire tablet, Wyatt 11/1)
 // in an ad-capable shell, anything but an ANSWERED 13+ is the child/unknown
 // track (§V3.2): placeholder shows only, zero MAX code, zero real ads.
 function adChildTrack(){ return ADS_BRIDGE && !adTeen(); }
@@ -207358,6 +207371,7 @@ window.GVT = {
     return GVT.ads(); },
   age(m,d,y){ return ageGateAnswer(m,d,y); },   // FM-GVT-MAX-01 rig: answer the gate (null = rejected input); GVT.ads().track reads it back
   bdy(o){ if(o && o.ask!=null) BDAY_ASK=!!o.ask; return { ask:!!BDAY_ASK, bridge:ADS_BRIDGE, steam:STEAM_SHELL, track:(META.adTrack||null), teen:adTeen(), child:adChildTrack(), need:ageGateNeeded(), gate:!!document.getElementById('ageGate'), init:!!MAXA.initSent, noads:noAdsCanOccur(), asked:!!S.ageAsked }; },   // CARD-BDY (jumpr 2740) rig: the switch (ask) + the track as the game reads it (read-only but for ask)
+  aka1(){ return { on:!!AKA1_ON, amazon:amazonShell(), noads:aka1NoAds(), teen:adTeen(), child:adChildTrack(), init:!!MAXA.initSent, provider:(function(){ try{ return String(ADS.provider||''); }catch(e){ return ''; } })(), canOccur:noAdsCanOccur(), posts:MAXA.log.slice(), offer:!!document.getElementById('naOffer'), shelf:!!document.querySelector('#toyshop .sh-nawin'), chipHTML:(typeof noAdsChipHTML==='function')? String(noAdsChipHTML()||'').length : -1 }; },   // CARD-AKA1 rig: the Fire rule as the game reads it (read-only)
   // ---- 0333a NO ADS rig: read-only entitlement state ----
   noads(){ return { t:META.adFreeT||0, f:META.adFreeF||0, off:META.naOff||0, day:META.naDay||'', free:adFree(), offer:!!NAOFF.el }; },   // 0410: day = the daily-pitch latch (off = the superseded 0333a flag, save archaeology only)
   // ---- 0291 CADENCE rig: commanded beats, dials and cv — read-only (beats
