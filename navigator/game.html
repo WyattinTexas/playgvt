@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"29.34","md5":"d9be6bb61a8265b228641a54fea6c0a7","sha":"7446281ea3","at":"2026-11-02T21:14:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"29.35","md5":"74787b259c1acc48734adc93be84afbf","sha":"60a76ee66d","at":"2026-11-02T21:23:34Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92558,7 +92558,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='29.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='29.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -121701,7 +121701,7 @@ function bklLoseFace(){ const lo=document.getElementById('lose'); if(!lo) return
 const ROD_N_MAX=120, ROD_F_MAX=400;   // the moments kept (newest last; past this the oldest leaves) · the firsts' ceiling (only 'ally:' keys are open-ended; past it a new ally waits)
 const ROD_SAY={ first:'YOUR FIRST BATTLE, %1. I WAS THERE.', win:'YOUR FIRST WIN, %1. I WAS THERE.', boss:'%2 IS DOWN, %1. FIRST TIME ON YOUR WATCH.' /* CARD-RDH 10/28: HUSHED (rodPick drops the boss candidate unless its key is in ROD_ICONIC; ?rdh=0 = the line back) */,
   king:'THE KING FELL AND YOU WERE THERE, %1.', kingb:'THE KING FELL. YOU STOOD WITH %2, %1.', bd:'YOUR FIRST DESERT NIGHT, %1. YOUR SIDE HELD.', bdt:'YOUR FIRST TUNDRA NIGHT, %1. YOUR SIDE HELD.', bdr:'YOUR FIRST ROOFTOP NIGHT, %1. YOUR SIDE HELD.',   /* CARD-RDL: the duel's first night */   /* CARD-FZT3 8a: the Tundra's first night (Wyatt 10/9 "8a yes") */
-  ally:'WON BESIDE %1. I SAW IT.', last1:'ONE MAN LEFT STANDING, %1. THAT WAS ENOUGH.', box1:'ONE MORE AND THE TOY BOX WAS GONE, %1. YOU HELD IT.' };
+  ally:'WON BESIDE %1. I SAW IT.', last1:'ONE MAN LEFT STANDING, %1. THAT WAS ENOUGH.', box1:'ONE MORE AND THE TOY BOX WAS GONE, %1. YOU HELD IT.' };   // CARD-RDS 11/2: EVERY line of this table is HUSHED (rodPick returns '' while RDS.on; Wyatt: "make sure that no fights have these final lines"); the deeds are still kept; ?rds=0 = the lines back
 const ROD_KING={ kingrex:'kingrex', kingyeti:'kingyeti', kingcroak:'kingcroak', princess:'princess', mom:'mom' };   // PANTHEON rows whose id IS the boss type (kingbear reads raidInfo('fields').king)
 let ROD_NET=0, ROD_PRE=null;   // the level-1 safety net is landing (the record keeps the battle as net:1, the net keeps its own line) · the memo of the boss types met before the record
 function rodNow(){ return Math.floor(Date.now()/1000); }
@@ -121783,7 +121783,7 @@ function rodLine(c, mates){   // the one line, as html for the whisper row (the 
   if(k==='kingb') return tf(key, a, '<span data-notr>'+escH(mates.slice(0,2).map(m=>m.n).join(' & '))+'</span>');
   return tf(key, a);
 }
-function rodPick(cand, mates){ cand=cand.filter(c=>c[1]!=='boss' || rdhSpeaks(c[2]));   /* CARD-RDH: the boss deed's line is never dealt (every boss, every tier, first fall or not; rodCampaign and rodBf alike) unless the boss is on ROD_ICONIC or ?rdh=0; the deed itself was kept above */ if(!cand.length) return ''; cand.sort((x,y)=>x[0]-y[0]); try{ return rodLine(cand[0], mates); }catch(e){ return ''; } }
+function rodPick(cand, mates){ if(rdsOn()) return '';   /* CARD-RDS 11/2: NO deed line under any verdict, every fight, every line (the record above is still written; ?rds=0 = yesterday's lines) */ cand=cand.filter(c=>c[1]!=='boss' || rdhSpeaks(c[2]));   /* CARD-RDH: the boss deed's line is never dealt (every boss, every tier, first fall or not; rodCampaign and rodBf alike) unless the boss is on ROD_ICONIC or ?rdh=0; the deed itself was kept above */ if(!cand.length) return ''; cand.sort((x,y)=>x[0]-y[0]); try{ return rodLine(cand[0], mates); }catch(e){ return ''; } }
 function rodCampaign(win){   // endBattle, after the level-1 net and before any write: the record writes (win or loss), the line rides S.rodLine to the win's foot
   S.rodLine='';
   if(S.rodDone===S.cfg) return; S.rodDone=S.cfg;
@@ -121841,6 +121841,19 @@ function rdhOn(){ return !!(RDH && RDH.on); }
 function rdhSpeaks(k){ return !rdhOn() || ROD_ICONIC.indexOf(String(k))>=0; }   // may the boss line speak for this boss: the switch off (yesterday's game) or the boss on the iconic list
 function rdhTipOk(){ return !rdhOn() || !!RDH.tipOnBoss || !S.bossKilled; }   // may a 0552c D6 whisper take the empty seat on this face: always off the boss faces, on a boss face only by the dial
 function rdhRig(){ const r=rodSt(); return { on:rdhOn(), tipOnBoss:RDH.tipOnBoss, iconic:ROD_ICONIC.slice(), line:S.rodLine||'', boss:Object.keys(r.f).filter(k=>k.indexOf('boss:')===0), f:Object.keys(r.f).length, n:r.n.length }; }   // the batteries' read (no writer)
+// ═══ CARD-RDS THE DEED LINE UNDER THE VERDICT GOES, EVERY FIGHT (design/deed-line-hush-1102/00-CARD-RDS.md; Wyatt typed on Maker 1 11/2/2026 ~15:35 EST with a King Rex screenshot, verbatim: "These lines
+// need to be removed in all the boss fights and any fights where we have this extra line. It doesn't apply to anything. This one was from the King Rex fight. We have to have these removed. Please look into
+// what this line is called in the end screen and make sure that no fights have these final lines like this. It just doesn't help anybody.").
+// THE LINE'S NAME: CARD-ROD's whisper row, S.rodLine (the 'w' row under the verdict's rows): ROD_SAY's lines, one picked by rodPick: the first battle, the first win, a boss's first fall (hushed by CARD-RDH
+// 10/28), the king fell (alone or beside), a first night (desert / tundra / rooftop), won beside a commander, ONE MAN LEFT STANDING (his screenshot: King Rex, Dino Park rung 20), the toy box one hit from gone.
+// THE HUSH: rodPick returns '' first thing while RDS.on, so S.rodLine is empty on every verdict: the campaign's rungs, the parks, the raids and the kings' nights, the battleground and the desert nights, solo
+// or in a party. THE RECORD IS STILL WRITTEN: rodCampaign and rodBf are byte-still, every deed and moment (last1, box1, king, bd, ally, boss) still reaches META.rod; the Captain's Log and rodList() read
+// them as before; only the spoken line goes. CHECKMATE / Bill (chsHush) and CARD-RDH's boss hush stand under it (RDH's ROD_ICONIC speaks only with ?rds=0). The 0552c D6 tips (the Rex tip, the academy
+// tip: once a session, on a plain ticket-less win, never on a boss face by RDH-Q3) are not deed lines and stand (⚑ RDS-Q1). ?rds=0 (device key gvt_rds) = yesterday's lines back; ?rds=1 clears it.
+// Zero words (the strings and the seven tongues' rows stand, unread), zero server bytes, zero CSS. ═══
+const RDS={ on:(function(){ try{ const q=/[?&]rds=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_rds','0'); else localStorage.removeItem('gvt_rds'); } return localStorage.getItem('gvt_rds')==='0'? 0 : 1; }catch(e){ return 1; } })() };   // the switch (CARD-RDH's grammar)
+function rdsOn(){ return !!(RDS && RDS.on); }
+function rdsRig(){ const r=rodSt(); return { on:rdsOn(), line:S.rodLine||'', keys:Object.keys(ROD_SAY), f:Object.keys(r.f).length, n:r.n.length, last:r.n.length? r.n[r.n.length-1].k : null }; }   // the batteries' read (no writer)
 // ═══ 0534 THE FIRST SIGN (FM-GVT-NEWBIE-01 §10; Wyatt 8/24: "when you have dino park unlocked … we should whisper some
 // insentive to beat the 20 level campaign & defeat King Rex") — THE WHISPER: while DINO PARK is open (META.parkDino — the bone
 // gate's own due read, the door a kid can actually walk through) and King Rex's Easy is uncleared (bone.e unset — the
