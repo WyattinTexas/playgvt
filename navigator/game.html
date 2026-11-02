@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"29.16","md5":"491cf745234994928a44e68be689ff3a","sha":"e01b4322c4","at":"2026-11-02T04:48:55Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"29.17","md5":"9d83f961d761672efc58c367286f1537","sha":"327bfb1c91","at":"2026-11-02T04:53:40Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92438,7 +92438,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='29.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='29.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -203169,7 +203169,7 @@ Object.assign(TR["ar"]||(TR["ar"]={}), {"A ZIGZAG, TOP TO BOTTOM":"خط متعر
 // Showdown's own). ?bbs=0 (gvt_bbs) hides the door and the night card; GVT.bbs(o) for the rigs. Zero bytes of the campaign's Bill (bbill / bbillx), of Outlaw Town, of every other throne.
 const BBS={ on:(function(){ try{ const q=/[?&]bbs=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bbs','0'); else localStorage.removeItem('gvt_bbs'); } return localStorage.getItem('gvt_bbs')==='0'? 0 : 1; }catch(e){ return 1; } })() };   // the switch (CARD-2BL's grammar): 1 = the door and the night; 0 = the game as shipped
 const BBS_FILL=4, BBS_PIN_P=4;   // THE FILL IS FOUR (a lone commander gets THREE computers, never more: BBS-Q4) · the swarm's pin (every group is pin 1 anyway; S.sq.p reads 4 on the night)
-const BBS_HP={ e:20000, m:40000, h:60000 };   // Bill's bar on foot, FLAT (BBS-Q1: HARD 60,000; one word makes it 70,000)
+const BBS_HP={ e:16000, m:32000, h:48000 }; /* CARD-DMP TAKE 2 (Wyatt 11/1 21:12): his bar down 20 % a tier (take 1's base: 20000 · 40000 · 60000) */   // Bill's bar on foot, FLAT (BBS-Q1: HARD 60,000; one word makes it 70,000)
 const BBS_PIP={ e:0.8, m:0.6, h:0.6 };   // the pip clock on a man in his fan (BBS-Q8: EASY two pips in 2.0 s, the third at 2.4; MEDIUM three in 1.8 s = down; a commando (4) walks out)
 const BBS_FAN={ n:{ e:6, m:6, h:8 }, gap:0.2, reload:4.0, half:54, thru:3, R:230, cd:0.3 };   // the rounds a fan (HARD 8), 0.2 s apart; THE RELOAD 4.0 s; the corridor's half-width; the men a round goes through; his reach; the beat before he scans again
 const BBS_X={ e:1, m:2, h:4 };   // THE STANDING RAID's counts (BBS-Q2: each tier doubles the last)
@@ -213048,28 +213048,32 @@ function icn3DrawFaller(o,img,w,flip){ const fl=o.falling, k=Math.min(1,fl.t/fl.
 try{ if(window.GVT && !GVT.icn3) GVT.icn3=function(){ let live=null, R=null, inside=[], said=null; try{ live=icn3Live(); R=icn3R(); }catch(e){} try{ if(live) for(const u of S.units){ if(u.dead || u.falling || u.jetT>0) continue; const i=icn3Hole(u.x,u.y,0); if(i>=0) inside.push({ id:u.id, type:u.type, h:i, x:Math.round(u.x), y:Math.round(u.y), shv:!!u.shv }); } said=(S.raid && S.raid.icn3)? Object.assign({}, S.raid.icn3) : null; }catch(e){} return { cv:GVT_CV, on:ICN3.on, wrapped:ICN3.wrapped, live:live, R:R, rx:R==null? null : +(R*ICN3_RX).toFixed(2), dials:{ pad:ICN3_PAD, hand:ICN3_HAND, fold:ICN3_FOLD, step:ICN3_STEP, retry:ICN3_RETRY, rx:+ICN3_RX.toFixed(4) }, holes:CAVE_HOLES.map(h=>h.slice()), shut:CAVE_HOLES.map((h,i)=>live? icn3Shut(i) : null), n:Object.assign({}, ICN3.n), last:ICN3.last, inside:inside, said:said, word:(typeof t==='function')? t(ICN3_SAY) : ICN3_SAY }; }; }catch(e){}   // the rigs' one read (read-only)
 // ═══ END CARD-ICN-G3 ═══
 // ═══ CARD-DMP · THE DAMPER: 30 % OFF EVERY HIT AN ENEMY LANDS ON YOUR SIDE IN THE CAMPAIGN AND THE BOSS FIGHTS (sec:CARD-DMP; design/damage-damper-1101/00-CARD-DMP.md; board J1, lane gvt). Wyatt 11/1/2026 16:27 EST by phone, verbatim: "Please add the 30% dampening damage variable. It's for incoming damage from attacks while you're in campaign and boss fights. Please make sure that we're not double implementing this, as I know right now we're going through an update to the boss fights, removing the KOs with just higher damage. Afterwards, show me and implement live."
-// 1 · THE VARIABLE: DMG_DAMP by tier (e m h g u), the share taken off every hit an enemy lands on a unit of yours on the campaign rug (a level, a park, a boss fight, the Boss Lab): 0.3 = the hit lands at 70 %. A level and a park read EASY (dhtTier's own law). Never on the battleground (S.bf: the other army's rounds land as shipped). ONE row in the Boss Lab's RULES, shared by every fight, so Raziya turns it on her device and her export carries a changed cell.
-// 2 · THE SEATS (six hunks, one factor each, kit/applyDMP.py): tanHit's two pip writes (the round and the ball: every tan round, every boss move that lands pips through src.pipN, the lair's dinos through dhtHit's door), hurt() for a unit of yours that carries HP on the rug (dmpHp: the chess set's pieces; a foe reads x1), dfHit for your own plane's bar (p.mine), aaBomb (the sky fortress's bomb on the AA gun's bags), ovfKingShare18 (the finale's beam share on a king). Each factor rides INSIDE the flat soaks (the radio's half point stays a half point) and below the saves (a save that turns a hit whole turns it still).
+// TAKE 2 (Wyatt 11/1/2026 21:12 EST by phone, a reply to the page, verbatim): "Okay, add this change into the battleground as well. However, for the campaign and boss levels, let's actually raise the dampening to 50%. And make sure for the Buffalo Bill fight that his HP values are decreased by 20% for each difficulty." (BBS_HP 20000 · 40000 · 60000 -> 16000 · 32000 · 48000: the const's own line, hunk H7.)
+// 1 · THE VARIABLE: DMG_DAMP by tier (e m h g u), the share taken off every hit an enemy lands on a unit of yours on the campaign rug (a level, a park, a boss fight, the Boss Lab): 0.5 = the hit lands at 50 % (take 1 shipped 0.3). A level and a park read EASY (dhtTier's own law). ONE row in the Boss Lab's RULES, shared by every fight, so Raziya turns it on her device and her export carries a changed cell.
+//     THE BATTLEGROUND (take 2): DMG_DAMP_BF 0.3 = every hit on EVERY sided unit of BOTH armies lands at 70 % through hurt()'s one funnel (dmpHp: f.side on the mat), so every player's sim agrees and no side is favoured; the mat has no tiers and no lab row (the GVT.dmp door turns it).
+// 2 · THE SEATS (six hunks, one factor each, kit/applyDMP.py): tanHit's two pip writes (the round and the ball: every tan round, every boss move that lands pips through src.pipN, the lair's dinos through dhtHit's door), hurt() for a unit of yours that carries HP on the rug (dmpHp: the chess set's pieces; a foe reads x1) and for every sided unit on the battleground, dfHit for your own plane's bar (p.mine), aaBomb (the sky fortress's bomb on the AA gun's bags), ovfKingShare18 (the finale's beam share on a king). Each factor rides INSIDE the flat soaks (the radio's half point stays a half point) and below the saves (a save that turns a hit whole turns it still).
 //     A KO is not a hit: knock(), knockKill(), the falling ice, the holes, the band, a bite that fells land as shipped. CARD-BKP's KO pass (11/1, zero game bytes, PROPOSED on the dashboard) is the KO's card: nothing of it is in the game, nothing is dampened twice (DMP-Q1: a number it lands later goes through this damper like every hit, or its src says dmpRaw and lands whole).
-// 3 · ?dmp=0 writes the device key gvt_dmp=0 = HEAD by trace (every seat x1, no row); ?dmp=1 clears it. GVT.dmp({ damp:{e,m,h,g,u}, reset:1 }) = the rigs' door + read. Zero words, css, META fields, server, sw bytes; no die.
+// 3 · ?dmp=0 writes the device key gvt_dmp=0 = the damper off (every seat x1 on the rug and on the mat, no row; Bill's bar is a shipped number, not switched); ?dmp=1 clears it. GVT.dmp({ damp:{e,m,h,g,u}, bf:0.3, reset:1 }) = the rigs' door + read. Zero words, css, META fields, server, sw bytes; no die.
 const DMP_ON=(function(){ try{ const q=/[?&]dmp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dmp','0'); else localStorage.removeItem('gvt_dmp'); } return localStorage.getItem('gvt_dmp')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch (CARD-HTK's grammar)
-const DMG_DAMP={ e:0.3, m:0.3, h:0.3, g:0.3, u:0.3 };   // THE DAMPER by tier: the share off every incoming hit (0.3 = a hit lands at 70 %); 0 = as shipped; capped at 0.95 (a hit always lands something)
-const DMP={ on:DMP_ON, n:0, raw:0, hp:0, last:null, err:0, e:'' };
+const DMG_DAMP={ e:0.5, m:0.5, h:0.5, g:0.5, u:0.5 };   // THE DAMPER by tier (the campaign, the parks, the boss fights, the lab): the share off every incoming hit (0.5 = a hit lands at 50 %; take 1 shipped 0.3); 0 = as shipped; capped at 0.95 (a hit always lands something)
+const DMG_DAMP_BF={ x:0.3 };   // THE DAMPER ON THE BATTLEGROUND: the share off every hit on every sided unit of both armies (0.3 = a hit lands at 70 %); no tiers, no lab row
+const DMP={ on:DMP_ON, n:0, raw:0, hp:0, bf:0, last:null, err:0, e:'' };
 function dmpTier(){ try{ if(typeof dhtTier==='function') return dhtTier(); }catch(e){} const R=S.raid; return (R && R.t && 'emhgu'.indexOf(R.t)>=0)? R.t : 'e'; }   // the fight's tier; a level and a park read EASY
-function dmpShare(){ const v=DMG_DAMP[dmpTier()]; return (typeof v==='number' && isFinite(v) && v>0)? Math.min(0.95, v) : 0; }   // this tier's share (a tier the row lacks, 0 or under: nothing off)
-function dmpX(u,src){ if(!DMP.on || S.bf) return 1; if(src && src.dmpRaw){ DMP.raw++; return 1; } const s=dmpShare(); if(!(s>0)) return 1; DMP.n++; DMP.last=u? u.type : null; return 1-s; }   // the factor at a pip seat: a unit of yours on the rug (the seat's own law says so); a src that says dmpRaw lands whole
-function dmpHp(f,src){ if(!DMP.on || S.bf || !f || f.hp==null || S.units.indexOf(f)<0) return 1; const x=dmpX(f,src); if(x!==1) DMP.hp++; return x; }   // hurt()'s factor: only a unit of YOURS that carries HP on the rug; a foe reads x1
+function dmpShare(){ const v=S.bf? DMG_DAMP_BF.x : DMG_DAMP[dmpTier()]; return (typeof v==='number' && isFinite(v) && v>0)? Math.min(0.95, v) : 0; }   // the share where we stand: the mat's one number, else this tier's (a tier the row lacks, 0 or under: nothing off)
+function dmpX(u,src){ if(!DMP.on) return 1; if(src && src.dmpRaw){ DMP.raw++; return 1; } const s=dmpShare(); if(!(s>0)) return 1; DMP.n++; if(S.bf) DMP.bf++; DMP.last=u? u.type : null; return 1-s; }   // the factor at a pip seat: a unit of yours on the rug (the seat's own law says so); a src that says dmpRaw lands whole
+function dmpHp(f,src){ if(!DMP.on || !f || f.hp==null) return 1; if(S.bf? !f.side : S.units.indexOf(f)<0) return 1; const x=dmpX(f,src); if(x!==1) DMP.hp++; return x; }   // hurt()'s factor: on the rug only a unit of YOURS that carries HP (a foe x1); on the mat every sided unit of both armies (every sim agrees)
 // THE LAB: ONE row in THE RULES for every fight (the device's saved cells re-applied: blbBoot ran before this row stood; CARD-ICN4's grammar)
 if(DMP_ON){ try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES)){
-  BLB_RULES.push(['DMG_DAMP', ()=>DMG_DAMP, 'THE DAMPER: the share off every hit on your men (0.3 = a hit lands at 70 %; 0 = as shipped)', 'bone ice croak fields palace caves sky bbs']);
+  BLB_RULES.push(['DMG_DAMP', ()=>DMG_DAMP, 'THE DAMPER: the share off every hit on your men (0.5 = a hit lands at 50 %; 0 = as shipped)', 'bone ice croak fields palace caves sky bbs']);
   if(typeof blbShip==='function' && typeof BLB==='object' && BLB && BLB.ship) blbShip();
   if(typeof BLB==='object' && BLB && BLB.booted && BLB.over && typeof blbCellSet==='function'){ const o=BLB.over.DMG_DAMP; if(o) for(const k of Object.keys(o)) blbCellSet('DMG_DAMP',k,o[k]); }
 } }catch(e){ DMP.err++; DMP.e+='lab:'+String(e&&e.message||e).slice(0,80); } }
-function dmpRead(){ const bf=!!S.bf, t=dmpTier(); return { cv:GVT_CV, on:DMP.on, damp:Object.assign({},DMG_DAMP), tier:t, share:DMP.on? dmpShare() : 0, x:(DMP.on && !bf)? 1-dmpShare() : 1, bf:bf? 1 : 0, mode:S.mode, n:DMP.n, raw:DMP.raw, hp:DMP.hp, last:DMP.last, err:DMP.err, e:DMP.e,
+function dmpRead(){ const bf=!!S.bf, t=dmpTier(); return { cv:GVT_CV, on:DMP.on, take:2, damp:Object.assign({},DMG_DAMP), bfShare:DMG_DAMP_BF.x, tier:t, share:DMP.on? dmpShare() : 0, x:DMP.on? 1-dmpShare() : 1, bf:bf? 1 : 0, mode:S.mode, n:DMP.n, raw:DMP.raw, hp:DMP.hp, nBf:DMP.bf, last:DMP.last, err:DMP.err, e:DMP.e,
   lab:(typeof BLB_RULES!=='undefined')? BLB_RULES.filter(function(r){ return r[0]==='DMG_DAMP'; }).map(function(r){ return r[3]; }) : null }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.dmp) GVT.dmp=function(o){ o=o||{};
   if(o.damp) for(const k of Object.keys(o.damp)) DMG_DAMP[k]=+o.damp[k];
-  if(o.reset){ DMP.n=0; DMP.raw=0; DMP.hp=0; DMP.last=null; }
+  if(o.bf!=null) DMG_DAMP_BF.x=+o.bf;
+  if(o.reset){ DMP.n=0; DMP.raw=0; DMP.hp=0; DMP.bf=0; DMP.last=null; }
   return dmpRead(); }; }catch(e){} }, 0);   // the rigs' door + read
 // ═══ END CARD-DMP ═══
 // ═══ CARD-TAP · THE BLUE FLASH AT THE DOOR (sec:CARD-TAP; design/door-tap-glow-1101/00-CARD-TAP.md; FROM WYATT by phone 11/1/2026 ~17:00 EST, verbatim: "On Android, when you're at the Gnome Garden door, it's currently glowing blue on each tap, like the whole thing. That needs to not happen. It's unimmersive and a problem, so please audit this issue so it's not happening on any devices.") ═══
