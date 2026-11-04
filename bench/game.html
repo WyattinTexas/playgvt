@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"29.71","md5":"346cce4d7781a8bd4ff68572656b95aa","sha":"7cecd48c30","at":"2026-11-04T14:01:26Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"29.72","md5":"ffd02a16291a7e032c3130eb7afacf6a","sha":"3e4fa97160","at":"2026-11-04T16:12:14Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92625,7 +92625,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='29.71';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='29.72';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -103384,6 +103384,7 @@ function roomDressUnit(u, cm){
   if(u.hpMax && !bfHumanU(u) && HEROES.indexOf(u.type)>=0){ const mh=heroMileHP(u)+reunHp(u)+hhpHp(u) /* CARD-HHP: the rungs off the mr token's rank */; if(mh){ u.hpMax+=Math.round(mh*HERO_BF_HP_X); u.hp=u.hpMax; } }   // 0877 HEROES ON THE BATTLEGROUND: a relayed hero's banked +HP milestones land here off the mr token
   if(u.hpMax && !bfHumanU(u) && HEROES.indexOf(u.type)>=0){ const lv=hlvHp(u); if(lv){ u.hpMax+=lv; u.hp=u.hpMax; } }   /* CARD-HLV: a relayed hero's flat rungs off the mr token (after his soul, the placeUnit order) */
   if(u.hpMax && !bfHumanU(u) && HEROES.indexOf(u.type)>=0){ const r2=hhp2Hp(u); if(r2){ u.hpMax+=r2; u.hp=u.hpMax; } }   /* M2200 ROUND 2: a relayed King Rex's +100 at rank 100 off the mr token (the HLV line's twin) */
+  if(u.hpMax && !bfHumanU(u) && HEROES.indexOf(u.type)>=0){ const k3=khpHp(u); if(k3){ u.hpMax+=k3; u.hp=u.hpMax; } }   /* CARD-KHP: a relayed king's +120 from rank 30 off the mr token (the M2200 line's twin) */
   if(u.hpMax && !bfHumanU(u)){ const g1=l100Hp(u); if(g1){ u.hpMax+=g1; u.hp=u.hpMax; } }   /* CARD-L100: a relayed copy's +1 HP off the c1: token (placed THIS tick: hp===hpMax; the HLV line's own guard) */
   if(!bfHumanU(u)) bondWarRelay(u, cm, true);   // CARD-OCR-B6: a relayed ally's war gift off the token (placed THIS tick: hp===hpMax; my own chair's man collected his at placeUnit) (placeUnit's own read saw rank 0 — the bfHpRk line's twin), × the mat's dial
   // v2.36: the ally's laser — raw read before the ENH filter (the coopSoul law)
@@ -108790,6 +108791,7 @@ function placeUnit(type,x,y,side,seat){
     }
     { const lv=hlvHp(u); if(lv && u.hpMax){ u.hpMax+=lv; u.hp=u.hpMax; } }   /* CARD-HLV: every hero +HLV.hp every HLV.every of his ranks, FLAT after the soul (his card moves by exactly 6 a rung); any chair off perkRank (a relayed copy reads 0 here and takes his at roomDressUnit off the token) */
     { const r2=hhp2Hp(u); if(r2 && u.hpMax){ u.hpMax+=r2; u.hp=u.hpMax; } }   /* M2200 ROUND 2: KING REX +100 at his rank 100, FLAT after the soul (the HLV line's twin; a relayed copy reads 0 here and takes his at roomDressUnit off the token) */
+    { const k3=khpHp(u); if(k3 && u.hpMax){ u.hpMax+=k3; u.hp=u.hpMax; } }   /* CARD-KHP: THE KINGS' +120 from their own rank 30, FLAT after the soul (the M2200 line's twin; a relayed copy reads 0 here and takes his at roomDressUnit off the token) */
     if(bfHumanU(u)){ const pb=pbkN(type); if(pb){ u.hpMax+=pb; u.hp=u.hpMax; } }   /* CARD-PBK THE PERFECT BOOK's gifts: +1 a gift on MY chair's man, flat after every multiplier (the sheets add it last too) */
     if(bfHumanU(u)){ const g1=l100Hp(u); if(g1){ u.hpMax+=g1; u.hp=u.hpMax; } }   /* CARD-L100: MY chair's man lands with the level-100 gift's +1 HP, flat after every multiplier (the sheets add it last too; a relayed copy takes it at roomDressUnit off the token, a computer chair never) */
     if(bfHumanU(u)) bondWarLand(u);   // CARD-OCR-B6: MY chair's man lands with the war gift: +2 plastic, THE LAST hp word (flat by construction, below every multiplier and plate; a relayed ally's copy takes it at roomDressUnit off the token, a computer chair's never)
@@ -108868,7 +108870,7 @@ function gritCap0(u){
   // like the sword itself, so a relayed ally's empty hands are his own.
   const ua9=(wgrit==='lightsaber' && unarmedU(u,usw));
   return ((u.rgL && !S.bf)? RG.hp : 1)*Math.max(1, (u.def.grit*(wgrit==='lightsaber'?(ua9?1:2):wgrit==='commander'?CMD.grit:1)*veh + (u.vet?1:0) + jump + cmdoGB(u) + medGB(u) + rankGB(u) /* CARD-USH round 3 */ + heroGB(u) + heroMileHP(u) + reunHp(u) + ((usw&&usw.w==='pistol')? pistolMileHp(usw.r|0) : 0) + (usw? dhpSgRug(usw.w, usw.r|0) : 0) /* CARD-DHP: the shotgun's health as rug pips, OFF by DHP.rug (ONE HP NUMBER's pip scale does the rug's part) */ + (ua9?UNARMED_HP:0) + pickHp(u))
-    * (soulHpU(u)?SOUL_MUL:1) + ((usw&&usw.ofHpX)||0) + ((!S.bf&&u.tkSAurT)?SILVER_AURA_HP:0))*((u.pcBig && !S.bf)? PCH_BIG_HP : 1) + ((u.rookieHp && u.coopBy==null)? u.rookieHp : 0) + bondWarHp(u) + hhpHp(u) + hlvHp(u) /* CARD-HLV: + HLV.hp every HLV.every of his ranks, flat */ + hhp2Hp(u) /* M2200 ROUND 2: KING REX +100 at his rank 100, flat */ + sqlGrit(u) + pbkGrit(u) /* CARD-PBK THE PERFECT BOOK's gifts: +1 hit each on MY man's campaign rug */ + l100Grit(u) /* CARD-L100: one more hit, the level-100 gift (flat, last; the mat's pool took its own at placement) */ /* CARD-SQL L3 + L8: the tunic's +5 and the pants' +7 as carpet pips at the commando's mapping, beside a squadmate */;   /* CARD-HHP: + HHP.hp a rung (his ranks 60 / 80 / 100), flat after everything: his card's HP moves by exactly 20 a rung */   /* CARD-OCR-B6: +2 grit flat, the last word (mine by the stamp, an ally's by the token) */   // CARD-RS THE ROOKIE'S SARGE (Wyatt 9/25): +5 hits flat, the LAST word (outside the fairy's ×4 — exactly five), stamped at placement, MINE only (coopBy null — a relayed ally's / a computer's Sarge is his commander's) · 1027 CARD-ML-A3 THE BIG MAN: the fairy's ×4 on the campaign's grit (the mat's rides hp at the stamp)
+    * (soulHpU(u)?SOUL_MUL:1) + ((usw&&usw.ofHpX)||0) + ((!S.bf&&u.tkSAurT)?SILVER_AURA_HP:0))*((u.pcBig && !S.bf)? PCH_BIG_HP : 1) + ((u.rookieHp && u.coopBy==null)? u.rookieHp : 0) + bondWarHp(u) + hhpHp(u) + hlvHp(u) /* CARD-HLV: + HLV.hp every HLV.every of his ranks, flat */ + hhp2Hp(u) /* M2200 ROUND 2: KING REX +100 at his rank 100, flat */ + khpHp(u) /* CARD-KHP: THE KINGS' +120 from their own rank 30, flat (the M2200 line's twin) */ + sqlGrit(u) + pbkGrit(u) /* CARD-PBK THE PERFECT BOOK's gifts: +1 hit each on MY man's campaign rug */ + l100Grit(u) /* CARD-L100: one more hit, the level-100 gift (flat, last; the mat's pool took its own at placement) */ /* CARD-SQL L3 + L8: the tunic's +5 and the pants' +7 as carpet pips at the commando's mapping, beside a squadmate */;   /* CARD-HHP: + HHP.hp a rung (his ranks 60 / 80 / 100), flat after everything: his card's HP moves by exactly 20 a rung */   /* CARD-OCR-B6: +2 grit flat, the last word (mine by the stamp, an ally's by the token) */   // CARD-RS THE ROOKIE'S SARGE (Wyatt 9/25): +5 hits flat, the LAST word (outside the fairy's ×4 — exactly five), stamped at placement, MINE only (coopBy null — a relayed ally's / a computer's Sarge is his commander's) · 1027 CARD-ML-A3 THE BIG MAN: the fairy's ×4 on the campaign's grit (the mat's rides hp at the stamp)
 }
 // a lightsaber Sarge deflects some incoming fire — spark and shrug it off
 function saberBlocks(u){
@@ -110820,6 +110822,19 @@ function hhpRungs(r){ let n=0; for(const a of HHP.at) if((r|0)>=a) n++; return n
 function hhpHp(u){ if(!u || !HHP.who[u.type] || !HHP.hp) return 0; return hhpRungs(perkRank(u))*HHP.hp; }   // gritCap's last flat word; the mat's pool takes it x HERO_BF_HP_X
 const HHP2={ hp:100, at:100, who:{ kingrex:1 } };   // M2200 ROUND 2 (Wyatt by Discord 10/14/2026 23:15 EDT: "please give KING REX +100 more HP he gets at level 100"; design/rex-asia-1014/00-BUILD-REX.md §6): ONE MORE RUNG at his own rank 100 (the 0463 law), King Rex alone, FLAT and LAST the CARD-HLV way (gritCap, placeUnit, roomDressUnit, heroBfPool); NOT in hhbWords: CARD-HHB's book keeps his pure summit at 260 and this rides on top (his card reads 360 at 100). ⚑ REX2-Q2 +100 on top of CARD-HHP's 20 at 100
 function hhp2Hp(u){ return (u && HHP2.who[u.type] && HHP2.hp && (perkRank(u)|0)>=HHP2.at)? HHP2.hp : 0; }   // the flat word (ownership = perkRank's: mine live, a mirror's off nrk, a relayed ally's off the token, AI 0)
+// ═══ CARD-KHP THE KINGS' +120 HP FROM RANK 30 (design/kings-hp-thirty-1104/00-CARD-KHP.md; jumpr 2974, built on Maker 1 as M2974, lane maker1; FROM WYATT by phone 11/4/2026 10:25 EST (the remote's stamp 15:25:01 UTC), verbatim:
+// "Increase king croak, emperor bear, king rex and king yetis hp by 120. (They gain the 120 at level 30)"). KING YETI, KING REX, KING CROAK and EMPEROR BEAR each take KHP.hp more HP from their OWN rank KHP.at on (the 0463 law:
+// "level" = the hero's rank, META.up, the promotion picker's count; the commander's level is the player's book). "HP" = the number his card shows (heroHP = the battleground pool since CARD-USH round 2): the +120 lands FLAT and
+// LAST the M2200 way (KING REX +100 at his rank 100, hhp2Hp), after THE SOUL, never on the mat's 0.6 dial — his card moves by exactly 120 at rank 30: placeUnit for every chair off perkRank, roomDressUnit for a relayed ally's
+// off the mr token, heroBfPool for the sheets (the plate, the carousel, the click-in, the next-rank line, the promotions and data sheets); the campaign rug's grit (gritCap) takes the same flat word (the CARD-HLV / M2200 way).
+// NOT in hhbWords: CARD-HHB's book keeps each king's pure summit and this rides on top (the card at the cap: yeti 250 → 370 · rex 360 → 480 · croak 240 → 360 · bear 270 → 390). Jane and Princess Croak unchanged; an AI chair (perkRank 0)
+// and a loaner never take it; a Nemesis/away/hard mirror takes it at the mirrored rank. Zero words, zero META writes, zero server, sw.js or wire bytes. ?khp=0 = the HP as shipped for THAT LOAD (the rigs' NEG leg; never persisted:
+// a sim number must not stick to one device); KHP.hp 0 the same. UNDO = kit/applyKHP.py --undo. ═══
+const KHP={ on:(function(){ try{ return /[?&]khp=0(?:&|$)/.test(location.search||'')? 0 : 1; }catch(e){ return 1; } })(), hp:120, at:30, who:{ kingyeti:1, kingrex:1, kingcroak:1, kingbear:1 } };   // ⚑ KHP-Q1 the flat HP, the rank it lands at, the kings who take it
+function khpHp(u){ return (u && KHP.on && KHP.who[u.type] && KHP.hp && (perkRank(u)|0)>=KHP.at)? KHP.hp : 0; }   // the flat word (ownership = perkRank's: mine live, a mirror's off nrk, a relayed ally's off the token, AI 0, a loaner 0)
+function khpRead(){ const g=f=>{ try{ return f(); }catch(e){ return null; } }; const H={}; for(const k of HEROES) H[k]={ r:g(()=>(META.up[k]||0)|0), add:g(()=>khpHp(heroStub(k))), hp:g(()=>heroHP(k)), before:g(()=>heroHP(k,KHP.at-1)), at:g(()=>heroHP(k,KHP.at)), cap:g(()=>heroHP(k,RANK_MAX)) };
+  return { cv:GVT_CV, on:KHP.on, hp:KHP.hp, at:KHP.at, who:Object.keys(KHP.who), h:H }; }   // the rigs' read, by name (a top-level const is no window property; evaluate sees the script's own bindings)
+// ═══ END CARD-KHP ═══
 const RXA={ on:1, rng:380, wind:0.35, t:0.55, apex:120, snap:84, biteX:3, cd:7, cdMiss:3, first:0.6, scan:0.25, lead:0.33, alt0:20, hits:null };   // ⚑ HHP-Q2 the snap's dials: reach px (his feet to the body's ground spot) · tell s · flight s · apex px · bite px · x his breath · re-arm s · after a miss s · first look s · scan s · the lead s (a flier's own drift through the tell, carried this far into the flight) · a Dogfighter's least height px · the rig's ledger
 function rxaDfs(u){ const a=[]; if(!S.bf || !S.dfs) return a; for(const p of S.dfs) if(!p.gone && !p.down && p.side && p.side!==u.side && p.alt>=RXA.alt0) a.push(p); return a; }   // the other side's Dogfighters off the ground (a strafing dive is the easiest bite; on the campaign every Dogfighter is the kid's own)
 const RXA_SKY={ skyfighter:1, skyace:1, skyfort:1, skyship:1 };   // the Tan Air Corps: a plane whose x,y is its BODY, its shadow SKY_ALT below (skyDrawPlane); every other flier (a fairy, the wasp queen) stands on its own spot, drawn over it
@@ -190650,6 +190665,7 @@ function heroBfPool(st){ const k=st.type, d=Object.assign({}, UDEF[k], BF_MOVE[k
   if(soulIs('u',k)) hp*=SOUL_MUL;
   hp+=hlvHp(st);   /* CARD-HLV: every hero's flat rungs, after the soul (placeUnit's order) */
   hp+=hhp2Hp(st);   /* M2200 ROUND 2: KING REX +100 at his rank 100, flat (the HLV line's twin; every sheet reads heroHP) */
+  hp+=khpHp(st);   /* CARD-KHP: THE KINGS' +120 from their own rank 30, flat (the M2200 line's twin; every sheet reads heroHP) */
   hp+=pbkN(k);   /* CARD-PBK: THE PERFECT BOOK's gifts, flat, last */
   hp+=l100HpK(k);   /* CARD-L100: the level-100 gift's +1 HP, flat, last */
   return hp; }
