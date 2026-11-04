@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"29.98","md5":"b652f419b052fcb303d917a78a24e706","sha":"ac49a7def5","at":"2026-11-04T21:56:10Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"29.99","md5":"d5951a781a5666fff63411025381bd12","sha":"0f7b8b2ec0","at":"2026-11-04T22:03:26Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92657,7 +92657,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='29.98';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='29.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -217065,7 +217065,7 @@ GVT.tsb=function(o){ if(o){ if(o.on!=null) TSB.on=o.on? 1 : 0; if(o.lean!=null) 
 // settles (paid = the room's set pays its stars over itself, as ever: tvGrant); ✕ = it leaves at once, nothing paid, the day kept. A room without its set, or any throw = today's ask (TVA.ask0), never no ask.
 // ?tva=0 = HEAD's set (its box and its numbers: +30 on the board, 15 on a weekday); the device key gvt_tva; ?tva=1 back. Zero keys (the two rows ×7 stand), zero save fields, zero server bytes, zero sw.js.
 // Rig door: GVT.tva().
-const TVA_FILL_PHONE=0.98, TVA_FILL_WIDE=0.98, TVA_WMAX=0.85, TVA_OWED_MS=600000;   // THE CAMERA (DIALS): the set's height (its ears' tips to its feet) on the glass's height (a phone ≤ 500 px tall · a tablet or a desk), its width cap; the glass's word holds 10 min · ROUND 2 (ISAAC by WhatsApp 11/4 16:33: "Zoom closer in on the TV so that it fills almost the entire screen"): 0.98 of every glass (the pass: 0.86 a phone, 0.74 a tablet or a desk), the width cap 0.85 (was 0.8: an iPad's set at 85 % of its width, 97 % of its height)
+const TVA_FILL_PHONE=1.274, TVA_FILL_WIDE=1.274, TVA_WMAX=1.0, TVA_CAB_MID=58, TVA_OWED_MS=600000;   // THE CAMERA (DIALS): the set's height (its ears' tips to its feet) on the glass's height (a phone ≤ 500 px tall · a tablet or a desk), its width cap; the glass's word holds 10 min · ROUND 2 (ISAAC by WhatsApp 11/4 16:33: "Zoom closer in on the TV so that it fills almost the entire screen"): 0.98 of every glass (the pass: 0.86 a phone, 0.74 a tablet or a desk), the width cap 0.85 (was 0.8: an iPad's set at 85 % of its width, 97 % of its height) · ROUND 3 (ISAAC 11/4 16:48: "Zoom into the TV 30% closer"): 1.274 = 0.98 x 1.3 (the set 127 % of the glass's height: the camera is inside the set, so the view is centred on the cabinet, TVA_CAB_MID = the cabinet's middle in the mold's own units, y 32..84, the glass's centre too; the antenna's balls and the feet go out of frame, both borders stay), the width cap 1.0 (an iPad's set edge to edge, 114 % of its height; never wider than the glass: a cut through the cabinet's sides is a word of his, not a dial)
 const TVA_CSS='#adAsk.tva{background:#000;display:block;overflow:hidden;touch-action:none;padding:0;contain:strict}'
   +'#adAsk.tva .tva-room{position:absolute;inset:0;pointer-events:none;contain:strict}'
   +'#adAsk.tva .tva-room>svg{position:absolute;inset:0;width:100%;height:100%}'
@@ -217088,7 +217088,8 @@ function tvaBox(){ const k=SEV.tvK, d=mmXY('tv'); return { k, x:SEV.tv-39*k+d[0]
 function tvaFrame(W, H){   // THE CAMERA: a viewBox on the room's string, the set's whole height (the ears' tips 21.4 to the feet 88) at its fill, centred on the cabinet, a third of the air above it
   const b=tvaBox(), w=78*b.k, h=66.6*b.k, top=b.y+21.4*b.k, asp=W/H, fill=(H<=500? TVA_FILL_PHONE : TVA_FILL_WIDE);
   let vh=h/fill, vw=vh*asp; if(w/vw>TVA_WMAX){ vw=w/TVA_WMAX; vh=vw/asp; }
-  return [b.x+w/2-vw/2, top-(vh-h)*0.3, vw, vh];
+  const y0=(vh>=h)? top-(vh-h)*0.3 : b.y+TVA_CAB_MID*b.k-vh/2;   // ROUND 3: a camera inside the set (vh < h) is centred on the cabinet, not hung from the ears' tips (that hung crop cut the cabinet's foot and kept the antenna)
+  return [b.x+w/2-vw/2, y0, vw, vh];
 }
 function tvaSeat(el){   // the camera on the glass + the words' glass over the set's glass (the set's own 9,41 44x34, rx 3)
   const W=el.clientWidth||innerWidth||960, H=el.clientHeight||innerHeight||600, v=tvaFrame(W, H); TVA.view=v.map(x=>+x.toFixed(2));
