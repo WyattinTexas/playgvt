@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"29.90","md5":"191d4a483cdb4dac6856cba83f9292c3","sha":"30d38b0382","at":"2026-11-04T20:28:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"29.91","md5":"dda67c66cba8ec15bc1faeed80a6bc7d","sha":"b5e5d43b34","at":"2026-11-04T20:38:37Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92656,7 +92656,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='29.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='29.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -216898,16 +216898,19 @@ if(BDC2_ON){ try{
 // before the line; every open paints it fresh (cklRowHTML calls cklWhere) and a pet joined under a standing card moves the line within a tick (ptcTick at CKL's cadence; ptcDeal = grcDeal's law: a stamp in flight is never touched). Not the pets row's list, the switch off = the line as shipped.
 // Every other row untouched (GRC-Q2's other rows, the inventions, the campaign and the park, wait on his word: one row each + a key x7). ONE KEY x7, drafts for the pen: "%1 OF %2 OBTAINED" (the row's own verb), after CARD-CK6's marker in each tongue's table. Zero META writes, zero saves, zero server, sw.js or wire bytes.
 // ?ptc=0 = the line as shipped on that device (gvt_ptc); ?ptc=1 back on; GVT.ptc() the rigs' read. UNDO = build/applyPTC.py --undo. ═══
+// ROUND 2 (WYATT by Discord 11/4/2026 14:26 EST, a swipe-reply to the live note of client v29.71, verbatim: "Let's remove the one in the parks, the raids and events text"): the line under OBTAIN 20 PETS is THE COUNT ALONE: 7 OF 20 OBTAINED (the done row 20 OF 20 OBTAINED).
+// The chain still paints the row's line whole; ptcWhere keeps the chain's span and drops the shipped text inside it (the span's first text, up to its first child tag or its close); a child span (CKU's locked phrase, when one comes) rides along after the count.
+// The shipped line stays the row's own key for ?ptc=0 and for the undo. build-r2/applyPTC2.py swaps this section's v1 for this v2, byte for byte (UNDO = applyPTC2.py --undo = v1 back; applyPTC.py --undo on v1 = the page before the card). ═══
 var PTC={ on:(function(){ try{ const q=/[?&]ptc=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_ptc','0'); else localStorage.removeItem('gvt_ptc'); } return localStorage.getItem('gvt_ptc')==='0'? 0 : 1; }catch(e){ return 1; } })(),
-  v:1, key:"%1 OF %2 OBTAINED", row:'pets20', old:{}, wrapped:0, css:0, deals:0, paints:0, line:'', tid:0, err:0 };   // the switch, the key (this card's, x7 in the tables), the one row this section counts, the wrapped original, the counters
+  v:2, key:"%1 OF %2 OBTAINED", row:'pets20', old:{}, wrapped:0, css:0, deals:0, paints:0, line:'', tid:0, err:0 };   // the switch, the key (this card's, x7 in the tables), the one row this section counts, the wrapped original, the counters
 const PTC_CSS='#cklCard .ckl-where .ptc-n{ font-weight:900; letter-spacing:.12em; color:#4A2C12; }\n#cklCard .ckl-row.done .ckl-where .ptc-n{ color:inherit; }';   // the count in bold, a shade darker than the desert line (GRC's own tone); on a done row the line's own grey
 function ptcOn(){ return PTC.on===1 && typeof CK6!=='undefined' && !!CK6 && typeof ck6On==='function' && ck6On() && typeof cklOn==='function' && cklOn(); }   // this device's switch, under CK6's and CKL's (the row is theirs)
 function ptcCss(){ if(PTC.css || document.getElementById('ptcCss')) return; const s=document.createElement('style'); s.id='ptcCss'; s.textContent=PTC_CSS; document.head.appendChild(s); PTC.css=1; }
 function ptcListN(){ try{ for(const L of CKL_LISTS){ if(L && L.rows && L.rows.some(function(r){ return r[0]===PTC.row; })) return L.n|0; } }catch(e){ PTC.err++; } return 0; }   // the list the pets row sits on (list 4 today), read off the lists themselves
 function ptcN(){ try{ if(!ptcOn()) return -1; const k=cklKeys(); if(!k || typeof k!=='object' || k.given===-1 || k.all) return -1; if(cklListN()!==ptcListN()) return -1;
   return Math.max(0, Math.min(CK6_N.pets|0, ck6PetsN()|0)); }catch(e){ PTC.err++; return -1; } }   // THE COUNT the read counts (ck6Reads: ck6PetsN at every tick), clamped 0..20; -1 = nothing to say (not the pets row's list, the switch off)
-function ptcWhere(r, h){ if(!r || r[0]!==PTC.row) return null; const n=ptcN(); if(n<0) return null; h=String(h||''); const i=h.indexOf('>'); if(h.indexOf('<span class="ckl-where')!==0 || i<0) return null;
-  PTC.paints++; PTC.line=n+'/'+(CK6_N.pets|0); return h.slice(0, i+1)+'<b class="ptc-n">'+tf(PTC.key, String(n), String(CK6_N.pets|0))+'</b> · '+h.slice(i+1); }   // the count inside the chain's own span, before the line it painted (CKU's locked phrase, when one comes, rides along)
+function ptcWhere(r, h){ if(!r || r[0]!==PTC.row) return null; const n=ptcN(); if(n<0) return null; h=String(h||''); const i=h.indexOf('>'); if(h.indexOf('<span class="ckl-where')!==0 || i<0) return null; const j=h.indexOf('<', i+1); if(j<0) return null;
+  PTC.paints++; PTC.line=n+'/'+(CK6_N.pets|0); return h.slice(0, i+1)+'<b class="ptc-n">'+tf(PTC.key, String(n), String(CK6_N.pets|0))+'</b>'+h.slice(j); }   // ROUND 2: the count ALONE inside the chain's own span: the shipped text (the span's first text, up to its first child tag or its close) is dropped; a child span (CKU's locked phrase, when one comes) rides along after the count with its own separator
 function ptcDeal(){ try{ const c=document.getElementById('cklCard'); if(!c || !CKL.up || CKL.busy) return 0; const r=cklOrders().find(x=>x[0]===PTC.row); if(!r) return 0; const el=c.querySelector('.ckl-row[data-k="'+PTC.row+'"]'); const w=el? el.querySelector('.ckl-where') : null; if(!w) return 0;
   const box=document.createElement('div'); box.innerHTML=cklWhere(r); const nw=box.firstChild; if(!nw || nw.textContent===w.textContent) return 0; w.replaceWith(nw); PTC.deals++; return 1; }catch(e){ PTC.err++; return 0; } }   // the standing card's line dealt again (cknDeal's law)
 function ptcTick(){ try{ if(window.GVT && !GVT.ptc) GVT.ptc=ptcRead; if(!ptcOn() || !CKL.up || CKL.busy) return; const n=ptcN(); const s=(n<0)? '' : (n+'/'+(CK6_N.pets|0)); if(s!==PTC.line){ PTC.line=s; ptcDeal(); } }catch(e){ PTC.err++; } }   // a pet joined under a standing card: the line follows within a tick
