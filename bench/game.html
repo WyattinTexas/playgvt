@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"29.86","md5":"a78129d5a9c89f36a7081abd7ecd67ec","sha":"13b5472ab3","at":"2026-11-04T20:09:22Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"29.87","md5":"10ed75126266f6b43ad1b71508806aef","sha":"10c744c2b8","at":"2026-11-04T20:14:29Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -75005,8 +75005,9 @@ function bsaIk(Sp,Tp,L1,L2,bend){ const dx=Tp[0]-Sp[0], dy=Tp[1]-Sp[1], d=Math.h
 function bsaArm(u,Sp,Tp,kind,bend,s,w,h){ const Lm=kind==='n'? BSA.Ln : BSA.Lf, L1=Lm[0]*s, L2=Lm[1]*s, k=bsaIk(Sp,Tp,L1,L2,bend), ku=unitImg('sargebst'+kind+'u',u), kl=unitImg('sargebst'+kind+'l',u);   // the parts' molds point DOWN from the pivot (60,70): rotate by the angle less a quarter turn
   cx.save(); cx.translate(Sp[0],Sp[1]); cx.rotate(k.a1-Math.PI/2); cx.drawImage(ku,-60*s,-70*s,w,h); cx.restore();
   cx.save(); cx.translate(k.E[0],k.E[1]); cx.rotate(k.a2-Math.PI/2); cx.drawImage(kl,-60*s,-70*s,w,h); cx.restore(); return k; }
+// CARD-BDB: the v23.11 stroke gun below = the ?bdb=0 hold (bsaGun0); THE GUN now paints in sec CARD-BDB (bsaGun, right before bsaShells)
 // THE GUN: a sawed-off double-barrel, its lines inked (a dark line under every part), the barrels' light along the top; the barrels + the forend hinge about Hn by brk; the grip, the block and the hammers stay with the trigger hand
-function bsaGun(B,M,Gp,Hn,brk,kx,kr,ca,sa,nx,ny,H){ const st=(c,wd,x1,y1,x2,y2)=>{ cx.strokeStyle=c; cx.lineWidth=wd; cx.beginPath(); cx.moveTo(x1,y1); cx.lineTo(x2,y2); cx.stroke(); }, INK='#15181c', OW=1.4, o=1.35;
+function bsaGun0(B,M,Gp,Hn,brk,kx,kr,ca,sa,nx,ny,H){ const st=(c,wd,x1,y1,x2,y2)=>{ cx.strokeStyle=c; cx.lineWidth=wd; cx.beginPath(); cx.moveTo(x1,y1); cx.lineTo(x2,y2); cx.stroke(); }, INK='#15181c', OW=1.4, o=1.35;
   cx.save(); cx.translate(Gp[0]+kx,Gp[1]); cx.rotate(kr); cx.translate(-Gp[0],-Gp[1]); cx.lineCap='round';
   const g1=[B[0]-1.2,B[1]+0.6], g2=[B[0]-4.6,B[1]+5.2], b0=[B[0]-ca*2.6,B[1]-sa*2.6], hm=[B[0]-ca*1.2,B[1]-sa*1.2];
   st(INK,4.6+OW,g1[0],g1[1],g2[0],g2[1]); st(INK,6.0+OW,b0[0],b0[1],Hn[0],Hn[1]);                                                           // the ink under the grip and the block
@@ -75023,6 +75024,36 @@ function bsaGun(B,M,Gp,Hn,brk,kx,kr,ca,sa,nx,ny,H){ const st=(c,wd,x1,y1,x2,y2)=
   st('#262a2e',6.0,b0[0],b0[1],Hn[0],Hn[1]); st('rgba(255,255,255,0.16)',1.0,b0[0]+ca*0.7-nx*2.2,b0[1]+sa*0.7-ny*2.2,Hn[0]-ca*0.6-nx*2.2,Hn[1]-sa*0.6-ny*2.2);   // THE BREECH BLOCK over the hinge end, its top light
   for(let i=0;i<2;i++){ const dx9=i? 1.6 : 0, c9=i? '#3d434a' : '#2e3338', x1=hm[0]+ca*dx9-nx*2.8, y1=hm[1]+sa*dx9-ny*2.8, x2=hm[0]+ca*(dx9-1.4)-nx*5.2, y2=hm[1]+sa*(dx9-1.4)-ny*5.2; st(INK,1.5+1.1,x1,y1,x2,y2); st(c9,1.5,x1,y1,x2,y2); }   // TWO HAMMERS, cocked back
   cx.restore(); }
+// ═══ CARD-BDB THE BOOMSTICK, A THICK DOUBLE-BARREL (design/boomstick-double-barrel-1104/00-CARD-BDB.md; Wyatt by phone 11/4/2026 08:06 EST, jumpr 2971, built on Maker 1 as M2971: "Run a design pass for the boomstick. We need it to look like a thick, double-barreled shotgun, but right now it kind of looks like a missile.") ═══
+// THE GUN redrawn, presentation only. The arms rig's painter (bsaGun, CARD-BSA) drew two 2.7 px strokes a hair apart in two near-black tones, round-capped at the muzzle, the block barely taller: on the glass ONE dark tube with a rounded nose = a missile. Now: two stacked tubes BDB.bw wide (the top one lit,
+// the under one a shade darker with its own light, a dark seam), SQUARE-CUT at the muzzle with a flat steel face and TWO BORES, a breech block a step taller than the barrels with two lighter hammers over it, the bird's-head grip's knob showing under the fist, the forend wood ahead of and behind the far hand.
+// The seats (B, M, G, FO = BSA.A), the kick (about the trigger hand), the break (about the hinge), the hulls, the shells, the lane's slope, the duck line and the deal: byte-what-they-were. The v23.11 stroke gun stands as bsaGun0 = ?bdb=0 (GVT.bdb({on:0})). The lab's picture (boomstickSVG) redrawn to the same gun.
+const BDB={ on:(function(){ try{ return (new URLSearchParams(location.search).get('bdb')==='0')? 0 : 1; }catch(e){ return 1; } })(), bw:3.6, gap:0.5, blockH:8.6, gripW:5.0, fo0:3.5, fo1:15, foD:5.3, foH:3.6, hamW:1.9, bore:1.05 };   // the dials: one tube's width, the seam, the block's height, the grip's width, the forend (along from the breech, below the axis, its height), a hammer, a bore
+const BDBX={ drawn:0 };   // a rig's counter
+function bsaGun(B,M,Gp,Hn,brk,kx,kr,ca,sa,nx,ny,H){ if(!BDB.on) return bsaGun0(B,M,Gp,Hn,brk,kx,kr,ca,sa,nx,ny,H); BDBX.drawn++; const D=BDB, INK='#15181c', OW=1.4;
+  const st=(c,wd,p1,p2,cap)=>{ cx.strokeStyle=c; cx.lineWidth=wd; cx.lineCap=cap||'round'; cx.beginPath(); cx.moveTo(p1[0],p1[1]); cx.lineTo(p2[0],p2[1]); cx.stroke(); };
+  const A=(p,d,n)=>[p[0]+ca*d+nx*n, p[1]+sa*d+ny*n];   // a point d along the axis from p and n below it (n<0 = above)
+  cx.save(); cx.translate(Gp[0]+kx,Gp[1]); cx.rotate(kr); cx.translate(-Gp[0],-Gp[1]);   // THE FIRE as shipped: the whole gun rocks up about the trigger hand and slides back
+  const bw=D.bw, oc=bw/2+D.gap/2, half=bw+D.gap/2;   // the tubes' centres ∓oc; the stack's half height
+  const g1=A(B,-1.6,1.0), g2=A(B,-5.4,6.6), b0=A(B,-3.0,0), bk=A(Hn,0.6,0);
+  st(INK,D.gripW+OW,g1,g2); st(INK,D.blockH+OW,b0,bk);                                                                            // the ink under the grip and the block
+  cx.save(); cx.translate(Hn[0],Hn[1]); cx.rotate(brk); cx.translate(-Hn[0],-Hn[1]);                                             // THE BREAK as shipped: the barrels and the forend hinge here
+    const fa=A(B,D.fo0,D.foD), fb=A(B,D.fo1,D.foD);
+    st(INK,D.foH+OW,fa,fb); st('#8a5a2b',D.foH,fa,fb); st('rgba(255,255,255,0.22)',0.8,A(fa,0.8,-(D.foH/2-1.0)),A(fb,-0.8,-(D.foH/2-1.0)));   // THE FOREND, wood under the barrels, ahead of and behind the far hand, its light
+    st(INK,2*half+OW,A(Hn,-1.1,0),A(M,0.7,0),'butt');                                                                            // the ink under both barrels, square at the sawed cut
+    st('#5e6a75',bw,A(Hn,-0.4,-oc),A(M,0,-oc),'butt'); st('#3f474f',bw,A(Hn,-0.4,oc),A(M,0,oc),'butt');                          // the top tube lit, the under tube a shade darker: two cylinders
+    st(INK,D.gap+0.3,A(Hn,0.4,0),A(M,-0.6,0),'butt');                                                                            // the seam between the tubes
+    st('rgba(255,255,255,0.32)',0.9,A(Hn,1.4,-(half-0.6)),A(M,-1.6,-(half-0.6)));                                                // the light along the top tube's upper edge
+    st('rgba(255,255,255,0.2)',0.7,A(Hn,1.4,D.gap/2+0.6),A(M,-1.6,D.gap/2+0.6));                                                 // the under tube's own light under the seam
+    const mf=A(M,-0.9,0); st('#c9d1d8',1.8,A(mf,0,-(half-0.1)),A(mf,0,half-0.1),'butt');                                          // THE CUT: a flat steel face across both tubes
+    for(const o of [-oc,oc]){ const c=A(mf,0,o); cx.fillStyle='#0e1114'; cx.beginPath(); cx.arc(c[0],c[1],D.bore,0,Math.PI*2); cx.fill(); }   // the two bores
+  cx.restore();
+  st('#7a4a22',D.gripW,g1,g2); st('rgba(255,255,255,0.2)',0.9,A(g1,-0.2,-1.6),[g2[0]+0.7,g2[1]-1.7]);                              // THE GRIP, wood (the bird's head), its light; its knob shows under the fist
+  st('#2c3137',D.blockH,b0,bk); st('rgba(255,255,255,0.18)',1.0,A(b0,0.9,-(D.blockH/2-1.1)),A(bk,-0.9,-(D.blockH/2-1.1)));           // THE BREECH BLOCK over the hinge end, a step taller than the barrels, its top light
+  const hm=A(B,-1.6,0); for(const [dx9,c9] of [[0,'#3f474f'],[1.8,'#58626c']]){ const p1=A(hm,dx9,-(D.blockH/2-0.6)), p2=A(hm,dx9-1.7,-(D.blockH/2+2.6)); st(INK,D.hamW+1.1,p1,p2); st(c9,D.hamW,p1,p2); }   // TWO HAMMERS, cocked back, lighter than the block
+  cx.restore(); }
+function bdbRig(o){ if(o && o.on!=null) BDB.on=o.on? 1 : 0; return { cv:GVT_CV, on:BDB.on, drawn:BDBX.drawn, dials:BDB, icon:/CARD-BDB/.test(boomstickSVG()) }; }   // the rig door GVT.bdb(): the dial, the counter, the dials, the lab's picture
+// ═══ END CARD-BDB ═══
 function bsaShells(hand,k,ca,sa){ BSAX.shells++; cx.save(); cx.translate(hand[0],hand[1]); cx.rotate(Math.atan2(sa,ca)-1.1); cx.scale(1,0.15+0.85*k); cx.lineCap='butt';   // two fresh shells side by side in the far hand, shrinking into the chambers as they go in (k 1 whole .. 0 in)
   for(let i=0;i<2;i++){ const o=i? 1.25 : -1.25; cx.strokeStyle='#15181c'; cx.lineWidth=2.6; cx.beginPath(); cx.moveTo(o,-2.8); cx.lineTo(o,2.8); cx.stroke(); cx.strokeStyle='#c8322a'; cx.lineWidth=1.6; cx.beginPath(); cx.moveTo(o,-2.8); cx.lineTo(o,1.3); cx.stroke(); cx.strokeStyle='#d8b25a'; cx.beginPath(); cx.moveTo(o,1.3); cx.lineTo(o,2.8); cx.stroke(); }
   cx.restore(); }
@@ -92625,7 +92656,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='29.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='29.87';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -175040,7 +175071,7 @@ ENH_INFO.boomstick={ unit:'sarge', name:'THE BOOMSTICK', sub:'A SAWED-OFF DOUBLE
   up:'Fits the SHOTGUN: the fan becomes ONE straight blast down the barrel. Shorter than the fan, and every man standing in its path takes a tenfold hit.',
   down:'Nothing beside the line is touched. Bolted to the SHOTGUN rig: the day he carries anything else, it does nothing at all.' };
 ENH_SHORT.boomstick={ up:'ONE STRAIGHT BLAST, TENFOLD', down:'NOTHING BESIDE THE LINE' };
-function boomstickSVG(){ return '<svg viewBox="0 0 132 62"><g transform="translate(4 12)"><path d="M26 20 L14 34 L6 34 L8 26 L22 14 Z" fill="#7a4a22" stroke="#3a2410" stroke-width="2" stroke-linejoin="round"/><path d="M34 22 L46 22 L46 27 L34 27 Z" fill="#8a5a2b" stroke="#3a2410" stroke-width="1.5"/><rect x="20" y="9" width="16" height="14" rx="2" fill="#262a2e" stroke="#111" stroke-width="1.5"/><rect x="34" y="10" width="86" height="5.5" rx="2" fill="#4c545c" stroke="#1c1f22" stroke-width="1.2"/><rect x="34" y="16" width="86" height="5.5" rx="2" fill="#2e3338" stroke="#1c1f22" stroke-width="1.2"/><path d="M22 9 L19 3 M27 9 L25 3" stroke="#262a2e" stroke-width="2.2" stroke-linecap="round"/><rect x="118" y="8.5" width="3" height="14" rx="1" fill="#b7c0c8"/></g></svg>'; }   // CARD-BST: the card's picture, a sawed-off double-barrel
+function boomstickSVG(){ return '<svg viewBox="0 0 132 62" data-card="CARD-BDB"><g><path d="M31 31 L22 45 Q18 53 10 51 L8 43 L23 27 Z" fill="#7a4a22" stroke="#3a2410" stroke-width="2" stroke-linejoin="round"/><path d="M26 32 L17 44" fill="none" stroke="#a06a32" stroke-width="1.4" stroke-linecap="round"/><rect x="46" y="39" width="30" height="9" rx="2.5" fill="#8a5a2b" stroke="#3a2410" stroke-width="1.8"/><path d="M50 43.5 H72" fill="none" stroke="#b47a3c" stroke-width="1.4" stroke-linecap="round"/><path d="M27 12 L22 3 M36 12 L31 3" fill="none" stroke="#15181c" stroke-width="5" stroke-linecap="round"/><path d="M27 12 L22 3 M36 12 L31 3" fill="none" stroke="#58626c" stroke-width="3" stroke-linecap="round"/><rect x="18" y="11" width="29" height="31" rx="4" fill="#2c3137" stroke="#15181c" stroke-width="1.8"/><rect x="21" y="13.5" width="23" height="4" rx="2" fill="rgba(255,255,255,0.16)"/><rect x="44" y="14" width="75" height="12" rx="1.5" fill="#5e6a75" stroke="#15181c" stroke-width="1.8"/><rect x="44" y="27" width="75" height="12" rx="1.5" fill="#3f474f" stroke="#15181c" stroke-width="1.8"/><path d="M48 17 H114" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="2" stroke-linecap="round"/><path d="M48 30 H114" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.6" stroke-linecap="round"/><rect x="114" y="13" width="8" height="27" rx="1.5" fill="#c9d1d8" stroke="#15181c" stroke-width="1.8"/><circle cx="118" cy="20" r="3.3" fill="#0e1114"/><circle cx="118" cy="33" r="3.3" fill="#0e1114"/></g></svg>'; }   // CARD-BDB: the card's picture, the thick double-barrel (CARD-BST's long one redrawn to the gun in his hands)
 function shotclawSVG(){ return '<svg viewBox="0 0 132 62"><g transform="translate(4 14)"><path d="M2 30 L18 24 L22 18 L48 18 L50 22 L30 22 L28 30 Z" fill="#3a2c1c" stroke="#1a140c" stroke-width="2" stroke-linejoin="round"/><rect x="46" y="16" width="34" height="7" rx="2" fill="#4a5058" stroke="#1a140c" stroke-width="2"/><rect x="40" y="23" width="24" height="5" rx="2" fill="#6B7078" stroke="#1a140c" stroke-width="1.5"/></g>'
     +'<path d="M84 33 H108" stroke="#FFD34D" stroke-width="2.4" stroke-dasharray="3 2.4"/><g transform="translate(112 33)"><circle cx="0" cy="0" r="4.2" fill="#FFD34D" stroke="#7a5a10" stroke-width="1.6"/><g fill="none" stroke="#FFD34D" stroke-width="3" stroke-linecap="round"><path d="M2 -3 q10 -4 12 4 M2 3 q10 4 12 -4 M3 0 h10"/></g></g>'
     +'<g transform="translate(118 20) scale(0.58)"><ellipse cx="0" cy="42" rx="12" ry="3" fill="rgba(0,0,0,0.3)"/><circle cx="0" cy="6" r="6" fill="#C09E6C"/><path d="M-8 14 h16 v18 h-16 Z M-8 32 v10 M8 32 v10 M-8 18 l-8 10 M8 18 l8 10" stroke="#C09E6C" stroke-width="5" stroke-linecap="round" fill="#C09E6C"/></g>'
@@ -207152,7 +207183,8 @@ window.GVT = {
   sgd(){ return sgdRig(); },   // CARD-SGD THE SHOTGUN DOOR: the bay's read (the leaf, the face, the life, the movers' clocks; read-only)
   fwd(){ return fwdRig(); },   // CARD-FWD THE WALL IS THE DOOR + THE STAR PURSE: the wall's box, the purse, the valance (read-only)
   bst(){ return bstRig(); },
-  bsa(o){ return bsaRig(o); },   /* CARD-BSA: the arms rig's door (the dial, the hold, the counters) */   // CARD-BST THE BOOMSTICK: the part, the dials, the pulls, the fx census (read-only)
+  bsa(o){ return bsaRig(o); },   /* CARD-BSA: the arms rig's door (the dial, the hold, the counters) */
+  bdb(o){ return bdbRig(o); },   /* CARD-BDB: the thick double-barrel's door (the dial, the counter, the dials) */   // CARD-BST THE BOOMSTICK: the part, the dials, the pulls, the fx census (read-only)
   r5g(){ return r5gRig(); },   // CARD-R5G THE RANK-5 GIFTS: the ledger, the parts and the stage's film plate for a rig
   llk(o){ return llkRig(o); },   // CARD-LLK-D THE LOOT KINDS, DARK: the gate + the tables for a rig
   nbx(o){ o=o||{}; if(o.on!=null) NBX.on=o.on? 1 : 0; if(o.waltz) return nbxWaltz(o.waltz[0], o.waltz[1]); if(o.stop) nbxStop(); if(o.tap) return nbxTapFig(o.tap); if(o.hit) return nbxHit(o.hit[0], o.hit[1]); if(o.tapReset){ META.nbxTap={}; saveMeta(); } if(o.pop!=null) return nbxPopBox(o.pop, o.still); if(o.hitBox) return nbxHitBox(o.hitBox[0], o.hitBox[1], o.m); const W=NBX.st, sv=nbaSvg(); return { cv:GVT_CV, on:NBX.on, guests:NBX_GUESTS.map(function(g){ return g.id; }).filter(function(id){ return !!NBW.st[id]; }), walkers:Object.keys(NBW.st).length, dials:{ max:NBW.max, every:NBW.every.slice(), tick:NBA.tick.slice(), gap:NBA.gap.slice() }, base:NBX.base, waltz:W? { a:W.a, b:W.b, i:W.i, n:W.n, cx:Math.round(W.cx), cy:Math.round(W.cy), r:Math.round(W.r) } : null, ticker:!!NBX.t, log:NBX.log.slice(-20), taps:Object.keys((META.nbxTap && typeof META.nbxTap==='object')? META.nbxTap : {}), orn:sv? Array.prototype.map.call(sv.querySelectorAll('.nbx-orn'), function(g){ return g.getAttribute('data-piece'); }) : [], balls:sv? sv.querySelectorAll('.nba-orn').length : 0, stars:NBX2.stars, taplog:NBX2.log.slice(-20), boxes:sv? NBX3.st.map(function(b){ return { fig:b.el.getAttribute('data-fig'), next:b.i, cur:b.cur, out:(b.box.classList.contains('nbx-pop') || b.box.classList.contains('nbx-pop-still')), still:b.box.classList.contains('nbx-pop-still'), lid:b.lid? b.lid.children.length : 0, kids:b.box.children.length, doll:b.dk? b.dk.children.length : 0 }; }) : [], poplog:NBX3.log.slice(-20) }; },   // CARD-NBX: the guests, the dials, the waltz, the taps, the ornaments and the toy boxes for a rig (round 2: {tap:id} taps a figure, {hit:[x,y]} names the walker under a glass point, {tapReset:1} forgets the gifts; round 3: {pop:k} pops toy box k ({still:1} the still pop), {hitBox:[x,y]} names the box under a glass point)
