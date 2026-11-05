@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.55","md5":"e13e4815779f10ecb0dfb237180e3810","sha":"a612efd6ab","at":"2026-11-05T21:30:55Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.56","md5":"e77cab0ec2bbc448b430c3667bd79efe","sha":"a735efbf32","at":"2026-11-05T21:40:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80069,6 +80069,48 @@ function rexHeroFireY(){ return URX_ON? URX_HERO_FIRE_Y : KRO_HERO_FIRE_Y; }
 const URX_HELM={x:42,y:16,s:1.3,r:-10};          // THE FALLEN HELMET's seat on Uncle Rex's crown (CARD-KRT's CAP_HELM row, kept for him: kraHelm, capHelmDraw under the latch)
 const KRO_TAIL_UP=1, KRO_TAIL_DOWN=0.2;   /* CARD-KRG: her tail lies at -15 degrees, 42 long: it takes the lash's full lift (-50) inside his box; the sweep stays x0.2 (the point keeps off the box's edge) */        // THE LASH ON THE ROUND TAIL (picture only: the beat, its clocks, its red ground and its hits are sec:rxm's, untouched). sec:rxm speaks in degrees about the tall tail's root (RXM_LASH_UP -50, RXM_LASH_DOWN 35, the eruption's thrash 20). The round tail already stands at 53 degrees and is 64 box units long: lifted x0.9 it stands straight over his back (the -45 frame; the tell's shiver touches -50); swept x0.2 it comes down 7 degrees past rest = the +5 frame, whose point is at x 139.3 of his 140 box. The +10 frame would put the point at 143.3 and the raster would cut it flat (the reviewer's read before the push); a full 35 would cut 15 units
 function rexTailDeg(a){ return URX_ON===1? a : a*(a<0? KRO_TAIL_UP : KRO_TAIL_DOWN); }
+// ═══ CARD-RBO · KING REX WEARS ONE DRAWING THROUGH HIS FIRE (sec:CARD-RBO; design/rex-breath-outline-1105/00-CARD-RBO.md; jumpr 3068 FROM SKYLAR 11/5/2026 13:25 ET, voice, verbatim:
+// "In between, when King Rex is shooting his fire, when he stops, a black outline appears around King Rex ... he shoots fire, he stops, and then there's a black outline around King Rex.
+// Then he shoots fire again, and it's gone. Once he's done with this attack, he walks away, and that black outline is gone.")
+// THE CAUSE: CARD-ODE (10/15) mints IMG.kingrex from lagSpr: his character page's drawing (Al's lines, the soft ring round him, Laura's bands). His fight poses were still cut from the RAW
+// mold (amMold): krgFrames (the open mouth he breathes with, the four walk frames, the jump), rxmTails (the lash's tail) and hauRexFrames (the hero sheet's portrait). So he wore the raw
+// drawing while he breathed, walked, jumped or lashed, and the page's drawing, ring and all, only while he stood still: between two breaths.
+// THE CURE: every pose is cut from the drawing his still picture shows (its own SVG, read back off the picture), so every frame he shows is ONE drawing (Laura's rule, 11/5). The page
+// paints his ring BEHIND him as flat copies of his pieces, outside their groups; krgPoseable wraps each copy of a piece a pose turns (the legs, the tail) in that piece's own group
+// wrappers, still behind him, so the turn takes its ring along (no ring left where the leg was). Under ?ode=0 or ?lag=0 his still picture is the raw mold, and the poses are the shipped
+// frames byte for byte; under ?olr=0 it is Laura's own pass (no bake) and the poses follow it the same way. ?rbo=0 = the poses cut from the raw mold, as shipped (the flicker back).
+// Presentation only: no sim, wire, save or word byte.
+const RBO={ on:(function(){ try{ return new URLSearchParams(location.search).get('rbo')==='0'? 0 : 1; }catch(e){ return 1; } })(), cuts:0, moved:0, miss:0 };
+const RBO_TURN=['blegB','blegF','btail'];   // the groups a pose turns: krgFrames' legs, rxmTails' tail (the open mouth only shows bmaw: nothing moves)
+const RBO_D=new WeakMap();   // a picture -> the SVG body it was minted from, read once
+function rboBody(im){ if(!im) return null; if(RBO_D.has(im)) return RBO_D.get(im);   // the body of an svg data-URI picture (null: a raster, or not an svg)
+  const s=String(im.src||''), m=/^data:image\/svg\+xml;(?:charset=utf-8,|utf8,)/.exec(s); let v=null;
+  if(m){ try{ const f=decodeURIComponent(s.slice(m[0].length)), a=f.indexOf('>'), z=f.lastIndexOf('</svg>'); if(a>=0 && z>a) v=f.slice(a+1,z); }catch(e){ v=null; } }
+  RBO_D.set(im,v); return v; }
+function krgDrawing(){ return (RBO.on && rboBody(IMG.kingrex)) || amMold('kingrex'); }   // King Rex's fight drawing: the one his still picture shows (the page's since CARD-ODE; the raw mold under ?ode=0 / ?lag=0)
+function krgPoseable(src){   // src with each flat copy of a turning piece (outside every turning group and every <defs>) wrapped in that piece's own group wrappers; src itself when nothing is
+  if(typeof src!=='string' || !RBO.on) return null;   // copied (the raw mold); null when the string is not one this reader follows (the caller cuts the raw mold, as shipped)
+  const GEO={ path:['d'], rect:['x','y','width','height','rx','ry'], circle:['cx','cy','r'], ellipse:['cx','cy','rx','ry'], line:['x1','y1','x2','y2'], polygon:['points'], polyline:['points'] },
+    OFF={ defs:1, clipPath:1, mask:1, pattern:1, symbol:1, marker:1, linearGradient:1, radialGradient:1, filter:1 },
+    at=(t,n)=>{ const q=new RegExp('\\s'+n+'="([^"]*)"').exec(t); return q? q[1] : null; },
+    st=[], pcs={}, cps=[], re=/<(\/?)([A-Za-z][\w:-]*)\b[^>]*?(\/?)>/g;
+  let m, off=0, turn=0;
+  while((m=re.exec(src))){ const nm=m[2], t=m[0];
+    if(m[1]){ const o=st.pop(); if(!o || o.nm!==nm){ RBO.miss++; return null; } if(OFF[nm]) off--; if(o.turn) turn--; continue; }
+    if(m[3]){ if(GEO[nm] && !off){ const k=nm+'|'+GEO[nm].map(a=>at(t,a)).join('|')+'|'+at(t,'transform'), e={ a:m.index, z:re.lastIndex, st:st.slice() };
+        if(turn){ const p=pcs[k]; if(!p || e.st.length<p.st.length) pcs[k]=e; } else cps.push([k,e]); } continue; }   // a piece in a turning group (its plainest seat kept) · a piece anywhere else
+    if(GEO[nm] && !off){ RBO.miss++; return null; }   // a drawn piece with children: not a string this reader follows
+    const tn=(nm==='g') && RBO_TURN.indexOf(at(t,'class'))>=0;
+    st.push({ nm:nm, t:t, a:m.index, turn:tn, tf:at(t,'transform') }); if(OFF[nm]) off++; if(tn) turn++; }
+  if(st.length){ RBO.miss++; return null; }
+  let out='', p0=0, n=0;
+  for(const [k,c] of cps){ const p=pcs[k]; if(!p) continue;   // a flat copy of a turning piece (the same tag and geometry)
+    let i=0; while(i<p.st.length && i<c.st.length && p.st[i].a===c.st[i].a) i++;   // below their shared wrappers ...
+    if(c.st.slice(i).some(o=>o.tf)) continue;   // (a copy under a turn of its own is left where it is)
+    const w=p.st.slice(i).filter(o=>o.turn || o.tf); if(!w.some(o=>o.turn)) continue;   // ... the piece's own chain: its pivot, its group's tag (the pose's split/join turns it), its un-pivot
+    out+=src.slice(p0,c.a)+w.map(o=>o.turn? o.t : '<g transform="'+o.tf+'">').join('')+src.slice(c.a,c.z)+'</g>'.repeat(w.length); p0=c.z; n++; }
+  RBO.cuts++; RBO.moved=n; return n? out+src.slice(p0) : src; }
+// ═══ END CARD-RBO ═══
 // ═══ CARD-KRG2 KING REX WALKS, JUMPS, KEEPS HIS MOUTH SHUT TILL HE ROARS, AND BREATHES A FLOWING FIRE (design/king-rex-sketch-1008/00-BUILD-KRS.md, round 9; Wyatt 10/8/2026 19:21 by Discord, verbatim:
 // "It's looking really good. When he roars, the bottom of his jaw kind of comes out. If you can utilize the Shape Store to close his mouth, make his mouth shut, then it will impact his roar even more.
 // The symbol for him should be mirrored the other way, so he's facing the same way that the other units are when he's your unit. Otherwise, let's get him walking, moving his feet forward and on his
@@ -80079,7 +80121,7 @@ function rexTailDeg(a){ return URX_ON===1? a : a*(a<0? KRO_TAIL_UP : KRO_TAIL_DO
 // Reduced motion keeps the open mouth (it is the fire's read) and stills the legs. A dyed or rimmed picture, Uncle Rex's latch and a frame not decoded yet all fall back to the picture as given.
 const KRG_WALK=[[16,-14,0],[0,0,-1.5],[-16,14,0],[0,0,-1.5]], KRG_JUMP=[24,18,0], KRG_STEP=4.5;   /* CARD-KRW (Wyatt 10/9/2026 ~16:55 on Maker 1: "King Rex's walking animation just needs to be sped up twice as fast. Currently, it just looks a little choppy."): a leg frame every 4.5 of ground (was 9), his feet twice as fast; his speed and the sim untouched */   // [near leg deg, far leg deg, lift]: + swings a foot forward (he faces west in his box)
 let KRG_P=null; const KRG_MV=new WeakMap();
-function krgFrames(){ const body=amMold('kingrex'); if(KRG_P && KRG_P.src===body) return KRG_P; const P=KRG_P={ src:body, open:null, walk:[], jump:null };
+function krgFrames(){ const src=krgDrawing(); if(KRG_P && KRG_P.src===src) return KRG_P; const P=KRG_P={ src:src, open:null, walk:[], jump:null }, body=krgPoseable(src)||amMold('kingrex');   /* CARD-RBO: his poses are cut from the drawing his still picture shows (made poseable: the ring rides the legs); the raw mold when that drawing cannot be followed */
   if(body.indexOf('<g class="blegB">')<0 || body.indexOf('<g class="blegF">')<0 || body.indexOf('<g class="bmaw" opacity="0">')<0) return P;   // a mold without the parts: no frames, the picture as shipped
   const mk=s=>{ const im=new Image(); im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140">'+s.split('currentColor').join(GREEN)+'</svg>'); return im; };
   const legs=(a,b,dy)=>{ const s=body.split('<g class="blegB">').join('<g class="blegB" transform="rotate('+a+')">').split('<g class="blegF">').join('<g class="blegF" transform="rotate('+b+')">'); return dy? '<g transform="translate(0,'+dy+')">'+s+'</g>' : s; };
@@ -92664,7 +92706,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.55';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.56';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -115032,12 +115074,12 @@ function rxmTick(f,dt){   // rexSweepTick's first read
 // his head ride his own branch. Reduced motion: no pulse, no shiver; every ring, colour and line stays (they are the tells).
 let RXM_TAILS=null;
 function rxmTails(){   // the tail frames: his own mold with .btail turned about KREX_AT.tailRoot, one raster every 5 degrees (-60 to 40), minted once a mold (the ink flip re-mints)
-  const body=amMold(rexMoldK());   // CARD-KRO: King Rex's hooked rex mold (his tail on btail, pivot 96,96), or Uncle Rex's under the rig's latch
-  if(RXM_TAILS && RXM_TAILS.src===body) return RXM_TAILS;
-  const T=RXM_TAILS={ src:body, im:{} };
+  const kr=rexMoldK()==='kingrex', src=kr? krgDrawing() : amMold(rexMoldK());   // CARD-KRO: King Rex's hooked rex mold (his tail on btail, pivot 96,96), or Uncle Rex's under the rig's latch   /* CARD-RBO: King Rex's tail turns on the drawing his still picture shows */
+  if(RXM_TAILS && RXM_TAILS.src===src) return RXM_TAILS;
+  const T=RXM_TAILS={ src:src, im:{} }, body=kr? (krgPoseable(src)||amMold('kingrex')) : src;   /* CARD-RBO: the ring's copies of his tail ride its turn */
   if(body.indexOf('<g class="btail">')<0) return T;   // a mold without the pivot: no frames, the body as shipped
   for(let a=-60;a<=40;a+=5){ if(!a) continue; const im=new Image();
-    im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140">'+body.replace('<g class="btail">','<g class="btail" transform="rotate('+a+')">').split('currentColor').join(GREEN)+'</svg>');
+    im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140">'+body.split('<g class="btail">').join('<g class="btail" transform="rotate('+a+')">').split('currentColor').join(GREEN)+'</svg>');
     T.im[a]=im; }
   return T;
 }
@@ -191169,7 +191211,7 @@ function hauPlume(c,x,y,ang,Lr,sp,k,t,sc){ const fd=Math.min(1,(1-k)/0.4), W0=Lr
   for(let i=0;i<4;i++){ const q=(t*1.4+i*0.27)%1, d=Lr*(0.3+0.6*((i*0.37+0.2)%1)); c.globalAlpha=0.6*fd*(1-q); c.fillStyle=i%2? '#FFD24A' : '#FF9A3D'; c.beginPath(); c.arc(x+ca*d+Math.sin(t*9+i)*4, y+sa*d-q*28*sc, (2.2+i*0.5)*sc, 0, 7); c.fill(); }
   c.globalAlpha=1; }
 const HAU_RF={};   // King Rex's fight poses in the SHEET's paint (mnImg's own hex): krgFrames' cut, one set per paint — the open mouth + the four walk frames
-function hauRexFrames(){ const hex=dyeHex()||'#7FA35C', body=amMold('kingrex'), q=HAU_RF[hex]; if(q && q.src===body) return q; const P=HAU_RF[hex]={ src:body, open:null, walk:[] };
+function hauRexFrames(){ const hex=dyeHex()||'#7FA35C', src=(RBO.on && rboBody(mnImg('kingrex')))||amMold('kingrex'), q=HAU_RF[hex]; if(q && q.src===src) return q; const P=HAU_RF[hex]={ src:src, open:null, walk:[] }, body=krgPoseable(src)||amMold('kingrex');   /* CARD-RBO: the sheet's poses are cut from the drawing its still picture shows (mnImg = sprURI's: the page's) */
   if(body.indexOf('<g class="blegB">')<0 || body.indexOf('<g class="blegF">')<0 || body.indexOf('<g class="bmaw" opacity="0">')<0) return P;
   const mk=s=>{ const im=new Image(); im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140">'+s.split('currentColor').join(hex)+'</svg>'); return im; };
   const legs=(a,b,dy)=>{ const s=body.split('<g class="blegB">').join('<g class="blegB" transform="rotate('+a+')">').split('<g class="blegF">').join('<g class="blegF" transform="rotate('+b+')">'); return dy? '<g transform="translate(0,'+dy+')">'+s+'</g>' : s; };
