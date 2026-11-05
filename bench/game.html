@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"30.58","md5":"1590601a68e4357908de0639b2abf820","sha":"356933de49","at":"2026-11-05T22:23:03Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"30.59","md5":"9f2796f76ba1e8b82673cb3c0d8ec5d2","sha":"e49b86a549","at":"2026-11-05T22:46:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -2142,6 +2142,21 @@
   @keyframes gsttoast { 0% { opacity:0; transform:translate(-50%,6px); } 12% { opacity:1; transform:translate(-50%,0); } 80% { opacity:1; } 100% { opacity:0; } }
   @media (min-height:601px) { .fh-stage.eq-stage > .gst-row { top:52px; gap:11px; } .gst-row .gst-p { width:64px; height:58px; } .gst-row .gst-p b { font-size:32px; line-height:32px; } .gst-row .gst-p i { font-size:11px; } .gst-row .gst-save { top:52px; font-size:12px; } }
   @media (prefers-reduced-motion: reduce) { .gst-row .gst-save, .fh-stage.eq-stage > .gst-toast { animation:none; } }
+  /* CARD-GSC (jumpr 3064, Skylar 11/5): Sarge's tap box on THE CAMPAIGN's DEPLOY screen, the three plates under his boots (CARD-GST's plates, small: lit green = the set he wears, dashed green = that set changed since, cream = saved, dashed = an empty slot) and the caption SET %1 ON, which stands in their band for 1.4 s */
+  #campscene .gsc-fig { position:relative; display:block; line-height:0; cursor:pointer; -webkit-tap-highlight-color:transparent; transform-origin:50% 100%; }
+  #campscene .gsc-fig > img.wt-flank { display:block; }
+  #campscene .gsc-row { position:absolute; left:50%; top:calc(100% + 3px); transform:translateX(-50%); z-index:2; display:flex; gap:4px; line-height:normal; }
+  #campscene .gsc-p { display:block; width:22px; height:20px; box-sizing:border-box; border-radius:6px; border:1.5px solid rgba(0,0,0,.35); background:linear-gradient(#F3E7C8,#D9C49A); box-shadow:0 2px 0 rgba(0,0,0,.35); color:#3A2E1E; font-family:var(--ui); font-size:13px; line-height:17px; font-weight:700; font-style:normal; text-align:center; }
+  #campscene .gsc-p.on { border:2px solid #7DC35A; line-height:16px; box-shadow:0 0 0 2px rgba(125,195,90,.35),0 2px 0 rgba(0,0,0,.35); transform:scale(1.14); }
+  #campscene .gsc-p.drift { border-style:dashed; }
+  #campscene .gsc-p.mt { background:rgba(255,255,255,.04); border:1.5px dashed rgba(243,231,200,.55); box-shadow:none; color:rgba(243,231,200,.6); }
+  #campscene .gsc-say { position:absolute; top:calc(100% + 2px); transform:translateX(-50%); z-index:3; cursor:pointer; -webkit-tap-highlight-color:transparent; font-family:var(--ui); background:rgba(20,24,16,.9); color:#F3E7C8; border:2px solid #7DC35A; border-radius:9px; font-size:12px; line-height:14px; font-weight:700; letter-spacing:.06em; padding:2px 8px; white-space:nowrap; animation:gscsay 1.4s ease forwards; }
+  #campscene .gsc-fig.gsc-saying > .gsc-row { opacity:0; }   /* the caption stands in the plates' own band (the band proven clear on every glass), then the plates come back with the new letter lit; plates and caption stay inside the tap box (a quick second tap there still cycles) */
+  #campscene .gsc-fig.gsc-pop { animation:gscpop .3s ease-out; }
+  @keyframes gscpop { 0%,100% { transform:scale(1); } 40% { transform:scale(1.1); } }
+  @keyframes gscsay { 0% { opacity:0; } 12%,80% { opacity:1; } 100% { opacity:0; } }
+  @media (min-height:601px) { #campscene .gsc-row { gap:5px; } #campscene .gsc-p { width:28px; height:25px; border-radius:7px; font-size:16px; line-height:22px; } #campscene .gsc-p.on { line-height:21px; } #campscene .gsc-say { font-size:15px; line-height:19px; padding:2px 10px; } }
+  @media (prefers-reduced-motion: reduce) { #campscene .gsc-fig.gsc-pop, #campscene .gsc-say { animation:none; } }
   /* the shelves */
   .fh-fit.eq-fit > .fh-rails.eq-rails { flex:1 1 auto; min-width:0; box-sizing:border-box; padding:8px max(12px, env(safe-area-inset-right, 0px)) calc(14px + var(--chin,0px)) 13px; }
   .fh-rails.eq-rails > .fh-bank { float:right; margin:0 max(0px, calc(66px - env(safe-area-inset-right, 0px))) 0 10px; }
@@ -92706,7 +92721,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.58';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -185021,6 +185036,49 @@ function gstPut(k){ const g=gstSets(), s=g[k]; if(!s) return false; const own=(M
   if(fortStands()) fortSync(); gstToast(tf('SET %1 ON', k)); return true; }
 function gstTap(k){ if(GST_KEYS.indexOf(k)<0) return false; try{ audio(); }catch(e){} return gstSets()[k]? gstPut(k) : gstSave(k); }
 // ═══ end of sec:CARD-GST ═══
+// ═══ sec:CARD-GSC TAP SARGE ON THE CAMPAIGN SCREEN: HE CYCLES HIS GEAR SETS A · B · C (SKYLAR on Skylar's console 11/5/2026 13:10 CST, relayed by the Go Machine as jumpr 3064, built on Maker 1 as M3064;
+// design/gear-sets-campaign-1105/00-CARD-GSC.md), verbatim: "A change we want to make in GVT is that when you are in the campaign menu, you can click on Sarge in the campaign menu, which will cycle him through his
+// presets of A, B, or C. That way, you can quickly change what Sarge you use for the battle, but only through those three presets that you have set up. Push that to live."
+// CARD-GST's sets (META.gearSets, saved on SARGE'S EQUIPMENT's stage; its GST-Q6 left the deploy screen without a letter "for now") come to THE CAMPAIGN's DEPLOY screen. renderCampScene is wrapped by name (its
+// body byte-still): Sarge's flank picture is seated in a tap box (.gsc-fig) with the three plates under his boots (.gsc-row, the quarters' plates small: the set he wears lit green, that set changed since dashed green,
+// a saved set cream, an empty slot dashed). A TAP on Sarge or his plates puts the NEXT SAVED set on through gstPut, the quarters' own door (owned pieces only, one per rail, an iron he cannot hold keeps the iron in
+// hand, the snap, the save): A -> B -> C -> A, an empty slot skipped. The picture is re-dressed in place (renderCampScene's own flank reader; nothing else on the screen moves or restarts its bob), the new plate
+// lights and SET %1 ON (CARD-GST's key, x7) stands in the plates' own band for 1.4 s, then the plates come back with the new letter lit;
+// a caption that would touch the party's line (a long tongue beside a long name) or the screen's edge YIELDS: the plates show the letter at once. Only the saved sets are reachable: nothing is edited here (a set is saved on SARGE'S EQUIPMENT as ever). FEWER THAN TWO SAVED SETS (a
+// new save, a save that never opened the quarters, A alone): no plates, no tap, the screen is today's, and nothing is written (META.gearSets is never minted here). SARGE CAPTURED (the stand-in beside DEPLOY): no
+// plates, no tap. The next fight reads what he wears (sargeStats, the outfit), as ever. THE SWITCH: ?gsc=0 on a device = today's game (gvt_gsc), ?gsc=1 clears it. GVT.gsc() the rigs' door ({ tap:1 } taps).
+// Zero server bytes, zero new words, zero save fields.
+const GSC_ON=(()=>{ try{ const m=/[?&]gsc=([01])(&|$)/.exec(location.search||''); if(m) localStorage.setItem('gvt_gsc', m[1]); return localStorage.getItem('gvt_gsc')!=='0'; }catch(e){ return true; } })();
+const GSC={ say:1400, n:0, yld:0, err:0, e:'', t:0 };   // the caption's stand (ms) · the taps that put a set on · the captions that yielded · the errors swallowed (and the last one) · the caption's timer
+function gscSets(){ const g=META.gearSets; if(!GSC_ON || !g || typeof g!=='object') return null; const s=gstSets(); return GST_KEYS.filter(k=>!!s[k]).length>=2? s : null; }   // the sets while two or more are saved (gstSets cleans them; it mints nothing here: META.gearSets already stands)
+function gscNext(g){ const i=GST_KEYS.indexOf(g.on), n=GST_KEYS.length; for(let j=1;j<=n;j++){ const k=GST_KEYS[(i+j+n)%n]; if(g[k]) return k; } return null; }   // the next SAVED letter after the one he wears (none lit: the first saved from A)
+function gscFigURI(){ return sargeWepURI(sargeArtW(META.sargeWeapon||'pistol'), dyeHex()||undefined); }   // renderCampScene's own flank reader, Sarge home (capStandURI() null)
+function gscRowHTML(g){ const cur=gstNow(); return '<span class="gsc-row" aria-hidden="true" data-notr>'+GST_KEYS.map(k=>{ const s=g[k], on=(g.on===k && !!s), drift=on && !gstSame(s, cur);
+  return '<b class="gsc-p'+(s? '' : ' mt')+(on? ' on' : '')+(drift? ' drift' : '')+'" data-k="'+k+'">'+k+'</b>'; }).join('')+'</span>'; }
+function gscSeat(){ const sc=document.getElementById('campscene'); if(!sc) return null; let w=sc.querySelector('.gsc-fig');
+  const g=capStandK()? null : gscSets(); if(!g){ if(w){ const im0=w.querySelector('img.wt-flank'), s0=sc.querySelector('.gsc-say'); if(s0) s0.remove(); if(im0) w.parentNode.insertBefore(im0, w); w.remove(); } return null; }   // nothing to cycle (or Sarge captured): today's picture, no box
+  if(!w){ const im=sc.querySelector('.wt-playwrap > img.wt-flank:not(.r)'); if(!im) return null; w=document.createElement('span'); w.className='gsc-fig'; w.setAttribute('role', 'button'); w.setAttribute('onclick', 'gscTap()'); im.parentNode.insertBefore(w, im); w.appendChild(im); }
+  const row=w.querySelector('.gsc-row'); if(row) row.remove(); w.insertAdjacentHTML('beforeend', gscRowHTML(g)); return w; }
+function gscTap(){ try{ audio(); }catch(e){}
+  const sc=document.getElementById('campscene'); if(!sc || sc.classList.contains('hidden') || capStandK()) return false;
+  const g=gscSets(); if(!g) return false; const k=gscNext(g); if(!k || !gstPut(k)) return false; GSC.n++;
+  try{ gscPaint(k); }catch(e){ GSC.err++; GSC.e=String(e).slice(0, 160); } return k; }
+function gscPaint(k){ const w=gscSeat(); if(!w) return;   // the plates re-dealt: the new letter lit
+  const im=w.querySelector('img.wt-flank'); if(im) im.setAttribute('src', gscFigURI());   // the picture re-dressed in place
+  w.classList.remove('gsc-pop'); void w.offsetWidth; w.classList.add('gsc-pop');
+  const pw=w.parentNode, old=pw.querySelector('.gsc-say'); if(old) old.remove(); w.classList.remove('gsc-saying'); clearTimeout(GSC.t);
+  const d=document.createElement('span'); d.className='gsc-say'; d.setAttribute('data-notr', ''); d.setAttribute('onclick', 'gscTap()'); d.textContent=tf('SET %1 ON', k);
+  d.style.left=(w.offsetLeft+w.offsetWidth/2)+'px'; pw.appendChild(d);   // a SIBLING of the box, centred under Sarge by his layout box: the press squeeze (CARD-BT's spring on the tapped box) and the pop never move it, nor its measure; it taps like the box
+  if(!gscFits(d)){ d.remove(); GSC.yld++; return; }   // THE CAPTION YIELDS: it would touch the party's line (a long tongue, a long name) or the screen's edge, so the plates show the new letter at once
+  w.classList.add('gsc-saying'); GSC.t=setTimeout(()=>{ try{ d.remove(); w.classList.remove('gsc-saying'); }catch(e){} }, GSC.say); }   // the caption takes the plates' band while it stands
+const GSC_KEEP=['.wt-ldhint', '.wt-play', '.cs-gift', '.cs-replay', '.tsg-camp', '.wt-top'];   // what the caption never lies over: the party's line, DEPLOY, the buddy line, the replay chips, the stars plate, the top bar (the still pieces; the hovering pet and the bobbing Tan rifleman stand above the band by layout, and their swing would only make the test flicker)
+function gscFits(d){ const sc=document.getElementById('campscene'), a=d.getBoundingClientRect(); if(!sc || a.left<0 || a.top<0 || a.right>innerWidth || a.bottom>innerHeight) return false;
+  return !GSC_KEEP.some(q=>Array.prototype.some.call(sc.querySelectorAll(q), e=>{ const b=e.getBoundingClientRect(); return b.width>0 && b.height>0 && a.left<b.right && b.left<a.right && a.top<b.bottom && b.top<a.bottom; })); }
+(function(){ try{ const rc=renderCampScene; renderCampScene=function(){ const r=rc.apply(this, arguments); try{ gscSeat(); }catch(e){ GSC.err++; GSC.e=String(e).slice(0, 160); } return r; }; }catch(e){} })();   // the wrap by name: the original stands byte-still, its arguments handed on untouched
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.gsc=(o)=>{ o=o||{}; if(o.say!=null) GSC.say=+o.say; const k=o.tap? gscTap() : null; const sc=document.getElementById('campscene'), w=sc? sc.querySelector('.gsc-fig') : null, g=META.gearSets||null, s=gscSets();
+  return { cv:GVT_CV, on:GSC_ON? 1 : 0, tapped:k, seat:!!w, n:GSC.n, yld:GSC.yld, err:GSC.err, e:GSC.e, saved:(g && typeof g==='object')? GST_KEYS.filter(x=>!!g[x]) : null, lit:g? g.on : null, next:s? gscNext(s) : null,
+    plates:w? Array.prototype.map.call(w.querySelectorAll('.gsc-p'), p=>p.dataset.k+':'+p.className) : null, say:sc? ((sc.querySelector('.gsc-say')||{}).textContent||'') : '' }; }; }catch(e){} }, 0);
+// ═══ end of sec:CARD-GSC ═══
 // ═══ sec:CARD-EQT SARGE'S QUARTERS LAID OUT LIKE THE TREASURE CHEST (DYLAN by the jumpr guest link 10/12/2026 01:37 UTC = 10/11 21:37 EDT, verbatim: "Let's run a design pass for sarges equipment. I'd like to have the
 // layout be the same as the treasure chest with a taskbar option on top for each particular type of equiptment."; his live switch, Wyatt 10/8; design/equipment-tabs-1011/00-BUILD-EQT.md): the chest's own tab row (CARD-CTL's
 // .tc-tabs.ctl, one line that slides sideways, never under the ✕) stands at the top of the quarters' rails: ALL · WEAPONS · then one tab a rail of OUTFIT_SLOTS (HELMETS AND HATS · FACE · BODY ARMOR · OVER THE ARMOR ·
