@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.36","md5":"cb0a57c60049db2b9d6bbf117800e737","sha":"79886c9dee","at":"2026-11-05T16:46:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.37","md5":"3ee71749b74ab03801b48ea790b5269e","sha":"46ebb5c83a","at":"2026-11-05T16:59:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92659,7 +92659,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.37';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -102969,7 +102969,7 @@ function owAdopt(seat, mo, n, t9, wx, wy, cpu9){   // a chair's numbered census 
       if(type==='mgunner' && S.units.some(v=>v.trk && !v.dead && v.seat===seat && Math.hypot(v.trk.tx-x,v.trk.ty-y)<90)) continue;   // CARD-TRK's own line (roomAdoptSeat): my copy is still under the rug on its way to that very spot
       u=applyDeploy(seat,type,x,y,true); if(!u) continue;
       if(u.dropT) u.dropT=0; u.rmT=S.t; owStamp(u,seat,rid);
-      if(type==='sarge'){ const w9=roomSeatWord(seat); if(w9) roomDressUnit(u,w9); }   // 1022z TS-1: a census-born Sarge wears his chair's remembered kit
+      if(type==='sarge'){ const w9=roomSeatMem(seat); if(w9) roomDressUnit(u,w9); }   // 1022z TS-1: a census-born Sarge wears his chair's remembered kit
     }
     owPin(u,x,y,h,fl,t9);
   }
@@ -103112,7 +103112,7 @@ function roomAdoptSeat(seat, rows, n, t9){   // 1022z THE TORCH FIGHT'S ENEMY SA
     if(type==='mgunner' && S.units.some(v=>v.trk && !v.dead && v.seat===seat && Math.hypot(v.trk.tx-x,v.trk.ty-y)<90)) continue;   // CARD-TRK: his owner's man is up already and listed at the exit; MY twin is a beat behind, still under, on his way to that very spot: he is that row
     const u=applyDeploy(seat,type,x,y,true);
     if(u){ if(u.dropT) u.dropT=0; u.rmT=S.t;   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-2b): born on this screen at S.t — the sweep's grace reads it
-      if(type==='sarge'){ const w9=roomSeatWord(seat); if(w9) roomDressUnit(u,w9); }   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-1 THE SEAT'S WARDROBE): a census-born Sarge is dressed from his chair's remembered place word through the SAME door the word itself lands through — his weapon, rank, bench, crystal, rack, jet and soul; never BF_AI_SARGE for a human chair (the bug Wyatt watched: saber → the basic pistol → stock)
+      if(type==='sarge'){ const w9=roomSeatMem(seat); if(w9) roomDressUnit(u,w9); }   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-1 THE SEAT'S WARDROBE): a census-born Sarge is dressed from his chair's remembered place word through the SAME door the word itself lands through — his weapon, rank, bench, crystal, rack, jet and soul; never BF_AI_SARGE for a human chair (the bug Wyatt watched: saber → the basic pistol → stock)
       if(u.hpMax) u.hp=Math.max(1,Math.min(u.hpMax,u.hpMax*h/9));
       u.pinX=x; u.pinY=y; u.pinT=(typeof t9==='number' && isFinite(t9))? t9 : null;   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-4): his first pin (the campaign's spawn door's own stamp) — the next beat gives his pace
       if(wp9!=null) roomSteer(u,wp9); }   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-7)
@@ -103359,10 +103359,10 @@ function roomApply(cm){
   roomDressUnit(u, cm);
 }
 // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-1 THE SEAT'S WARDROBE): the chair's memory of its Sarge's last place word — a HUMAN chair only (a computer chair's Sarge already reads st.kit; its
-// re-births stay byte-what-they-were). roomSeatWord builds the synthetic word a census birth is dressed through; roomSeatSW is the readers' belt and braces —
+// re-births stay byte-what-they-were). roomSeatMem (CARD-OSR; it was roomSeatWord) builds the synthetic word a census birth is dressed through; roomSeatSW is the readers' belt and braces —
 // unitSargeStats / sargeWearU / enhU / unitJet fall to it for a human chair's Sarge that somehow carries no coopSW, BEFORE BF_AI_SARGE / stock / factory.
 function roomSeatRemember(seat, cm){ const st=S.bf && S.bf.seats[seat]; if(!st || !st.human) return; st.sgW={ um:cm.um, mo:Array.isArray(cm.mo)? cm.mo.slice() : null, sw:(cm.sw && typeof cm.sw==='object')? cm.sw : null }; st.sdW=(Array.isArray(cm.mo) && cm.mo.indexOf('sd1')>=0)? 1 : 0; }   // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-11): sdW = this chair SPEAKS its Sarge's death (the token on his placement — an old build's chair keeps local dice)
-function roomSeatWord(seat){ const st=S.bf && S.bf.seats[seat], w=st && st.sgW; return (w && w.sw)? { t:'sarge', um:w.um, mo:w.mo, sw:w.sw } : null; }
+function roomSeatMem(seat){ const st=S.bf && S.bf.seats[seat], w=st && st.sgW; return (w && w.sw)? { t:'sarge', um:w.um, mo:w.mo, sw:w.sw } : null; }   // CARD-OSR: was roomSeatWord (v10.18), the name of v2.83's receiver of the referee's 'seat' word (above roomStartBattle): this later declaration replaced it, so from 9/16 a guest's and a watcher's screen dropped the referee's computer chairs (name, colour). Both stand now
 function roomSeatSW(u){ if(!u || u.type!=='sarge' || !S.bf || !roomBattle() || bfHumanU(u)) return null; const st=S.bf.seats[u.seat], w=st && st.human && st.sgW; return (w && w.sw && typeof w.sw==='object')? w : null; }
 // 1022z THE TORCH FIGHT'S ENEMY SARGE + THE SLIDE (TS-2): the identity fields alone off a NEW word for a Sarge that already stands — the hp side of the door below (the soul's ×, the rank's plastic, a hero's
 // milestones) landed at his birth and must never land twice; a dash in flight is ended (the campaign receiver's own re-home idiom), the blade re-homed at the word's spot.
@@ -203333,7 +203333,7 @@ const CAVES_SNAP_N={ e:3, m:3, h:4, g:5 }, CAVES_SNAP_CAP=12, CAVES_SNAP_LIFE={ 
 SPRITES_SRC.snapper=SNP_MOLD;
 setTimeout(function(){ try{ if(!FDEF.snapper) FDEF.snapper={ name:'THE SNAPPER', sno:1, hp:1, spd:0, bounty:CAVES_SNAP_BOUNTY, leak:0, w:30, cave:1, snp:1 }; }catch(e){ SNP.err++; } },0);   // THE SNAPPER: a cave kind (the family's laws) with his own brain (snp:1 → snpStep, through updateFoeCave's seat). Seated once the whole script has run, so he is the LAST row of the foe table: the party's census counts foe kinds by their place in it (FCN_KEYS), and no kind that stood before him moves
 try{ const F=SGP_FREEZE['*']; if(F && F.indexOf('snpfig')<0) F.push('snpfig'); }catch(e){}   // Laura's own drawing: her style pass never runs over it (CARD-STF's line)
-function snpOn(){ return SNP.on===1 && cavesOn(); }
+function snapperOn(){ return SNP.on===1 && cavesOn(); }   // CARD-OSR THE OUTLAW SNIPER RETURNS (Isaac 11/5/2026: "the Outlaw Sniper ... in battle it's just not showing up at all"): this predicate was declared snpOn, the OUTLAW SNIPER's own name since 0340. Two top-level declarations of one name are ONE binding (the later wins), so from v30.09 every fight read the red button's law as the snapper's switch in the Ice Caves. One name, one function
 function snpLive(){ let n=0; for(const f of S.foes) if(f.def && f.def.snp && !f.dead) n++; return n; }
 function snpPack(x,y,ang,src){   // THE PACK out of the mother fish's splash: as many as the tier says and the cap leaves room for, on a ring about the landing turned by the shot's own angle (a hash: the twin law)
   const tier=cavesTier(), n=Math.max(0,Math.min(CAVES_SNAP_N[tier]||3, CAVES_SNAP_CAP-snpLive())), out=[];
@@ -203368,7 +203368,7 @@ function snpRig(o){ o=o||{}; if(o.on===0 || o.on===1){ SNP.on=o.on; }   // the r
 { const cave0=updateFoeCave; updateFoeCave=function(f,dt){ if(f && f.def && f.def.snp){ try{ return snpStep(f,dt); }catch(e){ SNP.err++; return; } } return cave0(f,dt); }; }   // his brain, at the cave row's own seat
 { const raid0=cvxRaidOn; cvxRaidOn=function(f){ if(f && f.def && f.def.snp) return false; return raid0(f); }; }   // never the toy box: a snapper stays by his fish when nobody defends
 { const hy0=updateFoeHyeti; updateFoeHyeti=function(f,dt){ const n0=f.hyN|0, L0=S.shots.length, r=hy0(f,dt); if(SNP.on===1 && (f.hyN|0)===n0+1 && f.hyN>=HY_THROWS && cavesOn()){ for(let i=S.shots.length-1;i>=L0;i--){ const sh=S.shots[i]; if(sh && sh.fish && sh.src===f){ if(sh.dfAt==null) sh.mother=1; break; } } } return r; }; }   // the third fish of a trip thrown at a man = THE MOTHER FISH (a fish thrown at a plane stays a plain fish)
-{ const land0=hyLand; hyLand=function(sh){ if(sh && sh.mother && sh.dfAt==null && snpOn()){ let r, ok=false; try{ r=snpMotherLand(sh, land0); ok=true; }catch(e){ SNP.err++; } if(ok) return r; } return land0(sh); }; }
+{ const land0=hyLand; hyLand=function(sh){ if(sh && sh.mother && sh.dfAt==null && snapperOn()){ let r, ok=false; try{ r=snpMotherLand(sh, land0); ok=true; }catch(e){ SNP.err++; } if(ok) return r; } return land0(sh); }; }
 { const fish0=hyFishPath; hyFishPath=function(x,y,a,s){ if(SNP.big>0 || (s===0.7 && SNP.on===1 && snpMotherAt(x,y))) s=s*CAVES_SNAP_BIG; return fish0(x,y,a,s); }; }   // the mother fish is the big one: in his hand and in the air
 { const held0=drawHyFish; drawHyFish=function(f,flip){ SNP.big=(SNP.on===1 && f && (f.hyN|0)===HY_THROWS-1 && cavesOn())? 1 : 0; try{ return held0(f,flip); } finally{ SNP.big=0; } }; }
 setTimeout(function(){ try{ if(window.GVT) GVT.snp=snpRig; }catch(e){} },0);   // the rig door (GVT is built below)
