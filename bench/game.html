@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"30.38","md5":"fec1977faa3b35ddcb1a7485ca6e36ea","sha":"05243e0608","at":"2026-11-05T17:07:26Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"30.39","md5":"8be79fa78cea0d37ae37b4355ef11f88","sha":"f9b417f3d4","at":"2026-11-05T17:32:11Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92659,7 +92659,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.38';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -104461,6 +104461,346 @@ function bzbAdopt(cm){
   const y=cm.x, f=cm.y; if(!(typeof y==='number' && isFinite(y) && typeof f==='number' && isFinite(f))) return;
   bf.bzbRef={ y:y, f:f, t:Date.now() }; bzbSet(bf.base.you,y); bzbSet(bf.base.foe,f);
 }
+
+// ═══ CARD-PBS · THE POST-BATTLE SUPERLATIVES: THE AWARDS + THE SCOREBOARD AFTER EVERY 2v2+ BATTLEGROUND (sec:CARD-PBS; design/post-battle-superlatives-1105/00-DESIGN-PBS.md, the build card
+// cards/PBS-B1-build.md, the build build-b1/; jumpr 3041: Isaac's design pass built on Maker 1 as M3041, landed as docs by the Big Mac's card 3041m, board J11). FROM ISAAC, one of Wyatt's designers, by his
+// guest link 11/5/2026 09:54 EST, verbatim: "let's add a new screen after any online battle with more than one v one. There are going to be post-battle superlatives. After the battle there should be three
+// players shown on screen. It'll show the MVP of the match, which is determined by a point system. You get points from doing things in battle like healing, getting kills, doing damage, reflecting shots, using
+// abilities, and so on and so forth. Anything quantifiable. We should have eight items for that. That will determine the MVP. There'll be two other players shown in the background. The MVP is shown most up front
+// and the two other players get random superlatives. If someone gets the most kills it'd be "Most Kills." If someone got the most reflex they'll get "Most Reflex." If someone died the most times they'll be "Most
+// Deaths." Run a design pass for that screen: just post-battle superlatives and scoreboards." HIS GO, WhatsApp 11/5/2026 11:21 EST, verbatim: "Looks great, change the most deaths name to “Weakest Link" then
+// push this live" (every other PBS-Q at its REC).
+// WHAT IT DOES (zero server bytes, zero save bytes):
+//   THE TALLY: every commander's eight numbers + his Sarge's falls, counted at the game's OWN doors (each door wrapped by name; the wrap hands back the door's own return, never changes a result), on S.bf.pbs,
+//     only on a battleground of 2+ commanders a side (bf.team >= 2, never the opener): KILLS hitCheck · SARGE KILLS hitCheck (f.type sarge) · DAMAGE hurt (the HP an enemy man truly lost) · TOY BOX bfLeak ·
+//     HEALING tkLeech (inside medicPass: to the strongest medic in reach, medHealRate's own pick; any other mend: to the mended man's owner) · REFLECTS saberBlocks, tkDeflPop, fsqGem (reflect / rayback /
+//     mirror) · ABILITIES a true return from tkFire snpFire gsFire rpFire prpFire jv2Begin fsActivate, every jetLaunch · TROOPS applyDeploy · DEATHS hitCheck (his Sarge knocked out: a title, no points).
+//   THE POINTS (REC, 39 real fights): KILL 10 · SARGE KILL +25 · DAMAGE 1 a HP · TOY BOX 10 a HP · HEALING 10 a HP · REFLECT 10 · ABILITY 40 · TROOP 2. THE MVP = the most points (ties: kills, damage, seat).
+//   THE TITLES: the biggest number above 0 holds each MOST (ties: points, fewer falls, seat); the two behind = two non-MVP holders, a person never passed over for a computer, else ONE seeded draw a match
+//     (every phone in a room draws the same two); WEAKEST LINK (the most falls: Isaac's word for MOST DEATHS) only when it is a commander's only title; fewer than two holders = TEAM MVP, then RUNNER UP.
+//   THE SEAM (CARD-RUP's hold, the dance's own): endBattlefield's verdict reveals the sheet as ever; in the SAME tick the awards take it (the sheet re-hidden, its stars' count stopped, the XP pour and the
+//     kindness chip held, the foot's pantheonCheck deferred) and deal #pbs, a WHOLE screen (no footer: the stage runs to every edge, CONTINUE floats) BETWEEN plays. CONTINUE = the sheet back (a win: the
+//     dance's own re-reveal; a loss: the face un-hidden as dressed, never re-dressed), the pour, the stars counted from the top, the kindness chip, then the dance's check. A navigation tears it down clean
+//     (hideAllOverlays). FAIL-OPEN: an awards screen that cannot build never holds a verdict.
+//   A ROOM: ONE BOARD, THE REFEREE'S. His tally (and the draw's seed) rides HIS buzzer-beater word ('bzb', CARD-BZB: AHEAD of his verdict) as sw {s0..s19: 'ko,sko,dmg,box,heal,refl,abil,troops,deaths', f}
+//     (sw is on CMD_KEYS: a flat dict, at most 24 keys); a guest's bzbAdopt keeps it (the referee's chair alone) and every phone draws it. An older client never reads sw. No word = the phone's own count.
+// ⚑ PBS-F1 (the style guide 10/14: a session's own new art on Wyatt's yes from a picture): the six new glyphs (kill heal reflect ability troop down) ship OFF: the plaques and the MVP's chips speak in words,
+//   the board's heads wear the game's own glyphs where it has one (helmet hitnum toybox trophy medal). ?pbsg=1 = the six shown (a preview); his yes = PBS.gly's default flipped.
+// ?pbs=0 = the shipped verdict, byte for byte (no door wrapped, nothing held). GVT.pbs = the rigs' door. Words: 40 keys x 7 below (no dash, no emoji).
+var PBS={ v:'pbs-1', on:!/[?&]pbs=0(?:&|#|$)/.test(location.search||''), gly:/[?&]pbsg=1(?:&|#|$)/.test(location.search||''), miss:[], err:0, med:0,
+  inEnd:null, c:null, face:null, held:null, rev:0, vk:0, promo:0, m:null, view:null, tids:[], shows:0, ends:0,
+  W:{ ko:10, sko:25, dmg:1, box:10, heal:10, refl:10, abil:40, troops:2 } };
+const PBS_ITEMS=[
+  { k:'ko',     t:'KILLS',     most:'MOST KILLS',          u:['KILL','KILLS'],                     g:'kill'   },
+  { k:'sko',    t:'SARGE',     most:'MOST SARGE KILLS',    u:['SARGE KILL','SARGE KILLS'],         g:'helmet' },
+  { k:'dmg',    t:'DAMAGE',    most:'MOST DAMAGE',         u:['DAMAGE','DAMAGE'],                  g:'hitnum' },
+  { k:'box',    t:'BOX',       most:'MOST TOY BOX DAMAGE', u:['TOY BOX DAMAGE','TOY BOX DAMAGE'],  g:'toybox' },
+  { k:'heal',   t:'HEALING',   most:'MOST HEALING',        u:['HP HEALED','HP HEALED'],            g:'heal'   },
+  { k:'refl',   t:'REFLECTS',  most:'MOST REFLECTS',       u:['REFLECT','REFLECTS'],               g:'reflect'},
+  { k:'abil',   t:'ABILITIES', most:'MOST ABILITIES',      u:['ABILITY','ABILITIES'],              g:'ability'},
+  { k:'troops', t:'TROOPS',    most:'MOST TROOPS',         u:['TROOP DEPLOYED','TROOPS DEPLOYED'], g:'troop'  } ];
+const PBS_DEATHS={ k:'deaths', t:'DEATHS', most:'WEAKEST LINK', u:['DEATH','DEATHS'], g:'down' };   // Isaac 11/5 11:21: "change the most deaths name to “Weakest Link""
+const PBS_KEYS=['ko','sko','dmg','box','heal','refl','abil','troops','deaths'];
+// THE SIX NEW GLYPHS (GLY's grammar: 24 x 24, currentColor, one white highlight) — OFF until Wyatt's yes (⚑ PBS-F1); the game's own where it has one
+const PBS_GLY={
+  kill:'<circle cx="12" cy="12" r="7.4" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M12 1.6v5M12 17.4v5M1.6 12h5M17.4 12h5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="12" r="2.4"/><circle cx="9.6" cy="8.8" r="1.1" fill="#fff" opacity=".5"/>',
+  heal:'<path d="M9 3.2h6v5.8h5.8v6H15v5.8H9V15H3.2V9H9z"/><path d="M10.4 4.6h1.8v5.8h-1.8z" fill="#fff" opacity=".45"/>',
+  reflect:'<path d="M12 2.4 20 5.4v6.2c0 4.6-3.3 8.3-8 10-4.7-1.7-8-5.4-8-10V5.4z"/><path d="M8.2 13.6 12.4 9.4m0 0H9.2m3.2 0v3.2" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>',
+  ability:'<path d="M13.6 1.8 4.6 13.4h6l-1.6 8.8 9.6-12.4h-6.2z"/><path d="M12.4 4.8 7.6 11.6h2.2" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".5"/>',
+  troop:'<circle cx="12" cy="6.4" r="3.6"/><path d="M5.2 21.6c0-5 2.9-8.4 6.8-8.4s6.8 3.4 6.8 8.4z"/><path d="M8.4 5.2a3.8 3.8 0 0 1 7.2 0z" opacity=".55"/><circle cx="10.6" cy="5.6" r="1" fill="#fff" opacity=".5"/>',
+  down:'<g transform="rotate(-24 12 14)"><path d="M4 14.2a8 8 0 0 1 16 0v1.3H4z"/><rect x="2.2" y="15.2" width="19.6" height="3.4" rx="1.7"/></g><path d="M16.8 3.2v5.4m-2.4-2.4 2.4 2.4 2.4-2.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>' };
+function pbsGl(n){ const p=PBS_GLY[n]? (PBS.gly? PBS_GLY[n] : '') : ((typeof GLY!=='undefined' && GLY[n]) || ''); return p? '<svg class="pbs-g" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>' : ''; }
+// ── THE TALLY ──
+function pbsLive(bf){ return !!(bf && !bf.resolved && (bf.team|0)>=2 && !bf.opener); }
+function pbsFoe(a,b){ return !!(a && b && a.side && b.side && a.side!==b.side && a.side!=='nem' && b.side!=='nem'); }
+function pbsT(bf, seat){ if(seat==null || !bf || !bf.seats) return null; seat=seat|0; if(seat<0 || seat>=bf.seats.length) return null;
+  const P=bf.pbs||(bf.pbs={ t:{}, first:null }); return P.t[seat]||(P.t[seat]={ ko:0, sko:0, dmg:0, box:0, heal:0, refl:0, abil:0, troops:0, deaths:0 }); }
+function pbsFell(bf, f, u){ if(f.type==='sarge'){ const v=pbsT(bf, f.seat); if(v) v.deaths++; }
+  if(u && u.seat!=null && pbsFoe(f,u)){ const k=pbsT(bf, u.seat); if(k){ k.ko++; if(f.type==='sarge') k.sko++; if(!bf.pbs.first) bf.pbs.first={ seat:u.seat|0, t:+(+bf.age||0).toFixed(2) }; } } }
+function pbsMedic(u){ let best=null, bp=0;   // medHealRate's own pick: the strongest medic in reach on the man's side
+  for(const r of S.units){ if(r.type!=='medic' || r===u || r.dead || r.dropT>0 || r.side!==u.side) continue; if(r.prJ && r.jetT>0) continue;
+    if(Math.hypot(r.x-u.x, r.y-u.y)<UDEF.medic.auraR){ let ps=0; try{ ps=medHealPS(r); }catch(e){} if(ps>bp){ bp=ps; best=r; } } }
+  return best; }
+function pbsWrap(name, mk){ try{ const o=window[name]; if(typeof o!=='function'){ PBS.miss.push(name); return; } const w=mk(o); w.pbsOrig=o; window[name]=w; if(window[name]!==w) PBS.miss.push(name+'!'); }catch(e){ PBS.miss.push(name+'?'); } }
+function pbsWire(){ if(!PBS.on) return;
+  pbsWrap('hurt', o=>function(f,dmg,src,fire9){ const bf=S.bf;   // the hot door: one read of the board, the door, one subtraction
+    if(!f || !src || src.seat==null || f.hp==null || !pbsLive(bf) || !pbsFoe(f,src)) return o.call(this,f,dmg,src,fire9);
+    const h0=f.hp, r=o.call(this,f,dmg,src,fire9);
+    try{ const d=h0-Math.max(0,f.hp); if(d>0){ const t=pbsT(bf, src.seat); if(t) t.dmg+=d; } }catch(e){}
+    return r; });
+  pbsWrap('hitCheck', o=>function(f,u){ const bf=S.bf;
+    if(!f || f.dead || !f.side || f.side==='nem' || !pbsLive(bf)) return o.call(this,f,u);
+    const r=o.call(this,f,u); if(f.dead){ try{ pbsFell(bf, f, u); }catch(e){} } return r; });
+  pbsWrap('bfLeak', o=>function(u){ const bf=S.bf;
+    if(!u || u.seat==null || !pbsLive(bf) || !bf.base) return o.apply(this,arguments);
+    const b=bf.base[u.side==='you'? 'foe' : 'you'], h0=b? b.hp : null, r=o.apply(this,arguments);
+    try{ if(b && h0!=null){ const d=h0-b.hp; if(d>0){ const t=pbsT(bf, u.seat); if(t) t.box+=d; } } }catch(e){}
+    return r; });
+  pbsWrap('medicPass', o=>function(dt){ if(!pbsLive(S.bf)) return o.apply(this,arguments); PBS.med++; try{ return o.apply(this,arguments); } finally{ PBS.med--; } });
+  pbsWrap('tkLeech', o=>function(u,amt){ const bf=S.bf;
+    if(!u || u.dead || u.hp==null || !pbsLive(bf)) return o.apply(this,arguments);
+    const h0=u.hp, r=o.apply(this,arguments);
+    try{ const d=u.hp-h0; if(d>0){ const m=PBS.med? pbsMedic(u) : null; const t=pbsT(bf, (m||u).seat); if(t) t.heal+=d; } }catch(e){}
+    return r; });
+  pbsWrap('saberBlocks', o=>function(u){ const r=o.apply(this,arguments); try{ if(r && u && u.seat!=null && pbsLive(S.bf)){ const t=pbsT(S.bf, u.seat); if(t) t.refl++; } }catch(e){} return r; });
+  pbsWrap('tkDeflPop', o=>function(u,src){ try{ if(u && u.seat!=null && pbsLive(S.bf)){ const t=pbsT(S.bf, u.seat); if(t) t.refl++; } }catch(e){} return o.apply(this,arguments); });
+  pbsWrap('fsqGem', o=>function(u,kind){ try{ if(u && u.seat!=null && (kind==='reflect' || kind==='rayback' || kind==='mirror') && pbsLive(S.bf)){ const t=pbsT(S.bf, u.seat); if(t) t.refl++; } }catch(e){} return o.apply(this,arguments); });
+  const press=(name, who)=>pbsWrap(name, o=>function(){ const r=o.apply(this,arguments);
+    try{ if(r===true && pbsLive(S.bf)){ const u=who? who() : arguments[0]; if(u && u.seat!=null){ const t=pbsT(S.bf, u.seat); if(t) t.abil++; } } }catch(e){} return r; });
+  press('tkFire'); press('snpFire'); press('gsFire'); press('rpFire'); press('prpFire'); press('jv2Begin'); press('fsActivate', ()=>{ try{ return jetSarge(); }catch(e){ return null; } });
+  pbsWrap('jetLaunch', o=>function(u){ const ok=!!(u && u.seat!=null && !u.dead && pbsLive(S.bf)), r=o.apply(this,arguments); try{ if(ok){ const t=pbsT(S.bf, u.seat); if(t) t.abil++; } }catch(e){} return r; });
+  pbsWrap('applyDeploy', o=>function(seat,type){ const u=o.apply(this,arguments);
+    try{ if(u && pbsLive(S.bf)){ let s=seat; if(typeof s==='string') s=(s==='foe')? S.bf.team : 0; const t=pbsT(S.bf, s); if(t) t.troops++; } }catch(e){} return u; });
+  pbsWrap('vdCount', o=>function(promo){ const c=PBS.inEnd; if(c){ c.vd=1; c.promo=promo? 1 : 0; } return o.apply(this,arguments); });   // the stars' count remembered for the give-back
+  // A ROOM: the referee's tally rides his 'bzb' word (coopSend, the queue) · a guest keeps the referee's (bzbAdopt's own chair check)
+  pbsWrap('coopSend', o=>function(cm){ try{ if(cm && cm.k==='bzb' && !cm.sw){ const bf=S.bf, w=pbsRefWord(bf); if(w){ cm.sw=w; bf.pbsRef=pbsRefRead(w, bf); } } }catch(e){} return o.apply(this,arguments); });
+  pbsWrap('bzbAdopt', o=>function(cm){ const r=o.apply(this,arguments);
+    try{ const bf=S.bf; if(cm && cm.sw && typeof cm.sw==='object' && bf && !bf.resolved && COOP && roomBattle() && !coopIsHost()){
+      const h=(COOP.members||[]).find(m=>m && m.host); if(!h || String(cm.p)===String(h.seat)){ const ref=pbsRefRead(cm.sw, bf); if(ref) bf.pbsRef=ref; } } }catch(e){}
+    return r; });
+}
+// THE SEAM (CARD-RUP's hold at the verdict's foot), wrapped AFTER the whole script has run so it is the OUTERMOST of every card's wrap of these three doors: every other card's verdict work
+// (the checklist's counts, the quests, the run's book) lands first, then the awards take the sheet in the same tick; the foot's pantheonCheck (and every card's wrap of it) waits for CONTINUE;
+// a navigation tears the awards down before any other card's door work.
+function pbsWireSeam(){ if(!PBS.on || PBS.seam) return; PBS.seam=1;
+  pbsWrap('pantheonCheck', o=>function(){ const c=PBS.inEnd; if(c){ c.pan=1; return; } return o.apply(this,arguments); });
+  pbsWrap('endBattlefield', o=>function(reason, fromRelay){ const bf=S.bf, c=(bf && !bf.resolved && pbsDue(bf))? { bf:bf, pan:0, vd:0, promo:0 } : null;
+    const prev=PBS.inEnd; PBS.inEnd=c; let r;
+    try{ r=o.apply(this,arguments); } finally{ PBS.inEnd=prev; }
+    if(c){ if(bf.resolved && S.bf===bf && (S.mode==='win' || S.mode==='lose')) pbsHold(c); else if(c.pan){ try{ pantheonCheck(); }catch(e){} } }
+    return r; });
+  pbsWrap('hideAllOverlays', o=>function(){ try{ pbsTeardown(); }catch(e){} return o.apply(this,arguments); }); }
+function pbsDue(bf){ return !!(PBS.on && bf && (bf.team|0)>=2 && !bf.opener && Array.isArray(bf.seats) && bf.seats.length>=4); }
+// the referee's word: one string a seat (s0..s19) + the draw's seed (f, a string: the relay drops a number over 1e9)
+function pbsRefWord(bf){ if(!bf || !pbsDue(bf) || !bf.seats || bf.seats.length>20) return null; const t=(bf.pbs && bf.pbs.t) || {}, w={};
+  for(const st of bf.seats){ const x=t[st.i]; w['s'+st.i]=PBS_KEYS.map(k=>Math.max(0, Math.round((x && x[k]) || 0))).join(','); }
+  w.f=String(pbsSeed(pbsRead(bf, true))); return w; }
+function pbsRefRead(w, bf){ if(!w || typeof w!=='object') return null; const t={}; let n=0;
+  for(const st of bf.seats){ const v=w['s'+st.i]; if(typeof v!=='string') continue; const a=v.split(','); if(a.length!==PBS_KEYS.length) continue;
+    const o={}; PBS_KEYS.forEach((k,i)=>{ const x=+a[i]; o[k]=(isFinite(x) && x>=0)? x : 0; }); t[st.i]=o; n++; }
+  if(!n) return null; const f=+w.f; return { t:t, seed:(isFinite(f) && f>=0)? (f>>>0) : null }; }
+// ── THE READ: every seat's numbers + who he is (his name, side, plastic, his Sarge's iron, blade and clothes as the battle dressed him) ──
+function pbsLook(st){
+  if(st.me) return { w:(typeof sargeArtW==='function')? sargeArtW(META.sargeWeapon||'pistol') : (META.sargeWeapon||'pistol'), blade:saberHex(), wear:undefined };   // mine: my own rack
+  const g=(st.human && st.sgW && st.sgW.sw && typeof st.sgW.sw==='object')? st.sgW.sw : null;   // a room's person: his chair's remembered kit (roomSeatSW's seat)
+  if(g) return { w:g.w||'pistol', blade:g.saber||g.sb||null, wear:Array.isArray(g.of)? g.of.filter(x=>typeof x==='string') : [] };
+  const k=st.kit||{}; let wear=[]; try{ wear=bfDressOf(st.name); }catch(e){}   // a computer commander: his kit, his callsign's wardrobe (CARD-IQ3)
+  return { w:k.w||'pistol', blade:k.saber||null, wear:wear }; }
+function pbsRead(bf, own){ bf=bf||S.bf; if(!bf || !bf.seats) return null; const ref=(!own && bf.pbsRef)? bf.pbsRef : null, T=ref? ref.t : ((bf.pbs && bf.pbs.t) || {});
+  const seats=bf.seats.map(st=>{ const x=T[st.i]||{}, L=pbsLook(st), o={ i:st.i, name:String(st.name||''), team:st.team, hex:st.hex, human:!!st.human, me:!!st.me, w:L.w, blade:L.blade, wear:L.wear };
+    for(const k of PBS_KEYS) o[k]=Math.max(0, Math.round(+x[k]||0)); return o; });
+  return { seats:seats, first:(bf.pbs && bf.pbs.first) || null, seed:ref? ref.seed : null, team:bf.team|0, mapName:String(bf.mapName||''), mapId:String(bf.mapId||''), myTeam:bfMyTeam(), ref:!!ref }; }
+function pbsSeed(rd){ let h=2166136261>>>0; const s=rd.seats.map(x=>x.name).join('|')+'|'+rd.mapId+'|'+rd.team+'|'+(rd.first? rd.first.t : 0);
+  for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h>>>0; }
+function pbsDice(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+// ── THE MODEL: the points, the MVP, every title's holder, the two behind ──
+function pbsModel(rd){ const W=PBS.W;
+  const seats=rd.seats.map(s=>Object.assign({}, s, { pts:Math.round(PBS_ITEMS.reduce((a,it)=>a+W[it.k]*(s[it.k]||0), 0)) }));
+  const rank=seats.slice().sort((a,b)=>(b.pts-a.pts) || (b.ko-a.ko) || (b.dmg-a.dmg) || (a.i-b.i)); const mvp=rank[0];
+  const held={}, lead={};
+  for(const it of PBS_ITEMS.concat([PBS_DEATHS])){ let best=null;
+    for(const s of seats){ const v=s[it.k]||0; if(v<=0) continue;
+      if(!best || v>best[it.k] || (v===best[it.k] && (s.pts>best.pts || (s.pts===best.pts && (s.deaths<best.deaths || (s.deaths===best.deaths && s.i<best.i)))))) best=s; }
+    if(best){ lead[it.k]=best.i; (held[best.i]||(held[best.i]=[])).push(it.k); } }
+  const rnd=pbsDice(rd.seed!=null? rd.seed : pbsSeed(rd)), mix=(arr)=>{ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); const x=arr[i]; arr[i]=arr[j]; arr[j]=x; } return arr; };
+  const cand=seats.filter(s=>s.i!==mvp.i && held[s.i]);
+  let side=mix(cand.filter(s=>s.human)).concat(mix(cand.filter(s=>!s.human))).slice(0,2).map(s=>{ const pos=held[s.i].filter(k=>k!=='deaths'); return { i:s.i, k:pos.length? pos[Math.floor(rnd()*pos.length)] : 'deaths' }; });
+  let fb=0; while(side.length<2){ fb++; const left=rank.filter(s=>s.i!==mvp.i && !side.some(x=>x.i===s.i) && s.pts>0); if(!left.length) break;   // the fallback stands a scorer only (an idle chair is never TEAM MVP at 0 POINTS: the room proof's find)
+    const om=left.filter(s=>s.team!==mvp.team), use=(fb===1 && om.length)? om : left; side.push({ i:use[0].i, k:(use===om)? 'teammvp' : 'runnerup' }); }
+  side.sort((a,b)=>{ const A=seats.find(s=>s.i===a.i), B=seats.find(s=>s.i===b.i); return ((A.team==='you'?0:1)-(B.team==='you'?0:1)) || (a.i-b.i); });   // the field's own geography
+  const me=seats.find(s=>s.me)||null, myRank=me? rank.findIndex(s=>s.i===me.i)+1 : 0;
+  return { seats:seats, rank:rank, mvp:mvp, held:held, lead:lead, side:side, fb:fb, me:me, myRank:myRank, rd:rd }; }
+function pbsItem(k){ return PBS_ITEMS.find(it=>it.k===k) || (k==='deaths'? PBS_DEATHS : null); }
+function pbsTitle(k){ return k==='teammvp'? 'TEAM MVP' : k==='runnerup'? 'RUNNER UP' : ((pbsItem(k)||{}).most || ''); }
+function pbsFmt(n){ return Math.round(n||0).toLocaleString('en-US'); }
+function pbsOrd(n){ const s=['TH','ST','ND','RD'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+function pbsRgba(hex, a){ const m=/^#?([0-9a-f]{6})$/i.exec(String(hex||'')); if(!m) return 'rgba(127,163,92,'+a+')'; const v=parseInt(m[1],16); return 'rgba('+(v>>16&255)+','+(v>>8&255)+','+(v&255)+','+a+')'; }
+function pbsSrc(s){ try{ const art=(typeof SARGE_ART!=='undefined' && SARGE_ART[s.w])? s.w : 'pistol'; return sargeWepURI(art, s.hex, s.blade||undefined, undefined, s.me? undefined : (s.wear||[])); }catch(e){ return ''; } }
+// ── THE SCREEN ──
+const PBS_CSS=`
+#pbs{ position:fixed; inset:0; z-index:40; overflow:hidden; color:#EDEADF; font-family:var(--ui); -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; --win:#7FA35C; --winA:rgba(127,163,92,.34);
+  background: radial-gradient(70% 55% at 50% -6%, var(--winA), transparent 70%), radial-gradient(90% 40% at 50% 104%, rgba(150,122,82,.42), transparent 72%), linear-gradient(180deg, #221e17 0%, #18150f 58%, #110f0b 100%); }
+#pbs .pbs-top{ position:absolute; left:max(16px, env(safe-area-inset-left)); right:max(16px, env(safe-area-inset-right)); top:max(10px, env(safe-area-inset-top)); display:flex; align-items:flex-start; justify-content:space-between; gap:12px; z-index:5; }
+#pbs .pbs-res{ font-family:var(--uii); font-size:clamp(22px, 6.6vh, 34px); line-height:1; letter-spacing:.03em; text-transform:uppercase; text-shadow:0 2px 0 rgba(0,0,0,.55), 0 0 1px #000; white-space:nowrap; }
+#pbs .pbs-sub{ margin-top:4px; font-size:clamp(11px, 3.2vh, 14px); font-weight:700; letter-spacing:.08em; opacity:.82; white-space:nowrap; }
+#pbs .pbs-tabs{ display:flex; gap:6px; flex:none; }
+#pbs .pbs-tab{ font:800 clamp(12px, 3.4vh, 15px)/1 var(--ui); letter-spacing:.08em; text-transform:uppercase; padding:8px 13px 9px; border-radius:999px; border:2px solid rgba(237,234,223,.28); background:rgba(0,0,0,.42); color:#EDEADF; cursor:pointer; }
+#pbs .pbs-tab.on{ background:#EDEADF; color:#1d1a14; border-color:#EDEADF; }
+#pbs .pbs-stage{ position:absolute; inset:0; }
+#pbs .pbs-beam{ position:absolute; top:-4%; height:86%; width:var(--bw); left:calc(var(--x) - var(--bw)/2); clip-path:polygon(38% 0, 62% 0, 100% 100%, 0 100%); -webkit-clip-path:polygon(38% 0, 62% 0, 100% 100%, 0 100%); background:linear-gradient(180deg, rgba(255,242,206,.20), rgba(255,242,206,.03) 92%); pointer-events:none; }
+#pbs .pbs-beam.gold{ background:linear-gradient(180deg, rgba(255,222,128,.30), rgba(255,222,128,.05) 92%); }
+#pbs .pbs-fig{ position:absolute; left:var(--x); bottom:var(--b); width:0; height:0; margin:0; }
+#pbs .pbs-man{ position:absolute; left:50%; bottom:0; transform:translateX(-50%); height:var(--h); width:calc(var(--h) * 0.857); display:flex; justify-content:center; }
+#pbs .pbs-under{ position:absolute; left:50%; top:calc(var(--h) * 0.07); transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; }
+#pbs .pbs-sarge{ position:relative; z-index:2; height:100%; width:auto; filter:drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
+#pbs .side .pbs-sarge{ filter:drop-shadow(0 3px 0 rgba(0,0,0,.35)) brightness(.86) saturate(.92); }
+#pbs .pbs-pool{ position:absolute; z-index:1; left:50%; bottom:calc(var(--h) * -0.07); width:calc(var(--h) * 1.05); height:calc(var(--h) * 0.2); transform:translateX(-50%); border-radius:50%; background:radial-gradient(closest-side, rgba(255,240,206,.55), rgba(255,240,206,.22) 58%, rgba(255,240,206,0) 100%); }
+#pbs .mvp .pbs-pool{ background:radial-gradient(closest-side, rgba(255,222,120,.70), rgba(255,210,90,.28) 58%, rgba(255,210,90,0) 100%); }
+#pbs .pbs-shadow{ position:absolute; z-index:1; left:50%; bottom:calc(var(--h) * -0.02); width:calc(var(--h) * 0.5); height:calc(var(--h) * 0.07); transform:translateX(-50%); border-radius:50%; background:rgba(0,0,0,.45); filter:blur(2px); }
+#pbs .pbs-plq{ --f:#AEB8C2; --f2:#D9E0E6; --lip:#76828E; --ink:#222a31; --tx:#1b2229; position:absolute; z-index:3; display:inline-flex; align-items:center; gap:.35em; white-space:nowrap; font-weight:800; text-transform:uppercase; letter-spacing:.07em; line-height:1; color:var(--tx);
+  background:linear-gradient(180deg, var(--f2) 0%, var(--f) 46%, var(--f) 100%); border:3px solid var(--ink); border-radius:12px; text-shadow:0 1px 0 rgba(255,255,255,.35); box-shadow:inset 0 2px 0 rgba(255,255,255,.4), inset 0 -5px 0 var(--lip), 0 4px 0 var(--ink), 0 8px 14px rgba(0,0,0,.45);
+  font-size:clamp(12px, 3.7vh, 17px); padding:7px 13px 10px; left:50%; bottom:calc(var(--h) * 1.03); transform:translateX(-50%); }
+#pbs .pbs-plq .pbs-g{ width:1.15em; height:1.15em; fill:currentColor; }
+#pbs .mvp .pbs-plq{ --f:#DCA82E; --f2:#F7D466; --lip:#9C6F10; --ink:#3B2A07; --tx:#2A1F08; font-family:var(--uii); font-weight:400; font-size:clamp(24px, 8.4vh, 42px); letter-spacing:.06em; padding:6px 20px 11px; border-radius:16px; }
+#pbs .pbs-name{ display:inline-flex; align-items:center; gap:7px; max-width:42vw; padding:4px 11px 5px; border-radius:10px; background:rgba(0,0,0,.58); border:2px solid rgba(255,255,255,.12); white-space:nowrap; }
+#pbs .pbs-name b{ font-size:clamp(12px, 3.8vh, 17px); font-weight:800; letter-spacing:.04em; overflow:hidden; text-overflow:ellipsis; }
+#pbs .pbs-chip{ width:12px; height:12px; border-radius:50%; flex:none; box-shadow:inset 0 -2px 0 rgba(0,0,0,.28), 0 0 0 2px rgba(0,0,0,.35); }
+#pbs .pbs-you{ font:800 11px/1 var(--ui); letter-spacing:.08em; color:#2A1F08; background:#F5CF60; border-radius:6px; padding:3px 5px 3px; flex:none; }
+#pbs .pbs-num{ margin-top:5px; white-space:nowrap; text-shadow:0 2px 0 rgba(0,0,0,.6); }
+#pbs .pbs-num i{ font-style:normal; font-family:var(--uii); font-size:clamp(16px, 5vh, 24px); letter-spacing:.03em; color:#F3EEDD; }
+#pbs .pbs-num s{ text-decoration:none; font-weight:800; font-size:clamp(10px, 3vh, 13px); letter-spacing:.08em; opacity:.85; margin-left:.35em; }
+#pbs .mvp .pbs-num i{ color:#F7D466; font-size:clamp(20px, 6.6vh, 32px); }
+#pbs .pbs-chips{ margin-top:5px; display:flex; gap:6px; }
+#pbs .pbs-stat{ display:inline-flex; align-items:center; gap:4px; padding:3px 8px 3px 6px; border-radius:8px; background:rgba(0,0,0,.5); font-weight:800; font-size:clamp(11px, 3.3vh, 14px); white-space:nowrap; }
+#pbs .pbs-stat .pbs-g{ width:15px; height:15px; fill:#EDEADF; color:#EDEADF; }
+#pbs .pbs-stat small{ font-size:.78em; letter-spacing:.07em; opacity:.8; }
+#pbs .pbs-go{ position:absolute; z-index:6; right:max(16px, env(safe-area-inset-right)); bottom:max(12px, env(safe-area-inset-bottom)); margin:0; }
+#pbs .pbs-mine{ position:absolute; z-index:6; left:max(16px, env(safe-area-inset-left)); bottom:max(16px, env(safe-area-inset-bottom)); padding:7px 12px 8px; border-radius:12px; background:rgba(0,0,0,.55); border:2px solid rgba(255,255,255,.12); font-weight:800; font-size:clamp(11px,3.4vh,14px); letter-spacing:.06em; white-space:nowrap; }
+#pbs .pbs-mine b{ color:#F7D466; font-family:var(--uii); font-weight:400; font-size:1.3em; letter-spacing:.03em; }
+#pbs .pbs-board{ position:absolute; z-index:4; left:max(16px, env(safe-area-inset-left)); right:max(16px, env(safe-area-inset-right)); top:calc(max(10px, env(safe-area-inset-top)) + clamp(50px, 14.2vh, 70px)); bottom:calc(max(12px, env(safe-area-inset-bottom)) + clamp(58px, 17vh, 76px)); overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; scrollbar-width:none; padding-bottom:2px; -webkit-overflow-scrolling:touch; }
+#pbs .pbs-board.more{ -webkit-mask-image:linear-gradient(180deg, #000 calc(100% - 18px), transparent); mask-image:linear-gradient(180deg, #000 calc(100% - 18px), transparent); }
+#pbs .pbs-board::-webkit-scrollbar{ display:none; }
+#pbs .pbs-row{ display:grid; grid-template-columns:minmax(120px, 1fr) repeat(9, minmax(36px, 6.6%)) minmax(52px, 8.4%); align-items:center; column-gap:2px; }
+#pbs .pbs-hd{ position:sticky; top:0; z-index:2; background:linear-gradient(180deg, #1d1a14 70%, rgba(29,26,20,0)); padding:0 0 4px; align-items:end; }
+#pbs .pbs-hd > div{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:1px; font-weight:800; font-size:clamp(8px, 2.4vh, 11px); letter-spacing:.06em; opacity:.85; white-space:nowrap; min-height:clamp(20px, 6vh, 32px); }
+#pbs .pbs-hd .pbs-g{ width:clamp(12px, 3.6vh, 19px); height:clamp(12px, 3.6vh, 19px); fill:#EDEADF; color:#EDEADF; }
+#pbs .pbs-team{ margin:3px 0 2px; padding:0 2px 2px; font-weight:800; font-size:clamp(11px, 3.2vh, 14px); letter-spacing:.08em; border-bottom:2px solid currentColor; display:flex; justify-content:space-between; }
+#pbs .pbs-team span{ color:#EDEADF; opacity:.8; }
+#pbs .pbs-pl{ min-height:clamp(22px, 6.1vh, 34px); border-radius:8px; }
+#pbs .pbs-pl:nth-child(odd){ background:rgba(255,255,255,.035); }
+#pbs .pbs-pl.me{ background:rgba(127,163,92,.22); }
+#pbs .pbs-pl.mvp{ box-shadow:inset 3px 0 0 #F5CF60; background:rgba(245,207,96,.13); }
+#pbs .pbs-pl > div{ text-align:center; font-weight:800; font-size:clamp(11px, 3.5vh, 15px); font-variant-numeric:tabular-nums; }
+#pbs .pbs-pl > div.z{ opacity:.35; }
+#pbs .pbs-pl > div.lead{ color:#F7D466; }
+#pbs .pbs-pl > div.lead.dk{ color:#EE9A86; }
+#pbs .pbs-pl > div.pts{ font-family:var(--uii); font-weight:400; font-size:clamp(13px, 4.2vh, 18px); letter-spacing:.03em; }
+#pbs .pbs-pl > .who{ display:flex; align-items:center; gap:6px; text-align:left; min-width:0; padding-left:6px; }
+#pbs .pbs-pl > .who b{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:clamp(11px, 3.5vh, 15px); letter-spacing:.03em; }
+#pbs .pbs-pl > .who img{ height:clamp(22px, 7vh, 30px); width:auto; flex:none; }
+#pbs .pbs-pl > .who .pbs-g{ width:15px; height:15px; flex:none; fill:#F5CF60; color:#F5CF60; }
+#pbs.pbs-in .side{ animation:pbsRise .42s cubic-bezier(.2,.9,.3,1.2) both; } #pbs.pbs-in .side.l{ animation-delay:.12s; } #pbs.pbs-in .side.r{ animation-delay:.30s; }
+#pbs.pbs-in .mvp{ animation:pbsLand .5s cubic-bezier(.2,.9,.3,1.25) .62s both; }
+#pbs.pbs-in .mvp .pbs-plq{ animation:pbsStamp .36s cubic-bezier(.2,.9,.3,1.4) 1.02s both; }
+@keyframes pbsRise{ from{ opacity:0; transform:translateY(22px); } to{ opacity:1; transform:none; } }
+@keyframes pbsLand{ from{ opacity:0; transform:translateY(-14px) scale(1.12); } to{ opacity:1; transform:none; } }
+@keyframes pbsStamp{ from{ opacity:0; transform:translateX(-50%) scale(1.6); } to{ opacity:1; transform:translateX(-50%); } }
+@media (prefers-reduced-motion: reduce){ #pbs.pbs-in .side, #pbs.pbs-in .mvp, #pbs.pbs-in .mvp .pbs-plq{ animation:none; } }
+`;
+function pbsCss(){ if(document.getElementById('pbsCss')) return; const st=document.createElement('style'); st.id='pbsCss'; st.textContent=PBS_CSS; document.head.appendChild(st); }
+function pbsPlace(){ const tall=(innerHeight/Math.max(1,innerWidth))>0.62;
+  return tall? { mvp:{ x:'50%', b:'31vh', h:'43vh' }, l:{ x:'22%', b:'41vh', h:'29vh' }, r:{ x:'78%', b:'41vh', h:'29vh' } }
+             : { mvp:{ x:'50%', b:'31vh', h:'40vh' }, l:{ x:'21%', b:'40vh', h:'27vh' }, r:{ x:'79%', b:'40vh', h:'27vh' } }; }
+function pbsUnit(k, v){ if(k==='teammvp' || k==='runnerup') return 'POINTS'; const it=pbsItem(k); return it? it.u[v===1? 0 : 1] : ''; }
+function pbsFig(m, s, k, where){ const isM=(where==='mvp'), v=isM? s.pts : (k==='teammvp' || k==='runnerup')? s.pts : (s[k]||0);
+  const plq=isM? 'MVP' : pbsTitle(k), g=isM? '' : pbsGl(k==='teammvp' || k==='runnerup'? 'medal' : (pbsItem(k)||{}).g);
+  let chips='';
+  if(isM){ const top=PBS_ITEMS.map(it=>({ it:it, p:PBS.W[it.k]*(s[it.k]||0) })).filter(x=>x.p>0).sort((a,b)=>b.p-a.p).slice(0,3);
+    chips='<div class="pbs-chips">'+top.map(x=>{ const gg=PBS.gly? pbsGl(x.it.g) : ''; const n=s[x.it.k]||0;
+      return '<span class="pbs-stat">'+gg+pbsFmt(n)+(gg? '' : ' <small>'+escH(t(x.it.u[n===1? 0 : 1]))+'</small>')+'</span>'; }).join('')+'</div>'; }
+  return '<figure class="pbs-fig '+(isM? 'mvp' : 'side '+where)+'" data-seat="'+s.i+'" data-k="'+escH(k||'mvp')+'">'
+    +'<div class="pbs-plq">'+(PBS.gly? g : '')+escH(t(plq))+'</div>'
+    +'<div class="pbs-man"><span class="pbs-pool"></span><span class="pbs-shadow"></span><img class="pbs-sarge" alt="" src="'+pbsSrc(s)+'"></div>'
+    +'<div class="pbs-under"><div class="pbs-name"><span class="pbs-chip" style="background:'+escH(s.hex||'#888')+'"></span><b>'+escH(s.name)+'</b>'+(s.me? '<span class="pbs-you">'+escH(t('YOU'))+'</span>' : '')+'</div>'
+    +'<div class="pbs-num"><i>'+pbsFmt(v)+'</i><s>'+escH(t(isM? 'POINTS' : pbsUnit(k, v)))+'</s></div>'+chips+'</div></figure>'; }
+function pbsBoard(m, won){ const cols=PBS_ITEMS.concat([PBS_DEATHS]);
+  const hd='<div class="pbs-row pbs-hd"><div></div>'+cols.map(it=>'<div>'+pbsGl(it.g)+'<span>'+escH(t(it.t))+'</span></div>').join('')+'<div>'+pbsGl('trophy')+'<span>'+escH(t('POINTS'))+'</span></div></div>';
+  const shown={}; shown[m.mvp.i]=1; for(const x of m.side) shown[x.i]=1;
+  const team=(tm)=>{ const rows=m.seats.filter(s=>s.team===tm).sort((a,b)=>b.pts-a.pts), mine=(tm===m.rd.myTeam), res=(mine===won)? 'WON' : 'LOST';
+    let col='#EDEADF'; try{ col=bfColOf(S.bf.seats[tm==='you'? 0 : S.bf.team]).text || col; }catch(e){}
+    return '<div class="pbs-team" style="color:'+escH(col)+'">'+escH(t(mine? 'YOUR TEAM' : 'THEIR TEAM'))+'<span>'+escH(t(res))+'</span></div>'
+      +rows.map(s=>'<div class="pbs-row pbs-pl'+(s.me? ' me' : '')+(s.i===m.mvp.i? ' mvp' : '')+'" data-seat="'+s.i+'"><div class="who"><img alt="" src="'+pbsSrc(s)+'"><b>'+escH(s.name)+'</b>'
+        +(s.i===m.mvp.i? pbsGl('trophy') : shown[s.i]? pbsGl('medal') : '')+(s.me? '<span class="pbs-you">'+escH(t('YOU'))+'</span>' : '')+'</div>'
+        +cols.map(it=>{ const v=s[it.k]||0; return '<div class="'+(v===0? 'z' : '')+(m.lead[it.k]===s.i? ' lead' : '')+(it.k==='deaths'? ' dk' : '')+'">'+pbsFmt(v)+'</div>'; }).join('')
+        +'<div class="pts'+(s.i===m.mvp.i? ' lead' : '')+'">'+pbsFmt(s.pts)+'</div></div>').join(''); };
+  const mt=m.rd.myTeam==='foe'? 'foe' : 'you';
+  return '<div class="pbs-board">'+hd+team(mt)+team(mt==='you'? 'foe' : 'you')+'</div>'; }
+function pbsShow(m, o){ o=o||{}; pbsCss(); pbsDown(true);
+  const won=(PBS.face||S.mode)==='win', face=o.face||'awards', P=pbsPlace();
+  let T=null; try{ T=bfVerdictTitle(won); }catch(e){}
+  const hex=(T && T.hex) || '#EDEADF', title=T? T.html : escH(t(won? 'YOU WIN!' : 'THEY WIN!'));
+  const sub=escH(m.rd.team+'v'+m.rd.team)+' · '+escH(t(m.rd.mapName))+' · '+escH(t(won? 'YOUR TEAM WON' : 'YOUR TEAM LOST'));
+  const root=document.createElement('div'); root.id='pbs'; root.setAttribute('data-notr',''); root.className=o.anim? 'pbs-in' : ''; root.dataset.face=face;
+  root.style.setProperty('--win', hex); root.style.setProperty('--winA', pbsRgba(hex, .34));
+  let stage='';
+  if(face==='awards'){ const S0=(i)=>m.seats.find(s=>s.i===i);
+    const L=m.side.find(x=>S0(x.i).team==='you') || m.side[0], R=m.side.find(x=>x!==L) || null;
+    const beams=[['21%','30vh',''],['79%','30vh',''],['50%','44vh','gold']].map(b=>'<span class="pbs-beam '+b[2]+'" style="--x:'+b[0]+';--bw:'+b[1]+'"></span>').join('');
+    const at=(p, html)=>html.replace('class="pbs-fig', 'style="--x:'+p.x+';--b:'+p.b+';--h:'+p.h+'" class="pbs-fig');
+    stage='<div class="pbs-stage">'+beams+(L? at(P.l, pbsFig(m, S0(L.i), L.k, 'l')) : '')+(R? at(P.r, pbsFig(m, S0(R.i), R.k, 'r')) : '')+at(P.mvp, pbsFig(m, m.mvp, null, 'mvp'))+'</div>';
+    if(m.me && !m.side.some(x=>x.i===m.me.i) && m.mvp.i!==m.me.i){ const pts='<b>'+pbsFmt(m.me.pts)+'</b>';
+      stage+='<div class="pbs-mine">'+(LANG==='en'? 'YOU · '+pts+' POINTS · '+pbsOrd(m.myRank)+' OF '+m.seats.length : tf('YOU · %1 POINTS · %2 OF %3', pts, m.myRank, m.seats.length))+'</div>'; }
+  } else stage=pbsBoard(m, won);
+  root.innerHTML='<div class="pbs-top"><div><div class="pbs-res" style="color:'+escH(hex)+'">'+title+'</div><div class="pbs-sub">'+sub+'</div></div>'
+    +'<div class="pbs-tabs"><button type="button" class="pbs-tab'+(face==='awards'? ' on' : '')+'" data-f="awards">'+escH(t('AWARDS'))+'</button><button type="button" class="pbs-tab'+(face==='board'? ' on' : '')+'" data-f="board">'+escH(t('SCOREBOARD'))+'</button></div></div>'
+    +stage+'<button type="button" class="btn pbs-go">'+escH(t('CONTINUE'))+'</button>';
+  if(o.anim) root.className='';   // the entrance waits for the fit (a box is measured where it STANDS, never mid-stamp)
+  document.body.appendChild(root); pbsFit(root); if(o.anim) root.className='pbs-in';
+  const brd=root.querySelector('.pbs-board'); if(brd && brd.scrollHeight>brd.clientHeight+1) brd.classList.add('more');
+  root.querySelectorAll('.pbs-tab').forEach(b=>{ b.onclick=(ev)=>{ if(ev) ev.stopPropagation(); if(b.dataset.f===PBS.view) return; try{ SFX.blip(); }catch(e){} pbsShow(m, { face:b.dataset.f, anim:false }); }; });
+  root.querySelector('.pbs-go').onclick=(ev)=>{ if(ev) ev.stopPropagation(); try{ SFX.blip(); }catch(e){} pbsEnd(); };
+  PBS.view=face; PBS.shows++;
+  if(face==='awards' && o.beats) pbsBeats(!!o.anim, m);   // the entrance's sounds: the hold's first deal alone (a tab or a turned glass re-deals in silence)
+  return root; }
+// THE FIT (every glass, every tongue): the result's words and the tabs never touch the MVP's plaque, a title plaque never leaves the glass nor touches the MVP's (their type steps down, never
+// under 60 %); the MVP's chips give way to CONTINUE and to the YOU line, the last chip first (none left = no row)
+function pbsFit(root){ try{
+  const R=(e)=>e? e.getBoundingClientRect() : null, W=innerWidth;
+  const hit=(a,b)=>!!(a && b && a.width>0 && b.width>0 && !(a.right<=b.left || b.right<=a.left || a.bottom<=b.top || b.bottom<=a.top));
+  const step=(els, bad)=>{ const base=els.map(e=>parseFloat(getComputedStyle(e).fontSize)||14); let k=1; while(bad() && k>0.62){ k-=0.04; els.forEach((e,i)=>{ e.style.fontSize=(base[i]*k).toFixed(2)+'px'; }); } };
+  const mp=root.querySelector('.mvp .pbs-plq'), res=root.querySelector('.pbs-top > div:first-child'), tabs=root.querySelector('.pbs-tabs');
+  if(mp){ step([...root.querySelectorAll('.pbs-res, .pbs-sub')], ()=>hit(R(res), R(mp)));
+    step([...root.querySelectorAll('.pbs-tab')], ()=>hit(R(tabs), R(mp)));
+    root.querySelectorAll('.side .pbs-plq').forEach(q=>step([q], ()=>{ const r=R(q); return r.left<4 || r.right>W-4 || hit(r, R(mp)) || hit(r, R(res)) || hit(r, R(tabs)); })); }
+  const go=root.querySelector('.pbs-go'), mine=root.querySelector('.pbs-mine'), chips=root.querySelector('.mvp .pbs-chips');
+  if(chips){ while(chips.children.length && (hit(R(chips), R(go)) || hit(R(chips), R(mine)))) chips.removeChild(chips.lastElementChild); if(!chips.children.length) chips.remove(); }
+  if(mine){ const mv=[root.querySelector('.mvp .pbs-name'), root.querySelector('.mvp .pbs-num')]; step([mine], ()=>hit(R(mine), R(go)) || mv.some(e=>hit(R(mine), R(e)))); }
+}catch(e){} }
+function pbsBeats(anim, m){ const at=(ms,f)=>PBS.tids.push(setTimeout(()=>{ try{ f(); }catch(e){} }, ms));
+  try{ audio(); }catch(e){}
+  if(!anim){ at(0, ()=>SFX.trumpet()); return; }   // reduced motion: everything at once, one sound
+  if(m.side.length>0) at(120, ()=>SFX.thock()); if(m.side.length>1) at(300, ()=>SFX.thock());
+  at(1020, ()=>SFX.trumpet()); }
+function pbsDown(keepTimers){ if(!keepTimers){ PBS.tids.forEach(clearTimeout); PBS.tids=[]; } const r=document.getElementById('pbs'); if(r) r.remove(); PBS.view=null; }
+// ── THE HOLD and THE GIVE-BACK (CARD-RUP's rupHold / rupEnd / rupTeardown, the dance's own) ──
+function pbsHold(c){ const face=S.mode;
+  Object.assign(PBS, { c:c, face:face, held:null, rev:0, vk:0, promo:0, m:null });   // written first, so the give-back undoes exactly what was held, whatever fails below
+  try{
+    kawHold(); if(XPJ_PEND){ clearTimeout(XPJ_PEND); XPJ_PEND=0; PBS.held=XPJ_A; } VD_XPH=0;   // the pour scheduled this tick waits (the dance's own hold)
+    if(c.vd){ vdKill(); PBS.vk=1; PBS.promo=c.promo; }   // the stars' count stops before its first beat (it runs again from the top on the give-back)
+    const el=document.getElementById(face); if(el && !el.classList.contains('hidden')){ el.classList.add('hidden'); PBS.rev=1; }   // the sheet re-hidden in the same tick as the foot's reveal, zero paint between
+    const m=pbsModel(pbsRead(c.bf)); PBS.m=m;
+    if(pbsShow(m, { face:'awards', anim:!reducedMotion(), beats:true })) return true;
+  }catch(e){ PBS.err++; }
+  pbsEnd(); return false; }   // FAIL-OPEN: the sheet back at once, the dance's check as the foot would have run it
+function pbsEnd(){ const c=PBS.c; if(!c) return; const held=PBS.held, rev=PBS.rev, vk=PBS.vk, promo=PBS.promo, face=PBS.face;
+  Object.assign(PBS, { c:null, face:null, held:null, rev:0, vk:0, promo:0, m:null }); pbsDown(); PBS.ends++;
+  if(rev){ if(face==='win') revealVerdict('win', true);   // a RE-reveal: the face this verdict built stands (winFaceClear runs on a fresh reveal only)
+    else { const el=document.getElementById(face); if(el) el.classList.remove('hidden'); vdSoon(); } }   // a loss: un-hidden as dressed (revealVerdict('lose') would run loseFace(false) and strip the winner's title, the torch's and the globe's faces); its fit measured again
+  if(held) xpQueue(held);   // the juice runs AFTER the awards, as after the dance
+  if(vk) vdCount(!!promo);   // the stars count from the top, as on a fresh sheet (and the pour waits for the points again: AW-16)
+  try{ kawAfter(); }catch(e){}
+  if(c.pan){ try{ pantheonCheck(); }catch(e){} } }   // the foot's own last door, deferred to here
+function pbsTeardown(){ if(!PBS.c) return; const held=PBS.held; Object.assign(PBS, { c:null, face:null, held:null, rev:0, vk:0, promo:0, m:null }); pbsDown();   // a navigation: no reveal (every overlay is leaving)
+  if(held) xpQueue(held); try{ kawAfter(); }catch(e){} }   // the held juice handed back for the xpTeardown right after it (the pristine navigation law)
+try{ addEventListener('resize', ()=>{ if(PBS.c && PBS.m && document.getElementById('pbs')) pbsShow(PBS.m, { face:PBS.view||'awards' }); }); }catch(e){}   // the glass turned: the stage re-seated (no entrance again)
+pbsWire();
+setTimeout(()=>{ try{ pbsWireSeam(); }catch(e){ PBS.err++; } }, 0);   // the seam: after the whole script (see pbsWireSeam)
+setTimeout(()=>{ try{ if(window.GVT && !GVT.pbs) GVT.pbs=function(cmd, a){ const bf=S.bf;   // the rigs' door (window.GVT is dealt further down the script: seated after it, the mid-script sections' way)
+  if(cmd==='read') return pbsRead(bf);
+  if(cmd==='model'){ const rd=pbsRead(bf); return rd? pbsModel(rd) : null; }
+  if(cmd==='show'){ const rd=pbsRead(bf); if(!rd) return null; const m=pbsModel(rd); PBS.m=m; pbsShow(m, a||{ face:'awards' }); return true; }
+  return { v:PBS.v, cv:GVT_CV, on:PBS.on, gly:PBS.gly, seam:!!PBS.seam, miss:PBS.miss.slice(), err:PBS.err, shows:PBS.shows, ends:PBS.ends, holding:!!PBS.c, face:PBS.face, view:PBS.view, rev:PBS.rev, vk:PBS.vk, held:!!PBS.held,
+    pan:!!(PBS.c && PBS.c.pan), due:pbsDue(bf), tally:(bf && bf.pbs)? JSON.parse(JSON.stringify(bf.pbs)) : null, ref:(bf && bf.pbsRef)? JSON.parse(JSON.stringify(bf.pbsRef)) : null }; }; }catch(e){} }, 0);
+// THE WORDS (38 keys x 7, drafts for a translator's pen; the keys = the English, the game's own law: t() is the identity in English)
+Object.assign(TR["ja"]||(TR["ja"]={}), {"AWARDS":"ひょうしょう","SCOREBOARD":"スコアボード","MVP":"MVP","POINTS":"ポイント","MOST KILLS":"いちばん たおした","MOST SARGE KILLS":"サージを いちばん たおした","MOST DAMAGE":"いちばん ダメージ","MOST TOY BOX DAMAGE":"はこを いちばん こわした","MOST HEALING":"いちばん かいふく","MOST REFLECTS":"いちばん はねかえした","MOST ABILITIES":"わざを いちばん つかった","MOST TROOPS":"へいしを いちばん だした","WEAKEST LINK":"いちばんの じゃくてん","TEAM MVP":"チームMVP","RUNNER UP":"じゅんゆうしょう","KILL":"たおした","KILLS":"たおした","SARGE KILL":"サージ たおした","SARGE KILLS":"サージ たおした","TOY BOX DAMAGE":"はこ ダメージ","HP HEALED":"HP かいふく","REFLECT":"はねかえし","REFLECTS":"はねかえし","ABILITY":"わざ","ABILITIES":"わざ","TROOP DEPLOYED":"へいし だした","TROOPS DEPLOYED":"へいし だした","DEATH":"やられた","DEATHS":"やられた","BOX":"はこ","HEALING":"かいふく","TROOPS":"へいし","THEIR TEAM":"あいての チーム","WON":"かち","LOST":"まけ","YOUR TEAM WON":"きみの チームの かち","YOUR TEAM LOST":"きみの チームの まけ","YOU · %1 POINTS · %2 OF %3":"きみ · %1 ポイント · %3にんちゅう %2い"});
+Object.assign(TR["ko"]||(TR["ko"]={}), {"AWARDS":"시상","SCOREBOARD":"점수판","MVP":"MVP","POINTS":"점수","MOST KILLS":"최다 처치","MOST SARGE KILLS":"사지 최다 처치","MOST DAMAGE":"최다 피해","MOST TOY BOX DAMAGE":"상자 최다 피해","MOST HEALING":"최다 치유","MOST REFLECTS":"최다 반사","MOST ABILITIES":"최다 능력","MOST TROOPS":"최다 병력","WEAKEST LINK":"가장 약한 고리","TEAM MVP":"팀 MVP","RUNNER UP":"준우승","KILL":"처치","KILLS":"처치","SARGE KILL":"사지 처치","SARGE KILLS":"사지 처치","TOY BOX DAMAGE":"상자 피해","HP HEALED":"HP 치유","REFLECT":"반사","REFLECTS":"반사","ABILITY":"능력","ABILITIES":"능력","TROOP DEPLOYED":"병력 배치","TROOPS DEPLOYED":"병력 배치","DEATH":"쓰러짐","DEATHS":"쓰러짐","BOX":"상자","HEALING":"치유","TROOPS":"병력","THEIR TEAM":"상대 팀","WON":"승리","LOST":"패배","YOUR TEAM WON":"우리 팀 승리","YOUR TEAM LOST":"우리 팀 패배","YOU · %1 POINTS · %2 OF %3":"너 · %1점 · %3명 중 %2위"});
+Object.assign(TR["zh-Hans"]||(TR["zh-Hans"]={}), {"AWARDS":"颁奖","SCOREBOARD":"记分板","MVP":"MVP","POINTS":"分","MOST KILLS":"击杀最多","MOST SARGE KILLS":"击杀萨吉最多","MOST DAMAGE":"伤害最高","MOST TOY BOX DAMAGE":"玩具箱伤害最高","MOST HEALING":"治疗最多","MOST REFLECTS":"反弹最多","MOST ABILITIES":"技能最多","MOST TROOPS":"出兵最多","WEAKEST LINK":"最薄弱环节","TEAM MVP":"队伍MVP","RUNNER UP":"亚军","KILL":"击杀","KILLS":"击杀","SARGE KILL":"击杀萨吉","SARGE KILLS":"击杀萨吉","TOY BOX DAMAGE":"玩具箱伤害","HP HEALED":"HP 治疗","REFLECT":"反弹","REFLECTS":"反弹","ABILITY":"技能","ABILITIES":"技能","TROOP DEPLOYED":"出兵","TROOPS DEPLOYED":"出兵","DEATH":"倒下","DEATHS":"倒下","BOX":"箱子","HEALING":"治疗","TROOPS":"出兵","THEIR TEAM":"对方队伍","WON":"胜","LOST":"负","YOUR TEAM WON":"你的队伍获胜","YOUR TEAM LOST":"你的队伍落败","YOU · %1 POINTS · %2 OF %3":"你 · %1 分 · %3 人中第 %2"});
+Object.assign(TR["de"]||(TR["de"]={}), {"AWARDS":"EHRUNGEN","SCOREBOARD":"PUNKTETAFEL","MVP":"MVP","POINTS":"PUNKTE","MOST KILLS":"MEISTE ABSCHÜSSE","MOST SARGE KILLS":"MEISTE SARGE-ABSCHÜSSE","MOST DAMAGE":"HÖCHSTER SCHADEN","MOST TOY BOX DAMAGE":"HÖCHSTER KISTENSCHADEN","MOST HEALING":"MEISTE HEILUNG","MOST REFLECTS":"MEISTE ABPRALLER","MOST ABILITIES":"MEISTE FÄHIGKEITEN","MOST TROOPS":"MEISTE TRUPPEN","WEAKEST LINK":"SCHWÄCHSTES GLIED","TEAM MVP":"TEAM-MVP","RUNNER UP":"ZWEITER PLATZ","KILL":"ABSCHUSS","KILLS":"ABSCHÜSSE","SARGE KILL":"SARGE-ABSCHUSS","SARGE KILLS":"SARGE-ABSCHÜSSE","TOY BOX DAMAGE":"KISTENSCHADEN","HP HEALED":"HP GEHEILT","REFLECT":"ABPRALLER","REFLECTS":"ABPRALLER","ABILITY":"FÄHIGKEIT","ABILITIES":"FÄHIGKEITEN","TROOP DEPLOYED":"TRUPPE ENTSANDT","TROOPS DEPLOYED":"TRUPPEN ENTSANDT","DEATH":"K.O.","DEATHS":"K.O.","BOX":"KISTE","HEALING":"HEILUNG","TROOPS":"TRUPPEN","THEIR TEAM":"GEGNERTEAM","WON":"GEWONNEN","LOST":"VERLOREN","YOUR TEAM WON":"DEIN TEAM HAT GEWONNEN","YOUR TEAM LOST":"DEIN TEAM HAT VERLOREN","YOU · %1 POINTS · %2 OF %3":"DU · %1 PUNKTE · PLATZ %2 VON %3"});
+Object.assign(TR["ru"]||(TR["ru"]={}), {"AWARDS":"НАГРАДЫ","SCOREBOARD":"ТАБЛО","MVP":"MVP","POINTS":"ОЧКИ","MOST KILLS":"БОЛЬШЕ ВСЕГО НОКАУТОВ","MOST SARGE KILLS":"НОКАУТЫ САРДЖЕЙ","MOST DAMAGE":"БОЛЬШЕ ВСЕГО УРОНА","MOST TOY BOX DAMAGE":"УРОН ПО ЯЩИКУ","MOST HEALING":"ЛУЧШИЙ ЛЕКАРЬ","MOST REFLECTS":"БОЛЬШЕ ВСЕГО ОТРАЖЕНИЙ","MOST ABILITIES":"БОЛЬШЕ ВСЕГО УМЕНИЙ","MOST TROOPS":"БОЛЬШЕ ВСЕГО БОЙЦОВ","WEAKEST LINK":"СЛАБОЕ ЗВЕНО","TEAM MVP":"MVP КОМАНДЫ","RUNNER UP":"ВТОРОЕ МЕСТО","KILL":"НОКАУТ","KILLS":"НОКАУТЫ","SARGE KILL":"НОКАУТ САРДЖА","SARGE KILLS":"НОКАУТЫ САРДЖЕЙ","TOY BOX DAMAGE":"УРОН ЯЩИКУ","HP HEALED":"HP ВЫЛЕЧЕНО","REFLECT":"ОТРАЖЕНИЕ","REFLECTS":"ОТРАЖЕНИЯ","ABILITY":"УМЕНИЕ","ABILITIES":"УМЕНИЯ","TROOP DEPLOYED":"БОЕЦ В БОЮ","TROOPS DEPLOYED":"БОЙЦЫ В БОЮ","DEATH":"ПАДЕНИЕ","DEATHS":"ПАДЕНИЯ","BOX":"ЯЩИК","HEALING":"ЛЕЧЕНИЕ","TROOPS":"БОЙЦЫ","THEIR TEAM":"КОМАНДА ВРАГА","WON":"ПОБЕДА","LOST":"ПОРАЖЕНИЕ","YOUR TEAM WON":"ТВОЯ КОМАНДА ПОБЕДИЛА","YOUR TEAM LOST":"ТВОЯ КОМАНДА ПРОИГРАЛА","YOU · %1 POINTS · %2 OF %3":"ТЫ · ОЧКИ %1 · МЕСТО %2 ИЗ %3"});
+Object.assign(TR["es"]||(TR["es"]={}), {"AWARDS":"PREMIOS","SCOREBOARD":"MARCADOR","MVP":"MVP","POINTS":"PUNTOS","MOST KILLS":"MÁS BAJAS","MOST SARGE KILLS":"MÁS BAJAS DE SARGE","MOST DAMAGE":"MÁS DAÑO","MOST TOY BOX DAMAGE":"MÁS DAÑO A LA CAJA","MOST HEALING":"MÁS CURACIÓN","MOST REFLECTS":"MÁS REFLEJOS","MOST ABILITIES":"MÁS HABILIDADES","MOST TROOPS":"MÁS TROPAS","WEAKEST LINK":"EL ESLABÓN MÁS DÉBIL","TEAM MVP":"MVP DEL EQUIPO","RUNNER UP":"SUBCAMPEÓN","KILL":"BAJA","KILLS":"BAJAS","SARGE KILL":"BAJA DE SARGE","SARGE KILLS":"BAJAS DE SARGE","TOY BOX DAMAGE":"DAÑO A LA CAJA","HP HEALED":"HP CURADOS","REFLECT":"REFLEJO","REFLECTS":"REFLEJOS","ABILITY":"HABILIDAD","ABILITIES":"HABILIDADES","TROOP DEPLOYED":"TROPA DESPLEGADA","TROOPS DEPLOYED":"TROPAS DESPLEGADAS","DEATH":"CAÍDA","DEATHS":"CAÍDAS","BOX":"CAJA","HEALING":"CURACIÓN","TROOPS":"TROPAS","THEIR TEAM":"EQUIPO RIVAL","WON":"GANÓ","LOST":"PERDIÓ","YOUR TEAM WON":"TU EQUIPO GANÓ","YOUR TEAM LOST":"TU EQUIPO PERDIÓ","YOU · %1 POINTS · %2 OF %3":"TÚ · %1 PUNTOS · PUESTO %2 DE %3"});
+Object.assign(TR["ar"]||(TR["ar"]={}), {"AWARDS":"الجوائز","SCOREBOARD":"لوحة النتائج","MVP":"الأفضل","POINTS":"نقطة","MOST KILLS":"أكثر إصابات","MOST SARGE KILLS":"أكثر إسقاط لسارج","MOST DAMAGE":"أكثر ضرر","MOST TOY BOX DAMAGE":"أكثر ضرر للصندوق","MOST HEALING":"أكثر علاج","MOST REFLECTS":"أكثر صد","MOST ABILITIES":"أكثر مهارات","MOST TROOPS":"أكثر جنود","WEAKEST LINK":"الحلقة الأضعف","TEAM MVP":"أفضل الفريق","RUNNER UP":"الوصيف","KILL":"إصابة","KILLS":"إصابات","SARGE KILL":"إسقاط سارج","SARGE KILLS":"إسقاطات سارج","TOY BOX DAMAGE":"ضرر الصندوق","HP HEALED":"HP علاج","REFLECT":"صدة","REFLECTS":"صدات","ABILITY":"مهارة","ABILITIES":"مهارات","TROOP DEPLOYED":"جندي","TROOPS DEPLOYED":"جنود","DEATH":"سقطة","DEATHS":"سقطات","BOX":"الصندوق","HEALING":"العلاج","TROOPS":"الجنود","THEIR TEAM":"فريق الخصم","WON":"فاز","LOST":"خسر","YOUR TEAM WON":"فاز فريقك","YOUR TEAM LOST":"خسر فريقك","YOU · %1 POINTS · %2 OF %3":"أنت · %1 نقطة · المركز %2 من %3"});
+// ═══ END CARD-PBS ═══
 
 // ================= BATTLEFIELD: TARGETING =================
 function enemySide(u){ return u.side==='you'?'foe':'you'; }
