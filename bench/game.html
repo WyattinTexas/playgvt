@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"30.33","md5":"054988c0c729f9cbcca290e4e5b77295","sha":"f996fda77f","at":"2026-11-05T16:11:47Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"30.34","md5":"4c18a712c3e5669e092901d6b2787a95","sha":"4496be2a5a","at":"2026-11-05T16:19:07Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92659,7 +92659,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.33';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -211315,7 +211315,7 @@ BLB.ui={ tab(x){ BLB.tab=x; blbSave(); blbRender(); }, close(){ blbClose(); try{
 function blbBoot(){ if(BLB.booted) return; blbShip(); BLB.q=(function(){ try{ const q=/[?&]bosslab=([01])/.exec(location.search||''); return q? q[1] : null; }catch(e){ return null; } })();
   BLB.blp=!/[?&]blp=0\b/.test(location.search||'');   // CARD-BLP's own switch: ?blp=0 = the lab as v28.41 (no stock army, no room skipped, no page at the landing)
   if(BLB.q==='1' && !META.bossLab){ META.bossLab=1; saveMeta(); } else if(BLB.q==='0' && META.bossLab){ blbLoad(); try{ if(BLB.keep) blbStockDoff('off'); }catch(e){} META.bossLab=0; saveMeta(); }
-  if(!blbOn()) return; BLB.booted=1; blbLoad(); blbIntLoad(); try{ if(BLB.keep) blbStockDoff('boot'); }catch(e){} blbApplyOver(); if(BLB.blp){ blbStockRoom(); BLB.auto=1; } blbPillSync(); }
+  if(!blbOn()) return; BLB.booted=1; blbLoad(); blbIntLoad(); try{ if(BLB.keep) blbStockDoff('boot'); }catch(e){} blbApplyOver(); if(BLB.blp){ blbStockRoom(); if(BLB.q==='1') BLB.auto=1; } blbPillSync(); }   // CARD-BLX (Wyatt 11/5/2026: playgvt.net "just loading up the boss lab"): the page at the landing ONLY when the URL asks (?bosslab=1); a plain boot = the bedroom, the LAB pill + the code open it
 function blbRig(o){ o=o||{}; const g=f=>{ try{ return f(); }catch(e){ return 'ERR:'+String(e && e.message || e).slice(0,120); } }; let did=null;
   if(o.flag!=null){ META.bossLab=o.flag?1:0; saveMeta(); if(META.bossLab){ BLB.booted=0; blbBoot(); } else { blbResetAll(); blbSave(); blbClose(); blbPillSync(); } }
   if(o.open) did=g(()=>blbOpen(typeof o.open==='string'? o.open : null)); if(o.close) blbClose(); if(o.tab) BLB.ui.tab(o.tab); if(o.sel) BLB.ui.sel(o.sel); if(o.tier) BLB.ui.tier(o.tier);
