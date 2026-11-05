@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.29","md5":"5ea1fc1653a0b3852b882b00caf0c3fe","sha":"e58fdabb64","at":"2026-11-05T15:37:47Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.30","md5":"1c88e9a7a641ad6007830b2f908b6764","sha":"36e67929da","at":"2026-11-05T15:50:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92659,7 +92659,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.29';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -102227,6 +102227,7 @@ function roomPersonaFor(hex, rng){
 // small eye with his name under the bar (ws on the poll). Nothing of his leaves the phone (coopSend); nothing is paid, booked or recorded at the end: he lands
 // at HQ after the banner. Record: design/squad-spectate-1008/00-BUILD-SPC.md.
 const SPC={ max:6, endHold:3500 };   // the server's ROOM_WATCH_MAX twin (a word on the card alone) · the verdict banner's hold before the watcher lands at HQ (ms)
+function gsnOn(){ if(gsnOn.v==null){ try{ gsnOn.v=(new URLSearchParams(location.search).get('gsn')!=='0'); }catch(e){ gsnOn.v=true; } } return gsnOn.v; }   // CARD-GSN THE CROWD AS A NUMBER (design/gauntlet-spectators-1105/00-CARD-GSN.md; jumpr 3039 / M3039; Wyatt 11/5/2026 by phone): the switch, read once; ?gsn=0 = the fighters' names line as before
 function spcOn(){ return !!(S.bf && S.bf.watch && COOP && COOP.watch); }
 function spcMate(m){ return (m && m.bf && m.bf.room && m.uid!==CREW.me)? m.bf : null; }   // a squadmate in a live room battle: HQ's word off the room table (crew_members' bf), never a presence stamp
 function spcMateName(){ return (COOP && COOP.spcName) || 'YOUR SQUADMATE'; }
@@ -102286,7 +102287,7 @@ function spcDrawEye(){   // drawHUD's line on the PLAYERS' screens: the watchers
   const ws=(COOP && S.bf && S.bf.room && COOP.ws)||[]; if(!ws.length || spcOn()) return;
   const a=(COOP.wsT!=null)? Math.min(1,Math.max(0,(S.t-COOP.wsT)/0.6)) : 1;
   cx.save(); cx.globalAlpha=0.92*a; cx.textAlign='right'; cx.textBaseline='middle'; cx.fillStyle='#FFD24A';
-  fitText(cx, ((COOP.wn|0)>ws.length)? gswEyeTxt(ws) : tf(ws.length===1? '👁 %1 IS WATCHING' : '👁 %1 ARE WATCHING', ws.join(' · ')), VW-16, bfBarGeo().ty+58, Math.min(300,VW*0.4), 'bold', 15, 10);
+  fitText(cx, (gsnOn() && gaTorchFight(S.bf))? tf('👁 %1 WATCHING', Math.max(COOP.wn|0, ws.length))   /* CARD-GSN (Wyatt 11/5/2026 by phone: "when someone is spectating, don't say their name. Just have a number for the amount of spectators"): in a torch fight the fighters see the crowd as a NUMBER, never a name; ?gsn=0 = the names, as CARD-SPW / CARD-GSW drew them */ : ((COOP.wn|0)>ws.length)? gswEyeTxt(ws) : tf(ws.length===1? '👁 %1 IS WATCHING' : '👁 %1 ARE WATCHING', ws.join(' · ')), VW-16, bfBarGeo().ty+58, Math.min(300,VW*0.4), 'bold', 15, 10);
   cx.restore(); cx.textBaseline='middle';
 }
 function spcVerdict(reason){   // roomVerdict's read while watching: the referee's one word, from my squadmate's chair; the banner, then HQ (nothing paid, nothing booked)
