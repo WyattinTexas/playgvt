@@ -13,7 +13,7 @@ GET GOING
 THE LOOP
 - Drag men from the palette onto the field: yours on the left, the computer's on the right. Press on a man on the field and drag him anywhere. Double-press a man to pin the film camera to him (a red dot while paused; double-press again to let go).
 - Drag empty ground to move your view; VIEW + / − zooms it; WHOLE shows the whole world. Drag inside the white finder to move the film camera.
-- PLAY (Space) runs the fight; pause again any time. UNDO (Backspace) puts the field back exactly as it stood at the first PLAY.
+- PLAY (Space) runs the fight; pause again any time. UNDO (Backspace) puts the whole field back exactly as it stood at the first PLAY: the men, every explosion and scorch mark, every wreck and shot, the purse and the clock.
 - R records the finder's 9:16 take; the files land in studio/takes/. REVEAL LAST TAKE opens the folder.
 - ▼ HIDE CONTROLS folds the tools; the palette stays; ▲ SHOW CONTROLS brings them back.
 - Another level: BATTLEGROUND / CAMPAIGN LEVEL / a boss / a park in the door row, then GO. CLEAR THE FIELD empties both sides.
