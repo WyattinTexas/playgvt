@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.91","md5":"ed98cc961371e9f3c681067acd295378","sha":"4b22244bd3","at":"2026-11-06T16:20:01Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.92","md5":"9cc6f002a55ca4caa325963d195ec454","sha":"8159fadb88","at":"2026-11-06T17:03:05Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92843,7 +92843,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.92';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -223089,9 +223089,14 @@ const SDI=(function(){
   const STAR4='M0 -10 C1.2 -3 3 -1.2 10 0 C3 1.2 1.2 3 0 10 C-1.2 3 -3 1.2 -10 0 C-3 -1.2 -1.2 -3 0 -10 Z';
   function glints(){ const P=[[23,20,1],[46,50,.7],[64,14,.8],[86,44,.6],[95,18,.9],[34,66,.5],[74,70,.55]]; return '<svg class="sdi-glints" viewBox="0 0 100 100" preserveAspectRatio="none" data-notr aria-hidden="true">'+P.map((p,i)=>'<path class="sdi-gl" style="animation-delay:'+(-i*.53).toFixed(2)+'s" d="'+STAR4+'" transform="translate('+p[0]+' '+p[1]+') scale('+(p[2]*.13)+' '+(p[2]*.28)+')" fill="#FFF6D0"/>').join('')+'</svg>'; }
 
-  // ---------- WHAT THE KID COULD WIN: the best toys still out there, the game's own drawings ----------
-  function wants(n){ const ids=SDR.pool().filter(id=>!owns(id) && !SDR.isGear(id) && !SDR.isEmg(id)); ids.sort((a,b)=>SDR.tierOf(b)-SDR.tierOf(a)); return ids.slice(0,n); }
-  function wantHTML(id){ const t9=SDR.tierOf(id); let a=''; try{ a=decShopArt(id); }catch(e){} return '<span class="sdi-want t'+t9+'" data-id="'+id+'"><span class="sdi-wart">'+a+'</span></span>'; }
+  // ---------- WHAT THE KID COULD WIN: EQUIPMENT still out there (Wyatt 11/6/2026 11:34 EST, Discord: "Replace the four icons showing what's inside of them with armor items like equipment
+  // and Floopslab invention icons ... versus showing a King Yeti plush and a display box. Yo Yo and Golden Sarge"). Only what the crates can really give, beside their printed odds: the gear Sarge's
+  // Quarters sells (CARD-SDG) and the Emergency Package (CARD-EDR), both in the drops' own roll; the rarest first, the dearest first within a tier. Floop's Lab inventions are not in the crates
+  // (⚑ SDI-W6, his call), so none is shown. Each piece drawn the way CARD-SDR's reveal draws a won prize (its artOf), so the row shows the drawing the player wins. ----------
+  const gcost=id=>{ try{ return (typeof OUTFIT_COST!=='undefined' && OUTFIT_COST[id]) || 0; }catch(e){ return 0; } };
+  function wants(n){ const ids=SDR.pool().filter(id=>(SDR.isGear(id) || SDR.isEmg(id)) && !owns(id)); ids.sort((a,b)=>(SDR.tierOf(b)-SDR.tierOf(a)) || (gcost(b)-gcost(a))); return ids.slice(0,n); }
+  function wantArt(id){ try{ if(SDR.isEmg(id)) return '<img src="'+emgURI()+'" alt="">'; if(SDR.isGear(id)){ const a=outfitPartSVG(id); return /^\s*<svg/.test(a)? a : '<svg viewBox="-34 -24 68 58">'+a+'</svg>'; } return decShopArt(id); }catch(e){ return ''; } }
+  function wantHTML(id){ const t9=SDR.tierOf(id); return '<span class="sdi-want t'+t9+'" data-id="'+id+'"><span class="sdi-wart">'+wantArt(id)+'</span></span>'; }
   function foundLine(){ const f=SDR.found(); return tf('%1 OF %2 FOUND', '<b data-notr>'+f.n+'</b>', '<b data-notr>'+f.of+'</b>'); }
 
   // ---------- THE GLASS ----------
