@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.89","md5":"de23321a5172dfaba435ba1bb0521891","sha":"b8827d605c","at":"2026-11-06T15:17:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.90","md5":"42a6de4c4add4e67fc6846ee88f86748","sha":"2d7f0d3652","at":"2026-11-06T15:34:48Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16538,6 +16538,19 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   localStorage.setItem('gvt_rsl_mark', String(Date.now()));
   window.__rslEarly={ crashed:crashed, at:Date.now() };
 }catch(e){} })();
+</script>
+<script>/* ═══ CARD-RSW-EARLY · HER PICTURES' FILE, ON THE iPHONE ONLY (sec:CARD-RSW-EARLY; design/radio-silence-wyatt-1106/00-CARD-RSW.md; Wyatt 11/6/2026 "Fix please"): right after CARD-RSL-EARLY (its iOS mark) and before the game's script, an iPhone or iPad on iOS 14+ (WebP) writes the <script> of m/<sha>.js (window.RSW_PACK: Laura's shadows and grain painted once as pictures; sec:CARD-RSW reads it), parser-blocking, so it has run before any art line. Not fetched: anything that is not iOS, iOS before 14, ?rsw=0 (remembered as gvt_rsw '0'; ?rsw=1 clears it), ?ufx=1 (her live filters on this device) or ?ufx=0 (her colours alone). A file that fails to come = CARD-UFX's colours, as before. ═══ */
+(function(){ var E=window.__rswEarly={ why:'', src:'m/e48a5da07eb7.js' }; try{
+  if(!window.__rslEarly){ E.why='not iOS'; return; }
+  var q=location.search||'', m=/[?&]rsw=([01])(?![\w])/.exec(q);
+  if(m){ if(m[1]==='0') localStorage.setItem('gvt_rsw','0'); else localStorage.removeItem('gvt_rsw'); }
+  if(localStorage.getItem('gvt_rsw')==='0'){ E.why='off (?rsw=0)'; return; }
+  var u=/[?&]ufx=(0|1|auto)(?![\w])/.exec(q), w=u? (u[1]==='auto'? '' : u[1]) : (localStorage.getItem('gvt_ufx')||'');
+  if(w==='1' || w==='0'){ E.why='ufx '+w; return; }
+  var sh=window.__GVTSHELL, ua=navigator.userAgent||'', v=/OS (\d+)[_.]\d/.exec(ua), s=/Version\/(\d+)/.exec(ua), n=(sh && sh.platform==='ios')? 15 : (v? +v[1] : (s? +s[1] : 0));   // the App Store app needs iOS 15
+  if(n<14){ E.why='no WebP (iOS '+(n||'?')+')'; return; }
+  E.why='fetched'; document.write('<script src="'+E.src+'"><\/script>');
+}catch(e){ E.why='err'; } })();
 </script>
 
 <script>
@@ -92830,7 +92843,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.89';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -208949,7 +208962,7 @@ const LTR_FLAG_AFT=1;   // 1 = her pirate flag streams aft, mirrored about its h
 function ltrOn(){ return LTR.on===1 && !!LTR_ART; }
 function ltrIdOn(id){ return ltrOn() && !!LTR_ART.ids[id] && LTR_SKIP.indexOf(id)<0; }
 function ltrDoc(id,k,map){ const p=LTR_ART.ids[id].pieces[k].pic; return map? p.replace(/#[0-9A-Fa-f]{6}\b/g, h=>map[h.toUpperCase()]||h) : p; }
-function ltrUri(id,k,map,mk){ const key=id+':'+k+(mk? ':'+mk : ''); return LTR.uri[key] || (LTR.uri[key]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ltrDoc(id,k,map))); }   // her document, once each (a paint = its own)
+function ltrUri(id,k,map,mk){ const key=id+':'+k+(mk? ':'+mk : ''); return LTR.uri[key] || (LTR.uri[key]=((!map && typeof rswUri==='function')? rswUri(ltrDoc(id,k,null)) : '') || 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ltrDoc(id,k,map))); }   /* CARD-RSW: on the iPhone, a piece with no paint map = her whole piece as one pre-painted picture */   // her document, once each (a paint = its own)
 function ltrImg(id,k,o){ o=o||{}; const b=LTR_ART.ids[id].pieces[k].box; return '<image href="'+ltrUri(id,k,o.map,o.mk)+'" x="'+b[0]+'" y="'+b[1]+'" width="'+b[2]+'" height="'+b[3]+'" preserveAspectRatio="none"/>'; }
 function ltrT(f){ return 'translate('+f.tx+','+f.ty+') scale('+f.k+')'; }
 function ltrP(f,x,y){ return [+(f.tx+x*f.k).toFixed(3), +(f.ty+y*f.k).toFixed(3)]; }   // a point of hers in the old art's units
@@ -222764,10 +222777,10 @@ function ugo2Art(road, o){
   if(A.on){ if(!A.lite || o==null) return o; try{ A.liteN++; return ugo2Lite(o); }catch(e){ A.err++; return o; } }
   try{ return ugo2Back(o); }catch(e){ A.err++; return o; } }
 function ugo2Lite(o){   // her colours kept, her filters out (ugo2NoFx), CARD-LFV's base64 documents opened and closed again
-  if(typeof o==='string') return (o.indexOf('#ugo')>=0 || o.indexOf('class="ugo"')>=0)? ugo2NoFx(o) : o;
+  if(typeof o==='string') return (o.indexOf('#ugo')>=0 || o.indexOf('class="ugo"')>=0)? (typeof rswLite==='function'? rswLite(o, ugo2NoFx) : ugo2NoFx(o)) : o;   // CARD-RSW: her pictures on the iPhone
   if(o && typeof o==='object'){
     if(Array.isArray(o)){ for(var i=0;i<o.length;i++) o[i]=ugo2Lite(o[i]); return o; }
-    if(o.mime==='image/svg+xml' && typeof o.pic==='string'){ var d=atob(o.pic); if(d.indexOf('#ugo')>=0 || d.indexOf('class="ugo"')>=0) o.pic=btoa(ugo2NoFx(d)); }
+    if(o.mime==='image/svg+xml' && typeof o.pic==='string'){ var d=atob(o.pic); if(d.indexOf('#ugo')>=0 || d.indexOf('class="ugo"')>=0) o.pic=btoa(typeof rswLite==='function'? rswLite(d, ugo2NoFx) : ugo2NoFx(d)); }   // CARD-RSW: her pictures on the iPhone
     for(var k in o) if(Object.prototype.hasOwnProperty.call(o,k) && k!=='pic') o[k]=ugo2Lite(o[k]); }
   return o; }
 function ugo2Back(o){
@@ -222805,7 +222818,7 @@ function ugo2Floor(id, s){   // CARD-SSR's floor painter: her planet bobs foreve
   var M=ugo2Floor.m||(ugo2Floor.m={}); if(M[id]===undefined) M[id]=(ugo2Fnv(s)===T.h); if(!M[id]) return s; ugo2Floor.n=(ugo2Floor.n||0)+1; return T.s; }
 function ugo2PicTab(){ return {"braidrug":[8,10,847.6,270],"creamrug":[8,10,847.6,270],"armyrug":[8,10,847.6,270],"westrug":[2.6,8,842.9,269]}; }   // THE BRAIDS' AND THE WESTERN RUG'S FLOOR as a picture: each rug's box (its ripple group's fill-box, measured, + 14 units round: her shadows and fringes inside)
 function ugo2Pic(id, s){   // CARD-RSZ's wide floor (the braids, the western rug) as a picture inside the ripple group (.brg): the tap's ripple scales a bitmap, nothing re-runs her filters a frame
-  if(!ugo2Art.on || typeof s!=='string' || s.indexOf('<filter id="ugo')<0) return s; var B=ugo2PicTab()[id]; if(!B) return s;
+  if(!ugo2Art.on || typeof s!=='string') return s; if(s.indexOf('<filter id="ugo')<0){ var w=(typeof rswPic==='function')? rswPic(id, s) : ''; return w || s; } var B=ugo2PicTab()[id]; if(!B) return s;   // CARD-RSW: on the iPhone (her filters out) her whole floor rug as one pre-painted picture
   var M=ugo2Pic.m||(ugo2Pic.m={}), c=M[id]; if(c && c[0]===s.length) return c[1];
   var u; try{ u=btoa('<svg xmlns="http://www.w3.org/2000/svg" width="'+Math.round(B[2]*2)+'" height="'+Math.round(B[3]*2)+'" viewBox="'+B.join(' ')+'">'+s+'</svg>'); }catch(e){ ugo2Art.err=(ugo2Art.err||0)+1; return s; }
   var r='<image class="ugo2still" x="'+B[0]+'" y="'+B[1]+'" width="'+B[2]+'" height="'+B[3]+'" preserveAspectRatio="none" href="data:image/svg+xml;base64,'+u+'"/>';
@@ -222869,9 +222882,9 @@ function ugoPlain(o){ ugoArt('plain', null); if(!ugoArt.on || !o || typeof o!=='
 // ugoKeepOld(s) (THE BIG MAC'S LANDING, CARD 3103m): a drawing that carries an upgraded piece as an <image> document, with each such document put back to the card's own
 // bytes (decoded, ugoStrip, encoded again: the very string the card made). THE PILLOW FORT SNOW GLOBE (tsGlobeArt; its two little teddies come from CARD-STF): CARD-LRD
 // keys Laura's light redraw of the globe on the globe's whole string, and the upgraded teddies (tiny behind the glass) would make it lose its frosted glass and wooden base.
-function ugoKeepOld(s){ if(typeof s!=='string' || (s.indexOf('ugo')<0 && s.indexOf('%2F*u*%2F')<0)) return s; /* CARD-UFX: a document with her colours alone (iOS: ufxArt took her filters) is hers too */ var C=ugoKeepOld.c; if(C && C[0]===s) return C[1];
-  var r=s.replace(/(data:image\/svg\+xml;charset=utf-8,)([A-Za-z0-9\-_.!~*'()%]+)/g, function(m, h, p){ if(p.indexOf('ugo')<0 && p.indexOf('%2F*u*%2F')<0) return m;
-    try{ return h+encodeURIComponent(ugoStrip(decodeURIComponent(p))); }catch(e){ ugoArt.err=(ugoArt.err||0)+1; return m; } });
+function ugoKeepOld(s){ if(typeof s!=='string' || (s.indexOf('ugo')<0 && s.indexOf('%2F*u*%2F')<0 && !(typeof rswKeep==='function' && rswKeep(s)))) return s; /* CARD-RSW: or her pictures (an iPhone with the pack) */ /* CARD-UFX: a document with her colours alone (iOS: ufxArt took her filters) is hers too */ var C=ugoKeepOld.c; if(C && C[0]===s) return C[1];
+  var r=s.replace(/(data:image\/svg\+xml;charset=utf-8,)([A-Za-z0-9\-_.!~*'()%]+)/g, function(m, h, p){ if(p.indexOf('ugo')<0 && p.indexOf('%2F*u*%2F')<0 && !(typeof rswKeep==='function' && rswKeep(p))) return m;
+    try{ return h+encodeURIComponent(ugoStrip(typeof rswBack==='function'? rswBack(decodeURIComponent(p)) : decodeURIComponent(p))); }   /* CARD-RSW: a document holding her pictures goes back through the string it came from */catch(e){ ugoArt.err=(ugoArt.err||0)+1; return m; } });
   ugoKeepOld.c=[s, r]; return r; }
 function ugoRead(){ var A=ugoArt; return { on:A.on, roads:A.n||{}, err:A.err||0 }; }
 try{ if(window.GVT && !GVT.ugo) GVT.ugo=ugoRead; }catch(e){}
@@ -222898,7 +222911,7 @@ function ufxArt(o){ var U=ufxArt; if(U.lite===undefined){ U.lite=0; U.n=0; U.ms=
   if(!U.lite || o==null) return o;
   var t0=Date.now(); try{ o=ufxWalk(o); }catch(e){ U.err++; } U.n++; U.ms+=Date.now()-t0; return o; }
 function ufxWalk(o){   // every string of a table: her colours kept, her filters out (ugoNoFx); the ways back (ugoWas: her coat colours, read by ?ugo=0 alone) stay as they are
-  if(typeof o==='string') return (o.indexOf('#ugo')>=0 || o.indexOf('class="ugo"')>=0)? ugoNoFx(o) : o;
+  if(typeof o==='string') return (o.indexOf('#ugo')>=0 || o.indexOf('class="ugo"')>=0)? rswLite(o) : o;   // CARD-RSW (Wyatt 11/6 'Fix please'): her groups as pictures where the iPhone's pack holds them, ugoNoFx otherwise
   if(o && typeof o==='object'){ if(Array.isArray(o)){ for(var i=0;i<o.length;i++) o[i]=ufxWalk(o[i]); }
     else { for(var k in o) if(Object.prototype.hasOwnProperty.call(o,k) && k!=='ugoWas') o[k]=ufxWalk(o[k]); } }
   return o; }
@@ -222906,6 +222919,73 @@ function ufxRead(){ var U=ufxArt; return { lite:U.lite|0, ios:U.ios|0, word:U.wo
 try{ if(window.GVT && !GVT.ufx) GVT.ufx=ufxRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.ufx) GVT.ufx=ufxRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-UFX ═══
+// ═══ sec:CARD-RSW HER WHOLE LOOK ON THE iPHONE, AS PICTURES (WYATT by phone on Discord 11/6/2026, verbatim: 09:11 "Fix this", 09:14 "We MUST FIX THIS" on CARD-UFX's report, and 09:23
+// "They're both related no? Fix please"; jumpr 3122, card J4; design/radio-silence-wyatt-1106/00-CARD-RSW.md). CARD-UFX (v30.86) took Laura's drop shadows and grain off on iOS: WebKit holds
+// every filtered picture's buffers (the bedroom and BATTLEFIELDS ran iPhones out of memory). Her look comes back here as PICTURES: each of her filtered groups was painted ONCE, by
+// Chrome, exactly as she approved it (her colours, her shadow, her grain: WebKit blends filtered groups in linear light and would not even paint it as she saw it), into a WebP;
+// on iOS each group becomes an <image> of that picture in its own units, so nothing re-runs a filter. A picture costs one bitmap; her filters cost eight or nine buffers a group.
+// HOW: the pictures ride in ONE file, m/<sha>.js (window.RSW_PACK), that only iOS 14+ fetches: CARD-RSW-EARLY writes its <script> right after CARD-RSL-EARLY, so it has run before
+// any art line. RSW_PACK.d maps each of her strings (FNV-1a + length of the string as the desktop page holds it) to [n, [x,y,w,h,picture index] | 0, ...] (n = her outermost
+// filtered groups in it, in order; 0 = this group keeps her colours alone, as CARD-UFX drew it); RSW_PACK.p = the WebPs (base64). CARD-UFX's ufxWalk and CARD-UGO2's ugo2Lite
+// hand each string to rswLite: a string the pack holds comes back with her groups as pictures and everything else as CARD-UFX left it (ugoNoFx); THE TREASURES go whole:
+// CARD-LTR's ltrUri asks rswUri for a piece with no paint map (RSW_PACK.u: the piece's document as the iPhone holds it -> her whole piece, one WebP, no SVG at all; a paint map,
+// the ship's and kennels' colours, keeps today's SVG); ugoKeepOld asks rswBack for the string rswLite was handed (the snow globe's teddies go back to the card's own bytes); a string it does not
+// hold, a count that does not match, no pack (iOS < 14, offline, ?rsw=0) = CARD-UFX's road exactly. Android, Chrome, the desktops and the sheet: not one byte read differently.
+// Switches: ?rsw=0 = colours only on this iPhone (remembered as gvt_rsw '0'), ?rsw=1 = the pictures again; ?ufx=1 (her live filters on this device) and ?ugo=0 still win.
+// GVT.rsw() = the rigs' read. Zero words, css, save keys, server or sw bytes. UNDO = kit/applyRSW.py --undo (+ the pack file stays harmless in m/).
+function rswArt(){ var A=rswArt; if(A.on===undefined){ A.on=0; A.hit=0; A.miss=0; A.bad=0; A.err=0; A.pics=0; A.ms=0;
+    try{ var P=window.RSW_PACK; A.on=(P && P.v===1 && P.d && P.p)? 1 : 0; A.why=A.on? 'pack' : (window.__rswEarly? window.__rswEarly.why || 'no pack' : 'no early'); }catch(e){ A.on=0; A.why='err'; } }
+  return A; }
+function rswKey(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return (h>>>0).toString(36)+'.'+s.length.toString(36); }
+function rswLite(s, noFx){   // one of her strings on an iPhone: her groups as pictures where the pack holds them, her colours alone everywhere else (noFx = the part's own ugoNoFx)
+  var A=rswArt(), nf=noFx||ugoNoFx; if(!A.on || typeof s!=='string') return nf(s);
+  var t0=Date.now(), r=null;
+  try{ var row=window.RSW_PACK.d[rswKey(s)]; if(!row) A.miss++; else { r=rswSub(s, row); if(r==null) A.bad++; else A.hit++; } }catch(e){ A.err++; r=null; }
+  var o=nf(r==null? s : r); if(r!=null){ try{ (A.back||(A.back=new Map())).set(o, s); }catch(e){} }   // the way back for ugoKeepOld (the snow globe's teddies: the card's own bytes from her whole string)
+  A.ms+=Date.now()-t0; return o; }
+function rswBack(d){ var A=rswArt(); return (A.back && A.back.get(d)) || d; }
+function rswKeep(s){ return typeof s==='string' && s.indexOf('image%2Fwebp')>=0 && rswArt().on===1; }   // ugoKeepOld's guard: a document holding her pictures (only ever on an iPhone with the pack)   // a string rswLite gave out -> the string it was handed (her whole look); anything else as it is
+function rswUri(doc){   // CARD-LTR's ltrUri on the iPhone, a piece with no paint map: her whole piece as ONE pre-painted picture ('' = not in the pack: ltrUri makes its SVG as before)
+  var A=rswArt(); if(!A.on || typeof doc!=='string') return '';
+  try{ var i=window.RSW_PACK.u && window.RSW_PACK.u[rswKey(doc)]; if(i==null){ A.umiss=(A.umiss|0)+1; return ''; } var b=window.RSW_PACK.p[i]; if(typeof b!=='string') return '';
+    A.uhit=(A.uhit|0)+1; return 'data:image/webp;base64,'+b; }catch(e){ A.err++; return ''; } }
+function rswSub(s, row){   // her outermost filtered groups, in order: a picture's stand-in each where row has one; null = s does not hold exactly row[0] of them
+  if(typeof s!=='string' || !row) return null; var P=window.RSW_PACK.p;
+  var T=/<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<(?:[^>"']|"[^"]*"|'[^']*')*>|[^<]+/g, FX=/\sfilter=(["'])url\(#ugo\d+[UT]\d+\)\1/,
+      out=[], m, depth=0, cap=-1, keepUntil=-1, n=0, stand=null;
+  while((m=T.exec(s))){ var t=m[0], c1=t.charAt(1);
+    if(t.charAt(0)!=='<' || c1==='!' || c1==='?'){ if(cap<0) out.push(t); continue; }
+    if(c1==='/'){ depth--; if(cap>=0){ if(depth===cap){ cap=-1; out.push(stand); stand=null; } continue; }
+      if(keepUntil>=0 && depth===keepUntil) keepUntil=-1; out.push(t); continue; }
+    var self=t.charAt(t.length-2)==='/';
+    if(cap<0 && keepUntil<0 && FX.test(t)){
+      var r=row[1+n]; n++;
+      if(r){ var b=P[r[4]]; if(typeof b!=='string') return null;
+        var img='<image x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="'+r[3]+'" preserveAspectRatio="none" href="data:image/webp;base64,'+b+'"/>';
+        var pure=(/^<g\s+filter=(["'])url\(#ugo\d+[UT]\d+\)\1\s*>$/.test(t)), A2='';
+        if(!pure){ var re=/\s(transform|class|id|opacity|clip-path|mask|style|display|visibility)=("[^"]*"|'[^']*')/g, a; while((a=re.exec(t))) A2+=' '+a[1]+'='+a[2]; }
+        var st=pure? img : '<g'+A2+'>'+img+'</g>'; rswArt.pics++;
+        if(self){ out.push(st); continue; }
+        cap=depth; depth++; stand=st; continue; }
+      if(!self) keepUntil=depth;   // no picture: this group keeps its markup (her colours, once ugoNoFx runs), and nothing inside it counts as outermost
+    }
+    if(cap<0) out.push(t);
+    if(!self) depth++;
+  }
+  if(n!==row[0] || cap>=0) return null;
+  return out.join(''); }
+function rswPic(id, s){   // CARD-UGO2's ugo2Pic on the iPhone: the braid, cream and army floor rugs (lrugWideBraid re-cuts their strings: never swapped inside) as ONE picture in ugo2Pic's own box
+  var A=rswArt(); if(!A.on || typeof s!=='string') return ''; var C=rswPic.c||(rswPic.c={}), c=C[id]; if(c && c[0]===s.length) return c[1];
+  var r=''; try{ var P=window.RSW_PACK, i=P.f && P.f[rswKey(s)], B=(typeof ugo2PicTab==='function')? ugo2PicTab()[id] : null;
+    if(i!=null && B && typeof P.p[i]==='string'){ r='<image class="ugo2still" x="'+B[0]+'" y="'+B[1]+'" width="'+B[2]+'" height="'+B[3]+'" preserveAspectRatio="none" href="data:image/webp;base64,'+P.p[i]+'"/>'; A.fhit=(A.fhit|0)+1; }
+    else A.fmiss=(A.fmiss|0)+1; }catch(e){ A.err++; r=''; }
+  C[id]=[s.length, r]; return r; }
+function rswRead(){ var A=rswArt(), P=window.RSW_PACK||null, E=window.__rswEarly||null;
+  return { on:A.on|0, why:A.why||'', hit:A.hit|0, miss:A.miss|0, bad:A.bad|0, err:A.err|0, pics:A.pics|0, uhit:A.uhit|0, umiss:A.umiss|0, fhit:A.fhit|0, fmiss:A.fmiss|0, back:A.back? A.back.size : 0, ms:A.ms|0,
+    pack:P? { id:P.id||'', strings:Object.keys(P.d||{}).length, pieces:Object.keys(P.u||{}).length, floors:Object.keys(P.f||{}).length, pictures:(P.p||[]).length } : null, early:E }; }
+try{ if(window.GVT && !GVT.rsw) GVT.rsw=rswRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.rsw) GVT.rsw=rswRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-RSW ═══
 // ═══ sec:CARD-TBX THE TOY BOX ON THE iPHONE (WYATT by phone 11/6/2026 08:33 EST, jumpr 3119; design/toybox-crash-1106/00-CARD-TBX.md), verbatim:
 // "Players are experiencing the app resetting over and over when they just open the toy box inside the bedroom. It is also a pretty laggy experience. Let's audit why this is happening and fix it. Set it to live."
 // WHY: the toy box = the bedroom's TREASURE CHEST (chestTap -> chestOpen -> roomModal(chestHTML())). It deals a card for every treasure, and the drawings on those cards carry Laura's SHADOW and
