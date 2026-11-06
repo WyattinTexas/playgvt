@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.96","md5":"c56d31dc66800d19e1ef29fc179e8b00","sha":"f21e95ecb6","at":"2026-11-06T18:06:44Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.97","md5":"80835a7cd63e2627f8e85928efc214e4","sha":"1384c15f47","at":"2026-11-06T18:55:37Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92850,7 +92850,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.96';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -219809,6 +219809,48 @@ function elrProbe(o){ o=o||{}; if(o.on!=null) ELR_ON=(+o.on)? 1 : 0;   // the ri
     pets:(S.pets||[]).map(p=>({ key:p.key, k:p.k, r:p.r, c:p.c, pa:p.pa||'', phase:p.phase, own:p.own? { id:p.own.id, t:p.own.type, seat:p.own.seat, side:p.own.side, champ:p.own.eltChamp|0 } : null })) }; }
 if(typeof GVT==='object' && GVT) GVT.elr=elrProbe;
 // ═══ END CARD-ELR ═══
+// ═══ CARD-ELR2 THE ELITE AI'S SARGE COMES OUT EARLY (sec:CARD-ELR2; design/elite-raid-pet-1106/00-CARD-ELR.md § ROUND 2; jumpr 3125). Wyatt by Discord 11/6/2026 13:30 EST (a swipe-reply to card 3125's report: "the computer buys its Sarge whenever it likes, so in about 1 champion battle in 3 he never comes and the pet isn't seen"), dictated, verbatim:
+// "Sarge should come out in the first 5 seconds 3/4 times. The other time have the elite ai wait for your sarge to be played or wait 9-15 seconds"
+// THE ENTRANCE: on every battle the elite AI plays (S.bf.elt: CARD-ELT's scaled carpet, the champion's included), each of THEIR computer chairs draws its Sarge's entrance once, at its first decision (elr2Plan): three times in four (ELR2.fastOdds) he is due at a
+//     moment drawn in ELR2.fast and walks on at his chair's next decision (the hard brain decides every 0.9 s: his 2 s drop-in lands inside the first five seconds); the fourth time he WAITS for YOUR Sarge to be played (your seat's Sarge, or your acting Sarge on
+//     the mat) or for a moment drawn in ELR2.wait (9-15 s), whichever comes first. The order is the brain's own (pickSpot seats him; a Sarge costs nothing; applyDeploy's one-Sarge law holds) and rides ahead of the shipped decision
+//     (OpponentBrain.prototype.decide wrapped BY NAME, the outermost); until it fires the brain cannot buy that chair's Sarge on its own (bfHeroCpuOk wrapped BY NAME: the afford filter's per-type door). Once he has stood, the brain buys him again
+//     as it always did (his ten seconds after he falls, then when it likes). With CARD-ELR the champion's level-100 pet comes out with him. YOUR computer teammates, the raid (no elite there) and every other carpet: byte-what-they-were.
+// THE SWITCH: ?elr2=0 on a device (gvt_elr2 '0'; ?elr2=1 clears it). Zero server, wire, css, word, sw.js or save bytes. The rig's door: GVT.elr2(o). ═══
+const ELR2={ fastOdds:0.75, fast:[0.8, 2.0], wait:[9, 15], giveUp:10 };   // ⚑ ELR2-Q1..Q3 in the record: the odds (three in four), the first five seconds (due 0.8-2.0 s, placed at his chair's next decision, his 2 s drop-in landed inside 5 s), the wait (9-15 s, or your Sarge first); giveUp: a plan that cannot seat him this many seconds past due hands his Sarge back to the shipped brain
+var ELR2_ON=(function(){ try{ const m=/[?&]elr2=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_elr2','0'); else localStorage.removeItem('gvt_elr2'); } return localStorage.getItem('gvt_elr2')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-ELT's grammar)
+const ELR2_N={ plans:0, fast:0, wait:0, placed:0, byYou:0, byClock:0, gaveUp:0, held:0, err:0 };   // this page's tallies (the rig reads them)
+function elr2On(){ return !!ELR2_ON; }
+function elr2Chair(seat){ const bf=S.bf, st=(bf && bf.elt)? bf.seats[seat|0] : null; return (st && !st.human && st.team==='foe')? st : null; }   // THEIR computer chair on a carpet the elite AI plays
+function elr2YourSarge(){ const me=bfMySeat(); return S.units.some(u=>!u.dead && u.seat===me && (u.type==='sarge' || capActU(u))); }   // "your sarge to be played": your Sarge (or your acting Sarge on the mat) on the field, his drop-in included
+function elr2Plan(seat){ const e=S.bf.elt, P=e.sg||(e.sg={}); if(P[seat]) return P[seat];   // drawn once a chair a battle, at its first decision
+  const fast=Math.random()<ELR2.fastOdds, a=fast? ELR2.fast : ELR2.wait, at=+(a[0]+Math.random()*(a[1]-a[0])).toFixed(2);
+  ELR2_N.plans++; if(fast) ELR2_N.fast++; else ELR2_N.wait++;
+  return (P[seat]={ mode:fast? 'fast' : 'wait', at:at, done:0, placedAt:null, why:null }); }
+function elr2Hold(seat){ if(!elr2On() || !elr2Chair(seat)) return false; const P=S.bf.elt.sg, p=P && P[seat|0]; return !!(p && !p.done); }   // his own Sarge waits for the plan
+function elr2Decide(brain, view){   // THE ENTRANCE: his chair's decision when the plan is due (null = the shipped decision)
+  if(!elr2On()) return null; const bf=S.bf; if(!bf || bf.resolved || bf.ending) return null;
+  const seat=view.mySeat|0; if(!elr2Chair(seat)) return null;
+  const p=elr2Plan(seat); if(p.done) return null;
+  const mine=view.units.filter(u=>u.side==='foe');
+  if(mine.some(u=>u.seat===seat && u.type==='sarge') || (view.sargeCd||0)>0){ p.done=1; p.why='out'; return null; }   // he is out by another door (or down on his ten seconds): nothing to stage
+  const age=bf.age||0, you=(p.mode==='wait') && elr2YourSarge();
+  if(!(age>=p.at || you)) return null;
+  if(age>p.at+ELR2.giveUp){ p.done=1; p.why='gaveup'; ELR2_N.gaveUp++; return null; }   // never a chair without its Sarge for good: the shipped brain takes him back
+  const spot=brain.pickSpot('sarge', view.units.filter(u=>u.side==='you'), mine, view); if(!spot) return null;
+  p.done=1; p.placedAt=+age.toFixed(2); p.why=(p.mode==='fast')? 'fast' : (age<p.at? 'you' : 'clock');
+  ELR2_N.placed++; if(p.why==='you') ELR2_N.byYou++; if(p.why==='clock') ELR2_N.byClock++;
+  brain.cd=brain.d.every/ffiOpRate();   // the shipped clock after an order
+  return [{ kind:'place', type:'sarge', x:spot.x, y:spot.y }]; }
+if(typeof bfHeroCpuOk==='function'){ const h0=bfHeroCpuOk; bfHeroCpuOk=function(seat, t){ if(t==='sarge' && elr2Hold(seat)){ ELR2_N.held++; return false; } return h0.apply(this, arguments); }; }   // the afford filter's per-type door: the Sarge waits for his entrance
+{ const d0=OpponentBrain.prototype.decide; OpponentBrain.prototype.decide=function(view, budget){ if(!(this.cd>0)){ let r=null; try{ r=elr2Decide(this, view); }catch(x){ ELR2_N.err++; } if(r) return r; } return d0.call(this, view, budget); }; }   // the outermost: THE ENTRANCE ahead of the shipped decision (CARD-ELT's rush and champion below it)
+function elr2Probe(o){ o=o||{}; if(o.on!=null) ELR2_ON=(+o.on)? 1 : 0;   // the rig's read-only door (+ the page's switch)
+  const bf=S.bf, e=bf && bf.elt;
+  return { cv:GVT_CV, on:elr2On(), dials:JSON.parse(JSON.stringify(ELR2)), n:Object.assign({}, ELR2_N), elt:!!e, age:bf? +(+(bf.age||0)).toFixed(2) : null,
+    plans:(e && e.sg)? JSON.parse(JSON.stringify(e.sg)) : null,
+    sarges:bf? S.units.filter(u=>!u.dead && u.type==='sarge').map(u=>({ id:u.id, seat:u.seat, side:u.side, dropT:+(+(u.dropT||0)).toFixed(2) })) : [] }; }
+if(typeof GVT==='object' && GVT) GVT.elr2=elr2Probe;
+// ═══ END CARD-ELR2 ═══
 // ═══ CARD-BPR THE BANNER'S CIRCLE ALWAYS SHOWS ITS ENEMY · NO WAVE CHIP UNDER IT (sec:CARD-BPR; design/banner-portrait-1104/00-CARD-BPR.md; jumpr 3013, built on Maker 1 as M3013).
 // ISAAC by the jumpr guest link 11/4/2026 20:20 EST (his live switch, card 2277), verbatim: "let's fix this bug on a lot of campaign levels. The right side with the circle previewing the enemy is
 // usually empty. Run an audit and make sure that doesn't happen. Also get rid of the Wave X tab under it. It's kind of a spoiler alert. Fix that empty circle and get rid of the wave indicator.
