@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.83","md5":"1400eddb5c0f5a910f784b3e494e0f71","sha":"9525f2258c","at":"2026-11-06T06:07:57Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.84","md5":"ccacc73bd53563ba0b56adc501cdbf50","sha":"0d6bb3016e","at":"2026-11-06T06:16:24Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -91111,6 +91111,115 @@ function ciGate(go){ if(FO || FO_PASS || typeof go!=='function' || reducedMotion
     setTimeout(()=>{ if(FO===F && !F.launching){ F.el.classList.add('ci-roar'); try{ if(F.B.boss==='tan'){ setTimeout(()=>{ try{ SFX.coVolley(); }catch(e){} }, 260); } else SFX.crack(); }catch(e){} } }, CI_ROAR_MS);   // CARD-OSG (Wyatt 10/1/2026: "Make the volley cue sound good, like a gunshot"): THE VOLLEY = ONE real recording (SFX.coVolley, a 3-round burst) on the hit, the same +260 ms where the synth volley played (the warm strike, the quake and the muzzle flashes land there); the whistle (the "ding-dong") left this beat; while the recording decodes, or if it never does, the synth volley on the same beat
     return true; }
   catch(e){ try{ console.warn('cinematic', e); }catch(e2){} foTeardown(); return false; } }
+// ═══ CARD-PFO SARGE WANTS YOU! ON FIRST OPEN (jumpr 3099; design/psa-first-open-1105/00-CARD-PFO.md). FROM DYLAN on WhatsApp 11/5/2026 16:04 EST (a reply to the PSA film's round 4), verbatim:
+// "For the first time players open the game, let's run this but a different variation, in which the start point is at the audience of the theatre and there are all the backs of soldiers
+// heads visible in their seats. Let's also fix the gavel during enlistment to hit proper level, instead of below the table please. Lastly, can we remove the app links for this particular
+// version, since the players will have already downloaded the game? Thank you so much!" (his live switch: Wyatt 10/8/2026) ═══
+// A BRAND-NEW save's first PRESS START plays THE FILM, then THE CROSSING's shot exactly as before. The film = pfo-psa.mp4 / .webm / .jpg beside index.html: the in-game cut of card 2989's
+// SARGE WANTS YOU! (the colour print, 60 s; it starts in the theatre's audience, the desk's stamp lands on the paper, no store plates; made by design/psa-first-open-1105/kit). The whole
+// screen, black round the picture (the theatre's own dark), the game's red ✕ in its corner from PFO_SKIP_MS. ciGate is WRAPPED BY NAME, its text untouched: the film asks the shot's own
+// tests (a scene up, the shot's pass, reduced motion, ciSeen = META.ciDone or a veteran healed at boot, an invite link, a fight) and its own: META.pfoDone (set when the film mounts: ONCE
+// PER SAVE), a campaign or an opener on the save, offline, ?pfo=0 (remembered as gvt_pfo; ?pfo=1 back), a browser a rig drives (navigator.webdriver) unless the address says ?pfo=rig,
+// so the other cards' first-open rigs keep their road. ?pfo=play plays it once on any save (a look; never remembered). At its end, or the ✕: THE CROSSING's shot (the wrapped ciGate),
+// or the door itself when the shot does not run. FAIL-OPEN: both files fail, no first frame in PFO_WAIT_MS, the picture stuck PFO_STALL_MS = the hand-off at once. THE SOUND rides the
+// film (a <video>: the apps play media with no gesture; a browser's play() goes inside the PRESS START tap and again on that tap's own pointerup and click; refused even so = the poster
+// and the game's play mark, and the next tap plays it). The game's sound switch (soundOn) mutes it. A hidden page or the turn screen pauses it; back = playing. GVT.pfo(o) = the rigs' read.
+const PFO={ el:null, v:null, go:null, why:'', t0:0, n:0, played:0, held:0, done:0, how:'', err:0, tm:0, last:-1, lastAt:0, srcErr:0, kicks:0, away:0, log:[] };
+const PFO_FILE='pfo-psa', PFO_SKIP_MS=1000, PFO_WAIT_MS=9000, PFO_STALL_MS=12000, PFO_HELD_MS=450;
+const PFO_SW=(function(){ let q=null, off=false; try{ q=/[?&]pfo=(0|1|play|rig)(?:&|$)/.exec(location.search||''); }catch(e){}
+  try{ if(q && q[1]==='0') localStorage.setItem('gvt_pfo','0'); else if(q && q[1]==='1') localStorage.removeItem('gvt_pfo'); off=localStorage.getItem('gvt_pfo')==='0'; }catch(e){}
+  if(q && q[1]==='0') off=true;
+  return { off:off, play:!!(q && q[1]==='play'), rig:!!(q && (q[1]==='rig' || q[1]==='play')) }; })();
+function pfoLog(w){ try{ PFO.log.push(Math.round(performance.now()-PFO.t0)+' '+w); if(PFO.log.length>40) PFO.log.shift(); }catch(e){} }
+function pfoWants(go){   // '' = the shot's road as before · 'new' = a brand-new save's first PRESS START · 'play' = ?pfo=play's one look
+  if(typeof go!=='function' || PFO.el || FO || FO_PASS) return '';
+  if(PFO_SW.off && !PFO_SW.play) return '';
+  try{ if(navigator.webdriver && !PFO_SW.rig) return ''; }catch(e){}
+  if(reducedMotion() || coopJoinPend) return '';
+  try{ if(S.mode==='play') return ''; }catch(e){ return ''; }
+  try{ if(navigator.onLine===false) return ''; }catch(e){}
+  if(PFO_SW.play) return PFO.n? '' : 'play';
+  if(ciSeen()) return '';
+  try{ if(META.pfoDone || (META.campaign|0)>0 || META.opener) return ''; }catch(e){ return ''; }
+  return 'new'; }
+function pfoCss(){ if(document.getElementById('pfoCss')) return; const st=document.createElement('style'); st.id='pfoCss';
+  st.textContent='#pfoFilm{position:fixed;left:0;top:0;right:0;bottom:0;z-index:48;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;opacity:1;transition:opacity .16s linear}'
+    +'#pfoFilm.pfo-out{opacity:0;pointer-events:none}'
+    +'#pfoFilm .pfo-p,#pfoFilm .pfo-v{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;background:#000;display:block}'
+    +'#pfoFilm .pfo-v{opacity:0}#pfoFilm.on .pfo-v{opacity:1}'
+    +'#pfoFilm .pfo-mark{display:none;position:absolute;left:50%;top:50%;width:76px;height:76px;margin:-38px 0 0 -38px;box-sizing:border-box;border-radius:50%;border:5px solid #FFD24A;background:rgba(22,15,8,.66);box-shadow:0 0 28px rgba(255,210,74,.6),0 2px 8px rgba(0,0,0,.6)}'
+    +'#pfoFilm .pfo-mark::after{content:"";position:absolute;left:28px;top:20px;width:0;height:0;border-left:25px solid #FFF3C4;border-top:15px solid transparent;border-bottom:15px solid transparent}'
+    +'#pfoFilm.held .pfo-mark{display:block}'
+    +'#pfoFilm .pfo-x{position:absolute;top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:clamp(42px,7vh,52px);height:clamp(42px,7vh,52px);font-size:clamp(19px,3.4vh,24px);display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0;background:linear-gradient(180deg,#C24936,#8F2F22);color:#FFF3C4;border:2px solid #FFD9A0;border-radius:50%;font-family:inherit;font-weight:bold;line-height:1;box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 2px rgba(166,59,42,.35);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .25s ease}'
+    +'#pfoFilm.skip .pfo-x{opacity:1;pointer-events:auto}#pfoFilm .pfo-x:active{transform:scale(.94)}';
+  (document.head||document.documentElement).appendChild(st); }
+function pfoRotated(){ try{ const r=document.getElementById('rotate'); return !!(r && getComputedStyle(r).display!=='none'); }catch(e){ return false; } }   // the turn screen stands over the game (a phone held upright)
+function pfoPlay(){ const v=PFO.v; if(!v || PFO.done) return;
+  try{ v.muted=!soundOn; v.defaultMuted=!soundOn; }catch(e){}
+  let r=null; try{ r=v.play(); }catch(e){ r=null; }
+  if(r && r.then) r.then(function(){}, function(e){ if(!e || e.name!=='NotAllowedError') return;   // the browser wants a tap: the play mark, a beat later (the same tap's pointerup or click may still start it)
+    setTimeout(function(){ if(PFO.v===v && !PFO.done && v.paused && !PFO.away && !PFO.held){ PFO.held=1; PFO.el.classList.add('held'); pfoLog('held'); } }, PFO_HELD_MS); }); }
+function pfoMount(go, why){ pfoCss();
+  const src=function(x){ return bdPromoSrc(PFO_FILE+x); };
+  const el=document.createElement('div'); el.id='pfoFilm'; el.setAttribute('data-notr','');
+  el.innerHTML='<img class="pfo-p" alt="" src="'+src('.jpg')+'" onerror="this.remove()">'
+    +'<video class="pfo-v" playsinline webkit-playsinline preload="auto"><source src="'+src('.mp4')+'" type="video/mp4"><source src="'+src('.webm')+'" type="video/webm"></video>'
+    +'<i class="pfo-mark" aria-hidden="true"></i><button type="button" class="pfo-x">✕</button>';
+  document.body.appendChild(el);
+  const v=el.querySelector('video'), x=el.querySelector('.pfo-x');
+  PFO.el=el; PFO.v=v; PFO.go=go; PFO.why=why; PFO.t0=performance.now(); PFO.played=0; PFO.held=0; PFO.done=0; PFO.how=''; PFO.last=-1; PFO.lastAt=PFO.t0; PFO.srcErr=0; PFO.kicks=0; PFO.away=0; PFO.n++;
+  if(why==='new'){ try{ META.pfoDone=1; saveMeta(); }catch(e){} }   // ONCE PER SAVE, from the mount (ciGate's grammar): a film that cannot play is still spent; the shot follows it
+  try{ themeKill(); }catch(e){}
+  v.addEventListener('playing', function(){ if(PFO.v!==v) return; if(!PFO.played) pfoLog('playing'); PFO.played=1; PFO.held=0; el.classList.add('on'); el.classList.remove('held'); });
+  v.addEventListener('ended', function(){ if(PFO.v===v) pfoEnd('end'); });
+  v.addEventListener('error', function(){ if(PFO.v===v) pfoEnd('error'); });
+  const ss=v.querySelectorAll('source'); for(let i=0;i<ss.length;i++) ss[i].addEventListener('error', function(){ if(PFO.v!==v) return; PFO.srcErr++; pfoLog('source error '+PFO.srcErr); if(PFO.srcErr>=ss.length) pfoEnd('nofile'); });
+  x.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); if(PFO.v!==v || performance.now()-PFO.t0<PFO_SKIP_MS) return; pfoEnd('x'); });
+  const tap=function(e){ if(e && e.target===x) return; if(e){ e.stopPropagation(); } if(PFO.v===v && PFO.held) pfoPlay(); };   // a tap on the picture plays a held film; it never ends the film (only the ✕ does)
+  el.addEventListener('pointerdown', tap); el.addEventListener('click', tap);
+  const kick=function(){ if(PFO.v!==v || PFO.done || (PFO.played && !v.paused)){ unkick(); return; } PFO.kicks++; pfoPlay(); };   // the PRESS START tap's own pointerup and click: a browser's gesture for the sound
+  const KK=['pointerup','touchend','click'], unkick=function(){ for(const k of KK) document.removeEventListener(k, kick, true); };
+  for(const k of KK) document.addEventListener(k, kick, true); setTimeout(unkick, 2500);
+  setTimeout(function(){ if(PFO.v===v) el.classList.add('skip'); }, PFO_SKIP_MS);
+  pfoPlay(); PFO.tm=setInterval(pfoWatch, 500); pfoLog('mount '+why);
+  return true; }
+function pfoWatch(){ const v=PFO.v; if(!v || PFO.done) return; const now=performance.now();
+  const away=document.hidden || pfoRotated();
+  if(away && !PFO.away){ PFO.away=1; try{ v.pause(); }catch(e){} pfoLog('away'); return; }
+  if(!away && PFO.away){ PFO.away=0; PFO.lastAt=now; pfoPlay(); pfoLog('back'); return; }
+  if(PFO.away) return;
+  if(!PFO.played){ if(!PFO.held && now-PFO.t0>PFO_WAIT_MS) pfoEnd('wait'); return; }
+  const ct=v.currentTime||0; if(ct!==PFO.last){ PFO.last=ct; PFO.lastAt=now; return; }
+  if(v.ended) return;
+  if(v.paused && !PFO.held){ pfoPlay(); return; }   // paused by the browser: once more (a refusal shows the play mark)
+  if(!v.paused && now-PFO.lastAt>PFO_STALL_MS) pfoEnd('stall'); }
+function pfoEnd(how){ const el=PFO.el, v=PFO.v; if(!el || PFO.done) return; PFO.done=1; PFO.how=how; clearInterval(PFO.tm); PFO.tm=0; pfoLog('end '+how);
+  const go=PFO.go; PFO.go=null; try{ v.pause(); }catch(e){}
+  try{ audio(); }catch(e){}   // the game's one sound context, awake for the shot's rumble and volley
+  let took=false; try{ took=!!PFO_CIGATE(go); }catch(e){ took=false; }   // THE CROSSING's shot over the film (z 49 over 48)
+  if(!took){ try{ go(); }catch(e){ try{ ptDoorFallback(e); }catch(e2){} } }   // a save past the shot (?pfo=play's look): the door itself
+  PFO.el=null; PFO.v=null; el.classList.add('pfo-out');
+  setTimeout(function(){ try{ v.removeAttribute('src'); while(v.firstChild) v.removeChild(v.firstChild); v.load(); }catch(e){} try{ el.remove(); }catch(e){} }, 220); }
+function pfoTear(){ clearInterval(PFO.tm); PFO.tm=0; const el=PFO.el, v=PFO.v; PFO.el=null; PFO.v=null; PFO.go=null;   // a mount that broke half way: away at once, the shot's road takes over
+  if(v){ try{ v.pause(); v.removeAttribute('src'); while(v.firstChild) v.removeChild(v.firstChild); v.load(); }catch(e){} }
+  if(el){ try{ el.remove(); }catch(e){} } }
+const PFO_CIGATE=ciGate;
+ciGate=function(go){ let why=''; pfoDoor(); if(PFO.el && !PFO.done) return true;   // THE WRAP (by name): the film first on a brand-new save's first PRESS START; every other press = the shot's road, byte for byte;
+  try{ why=pfoWants(go); }catch(e){ why=''; PFO.err++; }   // while the film stands, a second call is swallowed (foGate's grammar: never a shot under the film)
+  if(why){ try{ return pfoMount(go, why); }catch(e){ PFO.err++; try{ console.warn('pfo', e); }catch(e2){} pfoTear(); } }
+  return PFO_CIGATE.apply(this, arguments); };
+document.addEventListener('visibilitychange', function(){ if(PFO.el) pfoWatch(); });
+window.addEventListener('resize', function(){ if(PFO.el) pfoWatch(); });
+function pfoRead(o){ o=o||{}; try{   // THE RIG'S READ (GVT.pfo): o.end = the hand-off now (as the ✕ would), o.tap = a tap on a held film
+  if(o.end && PFO.el) pfoEnd(o.end===true? 'rig' : String(o.end)); if(o.tap && PFO.el && PFO.held) pfoPlay();
+  const v=PFO.v, el=PFO.el;
+  return { cv:GVT_CV, sw:PFO_SW, up:!!el, why:PFO.why, n:PFO.n, played:PFO.played, held:PFO.held, done:PFO.done, how:PFO.how, away:PFO.away, kicks:PFO.kicks, srcErr:PFO.srcErr, err:PFO.err,
+    t:v? Math.round((v.currentTime||0)*100)/100 : null, paused:v? v.paused : null, muted:v? v.muted : null, src:v? (v.currentSrc||'') : '', skip:!!(el && el.classList.contains('skip')), on:!!(el && el.classList.contains('on')),
+    meta:{ pfoDone:!!META.pfoDone, ciDone:!!META.ciDone, campaign:META.campaign|0, opener:!!META.opener }, wants:pfoWants(function(){}), wrapped:ciGate!==PFO_CIGATE, log:PFO.log.slice(-24) }; }
+  catch(e){ return { err:String(e) }; } }
+function pfoDoor(){ try{ window.GVT=window.GVT||{}; if(window.GVT.pfo!==pfoRead) window.GVT.pfo=pfoRead; }catch(e){} }   // the game's own GVT = {...} is written further down the page: the door goes on again after it
+pfoDoor(); setTimeout(pfoDoor, 0); window.addEventListener('load', pfoDoor);
+// ═══ END CARD-PFO ═══
 // the SOLO gate: true = the scene took the door; go() fires at its last tap (through the gate's own pass). Never over a live fight (a mid-battle restart goes straight back in), never for a party of 2+ (their door is foParty).
 function foGate(key, go){ if(FO_PASS || !FO_AT[key] || typeof go!=='function') return false;
   if(FO) return !!(FO.solo && FO.key===String(key));   // a second press of the same door while its scene stands is swallowed (never a launch under the scene)
@@ -92721,7 +92830,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.83';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.84';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
