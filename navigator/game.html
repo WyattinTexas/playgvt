@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.92","md5":"9cc6f002a55ca4caa325963d195ec454","sha":"8159fadb88","at":"2026-11-06T17:03:09Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"30.93","md5":"01a5657b7ceb413a07975583163a6fbb","sha":"2fcc680f2c","at":"2026-11-06T17:11:01Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92843,7 +92843,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.92';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.93';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -188910,7 +188910,7 @@ window.UI = {
       // ad break, so the world that launches is the world that was gated) —
       // mom's own belt above already outranked him at the door.
       if(nemesisDue()) return startNemesisRaid();
-      startBattlefield('random', null, 1); if(S.bf) S.bf.raid=true; }); },
+      elrRaid(()=>startBattlefield('random', null, 1)); if(S.bf) S.bf.raid=true; }); },   // CARD-ELR: the army that invades your room is minted through elrRaid (no ELITE AI on the raid)
   momFight(){ UI.closeModal(); audio(); if(!foGate('mom', ()=>startMomRaid())) startMomRaid(); },   // v1.79: the mom panel's button — v2.45: her door obeys the same launcher law (the 0140 medal door already closed it; this one never did)
   // ===== 0248 THE TRAINING RANGE (card 05) — the academy's sandbox doors.
   // The launcher law (v2.45): close the modal FIRST. No adGate ON PURPOSE —
@@ -192522,7 +192522,7 @@ document.getElementById('retryBtn').addEventListener('click', ()=>{
   if(S.bf){ const raid=!!S.bf.raid, m=S.bf.mapId, t=S.bf.team;
     // v2.41: a raid rematch is a fresh attack (the ground is drawn again),
     // and a RANDOM pref redraws too — an explicit pick still replays itself.
-    adGate('bf', ()=>{ startBattlefield(((raid||META.bfMap==='random') && m!=='nempark' && m!=='nembank' && m!=='nemtown' && m!=='nemfluff')?'random':m, null, t); if(raid && S.bf) S.bf.raid=true; }); return; }   // instant rematch, same size, no queue (0305 BF-03 +0346 +0371: a RANDOM pref must never redraw an ambush away)
+    adGate('bf', ()=>{ elrRaid(()=>startBattlefield(((raid||META.bfMap==='random') && m!=='nempark' && m!=='nembank' && m!=='nemtown' && m!=='nemfluff')?'random':m, null, t), raid); if(raid && S.bf) S.bf.raid=true; }); return; }   /* CARD-ELR: a raid's rematch is minted through elrRaid (raid false: the latch stays down) */   // instant rematch, same size, no queue (0305 BF-03 +0346 +0371: a RANDOM pref must never redraw an ambush away)
   // 0412a (Wyatt 8/19: "when I hit retry and I'm fighting King Yeti, for
   // some reason it throws me back into the regular campaign… this needs to
   // be addressed"): a RAID loss retries ITS OWN raid at ITS OWN tier. Not
@@ -219773,6 +219773,34 @@ function eltProbe(o){ o=o||{}; if(o.on!=null) ELT_ON=(+o.on)? 1 : 0;   // the ri
     pets:(S.pets||[]).map(p=>({ key:p.key, k:p.k, r:p.r, c:p.c, pa:p.pa||'', phase:p.phase, own:p.own? { id:p.own.id, t:p.own.type, seat:p.own.seat, side:p.own.side } : null })) }; }
 if(typeof GVT==='object' && GVT) GVT.elt=eltProbe;
 // ═══ END CARD-ELT ═══
+// ═══ CARD-ELR THE ELITE AI STAYS OFF THE RAID · THE CHAMPION'S PET AT HIS SARGE'S HEEL (sec:CARD-ELR; design/elite-raid-pet-1106/00-CARD-ELR.md; jumpr 3125). Wyatt by phone 11/6/2026 (sent 16:15:39 UTC), dictated, verbatim:
+// "Invading room army shouldn't have access to the elite ai model. Also the elite ai model is currently giving the pet to their hero instead of their sarge. It needs to be the other way around"
+// 1 · THE RAID: the army that invades your room (THE RAID tile's FIGHT and REMATCH: UI.rival; the verdict's retry on a raid) is minted through elrRaid, a latch round the one startBattlefield call (the opener's OP_ARM grammar),
+//     and eltDue (wrapped BY NAME) answers no while it stands: the raid's army never scales to your best rank, never rushes, never brings the champion, and META.eltRun never books a raid (a battle under the scale). It fights as
+//     it did before CARD-ELT: the stars ramp, 0417's 85 % hard-bot gate as shipped. NEMESIS's day was already out (riv.id), MOM's day and the kings' raids are not battlefields; every other war-table battle keeps CARD-ELT whole.
+// 2 · THE PET: eltDress (wrapped BY NAME) moves the champion's level-100 pet off the hero (champ.pet null: eltStamp hands him no coopPet, CARD-ELT's eltPetSeat reads no) onto his commander's Sarge (elt.pet); hppPetWear
+//     (wrapped BY NAME, the outermost) dresses that chair's Sarge in its worn string 'pet:<k>:100:<coat>[:<path>]', which petOfU · petLvU · petCoatU · petPathU read: petPass seats it at his heel from the whistle, it leaves
+//     with him and heels the fresh Sarge (0882's law). One pet a chair: it stands in for CARD-HPP's young pet. The hero walks on as shipped (after 20 s, level 100, every part of his), without a pet.
+// THE SWITCH: ?elr=0 on a device (gvt_elr '0'; ?elr=1 clears it) = CARD-ELT as shipped. Zero server, wire, css, word, sw.js bytes; no save key. The rig's door: GVT.elr(o). ═══
+var ELR_ON=(function(){ try{ const m=/[?&]elr=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_elr','0'); else localStorage.removeItem('gvt_elr'); } return localStorage.getItem('gvt_elr')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-ELT's grammar)
+var ELR_RAID=0;   // the raid door's word to the mint (session-only): elrRaid raises it round the one startBattlefield call, eltDue reads it
+const ELR_N={ raid:0, pets:0, err:0 };   // this page's tallies (the rig reads them): raids the gate turned away from the scale · champion pets handed to the Sarge · errors
+function elrOn(){ return !!ELR_ON; }
+function elrRaid(go, raid){ const k=ELR_RAID; ELR_RAID=(arguments.length<2 || raid)? 1 : 0; try{ return go(); } finally { ELR_RAID=k; } }   // THE RAID'S DOOR (UI.rival's launch; the retry passes its battle's own raid flag: a plain rematch keeps the latch down)
+function elrPetSeat(u){ const bf=S.bf, p=bf && bf.elt && bf.elt.pet; return !!(p && u && u.type==='sarge' && u.seat===p.seat); }   // the champion's commander's Sarge (his own chair's; a teammate's chair never)
+function elrPetWear(){ const p=S.bf.elt.pet; return ['pet:'+p.k+':'+p.lv+':'+p.c+(p.pa? ':'+p.pa : '')]; }   // the worn string the pets' readers parse (CARD-ELT's own grammar)
+if(typeof eltDue==='function'){ const d0=eltDue; eltDue=function(){ const r=d0.apply(this, arguments); if(r && ELR_RAID && elrOn()){ ELR_N.raid++; return false; } return r; }; }   // the mint's gate: a raid is never scaled (every other answer byte-what-it-was)
+if(typeof eltDress==='function'){ const e0=eltDress; eltDress=function(){ const e=e0.apply(this, arguments);   // the champion's draw: his pet goes to his commander's Sarge
+  try{ const c=e && e.champ; if(c && c.pet && elrOn()){ e.pet=Object.assign({ seat:c.seat }, c.pet); c.pet=null; ELR_N.pets++; } }catch(x){ ELR_N.err++; }
+  return e; }; }
+if(typeof hppPetWear==='function'){ const w0=hppPetWear; hppPetWear=function(u){ if(elrPetSeat(u)) return elrPetWear(); return w0.apply(this, arguments); }; }   // the outermost: the champion's chair's Sarge wears the level-100 pet (CARD-ELT's and CARD-HPP's answers below it for every other Sarge)
+function elrProbe(o){ o=o||{}; if(o.on!=null) ELR_ON=(+o.on)? 1 : 0;   // the rig's read-only door (+ the page's switch)
+  const bf=S.bf, e=bf && bf.elt;
+  return { cv:GVT_CV, on:elrOn(), arm:ELR_RAID, n:Object.assign({}, ELR_N), raid:!!(bf && bf.raid), elt:!!e, hard:!!(bf && bf.hard), diff:bf? bf.ai.diff : null, run:META.eltRun|0,
+    pet:(e && e.pet)? Object.assign({}, e.pet) : null, champ:(e && e.champ)? { t:e.champ.t, seat:e.champ.seat, pet:e.champ.pet? Object.assign({}, e.champ.pet) : null, stood:e.champ.stood|0 } : null,
+    pets:(S.pets||[]).map(p=>({ key:p.key, k:p.k, r:p.r, c:p.c, pa:p.pa||'', phase:p.phase, own:p.own? { id:p.own.id, t:p.own.type, seat:p.own.seat, side:p.own.side, champ:p.own.eltChamp|0 } : null })) }; }
+if(typeof GVT==='object' && GVT) GVT.elr=elrProbe;
+// ═══ END CARD-ELR ═══
 // ═══ CARD-BPR THE BANNER'S CIRCLE ALWAYS SHOWS ITS ENEMY · NO WAVE CHIP UNDER IT (sec:CARD-BPR; design/banner-portrait-1104/00-CARD-BPR.md; jumpr 3013, built on Maker 1 as M3013).
 // ISAAC by the jumpr guest link 11/4/2026 20:20 EST (his live switch, card 2277), verbatim: "let's fix this bug on a lot of campaign levels. The right side with the circle previewing the enemy is
 // usually empty. Run an audit and make sure that doesn't happen. Also get rid of the Wave X tab under it. It's kind of a spoiler alert. Fix that empty circle and get rid of the wave indicator.
