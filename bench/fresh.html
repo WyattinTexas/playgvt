@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.88","md5":"9e098fed45a44b7183018e2aef622b3a","sha":"53ac4b1ff0","at":"2026-11-06T15:06:49Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"30.89","md5":"de23321a5172dfaba435ba1bb0521891","sha":"b8827d605c","at":"2026-11-06T15:17:34Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92830,7 +92830,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='30.88';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='30.89';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -164744,6 +164744,49 @@ function closeWarTable(){ document.getElementById('wartable').classList.add('hid
   // v2.83 LAW 1: ...and takes its leave the same way (the bubble drops)
   // (v3.09: unconditional — the squadless farewell rides the same kick)
   clearTimeout(CREW.pollT); crewTick(); }
+
+// ═══ sec:CARD-WTL THE WAR TABLE OPENS LIGHT ON THE iPHONE (WYATT by phone 11/6/2026 09:15 EST, jumpr 3121, on card 3118m's "RADIO SILENCE on BATTLEFIELDS: found and fixed, LIVE as v30.86"; design/war-table-light-1106/00-CARD-WTL.md), verbatim:
+// "FIX THIS. This is all hands on deck. MUST FIX ASAP" · 09:23 EST to card 3122: "They're both related no? Fix please".
+// WHY (the live v30.87 on the iPhone 17's engine: the Mac's WebKit at 874 x 402, 3 dots a point, the page process's footprint): CARD-UFX (v30.86) took Laura's filters off on iOS, yet two moments still put
+// a phone over its line. (1) THE TAP ON BATTLEFIELDS: CARD-BFR's room still (bfrOpen) rebuilds his whole room and every toy as live svg behind the table (6,154 nodes, 120 of Laura's filters, kept in the
+// page through the battle too): a phone that crashed once (CARD-RSD's relief, its bedroom drawn live) went 1.64 -> 2.19 GB on a 63-toy room (+493 MB), 2.28 -> 2.66 GB never crashed. (2) FIVE SECONDS
+// AFTER EVERY LAUNCH: v2Warm makes the village's 30 pictures, and ten of them are Laura's seasons drawings (CARD-SEA, CARD-LTT: up to 104 shadow and grain filters each); each one's svg document keeps
+// ~100 MB of filter buffers until WebKit purges them: 0.6 -> 1.96 GB inside a second, on top of whatever the player is doing then (PRESS START, the bedroom, the BATTLEFIELDS tap). The phone dies, the shell
+// reloads, the same moment comes again: the third death inside two minutes is the RADIO SILENCE card.
+// WHAT, on iOS (CARD-RSL-EARLY's mark window.__rslEarly: the App Store app, an iPhone, iPad or iPod browser, an iPad asking for the desktop site):
+//   (1) the war table opens on its own plain dark with the muster whole (bfrOpen's own failure road: no room still); the room under the table was already unpainted (1162z THE OFF-SCREEN LAW, ms-under);
+//   (2) the village's pictures are made ONE AT A TIME and in her colours alone (CARD-UFX's rule for iOS, by CARD-LUP's own recipe lupNoFx: every filter="url(#…)" off, her drawing and its colours kept,
+//       her shadows and grain out; V2_ART itself untouched): the same 30 canvases at the same scale, in the same order; a picture not yet made is skipped by v2Blit, as it always was.
+// Everyone else byte for byte as before. ?wtl=0 = as before on this device (remembered: gvt_wtl '0'), ?wtl=1 = this card on any device (gvt_wtl '1'), ?wtl=auto = the rule again. GVT.wtl() = the rig's
+// read. Zero words, css, save keys, server or sw bytes. UNDO = kit/applyWTL.py --undo.
+const WTL_GAP_MS=24;   // the breath between two pictures (the last one's document let go, a frame drawn)
+const WTL=(function(){ const o={ v:1, ios:0, word:'', on:0, stills:0, warm:0, made:0, fx:0, err:0 };
+  try{ const q=/[?&]wtl=(0|1|auto)(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='auto') localStorage.removeItem('gvt_wtl'); else localStorage.setItem('gvt_wtl', q[1]); }
+    const w=localStorage.getItem('gvt_wtl'); o.word=(w==='0' || w==='1')? w : ''; }catch(e){ o.err++; }
+  o.ios=window.__rslEarly? 1 : 0; o.on=(o.word==='1')? 1 : (o.word==='0')? 0 : o.ios; return o; })();
+const WTL_BFR=bfrOpen, WTL_WARM=v2Warm;
+bfrOpen=function(){ if(!WTL.on) return WTL_BFR.apply(this, arguments);   // (1) THE WRAP (by name): no room still behind the table: bfrOpen's own failure road (the table on its plain dark, the muster whole)
+  try{ if(BFR.el && BFR.el.parentNode) BFR.el.parentNode.removeChild(BFR.el); BFR.el=null; BFR.nt=-1; const bg=document.getElementById('wtBg'); if(bg) bg.classList.remove('bfr'); }catch(e){ WTL.err++; }
+  WTL.stills++; return false; };
+v2Warm=function(){ if(!WTL.on) return WTL_WARM.apply(this, arguments);   // (2) THE WRAP (by name): the same pictures, one at a time, in her colours alone (PBV2's own fields, v2Warm's own recipe for each)
+  if(PBV2.warm) return; PBV2.warm=1; PBV2.sc=v2Scale(); const ks=Object.keys(V2_ART); PBV2.n=ks.length; WTL.warm=1; let i=0;
+  const next=function(){ if(i>=ks.length){ WTL.warm=2; return; } const k=ks[i++], v=V2_ART[k];
+    if(!v || !v.vb || typeof v.svg!=='string'){ PBV2.ready++; if(i>=ks.length) WTL.warm=2; setTimeout(next, 0); return; }
+    const w=Math.round(v.vb[2]*PBV2.sc), h=Math.round(v.vb[3]*PBV2.sc), im=new Image(); let svg=v.svg;
+    const nf=(svg.match(/ filter="url\(#[^)]+\)"/g) || []).length; if(nf){ svg=svg.replace(/ filter="url\(#[^)]+\)"/g, ''); WTL.fx+=nf; }   // lupNoFx's recipe: her colours, no filter buffers
+    const done=function(ok){ im.onload=null; im.onerror=null;
+      if(ok){ try{ const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); PBV2.ras[k]=c; WTL.made++; }catch(e){ PBV2.ras[k]=im; WTL.err++; } }
+      if(PBV2.ras[k]!==im){ PBV2.img[k]=null; try{ im.removeAttribute('src'); }catch(e){} }   // the Image and its svg document go before the next one is made (an Image that IS the picture stays)
+      PBV2.ready++; if(i>=ks.length) WTL.warm=2; setTimeout(next, WTL_GAP_MS); };   // warm 2 = the last picture is made (the same moment PBV2.ready reaches n)
+    im.onload=function(){ done(true); }; im.onerror=function(){ done(false); };
+    im.src='data:image/svg+xml;utf8,'+encodeURIComponent(svg.replace('<svg ','<svg width="'+w+'" height="'+h+'" ')); PBV2.img[k]=im; };
+  next(); };
+function wtlRead(){ let still=false; try{ still=!!(BFR && BFR.el); }catch(e){}   // THE RIG'S READ (GVT.wtl)
+  return { cv:GVT_CV, v:WTL.v, on:WTL.on, ios:WTL.ios, word:WTL.word, stills:WTL.stills, warm:WTL.warm, made:WTL.made, fx:WTL.fx, err:WTL.err, still:still, wrapped:(bfrOpen!==WTL_BFR && v2Warm!==WTL_WARM)? 1 : 0,
+    pics:{ n:PBV2.n|0, ready:PBV2.ready|0, ras:Object.keys(PBV2.ras).length, sc:PBV2.sc } }; }
+try{ if(window.GVT && !GVT.wtl) GVT.wtl=wtlRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.wtl) GVT.wtl=wtlRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-WTL ═══
 
 // ================= THE CAMPAIGN SCENE (v1.42) =================
 // Wyatt 7/27: the campaign door gets the War Table treatment — a real
