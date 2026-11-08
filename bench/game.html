@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"31.03","md5":"d66e2ac888bee37bbde8e2a00e0a0e8e","sha":"42a0b794d7","at":"2026-11-07T00:23:20Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"31.04","md5":"ff062414d09a0c9579f836eb26a6edb1","sha":"b539a65806","at":"2026-11-08T04:41:18Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92850,7 +92850,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -222974,6 +222974,25 @@ try{ if(typeof BFX_FX==='object' && BFX_FX && typeof BFX_FX.rbblast==='function'
 (function(){ let n=0; const wait=function(){ try{ if(!BHB.on || typeof BFX!=='object' || !BFX || !BFX.on) return; if(BFX.warmMs!=null || ++n>=120) bhbWarm(); else setTimeout(wait, 250); }catch(e){} }; setTimeout(wait, 1600); })();
 setTimeout(function(){ try{ if(window.GVT && !GVT.bhb) GVT.bhb=bhbRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-BHB ═══
+// ═══ CARD-KRF · KING REX BREATHES HIS OWN FIRE AGAIN (sec:CARD-KRF; design/king-rex-fire-1107/00-CARD-KRF.md; FROM WYATT by phone 11/7/2026 21:54 EST = 11/8 02:54 UTC,
+// jumpr 3146, dictated, verbatim: "Please restore King Rex's original fire animation. The new one is not looking good."; built on Maker 1 as M3146)
+// THE NEW ONE: since v30.78 CARD-BFX's breath painter (bfxBreath: Laura's kings' breath G 042, one picture stretched along the jet) runs first in draw()'s fx loop and took every
+// fire jet, King Rex's own included (BFX-F2): his FLOWING FIRE (CARD-KRG2's krgBreathDraw, Wyatt 10/8/2026: "Make it a little more flowy, more like our flame unit, less of a
+// cone") stood behind it and never drew. NOW her breath row answers null for a King Rex jet (krgOwns: the lair's boss, your King Rex, the hatched king, his whack at the boards)
+// and CARD-BFX's seat hands it to the fx loop's own branch: krgBreathDraw, as it played until v30.78. The dilo's, the pets' and every other jet keep her drawing (her painter,
+// untouched), and so does the burn's flame over a man. Draw-only: no number, no dice, no sound, no save, no wire. Laura's drawing stays in the files: ?krf=0 on a device = hers
+// on King Rex too (gvt_krf=0), ?krf=1 back. GVT.krf() = the rigs' read. KRF is var (no TDZ).
+var KRF={ on:(function(){ try{ const q=location.search||''; if(/[?&]krf=0(&|$)/.test(q)){ try{ localStorage.setItem('gvt_krf','0'); }catch(e){} return 0; }
+    if(/[?&]krf=1(&|$)/.test(q)){ try{ localStorage.removeItem('gvt_krf'); }catch(e){} return 1; }
+    try{ return localStorage.getItem('gvt_krf')==='0'? 0 : 1; }catch(e){ return 1; } }catch(e){ return 1; } })(),   // 1 = King Rex's own flowing fire (his word); 0 = Laura's kings' breath on him too (this device)
+  was:null, n:0, err:0 };
+function krfBreath(e,k){   // CARD-BFX's breath row: a King Rex jet = null (the fx loop's own branch: his flowing fire); every other jet = her painter as before
+  if(KRF.on){ try{ if(typeof krgOwns==='function' && krgOwns(e)){ KRF.n++; return null; } }catch(err){ KRF.err++; } }
+  return KRF.was? KRF.was(e,k) : null; }
+function krfRead(){ let key=null; try{ key=localStorage.getItem('gvt_krf'); }catch(e){} return { on:KRF.on, installed:!!(typeof BFX_FX==='object' && BFX_FX && BFX_FX.breath===krfBreath), n:KRF.n, err:KRF.err, key:key }; }
+try{ if(typeof BFX_FX==='object' && BFX_FX && typeof BFX_FX.breath==='function'){ KRF.was=BFX_FX.breath; BFX_FX.breath=krfBreath; } }catch(e){}   // the seat: CARD-BFX's own table, its breath row
+setTimeout(function(){ try{ if(window.GVT && !GVT.krf) GVT.krf=krfRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-KRF ═══
 // ═══ CARD-UGO2 · LAURA'S THREE UPGRADES ON HER FINISHED ART: THE OTHERS, PART 2 = HER 7 RUGS + THE GOLDFISH, THE BETTA AND THE PUFFERFISH (sec:CARD-UGO2;
 // design/upgraded-others-1105/part2-3117/00-UGO2-3117.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026; her art needs no word of his: Wyatt 11/5/2026
 // 13:40), her jumpr guest link 11/5/2026 16:12 EST (jumpr 3103; part 1 = sec:CARD-UGO, v30.81), built and landed on the Big Mac as jumpr 3117, verbatim: "MAKER 1. NEW: LAURA'S
