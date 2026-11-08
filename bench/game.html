@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"31.06","md5":"ab616e2390cc437160a91c304f7a7359","sha":"cddbcde707","at":"2026-11-08T16:38:36Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"31.07","md5":"0d66b7733ee2a3d04ec32fe67fb7d14e","sha":"7bbcebbf19","at":"2026-11-08T23:27:50Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92850,7 +92850,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -219901,6 +219901,30 @@ function elr2Probe(o){ o=o||{}; if(o.on!=null) ELR2_ON=(+o.on)? 1 : 0;   // the 
     sarges:bf? S.units.filter(u=>!u.dead && u.type==='sarge').map(u=>({ id:u.id, seat:u.seat, side:u.side, dropT:+(+(u.dropT||0)).toFixed(2) })) : [] }; }
 if(typeof GVT==='object' && GVT) GVT.elr2=elr2Probe;
 // ═══ END CARD-ELR2 ═══
+// ═══ CARD-RTD THE INVADING ARMY'S COMPUTER TURNED DOWN (sec:CARD-RTD; design/raid-cpu-down-1108/00-CARD-RTD.md; jumpr 3152). Wyatt by phone 11/8/2026 (sent 22:53:33 UTC = 17:53 EST), dictated, verbatim:
+// "Turn down the difficulty of the invading room cpu. Its currently playing against us at near max difficulty."
+// THE RAID (the army that invades your room: THE RAID tile's FIGHT and REMATCH = UI.rival, and the verdict's retry on a raid) mints inside CARD-ELR's latch (elrRaid raises ELR_RAID round the one startBattlefield call; a plain
+//     rematch keeps it down). While it stands, two of the mint's readers answer lower, both wrapped BY NAME: 1 · THE BRAIN: bfDifficulty answers at most RTD.cap (MEDIUM): the stars ramp's HARD (1,200 lifetime stars) thinks on
+//     BF_AI.medium on the raid (a decision every 2.3 s, blunders, the income lever 0.82); EASY and MEDIUM stay as they were; the rookie's four still outrank the ramp. 2 · THE GLOVES STAY ON: hardBotDue answers no on the raid:
+//     no 0417 hard cell (no war chest, no drip x1.10, no x1.03 / x1.02 muscle, no brass of your ranks +3, no OUTLAW / DUELIST captain with his presses, no smart march; the director free to ease off again). CARD-ELR already
+//     keeps the ELITE AI off the raid; with this the raid's computer plays MEDIUM at most, on stock men, for every commander. The quick match (PLAY) and its rematch, the queue's deal (bfqArm), the Gauntlet, NEMESIS's day
+//     (an explicit 'hard'), MOM's day and the kings' raids: byte-what-they-were. The raid still books your 1v1 record as it always did.
+// THE SWITCH: ?rtd=0 on a device (gvt_rtd '0'; ?rtd=1 clears it) = the raid as in v31.06. Zero server, wire, css, word, sw.js or save bytes. The rig's door: GVT.rtd(o). ═══
+const RTD={ cap:'medium', cell:0 };   // ⚑ RTD-Q1 the ceiling (medium; alt: one notch under the ramp for everyone, the hard brain with the gloves on, or easy) · RTD-Q2 cell 0 = never the gloves-off cell on the raid (1 = 0417's gate as shipped)
+var RTD_ON=(function(){ try{ const m=/[?&]rtd=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_rtd','0'); else localStorage.removeItem('gvt_rtd'); } return localStorage.getItem('gvt_rtd')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-ELT's grammar)
+const RTD_N={ capped:0, gloves:0, err:0 };   // this page's tallies (the rig reads them): raids whose brain the ceiling lowered · raids the gloves-off cell was kept from · errors
+const RTD_TIERS=['easy','medium','hard'];   // the stars ramp's three, low to high (BF_AI's own rows; rookie is not on the ramp)
+function rtdOn(){ return !!RTD_ON; }
+function rtdRaid(){ return !!(typeof ELR_RAID!=='undefined' && ELR_RAID); }   // the raid's mint is on: CARD-ELR's latch (an undo of CARD-ELR takes this door with it, said in the record)
+function rtdCap(d){ const i=RTD_TIERS.indexOf(d), c=RTD_TIERS.indexOf(RTD.cap); return (i>=0 && c>=0 && i>c)? RTD.cap : d; }   // a tier above the ceiling reads as the ceiling; anything else as it was
+if(typeof bfDifficulty==='function'){ const f0=bfDifficulty; bfDifficulty=function(){ const d=f0.apply(this, arguments); try{ if(rtdOn() && rtdRaid()){ const c=rtdCap(d); if(c!==d){ RTD_N.capped++; return c; } } }catch(x){ RTD_N.err++; } return d; }; }   // THE BRAIN: the stars ramp, capped on the raid alone
+if(typeof hardBotDue==='function'){ const h0=hardBotDue; hardBotDue=function(){ const r=h0.apply(this, arguments); try{ if(r && rtdOn() && rtdRaid() && !RTD.cell){ RTD_N.gloves++; return false; } }catch(x){ RTD_N.err++; } return r; }; }   // THE GLOVES STAY ON: 0417's gate answers no on the raid alone
+function rtdProbe(o){ o=o||{}; if(o.on!=null) RTD_ON=(+o.on)? 1 : 0; if(o.cap!=null) RTD.cap=o.cap; if(o.cell!=null) RTD.cell=(+o.cell)? 1 : 0;   // the rig's door (+ the page's switch and the two dials, for the rig)
+  const bf=S.bf;
+  return { cv:GVT_CV, on:rtdOn(), dials:{ cap:RTD.cap, cell:RTD.cell }, arm:rtdRaid()? 1 : 0, n:Object.assign({}, RTD_N), ramp:bfDifficulty(), due1:hardBotDue(1), stars:META.starsLifetime|0,
+    raid:!!(bf && bf.raid), diff:bf? bf.ai.diff : null, hard:!!(bf && bf.hard), elt:!!(bf && bf.elt), brains:bf? bf.seats.filter(st=>st.brain).map(st=>({ i:st.i, team:st.team, diff:st.brain.diff, every:st.brain.d.every })) : [] }; }
+if(typeof GVT==='object' && GVT) GVT.rtd=rtdProbe;
+// ═══ END CARD-RTD ═══
 // ═══ CARD-BPR THE BANNER'S CIRCLE ALWAYS SHOWS ITS ENEMY · NO WAVE CHIP UNDER IT (sec:CARD-BPR; design/banner-portrait-1104/00-CARD-BPR.md; jumpr 3013, built on Maker 1 as M3013).
 // ISAAC by the jumpr guest link 11/4/2026 20:20 EST (his live switch, card 2277), verbatim: "let's fix this bug on a lot of campaign levels. The right side with the circle previewing the enemy is
 // usually empty. Run an audit and make sure that doesn't happen. Also get rid of the Wave X tab under it. It's kind of a spoiler alert. Fix that empty circle and get rid of the wave indicator.
