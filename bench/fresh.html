@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.18","md5":"7cc319972cc967077536a4ce8340c3ea","sha":"5bdcee8c2a","at":"2026-11-10T19:08:44Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.19","md5":"02b31682542eebaa29503c6be36dfc8f","sha":"15701385f1","at":"2026-11-10T19:32:22Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93191,7 +93191,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -220452,6 +220452,147 @@ function rtdProbe(o){ o=o||{}; if(o.on!=null) RTD_ON=(+o.on)? 1 : 0; if(o.cap!=n
     raid:!!(bf && bf.raid), diff:bf? bf.ai.diff : null, hard:!!(bf && bf.hard), elt:!!(bf && bf.elt), brains:bf? bf.seats.filter(st=>st.brain).map(st=>({ i:st.i, team:st.team, diff:st.brain.diff, every:st.brain.d.every })) : [] }; }
 if(typeof GVT==='object' && GVT) GVT.rtd=rtdProbe;
 // ═══ END CARD-RTD ═══
+// ═══ CARD-FSD FALLEN ONES STAY DOWN (sec:CARD-FSD; design/fallen-stay-down-1110/00-CARD-FSD.md; jumpr 3194). Wyatt by phone 11/10/2026 (sent 16:16:40 UTC = 11:16 EST), dictated, verbatim:
+// "Bug report: King Croak fell off the roof during a Battlefields match, and he kept getting back on. He fell off the cliff, and he kept getting back on. If anyone falls off, they fall down, and that's it: they're defeated.
+//  You only have a slight chance with Sarge and his jetpack. It's the only way to get out of that."
+// THE CAUSE (read on v31.14, filmed on two phones: design/fallen-stay-down-1110/logs/room-base.log): in a ROOM fight every man belongs to his owner's phone. On another phone his copy could still walk into THE GAP or be shoved
+//     over the eave by that phone's own physics; at the bottom of the long drop the copy "shrugged" (owShrug: a copy never falls to another screen's dice; the Sarge's own shrug in hitCheck) and stood back where he went over,
+//     then his owner's next row pulled him home. A hero walks by his own brain on every screen, so KING CROAK was the man it showed on. Alone on one phone a fall was always final.
+// THE LAW (rooms; one phone alone is byte-what-it-was but for 4 and the clock):
+//   1 · THE BRINK HOLDS A COPY. On my screen another commander's man never starts a fall by his own feet, a skid, a rolling ball or another copy's shove: he is set down at the edge (fsdOut). His owner's phone says if he fell.
+//   2 · MY BLOW IS A FALL. My own man's shove that carries a copy over starts the long drop here and says so at once ('of'): FIRST BLOW WINS, the room's own rule (CARD-NET 14c). At the bottom he is buried for everybody ('ox').
+//   3 · A FALL IS SAID WHEN IT STARTS. My own man going over says 'of' with the spot, so every screen shows the same drop; his 'od' / 'sd' follows at the bottom as before. A burial word that finds a man on his way down buries him
+//       at once through the shipped door (the word is the truth, whatever this screen's drop was doing).
+//   4 · NOBODY RISES FROM A FALL (every carpet, alone too): no pumpkin zombie and no STAND UP, SOLDIER! for a man the drop took (u.fellOff).
+//   THE SARGE keeps the one way out: his owner's jet fired on the way down (jetLaunch clears the fall, as since v2.76). On every other screen his copy stays down, unseen, until his owner's word: 'sd' (he is buried) or the jet
+//     (he flies out). A phone that did not drop him (too old to hear 'of', or its Sarge in the air at that moment) still lists him standing: FSD.valve s after the bottom the copy is stood back where his owner has him
+//     (the one return that is not the jet; FSD_N.valve counts it). No row of him at all for SD_VALVE s (a frozen owner) = buried here (the Sarge's own valve, 1022z TS-11).
+//   THE FALL'S OWN CLOCK: on the battleground a fall ticks at the HEAD of the units loop (isdTick's shelf: alive is the only condition), so no standing shelf above bfUnitStep (a king's barrage or back-off, a hop, the
+//     Emperor's machine, a lunge, a duck) can hold a falling man in the air (on v31.16 KING CROAK's barrage held a fall for 1.5 s); bfUnitStep's own call is the same frame's echo and does nothing. The campaign's carpet keeps its own call.
+//   WHERE THE LAW STANDS DOWN (v31.16's bytes): a room where the numbered law is not spoken (owSpeak), a chair that never spoke it, and a chair silent past FSD.grace s (a phone that left: its copies fall by this screen's own
+//     dice again; such a man is buried here alone with no word and no tomb, a Sarge waits below for SD_VALVE). A tomb and an 'ox' leave this screen only for my own man's blow (never for a fall this screen merely guessed).
+// THE WORD 'of' { id his number (a replayed word never finds a later man) · r 1 = the Sarge · w kind 1 eave 2 gap 3 sky 4 pit · x y the spot · n his chair when he is not the sender's own man }: every key is on HQ's CMD_KEYS
+//     already (ZERO server bytes); an older phone falls off roomApply's chain at it and keeps v31.16's bytes on its own screen. Twelve functions are WRAPPED BY NAME below; none of their bodies is edited.
+// THE SWITCH: ?fsd=0 on a device (gvt_fsd '0'; ?fsd=1 clears it) = falls as in v31.16 on that device. Zero server, sw.js, css, word or save bytes. The rig's door: GVT.fsd(o). ═══
+const FSD={ valve:2.5, grace:6, snap:120, kinds:['eave','gap','sky','pit','cave'] };   // ⚑ FSD-Q3 valve: seconds a fallen Sarge's copy waits on a phone that still lists him standing · grace: seconds of silence after which a chair's copies are this screen's own again (SD_VALVE's number) · snap: px inside which the word's spot is the fall's spot
+var FSD_ON=(function(){ try{ const m=/[?&]fsd=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_fsd','0'); else localStorage.removeItem('gvt_fsd'); } return localStorage.getItem('gvt_fsd')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-RTD's grammar)
+const FSD_N={ brink:0, mine:0, word:0, lone:0, held:0, said:0, heard:0, valve:0, quiet:0, noRise:0, err:0 };   // this page's tallies (the rig reads them)
+let FSD_GO=null, FSD_SRC=null, FSD_HD=0;   // FSD_GO: the word's door is open for this one call ('word' a copy, 'own' my man) · FSD_SRC: the shover of the slide step in flight · FSD_HD: the head's own step is running
+function fsdOn(){ return !!FSD_ON; }
+function fsdChair(u){   // his chair, when he is another phone's man under the numbered law as this room speaks it; null = mine (my chair, my computers'), or a room or chair that does not speak it (yesterday's dice)
+  if(!u || u.dead || !S.bf || !u.side || u.side==='nem' || u.seat==null || !roomBattle() || !owSpeak() || (u.seat|0)===bfMySeat() || owCpuMine(u.seat)) return null;
+  const st=S.bf.seats[u.seat]; return (st && (st.human? st.owS : st.owG))? st : null; }
+function fsdTwin(u){ const st=fsdChair(u); if(!st) return 0;   // 1 = a numbered copy (owShrug's population) · 2 = another chair's Sarge (hitCheck's, 1022z TS-11) · 0 = not another phone's to call
+  if(u.type==='sarge') return (st.human? !!st.sdW : true)? 2 : 0;
+  return (OW_ON && u.owId!=null)? 1 : 0; }
+function fsdHeard(u){ const st=S.bf && S.bf.seats[u.seat]; return !!(st && st.owT!=null && S.t-st.owT<FSD.grace); }   // his chair's rows landed inside the grace: his owner is there to say if he fell
+function fsdMine(src){ return !!(src && S.bf && src.seat!=null && ((src.seat|0)===bfMySeat() || owCpuMine(src.seat))); }   // the blow is my own man's (or a computer's man's on the referee's screen)
+function fsdOut(u,vd){   // THE BRINK: the nearest ground beside the hole he was carried into, a pixel clear of it
+  const T=S.cfg && S.cfg.terrain; if(!T) return;
+  if(vd.kind==='eave'){ u.y=Math.max(74,Math.min(WORLD_H-96,u.y)); return; }
+  for(const p of (T.pits||[])){ const dx=u.x-p.x, dy=u.y-p.y, d=Math.hypot(dx,dy); if(d<p.r){ if(d>0.01){ const k=(p.r+1)/d; u.x=p.x+dx*k; u.y=p.y+dy*k; } else u.x=p.x+p.r+1; } }
+  for(const g of (T.gaps||[])){ if(Math.abs(u.x-g.x)<g.w/2 && u.y>=g.y0 && u.y<=g.y1){ const L=u.x-(g.x-g.w/2), R=(g.x+g.w/2)-u.x, B=g.y1-u.y; if(B<=L && B<=R) u.y=g.y1+1; else if(L<=R) u.x=g.x-g.w/2-1; else u.x=g.x+g.w/2+1; } } }
+function fsdNum(u){ return ((u.seat|0)===bfMySeat())? owRid(u) : (u.owId|0); }   // his number: my man's own, a copy's as his owner numbered him
+function fsdSay(u,kind){   // THE WORD: he is falling, here
+  if(!S.bf || !COOP || COOP.ended || !roomBattle() || !owSpeak()) return false;
+  const id=fsdNum(u); if(!(id>0)) return false;
+  const cm={ k:'of', id:id, w:Math.max(1,FSD.kinds.indexOf(kind)+1), x:Math.round(u.x), y:Math.round(u.y) };
+  if((u.seat|0)!==bfMySeat()) cm.n=u.seat|0;
+  if(u.type==='sarge') cm.r=1;
+  coopSend(cm); FSD_N.said++; return true; }
+function fsdFind(seat,rid,sg){ for(const v of S.units){ if(v.dead || v.seat==null || (v.seat|0)!==seat || (v.type==='sarge')!==!!sg) continue; if(seat===bfMySeat()? v.owRid===rid : v.owId===rid) return v; } return null; }   // by his number, the Sarge too
+function fsdDrop(u,kind,how,wx,wy){   // THE WORD'S DOOR: he falls where the word says (inside FSD.snap of him), else where he stands
+  if(!u || u.dead || u.falling || u.jetT>0 || u.burrow || u.trk || u.hlbAir) return false;   // in the air, digging in or under the rug: the word finds nobody to take
+  if(kind!=='eave' && hvbU(u)) return false;   // HOVER BOOTS: never down a hole, by any door
+  if(u.dropT>0) u.dropT=0;   // still dropping in on this screen: on the screen that saw the blow he had landed (two phones' clocks drift), and first blow wins. He lands now and falls, so this screen shows the drop too
+  if(wx!=null && wy!=null && Math.hypot(u.x-wx,u.y-wy)<=FSD.snap){ u.x=wx; u.y=wy; }
+  u.shv=null; u.glT=0; const keep=FSD_GO; FSD_GO=how||'own';
+  try{ unitFall(u,{kind:kind}); } finally{ FSD_GO=keep; }
+  return !!(u.falling || u.dead); }
+function fsdHear(cm){   // 'of' lands: the man it names falls on this screen too
+  const bf=S.bf; if(!OW_ON || !bf || bf.resolved || bf.ending || !roomBattle()) return;
+  const from=parseInt(cm.p,10); if(!(from>=0) || from===bfMySeat() || !bf.seats[from] || !bf.seats[from].human) return;   // a person's chair speaks; never my own echo
+  const seat=(typeof cm.n==='number')? (cm.n|0) : from; if(!(seat>=0) || !bf.seats[seat]) return;
+  const kind=FSD.kinds[(cm.w|0)-1]||'eave', rid=cm.id|0; if(!(rid>0)) return;
+  const wx=(typeof cm.x==='number' && isFinite(cm.x))? Math.max(40,Math.min(WORLD_W-40,cm.x|0)) : null, wy=(typeof cm.y==='number' && isFinite(cm.y))? Math.max(0,Math.min(WORLD_H,cm.y|0)) : null;
+  FSD_N.heard++;
+  const u=fsdFind(seat,rid,+cm.r===1); if(!u) return;
+  fsdDrop(u,kind,(seat===bfMySeat() || owCpuMine(seat))? 'own' : 'word',wx,wy); }   // MY man (or my computer's): another chair's blow carried him over on its screen, he falls here too and my Sarge keeps his jet · a copy: his owner's word, or the word of the chair whose man shoved him
+function fsdFinal(u,fin,tw){   // the bottom of a copy's drop on this screen. my blow = no shrug, then owFell's own tomb and 'ox' · a word = the owner's own door (owHearOd's: the tomb, no word from me) · this screen's own guess = he is buried HERE alone: no tomb, no word (a tomb is never a copy's own doing), his owner's next row decides
+  if(fin==='mine'){ u.fsdFin=1; FSD_N.mine++; }
+  else if(fin==='word'){ if(u.owId!=null) owTomb(u.seat,u.owId); u.sdBless=1; FSD_N.word++; }
+  else if(tw===1 || fin==='lone'){ u.sdBless=1; FSD_N.lone++; } }
+function fsdBury(u){ u.falling=null; u.fellOff=1; u.sdBless=1; u.hp=0; hitCheck(u,null); const c=S.corpses[S.corpses.length-1]; if(c && c.x===u.x && c.y===u.y) S.corpses.pop(); }   // the long drop's own end (unitFallStep's): the battleground's one death door, no body lying on the void
+function fsdHeld(u){ const f=u.falling; u.marching=false;   // a Sarge's copy at the bottom of the drop: unseen, waiting for his owner's word
+  if(S.t-Math.max(f.held,f.row||0)>SD_VALVE){ FSD_N.quiet++; fsdBury(u); } }   // no row of him at all for SD_VALVE s (a frozen owner, a phone that left): the Sarge's own valve (1022z TS-11), he stays down
+function fsdTidy(u,keep){ if(!u) return; if(u.dead){ const c=S.corpses[S.corpses.length-1]; if(c && c.x===u.x && c.y===u.y) S.corpses.pop(); } else if(!u.falling){ u.falling=keep; u.fellOff=0; } }   // after a burial word found a falling man: no body on the void · the word did not take him after all: his fall goes on
+if(typeof unitFall==='function'){ const f0=unitFall; unitFall=function(u,vd){
+  if(!fsdOn() || !u || !vd || u.dead || u.jetT>0 || u.falling || (vd.kind!=='eave' && hvbU(u))) return f0.apply(this,arguments);   // the switch off, or one of the shipped refusals: byte-what-it-was
+  let tw=0, how=FSD_GO||null, mine=false;
+  try{ tw=fsdTwin(u);
+    if(tw && !how){
+      if(fsdMine(FSD_SRC) && fsdNum(u)>0) how='mine';   // 2 · MY BLOW IS A FALL (a copy with no number yet cannot be named: the brink holds him)
+      else if(fsdHeard(u)){ if(!(u.glT>0)) fsdOut(u,vd); u.shv=null; FSD_N.brink++; return; }   // 1 · THE BRINK HOLDS A COPY (a copy his owner's pull is carrying across is left to the pull)
+      else how='lone'; }   // his chair is silent past the grace: this screen's own dice again
+    if(tw) u.glT=0;   // a pull in flight ends with the fall
+    else if(!how) mine=!!(S.bf && u.side && u.side!=='nem' && u.seat!=null && roomBattle() && ((u.seat|0)===bfMySeat() || owCpuMine(u.seat))); }
+  catch(x){ FSD_N.err++; return f0.apply(this,arguments); }
+  const fin=(how==='mine' || how==='word' || how==='lone')? how : null;
+  if(vd.kind==='pit'){   // a pit takes a man at once (the shipped law): no drop to wait through
+    u.fellOff=1;
+    if(tw===2){ fallFx(u.x,u.y,'pit'); u.falling={ t:FALL_DUR, dur:FALL_DUR, kind:'pit', fin:fin, held:S.t }; u.wp=null; u.mgRootT=0; FSD_N.held++; if(fin==='mine') fsdSay(u,'pit'); return; }   // a Sarge's copy: down and unseen until his owner's word
+    if(fin) fsdFinal(u,fin,tw);
+    const rp=f0.apply(this,arguments); if(!u.dead) u.fellOff=0;   // the pit did not take him after all: he may rise another day
+    return rp; }
+  const r=f0.apply(this,arguments);
+  try{ if(u.falling){ if(fin) u.falling.fin=fin; if(fin==='mine' || mine) fsdSay(u,vd.kind); } }catch(x){ FSD_N.err++; }   // 2 · MY BLOW IS A FALL · 3 · A FALL IS SAID WHEN IT STARTS
+  return r; }; }
+if(typeof unitFallStep==='function'){ const s0=unitFallStep; unitFallStep=function(u,dt){
+  const f=u && u.falling; if(!fsdOn() || !f) return s0.apply(this,arguments);
+  if(!FSD_HD && f.hd===S.t) return;   // the head stepped this fall this frame already (the step functions' own call is the echo)
+  if(f.held!=null){ fsdHeld(u); return; }
+  if(f.t+dt<f.dur) return s0.apply(this,arguments);   // still on the way down: the shipped step
+  u.fellOff=1;   // THE BOTTOM · 4 · NOBODY RISES FROM A FALL
+  let tw=0; try{ tw=fsdTwin(u); }catch(x){ FSD_N.err++; }
+  if(tw===2){ f.t=f.dur; f.held=S.t; FSD_N.held++; return; }   // THE SARGE's copy: down and unseen until his owner's 'sd' (buried) or his jet (he flies out)
+  try{ fsdFinal(u,f.fin||null,tw); }catch(x){ FSD_N.err++; }
+  const rs=s0.apply(this,arguments); if(!u.dead) u.fellOff=0;   // a carpet whose own law stood him up (the campaign's ally, 0313a: not this card's): the mark goes with the fall
+  return rs; }; }
+if(typeof isdTick==='function'){ const i0=isdTick; isdTick=function(u,dt){ const r=i0.apply(this,arguments);   // THE FALL'S OWN CLOCK, at the head of the units loop ON THE BATTLEGROUND: alive is the only condition, so no shelf above bfUnitStep holds a falling man in the air (bfUnitStep's own first line passes a man who reached the bottom here; the campaign's step keeps its own call, byte-still)
+  if(u && u.falling && !u.dead && S.bf && fsdOn()){ let ok=false; FSD_HD++; try{ unitFallStep(u,dt); ok=true; }catch(x){ FSD_N.err++; } finally{ FSD_HD--; } if(ok && u.falling) u.falling.hd=S.t; }   // an error here leaves the frame to the step functions' own call, as before
+  return r; }; }
+if(typeof ggShoveStep==='function'){ const g0=ggShoveStep; ggShoveStep=function(o,dt){ const keep=FSD_SRC; FSD_SRC=(o && o.shv && o.shv.src)||null; try{ return g0.apply(this,arguments); } finally{ FSD_SRC=keep; } }; }   // who is shoving, for the frame (the shipped step drops the name before it asks for the fall)
+if(typeof owShrug==='function'){ const h0=owShrug; owShrug=function(f,u){ if(f && f.fsdFin && fsdOn()) return false; return h0.apply(this,arguments); }; }   // a copy my own blow sent over never shrugs the bottom of his drop
+if(typeof owHearOd==='function'){ const d0=owHearOd; owHearOd=function(cm){   // his owner's burial word finds the copy on his way down here: he is buried NOW through the shipped door (the word is the truth, whatever this screen's drop was doing), with no body on the void
+  let u=null, keep=null;
+  try{ if(fsdOn() && OW_ON && S.bf && S.mode==='play' && cm){ const cw=(owCpuOn() && typeof cm.w==='number' && cm.w>0), seat=cw? (cm.w|0)-1 : parseInt(cm.p,10), rid=cm.id|0;
+      if(seat>=0 && S.bf.seats[seat] && seat!==bfMySeat() && rid>0 && !(cw && (S.bf.seats[seat].human || coopIsHost()))){ u=owFind(seat,rid); if(u && !(u.falling && u.type!=='sarge')) u=null; if(u){ keep=u.falling; u.falling=null; u.fellOff=1; } } } }
+  catch(x){ FSD_N.err++; if(u && keep && !u.falling) u.falling=keep; u=null; }
+  const r=d0.apply(this,arguments); fsdTidy(u,keep); return r; }; }
+if(typeof owHearOx==='function'){ const x0=owHearOx; owHearOx=function(cm){   // a chair's burial word (its man's blow) finds the man on his way down, mine or a copy: buried NOW through the shipped door, no body on the void
+  let u=null, keep=null;
+  try{ if(fsdOn() && OW_ON && S.bf && S.mode==='play' && cm){ const from=parseInt(cm.p,10), seat=(typeof cm.n==='number')? (cm.n|0) : -1, rid=cm.id|0;
+      if(seat>=0 && S.bf.seats[seat] && rid>0 && from!==bfMySeat() && S.bf.seats[from] && S.bf.seats[from].human){ u=(seat===bfMySeat())? fsdFind(seat,rid,false) : owFind(seat,rid); if(u && !(u.falling && u.type!=='sarge')) u=null; if(u){ keep=u.falling; u.falling=null; u.fellOff=1; } } } }
+  catch(x){ FSD_N.err++; if(u && keep && !u.falling) u.falling=keep; u=null; }
+  const r=x0.apply(this,arguments); fsdTidy(u,keep); return r; }; }
+if(typeof owPin==='function'){ const p0=owPin; owPin=function(u,x,y,h,fl,t9){   // a row lands on a Sarge's copy who waits below: his owner lists him STANDING past the valve = his phone did not drop him. He is stood back on the row
+  try{ const f=u && u.falling; if(f && f.held!=null && fsdOn()){ f.row=S.t; if(!(fl&2) && S.t-f.held>FSD.valve){ u.falling=null; u.fellOff=0; u.x=x; u.y=y; u.glT=0; FSD_N.valve++; } } }catch(e){ FSD_N.err++; }
+  return p0.apply(this,arguments); }; }
+if(typeof roomApply==='function'){ const r0=roomApply; roomApply=function(cm){
+  let sg=null, keep=null;
+  try{ if(fsdOn() && cm && S.bf && S.mode==='play' && !(COOP && COOP.watch && spcSkip(cm))){
+      if(cm.k==='of'){ fsdHear(cm); return; }   // the room's newest word (an older phone falls off the chain here)
+      if(cm.k==='sd'){ const st=(typeof cm.n==='number')? (cm.n|0) : -1; sg=S.units.find(v=>v.type==='sarge' && v.seat!=null && (v.seat|0)===st && !v.dead)||null; if(sg && !sg.falling) sg=null; if(sg){ keep=sg.falling; sg.falling=null; sg.fellOff=1; } } } }   // his owner's word finds the Sarge's copy below: buried through the shipped door, no body on the void
+  catch(x){ FSD_N.err++; if(sg && keep && !sg.falling) sg.falling=keep; sg=null; }
+  const r=r0.apply(this,arguments); fsdTidy(sg,keep); return r; }; }
+if(typeof zombU==='function'){ const z0=zombU; zombU=function(u){ const r=z0.apply(this,arguments); if(r && u && u.fellOff && fsdOn()){ FSD_N.noRise++; return false; } return r; }; }   // 4 · no pumpkin zombie from a man the drop took
+if(typeof rfFell==='function'){ const q0=rfFell; rfFell=function(u){ if(u && u.fellOff && fsdOn()) return; return q0.apply(this,arguments); }; }   // 4 · no STAND UP, SOLDIER! either
+if(typeof drawFaller==='function'){ const w0=drawFaller; drawFaller=function(o){ if(o && o.falling && o.falling.held!=null) return; return w0.apply(this,arguments); }; }   // a man waiting below is not painted
+function fsdProbe(o){ o=o||{}; if(o.on!=null) FSD_ON=(+o.on)? 1 : 0; if(o.valve!=null) FSD.valve=+o.valve; if(o.grace!=null) FSD.grace=+o.grace;   // the rig's door (+ the page's switch and two dials, for the rig)
+  return { cv:GVT_CV, on:fsdOn(), dials:{ valve:FSD.valve, grace:FSD.grace, snap:FSD.snap }, n:Object.assign({}, FSD_N), room:!!(S.bf && roomBattle()),
+    falling:S.units.filter(u=>u.falling && !u.dead).map(u=>({ t:u.type, seat:u.seat, twin:fsdTwin(u), fin:u.falling.fin||null, held:(u.falling.held!=null)? +(S.t-u.falling.held).toFixed(2) : null, k:u.falling.kind, at:+u.falling.t.toFixed(2) })) }; }
+if(typeof GVT==='object' && GVT) GVT.fsd=fsdProbe;
+// ═══ END CARD-FSD ═══
 // ═══ CARD-PPO THE HEROES' PAGE AND THE CLASS PAGES: EVERY PICTURE PAINTED ONCE (sec:CARD-PPO; design/hero-page-lag-1109/00-CARD-PPO.md; jumpr 3157). FROM WYATT'S PHONE by the jumpr remote 11/9/2026 20:27 EST
 // (11/10 01:27:04 UTC), dictated, two screenshots (KING REX on THE LAVA FIELD, KING CROAK on THE HIDEOUT), verbatim: "After the latest build, this stylish screen is coming out extremely laggy. When checking out the
 // different heroes or even checking out the different classes, any screen that's kind of like this is coming out extra laggy. Since the last update with putting all the files into the game, please audit this and
