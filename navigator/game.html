@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.20","md5":"43efb574561ff08bcb2b97bce5575bf6","sha":"942a2e2f66","at":"2026-11-10T20:28:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.21","md5":"e6c9d7ecd186418d23ec59674290d1e9","sha":"d2b94a2d8b","at":"2026-11-10T20:55:17Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93191,7 +93191,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -164148,6 +164148,38 @@ let AD_SQUAD_LIFE=1;   // 8/23 THE SQUAD EXIT JOINS THE 2-3 CLOCK (Wyatt, after 
 let AD_NEWBIE_GAMES=6; // 0504 THE NEWBIE AD GATE (Wyatt 8/23: "We dont want brand new players served any interstitial ads until they play 6 games") — a LIFETIME gate on EVERY real interstitial, solo and squad alike: META.adGames counts door-launched games across sessions (adGate ticks it beside ADQ.games and saves; a pre-0504 save seeds ONCE from its own record — campaign rung + battlefield W+L — so a veteran never re-enters the cradle, a fresh install seeds 0); no break of any kind while adGames <= N. 0 = off (DIAL)
 let AD_SOLO_MIN=2, AD_SOLO_MAX=3;   // 0504 (Wyatt 8/23: "Then after every 2-3 games they should get an interstitial") — the solo verdict cadence is LIFETIME-paced now, not per session: META.adNext = the lifetime game whose verdict exit pays the next break, armed at max(adGames, the cradle) + a whole number drawn in [MIN, MAX] (at boot when missing, again the moment a break is paid). Due UNTIL paid — a due break the session's first game (AD_FREE_GAMES), the gap, the cap or a no-fill swallows slides to the next exit: fewer ads than the schedule, never more (the 0383 law). Replaces 0399's AD_SOLO_EVERY=3 (games 3, 6, 9… of each session). 8/23: the squad exit reads this SAME marker now (AD_SQUAD_LIFE) — the 0504 ⚑ resolved by Wyatt's own word (DIAL)
 let AD_SOLO_POST=1;    // v3.60 (0297 §V3.8): the adapter-era placement flip — 0 = today's placeholder door law; 1 moves SOLO breaks post-game. A COMPLIANCE PRECONDITION for real ads (Wyatt sign-off, ADS-V1.md §V3 gate 5), never auto-flipped; NO reader in the placeholder era BY DESIGN — the adapter card flips a staged switch, not a new build (DIAL)   // ⛔ GATE 5 SIGNED — Wyatt 8/17 verbatim: "for C, let's turn it on. We want to show solo players an ad after playing" — the reader shipped in v4.35; the dial flips ON here (0379). Real-provider only by construction: soloDue requires ADS.provider!=='placeholder', so web/child/Steam stay break-free
+// ═══ CARD-AD4 AN INTERSTITIAL EVERY FOURTH LEVEL (sec:CARD-AD4; design/ads-every-four-1110/00-CARD-AD4.md; TASK FROM WYATT'S PHONE 11/10/2026 12:14 EST, jumpr 3195, built on Maker 1 as M3195). Wyatt, verbatim:
+// "Right. We need to serve ads in the campaign and in the theme park levels. Once every 4 levels, please serve them an interstitial for now on. Unless, of course, they hold the gauntlet or they paid for no ads."
+// THE READ: his answer to the morning's DAILY REPORT (CARD-RLT: "Only 54 players ever saw an interstitial: ads begin at level 5, the web build shows no real ad, and most players stop before level 5"). The law above
+// kept a new player ad-free until 6 games AND campaign level 5 beaten, then paid a break every 2 or 3 games, never on a session's first game; a break that found no ad loaded was spent all the same.
+// THE LAW NOW (the same ONE clock, the same seats: the verdict's own exits, after the upgrade; nobody waits on an ad; the party's law, §V3, the TV set, the daily pitch untouched):
+//   THE PACE   every AD4_EVERY-th game: a campaign level, a park level, a park's boss fight, a battleground, alone or together (every game ticks META.adGames as before). META.adNext = the game just paid + 4, no draw.
+//   THE START  the first one may ride the win of campaign level AD4_START (4): the first four levels, then one. A player still on levels 1 to 3 meets none, however many tries (AD_MIN_CAMP reads AD4_START; the
+//              6-game count is retired: AD_NEWBIE_GAMES 0).
+//   THE FIRST GAME OF A SESSION pays like any other (AD_FREE_GAMES 0): the count is the lifetime's, so one level a day meets one on the fourth day.
+//   A TURN IS NOT SPENT ON NOTHING: a due break that finds no interstitial loaded (ad4Loaded) is held, not paid; it rides the next exit (ad4Miss tells the ruler int:0 once a game and HQ's line reads w=noint).
+//              And a show the store app sends straight back as not shown (its ad was not ready after all, or failed to display) gives the turn back (ad4Back): due again at the next exit, the page stops
+//              believing an ad is loaded, and asks the app to load one if none arrives by itself. A show that goes dark (the never-displayed belt) stays spent, as before.
+//   ONE EXIT AT A TIME: the verdict stays on the screen from the tap until the ad covers it (CARD-ADH holds the post 400 ms, then the app presents). HEAD let a second tap through in that moment: the
+//              landing ran at once, the next level started UNDER the ad, and the first tap's landing then threw that level away (or restarted it). Now a second consult inside AD4_HOLD_MS of the ask, while
+//              that show is still on its way, launches nothing (ad4Busy); the first tap's own landing runs behind the ad. After AD4_HOLD_MS a tap passes as on HEAD: the exit never hangs.
+//   NEVER, as his word says: the Gauntlet's holder (GA.hold) and a NO ADS buyer (adFree), both through adImmune as before. STILL NEVER, as before this card: Steam, the web (no ad engine in a browser), a Fire tablet
+//   (CARD-AKA1), an answered child, anyone who ever bought anything (META.paidEver), 20 a session, two inside one minute.
+// ?ad4=0 = HEAD's law, value for value. EXISTING SAVES: a veteran keeps his marker (he pays within 3 games, then every 4). A save armed by the old cradle and never served (its marker still the first arm, 8 or 9,
+// ahead of its games) takes the new first arm, 4, once at boot: from now on means the players already here too. A new save arms at 4. GVT.ad4() the rig's read. Zero words, screens, new META fields, server or sw bytes.
+var AD4_ON=(function(){ try{ return !/[?&]ad4=0(?:&|$)/.test(location.search||''); }catch(e){ return true; } })();   // THE SWITCH (a var, SIPL's grammar): ?ad4=0 = HEAD's law
+var AD4_EVERY=4;   // THE PACE (DIAL): one interstitial every this many games
+var AD4_START=4;   // THE START (DIAL): the campaign level whose win may carry the first one (0 = from the first game)
+var AD4_HOLD_MS=2000;   // ONE EXIT AT A TIME (DIAL): how long after an interstitial is asked for a second consult launches nothing (CARD-ADH's own "the ad covers the screen by now"); 0 = HEAD
+var AD4={ miss:0, t:0, k:'', eat:0, back:0, mig:0 };   // the rig's window: due breaks held because nothing was loaded (k = the game already told to the ruler) · second taps eaten · refused shows given back · the old cradle's marker moved
+if(AD4_ON){ AD_FREE_GAMES=0; AD_NEWBIE_GAMES=0; AD_SOLO_MIN=AD4_EVERY; AD_SOLO_MAX=AD4_EVERY; }   // the four dials above, set here (their own lines keep their history; the lifetime arm below reads them)
+(function(){ try{ if(AD4_ON && (META.adNext===8 || META.adNext===9) && (META.adGames|0)<META.adNext && !(META.adShown|0)){ META.adNext=AD4_EVERY; AD4.mig=1; saveMeta(); } }catch(e){} })();   // THE OLD CRADLE'S MARKER: the first arm of the old law (the 6 games + 2 or 3), never reached, never served: the new law's first arm, once (a veteran's marker, a rig's 9999, a served save: untouched)
+function ad4Loaded(){ if(!AD4_ON) return true; try{ return !!ADS.interstitialAvailable(); }catch(e){ return true; } }   // an interstitial is on hand (a fault answers HEAD's way: go on and ask)
+function ad4Miss(){ try{ AD4.miss++; AD4.t=Date.now(); var k=ADQ.games+'/'+ADQ.squad; if(AD4.k!==k){ AD4.k=k; telAd('int', null); } }catch(e){} }   // the ruler's own no-fill arm (int:0), once per GAME that held a due break (a second seat of the same verdict, CONTINUE then the flow's launch, tells nothing more)
+function ad4Busy(){ if(!AD4_ON || !(AD4_HOLD_MS>0)) return false; try{ if(!MAXA.lastShow || Date.now()-MAXA.lastShow>=AD4_HOLD_MS) return false; for(var k in MAXA.pend){ var p=MAXA.pend[k]; if(p && p.kind==='int') return true; } }catch(e){} return false; }   // an interstitial was asked for a moment ago and its show has not come back yet
+function ad4Back(r){ try{ if(!AD4_ON || !r || r.displayed || r.completed!==false) return false; AD4.back++; MAXA.int=false; META.adNext=(META.adGames|0); saveMeta(); setTimeout(function(){ try{ if(!MAXA.int) maxPost({cmd:'load', kind:'int'}); }catch(e){} }, 3000); return true; }catch(e){ return false; } }   // the store app sent the show straight back as NOT shown (completed false, no creative): the turn is due again at the next exit (this verdict's latch stands: no second try now), the page stops believing an ad is loaded, and if none arrives by itself in 3 s it asks the app to load one (both apps answer {cmd:'load'})
+setTimeout(function(){ try{ if(window.GVT && !GVT.ad4) GVT.ad4=function(){ return { on:!!AD4_ON, every:AD4_EVERY, start:AD4_START, free:AD_FREE_GAMES, newbie:AD_NEWBIE_GAMES, min:AD_SOLO_MIN, max:AD_SOLO_MAX, minCamp:AD_MIN_CAMP, life:(META.adGames|0), next:(META.adNext==null? null : META.adNext), left:(META.adNext==null? null : Math.max(0, META.adNext-(META.adGames|0))), rung:(META.campaign|0), started:!adNewbie(), immune:adImmune(), hold:!!GA.hold, free0:adFree(), paid:!!META.paidEver, loaded:ad4Loaded(), miss:AD4.miss, eat:AD4.eat, back:AD4.back, mig:AD4.mig, busy:ad4Busy(), holdMs:AD4_HOLD_MS, shown:(META.adShown|0), provider:String(ADS.provider||''), last:AD_LAST? Object.assign({}, AD_LAST) : null }; }; }catch(e){} }, 0);
+// ═══ END CARD-AD4 ═══
 // ═══ 0627 ADS AFTER THE UPGRADE, FROM LEVEL 5 (FM-GVT-JUICE-01 §6 P3 — design/juice-reach-0830/00-DESIGN.md; Wyatt 8/30 13:39 by
 // phone, verbatim: "Ad placement follows the upgrade, not the level. The ad fires after the player has selected their chosen upgrade
 // and the upgrade animation has played out, so it lands immediately after a reward moment and reads as the price of continuing rather
@@ -164165,7 +164197,7 @@ let AD_SOLO_POST=1;    // v3.60 (0297 §V3.8): the adapter-era placement flip �
 //     door (pickOutBtn) is the picker's other exit and pays the same. No pick owed → the gate stays at CONTINUE (⚑ Q8; the 2-3 clock
 //     slides by construction — squadAdGate's soloPaid latch keeps a verdict to ONE break however many seats consult it). TRY AGAIN,
 //     the party's own gate arm, the cradle's game count, the 2-3 cadence, the paid package, the daily pitch: byte-still.
-const AD_MIN_CAMP=5;   // ⚑ Q7 THE ONE CONST — the first campaign rung whose verdict may carry a real break (5 = beaten, i.e. the L5 win's exit is the first)
+const AD_MIN_CAMP=AD4_ON? AD4_START : 5;   // ⚑ Q7 THE ONE CONST — the first campaign rung whose verdict may carry a real break (5 = beaten, i.e. the L5 win's exit is the first)   // CARD-AD4 (Wyatt 11/10): 4 now, the L4 win's exit is the first ("once every 4 levels"); ?ad4=0 = 5
 const ADQ={ games:0, camp:0, bf:0, squad:0, sqPaid:0, soloPaid:0 };   // the session gate counters (door-launched games only; squad = finished 2+-human games, sqPaid = the squad count whose break already showed; 0399: soloPaid = the games count whose SOLO verdict break already showed — the sqPaid idiom, one break per due verdict however many exits race)
 // 0504 THE NEWBIE AD GATE — the lifetime side. adNewbie() = still in the cradle (no
 // real break of any kind); adNextArm() draws the next due game 2-3 past the cradle
@@ -164413,6 +164445,7 @@ function squadAdGate(launch){
   // the verdict exit's own gate. Unlike adGate there is no retry ring behind
   // an exit tap, so a live show HANDS THE TAP THROUGH instead of eating it.
   let brk=false;
+  if(ad4Busy()){ try{ AD4.eat++; }catch(e){} return; }   // CARD-AD4 ONE EXIT AT A TIME: the interstitial this very exit asked for is still on its way (the verdict stands until the ad covers it), so this is the same exit tapped twice: nothing launches, the first tap's own landing runs behind the ad. HEAD ran the landing at once: the next level started under the ad and was then thrown away. Never past AD4_HOLD_MS; ?ad4=0 = HEAD
   try{
     let live=false; try{ live=!!AD; }catch(e){}
     // "was this a squad game" = the tick latch the battle itself carries —
@@ -164443,12 +164476,13 @@ function squadAdGate(launch){
        && AD_SOLO_MAX>0 && (META.adGames|0)>=META.adNext && ADQ.soloPaid!==ADQ.games;   // 0504: the LIFETIME marker, due until paid — a swallowed break slides to the next exit
     brk= !STEAM_SHELL && !adImmune() && !adNewbie() && !live && (due||soloDue)   // 0896 THE HOLDER'S IMMUNITY: the torch's holder pays no verdict break (⚑ Q9)   // 0333a: the paid package suppresses the post-game break too; 0504: so does the cradle — no real break of ANY kind, squad included, until the player has 6 games behind them
        && ADS.provider!=='placeholder' && maxIntOk();   // 0383: REAL ads only — the placeholder break is retired everywhere (web/child/Steam see ZERO interstitials, ever); §V3.10's gap/cap/payer law governs every real one, and a due break the gap swallows simply skips — fewer ads than the schedule, never more
+    if(brk && !ad4Loaded()){ brk=false; ad4Miss(); }   // CARD-AD4: a due break with no interstitial loaded is HELD, not spent: no latch, no re-arm, the next exit asks again (HEAD paid the turn on nothing and waited 2 or 3 more games); ?ad4=0 = HEAD
     if(brk && due){ ADQ.sqPaid=ADQ.squad; if(AD_SQUAD_LIFE) adNextArm(); }   // one break per due game, however many exits race; 8/23: a paid squad break draws the next due game 2-3 out on the shared clock
     if(brk && soloDue){ ADQ.soloPaid=ADQ.games; adNextArm(); }   // 0399: the solo latch — same law; 0504: paid → the next due game is drawn 2-3 games out and saved
   }catch(e){ brk=false; }               // the gate may fail — the exit may not (fail-safe law)
   try{ AD_LAST={ brk:!!brk, immune:adImmune(), hold:GA.hold|0, t:Date.now() }; }catch(e){}   // 0896: the rig's window
   if(brk){
-    try{ ADS.showInterstitial().then(r=>{ telAd('int', r); naMaybeOffer(launch, !!(r&&r.displayed)); }, ()=>{ telAd('int', null); naMaybeOffer(launch, false); }); }   // 0624 D2: the result rides the ruler on both arms   // 0410 THE DAILY PITCH rides 0333a's seat: the day's first SERVED break pitches (naMaybeOffer's day latch) — served = the creative was ON SCREEN, maxOnCreative's own proof, so a no-fill, never-displayed, failed or rejected exit launches straight and silent (his word). The held exit still blocks nobody else's (the squad gate's own property)
+    try{ ADS.showInterstitial().then(r=>{ telAd('int', r); ad4Back(r); naMaybeOffer(launch, !!(r&&r.displayed)); }, ()=>{ telAd('int', null); naMaybeOffer(launch, false); }); }   // 0624 D2: the result rides the ruler on both arms   // 0410 THE DAILY PITCH rides 0333a's seat: the day's first SERVED break pitches (naMaybeOffer's day latch) — served = the creative was ON SCREEN, maxOnCreative's own proof, so a no-fill, never-displayed, failed or rejected exit launches straight and silent (his word). The held exit still blocks nobody else's (the squad gate's own property)
     catch(e){ launch(); }
   } else launch();
 }
@@ -194081,6 +194115,7 @@ const MSB={ on:(function(){ try{ const q=/[?&]msb=([01])/.exec(location.search||
 //   A reader on the box: SELECT name, adst FROM players WHERE name=?. The rig: GVT.adw() = { line, why, res, brk, calc }.
 let ADW={ why:'-', res:'-', brk:'-', t:0 };
 function adwWhy(){ try{
+  if(ad4Busy()) return ADW.why;   // CARD-AD4: a second tap eaten while the ad is on its way is the same exit: its line stands (k=1 w=ok)
   if(STEAM_SHELL) return 'steam';
   if(adFree()) return 'free';
   if(GA.hold) return 'torch';
@@ -194095,6 +194130,7 @@ function adwWhy(){ try{
   if(META.paidEver) return 'paid';
   if(!(MAXA.sess<AD_SESS_CAP)) return 'cap';
   if(MAXA.lastShow && (Date.now()-MAXA.lastShow)<AD_MIN_GAP_MIN*60000) return 'gap';
+  if(!ad4Loaded()) return 'noint';   // CARD-AD4: due, and no interstitial loaded on this phone right now (the break is held for the next exit)
   return 'ok';
 }catch(e){ return 'err'; } }
 function adwLine(){ try{
