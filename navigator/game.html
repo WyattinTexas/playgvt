@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.19","md5":"02b31682542eebaa29503c6be36dfc8f","sha":"15701385f1","at":"2026-11-10T19:32:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.20","md5":"43efb574561ff08bcb2b97bce5575bf6","sha":"942a2e2f66","at":"2026-11-10T20:28:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93191,7 +93191,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -224741,6 +224741,134 @@ try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES)){ const R7='b
 function rzbProbe(o){ o=o||{}; if(o.zero){ for(const k in RZB.n) RZB.n[k]=0; RZB.err=0; RZB.e=''; } const R=S.raid; return { cv:GVT_CV, on:RZB.on|0, boss:rzbBoss()? 1 : 0, rows:RZB.rows, n:Object.assign({},RZB.n), err:RZB.err, e:RZB.e, fight:R? R.k : null, tier:R? R.t : null, hopFirst:Object.assign({},KYS_HOP_FIRST), eggsUp:rzbEggsUp()? 1 : 0, burning:(S.units||[]).filter(u=>u.rzbB).length, garrison:(S.units||[]).filter(u=>u.rzbPost!=null).map(u=>({ t:u.type, p:u.rzbPost })) }; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.rzb=rzbProbe; }catch(e){} }, 0);
 // ═══ END CARD-RZB ═══
+// ═══ CARD-EBA · THE EMPEROR'S ARMY: THE CANNONS' FRIENDLY FIRE AND THEIR 90 % LANDING, THE LIEUTENANTS' CUT ON A FLAMER, THE JEEP AND THE CAPTAIN, THE SLINGSHOT BEARS LATER AND AT THE PLANES (sec:CARD-EBA; design/emperor-army-1110/00-CARD-EBA.md) ═══
+// FROM WYATT, 11/10/2026 about 14:15 EST, typed on Maker 1 (jumpr 3207, card 2 of 3 of his Emperor Bear patch notes), verbatim, his own numbers: "1) Flamers need to take 4-6 shots before dying to the
+// lieutenants." "2) Friendly Fire for enemy Cannons" "3) Lieutenants receive reduced friendly fire cannon damage 80%" "4) Emperor Bear receive reduced friendly fire cannon damage 60%" "5) Slingshot bears
+// need to parachute in later in fight" "6) Jeep vs Lieutenants; it should wipe out the lieutenants but the Captain should survive and destroy the jeep if hes at max hp." "7) Slingshotters need to target
+// dogfighters and should receive a damage bonus against them of 50% damage." "9) Cannons should deal 90% of a rifleman's hp.  Causing them to wobble."
+// THE NAMES (EBA-Q1, one list, EBA_WHO): the lieutenants = the Bluecoats (troyal) · the Captain = THE OFFICER (troyoff) · the slingshot bears = the paratroopers (tpara, the slingshot in the paw) ·
+// the cannons = the Emperor's tubes (tcannon of his battery, kbMwf) · the Flamer = flame · the Rifleman = rifleman.
+// WHAT IT DOES (every seat wrapped by name; no body edited):
+//  9 · THE LANDING (foeSplash + tanHit): a king's tube's landing on one of your units takes the HP a Rifleman of HIS rank stands x EBA_COT (0.9) through the house's bridge (BDC2's: D x bar / HP):
+//      a Rifleman of any rank keeps 10 % of his bar and wobbles (unitWob reads his hits); a bigger bar (the Flamer, the M. gunner, Sarge) loses a smaller share. It lands whole (the damper and the sheet
+//      share do not shave it; the man's own saves, soaks and the radio still have their say). A machine keeps its hull's rule (one hull hit). Was: half of each man's own bar, then the damper.
+//  2-4 · THE FRIENDLY FIRE (foeSplash): the same landing hurts every bear of the Emperor's side inside its splash (the shell door's own reach, R + a third of his width) by the flat amount, a Rifleman's
+//      HP at the fight's own rank (BDC2's chart: 20/35 of the level), x EBA_COT: a lieutenant takes a fifth (reduced by 80 %), the Emperor two fifths (reduced by 60 %), mounted or on foot; every
+//      other bear whole. His keel's snap, a canopy, a drop-in stand untouched. A bar emptied by his own gun is the unhorse (hitCheck's own door); a bear felled by it pays the paying door's
+//      own way with no man as killer (solo: his dog tags in full; a party: OKT's rule). A commando's catch means no landing, so no friendly fire.
+//  1 · THE LIEUTENANT'S CUT ON A FLAMER (knock + bdc2Price): their cork is retired (KB_ROY_BLADE, 9/5): their attack is the sabre cut, a KO that BDC2 prices at 36 / 49.5 HP: a fresh Flamer (16)
+//      stood one cut on RZB's floor. Now a lieutenant's cut on a Flamer costs EBA_CUT_FLAME HP (3.6): the fifth cut fells a fresh Flamer at every tier. Nothing else moves (the Rifleman, the M. gunner,
+//      Sarge, the Officer's own cut).
+//  6 · THE JEEP (jlCamp): a ram on a lieutenant costs the Jeep EBA_JEEP_ROY of a bar hit (the slowing stands); a Captain rammed at MAX HP stands and cuts the Jeep down there and then (his own cut's
+//      blue crescent, the swish, the wreck's boom: a wrecked Jeep refunds as any fallen unit); a wounded Captain is run down like any bear. The rug only.
+//  5 · THE SLINGSHOT BEARS COME DOWN LATER (spawnGroup + raidTick): the opening card's stick is held (the row stays: the Boss Lab's group indices stand) and comes down whole when his mounted bar passes
+//      EBA_PARA.bar or EBA_PARA.t s in, whichever is first (never inside EBA_PARA.hold s of the unhorse); a second stick EBA_PARA.after s after the unhorse. THE PILLOW FIELDS only.
+//  7 · THE SLINGSHOT BEAR AND THE PLANE (dfHit): his pebble on a dogfighter x EBA_DF_X (1.5). His aim already takes a plane in his reach first (CARD-FOD 10/1, every gun-bear).
+// THE SWITCH: ?eba=0 on a device (gvt_eba '0'; ?eba=1 clears it) = the fight as v31.19 on that device (a party runs each device's own rules, as RZB-F1). GVT.eba() = the rigs' read.
+// Zero server, sw.js, css, words, save keys. The Boss Lab: five rows in THE RULES (the fields).
+const EBA_ON=(function(){ try{ const q=/[?&]eba=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_eba','0'); else localStorage.removeItem('gvt_eba'); } return localStorage.getItem('gvt_eba')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const EBA_WHO={ lieut:'troyal', captain:'troyoff', sling:'tpara', cannon:'tcannon', emperor:'bearnaparte', flamer:'flame', rifleman:'rifleman' };   // EBA-Q1 his words as the bears they were read as
+const EBA_COT={ e:0.9, m:0.9, h:0.9, g:0.9 };          // note 9: a landing = this x a Rifleman's HP (EBA-Q2: one flat amount; on a man the Rifleman is of HIS rank, on the bears the fight's own rank)
+const EBA_FF={ e:1, m:1, h:1, g:1 };                   // notes 2-4: the friendly fire x this (1 = whole as his notes; 0 = off)
+const EBA_FF_TAKE={ troyal:0.2, bearnaparte:0.4 };     // notes 3-4: what of the flat amount a lieutenant (reduced 80 %) and the Emperor (reduced 60 %) take; every other bear 1
+const EBA_COT_WIDE=0;                                  // EBA-Q3: 0 = THE PILLOW FIELDS alone · 1 = every king's battery (the Prince's at Bear Park 20/20 too; the bears' rank there reads 0)
+const EBA_CUT_FLAME={ e:3.6, m:3.6, h:3.6, g:3.6 };    // note 1: HP a lieutenant's cut takes off a Flamer where BDC2 prices it (a fresh Flamer stands 16: cut 5 fells him); 0 = the KO price
+const EBA_JEEP_ROY={ e:0.25, m:0.25, h:0.3, g:0.35 };  // note 6: bar hits a ram on a lieutenant costs the Jeep (its bar 6; was RZB_JEEP's 0.5 / 0.5 / 0.6 / 0.75); the slowing stands
+const EBA_CAP_WRECK=1;                                 // note 6: 1 = a Captain at max HP wrecks the Jeep that rams him and stands (EBA-Q5: the ram takes nothing off him); 0 = run down as before
+const EBA_PARA={ on:1, bar:0.5, t:60, hold:3, after:12 };   // note 5 (EBA-Q6): stick 1 when his mounted bar passes 50 % or 60 s in, never inside 3 s of the unhorse; stick 2 12 s after the unhorse
+const EBA_DF_X={ e:1.5, m:1.5, h:1.5, g:1.5 };         // note 7: a slingshot bear's pebble on a dogfighter x this (EBA-Q7: wherever he fights)
+const EBA={ on:EBA_ON, cot:null, cut:null, st:null, n:{ land:0, ff:0, ffHp:0, ffKill:0, unhorse:0, caught:0, cut:0, wreck:0, roy:0, held:0, drop1:0, drop2:0, df:0 }, last:{}, err:0, e:'' };
+function ebaErr(k,e){ EBA.err++; if(EBA.e.length<400) EBA.e+=k+':'+String(e && e.message || e).slice(0,80)+';'; }
+function ebaTier(){ try{ return dhtTier(); }catch(e){ return 'e'; } }
+function ebaT(T){ const v=T[ebaTier()]; return (v==null)? T.g : v; }
+function ebaFields(){ try{ return !!(EBA.on && !S.bf && fieldsRaid()); }catch(e){ return false; } }
+function ebaCotOn(src){ return !!(EBA.on && !S.bf && src && src.type===EBA_WHO.cannon && src.kbMwf && (EBA_COT_WIDE || ebaFields())); }
+function ebaRifleHp(r){ return bfHpAt(EBA_WHO.rifleman, Math.max(0, r|0)); }   // a Rifleman's HP on the sheet at rank r (the bare ladder)
+function ebaRefRank(){ try{ const R=S.raid; if(R && R.k && BDC2.levels[R.k]!=null) return bdc2Rank(bdc2Level()); }catch(e){} return 0; }   // the fight's own rank (BDC2's chart)
+function ebaBearD(){ const k=+ebaT(EBA_COT); return (k>0)? k*ebaRifleHp(ebaRefRank()) : 0; }   // the flat amount on a bear, in HP
+function ebaUnitPips(u){ const g=gritCap(u), k=+ebaT(EBA_COT); if(!(g>0) || !(k>0)) return 0; if(u.type===EBA_WHO.rifleman) return k*g;   // a Rifleman: exactly k of his own bar, whatever his rank
+  const H=dhtH(u); if(!(H>0)) return k*g; return k*ebaRifleHp(perkRank(u))*g/H; }   // every other man: the HP a Rifleman of his rank stands, through his own bar / HP (BDC2's bridge)
+function ebaTake(f){ const t=EBA_FF_TAKE[f.type]; return (t==null)? 1 : +t; }
+function ebaFriendly(x,y,R,src){   // notes 2-4: the landing on the Emperor's own side (the campaign shell door's grammar: the HP write direct, then hitCheck; no man is the killer)
+  const k=+ebaT(EBA_FF); if(!(k>0)) return 0; const D=ebaBearD()*k; if(!(D>0)) return 0; let n=0;
+  for(const f of S.foes.slice()){
+    if(!f || f.dead || !f.def || !(f.hp>0) || S.foes.indexOf(f)<0) continue;
+    if(Math.hypot(f.x-x,f.y-y)>R+(f.def.w||0)*0.3) continue;   // the shell door's reach on a foe
+    if(f.def.kb && f.gnSt==='snap') continue;   // his keel's snap: nothing lands (hurt's and the shell door's law)
+    if(f.paraSt==='drop' || f.dropT>0 || f.burrow || f.jetT>0 || f.gjAir || f.def.fly || f.skyDrop || f.retreat || f.x>=W-10) continue;   // a canopy, a drop-in, under the rug, in the air, the rout, off the rim
+    const d=D*ebaTake(f); if(!(d>0)) continue;
+    const foot0=!!f.gnFoot; f.hp-=d; n++; EBA.n.ff++; EBA.n.ffHp+=d; EBA.last.ff={ t:f.type, d:+d.toFixed(2), hp:+f.hp.toFixed(2), tier:ebaTier() };
+    S.fx.push({k:'ring',x:f.x,y:f.y-20,r:5,R:22,t:0,dur:0.25,col:'#F2EFE6'});   // the tell on the bear it caught (the cotton's own white)
+    hitCheck(f,null);
+    if(f.def.kb && !foot0 && f.gnFoot) EBA.n.unhorse++; if(f.dead || S.foes.indexOf(f)<0) EBA.n.ffKill++;
+  }
+  return n; }
+if(typeof foeSplash==='function'){ const fs0=foeSplash; foeSplash=function(x,y,R,src,mwf9,rb,msh){
+    if(!ebaCotOn(src)) return fs0.apply(this, arguments);
+    const C={ src:src, x:x, y:y, mw:(mwf9? SP_DMG : 1), caught:0 }, prev=EBA.cot; EBA.cot=C; let r;
+    try{ r=fs0.apply(this, arguments); } finally{ EBA.cot=prev; }
+    if(C.caught) EBA.n.caught++; else { try{ ebaFriendly(x,y,R,src); }catch(e){ ebaErr('ff',e); } }
+    return r; }; }
+if(typeof cmdoCatch==='function'){ const cc0=cmdoCatch; cmdoCatch=function(){ const r=cc0.apply(this, arguments); if(r && EBA.cot) EBA.cot.caught=1; return r; }; }   // a caught shell never landed
+if(typeof tanHit==='function'){ const th0=tanHit; tanHit=function(u,fx,fy,src,fire9){
+    const C=EBA.cot;
+    if(C && src && src===C.src && src.pipN>0 && u && !u.dead && !(u.def && u.def.vehicle) && S.units.indexOf(u)>=0){   // the landing's pip seat (foeSplash's KB_COT_F line): the flat amount in its place
+      let p=0; try{ p=ebaUnitPips(u)*C.mw; }catch(e){ ebaErr('pips',e); p=0; }
+      if(p>0){ const hD=Object.prototype.hasOwnProperty.call(src,'dmpRaw'), vD=src.dmpRaw, hS=Object.prototype.hasOwnProperty.call(src,'dsmRaw'), vS=src.dsmRaw, p0=src.pipN;
+        src.pipN=p; src.dmpRaw=1; src.dsmRaw=1; EBA.n.land++; EBA.last.land={ u:u.type, pips:+p.toFixed(3), g:+gritCap(u).toFixed(2), tier:ebaTier() };
+        try{ return th0.apply(this, arguments); } finally{ src.pipN=p0; if(hD) src.dmpRaw=vD; else delete src.dmpRaw; if(hS) src.dsmRaw=vS; else delete src.dsmRaw; } } }
+    return th0.apply(this, arguments); }; }
+function ebaLieutAt(x,y){ for(const o of S.foes){ if(o.type===EBA_WHO.lieut && !o.dead && o.x===x && o.y===y) return o; } return null; }   // kbCut knocks a plain man from the cutter's own feet
+if(typeof knock==='function'){ const k0=knock; knock=function(u,sx,sy,rolled){
+    if(EBA.on && !S.bf && u && !u.dead && u.type===EBA_WHO.flamer && rolled!==true && +ebaT(EBA_CUT_FLAME)>0 && S.units.indexOf(u)>=0 && ebaLieutAt(sx,sy)){
+      const prev=EBA.cut; EBA.cut=u; EBA.n.cut++; try{ return k0.apply(this, arguments); } finally{ EBA.cut=prev; } }
+    return k0.apply(this, arguments); }; }
+if(typeof bdc2Price==='function'){ const bp0=bdc2Price; bdc2Price=function(){ if(EBA.cut && EBA.on){ const v=+ebaT(EBA_CUT_FLAME); if(v>0) return v; } return bp0.apply(this, arguments); }; }   // note 1: the cut's price on a Flamer
+function ebaCaptainWins(u,f){   // note 6: the Captain at max HP: the ram takes nothing off him; his sabre cuts the Jeep down there and then
+  const fs=(u.x>=f.x)? 1 : -1, c=CMD_DUEL_CUTS[0]; try{ foeAim(f,u); }catch(e){}
+  S.fx.push({k:'ring',x:f.x,y:f.y-16,r:6,R:44,t:0,dur:0.24,col:KB_HUE_WAVE});
+  S.fx.push({k:'cres',x:f.x+fs*8,y:f.y-22,fs:fs,a0:Math.min(c.f,c.to),a1:Math.max(c.f,c.to),R:56,t:0,dur:0.8,hold:0.56,col:KB_HUE_WAVE,col3:'#9FB4E8'});   // kbCut's own Bluecoat crescent
+  bfSfx(SFX.swish,f.x,f.y);
+  u.hits=gritCap(u); knockKill(u); bfSfx(SFX.boom,u.x,u.y);   // the wreck: jlCamp's own machine-on-machine line (knockKill's books: the refund of any fallen unit)
+  EBA.n.wreck++; EBA.last.wreck={ x:Math.round(u.x), y:Math.round(u.y), hp:+f.hp.toFixed(2), hpMax:f.hpMax, tier:ebaTier() }; try{ tdLog(f,'jeep-wreck'); }catch(e){}
+  return true; }
+if(typeof jlCamp==='function'){ const j0=jlCamp; jlCamp=function(u,f){
+    if(!EBA.on || S.bf || !u || !f || u.dead || f.dead || !f.def || jlKeep(f) || f.def.vehicle) return j0.apply(this, arguments);
+    if(f.type===EBA_WHO.captain && EBA_CAP_WRECK && f.hp>=f.hpMax-1e-6) return ebaCaptainWins(u,f);
+    if(f.type===EBA_WHO.lieut){ const c=(typeof rzbJeepCell==='function' && RZB.on)? rzbJeepCell() : null, v=+ebaT(EBA_JEEP_ROY);
+      if(c && v>=0){ const d0=c.dent, b0=c.big; c.dent=v; c.big=v; EBA.n.roy++; try{ return j0.apply(this, arguments); } finally{ c.dent=d0; c.big=b0; } } }
+    return j0.apply(this, arguments); }; }
+function ebaParaOn(){ return !!(EBA.on && +EBA_PARA.on && ebaFields()); }
+function ebaSt(){ const R=S.raid; if(!EBA.st || EBA.st.rd!==R) EBA.st={ rd:R, paraG:null, s1:0, s2:0, unT:null }; return EBA.st; }
+if(typeof spawnGroup==='function'){ const g0=spawnGroup; spawnGroup=function(g,wk9){
+    if(g && g.t===EBA_WHO.sling && !g.ebaStick && ebaParaOn()){ const st=ebaSt(); if(!st.paraG) st.paraG=Object.assign({}, g); else st.paraG.n=(st.paraG.n|0)+(g.n|0); EBA.n.held++; return; }   // the opening card's stick, held
+    return g0.apply(this, arguments); }; }
+function ebaDrop(st,k){ const g=Object.assign({}, st.paraG, { ebaStick:k, at:0 }); spawnGroup(g, 'eba'+k); EBA.n['drop'+k]++; EBA.last['drop'+k]={ t:+(S.t-(S.raid.t0||0)).toFixed(2), n:g.n|0 }; }
+function ebaParaTick(){   // note 5: the fight's own clock and his bar (never the EN GARDE rows)
+  if(!ebaParaOn()) return; const st=ebaSt(); if(!st.paraG) return; const rt=S.t-(S.raid.t0||0);
+  let B=null; for(const o of S.foes){ if(o.type===EBA_WHO.emperor && !o.dead){ B=o; break; } }
+  if(B && B.gnFoot && st.unT==null) st.unT=rt;
+  if(!st.s1){ const bar=(B && !B.gnFoot && B.hpMax>0)? B.hp/B.hpMax : null;
+    if((rt>=+EBA_PARA.t || (bar!=null && bar<=+EBA_PARA.bar) || st.unT!=null) && (st.unT==null || rt-st.unT>=+EBA_PARA.hold)){ st.s1=1; ebaDrop(st,1); } }
+  else if(!st.s2 && st.unT!=null && rt-st.unT>=+EBA_PARA.after){ st.s2=1; ebaDrop(st,2); } }
+if(typeof raidTick==='function'){ const t0=raidTick; raidTick=function(dt){ t0.apply(this, arguments); try{ if(EBA.on && S.raid && S.mode==='play') ebaParaTick(); }catch(e){ ebaErr('para',e); } }; }
+if(typeof dfHit==='function'){ const d0=dfHit; dfHit=function(p,pips,src){ if(EBA.on && src && src.type===EBA_WHO.sling && p && pips>0){ const x=+ebaT(EBA_DF_X); if(x>0 && x!==1){ EBA.n.df++; pips*=x; } } return d0.call(this,p,pips,src); }; }
+try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES)){
+  BLB_RULES.push(['EBA_COT', ()=>EBA_COT, "THE CANNON'S LANDING: one landing of the Emperor's tubes takes this share of a Rifleman's HP off any of your units (0.9 = a full Rifleman left on 10 %); the same HP on the bears in its splash", 'fields'],
+                 ['EBA_FF', ()=>EBA_FF, "THE CANNONS' FRIENDLY FIRE: x this on the bears in a landing's splash (a lieutenant takes a fifth, the Emperor two fifths, every other bear whole; 0 = off)", 'fields'],
+                 ['EBA_CUT_FLAME', ()=>EBA_CUT_FLAME, "A LIEUTENANT'S CUT ON A FLAMER: HP off the Flamer (a fresh Flamer stands 16: 3.6 = the fifth cut fells him; 0 = the KO price)", 'fields'],
+                 ['EBA_JEEP_ROY', ()=>EBA_JEEP_ROY, "THE JEEP'S DENT FROM A LIEUTENANT: bar hits one ram on a lieutenant costs the Jeep (its bar is 6)", 'fields'],
+                 ['EBA_DF_X', ()=>EBA_DF_X, "THE SLINGSHOT BEAR'S PEBBLE ON A PLANE: x this (1.5 = +50 %)", 'fields']);
+  if(typeof blbShip==='function' && typeof BLB==='object' && BLB && BLB.ship) blbShip();
+  if(typeof BLB==='object' && BLB && BLB.booted && BLB.over && typeof blbCellSet==='function'){ for(const id of ['EBA_COT','EBA_FF','EBA_CUT_FLAME','EBA_JEEP_ROY','EBA_DF_X']){ const o=BLB.over[id]; if(o) for(const k of Object.keys(o)) blbCellSet(id,k,o[k]); } }
+} }catch(e){ ebaErr('lab',e); }
+function ebaRead(o){ if(o && o.zero){ for(const k in EBA.n) EBA.n[k]=0; EBA.last={}; EBA.err=0; EBA.e=''; }
+  const st=EBA.st, r=ebaRefRank();
+  return { cv:GVT_CV, on:EBA.on, tier:ebaTier(), fields:ebaFields(), who:Object.assign({},EBA_WHO), ref:{ rank:r, rifleHp:ebaRifleHp(r), bearD:+ebaBearD().toFixed(3) },
+    dials:{ cot:Object.assign({},EBA_COT), ff:Object.assign({},EBA_FF), take:Object.assign({},EBA_FF_TAKE), wide:EBA_COT_WIDE, cutFlame:Object.assign({},EBA_CUT_FLAME), jeepRoy:Object.assign({},EBA_JEEP_ROY), capWreck:EBA_CAP_WRECK, para:Object.assign({},EBA_PARA), dfX:Object.assign({},EBA_DF_X) },
+    n:Object.assign({},EBA.n), last:EBA.last, para:st? { s1:st.s1, s2:st.s2, unT:st.unT, held:st.paraG? (st.paraG.n|0) : 0 } : null, err:EBA.err, e:EBA.e }; }
+try{ if(window.GVT) GVT.eba=ebaRead; else setTimeout(function(){ try{ if(window.GVT) GVT.eba=ebaRead; }catch(e){} }, 0); }catch(e){}
+// ═══ END CARD-EBA ═══
 // ═══ CARD-THF · THREE HATS FIXED: THE CHEF'S HAT, THE ROCKER HAIR, THE CHAMPION'S HELMET (sec:CARD-THF; design/three-hats-fixed-1109/00-CARD-THF.md; FROM WYATT by phone (jumpr remote) 11/9/2026 20:28 EST, jumpr 3158, dictated, verbatim:
 // "The chef's hat needs to go back to the drawing board and needs to be fixed. You can tag in Laura on this, but please give us a recommended fix. It's currently a disaster." · "The rocker hair looks cool, but currently it doesn't match the in-game aesthetic of how Sarge looks in-game, which it should. Let's adjust the rocker hair to look more like our new rocker style, a little more Tony Del Vecchio, more Elvis." · "For the champions hat, Update it how it looks on Sarge so it looks more like the icon.") ═══
 // WHY: since CARD-LGL (11/5) every gear CARD on the rack is Laura's drawing (LGL_ART['g:'+id]) while Sarge still WORE the game's older drawing (OF_* in outfitDress, the hand-emitted blocks in drawSargeOutfit; CARD-LGL: "NOT HERE: Sarge wearing the gear ... = the next slice"). So the card and the
