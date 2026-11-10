@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.16","md5":"7ffac0cdb9aa9851b19cd16982feeca1","sha":"cccf6310a9","at":"2026-11-10T17:47:25Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.17","md5":"dbaffe4ea91ad1ed56dd6f5100a8685c","sha":"3f0ccf9ede","at":"2026-11-10T18:31:01Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93004,7 +93004,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.17';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -129335,10 +129335,11 @@ function drawRoomFloor(){
   [[240,0],[700,75],[420,150],[180,225],[760,300],[340,375],[620,450],[200,525]]
     .forEach(p=>{ cx.moveTo(p[0],p[1]); cx.lineTo(p[0],p[1]+75); });
   cx.stroke(); cx.globalAlpha=1;
+  bdlRaidBoards(cx,0,0,W,H);   // CARD-BDL (B1c): the honey boards over the shipped ones (inert with ?bdl=0)
   // the rug, exactly where the room keeps it — 0905 THE RUGS (⚑ Q10): the loop row's band 40,336 880×254 rx 18 (0904 moved the room's rug there; the raid's rode the stale 60,96 560×420 till now).
   // A rug SKIN paints from its own SVG (rugRaidImg — baked at the raid's door, the wool until the bake lands, ⚑ Q17); the space rug its eight dots re-seated in the band; no rug the wool + its stroke.
   const skin=RUG_SKINS.find(decorOn), im=(skin && (skin!=='spacerug' || ssrOn(skin)))? rugRaidImg(skin) : null, space=(skin==='spacerug');
-  if(im && im.complete && im.naturalWidth){ cx.drawImage(RUGRAS[skin]||im,40,336,880,254); }   // CARD-RSZ: the raster when baked
+  if(im && im.complete && im.naturalWidth){ cx.drawImage(RUGRAS[skin]||im,40,336,880,254); } else if(!space && bdlRaidRug(cx)){}   // CARD-RSZ: the raster when baked · CARD-BDL (B1a): the fuzzy rug where the wool lay (inert with ?bdl=0)
   else {
     cx.fillStyle=space? '#211F55' : '#5F7290'; rr(40,336,880,254,18); cx.fill();
     if(space){ cx.fillStyle='rgba(255,255,255,0.75)';
@@ -194754,6 +194755,7 @@ function mfsRoomDraw(){   // R2: the wall's tone and the floor's boards where th
   const v=mfsView(), fy=mfsFloorY();
   cx.fillStyle=MFS.wall; cx.fillRect(v.vx, v.vy, v.x1-v.vx, Math.max(0, fy-v.vy));
   cx.fillStyle=FLOOR_BOARD; cx.fillRect(v.vx, Math.max(v.vy,fy), v.x1-v.vx, v.y1-Math.max(v.vy,fy));
+  bdlRaidBoards(cx, v.vx, Math.max(v.vy,fy), v.x1-v.vx, v.y1-Math.max(v.vy,fy), MFS.K, MFS.roomY);   // CARD-BDL (B1c): the margin in the room picture's own boards (inert with ?bdl=0)
   cx.drawImage(b, 0, MFS.roomY, b.vbW*MFS.K, 600*MFS.K);
   MFS.wings++; return true; }
 function mfsPlain(){   // R1 (and ?mfsroom=0): drawRoomFloor as shipped WITHOUT the door gap and the hall's light; the boards run on past the room (the rows, the seams one room over)
@@ -194761,8 +194763,9 @@ function mfsPlain(){   // R1 (and ?mfsroom=0): drawRoomFloor as shipped WITHOUT 
   cx.fillStyle=FLOOR_BOARD; cx.fillRect(v.vx, v.vy, v.x1-v.vx, v.y1-v.vy);
   cx.strokeStyle=FLOOR_LINE; cx.globalAlpha=0.6; cx.lineWidth=2.5; cx.beginPath(); for(let y=75;y<v.y1;y+=75){ if(y<v.vy || y===WORLD_H) continue; cx.moveTo(v.vx,y); cx.lineTo(v.x1,y); } cx.stroke();
   cx.lineWidth=2; cx.beginPath(); for(let r=0;r<8;r++){ for(let k=-1;k<=2;k++){ const x=MFS_SEAMS[r]+k*W; if(x>v.vx && x<v.x1){ cx.moveTo(x,r*75); cx.lineTo(x,r*75+75); } } } cx.stroke(); cx.globalAlpha=1;
+  bdlRaidBoards(cx, v.vx, v.vy, v.x1-v.vx, v.y1-v.vy);   // CARD-BDL (B1c): the honey boards (inert with ?bdl=0)
   const skin=RUG_SKINS.find(decorOn), im=(skin && (skin!=='spacerug' || ssrOn(skin)))? rugRaidImg(skin) : null, space=(skin==='spacerug');   // the rug and the bed's shadow: drawRoomFloor's own lines
-  if(im && im.complete && im.naturalWidth){ cx.drawImage(RUGRAS[skin]||im,40,336,880,254); }   // CARD-RSZ: the raster when baked
+  if(im && im.complete && im.naturalWidth){ cx.drawImage(RUGRAS[skin]||im,40,336,880,254); } else if(!space && bdlRaidRug(cx)){}   // CARD-RSZ: the raster when baked · CARD-BDL (B1a): the fuzzy rug where the wool lay (inert with ?bdl=0)
   else { cx.fillStyle=space? '#211F55' : '#5F7290'; rr(40,336,880,254,18); cx.fill();
     if(space){ cx.fillStyle='rgba(255,255,255,0.75)'; [[181,387],[449,363],[700,429],[291,508],[606,538],[794,381],[134,562],[511,459]].forEach(p=>{ cx.beginPath(); cx.arc(p[0],p[1],2,0,7); cx.fill(); }); }
     else { cx.strokeStyle='#7C8FAC'; cx.lineWidth=7; rr(58,354,844,218,12); cx.stroke(); } }
@@ -224499,6 +224502,168 @@ try{ GVT.grt=function(o){ o=o||{}; if(o.on!=null){ GRT.on=o.on? 1 : 0; grtSeat()
       luck:{ mine:L, socks:s? 1 : 0, odds:grtOdds(L,s), base:LSK_BASE.slice() }, acc:grtAcc(), fluff:nemFluffGearHp(),
       scouter:{ fp:GRT.fp, her:GRT.her? grtFp(GRT.her.art) : null, hers:GRT.hers, card:LGL_ART['g:scouter']? 'hers' : 'game' }, n:Object.assign({},GRT.n), odds:grtOdds, roll:grtRoll, accFix:grtAccFix }; }; }catch(e){}
 // ═══ END CARD-GRT ═══
+// ═══ CARD-BDL-B1 THE BEDROOM'S FIRST LOOK, THE BUILD (sec:CARD-BDL; design/bedroom-build-1110/00-CARD-BDL-B1.md; the design pass design/bedroom-pass-1110/00-DESIGN-BDL.md, jumpr 3175, M3175, landed by 3175m). FROM WYATT by phone 11/10/2026 01:01 EST (jumpr 3175), verbatim: "Run a design pass for our bedroom. What we want to accomplish is to make the bedroom look pleasant and beautiful, and when you first unlock it, it doesn't really feel that way. ... it's worth noting that it might be the blue rug that's the problem. ... give them a fuzzy one by default, just automatically turned on." HIS GO, 11/10/2026 10:55 EST by phone on Discord (message 1569742211648852071), verbatim: "This is good and can be pushed to live. No need for al to work on it unless she wants to." Built on Maker 1 as M3190 (jumpr 3190).
+// THREE CELLS BEHIND ONE GATE: BDL.on is 1 for everyone; ?bdl=0 on a device (key gvt_bdl) = the bedroom as v31.14 painted it, byte for byte; ?bdl=1 lifts the key; GVT.bdl() is the rigs' door.
+//   B1a THE FUZZY RUG IS THE DEFAULT FLOOR: where the room laid the flat blue wool (no rug out) it lays the fuzzy blue rug (the pass's fuzzy('denim'): a cloud edge, three flat steps, quiet fur tufts drawn ONCE as eight shapes and <use>d, ⚑ BDL-F7).
+//       Nobody owns, picks or switches it: no id in DECOR_ORDER, RUG_SKINS, the chest, the box or THE FULL FLOOR. A rug put OUT covers it as it covered the wool. The body is ONE classless solid rect: Laura's live pass lays her light top and deeper foot on it.
+//   B1b THE SUN COMES IN: a warm glow on the wall round the window (by day, under all that hangs there), four panes on the floor and on the rug that is out (moonlight by night), a faint beam in the air (by day, after the style pass, under the three tiles).
+//       The live room only: never under the map's pin (the map, the face-off, the raid's picture of the room). ⚑ LAURA'S SEVEN FINISHED RUGS: BDL_SUN_ON_LAURA (0 until her yes on BDL-Q6) keeps the panes and the beam off while one of hers is out; the glow stays.
+//   B1c THE BOARDS AND THE WALL: honey boards as ONE 960 x 284 tile in a <pattern> (Laura's rule 2: a whole-room band wears no panel), the wood wall a step lighter and creamier, the molding deeper: the room, the tablet's strip under the board, the mom raid's floor
+//       (the tile drawn once to a canvas, a pattern each frame), the glass's porthole, the wallpaper and curtain cards, the room's ticket, the Captain's Log's shelf (the room seen small). NOT the battlefields' boards (rugSouth, FLOOR_BOARD, RUG_ROOM_PAL: fights' floors). Bought wallpapers keep their painters.
+// HOW: wraps roomRugSVG, roomFloorSVG, roomSVG, wpapSwatch, curtSwatch and roomCardArt by name and the log shelf's LSW.wall / LSW.floor by property (each answers its own string untouched with the gate off, or when an anchor it needs is gone), one style element; the raid's three canvas floors call bdlRaidBoards / bdlRaidRug (inert with the gate off).
+var BDL={ on:(function(){ try{ const m=/[?&]bdl=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_bdl','0'); else localStorage.removeItem('gvt_bdl'); } return localStorage.getItem('gvt_bdl')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  err:0, why:'', n:{ rug:0, sun:0, beam:0, glow:0, wall:0, floor:0, raid:0, raidRug:0, swatch:0, ticket:0, shelf:0 }, old:{}, rug:null, boards:null, tile:'', cv:{} };
+const BDL_SUN_ON_LAURA=0;   // ⚑ THE ONE FLIP (BDL-Q6, Laura's word): 0 = the floor's panes and the beam stay off while one of her seven finished rugs is out; 1 = they lie on every rug
+const BDL_LAURA_RUGS=['spacerug','sunrug','braidrug','creamrug','armyrug','westrug','yardrug'];   // her seven, by the sheet's marks (townmat, citymat and winterrug are not hers)
+const BDL_RUG={ base:'#55739F', mid:'#4B6893', rim:'#415D86', line:'#2C4468', tick:'#36517A', hi:'#8FA9CF', seed:5212 };   // the pass's FUZZ.denim (BDL-Q1: BLUE)
+const BDL_FLOOR={ tones:['#BE8C54','#B5824A','#C4945D','#AE7B44','#BA884F'], seam:'#86592D', lite:'#DDB57E', grain:'#966735', flat:'#BA884F' };
+const BDL_WALL={ base:'#ECD7AC', line:'#D6BC8B', mold:'#85592F', moldHi:'#D9B683', moldLo:'#4E3418' };
+const BDL_PANE={ TL:[596,328], TR:[792,328], BR:[676,474], BL:[452,474] };   // the light's footprint on the floor: under the middle and right tiles on purpose (the doors stand on it)
+const BDL_WOOL='<rect x="40" y="336" width="880" height="254" rx="18" fill="#5F7290"/><rect x="58" y="354" width="844" height="218" rx="12" fill="none" stroke="#7C8FAC" stroke-width="7"/>';   // roomRugSVG's no-rug answer at v31.14, to the byte
+function bdlF(v){ return String(+v.toFixed(1)); }
+function bdlLcg(seed){ let x=seed>>>0; return function(){ x=(Math.imul(x,1103515245)+12345)&0x7fffffff; return x/0x7fffffff; }; }
+function bdlSkin(){ try{ return RUG_SKINS.find(decorOn)||null; }catch(e){ return null; } }
+function bdlSunOK(){ if(!BDL.on || MAPPIN) return false; try{ if(roomCur()!=='bedroom') return false; const k=bdlSkin(); return !(k && !BDL_SUN_ON_LAURA && BDL_LAURA_RUGS.indexOf(k)>=0); }catch(e){ return false; } }
+// ── B1a · THE RUG'S DRAWING, made once: the silhouette (the pass's cloudPath: lobes walked round the rounded rect 46,342 868 x 242 rx 36), the eight tuft shapes, the 234 tufts' seats
+function bdlRugGeo(){ if(BDL.rug) return BDL.rug;
+  const x=46, y=342, w=868, h=242, rx=36, P=[];
+  const st=function(x0,y0,x1,y1,nx,ny){ P.push({ l:Math.hypot(x1-x0,y1-y0), pt:function(t){ return [x0+(x1-x0)*t, y0+(y1-y0)*t, nx, ny]; } }); };
+  const ar=function(cx0,cy0,a0,a1){ P.push({ l:rx*Math.abs(a1-a0), pt:function(t){ const a=a0+(a1-a0)*t; return [cx0+rx*Math.cos(a), cy0+rx*Math.sin(a), Math.cos(a), Math.sin(a)]; } }); };
+  st(x+rx,y,x+w-rx,y,0,-1); ar(x+w-rx,y+rx,-Math.PI/2,0); st(x+w,y+rx,x+w,y+h-rx,1,0); ar(x+w-rx,y+h-rx,0,Math.PI/2);
+  st(x+w-rx,y+h,x+rx,y+h,0,1); ar(x+rx,y+h-rx,Math.PI/2,Math.PI); st(x,y+h-rx,x,y+rx,-1,0); ar(x+rx,y+rx,Math.PI,Math.PI*1.5);
+  const L=P.reduce(function(a,p){ return a+p.l; },0), at=function(d){ d=((d%L)+L)%L; let k=0; while(k<P.length-1 && d>P[k].l){ d-=P[k].l; k++; } return P[k].pt(Math.min(1,d/P[k].l)); };
+  const r=bdlLcg(BDL_RUG.seed), cuts=[0]; let d=0; while(d<L){ d+=20+r()*14; cuts.push(d); }
+  const kk=L/cuts[cuts.length-1]; for(let i=0;i<cuts.length;i++) cuts[i]*=kk;   // the last lobe closes on the first
+  const p0=at(0), Q=[];
+  for(let i=1;i<cuts.length;i++){ const b=at(cuts[i]%L), m=at((cuts[i-1]+cuts[i])/2), out=3.4*(0.7+r()*0.6), last=(i===cuts.length-1); Q.push([m[0]+m[2]*out*2, m[1]+m[3]*out*2, last? p0[0] : b[0], last? p0[1] : b[1]]); }
+  const rs=bdlLcg(BDL_RUG.seed+3), T=[];   // the eight tufts: two flecks, three of two strokes, three of three, their leans spread across the pile
+  for(let v=0; v<8; v++){ const fleck=(v<2), k=fleck? 1 : (v<5? 2 : 3), lean=-0.8+1.6*(((v*3)%8)/7), S=[];
+    for(let j=0;j<k;j++){ const a=lean+(j-(k-1)/2)*(0.5+rs()*0.2), Ln=(fleck? 0.7 : 1)*(5+rs()*3.5), dx=Math.sin(a)*Ln, dy=-Math.cos(a)*Ln, bend=fleck? (rs()-0.5)*3 : (j-(k-1)/2)*1.8; S.push([(j-(k-1)/2)*1.6, 0, dx*0.45+bend, dy*0.55, dx, dy]); }
+    T.push(S); }
+  const U=[], lay=function(seed,n,x0,y0,w0,h0,g0){ const q=bdlLcg(seed), cols=Math.max(1,Math.round(Math.sqrt(n*w0/h0))), rows=Math.max(1,Math.ceil(n/cols)), cw=w0/cols, ch=h0/rows; let i=0;
+    for(let gy=0; gy<rows; gy++) for(let gx=0; gx<cols && i<n; gx++, i++) U.push([(q()*8)|0, x0+(gx+0.1+q()*0.8)*cw, y0+(gy+0.1+q()*0.8)*ch, g0+((q()*2)|0)]); };
+  lay(BDL_RUG.seed+7, 150, 62, 364, 836, 210, 0); lay(BDL_RUG.seed+19, 84, 66, 368, 828, 202, 2);   // the dark ticks (groups 0, 1) and the light (2, 3)
+  return (BDL.rug={ p0:p0, Q:Q, T:T, U:U }); }
+function bdlRugSVG(){ if(BDL.rugS) return BDL.rugS; const G=bdlRugGeo(), C=BDL_RUG; let defs='', g=['','','',''];
+  G.T.forEach(function(S,v){ defs+='<symbol id="bdlt'+v+'" overflow="visible"><path d="'+S.map(function(s){ return 'M'+bdlF(s[0])+' '+bdlF(s[1])+' q'+bdlF(s[2])+' '+bdlF(s[3])+' '+bdlF(s[4])+' '+bdlF(s[5]); }).join(' ')+'"/></symbol>'; });   // a <symbol>: THE STILL ROOM's picture keeps a symbol's id (dlgSer0), so the <use>s find their tuft there too
+  G.U.forEach(function(u){ g[u[3]]+='<use href="#bdlt'+u[0]+'" x="'+bdlF(u[1])+'" y="'+bdlF(u[2])+'"/>'; });
+  const sil='M'+bdlF(G.p0[0])+' '+bdlF(G.p0[1])+G.Q.map(function(q){ return ' Q'+bdlF(q[0])+' '+bdlF(q[1])+' '+bdlF(q[2])+' '+bdlF(q[3]); }).join('')+' Z';
+  return (BDL.rugS='<g class="bdlrug" id="bdlRug"><defs>'+defs+'</defs>'
+    +'<path class="bdlm" d="'+sil+'" transform="translate(0 7)" fill="#1E1408" opacity="0.22"/>'   // its own soft shadow on the boards (Laura's rugs: #1e1408)
+    +'<path class="bdlm" d="'+sil+'" fill="'+C.rim+'" stroke="'+C.line+'" stroke-width="1.7" stroke-opacity="0.55" stroke-linejoin="round"/>'   // the rim: the pile curling down at the edge, the soft outline a shade darker at 55 %
+    +'<rect class="bdlm" x="50" y="346" width="860" height="234" rx="32" fill="'+C.mid+'"/>'   // the second flat step
+    +'<rect x="57" y="352" width="846" height="222" rx="27" fill="'+C.base+'"/>'   // THE BODY: one classless solid fill (her pass panels it)
+    +'<g fill="none" stroke-linecap="round" stroke="'+C.tick+'" stroke-width="2.1"><g stroke-opacity="0.4">'+g[0]+'</g><g stroke-opacity="0.26">'+g[1]+'</g></g>'
+    +'<g fill="none" stroke-linecap="round" stroke="'+C.hi+'" stroke-width="2"><g stroke-opacity="0.7">'+g[2]+'</g><g stroke-opacity="0.45">'+g[3]+'</g></g></g>'); }
+function bdlRR(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+function bdlRugCanvas(){ if(BDL.cv.rug!==undefined) return BDL.cv.rug; let c=null;   // the raid's rug: the same drawing on a canvas ONCE (2x, 32..928 x 330..604), a drawImage a frame
+  try{ const G=bdlRugGeo(), C=BDL_RUG; c=document.createElement('canvas'); c.width=1792; c.height=548; const g=c.getContext('2d'); g.scale(2,2); g.translate(-32,-330);
+    const sil=function(){ g.beginPath(); g.moveTo(G.p0[0],G.p0[1]); G.Q.forEach(function(q){ g.quadraticCurveTo(q[0],q[1],q[2],q[3]); }); g.closePath(); };
+    g.save(); g.translate(0,7); sil(); g.globalAlpha=0.22; g.fillStyle='#1E1408'; g.fill(); g.restore(); g.globalAlpha=1;
+    sil(); g.fillStyle=C.rim; g.fill(); g.globalAlpha=0.55; g.strokeStyle=C.line; g.lineWidth=1.7; g.lineJoin='round'; g.stroke(); g.globalAlpha=1;
+    bdlRR(g,50,346,860,234,32); g.fillStyle=C.mid; g.fill(); bdlRR(g,57,352,846,222,27); g.fillStyle=C.base; g.fill();
+    const GR=[[C.tick,0.4,2.1],[C.tick,0.26,2.1],[C.hi,0.7,2],[C.hi,0.45,2]]; g.lineCap='round';
+    G.U.forEach(function(u){ const s=GR[u[3]]; g.strokeStyle=s[0]; g.globalAlpha=s[1]; g.lineWidth=s[2]; g.beginPath(); G.T[u[0]].forEach(function(t){ const X=u[1]+t[0], Y=u[2]+t[1]; g.moveTo(X,Y); g.quadraticCurveTo(X+t[2],Y+t[3],X+t[4],Y+t[5]); }); g.stroke(); });
+    g.globalAlpha=1; }catch(e){ BDL.err++; BDL.why='rugCanvas: '+(e && e.message || e); c=null; }
+  return (BDL.cv.rug=c); }
+function bdlRaidRug(g){ if(!BDL.on) return false; try{ const c=bdlRugCanvas(); if(!c) return false; g.drawImage(c,32,330,896,274); BDL.n.raidRug++; return true; }catch(e){ BDL.err++; return false; } }   // drawRoomFloor / mfsPlain: the floor under no rug (and under a rug whose picture is still on its way)
+// ── B1b · THE SUN
+function bdlPaneQuad(u0,u1,v0,v1){ const P=BDL_PANE, l2=function(a,b,t){ return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t]; }, at=function(u,v){ return l2(l2(P.TL,P.TR,u), l2(P.BL,P.BR,u), v); };
+  return [at(u0,v0), at(u1,v0), at(u1,v1), at(u0,v1)].map(function(p){ return bdlF(p[0])+' '+bdlF(p[1]); }).join(' L'); }
+function bdlSunFloorSVG(night){ const col=night? '#D6E4FF' : '#FFF0C2', a=night? 0.30 : 0.36, edge=night? 0.10 : 0.13;   // a soft skirt, then the four panes (flat: a class keeps her pass off them)
+  return '<g id="bdlSun" pointer-events="none"><path class="bdlm" d="M'+bdlPaneQuad(-0.05,1.05,-0.04,1.06)+' Z" fill="'+col+'" fill-opacity="'+edge+'"/>'
+    +[[0,0.47,0,0.45],[0.53,1,0,0.45],[0,0.47,0.52,1],[0.53,1,0.52,1]].map(function(q){ return '<path class="bdlm" d="M'+bdlPaneQuad(q[0],q[1],q[2],q[3])+' Z" fill="'+col+'" fill-opacity="'+a+'"/>'; }).join('')+'</g>'; }
+function bdlGlowSVG(){ return '<defs><radialGradient id="bdlbloom" gradientUnits="userSpaceOnUse" cx="815" cy="110" r="300"><stop offset="0" stop-color="#FFF6D6" stop-opacity="0.55"/><stop offset="0.45" stop-color="#FFF2CC" stop-opacity="0.22"/><stop offset="1" stop-color="#FFF2CC" stop-opacity="0"/></radialGradient></defs>'
+  +'<rect class="bdlm" x="515" y="0" width="600" height="'+(RN_SEAM-14)+'" fill="url(#bdlbloom)" pointer-events="none"/>'; }
+function bdlBeamSVG(){ const P=BDL_PANE; return '<g id="bdlBeam" pointer-events="none"><defs><linearGradient id="bdlbeamg" gradientUnits="userSpaceOnUse" x1="815" y1="62" x2="564" y2="474"><stop offset="0" stop-color="#FFF3C4" stop-opacity="0.26"/><stop offset="0.6" stop-color="#FFF3C4" stop-opacity="0.11"/><stop offset="1" stop-color="#FFF3C4" stop-opacity="0.03"/></linearGradient></defs>'
+  +'<path d="M744 62 L888 62 L'+P.BR[0]+' '+P.BR[1]+' L'+P.BL[0]+' '+P.BL[1]+' Z" fill="url(#bdlbeamg)"/></g>'; }
+// ── B1c · THE BOARDS: the pass's boardsTile (seed 3175, the same planks), its drawing kept as data so the room (svg), the tablet's strip (a css image) and the raid (a canvas) draw the same tile
+function bdlBoardsGeo(){ if(BDL.boards) return BDL.boards;
+  const r=bdlLcg(3175), rows=[[0,59],[59,134],[134,209],[209,284]], F=[], Gr=[], Ln=[];   // the rows: today's seams at 375, 450, 525 kept
+  rows.forEach(function(row){ const y0=row[0], y1=row[1], h=y1-y0; let x=-(40+r()*220), last=-1; const cuts=[];
+    while(x<960){ const w=150+r()*260; let t=(r()*5)|0; if(t===last) t=(t+2)%5; last=t; cuts.push([x,w,t]); x+=w; }
+    cuts.forEach(function(c){ const bx=c[0], bw=c[1], t=c[2], g1=y0+h*(0.26+r()*0.1), g2=y0+h*(0.6+r()*0.14), wob=2.5+r()*3.5, knot=r()<0.34, kx=bx+bw*(0.25+r()*0.5), ky=y0+h*(0.42+r()*0.16), short=r()<0.5;
+      [0,960,-960].forEach(function(ox){ const X=bx+ox; if(X>960 || X+bw<0) return;   // the copies one tile over keep the tile seamless
+        F.push([X, y0, bw+0.5, h, BDL_FLOOR.tones[t]]); Ln.push(['v', X, y0+1.5, y1-1]);
+        Gr.push(['q', X+9, g1, bw*0.25, -wob, bw*0.5, 0, bw*0.5-18, 0, 1.3, 0.42]); Gr.push(['q', X+(short? bw*0.35 : 16), g2, bw*0.15, wob, bw*0.3, 0, bw*(short? 0.3 : 0.6)-24, 0, 1.2, 0.32]);
+        if(knot) Gr.push(['k', kx+ox, ky]); }); });
+    Ln.push(['h', y0]); });
+  return (BDL.boards={ F:F, Gr:Gr, Ln:Ln }); }
+function bdlBoardsSVG(){ if(BDL.tile) return BDL.tile; const B=bdlBoardsGeo(), FL=BDL_FLOOR; let s='';
+  B.F.forEach(function(o){ s+='<rect x="'+bdlF(o[0])+'" y="'+o[1]+'" width="'+bdlF(o[2])+'" height="'+o[3]+'" fill="'+o[4]+'"/>'; });
+  B.Gr.forEach(function(o){ if(o[0]==='k') s+='<ellipse cx="'+bdlF(o[1])+'" cy="'+bdlF(o[2])+'" rx="5.5" ry="3" fill="'+FL.grain+'" fill-opacity="0.38"/><path d="M'+bdlF(o[1]-16)+' '+bdlF(o[2])+' q16 -9 32 0 M'+bdlF(o[1]-16)+' '+bdlF(o[2])+' q16 9 32 0" stroke="'+FL.grain+'" stroke-width="1.2" stroke-opacity="0.36" fill="none"/>';
+    else s+='<path d="M'+bdlF(o[1])+' '+bdlF(o[2])+' q'+bdlF(o[3])+' '+bdlF(o[4])+' '+bdlF(o[5])+' '+bdlF(o[6])+' t'+bdlF(o[7])+' '+bdlF(o[8])+'" stroke="'+FL.grain+'" stroke-width="'+o[9]+'" stroke-opacity="'+o[10]+'" fill="none" stroke-linecap="round"/>'; });
+  B.Ln.forEach(function(o){ if(o[0]==='v') s+='<path d="M'+bdlF(o[1])+' '+o[2]+' V'+o[3]+'" stroke="'+FL.seam+'" stroke-width="2" stroke-opacity="0.72"/>';
+    else s+='<path d="M0 '+o[1]+' H960" stroke="'+FL.seam+'" stroke-width="2.4" stroke-opacity="0.8"/><path d="M0 '+(o[1]+2.4)+' H960" stroke="'+FL.lite+'" stroke-width="1.2" stroke-opacity="0.5"/>'; });
+  return (BDL.tile=s); }
+function bdlBoardsPattern(){ return '<pattern id="bdlboards" patternUnits="userSpaceOnUse" x="0" y="'+RN_SEAM+'" width="960" height="284">'+bdlBoardsSVG()+'</pattern>'; }
+function bdlBoardsCanvas(){ if(BDL.cv.tile!==undefined) return BDL.cv.tile; let c=null;   // the tile on a canvas ONCE (2x): the raid's floor is a pattern of it, never a vector a frame
+  try{ const B=bdlBoardsGeo(), FL=BDL_FLOOR; c=document.createElement('canvas'); c.width=1920; c.height=568; const g=c.getContext('2d'); g.scale(2,2);
+    B.F.forEach(function(o){ g.fillStyle=o[4]; g.fillRect(o[0],o[1],o[2],o[3]); });
+    g.strokeStyle=FL.grain; g.fillStyle=FL.grain;
+    B.Gr.forEach(function(o){ if(o[0]==='k'){ g.globalAlpha=0.38; g.beginPath(); g.ellipse(o[1],o[2],5.5,3,0,0,Math.PI*2); g.fill(); g.globalAlpha=0.36; g.lineWidth=1.2; g.lineCap='butt'; g.beginPath(); g.moveTo(o[1]-16,o[2]); g.quadraticCurveTo(o[1],o[2]-9,o[1]+16,o[2]); g.moveTo(o[1]-16,o[2]); g.quadraticCurveTo(o[1],o[2]+9,o[1]+16,o[2]); g.stroke(); return; }
+      const x0=o[1], y0=o[2], c1x=x0+o[3], c1y=y0+o[4], p1x=x0+o[5], p1y=y0+o[6];   // 't' = the first control mirrored through the joint
+      g.globalAlpha=o[10]; g.lineWidth=o[9]; g.lineCap='round'; g.beginPath(); g.moveTo(x0,y0); g.quadraticCurveTo(c1x,c1y,p1x,p1y); g.quadraticCurveTo(2*p1x-c1x,2*p1y-c1y,p1x+o[7],p1y+o[8]); g.stroke(); });
+    g.lineCap='butt';
+    B.Ln.forEach(function(o){ g.beginPath(); if(o[0]==='v'){ g.globalAlpha=0.72; g.strokeStyle=FL.seam; g.lineWidth=2; g.moveTo(o[1],o[2]); g.lineTo(o[1],o[3]); g.stroke(); return; }
+      g.globalAlpha=0.8; g.strokeStyle=FL.seam; g.lineWidth=2.4; g.moveTo(0,o[1]); g.lineTo(960,o[1]); g.stroke(); g.beginPath(); g.globalAlpha=0.5; g.strokeStyle=FL.lite; g.lineWidth=1.2; g.moveTo(0,o[1]+2.4); g.lineTo(960,o[1]+2.4); g.stroke(); });
+    g.globalAlpha=1; }catch(e){ BDL.err++; BDL.why='boardsCanvas: '+(e && e.message || e); c=null; }
+  return (BDL.cv.tile=c); }
+function bdlRaidBoards(g,x,y,w,h,k,oy){ if(!BDL.on) return false;   // the raid's floor in the room's own frame (k = its scale, oy = its top): the tile's rows sit where the room's sit
+  try{ const t=bdlBoardsCanvas(); if(!t) return false; let P=BDL.cv.pat; if(!P || BDL.cv.patG!==g){ P=g.createPattern(t,'repeat'); BDL.cv.pat=P; BDL.cv.patG=g; } if(!P) return false;
+    k=k||1; oy=oy||0; const o=oy+RN_SEAM*k, s=k/2; g.save(); g.globalAlpha=1; g.translate(0,o); g.scale(s,s); g.fillStyle=P; g.fillRect(x/s,(y-o)/s,w/s,h/s); g.restore(); BDL.n.raid++; return true;
+  }catch(e){ BDL.err++; return false; } }
+function bdlBoardsURI(){ if(BDL.uri) return BDL.uri; return (BDL.uri='url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 284" width="960" height="284">'+bdlBoardsSVG()+'</svg>')+'")'); }
+function bdlDress(v){   // the bedroom's floor string (roomFloorSVG): the wood wall lighter, the glow by day, the molding deeper, the honey boards; any anchor missing = the string as it came
+  const X=XR_EXT, WD=960+XR_EAST+XR_EAST, WH=RN_SEAM-14, W0=BDL_WALL; let s=v;
+  const rep=function(a,b){ const i=s.indexOf(a); if(i<0 || s.indexOf(a,i+1)>=0) throw new Error('anchor '+a.slice(0,48)); s=s.slice(0,i)+b+s.slice(i+a.length); };
+  if(s.indexOf('<g id="rf-wall"><rect x="'+(-X)+'" width="'+WD+'" height="'+WH+'" fill="#D8BE92"/>')===0){ rep('height="'+WH+'" fill="#D8BE92"/>', 'height="'+WH+'" fill="'+W0.base+'"/>'); rep('stroke="#C6A778" stroke-width="2.5" opacity="0.6" fill="none"', 'stroke="'+W0.line+'" stroke-width="2.5" opacity="0.8" fill="none"'); BDL.n.wall++; }   // WOOD PANELS only
+  if(!MAPPIN && !roomNight()){ rep('</g><g id="rf-molding">', bdlGlowSVG()+'</g><g id="rf-molding">'); BDL.n.glow++; }   // the glow: the last thing in #rf-wall, so all that hangs on the wall stands over it
+  rep('height="14" fill="#8F6B40"/>', 'height="14" fill="'+W0.mold+'"/>'); rep('stroke="#E2C79A" stroke-width="2" opacity="0.7"', 'stroke="'+W0.moldHi+'" stroke-width="2" opacity="0.8"'); rep('stroke="#5A4320" stroke-width="2" opacity="0.7"', 'stroke="'+W0.moldLo+'" stroke-width="2" opacity="0.8"');
+  const i=s.indexOf('<g id="rf-floor">'); if(i<0 || s.indexOf('<g id="rf-floor">',i+1)>=0) throw new Error('anchor rf-floor');
+  s=s.slice(0,i)+'<g id="rf-floor"><defs>'+bdlBoardsPattern()+'</defs><rect x="'+(-X)+'" y="'+RN_SEAM+'" width="'+WD+'" height="'+(600-RN_SEAM)+'" fill="url(#bdlboards)"/>'
+    +'<path class="bdlm" d="M'+(-X)+' '+(RN_SEAM+3)+' H'+(960+XR_EAST)+'" stroke="#3A2610" stroke-width="6" stroke-opacity="0.16" fill="none"/></g>';   // + the molding's soft shadow on the boards
+  BDL.n.floor++; return s; }
+function bdlCSS(){ const id='bdlcss'; let st=document.getElementById(id);   // the floor's run to the glass's foot on a tablet (NFT-B2's strip: the bedroom's three looks) and the glass's porthole
+  if(!BDL.on){ if(st) st.remove(); return; }
+  if(!st){ st=document.createElement('style'); st.id=id; (document.head||document.documentElement).appendChild(st); }
+  st.textContent='#roomStage[data-nff="day"]::before, #roomStage[data-nff="night"]::before, #roomStage[data-nff="off"]::before { background:'+bdlBoardsURI()+' var(--rzb,0px) 0 / 960px 284px repeat; }'
+    +' #roomGlassFly .rg-port { background:'+BDL_FLOOR.flat+'; } #travelMap .lg-stage.sls { background:'+BDL_FLOOR.flat+'; }'; }
+// ── THE WRAPS (by name: every caller follows; with the gate off each answers its own string)
+BDL.old.roomRugSVG=roomRugSVG; roomRugSVG=function(){ const v=BDL.old.roomRugSVG.apply(this, arguments); if(!BDL.on) return v;
+  try{ let s=v; if(v===BDL_WOOL){ s=bdlRugSVG(); BDL.n.rug++; } if(bdlSunOK()){ s+=bdlSunFloorSVG(roomNight()); BDL.n.sun++; } return s; }catch(e){ BDL.err++; BDL.why='rug: '+(e && e.message || e); return v; } };
+BDL.old.roomFloorSVG=roomFloorSVG; roomFloorSVG=function(){ const v=BDL.old.roomFloorSVG.apply(this, arguments); if(!BDL.on) return v;
+  try{ return (roomCur()==='bedroom')? bdlDress(v) : v; }catch(e){ BDL.err++; BDL.why='floor: '+(e && e.message || e); return v; } };
+BDL.old.roomSVG=roomSVG; roomSVG=function(){ const v=BDL.old.roomSVG.apply(this, arguments); if(!BDL.on) return v;   // the beam: after the style pass (never panelled), under the three tiles
+  try{ if(!bdlSunOK() || roomNight()) return v; const i=v.indexOf('<g id="ro-campaign"'); if(i<0) return v; BDL.n.beam++; return v.slice(0,i)+bdlBeamSVG()+v.slice(i); }catch(e){ BDL.err++; return v; } };
+BDL.old.wpapSwatch=wpapSwatch; wpapSwatch=function(id){ const v=BDL.old.wpapSwatch.apply(this, arguments); if(!BDL.on) return v;   // the wallpaper cards: the wall the room wears, its molding, its floor
+  try{ let s=v; const W0=BDL_WALL; if(id==='wood') s=s.replace('fill="#D8BE92"/><path', 'fill="'+W0.base+'"/><path').replace('stroke="#C6A778" stroke-width="2.5" opacity="0.6"', 'stroke="'+W0.line+'" stroke-width="2.5" opacity="0.8"');
+    s=s.replace('height="9" fill="#8F6B40"/>', 'height="9" fill="'+W0.mold+'"/>').replace('stroke="#E2C79A" stroke-width="1.4" opacity="0.7"', 'stroke="'+W0.moldHi+'" stroke-width="1.4" opacity="0.8"');
+    const j=s.lastIndexOf('fill="#C8A170"/></svg>'); if(j>0) s=s.slice(0,j)+'fill="'+BDL_FLOOR.flat+'"/></svg>'; BDL.n.swatch++; return s; }catch(e){ BDL.err++; return v; } };
+BDL.old.curtSwatch=curtSwatch; curtSwatch=function(k){ const v=BDL.old.curtSwatch.apply(this, arguments); if(!BDL.on) return v;   // the curtain cards: his wall round the window
+  try{ if(wpapCur()!=='wood') return v; BDL.n.swatch++; return v.replace('fill="#D8BE92"/><path', 'fill="'+BDL_WALL.base+'"/><path').replace('stroke="#C6A778" stroke-width="2.5" opacity="0.6"', 'stroke="'+BDL_WALL.line+'" stroke-width="2.5" opacity="0.8"'); }catch(e){ BDL.err++; return v; } };
+BDL.old.roomCardArt=roomCardArt; roomCardArt=function(id){ const v=BDL.old.roomCardArt.apply(this, arguments); if(!BDL.on) return v;   // the bedroom's ticket: its floor, its molding, its little rug in the rug's blue (the shapes kept)
+  try{ if(v.indexOf('<rect width="150" height="132" fill="#EAD7AE"/>')!==0) return v; BDL.n.ticket++;
+    return v.replace('<rect x="0" y="126" width="150" height="8" fill="#B08A58"/>', '<rect x="0" y="126" width="150" height="8" fill="'+BDL_WALL.mold+'"/>').replace('<rect x="0" y="134" width="150" height="86" fill="#C8A170"/>', '<rect x="0" y="134" width="150" height="86" fill="'+BDL_FLOOR.flat+'"/>')
+      .replace('<g stroke="#B08A58" stroke-width="1.6" opacity="0.6">', '<g stroke="'+BDL_FLOOR.seam+'" stroke-width="1.6" opacity="0.6">').replace('fill="#5F7290" stroke="#4A5A78"', 'fill="'+BDL_RUG.base+'" stroke="'+BDL_RUG.line+'"').replace('stroke="#7C8FAC"', 'stroke="'+BDL_RUG.hi+'"'); }catch(e){ BDL.err++; return v; } };
+try{ bdlCSS(); }catch(e){ BDL.err++; }
+// the bedroom seen small: the Captain's Log's shelf wears the room's wall (wpapArt's seats or the wood) over the room's boards (CARD-LSW's whole-screen shelf: LSW.wall / LSW.floor, called through the object)
+try{ if(typeof LSW==='object' && LSW && typeof LSW.wall==='function' && typeof LSW.floor==='function'){
+  BDL.old.lswWall=LSW.wall; LSW.wall=function(id, B){ const v=BDL.old.lswWall.apply(this, arguments); if(!BDL.on) return v;
+    try{ let s=v; if(id==='wood' || !(typeof WPAP_PAINT==='object' && WPAP_PAINT[id])) s=s.replace('fill="#D8BE92"/><path', 'fill="'+BDL_WALL.base+'"/><path').replace('stroke="#C6A778" stroke-width="2.5" opacity="0.6"', 'stroke="'+BDL_WALL.line+'" stroke-width="2.5" opacity="0.8"');
+      BDL.n.shelf++; return s.replace('height="14" fill="#8F6B40"/>', 'height="14" fill="'+BDL_WALL.mold+'"/>').replace('stroke="#E2C79A" stroke-width="1.6" opacity=".7"', 'stroke="'+BDL_WALL.moldHi+'" stroke-width="1.6" opacity=".8"'); }catch(e){ BDL.err++; return v; } };
+  BDL.old.lswFloor=LSW.floor; LSW.floor=function(B){ const v=BDL.old.lswFloor.apply(this, arguments); if(!BDL.on) return v;
+    try{ return v.replace('fill="#C8A170"/>', 'fill="'+BDL_FLOOR.flat+'"/>').split('fill="#A67F52"').join('fill="'+BDL_FLOOR.seam+'"'); }catch(e){ BDL.err++; return v; } }; } }catch(e){ BDL.err++; }
+// ── THE RIGS' DOOR: GVT.bdl() reads; GVT.bdl({ on:0|1 }) switches this page (no save, no key) and paints the room again
+function bdlRead(o){ o=o||{};
+  if(o.on!=null){ BDL.on=o.on? 1 : 0; try{ bdlCSS(); }catch(e){ BDL.err++; } try{ if(typeof MFS==='object' && MFS){ MFS.bakeKey=''; MFS.bake=null; MFS.bakeErr=''; } }catch(e){} try{ if(S.mode==='menu') renderMenu(); }catch(e){ BDL.err++; } }
+  let skin=null; try{ skin=bdlSkin(); }catch(e){}
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:BDL.on, sunOnLaura:BDL_SUN_ON_LAURA, laura:BDL_LAURA_RUGS.slice(), skin:skin, sun:bdlSunOK(), night:(function(){ try{ return roomNight(); }catch(e){ return null; } })(), err:BDL.err, why:BDL.why, n:Object.assign({}, BDL.n),
+    bytes:{ rug:bdlRugSVG().length, tile:bdlBoardsSVG().length, uri:bdlBoardsURI().length }, tufts:bdlRugGeo().U.length, raid:{ rug:!!bdlRugCanvas(), tile:!!bdlBoardsCanvas() },
+    wraps:{ roomRugSVG:!!BDL.old.roomRugSVG && roomRugSVG!==BDL.old.roomRugSVG, roomFloorSVG:!!BDL.old.roomFloorSVG && roomFloorSVG!==BDL.old.roomFloorSVG, roomSVG:!!BDL.old.roomSVG && roomSVG!==BDL.old.roomSVG, wpapSwatch:!!BDL.old.wpapSwatch && wpapSwatch!==BDL.old.wpapSwatch, curtSwatch:!!BDL.old.curtSwatch && curtSwatch!==BDL.old.curtSwatch, roomCardArt:!!BDL.old.roomCardArt && roomCardArt!==BDL.old.roomCardArt, lswWall:!!BDL.old.lswWall && LSW.wall!==BDL.old.lswWall, lswFloor:!!BDL.old.lswFloor && LSW.floor!==BDL.old.lswFloor },
+    css:!!document.getElementById('bdlcss') }; }
+try{ if(window.GVT) GVT.bdl=bdlRead; }catch(e){}
+// ═══ END CARD-BDL ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
