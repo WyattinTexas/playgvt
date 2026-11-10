@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.11","md5":"e0d8c09204d2858c7109958f50e1eb23","sha":"9a54fc62f6","at":"2026-11-10T05:25:19Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.12","md5":"0cd089ce5362886c743dddff994b30eb","sha":"40f064c02a","at":"2026-11-10T07:13:39Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92850,7 +92850,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -218419,6 +218419,93 @@ function fzjRead(o){ o=o||{}; try{ if(o.zero){ for(const k in FZJ.n) FZJ.n[k]=0;
   return { cv:GVT_CV, on:FZJ.on, live:FZJ_LIVE, wrapped:FZJ.wrapped, bell:FZJ.bell, bill:fzjBill(), hold:!!S.evHold, bar:bar, mute:mute, cut:!!(FZJ.cut && FZJ.cut===S.raid), locId:LOC.id, pass:!!LOC.src, rag:FZB_MUS.on|0, card:card, n:Object.assign({}, FZJ.n), err:FZJ.err, e:FZJ.e }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.fzj) GVT.fzj=fzjRead; }catch(e){} }, 0);   // the late attach (CARD-BVX's grammar)
 // ═══ END CARD-FZJ ═══
+// ═══ CARD-RPS THE RECORD PLAYER SHUFFLES (sec:CARD-RPS; design/record-shuffle-1109/00-CARD-RPS.md; jumpr 3164, board M3164, built on Maker 1;
+// WYATT by phone 11/9/2026 23:36 EST, dictated, verbatim: "Set the record player to play a song at random unless the player has already set his song to a particular song. That way, a player gets introduced to all the
+//   music until he interacts with the music box and finally decides to pick one.")
+// BEFORE (v31.10): META.fortSong.on null = THE ROOM'S OWN SONG for ever, so a save that never opened the record player ("the music box", Dylan's word since CARD-MBH) heard ONE song at home; and the save could not tell
+//   "never picked" from "picked THE ROOM'S OWN SONG" (both null).
+// NOW (this sec alone; five names wrapped BY NAME, no hunk in another card's code; no sim state, nothing on the wire, no sound file):
+//   1 THE RECORD ON THE PLAYER (rcpOn, THE ONE READER): while nothing is picked by hand it answers THIS VISIT'S RECORD (RPS.cur), so the room's music, the shelf's label and the sheet all follow with no rule of their own.
+//   2 THE DOOR HOME (locNow, outside every other wrap): the record changes when the speaker comes BACK to the record player and at no other time: the launch, home from any fight, the ✕ of a park, a lobby, the map, the Log,
+//     the ferry's landing. It never changes a song while it plays. The seat is the engine's own truth: the room arm asked rcpOn and its answer is what the engine got.
+//   3 THE ROUND (rpsDraw): every record he owns comes up once before any comes up twice, never the same one twice running; kept on the device (gvt_rpsr, beside the save, never in it). In the round: THE ROOM'S OWN SONG,
+//     the three drum records, every place's song he has reached. Never NEEDLE UP, never YOUR CD, never a ??? row (RPS.all is the dial, ⚑ RPS-Q1).
+//   4 A PICK ENDS IT (rcpPick, THE ONE WRITER, and UI.rcpPick so a hand is told from a program): any row tapped is his song, as before. THE ROOM'S OWN SONG tapped is a pick too: the save's new mark META.rpsOwn (a top
+//     level key: the load's normaliser rebuilds fortSong, and keeps a key it does not know). YOUR CD erased hands the room back to the round, not to one song.
+//   5 THE SHEET (rcpHTML): a first row SURPRISE ME · A NEW SONG EVERY TIME (UI.rpsPick: the round again, and another record at once). It wears the gold ring while nothing is picked, and its small line then NAMES the
+//     record playing now (the player's own quaver before it), so he learns each song's name without hunting; that record's own row, wherever it stands in the list, wears a dashed rim, a turning disc and the quaver.
+//   THE TITLE keeps its song (Dylan 10/7, CARD-TRS): the boot's line reads the save before this sec stands, so THE ROOM'S OWN SONG plays before PRESS START as ever and the room's record fades in over it at the door.
+// THE SWITCH: ?rps=0 writes the device key gvt_rps=0 = the page before (nothing wrapped, no row); ?rps=1 clears it. GVT.rps(o) = the rigs' door (o.pin a record for the next draws, '-' lets go · o.seed a fixed dice ·
+//   o.fresh empties the round · o.all re-dials · o.zero clears the counts). A rig that wants the bedroom's theme seeds META.rpsOwn 1 or opens ?rps=0.
+const RPS_LIVE=1;
+const RPS={ on:(function(){ try{ const q=/[?&]rps=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_rps','0'); else localStorage.removeItem('gvt_rps'); } return localStorage.getItem('gvt_rps')==='0'? 0 : RPS_LIVE; }catch(e){ return RPS_LIVE; } })(),
+  all:0, cur:undefined, ans:null, seat:0, q:0, hand:0, go:0, seen:[], last:null, pin:undefined, rnd:Math.random, r0:null, n:0, rounds:0, fix:0, wrapped:0, err:0, e:'' };   // all = the dial (0 = the records he has reached) · cur = this visit's record (undefined = none drawn yet, null = THE ROOM'S OWN SONG) · ans = what rcpOn last answered for the round · seat = the speaker is the record player's and this visit's record is drawn · q = rcpOn's asks · hand / go = a finger on a row / on SURPRISE ME · seen, last = the round · fix = late knocks that had to act
+function rpsErr(w,e){ RPS.err++; if(RPS.e.length<300) RPS.e+=w+':'+String((e && e.message)||e).slice(0,80)+' '; }
+function rpsK(id){ return (typeof id==='string' && id)? id : ''; }   // a record's key in the round ('' = THE ROOM'S OWN SONG)
+function rpsSave(){ try{ localStorage.setItem('gvt_rpsr', JSON.stringify({ s:RPS.seen, l:RPS.last })); }catch(e){} }
+function rpsPool(){ const a=[]; for(const r of RCP_SONGS){ if(r.up || r.cd) continue; if(RPS.all || rcpHas(r.id)) a.push(r.id||null); } return a; }   // the round's records, in the sheet's order: never the needle's row, never his own CD, never a ??? row
+function rpsShuf(){ return !!(RPS.on && RPS.r0 && !META.rpsOwn && RPS.r0()===null); }   // nothing picked by hand: the record player chooses
+function rpsDraw(){   // THE NEXT RECORD of the round
+  const pool=rpsPool(); if(!pool.length){ RPS.cur=null; return null; }
+  let c=pool.filter(id=>RPS.seen.indexOf(rpsK(id))<0);
+  if(!c.length){ c=pool.slice(); RPS.seen=[]; RPS.rounds++; }   // every record heard: a new round
+  if(c.length>1 && RPS.last!==null){ const d=c.filter(id=>rpsK(id)!==RPS.last); if(d.length) c=d; }   // never the same record twice running
+  let id=c[Math.min(c.length-1, Math.floor(RPS.rnd()*c.length))];
+  if(RPS.pin!==undefined && pool.some(x=>rpsK(x)===rpsK(RPS.pin))) id=RPS.pin;   // the rig's pin
+  const k=rpsK(id); RPS.cur=id; RPS.last=k; if(RPS.seen.indexOf(k)<0) RPS.seen.push(k); RPS.n++; rpsSave();
+  setTimeout(rpsKnock, 0); return id; }
+function rpsKnock(){ try{ if(S.mode!=='menu' || !rpsShuf()) return; const id=locNow(); if(id!==LOC.id){ RPS.fix++; locSync(); } rpsLabel(); }catch(e){ rpsErr('knock',e); } }   // one tick after a draw: the engine plays what the reader says (every door knocks by itself; this acts only if one ever does not), and the shelf's label wears the new record's colour at once
+function rpsLabel(){ try{ const row=rcpRow(rcpOn())||RCP_SONGS[0]; const lab=document.querySelector('#fhRecord .rcp-lab'); if(lab) lab.setAttribute('fill', row.col); if(typeof mbhSync==='function') mbhSync(); }catch(e){ rpsErr('lab',e); } }   // the label on the shelf (and on the parapet's player) wears the drawn record's colour at once
+function rpsIcoSVG(){ const D=function(x,y,a,b){ return '<g transform="translate('+x+' '+y+')"><circle r="9.4" fill="#1b1b19" stroke="#11110f" stroke-width="1.1"/><circle r="6.6" fill="none" stroke="#45453f" stroke-width=".8"/><path d="M0 -3.8 A3.8 3.8 0 0 1 0 3.8 Z" fill="'+a+'"/><path d="M0 3.8 A3.8 3.8 0 0 1 0 -3.8 Z" fill="'+b+'"/><circle r=".95" fill="#EDEADF"/></g>'; };
+  return '<svg viewBox="-16 -16 32 32" aria-hidden="true">'+D(-5.6,-5,'#E8C24A','#4F86D9')+D(.2,.2,'#E8C24A','#19C3B1')+D(6,5.4,'#E8C24A','#C8102E')+'</svg>'; }   // SURPRISE ME's picture: three of the sheet's own records in a fan (the sheet's disc, its inks, three of its labels)
+function rpsSheet(h){   // THE SONG SHEET, dressed: the first row, the ring, the record playing now
+  const shuf=rpsShuf();
+  if(shuf){ const nt='<span class="rps-nt" aria-hidden="true">'+fhNoteArt(0, '#E8C24A')+'</span>';
+    h=h.replace(/class="rcp-row on" (id="rcpRow-\d+"[\s\S]*?)<\/button>/, function(m, a){ return 'class="rcp-row rps-now" '+a+nt+'</button>'; }); }
+  const at=h.indexOf('<div class="rcp-list'), gt=(at<0)? -1 : h.indexOf('>', at); if(gt<0){ rpsErr('sheet','no list'); return h; }
+  const row=rcpRow(rcpOn())||RCP_SONGS[0];   // its small line: what the row does, or (while it chooses) the record playing now by name, a place's own key or a recording's proper name
+  const by=shuf? '<small class="rcp-by rps-on"'+(row.notr? ' data-notr' : '')+'><i class="rps-q" aria-hidden="true">'+fhNoteArt(0, '#E8C24A')+'</i>'+escH(row.name)+'</small>' : '<small class="rcp-by">A NEW SONG EVERY TIME</small>';
+  return h.slice(0, gt+1)+'<button type="button" class="rcp-row rps-row'+(shuf? ' on' : '')+'" id="rpsRow" data-i="-2" onclick="UI.rpsPick()"><span class="rcp-ico">'+rpsIcoSVG()+'</span><span class="rcp-name">SURPRISE ME'+by+'</span></button>'+h.slice(gt+1); }
+Object.assign(TR["ar"]||(TR["ar"]={}), {"SURPRISE ME":"فاجئني","A NEW SONG EVERY TIME":"أغنية مختلفة في كل مرة"});
+Object.assign(TR["ja"]||(TR["ja"]={}), {"SURPRISE ME":"おまかせ","A NEW SONG EVERY TIME":"まいかい ちがう うた"});
+Object.assign(TR["ko"]||(TR["ko"]={}), {"SURPRISE ME":"아무거나 틀어 줘","A NEW SONG EVERY TIME":"매번 다른 노래"});
+Object.assign(TR["zh-Hans"]||(TR["zh-Hans"]={}), {"SURPRISE ME":"随机播放","A NEW SONG EVERY TIME":"每次都换一首歌"});
+Object.assign(TR["de"]||(TR["de"]={}), {"SURPRISE ME":"ÜBERRASCH MICH","A NEW SONG EVERY TIME":"IMMER EIN ANDERES LIED"});
+Object.assign(TR["ru"]||(TR["ru"]={}), {"SURPRISE ME":"УДИВИ МЕНЯ","A NEW SONG EVERY TIME":"КАЖДЫЙ РАЗ ДРУГАЯ ПЕСНЯ"});
+Object.assign(TR["es"]||(TR["es"]={}), {"SURPRISE ME":"SORPRÉNDEME","A NEW SONG EVERY TIME":"CADA VEZ UNA DISTINTA"});
+if(RPS.on){
+  try{ const o=JSON.parse(localStorage.getItem('gvt_rpsr')||'null'); if(o && Array.isArray(o.s)){ RPS.seen=o.s.filter(function(k,i,a){ return typeof k==='string' && a.indexOf(k)===i; }).slice(0,64); RPS.last=(typeof o.l==='string')? o.l : null; } }catch(e){}   // the round, as the device left it
+  try{ const st=document.createElement('style'); st.id='rpsCss'; st.textContent='#roomModal .rcp-row.rps-now{border-color:#C9A227;border-style:dashed}.rcp-list.rcp-live .rcp-row.rps-now .rcp-spin{animation:rcpSpin 1.8s linear infinite}.rps-nt{flex:0 0 18px;width:18px;height:18px;opacity:.4}.rcp-list.rcp-live .rps-nt{opacity:1}.rps-nt svg,.rps-q svg{display:block;width:100%;height:100%;overflow:visible}.rps-q{display:inline-block;width:1em;height:1em;margin-inline-end:.28em;vertical-align:-.14em}@media (prefers-reduced-motion: reduce){.rcp-list.rcp-live .rcp-row.rps-now .rcp-spin{animation:none}}'; document.head.appendChild(st); }catch(e){ rpsErr('css',e); }
+  // 1 THE RECORD ON THE PLAYER
+  { const r0=rcpOn; RPS.r0=r0; rcpOn=function(){ const id=r0.apply(this, arguments); if(id!==null || META.rpsOwn) return id; RPS.q++; const c=RPS.cur; return (RPS.ans=(typeof c==='string' && rcpRow(c) && (RPS.all || rcpHas(c)))? c : null); }; }
+  // 2 THE DOOR HOME
+  { const n0=locNow; locNow=function(){ const q0=RPS.q; let id=n0.apply(this, arguments);
+      try{ if(RPS.q!==q0 && id===RPS.ans){ if(!RPS.seat){ RPS.seat=1; rpsDraw(); id=n0.apply(this, arguments); } }   // the speaker is the record player's: on the way in, the next record of the round
+        else RPS.seat=0; }catch(e){ rpsErr('loc',e); }
+      return id; }; }
+  // 4 A PICK ENDS IT
+  { const p0=rcpPick; rcpPick=function(i){ const hand=RPS.hand, go=RPS.go; RPS.hand=0; RPS.go=0;
+      try{ const r=RCP_SONGS[i|0]; if(r && rcpHas(r.id)){ const own=(r.id===null), round=own && (go || !hand);   // round = back to the round: a finger on SURPRISE ME, or a program handing the room back (YOUR CD erased)
+          if(round){ const k=rpsK(rcpOn()); if(RPS.seen.indexOf(k)<0) RPS.seen.push(k); RPS.last=k; }   // what he was listening to is heard: never drawn straight back
+          if(own && !round) META.rpsOwn=1; else if(META.rpsOwn) delete META.rpsOwn;   // THE ROOM'S OWN SONG under a finger is a pick; the writer's own saveMeta carries the mark
+          RPS.seat=0; } }catch(e){ rpsErr('pick',e); }
+      return p0.apply(this, arguments); }; }
+  { const u0=UI.rcpPick; UI.rcpPick=function(){ RPS.hand=1; try{ return u0.apply(this, arguments); } finally{ RPS.hand=0; } }; }
+  UI.rpsPick=function(){ try{ audio(); let i=-1; for(let k=0;k<RCP_SONGS.length;k++) if(RCP_SONGS[k].id===null) i=k; if(i<0) return; RPS.go=1; let ok=false; try{ ok=rcpPick(i); } finally{ RPS.go=0; } if(ok){ SFX.snap(); rpsLabel(); } }catch(e){ rpsErr('go',e); } };   // SURPRISE ME: the round again through THE ONE WRITER (the save's pick cleared, the room's music, the sheet re-dealt), and another record at once
+  // 5 THE SHEET
+  { const h0=rcpHTML; rcpHTML=function(){ let h=h0.apply(this, arguments); try{ h=rpsSheet(h); }catch(e){ rpsErr('sheet',e); } return h; }; }
+  RPS.wrapped=1;
+}
+function rpsRead(o){ o=o||{}; try{ if(o.zero){ RPS.err=0; RPS.e=''; RPS.n=0; RPS.fix=0; } if('pin' in o) RPS.pin=(o.pin==='-')? undefined : (o.pin||null);
+    if(o.seed!=null){ let s=(o.seed>>>0)||1; RPS.rnd=function(){ s=(Math.imul(s,1664525)+1013904223)>>>0; return s/4294967296; }; }
+    if(o.all!=null) RPS.all=o.all? 1 : 0; if(o.fresh){ RPS.seen=[]; RPS.last=null; RPS.rounds=0; rpsSave(); } }catch(e){ rpsErr('rig',e); }
+  let shuf=false, pool=[], rec=null, saved=null; try{ shuf=rpsShuf(); pool=rpsPool().map(rpsK); rec=rcpOn(); saved=localStorage.getItem('gvt_rpsr'); }catch(e){}
+  const m=document.querySelector('#roomModal .rcpcard'), row=document.getElementById('rpsRow'), now=m? m.querySelector('.rcp-row.rps-now') : null, ring=m? m.querySelector('.rcp-row.on') : null;
+  return { cv:GVT_CV, on:RPS.on, live:RPS_LIVE, wrapped:RPS.wrapped, shuf:shuf, own:!!META.rpsOwn, all:RPS.all, cur:(RPS.cur===undefined? '-' : rpsK(RPS.cur)), rec:rec, seat:RPS.seat, pool:pool, seen:RPS.seen.slice(), last:RPS.last, n:RPS.n, rounds:RPS.rounds, fix:RPS.fix,
+    saved:saved, raw:(META.fortSong===undefined? null : JSON.parse(JSON.stringify(META.fortSong))), loc:{ id:LOC.id, src:!!LOC.src, busy:LOC.busy||null }, theme:{ src:!!THEME.src, started:!!THEME.started, dead:!!THEME.dead, want:!!THEME.want },
+    sheet:m? { row:!!row, ring:ring? ring.id : null, now:now? now.id : null, rows:m.querySelectorAll('.rcp-row').length, note:!!(now && now.querySelector('.rps-nt svg')) } : null, err:RPS.err, e:RPS.e }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.rps) GVT.rps=rpsRead; }catch(e){} }, 0);   // the late attach (CARD-BVX's grammar)
+// ═══ END CARD-RPS ═══
 // ═══ CARD-DER · THE DESERT STARTS AT THE RING, ON EVERY LANE (sec:CARD-DER; design/desert-early-start-1102/00-CARD-DER.md; J14, lane gvt-p2, acct I Spacely, Fable 5.1 at max). FROM WYATT by phone 11/2/2026 20:33 EST (jumpr remote), verbatim: "The match started 2 minutes early. In fact, the play started, and then I got the push notification that in 2 minutes it was supposed to start. We played 2 minutes early, and then, when there were like 30 seconds left, we had another character even be able to join the game, so it was a 3 versus 2. After the game, the losing team, for some reason, had a 'Try Again' button, but there's no 'Try Again' button after the Battle of the Desert, just 'Continue'." and "One team was able to play down infinite units, but they kept dying."
 // WHAT HAPPENED (room F7VTW, 11/2 20:25-20:32 EST, read off the box): a chair's app relaunched in the hold (20:28:45); the rejoin note knocked and rejoined through the plain room lane (/room/join), which launches the fight with no hold and no desert dressing; at 20:29:55 the founder put his app away for a second and HQ handed the whistle to that chair (CARD-DAR: the longest-seated awake commander); its running clock reached every screen and CARD-HLD's rule 1 (the hold follows the referee) rang every bell at 20:30, two minutes before the ring (20:32). The pour and the bounties ran over a six-minute "match" (the units); a chair seated at 20:30:24 landed in a running fight with 30 s on the adopted clock (the 3 v 2); the verdict came one second after the ring; the loss face dealt the plain battleground's TRY AGAIN.
 // THE LAW NOW (?der=0 = HEAD, remembered on the device as gvt_der; ?der=1 forgets it):
