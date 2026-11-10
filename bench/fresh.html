@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.08","md5":"a0c12a344ff43f2f009e9df44044482f","sha":"ed2431eeee","at":"2026-11-10T04:17:43Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.09","md5":"e73e926b4e87efc6afff693a9231c454","sha":"b974b926d2","at":"2026-11-10T04:26:27Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92850,7 +92850,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.09';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -218376,6 +218376,49 @@ function bvxRead(o){ o=o||{}; try{ if(o.reset){ BVX.f.raid=null; BVX.f.half=0; B
     bed:BVX.bed, bedVol:(LOC_TRACKS.bbsfight||{}).vol||null, parkVol:(LOC_TRACKS.outlaw||{}).vol||null, loc:locNow(), locId:LOC.id, wraps:{ laugh:SFX.bblaugh!==BVX.laugh0, rattle:SFX.rattle!==BVX.rattle0 }, fail:BVX.fail, err:BVX.err }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bvx) GVT.bvx=bvxRead; }catch(e){} }, 0);   // the late attach (OBB's grammar)
 // ═══ END CARD-BVX ═══
+// ═══ CARD-FZJ FUZZIES HAS THE SPEAKER IN BILL'S HOLD + THE NIGHT'S JOIN CARD FOLDS (sec:CARD-FZJ; design/bill-fuzzies-music-join-1109/00-CARD-FZJ.md; jumpr remote, board J6, lane gvt-p5;
+// WYATT by phone 11/9/2026 21:17 EST, two minutes after that night's Bill bell, dictated, verbatim: "When you enter Fuzzies inside of the Buffalo Bill raid, it needs to mute the Buffalo Bill music while the Fuzzies music is playing.
+//   When you exit, it should turn back on unless the match has actually started. One other issue is when I joined the Buffalo Bill raid. The pop-up was inside of the raid, so I clicked Join Battle, but then it was still there even
+//   though I had already decided what difficulty.")
+// THE TWO CAUSES (v31.07, both shown on the glass by this card's rig before a byte was written):
+//   THE MUSIC: CARD-BVX's wrap of locNow answers the fight's theme (bbsfight: Outlaw Town's tune at 0.10) for the whole of Bill's raid, THE HOLD included, before FUZZIES' own clause (CARD-FZB R10: "if(fzbOn()) return null", the bar
+//     plays its own rag) is ever asked. So the bar's knock at its door (fzbOpen: fzbBedSync) found the same place and the theme played on under the rag. CARD-FZW (the bar in the hold) is eleven days older than the theme.
+//   THE CARD: Bill's T-5 card (bbsAnnCard, CARD-BBS-C7) wears JOIN THE BATTLE = UI.evJoin, and nothing folded the card: the desert's JOIN folds first (bdJoin: "a JOIN is not a take"), a challenger's room folds it (CARD-PBP), the
+//     computer's knock folds it (CARD-GTM); the night's own launch (evLaunch: coopStartBattle) did not, and hideAllOverlays does not know #milePop. The raid started UNDER the card (z 27: over the field and over the vote's page at
+//     z 25, so no difficulty could be picked through it), and inside the fight its button is dead (evJoin answers nothing off the menu): it stood until the ✕.
+// WHAT (this sec alone; four names wrapped BY NAME, no hunk in another card's code; presentation only: no sim state, no dice, nothing on the wire, no save key, no word, no css):
+//   1 THE SPEAKER (locNow, outside CARD-BVX's wrap): while FUZZIES stands over Bill's raid the place is nobody's (null). The bar's own two knocks do the rest, exactly as at home: at its door the theme fades out (LOC_BATTLE) and
+//     the rag has the speaker; at the ✕, back in the hold, the theme comes back (a fresh pass, the beds' own way home). The music chip, the HQ mute, MUSIC MODE and the put-away law ride the beds' one pass as ever.
+//   2 THE BELL WHILE HE IS IN THE BAR: CARD-FZW closes the bar by itself and the door stays shut; the fight's own rule then says what plays, and that rule is his word of 11/4 (the light theme through the fight, as on every
+//     other glass of the room). FZJ.bell is the dial (⚑ FZJ-Q1): 1 = that; 0 = a glass the bell took out of the bar keeps the theme off for the rest of that fight (fzbClose wrapped by name stamps the fight, FZJ.cut).
+//   3 THE JOIN (evJoin wrapped by name, so every door that joins the night passes it: the card's JOIN THE BATTLE, the pill, the bell badge, a throne on its night, the 45-second knock): a join that will go folds whatever card
+//     stands FIRST (bdJoin's quiet fold, its own law: no blip, no line, no repaint; what is owed deals at the next landing). A JOIN pressed where it cannot go (inside a fight) still puts its own card away.
+//   4 THE FIGHT'S DOOR (coopStartBattle wrapped by name, outside CARD-OTS-CODE's): a night's card (the kings' and Bill's .mbkg, the desert's .mbbd) still standing when a party's fight has begun folds. The race it closes: the
+//     room's one-second tick dealing the T-5 card while the join's reply is on its way. Every other card is left exactly as it was.
+// THE SWITCH: ?fzj=0 writes the device key gvt_fzj=0 = the page before (nothing wrapped); ?fzj=1 clears it. GVT.fzj(o) = the rigs' door (o.bell re-dials the bell, o.zero clears the counts).
+const FZJ_LIVE=1;
+const FZJ={ on:(function(){ try{ const q=/[?&]fzj=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_fzj','0'); else localStorage.removeItem('gvt_fzj'); } return localStorage.getItem('gvt_fzj')==='0'? 0 : FZJ_LIVE; }catch(e){ return FZJ_LIVE; } })(),
+  bell:1, cut:null, wrapped:0, n:{ join:0, dead:0, door:0, bellOut:0, cut:0 }, err:0, e:'' };
+function fzjErr(w,e){ FZJ.err++; if(FZJ.e.length<300) FZJ.e+=w+':'+String((e && e.message)||e).slice(0,80)+' '; }
+function fzjBill(){ const R=S.raid; return !!(R && R.k==='bbs' && R.cfg===S.cfg && S.mode==='play'); }   // Bill's raid on this glass, THE HOLD included (CARD-BVX's own test for its theme)
+function fzjMute(){ if(!FZJ.on || !fzjBill()) return false; if(fzbOn()) return true; return !!(!FZJ.bell && FZJ.cut && FZJ.cut===S.raid); }   // the bar has the speaker; with the dial at 0, so has the silence after the bell took him out of it
+function fzjCard(){ const p=document.getElementById('milePop'); return (p && !p.classList.contains('hidden') && p.querySelector('.mb-card.mbkg, .mb-card.mbbd'))? p : null; }   // a NIGHT's card standing: the kings' PRIME TIME card and Bill's wanted poster (.mbkg), the desert's (.mbbd)
+if(FZJ.on){
+  // 1 THE SPEAKER
+  { const n0=locNow; locNow=function(){ let m=false; try{ m=fzjMute(); }catch(e){ fzjErr('loc',e); } return m? null : n0.apply(this, arguments); }; }
+  // 2 THE BELL WHILE HE IS IN THE BAR (read BEFORE the bar's own close: its knock is inside it)
+  { const c0=fzbClose; fzbClose=function(){ try{ if(fzbOn() && FZW.fromHold && !S.evHold && fzjBill()){ FZJ.n.bellOut++; if(!FZJ.bell){ FZJ.cut=S.raid; FZJ.n.cut++; } } }catch(e){ fzjErr('close',e); } return c0.apply(this, arguments); }; }
+  // 3 THE JOIN
+  { const j0=evJoin; evJoin=function(){ try{ if(!S.coop && S.mode==='menu'){ if(milePopUp()){ mileFold(); FZJ.n.join++; } } else if(fzjCard()){ mileFold(); FZJ.n.dead++; } }catch(e){ fzjErr('join',e); } return j0.apply(this, arguments); }; }
+  // 4 THE FIGHT'S DOOR
+  { const b0=coopStartBattle; coopStartBattle=function(){ const r=b0.apply(this, arguments); try{ if(S.mode==='play' && fzjCard()){ mileFold(); FZJ.n.door++; } }catch(e){ fzjErr('door',e); } return r; }; }
+  FZJ.wrapped=1;
+}
+function fzjRead(o){ o=o||{}; try{ if(o.zero){ for(const k in FZJ.n) FZJ.n[k]=0; FZJ.err=0; FZJ.e=''; FZJ.cut=null; } if(o.bell!=null){ FZJ.bell=o.bell? 1 : 0; if(FZJ.bell) FZJ.cut=null; locSync(); } }catch(e){ fzjErr('rig',e); }
+  let bar=false, mute=false, card=false; try{ bar=fzbOn(); mute=fzjMute(); card=!!fzjCard(); }catch(e){}
+  return { cv:GVT_CV, on:FZJ.on, live:FZJ_LIVE, wrapped:FZJ.wrapped, bell:FZJ.bell, bill:fzjBill(), hold:!!S.evHold, bar:bar, mute:mute, cut:!!(FZJ.cut && FZJ.cut===S.raid), locId:LOC.id, pass:!!LOC.src, rag:FZB_MUS.on|0, card:card, n:Object.assign({}, FZJ.n), err:FZJ.err, e:FZJ.e }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.fzj) GVT.fzj=fzjRead; }catch(e){} }, 0);   // the late attach (CARD-BVX's grammar)
+// ═══ END CARD-FZJ ═══
 // ═══ CARD-DER · THE DESERT STARTS AT THE RING, ON EVERY LANE (sec:CARD-DER; design/desert-early-start-1102/00-CARD-DER.md; J14, lane gvt-p2, acct I Spacely, Fable 5.1 at max). FROM WYATT by phone 11/2/2026 20:33 EST (jumpr remote), verbatim: "The match started 2 minutes early. In fact, the play started, and then I got the push notification that in 2 minutes it was supposed to start. We played 2 minutes early, and then, when there were like 30 seconds left, we had another character even be able to join the game, so it was a 3 versus 2. After the game, the losing team, for some reason, had a 'Try Again' button, but there's no 'Try Again' button after the Battle of the Desert, just 'Continue'." and "One team was able to play down infinite units, but they kept dying."
 // WHAT HAPPENED (room F7VTW, 11/2 20:25-20:32 EST, read off the box): a chair's app relaunched in the hold (20:28:45); the rejoin note knocked and rejoined through the plain room lane (/room/join), which launches the fight with no hold and no desert dressing; at 20:29:55 the founder put his app away for a second and HQ handed the whistle to that chair (CARD-DAR: the longest-seated awake commander); its running clock reached every screen and CARD-HLD's rule 1 (the hold follows the referee) rang every bell at 20:30, two minutes before the ring (20:32). The pour and the bounties ran over a six-minute "match" (the units); a chair seated at 20:30:24 landed in a running fight with 30 s on the adopted clock (the 3 v 2); the verdict came one second after the ring; the loss face dealt the plain battleground's TRY AGAIN.
 // THE LAW NOW (?der=0 = HEAD, remembered on the device as gvt_der; ?der=1 forgets it):
