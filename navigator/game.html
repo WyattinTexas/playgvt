@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.26","md5":"fd98feaa994285d508a6d6b2e8887334","sha":"ee86e4ea4d","at":"2026-11-10T22:35:12Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.27","md5":"a2f00b4e17fc46fc62d864a479360633","sha":"13ce49a777","at":"2026-11-10T23:00:10Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -72468,7 +72468,7 @@ function skyRaidSil(x,y,sc,ace){ cx.save(); cx.translate(x,y); cx.scale(sc,sc); 
   cx.fillStyle=ace? '#C0473A' : '#1E2129'; cx.beginPath(); cx.moveTo(10,-1); cx.lineTo(16,-8); cx.lineTo(16,0); cx.closePath(); cx.fill(); cx.restore(); }
 function skyRaidHUD(){ const R=skyOn() && S.raid.sky, A=R && R.air, H9=SKY_RAID_HUD; H9.box=null;   // THE WARNING on the glass (drawHUD's screen space; PAINT ONLY): the red edge, the banner, the formation
   if(!A || A.st!=='warn' || S.mode!=='play' || S.raid.won || S.raid.kingDown) return;
-  const RM=reducedMotion(), left=Math.max(0,A.warn-A.t), secs=Math.ceil(left-1e-6), k=Math.min(1,A.t/Math.max(0.1,A.warn)), n=A.nf+A.na;   /* CARD-SBB: the guns' count is read no more (THE AA GUN is on no shelf) */
+  const RM=reducedMotion(), left=Math.max(0,A.warn-A.t), secs=Math.ceil(left-1e-6), k=Math.min(1,A.t/Math.max(0.1,A.warn)), n=A.nf+A.na+wvbNb(A);   /* CARD-WVB: + the raid's bombers (A.nb: 0 with ?wvb=0) */   /* CARD-SBB: the guns' count is read no more (THE AA GUN is on no shelf) */
   const pa=RM? 0.3 : 0.2+0.26*(0.5+0.5*Math.sin(A.t*Math.PI*2.4)), E=Math.round(H*0.055); H9.edge=pa;   // THE RED EDGE: the glass's four edges pulse (steady under reduced motion)
   const edge=(x0,y0,x1,y1,rx,ry,rw,rh)=>{ const g=cx.createLinearGradient(x0,y0,x1,y1); g.addColorStop(0,'rgba(214,38,28,'+pa.toFixed(3)+')'); g.addColorStop(1,'rgba(214,38,28,0)'); cx.fillStyle=g; cx.fillRect(rx,ry,rw,rh); };
   edge(0,0,0,E, 0,0,VW,E); edge(0,H,0,H-E, 0,H-E,VW,E); edge(0,0,E,0, 0,0,E,H); edge(VW,0,VW-E,0, VW-E,0,E,H);
@@ -72490,7 +72490,7 @@ function skyRaidHUD(){ const R=skyOn() && S.raid.sky, A=R && R.air, H9=SKY_RAID_
   H9.box=[bx,by,bx+bw,by+bh]; H9.fs=[f1,null,Math.round(dia*0.62),fmin]; H9.l1=l1; H9.l2=null; H9.secs=secs;
   // THE FORMATION: the raid seen small and far off in the eastern sky, growing as the count runs down (the Red Tails lead)
   const sc=0.55+0.75*k, ax=VW-60-190*k, ay=by+bh+30, al=RM? 0.75 : 0.35+0.45*k;
-  cx.save(); cx.globalAlpha=al; for(let j=0;j<n;j++){ const g=Math.floor(j/5), q=j%5, row=(q+1)>>1, side=(q%2)? -1 : 1; skyRaidSil(ax+(g*120+row*30)*sc, ay+side*row*13*sc+((g%2)? 8 : -8)*sc, sc, j<A.na); } cx.restore(); }
+  cx.save(); cx.globalAlpha=al; for(let j=0;j<n;j++){ const g=Math.floor(j/5), q=j%5, row=(q+1)>>1, side=(q%2)? -1 : 1; wvbSil(j, A, ax, ay, sc, ax+(g*120+row*30)*sc, ay+side*row*13*sc+((g%2)? 8 : -8)*sc); }   /* CARD-WVB: a fighter and a Red Tail as ever (skyRaidSil); the bombers their own row under the vees, bigger (wvbSil) */ cx.restore(); }
 // ═══ CARD-SF3-C THE TROOPERS (jumpr 1355; design/sky-fortress-audit-0929/CARD-SF3-C-THE-TROOPERS.md; Wyatt 9/29 after playing it: "The troops that come in are okay, but they're not that exciting." + his go on the audit: "Perfect. Let's go with the recommendations. This looks incredible. Push it." + "All of the Sky Fortress recommendations are approved."): THE DROP SHIP — every file comes out of a transport (skyship, THE DROP SHIP: a body in the air, THE AIR LAW's guns and THE AA GUN shoot her; her bar SKY_T[t].shp × the sky's price; the bounty 40): the drop clock launches her (skyDropFile), her engines' drone rises a second before she shows (SFX.prop), Sarge calls her the first time; she crosses west along her own lane (SKY_SHIP.y, between the dogfighters' oval and the bomber's) at a steady pace, her door opens over the band SKY_DROP_X and the file steps out one man at a time (SKY_SHIP.gap s apart), each under his chute, his landing seat under the door; she leaves off the west edge. SHOT DOWN BEFORE HER DOOR OPENS that file never drops; shot down mid-drop the rest never drop; she falls away trailing smoke. FEWER, TOUGHER, WITH A JOB — SKY_T[t].drop 2 / 3 / 4 / 5, thp 4 / 4 / 6 / 6; the LAST man out of each file is THE SAPPER (f.skySap): a satchel on his back, his trigger held, he runs for the box (SKY_SAP.run × a trooper's pace; a bomb hole in his path takes him, SF3-A's law) and at the box the satchel blows: skyBoxHit(SKY_SAP.lives) and he is gone. A SHOT CHUTE DROPS LIKE A STONE — a man killed under his chute: the canopy tears away, he drops to his seat in SKY_STONE.t s, a puff where he lands; a seat in a bomb hole takes him THROUGH (the pit's fall). NO FILE AT THE AIR RAIDS (SF3C-Q2: skyCall's file retired). Zero dice in the machine (the door's seat is a hash of the ship's number: the twin law). ═══
 const SKY_SHIP={ spd:120, y:370, gap:0.4, lead:1.0, pre:0.6, shut:0.6, doorX:33, sill:14, jit:18, wreck:1.7 };   // THE DROP SHIP's cells: her pace (px/s) · her lane (y) · the seconds between two men at the door · the drone's lead before she shows · the door opens this long before the first man · and stands open this long after the last · the door's seat off her middle (px, aft) · the sill's height over her seat · the landing seats' scatter across her track · her fall (s)
 const SKY_SAP={ run:1.6, lives:2, r:80 };   // THE SAPPER's cells: his run (× a trooper's pace) · the lives his satchel takes (SF3C-Q1) · the box's reach (LEAK_R 64 + a stride: the satchel blows before the leak's door sees him)
@@ -93494,7 +93494,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -226055,6 +226055,237 @@ try{
 } catch(e){ ptrErr('boot',e); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.ptr) GVT.ptr=function(o){ o=o||{}; if(o.on===0 || o.on===1) PTR.on=o.on; return ptrRead(); }; }catch(e){} },0);   // the rigs' door (GVT is built below)
 // ═══ END CARD-PTR ═══
+// ═══ CARD-WVB · THE CORPS' NEW PLANES: A BOMBER FLIES IN WITH EVERY AIR RAID (THREE ON HARD AND MEGA), AND ON HARD AND MEGA A SMALL ESCORT PLANE DROPS AN ENEMY SABER SARGE ONCE A BATTLE (sec:CARD-WVB; design/corps-planes-1110/00-CARD-WVB.md; FROM WYATT 11/10/2026 about 15:55 EST, typed on Maker 1, card 2 of 3 of his Sky Fortress patch notes, board J57), his notes verbatim:
+// "- Add a bomber to each dogfighter wave. on hard & mega add 3 bombers"
+// "- For Hard and Mega, Once per battle, have a small escort plane parachute a enemy Saber Sarge into play. The Saber Sarge will be level 80 with the teal and red crystals. On Mega hes level 100 w/ the elder saber. "
+// THE WAVE BOMBER (skybomber, THE RAID BOMBER): SKY_T[t].rbomb of them (EASY 1 · MEDIUM 1 · HARD 3 · MEGA 3, WVB-Q1) join EACH of the two AIR RAIDS at the tail of the vees (skyCall wrapped by name),
+// are counted in the banner's PLANES INBOUND and drawn bigger in its formation (skyRaidHUD's two hunks), and THE SKY IS CLEAR! waits for them like any raid plane (they ride A.planes).
+// It flies the Corps' own flight model (the oval, the wingover, the bank: dfSteer · dfWingStep · dfAltStep) at WVB_T[t].spd, hunts nobody, never strafes, never passes at the box. Each LEG of the oval is a
+// bombing pass: it picks the densest knot of YOUR men ahead of it (your Bomber's pick law, bmbBelow, mirrored: the men within WVB.knot of each other; outside the toy box's ring), lines its shadow up over
+// the knot and lays a stick of WVB_T[t].stick bombs on it, each THE BIG BOMBER's own bomb (the SKY_BOMB_WARN shadow first, then skyBlast's knock through its own doors and every save); a stick opens NO hole
+// (skyHole is asked nothing while one of these blasts) and no bomb falls inside the toy box's ring (WVB-Q2). After WVB_T[t].passes legs it peels off with the raid (skyPeelFly: no bounty, no puff).
+// Its bar = WVB_T[t].hpX fighters at the tier (x the sky's price), a raid plane's armor (f.skyRaid: rarm) and THE AA GUN's round as on any raid plane; WVB.bounty dog tags when it is shot down; shot down it
+// falls and crashes down the wreck road's ONE door (skyPlaneWreck -> R.wrecks -> skyWreckTick -> skyCrashAt). ITS PICTURE: Laura's bomber drawing (CARD-PLN, her props spinning by her law) in the
+// Corps' colour (skyCorpsHex: green for a Tan-dyed commander), nose west like every Corps plane, WVB.w wide (between a fighter 76 and the drop ship 170); her drawing is never changed: an alias + a tint.
+// THE WORDS: Sarge, once a fight, when the first one is on the glass (the chat box, rank 3).
+// THE SWITCH: ?wvb=0 = the fight as it was on THIS device (no wave bomber, no escort, no Saber Sarge); ?wvb=1 clears it. In a room (S.coop) the new fight always (two phones run one rule).
+const WVB_ON=(function(){ try{ const q=/[?&]wvb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_wvb','0'); else localStorage.removeItem('gvt_wvb'); } return localStorage.getItem('gvt_wvb')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const WVB={ rbomb:{ e:1, m:1, h:3, g:3 }, gap:50, jit:12, knot:BMB_R, ring:SKY_HOLE_BOX, look:0.5, ahead:160, yTol:70, w:124, bounty:50, err:0, errs:[] };   // ⚑ WVB-Q1 the count a raid by tier (seated on SKY_T[t].rbomb, the live cell) · px between two bombs of a stick · a bomb's y jitter (hash) · a knot's reach (your Bomber's BMB_R) · the toy box's ring no bomb falls in (SKY_HOLE_BOX) · the knot's look-again s · the least lead a knot needs ahead of the nose · the shadow's line-up to drop · its width · its dog tags
+const WVB_T={ e:{ hpX:3, spd:110, stick:3, passes:3, ssLv:0, ssAt:7, ssRed:1, ssTeal:1, elder:0, escSpd:150 }, m:{ hpX:3, spd:110, stick:3, passes:3, ssLv:0, ssAt:7, ssRed:1, ssTeal:1, elder:0, escSpd:150 },
+  h:{ hpX:3, spd:110, stick:3, passes:3, ssLv:80, ssAt:7, ssRed:1, ssTeal:1, elder:0, escSpd:150 }, g:{ hpX:3, spd:110, stick:3, passes:3, ssLv:100, ssAt:7, ssRed:1, ssTeal:1, elder:20, escSpd:150 } };   // THE BOSS LAB's cells by tier (Raziya's RULES, 'sky'): ⚑ WVB-Q3 the bomber's bar (x the tier's fighter), pace px/s, bombs a stick, bombing passes · WVB-Q7 THE SABER SARGE's level (0 = no Sarge: EASY and MEDIUM never see him) · WVB-Q5 SKY_SS_AT = ssAt, his jump this many s after raid 1's THE SKY IS CLEAR! · his RED and TEAL (1 = he carries it) · WVB-Q8 THE ELDER SABER: every n-th strike that LANDS resets his clocks (0 = none; MEGA 20) · the escort's pace px/s
+function wvbC(){ return WVB_T[skyTier()] || WVB_T.e; }
+const WVB_SAY='Bombers in the raid! Shoot them down first!';
+let WVB_NOHOLE=0;   // while a wave bomber's bomb blasts (wvbBlast): skyHole opens nothing
+function wvbOn(){ return !!(WVB_ON || S.coop); }
+function wvbErr(e){ WVB.err++; if(WVB.errs.length<6) WVB.errs.push(String((e && e.message) || e).slice(0,140)); }
+function wvbR(R){ return R.wvb||(R.wvb={ spawned:0, sticks:0, bombs:[], blasts:0, said:0, downs:0, esc:null, ss:null, log:[] }); }
+function wvbN(T){ return wvbOn()? Math.max(0,(T && T.rbomb)|0) : 0; }
+function wvbHp(T){ return Math.max(1,Math.round(T.fhp*(+wvbC().hpX||3)*skyPrice(skyTier()))); }
+function wvbPasses(){ return Math.max(1,wvbC().passes|0); }
+function wvbSpd(){ return Math.max(20,+wvbC().spd||110); }
+function wvbNb(A){ return (A && A.nb>0)? A.nb|0 : 0; }
+for(const k in WVB.rbomb) if(SKY_T[k] && SKY_T[k].rbomb==null) SKY_T[k].rbomb=WVB.rbomb[k];   // THE CELL on the tier's row (the Boss Lab's RULES read and turn it there)
+function wvbRows(){ try{ if(!FDEF.skybomber) FDEF.skybomber={ hp:18, spd:0, bounty:WVB.bounty, leak:0, w:WVB.w, fly:true, name:'THE RAID BOMBER' }; }catch(e){ wvbErr(e); } }   // a plane: spd 0 and no rng/fireCd (the shipped march and shooter machines stay inert); its bar is the raid's (wvbHp); hp 18 = three of the row's fighters
+setTimeout(wvbRows,0);   // SEATED LAST (the Snapper's law, sec CARD-ICN): the party's census counts foe kinds by their place in the foe table (FCN_KEYS = Object.keys(FDEF)), so a new row stands after every row of the base, the Snapper's included (his own deferred seat is scheduled above this block); no kind that stood before moves
+try{ SPRITES_SRC.skybomber=SPRITES_SRC.bomber; SKY_BOX.skybomber='0 0 170 100'; if(SKY_CORPS.indexOf('skybomber')<0) SKY_CORPS.push('skybomber'); SKY_SPD.skybomber=WVB_T.e.spd; RXA_SKY.skybomber=1; }catch(e){ wvbErr(e); }   // her bomber's drawing under the Corps' key (the alias: her bytes, her box), on the Corps' tint list (buildFoeTint, sprURI's colour, THE MARSHAL'S CAP), its pace for the peel and the wreck's drift, its shadow law (RXA)
+function wvbTintOne(hex){ try{ const B=IMGT[hex]; if(!B || B.skybomber || B.__wvb) return; B.__wvb=1; const body=lagSpr(amMold('skybomber').split('currentColor').join(hex),'skybomber',hex), im=new Image(); im.onload=()=>{ B.skybomber=im; }; im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+SKY_BOX.skybomber+'">'+body+'</svg>'); }catch(e){ wvbErr(e); } }   // buildFoeTint's own recipe for one picture: a bucket built before this block ran gets it here
+function wvbMint(){ try{ if(IMG.skybomber) return; const body=amMold('skybomber').split('currentColor').join(TAN), im=new Image(); im.onload=()=>{ if(!IMG.skybomber) IMG.skybomber=im; }; im.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+SKY_BOX.skybomber+'">'+body+'</svg>'); }catch(e){ wvbErr(e); } }   // the factory picture (buildSprites ran above this block: its own recipe for one key, the Corps' TAN; a later buildSprites paints it the same, SKY_CORPS rides its TAN list)
+wvbMint();
+{ const fi0=foeImg; foeImg=function(k){ const im=fi0.apply(this,arguments); if(im || k!=='skybomber') return im; try{ for(const h in IMGT) wvbTintOne(h); }catch(e){ wvbErr(e); } return im; }; }   // WRAPPED BY NAME: every other picture byte-what-it-was
+function wvbKnot(f,K){ const d=K.wpDir, b=skyBox(), xs=[];   // THE PICK (bmbBelow mirrored onto YOUR men): the densest knot ahead of the nose, outside the toy box's ring; a tie = the nearest ahead, then the lower id
+  for(const u of S.units){ if(u.dead || u.jetT>0 || u.dropT>0 || u.falling || u.cloakT>0 || u.burrow) continue; if(S.drag && S.drag.unit===u) continue; const ah=(u.x-f.x)*d; if(ah<WVB.ahead) continue; if(Math.hypot(u.x-b.x,u.y-b.y)<WVB.ring+WVB.gap*0.5) continue; xs.push(u); }
+  if(!xs.length) return null; let bi=null, bn=0, ba=0;
+  const cl=[]; for(const o of S.foes){ if(o!==f && o.type==='skybomber' && !o.dead && o.sky && o.sky.armed && o.sky.tg) cl.push(o.sky.tg); }   // THE CLAIM: a knot another wave bomber is flying at is left to it (the next densest is this one's; all claimed = the densest anyway)
+  const free=u=>!cl.some(c=>Math.hypot(u.x-c.x,u.y-c.y)<=WVB.knot*1.5), anyFree=xs.some(free);
+  for(const u of xs){ if(anyFree && !free(u)) continue; let n=0; for(const o of xs) if(Math.hypot(o.x-u.x,o.y-u.y)<=WVB.knot) n++; const ah=(u.x-f.x)*d; if(!bi || n>bn || (n===bn && (ah<ba || (ah===ba && (u.id|0)<(bi.id|0))))){ bi=u; bn=n; ba=ah; } }
+  let sx=0, sy=0, m=0; for(const o of xs) if(Math.hypot(o.x-bi.x,o.y-bi.y)<=WVB.knot){ sx+=o.x; sy+=o.y; m++; }
+  return { x:sx/m, y:sy/m, n:bn, id:bi.id|0 }; }
+function wvbFly(f,dt,T){ let K=f.sky;   // THE WAVE BOMBER's flight: the Corps' own model at its own pace (skyFly hands it here: wrapped by name)
+  if(!K){ K=f.sky={ dir:-1, bankT:0, cd:0, lane:0, born:S.t, boxArm:0, laps:0, hd:Math.PI, bank:0, alt:SKY_ALT, altT:SKY_ALT, spdMul:1, spdNow:wvbSpd(), wpDir:-1, wing:0, wingBox:0, wvb:1, pass:0, armed:1, tg:null, rt:0, sticks:0 }; if(S.raid.sky) S.raid.sky.seen=(S.raid.sky.seen|0)+1; }
+  if(K.bankT>0) K.bankT=Math.max(0,K.bankT-dt);
+  if(K.peel){ skyPeelFly(f,K,dt); return; }   // the raid's own peel-off: full throttle east, climbing out, gone off the glass (no bounty)
+  const V=SKY_OVAL;
+  if(dfOvalEnd(K,f.x,V)){ K.wpDir=-K.wpDir; K.wing=DF_WING_T; K.pass++; if(K.wpDir<0) K.laps++; K.armed=1; K.tg=null; K.rt=0; if(K.pass>=wvbPasses()){ K.peel=1; K.peelT=0; skyPeelFly(f,K,dt); return; } }   // a leg flown = a bombing pass; the wingover turns it for the next
+  if(K.armed && f.x<SKY_W-10){ K.rt-=dt; if(K.rt<=0){ K.rt=WVB.look; if(!(K.tg && (K.tg.x-f.x)*K.wpDir<WVB.ahead)) K.tg=wvbKnot(f,K); } }   // a knot inside the lead is COMMITTED: flown to the drop (a look further on only before it)
+  const tg=K.armed? K.tg : null, ty=tg? Math.max(DF_SKY_Y[0],Math.min(DF_SKY_Y[1],tg.y-SKY_ALT)) : Math.max(V.y0,Math.min(V.y1,f.y)), tx=tg? tg.x+K.wpDir*120 : ((K.wpDir>0)? V.x1+DF_TURN_R : V.x0-DF_TURN_R);
+  dfSteer(K,Math.atan2(ty-f.y,tx-f.x),dt); dfWingStep(K,dt,SKY_ALT); dfAltStep(K,dt,wvbSpd()); f.x+=Math.cos(K.hd)*K.spdNow*dt; f.y=Math.max(DF_SKY_Y[0],Math.min(DF_SKY_Y[1],f.y+Math.sin(K.hd)*K.spdNow*dt)); K.dir=(Math.cos(K.hd)>=0)? 1 : -1;
+  if(tg && (tg.x-K.wpDir*WVB.gap-f.x)*K.wpDir<=0){ if(Math.abs(f.y+SKY_ALT-tg.y)<=WVB.yTol && wvbStick(f,K,tg)){ K.armed=0; } K.tg=null; K.rt=WVB.look; } }   // over the knot: the stick (lined up), else a miss and the look goes on ahead
+function wvbStick(f,K,tg){ const R=S.raid.sky, W9=wvbR(R), d=K.wpDir, n=Math.max(1,wvbC().stick|0), b0=skyBox(); let laid=0;   // A STICK: n bombs centred on the knot along the flight, the first under the nose now, each SKY_BOMB_GAP after the last (the Big Bomber's own stagger)
+  for(let i=0;i<n;i++){ const x=Math.round(tg.x+d*(i-(n-1)/2)*WVB.gap), j=((i*53+(W9.sticks|0)*29+(f.id|0)*7)%(2*WVB.jit+1))-WVB.jit, y=Math.round(foeBandY(tg.y+j)); if(x<40 || x>SKY_W-40) continue; if(Math.hypot(x-b0.x,y-b0.y)<WVB.ring) continue;
+    W9.bombs.push({ x, y, t:-laid*SKY_BOMB_GAP, sy:y-SKY_ALT-8, wvb:1, by:f.id|0 }); laid++; }
+  if(laid){ W9.sticks=(W9.sticks|0)+1; K.sticks=(K.sticks|0)+1; W9.log.push([+S.t.toFixed(2),'stick',f.id|0,laid,Math.round(tg.x),Math.round(tg.y),tg.n]); bfSfx(SFX.fallw,f.x,f.y); }
+  return laid; }
+function wvbBlast(b){ WVB_NOHOLE=1; try{ skyBlast(b); }finally{ WVB_NOHOLE=0; } }   // THE BIG BOMBER's own bomb (skyBlast: the ring, the knock through its doors and saves, the trench kit, the AA gun's bags) with no hole
+{ const h0=skyHole; skyHole=function(x,y){ if(WVB_NOHOLE) return null; return h0.apply(this,arguments); }; }   // WRAPPED BY NAME: every other bomb byte-what-it-was
+function wvbCall(T,i,R,B){ const A=R.air; if(!A) return; const nb=(A.nb!=null)? (A.nb|0) : wvbN(T); if(nb<=0) return;   // THE WAVE's bombers at the tail of its vees (skyCall's own formation, continued)
+  const rw=(T.raid && T.raid[i]) || [0,0], n0=(rw[0]|0)+(rw[1]|0), mid=(SKY_OVAL.y0+SKY_OVAL.y1)/2, W9=wvbR(R); SKY_SPD.skybomber=wvbSpd(); try{ foeImg('skybomber'); }catch(e){}
+  for(let q=0;q<nb;q++){ const j=n0+q, g=Math.floor(j/5), k=j%5, row=(k+1)>>1, side=(k%2)? -1 : 1, x=SKY_W+40+g*240+row*70, y=mid+((g%2)? 44 : -44)+side*row*60;
+    const f=spawnFoe('skybomber', x, foeBandY(y), null, false); if(!f) continue; f.hp=f.hpMax=wvbHp(T); f.skyRaid=1; f.skyRaidI=i; f.wvb=1; A.planes.push(f); A.spawned=(A.spawned|0)+1; W9.spawned=(W9.spawned|0)+1; W9.log.push([+S.t.toFixed(2),'in',f.id|0,i]); } }
+{ const c0=skyCall; skyCall=function(T,i,R,B){ const r=c0.apply(this,arguments); try{ wvbCall(T,i,R,B); }catch(e){ wvbErr(e); } return r; }; }   // WRAPPED BY NAME: the fighters and the Red Tails byte-what-they-were, then the bombers
+{ const w0=skyRaidWarn; skyRaidWarn=function(T,R,B){ const r=w0.apply(this,arguments); try{ const A=R && R.air; if(A && A.st==='warn') A.nb=wvbN(T); }catch(e){ wvbErr(e); } return r; }; }   // the warning counts them (the banner's PLANES INBOUND and its formation read A.nb)
+{ const f0=skyFly; skyFly=function(f,dt,T){ if(f && f.type==='skybomber'){ try{ wvbFly(f,dt,T); }catch(e){ wvbErr(e); } return; } return f0.apply(this,arguments); }; }   // WRAPPED BY NAME: every other plane byte-what-it-was
+function wvbSil(j,A,ax,ay,sc,x,y){ const n0=(A.nf|0)+(A.na|0); if(j<n0){ skyRaidSil(x,y,sc,j<A.na); return; } const q=j-n0; x=ax+(18+q*58)*sc; y=ay+50*sc; const s=sc*1.45; cx.save(); cx.translate(x,y); cx.scale(s,s); cx.fillStyle='#1E2129';   // the banner's formation: a fighter or a Red Tail as ever (the vees); the BOMBERS their own row under the vees' lead (always on the glass, however long the vees), bigger: the straight broad wing and twin fins (nose west)
+  cx.beginPath(); cx.ellipse(0,0,17,3.9,0,0,7); cx.fill(); cx.beginPath(); cx.moveTo(-5,-1); cx.lineTo(5,-1); cx.lineTo(3,10); cx.lineTo(-8,10); cx.closePath(); cx.fill(); cx.beginPath(); cx.moveTo(11,-1); cx.lineTo(16,-8); cx.lineTo(18,-8); cx.lineTo(17,0); cx.closePath(); cx.fill(); cx.restore(); }
+function wvbTick(dt){ const R=S.raid && S.raid.sky; if(!R || !skyOn()) return; const W9=wvbR(R);   // the sticks' clock (skyPass wrapped by name: after the Corps' own), Sarge's line
+  for(let i=W9.bombs.length-1;i>=0;i--){ const b=W9.bombs[i]; b.t+=dt; if(b.t>=SKY_BOMB_WARN){ W9.bombs.splice(i,1); W9.blasts=(W9.blasts|0)+1; wvbBlast(b); } }
+  if(!W9.said && wvbOn()){ for(const f of S.foes){ if(f.type==='skybomber' && !f.dead && f.x<SKY_W-10 && f.x>10){ W9.said=1; try{ commSayAs(null, WVB_SAY, {rank:3, always:1}); }catch(e){ wvbErr(e); } break; } } } }
+{ const p0=skyPass; skyPass=function(dt){ const r=p0.apply(this,arguments); try{ wvbTick(dt); }catch(e){ wvbErr(e); } return r; }; }
+function wvbDraw(){ const R=S.raid && S.raid.sky; if(!R || !R.wvb || !skyOn()) return;   // the sticks' shadows: THE BIG BOMBER's own picture (the shadow grows, the ring closes on the blast), the bomb falling from the bomber's height (skyDraw wrapped by name: after hers)
+  for(const b of R.wvb.bombs){ if(b.t<0) continue; const k=Math.min(1,b.t/SKY_BOMB_WARN);
+    cx.save(); cx.globalAlpha=0.18+0.22*k; cx.fillStyle='#000'; cx.beginPath(); cx.ellipse(b.x,b.y,8+SKY_BOMB_R*0.55*k,4+SKY_BOMB_R*0.22*k,0,0,7); cx.fill();
+    cx.globalAlpha=0.9; cx.strokeStyle='rgba(255,179,71,'+(0.35+0.5*k).toFixed(2)+')'; cx.lineWidth=2; cx.beginPath(); cx.arc(b.x,b.y,SKY_BOMB_R*(1-k)+6,0,7); cx.stroke(); cx.restore();
+    cx.fillStyle='#333'; cx.beginPath(); cx.arc(b.x, b.sy+(b.y-b.sy)*k, 4.5, 0, 7); cx.fill(); } }
+{ const d0=skyDraw; skyDraw=function(){ const r=d0.apply(this,arguments); try{ wvbDraw(); }catch(e){ wvbErr(e); } return r; }; }
+{ const q0=skyDrawPlane; skyDrawPlane=function(f){ if(f && f.type==='skybomber' && !foeImg('skybomber')) return; return q0.apply(this,arguments); }; }   // its picture not decoded yet (the tint's first frame): nothing drawn that frame, never a broken draw
+try{ Object.assign(TR.es||(TR.es={}), { "Bombers in the raid! Shoot them down first!":"¡Bombarderos en el ataque! ¡Derríbenlos primero!", "THE RAID BOMBER":"EL BOMBARDERO DEL ATAQUE" });
+  Object.assign(TR.de||(TR.de={}), { "Bombers in the raid! Shoot them down first!":"Bomber im Angriff! Holt sie zuerst runter!", "THE RAID BOMBER":"DER ANGRIFFSBOMBER" });
+  Object.assign(TR.ru||(TR.ru={}), { "Bombers in the raid! Shoot them down first!":"В налёте бомбардировщики! Сбейте их первыми!", "THE RAID BOMBER":"БОМБАРДИРОВЩИК НАЛЁТА" });
+  Object.assign(TR.ja||(TR.ja={}), { "Bombers in the raid! Shoot them down first!":"ばくげきき が きたぞ！ さきに うちおとせ！", "THE RAID BOMBER":"しゅうげきの ばくげきき" });
+  Object.assign(TR.ko||(TR.ko={}), { "Bombers in the raid! Shoot them down first!":"폭격기가 온다! 먼저 격추해!", "THE RAID BOMBER":"습격 폭격기" });
+  Object.assign(TR['zh-Hans']||(TR['zh-Hans']={}), { "Bombers in the raid! Shoot them down first!":"空袭里有轰炸机！先把它们打下来！", "THE RAID BOMBER":"空袭轰炸机" });
+  Object.assign(TR.ar||(TR.ar={}), { "Bombers in the raid! Shoot them down first!":"قاذفات في الغارة! أسقطوها أولًا!", "THE RAID BOMBER":"قاذفة الغارة" }); }catch(e){ wvbErr(e); }
+// ── THE ESCORT AND THE SABER SARGE (HARD and MEGA, ONCE a battle; never on EASY or MEDIUM: WVB_T[t].ssLv 0) ──
+// WHEN (WVB-Q5): WVB_T[t].ssAt s (SKY_SS_AT, 7) after raid 1's THE SKY IS CLEAR! (the breath is 5), never while a raid is up: on her westbound crossing with her nose east of the jump, else from the east edge
+// (12 s more of waiting at most). THE ESCORT (WVB-Q6): a Red Tail (skyace: its mold, its bar, its 60 dog tags; never a raid plane, no armor) flying ALONE off her wing on a straight line to the jump
+// point, then climbing away east (the raid's own peel picture; no bounty). Every air gun shoots it; shot down it goes down the wreck road, and the Sarge BAILS OUT of it where it fell ("once per battle"
+// is a promise). THE JUMP (WVB-Q9): x by hash between 700 and 1100 over the middle of the roof (never in the toy box's ring), the band's y, never over a hole; under the game's own chute (f.skyDrop:
+// SKY_DROP_T 2.6 s, skyPass's own tick; the air guns hit him there and it comes off his bar; he drops like a stone only when it is gone).
+// THE SABER SARGE (WVB-Q7, road (a): THEIR SARGE's row and brain): his own row skysarge (THEIR SARGE's picture: TSB's own body and blade, the blade in his crystal's paint), NEVER A BOSS (no bar on
+// the glass, never skyBoss, the gates, the floor, MAYDAY or the win: f.boss false, f.barOff), his level's numbers off the game's own tables for a SABER Sarge at that level (the Boss Lab's "the level of
+// his Sarge" = the LV of the iron in hand): his bar sgBfHP's own pair bfHpAt('sarge',lv) + wpnPlateAt('lightsaber',lv,lv) (44 at 80, 50 at 100) x the sky's price; his blade's strike 7 + 2.5 x
+// rankUnits(lv) HP (65.85 / 68.81); THE FULL BLADE (rank 20: the reach sabFull 175, the block 0.5); TELEKINESIS (5) + THE SECOND CRYSTAL (50) = his two crystals, TEAL and RED; MEGA: THE ELDER SABER
+// (+3 m of reach, ES_M; every WVB_T.g.elder-th strike that LANDS resets his clocks: COUNTED, never a die). NO INSTANT KO (11/3): every blow is an AMOUNT through the house's priced door (dhtHit: D HP
+// off the man's sheet = D x grit / sheet HP of his hits, through every save, the shield, the plates, the blade, and THE DAMPER); a machine keeps the knock's dent (one hit of its hull); a figure on HP
+// takes it through hurt(). His brain (wvbSSTick, run by skyPass's wrapper after the foes loop; spd 0 on his row keeps the shipped march inert): THEIR SARGE's dash machine (the reach, the dash 520,
+// the swing 0.7) hunting your men, walking at Sarge's own pace (CAMP_SPD.sarge 40) to the nearest when none is in reach; RED (TK_CD.red 8 s): the tell (0.4 s, his blade red), the overhead lunge
+// (TK_RED_DASH 9 m, landing at the man, TK_RED_T 0.32 s), TK_RED_DMG 10 HP on every man in TK_RED_R 55; TEAL (TK_CD.teal 15 s): powered TK_TEAL_T 8 s (his teal halo), a dash every TK_TEAL_EVERY 1.3 s
+// at a man inside TK_TEAL_SEEK 200, the pop TK_TEAL_DMG 1 HP + the slow (TK_TEAL_SLOW x1.4 for 2 s) on every man inside TK_TEAL_AOE 78.5. He never touches the toy box (kept out of its leak ring)
+// and never steps into a hole. His fall pays his 150 dog tags and nothing more: the fight goes on (WVB-Q10). THE PLATE over his head: SABER SARGE · LV 80 / LV 100 (x7). Sarge, once: the jump's line.
+const WVB_SS={ tell:0.4, walk:40, kiss:26, hole:8, ring:LEAK_R+16, x0:700, x1:1100, wait:12, plateY:-62, red0:0.6, teal0:2.5 };   // the red's tell s · his walk px/s (Sarge's own CAMP_SPD row) · the blade's reach to strike (updateFoeSaber's 26) · the steps a dash looks for a hole · the leak ring he never enters · the jump's band (WVB-Q9) · the most s the escort waits for her crossing · the plate's seat over his feet · his FIRST red and teal, s after he lands (his entrance: the lunge; then TK_CD's own clocks, WVB-Q11)
+const WVB_SS_SAY='Their Sarge just dropped in with a saber! Every gun on him!', WVB_SS_PLATE='SABER SARGE · LV %1';
+const WVB_TEAL=(SABER_COLORS.find(c=>c.id==='teal')||{hex:'#3DE0D0'}).hex, WVB_RED=(SABER_COLORS.find(c=>c.id==='red')||{hex:'#FF4D4D'}).hex;
+function wvbSSRows(){ try{ if(!FDEF.skysarge) FDEF.skysarge={ hp:44, spd:0, bounty:150, leak:0, w:56, name:'THE SABER SARGE', ss:1, saber:{ aggro:175, dash:520, ret:390, swing:0.7, block:SABER_L20_BLOCK } }; }catch(e){ wvbErr(e); } }   // THEIR SARGE's row at LV 80 (the per-foe copy carries his level: wvbSSDrop); spd 0 (his own brain walks him); never a boss
+setTimeout(wvbSSRows,0);   // seated LAST, after the raid bomber's (the census's order: the Snapper's law)
+function wvbSSLvOf(t){ const c=WVB_T[t||skyTier()]; return c? Math.max(0,Math.min(RANK_MAX,c.ssLv|0)) : 0; }
+function wvbSSNums(lv,t){ const c=WVB_T[t||skyTier()]||WVB_T.e, u=rankUnits(lv), es=(c.elder|0)>0;   // HIS LEVEL's numbers off the game's own tables (a SABER Sarge at that level, the player's ladder mirrored; never a player's own gifts)
+  return { lv, D:+(7+2.5*u).toFixed(2), hp:Math.max(1,Math.round((bfHpAt('sarge',lv)+wpnPlateAt('lightsaber',lv,lv))*skyPrice(t||skyTier()))), aggro:((lv>=WPN_MILE.sabFullLvl)? WPN_MILE.sabFull : WPN_MILE.sabNear)+(es? ES_M*TK_M : 0), block:(lv>=WPN_MILE.sabFullLvl)? SABER_L20_BLOCK : 0,
+    red:!!(c.ssRed && lv>=WPN_MILE.giftLvl), teal:!!(c.ssTeal && lv>=WPN_MILE.sabTwoLvl), elder:es? (c.elder|0) : 0 }; }   // the two crystals: TELEKINESIS from rank 5 (his first), THE SECOND CRYSTAL from 50 (his second)
+function wvbSSSeat(n){ for(let k=0;k<12;k++){ const a=skwDie(n,701+k), b=skwDie(n,907+k), x=WVB_SS.x0+(WVB_SS.x1-WVB_SS.x0)*a, s=skySeat(x, FOE_TOP+190+(FOE_BOT-70-(FOE_TOP+190))*b), bx=skyBox();   // THE JUMP POINT by hash (the twin law: every sim throws the same), the band, never a hole, never the box's ring
+    if(!skyInHole(s.x,s.y) && Math.hypot(s.x-bx.x,s.y-bx.y)>=WVB.ring+40) return s; } return skySeat((WVB_SS.x0+WVB_SS.x1)/2, (FOE_TOP+FOE_BOT)/2); }
+function wvbSSFlow(R){ const W9=wvbR(R), A=R.air, C=wvbC(); if(W9.ss==='off' || W9.ss==='esc' || W9.ss==='jump' || W9.ss==='down' || W9.ss==='gone') return;   // THE MOMENT: raid 1 cleared, ssAt s on, no raid up
+  if(!(wvbSSLvOf()>0) || !wvbOn()){ W9.ss='off'; return; }
+  if(W9.clearAt==null){ if(A && (A.clears|0)>=1){ W9.clearAt=S.t; W9.ss='wait'; } return; }
+  if(S.t-W9.clearAt<(+C.ssAt||0) || skyRaidUp(R) || S.mode!=='play' || S.raid.won || S.raid.kingDown || S.cleared) return;
+  const B=skyBoss(), seat=W9.jump||(W9.jump=wvbSSSeat((R.sticks|0)*7+(A? A.raids|0 : 0)));
+  const onWing=!!(B && B.sky && !hrtS3Down(B) && B.sky.dir<0 && B.x>seat.x+300 && B.x<SKY_W-60);
+  if(!onWing && S.t-W9.clearAt<(+C.ssAt||0)+WVB_SS.wait) return;   // her westbound crossing, east of the jump (else from the east edge)
+  const T=SKY_T[skyTier()], x=onWing? B.x+70 : SKY_W+40, y=onWing? B.y+40 : (SKY_OVAL.y0+SKY_OVAL.y1)/2;
+  const f=spawnFoe('skyace', x, foeBandY(y), null, false); if(!f){ W9.ss='off'; return; }
+  f.y=y; f.hp=f.hpMax=skyPlaneHp('skyace',T); f.wvbEsc=1; f.sky={ dir:-1, bankT:0, cd:0, lane:0, born:S.t, boxArm:0, laps:0, hd:Math.PI, bank:0, alt:SKY_ALT, altT:SKY_ALT, spdMul:1, spdNow:+C.escSpd||150, wpDir:-1, wing:0, wingBox:0, esc:1 };
+  W9.esc=f; W9.ss='esc'; W9.escAt=S.t; W9.wing=onWing? 1 : 0; W9.log.push([+S.t.toFixed(2),'esc',f.id|0,Math.round(x),Math.round(seat.x),Math.round(seat.y),W9.wing]); }
+function wvbEscFly(f,dt,T){ const K=f.sky, R=S.raid.sky, W9=wvbR(R), C=wvbC();   // THE ESCORT's flight: a straight line to the jump point, the drop, then the climb away east
+  if(K.peel){ skyPeelFly(f,K,dt); return; }
+  const s=W9.jump, ty=s.y-SKY_ALT, d=Math.hypot(s.x-f.x,ty-f.y), spd=+C.escSpd||150;
+  dfSteer(K,Math.atan2(ty-f.y,s.x-f.x),dt); dfAltStep(K,dt,spd); f.x+=Math.cos(K.hd)*K.spdNow*dt; f.y=Math.max(DF_SKY_Y[0],Math.min(DF_SKY_Y[1],f.y+Math.sin(K.hd)*K.spdNow*dt)); K.dir=(Math.cos(K.hd)>=0)? 1 : -1;
+  if(d<=Math.max(14,K.spdNow*dt*1.5) || (W9.escAt!=null && S.t-W9.escAt>25)){ wvbSSDrop(s.x,s.y,Math.max(40,s.y-f.y),'jump'); K.peel=1; K.peelT=0; } }
+function wvbSSDrop(x,y,alt,how){ const R=S.raid.sky, W9=wvbR(R); if(W9.ssF) return null; const lv=wvbSSLvOf(); if(!(lv>0)) return null;   // THE JUMP: he comes down under the game's own chute (ONCE: the one seat)
+  const N=wvbSSNums(lv), f=spawnFoe('skysarge', x, foeBandY(y), null, false); if(!f) return null;
+  f.def=Object.assign({}, FDEF.skysarge, { saber:Object.assign({}, FDEF.skysarge.saber, { aggro:N.aggro, block:N.block }) });   // the per-foe copy (the shared row stays as shipped; a wrapper that zeroes a block writes this copy)
+  f.boss=false; f.barOff=1; f.hp=f.hpMax=N.hp; f.wvbSS={ lv:N.lv, D:N.D, aggro:N.aggro, red:N.red, teal:N.teal, elder:N.elder, redCd:WVB_SS.red0, tealCd:WVB_SS.teal0, tealT:0, tealDash:0, swing:0, p:null, tg:null, st:'idle', strikes:0, landed:0, resets:0, casts:{ red:0, teal:0, dash:0 }, dealt:{ blade:0, red:0, teal:0 }, kills:{ blade:0, red:0, teal:0 }, born:S.t };
+  f.skyDrop={ t:0, x:f.x, y:f.y, sw:1.7, alt:Math.max(40,alt||SKY_ALT+40) }; f.shot=0; f.aimT=0; f.form=null; f.saberState='idle';
+  W9.ssF=f; W9.ss='jump'; W9.jumpAt=S.t; W9.how=how||'jump'; W9.log.push([+S.t.toFixed(2),'ss',f.id|0,how||'jump',Math.round(x),Math.round(y),N.lv,N.hp]);
+  if(!W9.ssSaid){ W9.ssSaid=1; try{ commSayAs(null, WVB_SS_SAY, {rank:3, always:1}); }catch(e){ wvbErr(e); } }
+  return f; }
+function wvbSSAlive(f){ return !!(f && !f.dead && !f.pendDie && f.hp>0 && S.foes.indexOf(f)>=0); }
+function wvbSSOk(u){ return !!(u && !u.dead && !(u.jetT>0) && !(u.dropT>0) && !u.falling && !(u.cloakT>0) && S.units.indexOf(u)>=0 && !(S.drag && S.drag.unit===u)); }
+function wvbSSHit(f,u,D,k){ if(!wvbSSOk(u) || !(D>0)) return 0; const K=f.wvbSS, h0=u.hits||0, p0=(u.hp!=null)? u.hp : null, was=u.dead;   // THE PRICED DOOR: an amount, never the whole knock
+  if(u.def && u.def.vehicle) knock(u,f.x,f.y);   // a machine on the rug keeps the knock's dent (one hit of its hull while its grit lasts: knock's own law)
+  else if(u.hp!=null) hurt(u,D,f);   // a figure on HP (a hero's pool): the HP funnel (the damper's dmpHp rides it)
+  else dhtHit(f,u,D,0,f.x,f.y);   // D HP off his sheet = D x grit / sheet HP of his hits (CARD-DHT's door: every save, THE DAMPER)
+  const got=(u.dead && !was) || (u.hits||0)>h0+1e-9 || (p0!=null && u.hp<p0-1e-9); if(K){ if(got){ K.dealt[k]=(K.dealt[k]||0)+((u.hits||0)-h0); if(u.dead && !was) K.kills[k]=(K.kills[k]||0)+1; } }
+  return got? 1 : 0; }
+function wvbSSElder(f,K){ if(!(K.elder>0) || K.landed%K.elder!==0) return; K.redCd=0; K.tealCd=0; K.resets++;   // THE ELDER SABER (MEGA): the n-th LANDED strike resets his crystals' clocks, red and teal (the player's: every ability's cooldown); counted, never a die. The swing between two cuts stays the blade's own
+  S.fx.push({k:'ring',x:f.x,y:f.y-20,r:6,R:46,t:0,dur:0.36,col:'#F4F9FF'}); S.fx.push({k:'flash',x:f.x,y:f.y-40,ang:1.57,R:20,lw:3,t:0,dur:0.2}); bfSfx(SFX.snap,f.x,f.y); }
+function wvbSSStrike(f,K,u){ K.strikes++; f.sabCutT=S.t; const got=wvbSSHit(f,u,K.D,'blade'); if(got){ K.landed++; wvbSSElder(f,K); }   // HIS BLADE: one strike, his level's damage
+  S.fx.push({k:'ring',x:f.x,y:f.y-16,r:6,R:50,t:0,dur:0.26,col:wvbSSHex(f)}); bfSfx(SFX.laser,f.x,f.y); K.swing=(f.def.saber.swing||0.7)*((typeof kchSlowMul==='function')? kchSlowMul(f) : 1); }
+function wvbSSHex(f){ const K=f && f.wvbSS; return (K && K.p && K.p.k==='red')? WVB_RED : WVB_TEAL; }   // his blade's paint: TEAL, RED while the red is out (WVB-Q8's look)
+function wvbSSMove(f,tx,ty,step){ const dx=tx-f.x, dy=ty-f.y, d=Math.hypot(dx,dy); if(d<1e-6) return 0; const s=Math.min(d,step), n=Math.max(1,WVB_SS.hole|0);   // a step that never enters a hole (he stops at the brink)
+  let ok=0; for(let i=1;i<=n;i++){ const k=s*i/n, x=f.x+dx/d*k, y=f.y+dy/d*k; if(skyInHole(x,y)) break; ok=k; } f.x+=dx/d*ok; f.y+=dy/d*ok; wvbSSKeep(f); return ok; }
+function wvbSSKeep(f){ const b=skyBox(), dx=f.x-b.x, dy=f.y-b.y, d=Math.hypot(dx,dy), r=WVB_SS.ring; if(d<r){ const k=(d>1e-6)? r/d : 1; f.x=b.x+(d>1e-6? dx*k : r); f.y=b.y+(d>1e-6? dy*k : 0); }   // never into the toy box's leak ring
+  f.x=Math.max(40,Math.min(SKY_W-40,f.x)); f.y=foeBandY(f.y); }
+function wvbSSNear(f){ let best=null, bd=1e9; for(const u of S.units){ if(!wvbSSOk(u)) continue; const d=Math.hypot(u.x-f.x,u.y-f.y); if(d<bd || (d===bd && best && (u.id|0)<(best.id|0))){ bd=d; best=u; } } return best; }
+function wvbSSTick(f,dt){ const K=f.wvbSS; if(!K || f.skyDrop || f.falling || !wvbSSAlive(f)) return;   // HIS BRAIN (skyPass's wrapper, after the foes loop)
+  const fz=(typeof fzWalk==='function')? fzWalk(f) : 1;
+  K.redCd-=dt; K.tealCd-=dt; if(K.swing>0) K.swing=Math.max(0,K.swing-dt); if(K.tealT>0){ K.tealT=Math.max(0,K.tealT-dt); K.tealDash-=dt; }
+  if(K.p){ wvbSSPower(f,K,dt,fz); return; }
+  if(K.red && K.redCd<=0){ const u=foeSaberNext(f,TK_RED_SEEK); if(u && wvbSSOk(u)){ K.redCd=TK_CD.red; K.casts.red++; K.p={ k:'red', st:'tell', t:WVB_SS.tell, tg:u }; f.saberState='out'; tkTellFx(f.x,f.y,WVB_RED); bfSfx(SFX.tkgather||SFX.laser,f.x,f.y); return; } }
+  if(K.teal && K.tealCd<=0 && !(K.tealT>0)){ const u=foeSaberNext(f,TK_TEAL_SEEK+K.aggro); if(u && wvbSSOk(u)){ K.tealCd=TK_CD.teal; K.casts.teal++; K.tealT=TK_TEAL_T; K.tealDash=0; S.fx.push({k:'ring',x:f.x,y:f.y-18,r:8,R:60,t:0,dur:0.4,col:WVB_TEAL}); bfSfx(SFX.snap,f.x,f.y); } }
+  if(K.tealT>0 && K.tealDash<=0){ const u=foeSaberNext(f,TK_TEAL_SEEK); if(u && wvbSSOk(u)){ K.tealDash=TK_TEAL_EVERY; K.casts.dash++; K.p={ k:'teal', st:'go', t:0.6, tg:u }; f.saberState='out'; return; } }
+  // THE BLADE: THEIR SARGE's dash machine (updateFoeSaber's idle → out → the strike → the next in reach), the strike through the priced door
+  if(K.st==='out'){ const u=K.tg; if(!wvbSSOk(u)){ K.tg=foeSaberNext(f,K.aggro); if(!K.tg){ K.st='idle'; f.saberState='idle'; } return; }
+    const d=Math.hypot(u.x-f.x,u.y-f.y); f.saberTarget=u;
+    if(d>WVB_SS.kiss){ wvbSSMove(f,u.x,u.y,f.def.saber.dash*dt*fz); return; }
+    if(K.swing<=0){ wvbSSStrike(f,K,u); const nx=foeSaberNext(f,K.aggro); if(nx){ K.tg=nx; } else { K.st='idle'; f.saberState='idle'; K.tg=null; } }
+    return; }
+  const u=foeSaberNext(f,K.aggro); if(u && wvbSSOk(u)){ K.st='out'; K.tg=u; f.saberState='out'; f.saberTarget=u; bfSfx(SFX.laser,f.x,f.y); return; }
+  const n=wvbSSNear(f); f.saberTarget=null; if(n){ wvbSSMove(f,n.x,n.y,WVB_SS.walk*dt*fz); f.mvSm=0.6; } else f.mvSm=0; }   // none in reach: Sarge's own walk to the nearest man
+function wvbSSPower(f,K,dt,fz){ const p=K.p; p.t-=dt;
+  if(p.k==='red'){
+    if(p.st==='tell'){ if(!wvbSSOk(p.tg)) p.tg=foeSaberNext(f,TK_RED_SEEK); if(!p.tg){ K.p=null; return; } if(p.t>0) return;   // THE TELL (his blade red, the ring closing)
+      const u=p.tg, dx=u.x-f.x, dy=u.y-f.y, d=Math.hypot(dx,dy)||1, go=Math.min(TK_RED_DASH, Math.max(0,d-16));
+      p.st='lunge'; p.t=TK_RED_T; p.x0=f.x; p.y0=f.y; p.x1=f.x+dx/d*go; p.y1=f.y+dy/d*go; for(let i=8;i>=1;i--){ const k=i/8, x=p.x0+(p.x1-p.x0)*k, y=p.y0+(p.y1-p.y0)*k; if(!skyInHole(x,y)){ p.x1=x; p.y1=y; break; } if(i===1){ p.x1=p.x0; p.y1=p.y0; } } return; }
+    if(p.st==='lunge'){ const k=Math.max(0,Math.min(1,1-p.t/TK_RED_T)); f.x=p.x0+(p.x1-p.x0)*k; f.y=p.y0+(p.y1-p.y0)*k; f.hopZ=Math.sin(Math.PI*k)*46; if(p.t>0) return;   // THE OVERHEAD LUNGE (the arc over the men)
+      f.hopZ=0; wvbSSKeep(f); let n=0; for(const u of S.units.slice()){ if(!wvbSSOk(u)) continue; if(Math.hypot(u.x-f.x,u.y-f.y)<=TK_RED_R+((u.def && u.def.w)||54)*0.3){ wvbSSHit(f,u,TK_RED_DMG,'red'); n++; } }   // THE SLAM: TK_RED_DMG on every man in TK_RED_R
+      S.fx.push({k:'ring',x:f.x,y:f.y-16,r:8,R:TK_RED_R+20,t:0,dur:0.32,col:WVB_RED}); S.fx.push({k:'puff',x:f.x,y:f.y-6,t:0,dur:0.32,R:TK_RED_R}); bfSfx(SFX.tkslam||SFX.boom,f.x,f.y); if(!reducedMotion()) S.shake=Math.max(S.shake,0.18);
+      K.p=null; const nx=foeSaberNext(f,K.aggro); if(nx){ K.st='out'; K.tg=nx; K.swing=Math.max(K.swing,0.25); } return; } }
+  if(p.k==='teal'){ const u=p.tg; if(!wvbSSOk(u) || p.t<=0){ K.p=null; return; } const d=Math.hypot(u.x-f.x,u.y-f.y);   // THE TEAL DASH at a man, then THE POP
+    if(d>16){ wvbSSMove(f,u.x,u.y,f.def.saber.dash*dt*fz); if(Math.hypot(u.x-f.x,u.y-f.y)>16) return; }
+    for(const o of S.units.slice()){ if(!wvbSSOk(o)) continue; if(Math.hypot(o.x-f.x,o.y-f.y)<=TK_TEAL_AOE+((o.def && o.def.w)||54)*0.3){ wvbSSHit(f,o,TK_TEAL_DMG,'teal'); if(!o.dead) o.tkSlowT=TK_TEAL_SLOWT; } }
+    S.fx.push({k:'ring',x:f.x,y:f.y-12,r:6,R:TK_TEAL_AOE,t:0,dur:0.3,col:WVB_TEAL}); bfSfx(SFX.snap,f.x,f.y);
+    K.p=null; K.st='out'; K.tg=u; return; } }
+function wvbSSDraw(f){   // HIS PICTURE: THEIR SARGE as the game paints him (TSB's body and its saber grammar), his blade in his crystal's paint, the teal halo while powered, the plate
+  const K=f.wvbSS||{}, tg=f.saberTarget, fl=tg? (tg.x>f.x) : false, flying=!!(K.p || (K.st==='out' && tg && Math.hypot(tg.x-f.x,tg.y-f.y)>WVB_SS.kiss)), mv=(f.mvSm||0);
+  const wob=((flying || mv>0.3)? Math.sin(S.t*7+(f.wob||0))*0.05 : Math.sin(S.t*2.2+(f.wob||0))*0.024)+(flying? -TSB.lean : 0);
+  if(K.tealT>0){ cx.save(); cx.globalAlpha=0.22+0.1*Math.sin(S.t*8); cx.fillStyle=WVB_TEAL; cx.beginPath(); cx.ellipse(f.x,f.y-18-(f.hopZ||0),24,30,0,0,7); cx.fill(); cx.restore(); }
+  drawSprite('tansarge',f.x,f.y-(f.hopZ||0),f.def.w,0,wob,tsbBody(f),fl);
+  const r0=TSB.red; TSB.red=wvbSSHex(f); try{ const y0=f.y; f.y=y0-(f.hopZ||0); try{ tsbSaber(f,fl,flying,false); } finally { f.y=y0; } } finally { TSB.red=r0; }
+  if(f.hp<f.hpMax){ const k=f.hp/f.hpMax; cx.fillStyle='rgba(0,0,0,0.4)'; cx.fillRect(f.x-18,f.y-60,36,4); cx.fillStyle=k>0.4?'#7FA35C':'#D96A55'; cx.fillRect(f.x-18,f.y-60,36*k,4); }
+  wvbSSPlate(f); }
+function wvbSSPlate(f){ const K=f.wvbSS; if(!K) return; const txt=tf(WVB_SS_PLATE, K.lv), y=f.skyDrop? f.y-(1-Math.max(0,Math.min(1,f.skyDrop.t/SKY_DROP_T)))*(f.skyDrop.alt||0)+16 : f.y+WVB_SS.plateY-(f.hopZ||0);   // THE PLATE: small, over his head (under his boots while he hangs under the chute: the canopy owns the sky over him); never a bar across the top, never a banner
+  cx.save(); cx.font=cf('bold 11px'); const w=Math.ceil(cx.measureText(txt).width)+12; cx.fillStyle='rgba(24,16,12,0.82)'; rr(f.x-w/2,y-9,w,15,6); cx.fill(); cx.strokeStyle=WVB_TEAL; cx.lineWidth=1.2; rr(f.x-w/2,y-9,w,15,6); cx.stroke();
+  cx.fillStyle='#FFE27A'; cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText(txt,f.x,y-1); cx.restore(); }
+{ const d0=drawFoe; drawFoe=function(f){ if(f && f.type==='skysarge' && !f.skyDrop && !f.falling && !(f.dropT>0) && TSB.on && IMG.tancommanderb){ try{ wvbSSDraw(f); return; }catch(e){ wvbErr(e); } } const r=d0.apply(this,arguments); try{ if(f && f.type==='skysarge' && f.skyDrop) wvbSSPlate(f); }catch(e){ wvbErr(e); } return r; }; }   // WRAPPED BY NAME (the base's chute picture carries him while he hangs; every other foe byte-what-it-was)
+{ const fi1=foeImg; foeImg=function(k){ if(k==='skysarge'){ try{ return (TSB.on && IMG.tancommanderb)? foeImg('tancommanderb') : fi1('tansarge'); }catch(e){ return fi1('tansarge'); } } return fi1.apply(this,arguments); }; }   // his body under the chute and in his fall: THEIR SARGE's (TSB's body; ?tsb=0 his portrait mold)
+{ const g0=gvsFoeSarge; gvsFoeSarge=function(src){ return !!(src && src.type==='skysarge') || g0.apply(this,arguments); }; }   // THE GNOME SET's plate against THE ENEMY SARGE (CARD-GVS) knows him
+function wvbSSPass(dt){ const R=S.raid && S.raid.sky; if(!R || !skyOn()) return; const W9=wvbR(R);   // the moment, the escort's fate, his brain
+  wvbSSFlow(R);
+  if(W9.ss==='esc' && W9.esc && !W9.ssF){ const e=W9.esc; if(e.dead || e.hp<=0 || (S.foes.indexOf(e)<0 && !e.skyGone)){ const s=skySeat(e.x, e.y+SKY_ALT), b=skyBox(); let x=s.x, y=s.y; if(Math.hypot(x-b.x,y-b.y)<WVB.ring+40) x=b.x+WVB.ring+40; if(skyInHole(x,y)){ const j=wvbSSSeat((R.sticks|0)+13); x=j.x; y=j.y; } wvbSSDrop(x,y,SKY_ALT+40,'bail'); } }   // SHOT DOWN BEFORE THE JUMP: he bails out where it fell ("once per battle" is a promise)
+  const f=W9.ssF; if(f){ if(W9.ss==='jump' && !f.skyDrop && wvbSSAlive(f)){ W9.ss='down'; W9.downAt=S.t; } if(!wvbSSAlive(f) && W9.ss!=='gone'){ W9.ss='gone'; W9.goneAt=S.t; } if(W9.ss==='down') wvbSSTick(f,dt); } }
+{ const p1=skyPass; skyPass=function(dt){ const r=p1.apply(this,arguments); try{ wvbSSPass(dt); }catch(e){ wvbErr(e); } return r; }; }
+{ const f1=skyFly; skyFly=function(f,dt,T){ if(f && f.wvbEsc){ try{ wvbEscFly(f,dt,T); }catch(e){ wvbErr(e); } return; } return f1.apply(this,arguments); }; }   // the escort flies its own line (every other plane as before)
+try{ Object.assign(TR.es||(TR.es={}), { "Their Sarge just dropped in with a saber! Every gun on him!":"¡Su Sargento acaba de saltar con un sable! ¡Todas las armas contra él!", "SABER SARGE · LV %1":"SARGENTO DEL SABLE · NV %1", "THE SABER SARGE":"EL SARGENTO DEL SABLE" });
+  Object.assign(TR.de||(TR.de={}), { "Their Sarge just dropped in with a saber! Every gun on him!":"Ihr Sarge ist gerade mit einem Säbel abgesprungen! Alle Waffen auf ihn!", "SABER SARGE · LV %1":"SÄBEL-SARGE · ST %1", "THE SABER SARGE":"DER SÄBEL-SARGE" });
+  Object.assign(TR.ru||(TR.ru={}), { "Their Sarge just dropped in with a saber! Every gun on him!":"Их сержант спрыгнул с саблей! Все стволы на него!", "SABER SARGE · LV %1":"СЕРЖАНТ С САБЛЕЙ · УР %1", "THE SABER SARGE":"СЕРЖАНТ С САБЛЕЙ" });
+  Object.assign(TR.ja||(TR.ja={}), { "Their Sarge just dropped in with a saber! Every gun on him!":"てきの サージが サーベルを もって おりてきた！ ぜんいん ねらえ！", "SABER SARGE · LV %1":"サーベル サージ · LV %1", "THE SABER SARGE":"サーベル サージ" });
+  Object.assign(TR.ko||(TR.ko={}), { "Their Sarge just dropped in with a saber! Every gun on him!":"적 사지가 세이버를 들고 낙하했다! 전부 그를 쏴!", "SABER SARGE · LV %1":"세이버 사지 · LV %1", "THE SABER SARGE":"세이버 사지" });
+  Object.assign(TR['zh-Hans']||(TR['zh-Hans']={}), { "Their Sarge just dropped in with a saber! Every gun on him!":"他们的军士带着光剑跳下来了！所有枪口对准他！", "SABER SARGE · LV %1":"光剑军士 · 等级 %1", "THE SABER SARGE":"光剑军士" });
+  Object.assign(TR.ar||(TR.ar={}), { "Their Sarge just dropped in with a saber! Every gun on him!":"رقيبهم هبط للتو بسيف! كل البنادق عليه!", "SABER SARGE · LV %1":"رقيب السيف · المستوى %1", "THE SABER SARGE":"رقيب السيف" }); }catch(e){ wvbErr(e); }
+// THE LAB: the tier table WVB_T in the Boss Lab's RULES for the Sky Fortress (CARD-ICS's / BDC2's grammar: the device's saved cells re-applied when the lab booted first), and SKY_T[t].rbomb on SKY_T's own row
+try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES) && !BLB_RULES.some(function(r){ return r[0]==='WVB_T'; })){
+  BLB_RULES.push(['WVB_T', ()=>WVB_T, "THE CORPS' NEW PLANES: the raid bomber's bar (x a fighter), pace px/s, bombs a stick, bombing passes; THE SABER SARGE's level (0 = none), his jump (s after raid 1's clear), his red and teal (1 = on), THE ELDER SABER's count (0 = none), the escort's pace (WVB)", 'sky']);
+  if(typeof BLB==='object' && BLB && BLB.ship){ if(BLB.ship.SKY_T){ for(const k in WVB.rbomb){ if(BLB.ship.SKY_T[k] && BLB.ship.SKY_T[k].rbomb==null) BLB.ship.SKY_T[k].rbomb=WVB.rbomb[k]; } } if(typeof blbShip==='function') blbShip(); }   // SKY_T's shipped copy learns the new cell (read once at the lab's boot, above this block)
+  if(typeof BLB==='object' && BLB && BLB.booted && BLB.over && typeof blbCellSet==='function'){ const o=BLB.over.WVB_T; if(o) for(const k of Object.keys(o)) blbCellSet('WVB_T',k,o[k]); const o2=BLB.over.SKY_T; if(o2) for(const k of Object.keys(o2)) if(/\.rbomb$/.test(k)) blbCellSet('SKY_T',k,o2[k]); } } }catch(e){ wvbErr(e); }
+function wvbSSRead(){ const R=S.raid && S.raid.sky, W9=R && R.wvb, f=W9 && W9.ssF, K=f && f.wvbSS;
+  return W9? { st:W9.ss||null, clearAt:W9.clearAt==null? null : +W9.clearAt.toFixed(2), escAt:W9.escAt==null? null : +W9.escAt.toFixed(2), wing:W9.wing|0, how:W9.how||null, jumpAt:W9.jumpAt==null? null : +W9.jumpAt.toFixed(2), downAt:W9.downAt==null? null : +W9.downAt.toFixed(2), goneAt:W9.goneAt==null? null : +W9.goneAt.toFixed(2), jump:W9.jump? { x:Math.round(W9.jump.x), y:Math.round(W9.jump.y) } : null,
+    esc:W9.esc? { id:W9.esc.id|0, x:Math.round(W9.esc.x), y:Math.round(W9.esc.y), hp:W9.esc.hp, max:W9.esc.hpMax, dead:!!W9.esc.dead, peel:!!(W9.esc.sky && W9.esc.sky.peel), gone:!!W9.esc.skyGone } : null,
+    ss:f? { id:f.id|0, x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(2), max:f.hpMax, boss:!!f.boss, barOff:f.barOff|0, chute:!!f.skyDrop, dead:!!f.dead, alive:wvbSSAlive(f), lv:K.lv, D:K.D, aggro:K.aggro, block:f.def.saber.block, red:K.red, teal:K.teal, elder:K.elder, st:K.st, p:K.p? K.p.k+':'+K.p.st : null, redCd:+K.redCd.toFixed(2), tealCd:+K.tealCd.toFixed(2), tealT:+K.tealT.toFixed(2), strikes:K.strikes, landed:K.landed, resets:K.resets, casts:Object.assign({},K.casts), dealt:Object.assign({},K.dealt), kills:Object.assign({},K.kills), hex:wvbSSHex(f) } : null } : null; }
+function wvbRead(){ const R=S.raid && S.raid.sky, W9=R && R.wvb, A=R && R.air, t9=skyTier();
+  return { cv:GVT_CV, on:WVB_ON, live:wvbOn(), err:WVB.err, errs:WVB.errs.slice(), cells:{ rbomb:{ e:SKY_T.e.rbomb, m:SKY_T.m.rbomb, h:SKY_T.h.rbomb, g:SKY_T.g.rbomb }, T:JSON.parse(JSON.stringify(WVB_T)), gap:WVB.gap, ring:WVB.ring, bounty:FDEF.skybomber? FDEF.skybomber.bounty : null, w:FDEF.skybomber? FDEF.skybomber.w : null, ss:FDEF.skysarge? { hp:FDEF.skysarge.hp, bounty:FDEF.skysarge.bounty } : null },
+    tier:t9, hp:(SKY_T[t9])? wvbHp(SKY_T[t9]) : null, nb:A? wvbNb(A) : null,
+    w:W9? { spawned:W9.spawned|0, sticks:W9.sticks|0, blasts:W9.blasts|0, said:W9.said|0, bombs:W9.bombs.map(b=>({ x:b.x, y:b.y, t:+b.t.toFixed(2), by:b.by })), log:W9.log.slice(-40) } : null,
+    ss:wvbSSRead(), planes:S.foes.filter(f=>f.type==='skybomber').map(f=>({ id:f.id|0, x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(2), max:f.hpMax, dead:!!f.dead, raid:!!f.skyRaid, i:f.skyRaidI, pass:f.sky? f.sky.pass|0 : 0, peel:!!(f.sky && f.sky.peel), sticks:f.sky? f.sky.sticks|0 : 0, gone:!!f.skyGone, hd:(f.sky && f.sky.hd!=null)? +f.sky.hd.toFixed(2) : null, tg:(f.sky && f.sky.tg)? { x:Math.round(f.sky.tg.x), y:Math.round(f.sky.tg.y), n:f.sky.tg.n } : null })) }; }
+try{ if(window.GVT) GVT.wvb=wvbRead; else setTimeout(function(){ try{ if(window.GVT) GVT.wvb=wvbRead; }catch(e){} }, 0); }catch(e){}
+// ═══ END CARD-WVB ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
