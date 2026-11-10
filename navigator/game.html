@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.21","md5":"e6c9d7ecd186418d23ec59674290d1e9","sha":"d2b94a2d8b","at":"2026-11-10T20:55:17Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.22","md5":"b07d8ba8755d069dcc0429a30ada9920","sha":"e6c6763b0a","at":"2026-11-10T21:19:47Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49564,7 +49564,7 @@ const BF_MOVE = {
   // pace; the decloak moment (the cloakT expiry site) writes the rifleman's
   // own live cell into his per-unit def copy, so the drop quotes the table
   // on either carpet and can never drift from the trooper it names.
-  spy:        { moveSpd:88, hp:2, rng:70 },
+  spy:        { moveSpd:101.2, hp:2, rng:70 },   // CARD-GSA (Wyatt 11/10/2026, note 15: "Increase the movement speed of the Spy unit by 15% (While in stealth & out of stealth)"): his cloaked run 88 -> 101.2 (88 x GSA_SPY_X 1.15; the mat's x BF_PACE 150 -> 172, the table's whole-number law); out of stealth the one decloak site writes the rifleman's own cell x GSA_SPY_X (sec:CARD-GSA)
   sarge:      { moveSpd:40, hp:6 },
   // ===== THE MOTOR POOL (Wyatt 7/25) — the only two pieces on this carpet that
   // aren't men, and they're deliberately opposite bets.
@@ -75378,7 +75378,7 @@ const UDEF = {
   // lobbed grenade on the mortar's arc at the LINE's reach (150: between the flame's 85 and the rifle's 198, no minimum range), a throw every ~3 s, harder than the shell (1.5) and softer than the
   // tube (4), the mortar's own 60 px splash through the mortar's own landing law (splash — the campaign's friendly-fire knock, ⚑ GR-Q5), the rifleman's plastic; `fuse` = the half-second the
   // grenade SITS where it lands before it bursts (a kid sees it coming — grLand / grFuse). ⚑ GR-Q1 the numbers. ⚠ RAW literals like every row here — the campaign dump rig extracts this band verbatim.
-  grenadier:{ rng:290, rate:0.35, dmg:2.5, air:false, grit:3, name:'GRENADIER', splash:60, scatter:70, fuse:0.5 },   // CARD-LRB (1/4) (Wyatt 10/30: "increase the Grenadier's grenade range by 5 m"): rng 150 -> 290 = + 5 x TK_M (28 px a metre); BF_MOVE carries no override, so both carpets
+  grenadier:{ rng:319, rate:0.35, dmg:2.5, air:false, grit:3, name:'GRENADIER', splash:60, scatter:70, fuse:0.5 },   /* CARD-GSA (Wyatt 11/10/2026, note 16: "+10% Range on the Grenader's grenade."): 290 -> 319 (x1.1 = 10.4 m -> 11.4 m at TK_M 28); both carpets (BF_MOVE carries no override); the standoff, the golden gun's and the smoke can's twice-his-reach follow the cell; the flight stays 1.1 s (grDur's clamp) */   // CARD-LRB (1/4) (Wyatt 10/30: "increase the Grenadier's grenade range by 5 m"): rng 150 -> 290 = + 5 x TK_M (28 px a metre); BF_MOVE carries no override, so both carpets
   sarge:   { rng:108, rate:PISTOL_RATE, dmg:1.5, air:true,  grit:4, name:'SARGE' },
   minesweeper:{ rng:130, rate:0.25, dmg:0, air:false, grit:3, name:'SWEEPER', mine:true },   // v2.52 (Wyatt 8/5): "a mine after a few seconds" — one charge every 4s (was 6), the consistent drum; the defuse lives at the trip loop (the field cap is retired — v2.96)
   flame:   { rng:85,  rate:8,   dmg:0.5, air:false, grit:3, name:'FLAME', multi:3 },
@@ -93191,7 +93191,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -125615,7 +125615,7 @@ function update(dt){
         // the trooper carries the spy's fallback with it). One write at the
         // one transition site; the manual card already scoped "twice as
         // fast" to the invisible window, so the prose stops lying for free.
-        if(u.type==='spy') u.def.moveSpd = S.bf? BF_MOVE.rifleman.moveSpd : CAMP_SPD.rifleman;
+        if(u.type==='spy') u.def.moveSpd = (S.bf? BF_MOVE.rifleman.moveSpd : CAMP_SPD.rifleman)*GSA_SPY_X;   /* CARD-GSA note 15: out of stealth +15 % too (the rifleman's own cell x GSA_SPY_X, sec:CARD-GSA; the rifleman himself byte-still) */
         if(u.type==='spy' && intelU(u)) u.inBurstA=1;   // 1179 CARD-IN THE BURST is ARMED here, once per cloak — the ONE decloak site (the timer's end, or the spot behind his mark); its 3 s start at his first trigger pull (intelBurstFire, ⚑ IN-Q7)
       }
     }
@@ -225191,6 +225191,31 @@ function bdlRead(o){ o=o||{};
     css:!!document.getElementById('bdlcss') }; }
 try{ if(window.GVT) GVT.bdl=bdlRead; }catch(e){}
 // ═══ END CARD-BDL ═══
+// ═══ CARD-GSA · THREE GAME-WIDE ADJUSTMENTS: YOUR MORTAR AIMS AT THE FURTHEST ENEMY IT CAN REACH, THE SPY MOVES 15 % FASTER, THE GRENADE FLIES 10 % FURTHER (sec:CARD-GSA; design/game-wide-three-1110/00-CARD-GSA.md; FROM WYATT 11/10/2026 about 14:15 EST, typed on Maker 1, card 3 of 3 of his Emperor Bear patch notes, jumpr 3208, board J53), his notes verbatim:
+// "12) Player mortars need to target the furthest enemy it can reach, including the enemy cannons in this fight. This needs to be the case throughout the game."
+// "15) Increase the movement speed of the Spy unit by 15% (While in stealth & out of stealth)"
+// "16) +10% Range on the Grenader's grenade."
+// NOTE 12, HERE: THE PICK. PRIO stays every other man's. A PLAYER'S mortar (gsaYoursU: on the battleground a human's seat, read off the seat table every phone of a room shares, S.bf.seats[u.seat].human;
+// in the campaign every mortar of the squad but a computer ally's, coopBy 'bot') scores a foe by MINUS its distance from HIM, so of everything the fire loop's scan already lets him shoot (inside his reach,
+// outside the 120 px dead zone, on the screen, not burrowed, not in the air) the FURTHEST from him wins: THE CANNON fitted or not, Floop's copy of a mortar too; he re-picks every shell (GSA-Q3, as today).
+// The computer's mortars on the battleground, the away captain's, the Tan tubes and the Emperor's cannons aim as they did (his "Player mortars"; GSA-Q5).
+// NOTES 15 AND 16 sit AT THEIR ROWS (BF_MOVE.spy 88 -> 101.2, his cloaked run; UDEF.grenadier.rng 290 -> 319) and at the one decloak site in update (his walk out of stealth = the rifleman's cell x GSA_SPY_X);
+// this block holds the dial, the pick's switch and the read door.
+// THE SWITCH (GSA-Q4): ?gsa=0 = today's pick on THIS device, outside rooms only (S.coop: a room, a party, a spectator = the new pick always, so two phones run one rule); ?gsa=1 clears it.
+// The two numbers carry no switch (the house's law for a reach or pace change: CARD-MRC2, CARD-LRB, CARD-MRB had none); their undo is the kit's --undo and a version.
+const GSA_ON=(function(){ try{ const q=/[?&]gsa=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_gsa','0'); else localStorage.removeItem('gvt_gsa'); } return localStorage.getItem('gvt_gsa')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const GSA_SPY_X=1.15;                  // note 15: +15 % in stealth (his row's 101.2 = 88 x this) and out of it (the decloak site: the rifleman's own cell x this; the rifleman himself byte-still)
+const GSA_GREN={ was:290, now:319 };   // note 16: +10 % on the row's cell (290 x 1.1 = 319 px = 11.4 m at TK_M 28); here for the read door and the rigs
+function gsaYoursU(u){ if(!u || u.type!=='mortar') return false;   // a PLAYER'S mortar: his "Player mortars"
+  if(S.bf){ const st=S.bf.seats? S.bf.seats[u.seat] : null; return !!(st && st.human); }   // the battleground: a human's seat (mine, a room's other human; never a computer chair, never the away captain)
+  return u.coopBy!=='bot'; }   // the campaign's squad: mine and a real ally's copy; a computer ally aims as today
+function gsaPickOn(){ return !!(GSA_ON || S.coop); }   // the switch, outside rooms only
+function gsaFar(u,f){ return -Math.hypot(f.x-u.x,f.y-u.y); }   // the scan keeps the LOWEST score: the furthest from him is the lowest
+if(typeof PRIO==='function'){ const prio0=PRIO; PRIO=function(u,f){ if(gsaYoursU(u) && gsaPickOn()) return gsaFar(u,f); return prio0.apply(this,arguments); }; }   // WRAPPED BY NAME: every caller of PRIO but a player's mortar reads PRIO byte-what-it-was
+function gsaRead(){ return { cv:GVT_CV, on:GSA_ON, pickOn:gsaPickOn(), spyX:GSA_SPY_X, spy:{ camp:CAMP_SPD.spy, bf:BF_MOVE.spy.moveSpd, walkCamp:CAMP_SPD.rifleman*GSA_SPY_X, walkBf:BF_MOVE.rifleman.moveSpd*GSA_SPY_X, rifleCamp:CAMP_SPD.rifleman, rifleBf:BF_MOVE.rifleman.moveSpd },
+  gren:{ rng:UDEF.grenadier.rng, was:GSA_GREN.was, now:GSA_GREN.now }, mortar:{ rng:UDEF.mortar.rng, bf:BF_MOVE.mortar.rng, minRng:UDEF.mortar.minRng } }; }
+try{ if(window.GVT) GVT.gsa=gsaRead; else setTimeout(function(){ try{ if(window.GVT) GVT.gsa=gsaRead; }catch(e){} }, 0); }catch(e){}
+// ═══ END CARD-GSA ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
