@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.07","md5":"0d66b7733ee2a3d04ec32fe67fb7d14e","sha":"7bbcebbf19","at":"2026-11-08T23:27:50Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"31.08","md5":"a0c12a344ff43f2f009e9df44044482f","sha":"ed2431eeee","at":"2026-11-10T04:17:43Z","src":"playgvt","pre":"101efa8848","js":"8a8d7d0c0e","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92850,7 +92850,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -219925,6 +219925,94 @@ function rtdProbe(o){ o=o||{}; if(o.on!=null) RTD_ON=(+o.on)? 1 : 0; if(o.cap!=n
     raid:!!(bf && bf.raid), diff:bf? bf.ai.diff : null, hard:!!(bf && bf.hard), elt:!!(bf && bf.elt), brains:bf? bf.seats.filter(st=>st.brain).map(st=>({ i:st.i, team:st.team, diff:st.brain.diff, every:st.brain.d.every })) : [] }; }
 if(typeof GVT==='object' && GVT) GVT.rtd=rtdProbe;
 // ═══ END CARD-RTD ═══
+// ═══ CARD-PPO THE HEROES' PAGE AND THE CLASS PAGES: EVERY PICTURE PAINTED ONCE (sec:CARD-PPO; design/hero-page-lag-1109/00-CARD-PPO.md; jumpr 3157). FROM WYATT'S PHONE by the jumpr remote 11/9/2026 20:27 EST
+// (11/10 01:27:04 UTC), dictated, two screenshots (KING REX on THE LAVA FIELD, KING CROAK on THE HIDEOUT), verbatim: "After the latest build, this stylish screen is coming out extremely laggy. When checking out the
+// different heroes or even checking out the different classes, any screen that's kind of like this is coming out extra laggy. Since the last update with putting all the files into the game, please audit this and
+// let's get it fixed. Push to live." ═══
+// THE FINDING (the app itself, build 24 = v31.07, in the iPhone 17 Simulator on iOS 26.5, rig/sim/; the same on the packs v30.91 and v31.03 in the Mac's own WebKit, rig/mem/): the bedroom and a fifty-man fight
+// hold 60 frames a second, and the heroes' page runs at 15 (KING YETI), 25 (KING REX), 35 to 40 (JANE, THE EMPEROR, THE PRINCESS). The page's own code takes 1 to 2 ms a frame. The time goes to the PICTURES: the
+// stage is one canvas (mnPortrait's loop: the heroes' audition at 2.7x, the men's sheet, a weapon's sheet, the premiere card), every figure on it is an SVG <img> (mnImg / mnImgT / mnImgW, the pose frames), and
+// WebKit paints an SVG picture again from its shapes on EVERY drawImage: King Rex's 404 paths at 464 x 464, and since Laura's light redraw (CARD-LRD, v30.48 on 11/5) a soldier's or a king's 50 to 70 shadow and
+// grain filters with them (King Yeti: 100 filters a frame at 475 x 422). The battle canvas was cured of exactly this on 10/16 (CARD-BDR, cx.drawImage); the portrait's canvases never were.
+// THE CURE, the picture alone (no drawing's bytes, no scene, no clock moves; CARD-BDR's own recipe on the portrait's own seam): mnPortrait is wrapped BY NAME and dresses the canvas it is about to run on: that
+// context's drawImage paints an SVG <img> ONCE into a bitmap at the size it lands on the glass (the next step up a 2^(1/4) ladder, so a bitmap is only ever drawn smaller, never stretched) and every later frame
+// draws that bitmap. At most PPO.per new bitmaps a frame (past it a picture draws the old way that frame), all of them under PPO.px pixels (the oldest go first), a bitmap unused for PPO.keep ms is let go, and
+// ALL of them go within 2.5 s of the page closing (the loop dead: its canvas gone). Any other image, a canvas, a moving SVG, a composite other than source-over, a picture still decoding: drawn as ever.
+// THE SECOND HALF, THE WEATHER (the same rig, the pictures already cured: KING YETI 48, KING REX 53, THE EMPEROR 50, THE PRINCESS 53; with the page's CSS animations paused, 60): the stage's backdrop is ONE svg
+// (hauBg: the sky, the world's pieces, the ground, the spotlight) and its snow, embers, petals, fireflies and rays move by CSS inside it. A browser cannot move a piece of an svg without painting the svg again, so
+// every frame repainted the whole backdrop (the sky's gradient and the spotlight's radial glow over the whole stage, three dots a point). THE CURE: hauBg is wrapped BY NAME and hands the same backdrop back as THREE
+// svgs in the same seat, the same viewBox and the same order (what stands still below · what moves · what stands still above), the moving one and the one above it each on a layer of their own (.ppo-wx, .ppo-top):
+// a moving speck now repaints only its own small layer, and the sky, the ground and the spotlight are painted once. Piece for piece the same picture; a world with nothing moving (THE PIRATE COVE) is handed back
+// untouched. Measured after both halves: 60 on every hero's page and every class's page.
+// Everyone gets it (every engine paints an SVG <img> afresh on a canvas, and repaints an svg whose piece moves; Chrome only hides it better). ?ppo=0 = every draw and the one-svg backdrop as before on this device
+// (remembered as gvt_ppo '0'), ?ppo=1 = the cure again.
+// GVT.ppo() = the rigs' read. Zero words, save keys, server or sw bytes; the css = the style node ppoCss (one rule), appended at load. UNDO = design/hero-page-lag-1109/kit/applyPPO.py --undo.
+// FOR LATER CARDS: a new canvas that paints SVG <img>s every frame outside the battle (a new stage, a new sheet) hands its canvas to ppoDress(cv) once before its loop.
+var PPO={ on:(function(){ try{ var q=/[?&]ppo=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_ppo','0'); else localStorage.removeItem('gvt_ppo'); } return localStorage.getItem('gvt_ppo')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  per:2, keep:30000, px:6e6, side:2048, big:2.2e6,   // the dials: 2 new bitmaps a frame · 30 s unused · 6 Mpx (~24 MB) in all · 2048 a side · 2.2 Mpx a bitmap
+  live:0, n:0, made:0, hit:0, pass:0, cap:0, full:0, drop:0, anim:0, lastT:0, fn:0, dressed:0, opens:0, err:0, tm:0, old:null, bg0:null, split:0, whole:0 };
+const PPO_REC=new WeakMap();   // a picture (an <img>) → { svg, b:{ step → bitmap } } (the picture itself is never held here)
+const PPO_LIVE=new Set();      // every live bitmap { rec, k, c, t, px, fx, fy }
+function ppoDrop(e){ try{ e.c.width=0; e.c.height=0; }catch(x){} if(e.rec.b[e.k]===e) delete e.rec.b[e.k]; if(PPO_LIVE.delete(e)){ PPO.live-=e.px; PPO.n--; PPO.drop++; } }   // width 0 hands the pixels back at once
+function ppoForget(rec){ for(const k in rec.b) ppoDrop(rec.b[k]); }
+function ppoEmpty(){ for(const e of Array.from(PPO_LIVE)) ppoDrop(e); }
+function ppoSweep(now, all){ const L=[]; for(const e of PPO_LIVE){ if(now-e.t>PPO.keep) ppoDrop(e); else L.push(e); }   // unused past PPO.keep: let go
+  if(all || PPO.live>PPO.px){ L.sort(function(p,q){ return p.t-q.t; }); for(let i=0;i<L.length && PPO.live>PPO.px*0.8;i++) ppoDrop(L[i]); } }   // over the budget: the oldest go first
+function ppoRec(im){ let rec=PPO_REC.get(im); if(rec) return rec; rec={ svg:0, b:{} };
+  try{ const u=String(im.src||''); if(u.indexOf('data:image/svg+xml')===0){ if(/animate|keyframes|animation|(?:%3C|<)set[%\s>]/.test(u)){ PPO.anim++; } else rec.svg=1; } }catch(x){}   // a moving SVG keeps its own clock: drawn as ever
+  if(rec.svg) im.addEventListener('load', function(){ ppoForget(rec); rec.svg=0; PPO_REC.delete(im); });   // its src changed in place: its bitmaps go, and the new drawing is read afresh
+  PPO_REC.set(im, rec); return rec; }
+function ppoLoopLive(){ try{ return !!(MN_ANIM.raf && MN_ANIM.cv && MN_ANIM.cv.isConnected); }catch(e){ return false; } }
+function ppoWatch(){ if(PPO.tm) return;   // armed only while a bitmap lives: the page closed (the loop dead) = every bitmap handed back; else the unused ones
+  PPO.tm=setTimeout(function(){ PPO.tm=0; try{ if(!ppoLoopLive()) ppoEmpty(); else ppoSweep(performance.now(), false); }catch(e){ PPO.err++; } if(PPO.n) ppoWatch(); }, 2500); }
+function ppoDress(cv){ let c=null; try{ c=(cv && cv.getContext)? cv.getContext('2d') : null; }catch(e){ c=null; }
+  if(!c || c.ppoOn || typeof c.getTransform!=='function') return false;   // a browser without getTransform draws as ever
+  const D0=c.drawImage;   // this canvas's own drawImage
+  c.drawImage=function(im,a,b,p,d,e,f,g,h){
+    if(!PPO.on || !(im instanceof HTMLImageElement)) return D0.apply(c, arguments);
+    const rec=ppoRec(im), nw=im.naturalWidth, nh=im.naturalHeight, n=arguments.length;
+    if(!rec.svg || !im.complete || !(nw>0 && nh>0) || (n!==3 && n!==5 && n!==9) || c.globalCompositeOperation!=='source-over'){ PPO.pass++; return D0.apply(c, arguments); }
+    let sx=0, sy=0, sw=nw, sh=nh, dx=a, dy=b, dw=nw, dh=nh;
+    if(n===5){ dw=p; dh=d; } else if(n===9){ sx=a; sy=b; sw=p; sh=d; dx=e; dy=f; dw=g; dh=h; }
+    if(!(sw>0 && sh>0) || sx<0 || sy<0 || sx+sw>nw+1e-6 || sy+sh>nh+1e-6 || !(dw!==0 && dh!==0) || !isFinite(dx+dy+dw+dh)){ PPO.pass++; return D0.apply(c, arguments); }
+    const m=c.getTransform(), r=Math.max(Math.hypot(m.a,m.b)*Math.abs(dw)/sw, Math.hypot(m.c,m.d)*Math.abs(dh)/sh);   // glass pixels per picture pixel
+    if(!(r>0) || !isFinite(r)){ PPO.pass++; return D0.apply(c, arguments); }
+    const k=Math.ceil(Math.log2(r)*4-1e-9), now=performance.now();
+    if(now-PPO.lastT>6) PPO.fn=0; PPO.lastT=now;   // a frame's draws run back to back; a gap = the next frame's budget
+    let E=rec.b[k];
+    if(!E){ const rr=Math.pow(2,k/4), W9=Math.max(1,Math.ceil(nw*rr)), H9=Math.max(1,Math.ceil(nh*rr));
+      if(W9>PPO.side || H9>PPO.side || W9*H9>PPO.big){ PPO.full++; return D0.apply(c, arguments); }   // too big to keep: drawn as ever
+      if(PPO.fn>=PPO.per){ PPO.cap++; return D0.apply(c, arguments); }
+      const C=document.createElement('canvas'); C.width=W9; C.height=H9; const G=C.getContext('2d');
+      if(!G){ PPO.full++; return D0.apply(c, arguments); }
+      try{ G.drawImage(im,0,0,W9,H9); }catch(x){ C.width=0; C.height=0; PPO.pass++; return D0.apply(c, arguments); }
+      PPO.fn++; E={ rec:rec, k:k, c:C, t:now, px:W9*H9, fx:W9/nw, fy:H9/nh }; rec.b[k]=E; PPO_LIVE.add(E); PPO.live+=E.px; PPO.n++; PPO.made++;
+      if(PPO.live>PPO.px) ppoSweep(now, true);
+      ppoWatch(); }
+    E.t=now; PPO.hit++;
+    return D0.call(c, E.c, sx*E.fx, sy*E.fy, sw*E.fx, sh*E.fy, dx, dy, dw, dh); };
+  c.ppoOn=1; PPO.dressed++; return true; }
+try{ if(typeof mnPortrait==='function'){ PPO.old=mnPortrait;   // the one door every portrait loop starts through (the men's sheet, the heroes' audition, a weapon's sheet, the premiere card): wrapped BY NAME
+  mnPortrait=function(k, sc9, cv9){ try{ if(PPO.on){ const cv=cv9||document.querySelector('#roomModal canvas.mnport'); if(cv){ PPO.opens++; ppoDress(cv); } } }catch(e){ PPO.err++; } return PPO.old.apply(this, arguments); }; } }catch(e){}
+// ───── THE WEATHER ON ITS OWN GLASS: the stage's backdrop as three svgs (below · moving · above)
+function ppoBgSplit(s){ const m=/^<svg class="hau-bg"([^>]*)>/.exec(s); if(!m || s.slice(-6)!=='</svg>') return s;
+  const body=s.slice(m[0].length, s.length-6), kids=[], re=/<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?(\/?)>/g; let i=0;
+  while(i<body.length){ re.lastIndex=i; let d=0, q, end=-1, seen=0;   // the svg's own children, one by one (a group counted whole)
+    while((q=re.exec(body))){ if(!seen){ if(q.index!==i) return s; seen=1; } if(q[1]) d--; else if(!q[3]) d++; if(d===0){ end=re.lastIndex; break; } if(d<0) return s; }
+    if(end<0) return s; kids.push(body.slice(i,end)); i=end; }
+  let first=-1, last=-1; for(let j=0;j<kids.length;j++){ const t=kids[j].slice(0, kids[j].indexOf('>')+1); if(/\sclass="hau-(?:snow|ember|fly|petal|rays|glow)"/.test(t)){ if(first<0) first=j; last=j; } }
+  if(first<1) return s;   // nothing moves (or nothing stands under it): the one svg, as it was
+  const open='<svg class="hau-bg', at=m[1];
+  return open+'"'+at+'>'+kids.slice(0,first).join('')+'</svg>'+open+' ppo-wx"'+at+'>'+kids.slice(first,last+1).join('')+'</svg>'+open+' ppo-top"'+at+'>'+kids.slice(last+1).join('')+'</svg>'; }
+try{ if(typeof hauBg==='function'){ PPO.bg0=hauBg;   // the one maker of the stage's backdrop (hauHTML's read): wrapped BY NAME
+  hauBg=function(k){ const s=PPO.bg0.apply(this, arguments); if(!PPO.on || typeof s!=='string') return s; try{ const v=ppoBgSplit(s); if(v!==s) PPO.split++; else PPO.whole++; return v; }catch(e){ PPO.err++; return s; } }; } }catch(e){}
+(function(){ try{ if(document.getElementById('ppoCss')) return; const st=document.createElement('style'); st.id='ppoCss';
+  st.textContent='.hau .hau-bg.ppo-wx,.hau .hau-bg.ppo-top{will-change:transform;transform:translateZ(0)}';   // each on a layer of its own: the moving one repaints alone, the still one above it never
+  (document.head||document.documentElement).appendChild(st); }catch(e){} })();
+function ppoRead(){ return { on:PPO.on, wrapped:!!PPO.old, bg:!!PPO.bg0, split:PPO.split, whole:PPO.whole, n:PPO.n, live:PPO.live, made:PPO.made, hit:PPO.hit, pass:PPO.pass, cap:PPO.cap, full:PPO.full, drop:PPO.drop, anim:PPO.anim, dressed:PPO.dressed, opens:PPO.opens, err:PPO.err, loop:ppoLoopLive() }; }
+try{ if(window.GVT && !GVT.ppo) GVT.ppo=ppoRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.ppo) GVT.ppo=ppoRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-PPO ═══
 // ═══ CARD-BPR THE BANNER'S CIRCLE ALWAYS SHOWS ITS ENEMY · NO WAVE CHIP UNDER IT (sec:CARD-BPR; design/banner-portrait-1104/00-CARD-BPR.md; jumpr 3013, built on Maker 1 as M3013).
 // ISAAC by the jumpr guest link 11/4/2026 20:20 EST (his live switch, card 2277), verbatim: "let's fix this bug on a lot of campaign levels. The right side with the circle previewing the enemy is
 // usually empty. Run an audit and make sure that doesn't happen. Also get rid of the Wave X tab under it. It's kind of a spoiler alert. Fix that empty circle and get rid of the wave indicator.
