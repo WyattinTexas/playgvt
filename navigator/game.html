@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.10","md5":"a1833e6556844e1416b1762a5f6eade9","sha":"5563851835","at":"2026-11-10T04:33:05Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.11","md5":"e0d8c09204d2858c7109958f50e1eb23","sha":"9a54fc62f6","at":"2026-11-10T05:25:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -92850,7 +92850,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.10';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -219989,11 +219989,21 @@ if(typeof GVT==='object' && GVT) GVT.rtd=rtdProbe;
 // untouched. Measured after both halves: 60 on every hero's page and every class's page.
 // Everyone gets it (every engine paints an SVG <img> afresh on a canvas, and repaints an svg whose piece moves; Chrome only hides it better). ?ppo=0 = every draw and the one-svg backdrop as before on this device
 // (remembered as gvt_ppo '0'), ?ppo=1 = the cure again.
-// GVT.ppo() = the rigs' read. Zero words, save keys, server or sw bytes; the css = the style node ppoCss (one rule), appended at load. UNDO = design/hero-page-lag-1109/kit/applyPPO.py --undo.
-// FOR LATER CARDS: a new canvas that paints SVG <img>s every frame outside the battle (a new stage, a new sheet) hands its canvas to ppoDress(cv) once before its loop.
+// GVT.ppo() = the rigs' read. Zero words, save keys, server or sw bytes; the css = the style node ppoCss (two rules), appended at load. UNDO = design/hero-page-lag-1109/kit/applyPPO.py --undo.
+// ROUND 2, THE CARD FILMS' FIRST FRAME AT ONCE (his second note, typed into the session 11/9/2026 20:50 EST, verbatim: "the initial pop-ups that are coming aren't fully loaded in until the player has to wait about
+// 0.5 seconds for the images to appear (even though they already appear, but for the videos to visable.)"). THE FINDING: a lab part's film frame (labClipArt: the READY pop, the buy prompt, the lab's television)
+// paints the part's picture and keeps its film INVISIBLE until the film's first frame has loaded (loadeddata -> .on): on a phone that is the half second, longer while the bedroom is still building. Its poster
+// (lab-<id>.jpg, the film's own still) was only the hidden video's attribute: the premiere card got its poster as a picture on 10/15 (CARD-FTU, "his phone showed an empty frame"), this frame never did. And an
+// iPhone on iOS 17.4+ answers "maybe" for WebM, so the cards that list the WebM first (this frame; a promo card's film, bdPromoArt: the desert's, the night's king; Bill's, bbsPromoClip) asked first for a file
+// the app does not carry (a failed ask before every film) and, on the web, played a codec the phone decodes without its own chip. THE CURE, three makers wrapped BY NAME: labClipArt's frame gets the poster as a
+// PICTURE under the film, on the glass the moment it has decoded (no script in the way: it wears .on from the start; while the phone refuses to play, the still stands under the game's badge, CARD-R5F's own
+// grammar; a part with no film files = the picture leaves and the part's own drawing stands as before; a film that cannot play leaves its still = the reduced-motion frame), and on iOS the WebM source of all
+// three steps aside when an MP4 follows it, so the MP4 (H.264, the phone's own decoder: CARD-FTU's law) is asked first. Reduced motion and every other film are untouched. ?ppo=0 = the frames as before.
+// FOR LATER CARDS: a new canvas that paints SVG <img>s every frame outside the battle (a new stage, a new sheet) hands its canvas to ppoDress(cv) once before its loop; a new card film that hides until its first
+// frame gives its frame a poster picture the same way (ppoClip's shape); a new card film lists its MP4 first, or its maker goes through ppoMp4.
 var PPO={ on:(function(){ try{ var q=/[?&]ppo=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_ppo','0'); else localStorage.removeItem('gvt_ppo'); } return localStorage.getItem('gvt_ppo')==='0'? 0 : 1; }catch(e){ return 1; } })(),
   per:2, keep:30000, px:6e6, side:2048, big:2.2e6,   // the dials: 2 new bitmaps a frame · 30 s unused · 6 Mpx (~24 MB) in all · 2048 a side · 2.2 Mpx a bitmap
-  live:0, n:0, made:0, hit:0, pass:0, cap:0, full:0, drop:0, anim:0, lastT:0, fn:0, dressed:0, opens:0, err:0, tm:0, old:null, bg0:null, split:0, whole:0 };
+  live:0, n:0, made:0, hit:0, pass:0, cap:0, full:0, drop:0, anim:0, lastT:0, fn:0, dressed:0, opens:0, err:0, tm:0, old:null, bg0:null, split:0, whole:0, clip0:null, promo0:null, bill0:null, clips:0, mp4:0 };
 const PPO_REC=new WeakMap();   // a picture (an <img>) → { svg, b:{ step → bitmap } } (the picture itself is never held here)
 const PPO_LIVE=new Set();      // every live bitmap { rec, k, c, t, px, fx, fy }
 function ppoDrop(e){ try{ e.c.width=0; e.c.height=0; }catch(x){} if(e.rec.b[e.k]===e) delete e.rec.b[e.k]; if(PPO_LIVE.delete(e)){ PPO.live-=e.px; PPO.n--; PPO.drop++; } }   // width 0 hands the pixels back at once
@@ -220050,9 +220060,19 @@ function ppoBgSplit(s){ const m=/^<svg class="hau-bg"([^>]*)>/.exec(s); if(!m ||
 try{ if(typeof hauBg==='function'){ PPO.bg0=hauBg;   // the one maker of the stage's backdrop (hauHTML's read): wrapped BY NAME
   hauBg=function(k){ const s=PPO.bg0.apply(this, arguments); if(!PPO.on || typeof s!=='string') return s; try{ const v=ppoBgSplit(s); if(v!==s) PPO.split++; else PPO.whole++; return v; }catch(e){ PPO.err++; return s; } }; } }catch(e){}
 (function(){ try{ if(document.getElementById('ppoCss')) return; const st=document.createElement('style'); st.id='ppoCss';
-  st.textContent='.hau .hau-bg.ppo-wx,.hau .hau-bg.ppo-top{will-change:transform;transform:translateZ(0)}';   // each on a layer of its own: the moving one repaints alone, the still one above it never
+  st.textContent='.hau .hau-bg.ppo-wx,.hau .hau-bg.ppo-top{will-change:transform;transform:translateZ(0)}'   // each on a layer of its own: the moving one repaints alone, the still one above it never
+    +'.fps-wait > img.rw-clip.ppo-pst{opacity:1 !important}';   // round 2: while a film is refused (CARD-R5F's .fps-wait hides the frame's .rw-clip) the film's STILL stays under the game's badge, the stage plate's own grammar
   (document.head||document.documentElement).appendChild(st); }catch(e){} })();
-function ppoRead(){ return { on:PPO.on, wrapped:!!PPO.old, bg:!!PPO.bg0, split:PPO.split, whole:PPO.whole, n:PPO.n, live:PPO.live, made:PPO.made, hit:PPO.hit, pass:PPO.pass, cap:PPO.cap, full:PPO.full, drop:PPO.drop, anim:PPO.anim, dressed:PPO.dressed, opens:PPO.opens, err:PPO.err, loop:ppoLoopLive() }; }
+// ───── ROUND 2 · THE CARD FILMS' FIRST FRAME AT ONCE: the lab frame's poster as a picture under its film; on iOS the cards' MP4 asked first
+function ppoIOS(){ try{ return !!window.__rslEarly; }catch(e){ return false; } }   // CARD-RSL-EARLY's mark: the App Store app, an iPhone, iPad or iPod browser
+function ppoMp4(h){ if(!ppoIOS()) return h; const w=h.replace(/<source src="[^"]*\.webm[^"]*" type="video\/webm">(?=<source src="[^"]*\.mp4)/, ''); if(w!==h) PPO.mp4++; return w; }   // the WebM source goes ONLY when the MP4 follows it (the MP4 keeps the film's own last-source law)
+function ppoClip(h){ const m=/<video class="bdp-v rw-clip"[^>]*\sposter="([^"]+)"[^>]*>/.exec(h); if(!m) return h;   // reduced motion (the poster alone) or a frame this card does not know: as it is
+  PPO.clips++; return ppoMp4(h).replace(m[0], function(){ return '<img class="rw-clip on ppo-pst" src="'+m[1]+'" alt="" onerror="this.remove()">'+m[0]; }); }   // the reduced-motion frame's own <img class="rw-clip"> (every seat's rules are its), on from the start, under the film
+function ppoFilmWrap(f0, fx){ return function(){ const h=f0.apply(this, arguments); if(!PPO.on || typeof h!=='string') return h; try{ return fx(h); }catch(e){ PPO.err++; return h; } }; }
+try{ if(typeof labClipArt==='function'){ PPO.clip0=labClipArt; labClipArt=ppoFilmWrap(PPO.clip0, ppoClip); } }catch(e){}   // the one maker of a lab part's film frame (the READY pop, the buy prompt, the lab's television): wrapped BY NAME
+try{ if(typeof bdPromoArt==='function'){ PPO.promo0=bdPromoArt; bdPromoArt=ppoFilmWrap(PPO.promo0, ppoMp4); } }catch(e){}   // a promo card's film (THE BATTLE OF THE DESERT's card, the night's king's card): wrapped BY NAME
+try{ if(typeof bbsPromoClip==='function'){ PPO.bill0=bbsPromoClip; bbsPromoClip=ppoFilmWrap(PPO.bill0, ppoMp4); } }catch(e){}   // Bill's Showdown card's film: wrapped BY NAME
+function ppoRead(){ return { on:PPO.on, wrapped:!!PPO.old, bg:!!PPO.bg0, split:PPO.split, whole:PPO.whole, clip:!!PPO.clip0, promo:!!PPO.promo0, bill:!!PPO.bill0, clips:PPO.clips, mp4:PPO.mp4, n:PPO.n, live:PPO.live, made:PPO.made, hit:PPO.hit, pass:PPO.pass, cap:PPO.cap, full:PPO.full, drop:PPO.drop, anim:PPO.anim, dressed:PPO.dressed, opens:PPO.opens, err:PPO.err, loop:ppoLoopLive() }; }
 try{ if(window.GVT && !GVT.ppo) GVT.ppo=ppoRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.ppo) GVT.ppo=ppoRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-PPO ═══
