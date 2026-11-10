@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.24","md5":"5e13c5ecb072eb0173c804003e25258b","sha":"e7f408d9f2","at":"2026-11-10T21:46:02Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.25","md5":"9005033abb7ba1e9a0b7c1e0b9627cc8","sha":"399a00d3ed","at":"2026-11-10T21:55:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93494,7 +93494,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.24';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.25';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -225696,6 +225696,182 @@ function gsaRead(){ return { cv:GVT_CV, on:GSA_ON, pickOn:gsaPickOn(), spyX:GSA_
   gren:{ rng:UDEF.grenadier.rng, was:GSA_GREN.was, now:GSA_GREN.now }, mortar:{ rng:UDEF.mortar.rng, bf:BF_MOVE.mortar.rng, minRng:UDEF.mortar.minRng } }; }
 try{ if(window.GVT) GVT.gsa=gsaRead; else setTimeout(function(){ try{ if(window.GVT) GVT.gsa=gsaRead; }catch(e){} }, 0); }catch(e){}
 // ═══ END CARD-GSA ═══
+// ═══ CARD-EBP · THE EMPEROR'S TWO PHASES: THE SWORD FROM THE SADDLE, THE WHISTLE AT THE UNHORSE, 150 DOG TAGS, HIS PARRY ON FOOT, NO WAVE COUNTER IN A PARK BOSS FIGHT (sec:CARD-EBP; design/emperor-two-phases-1110/00-CARD-EBP.md; jumpr 3206, built on Maker 1 as M3206; card 1 of 3 of Wyatt's Emperor Bear patch notes, the army is CARD-EBA's, the game-wide three CARD-GSA's)
+// WYATT 11/10/2026 ~14:15 EST, typed on Maker 1 (his notes from Raziya's 11/8 play), verbatim, his own numbers:
+//   "Implement Emperor Bear on a horse, targeting enemy units, walking forward, and attacking them with his sword while on the horse. This is his default attack until he falls below 80%. 8) Once he's below 80%, he uses his current kit as of now, where he is moving in circular and distinct patterns, no longer just targeting units and walking up to them with his sword."
+//   "10) At the end of phase one, when Emperor Bear is knocked off his horse (All incoming enemy waves are paused from spawning), have him scamper quickly to the back of his side on the right, and he will have a dialog box where he says "Suivez-moi, à la gloire!" then blows a whistle and the Cavalry & wave 2 rush begin. (3 seconds in total for this sequence)"
+//   "11) Remove "Wave Indicator" from all Park Boss fights. On his HP Bar also remove this indicator, it takes away from the immersion."
+//   "13) Player gets 150 dogtags after beating phase 1"
+//   "14) In phase 2 add a parry mechanic to Emperor Bear's kit. When he is attacked by the saber or claymore enemy, Sarge gives him a 20% chance to block incoming swings. He should be stalled briefly whenever something is blocked, making him less lethal and giving a little more downtime between him being on the offensive. This can never happen twice in a row. Each time he attacks an enemy, it should reset the cooldown on the parry mechanic."
+// WHO: THE PILLOW FIELDS' king alone (the foe row bearnaparte in a fields raid, every tier) for parts 1-4; the player's hero Emperor (kingbear) and Bear Park 20's prince (tprince, the shared brain) are byte-what-they-were. Part 5 reads every park boss fight (a raid on a park's boss: S.raid on its own cfg, never the battleground).
+//   1 THE SWORD FROM THE SADDLE. At or above EBP.P1 of his mounted bar he WALKS his horse (EBP.WALK, the level charger, no gallop, no prance, no charge, no wheel) at the NEAREST of your men east of the leak guard (kbHuntMen's set, picked again when that man falls or leaves it) and cuts him from the saddle every EBP.CUT s inside EBP.REACH: ONE man a swing, through the unrolled knock (CARD-BDC2's priced KO through tanHit: CARD-RZB's floor, the damper and every save have their say; never the rolled fell, so no instant KO), the rider's own sword-raise mold (bearnaparteup, f.gnUp), the Commander's crescent at the rider's arm, the swish. No trample while he walks (kbRideStep's own body never runs). The honor guard, the battery and the royal funnel go on (kbTick's ride branch is untouched). Under EBP.P1: the prance + the horn he already owns (dkPranceFx) and today's mounted kit, row for row, from its first leg (kbRideStep as v31.19).
+//   2 THE UNHORSE, THREE SECONDS. kbUnhorse as today (the keel's 0.8 s, the snap, the shake, the horn, the second bar, the wagon) but EN GARDE! is not said; the keel's untouchable snap stands to the whistle (f.gnT = EBP.WHISTLE: every snap guard in hurt and splash holds, EBP-Q2); from that moment no wave, no queued group and no clock spawns (the referee's wave clock held, S.queue's clocks stand still, MEN WITHOUT FEAR's clock frozen with the foot; the funnel and the re-supply ended with the ride as ever); after the keel he SCAMPERS on foot to the back of his side on the right (W - EBP.BACK, his own lane; the river's planks, the pillows steered; timed to arrive at EBP.KEEL + EBP.RUN); at EBP.SAY his window says "Suivez-moi, à la gloire!" (commSayAs, EN GARDE!'s own door, rank 3, his blip; the French in every tongue); at EBP.WHISTLE he blows the whistle (SFX.whistle, the one source) and the EN GARDE! wave is pushed (the Snuggs' column, the cubs, the three cavalry on their own rows) and every clock runs again; then today's foot kit + part 4.
+//   3 150 DOG TAGS. At the unhorse: EBP.TAGS through the bounty's own door (a blob from his spot that lands in the purse as +150, x0.95 in a group by CARD-GTX at the landing, ×0.3 in a survival run by CARD-SMT), once (the unhorse door is once a fight); in a shared fight the own-kill rule of a bounty (CARD-OKT oktPays: the phone whose man unhorsed him). His fall still pays its 250.
+//   4 HIS PARRY, PHASE 2 ONLY. On foot (kbLife 2, gnSt foot), a swing of a Sarge holding THE SABER (lightsaber) or THE CLAYMORE (commander), blade in hand, never fire: EBP.PARRY (20 %) on THE ONE DIE (rxRoll off facts every sim shares: the door, the party's code or the raid's start, his muster ordinal, the swinger's wire id, that man's swing count on him), so a party's screens block the same swing. A block lands nothing (hurt never runs: no pip, no stamp, so kbAnswer never answers it), stalls him EBP.STALL (kbFootTick's own kbParT: no wind, no flight, no cut, no step; the dash clock holds; the lunge in flight cancelled), the clash (kbParry's own ring, flash and sparks in the blade's colour, the saber's block sound SFX.snap, PARRY! over HIM, the sniper's punch for YOUR Sarge alone). Spent after a block; armed again only when his next cut lands on one of your men (kbCut's L.took grew): never two blocks running.
+//   5 NO WAVE COUNTER IN A PARK BOSS FIGHT. sqHudLine's WAVE n / m card says the place's own name instead (gmyHudLine's grammar: the library's line is its place); the boss plate's " · n/m" chip goes (EMPEROR BEAR, PRINCESS CROAK: the name alone, EBP-Q5). The campaign's rungs and Horde keep theirs; GVT.sq() and the Boss Lab's report keep their numbers.
+// WRAPPED BY NAME (no body edited): kbRideStep · kbTick · kbUnhorse · kbCut · hurt · commSayAs · drawTeddy · sqHudLine · drawBaseBar. Zero server, sw.js, CSS, save or wire bytes; one spoken key (his line, added to every table as itself).
+// THE SWITCH: ?ebp=0 on a device (gvt_ebp '0'; ?ebp=1 clears it) = the fight and the glass as v31.19 on that device (CARD-RZB's grammar: a device switch; a party whose phones disagree runs two rules, EBP-F1). GVT.ebp() = the rigs' read; GVT.ebp({dials}) sets a dial live.
+const EBP={
+  P1:0.8,        // part 1: at or above this share of his MOUNTED bar the saddle walk and cut; under it the old kit (his "below 80%")
+  WALK:70,       // ...the walk's pace, px/s: HALF the gallop (KB_RIDE_SPD 140); measured 56 / 70 / 84 on the fight rig (logs/f): wins within the noise of v31.19 at every tier, 70 reaches your line in the saddle (median 2-4 cuts above 80 %), EBP-Q1
+  STOP:80,       // ...he pulls up this far from his man (feet to feet)
+  REACH:110,     // ...the saddle cut's reach (KB_HUNT_STOP's horse-length; the hooves were 52)
+  CUT:1.5,       // ...seconds between two saddle cuts (EBP-Q1)
+  CUT1:0.6,      // ...the first cut's clock when the ride starts
+  UP:0.4,        // ...the rider's sword-raise mold (bearnaparteup) holds this long on a cut
+  KEEL:0.8,      // part 2: the keel (today's snap: the 0.8 s arc the draw reads)
+  RUN:1.2,       // ...the scamper after the keel
+  SAY:2.0,       // ...his line, this many s after he is knocked off
+  WHISTLE:3.0,   // ...the whistle, the rush and the clocks again (his "3 seconds in total")
+  BACK:170,      // ...the spot: W minus this (the back of his side, on the right, inside the mat)
+  RUNMIN:190,    // ...the scamper's least pace (KB_FOOT_SPD); the most, RUNMAX
+  RUNMAX:1500,
+  HOLD:2.6,      // ...the window holds the line this long once typed (wall s)
+  TAGS:150,      // part 3: the dog tags for phase one
+  PARRY:0.2,     // part 4: the block's chance on a saber or claymore swing
+  STALL:0.9,     // ...the stall a block costs him (EBP-Q4)
+  LINE:'Suivez-moi, à la gloire!',   // his line, letter for letter (no em or en dash: CARD-ND)
+  hush:0, n:{ saddle:0, walk:0, cut:0, p80:0, unhorse:0, tags:0, hushed:0, run:0, spot:0, said:0, whistle:0, held:0, roll:0, block:0, spent:0, land:0, rearm:0, hud:0, chip:0 }, sw:[], log:[], err:0, e:'' };
+var EBP_ON=(function(){ try{ const m=/[?&]ebp=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_ebp','0'); else localStorage.removeItem('gvt_ebp'); } return localStorage.getItem('gvt_ebp')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-RTD's grammar)
+function ebpErr(k,e){ EBP.err++; if(EBP.e.length<400) EBP.e+=k+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function ebpLog(a){ if(EBP.log.length>=600) EBP.log.shift(); EBP.log.push([+(S.t||0).toFixed(2)].concat(a)); }
+function ebpKing(f){ try{ return !!(EBP_ON && f && f.type==='bearnaparte' && f.def && f.def.kb && !S.bf && fieldsRaid()); }catch(e){ return false; } }   // THE PILLOW FIELDS' king (never the prince at Bear Park 20, never the hero)
+function ebpPark(){ try{ const R=S.raid; return !!(EBP_ON && R && R.cfg===S.cfg && !S.bf && R.k!=='xmasbox'); }catch(e){ return false; } }   // a park boss fight: a raid on its own cfg (THE CHRISTMAS BOX is a place, not a fight)
+function ebpSalt(){ try{ return (S.coop && COOP && COOP.code)? String(COOP.code) : String(Math.round(((S.raid && S.raid.t0)||0)*1000)); }catch(e){ return '0'; } }   // a die every sim of a party shares (CARD-RZB's rzbKey grammar)
+// ── 1 THE SWORD FROM THE SADDLE ──
+function ebpPick(f){ let b=null, bd=1e9; for(const u of kbHuntMen(f)){ const d=Math.hypot(u.x-f.x,u.y-f.y); if(d<bd-0.5){ bd=d; b=u; } } return b; }   // the NEAREST of your men east of the leak guard (kbHuntMen: alive, on the mat, not airborne / falling / dropping / cloaked / dragged; wire order breaks a tie)
+function ebpWalk(f,dt,u){   // the horse WALKS at his man: the river's planks (kbRvGoal), the pillows steered (rockSteer), never into a pit, never west of the leak guard, never off the mat (kbBand)
+  const g=kbRvGoal(f.x,f.y,u.x,u.y), dx=g.x-f.x, dy=g.y-f.y, d=Math.hypot(dx,dy)||1; let hx=dx/d, hy=dy/d;
+  const st=rockSteer(f.x,f.y,f.x+hx*90,f.y+hy*90,ROCK_PAD_FOE); if(st){ hx=st.x; hy=st.y; }
+  const sp=EBP.WALK*(f.spdMul||1), nx=f.x+hx*sp*dt, ny=f.y+hy*sp*dt; if(voidAt(nx,ny)) return;
+  const p=kbBand(nx,ny); f.x=Math.max(KB_FOOT_XMIN,p.x); f.y=p.y; f.kbH=Math.atan2(hy,hx); EBP.n.walk++;
+  f.kbTrail=(f.kbTrail||0)+sp*dt; if(f.kbTrail>40){ f.kbTrail=0; S.fx.push({k:'puff',x:f.x-hx*22,y:f.y+4,t:0,dur:0.3,R:6}); }   // a walk's small dust on a fixed stride (no dice)
+}
+function ebpSaddleCut(f,u){   // ONE man a swing: the unrolled knock (the priced KO), the rider's raised sword, the crescent at his arm
+  if(u.saberState==='out' && u.saberFirstT===f) return false;   // THE CHARGE ADVANTAGE (kbCut's own clause): a Sarge 'out' at him lands his strike first
+  f.ebpCutCd=EBP.CUT; f.gnUp=EBP.UP; f.ebpCutN=(f.ebpCutN|0)+1; EBP.n.cut++;
+  const fs=(u.x>=f.x)? 1 : -1, hw=(f.def.w||148)*1.35, c=CMD_DUEL_CUTS[(f.ebpCutN-1)%2], ax=f.x+fs*hw*0.16, ay=f.y-hw*0.5;   // the rider's seat on the charger (tdMount: 0.128 of its width ahead, 0.361 up) and his arm above it; cut 1 / cut 2 of the Commander's table in turn
+  f.wkX=fs; f.wkT=S.t;   // he faces the man he cuts (the 0307 stride stamp's channel)
+  S.fx.push({k:'ring',x:u.x,y:u.y-8,r:6,R:30,t:0,dur:0.24,col:'#C9D2D8'});
+  S.fx.push({k:'cres',x:ax,y:ay,fs:fs,a0:Math.min(c.f,c.to),a1:Math.max(c.f,c.to),R:58,t:0,dur:0.7,hold:0.42});
+  bfSfx(SFX.swish,f.x,f.y);
+  knock(u,f.x,f.y);   // the cut on foot's own door for a plain man: CARD-BDC2 prices it, CARD-RZB's floor stands a full bar, the damper and the saves have their say; never knock(...,true)
+  tdLog(f,'ebp-cut',u.type); ebpLog(['cut', u.type, u.id|0]); return true;
+}
+function ebpSaddle(f,dt){   // the frame of the saddle walk (kbRideStep's seat while the bar stands at or above EBP.P1)
+  if(f.kbStagT>0){ f.kbStagT-=dt; f.kbMv=0; if(f.kbStagT<=0) f.kbStagT=0; return; }   // the blue pop's hold (kbRideStep's own head): the walk and the cut wait
+  f.kbMv=0; f.kbWay=null; f.kbRest=0;   // a walk: the level charger and the seated rider (the draw's gallop reads kbMv); no leg, no rest, so no trample
+  f.ebpCutCd=(f.ebpCutCd==null? EBP.CUT1 : f.ebpCutCd)-dt/tkSlowMul(f);
+  let u=f.ebpU; if(!kbHuntOk(f,u)){ u=f.ebpU=ebpPick(f); if(u){ tdLog(f,'ebp-pick',u.type); ebpLog(['pick', u.type, u.id|0]); } }
+  if(!u) return;   // nobody east of the leak guard: he holds his ground (the rocker rocks)
+  const d=Math.hypot(u.x-f.x,u.y-f.y);
+  if(d>EBP.STOP) ebpWalk(f,dt,u);
+  if(Math.hypot(u.x-f.x,u.y-f.y)<=EBP.REACH && f.ebpCutCd<=0) ebpSaddleCut(f,u);
+}
+{ const r0=kbRideStep; kbRideStep=function(f,dt){
+  if(!ebpKing(f) || f.ebpP1===0 || (f.kbLife|0)!==1) return r0.apply(this,arguments);
+  try{
+    if(f.ebpP1==null){ f.ebpP1=1; f.ebpU=null; f.ebpCutCd=EBP.CUT1; EBP.n.saddle++; tdLog(f,'ebp-saddle'); ebpLog(['saddle', Math.round(f.x), Math.round(f.y)]); }
+    if(!(f.hp>=f.hpMax*EBP.P1)){   // UNDER 80 %: the tell he owns (the prance on the rearing charger + the horn), then today's kit from its first leg
+      f.ebpP1=0; f.ebpU=null; f.kbWay=null; f.kbRest=0; f.dkPr=KB_PRANCE; dkPranceFx(f); EBP.n.p80++; tdLog(f,'ebp-80'); ebpLog(['p80', +(f.hp/f.hpMax).toFixed(3)]);
+      return r0.apply(this,arguments); }
+    ebpSaddle(f,dt); return;
+  }catch(e){ ebpErr('ride',e); f.ebpP1=0; return r0.apply(this,arguments); }
+}; }
+// ── 2 THE UNHORSE, THREE SECONDS + 3 THE 150 DOG TAGS ──
+function ebpHold(){ const sq=S.sq; if(sq) sq.nextT=Math.max(sq.nextT||0, (sq.t||0)+1); }   // the referee's wave clock holds (a guest's push rides the referee's word)
+function ebpSpot(f){   // the back of his side, on the right: W - EBP.BACK on his own lane, off the pillows
+  const b=kbBand(W-EBP.BACK, f.y); let x=b.x, y=b.y; const rocks=(S.cfg && S.cfg.terrain && S.cfg.terrain.rocks) || [];
+  for(let i=0;i<8;i++){ let hit=null; for(const r of rocks){ if(Math.hypot(r.x-x,r.y-y)<(r.r||30)+28){ hit=r; break; } } if(!hit) break; y=kbBand(x, y+((y<(FOE_TOP+FOE_BOT)/2)? 60 : -60)).y; }
+  return { x:Math.round(x), y:Math.round(y) };
+}
+function ebpUnhorse(f,u){   // the unhorse's own beats past kbUnhorse (called once: the door is f.gnFoot's)
+  f.ebpP1=0; f.ebpU=null; f.gnT=EBP.WHISTLE; const D2=teddyDef(f); if(D2.foot && D2.foot.w) D2.w=D2.foot.w;   // the keel's untouchable snap stands to the whistle (EBP-Q2); his body is the foot's from the fall
+  f.ebpSeq={ t:0, t0:+S.t.toFixed(2), x0:Math.round(f.x), y0:Math.round(f.y), sx:null, sy:null, run:0, at:0, said:0 };
+  ebpHold(); EBP.n.unhorse++; tdLog(f,'ebp-unhorse'); ebpLog(['unhorse', Math.round(f.x), Math.round(f.y)]);
+  if(EBP.TAGS>0 && oktPays(f,u)){ S.blobs.push({x:f.x,y:f.y-8,v:smtTagV(EBP.TAGS),t:0}); EBP.n.tags++; ebpLog(['tags', EBP.TAGS]); }   // the bounty's own door: the blob flies to the purse and lands as +150 (the own-kill rule in a shared fight)
+}
+function ebpRun(f,dt,E){   // the scamper: timed to stand on the spot at EBP.KEEL + EBP.RUN, the planks over the river, the pillows steered
+  const g=kbRvGoal(f.x,f.y,E.sx,E.sy), leg=Math.hypot(g.x-f.x,g.y-f.y), rest=(g.x!==E.sx || g.y!==E.sy)? Math.hypot(E.sx-g.x,E.sy-g.y) : 0, left=leg+rest;
+  if(left<=3){ f.x=E.sx; f.y=E.sy; E.at=1; E.atT=+E.t.toFixed(2); f.ebpRunning=0; EBP.n.spot++; tdLog(f,'ebp-spot',[E.sx,E.sy]); ebpLog(['spot', E.sx, E.sy, E.atT]); return; }
+  const tl=Math.max(dt,(EBP.KEEL+EBP.RUN)-E.t), sp=Math.max(EBP.RUNMIN, Math.min(EBP.RUNMAX, left/tl)), d=leg||1;
+  const st=rockSteer(f.x,f.y,g.x,g.y,ROCK_PAD_FOE); const hx=st? st.x : (g.x-f.x)/d, hy=st? st.y : (g.y-f.y)/d, mv=Math.min(leg, sp*dt);
+  const nx=f.x+hx*mv, ny=f.y+hy*mv; if(voidAt(nx,ny)) return;
+  const p=kbBand(nx,ny); f.x=p.x; f.y=p.y; f.ebpRunning=1;
+  f.kbTrail=(f.kbTrail||0)+mv; if(f.kbTrail>34){ f.kbTrail=0; S.fx.push({k:'puff',x:f.x-hx*14,y:f.y+4,t:0,dur:0.3,R:9}); }   // the heels' dust (no dice)
+}
+function ebpWhistle(f,E){   // the whistle (the game's one whistle), the rush, every clock again
+  try{ SFX.whistle(); }catch(e){} S.fx.push({k:'ring',x:f.x,y:f.y-40,r:4,R:30,t:0,dur:0.35,col:'#FFF3C4'});   // HEARD wherever the camera stands (the unhorse's horn's own law: a story beat, never bfSfx's off-camera hush; his spot is the far rim); the small ring at his muzzle is the eye's tell (no word, no banner)
+  if(S.sq) S.sq.nextT=S.sq.t;   // the referee pushes the EN GARDE! wave on its next tick (its rows: the Snuggs' column at 0, the cubs at 0.8, the cavalry at 1.2)
+  f.gnT=Math.min(f.gnT,0); f.ebpRunning=0; f.ebpPar=1;   // the snap ends this frame (kbTick's own foot set-up runs next), the parry armed
+  EBP.n.whistle++; tdLog(f,'ebp-whistle'); ebpLog(['whistle', Math.round(f.x), Math.round(f.y), +E.t.toFixed(2)]);
+}
+function ebpSeqTick(f,dt){
+  const E=f.ebpSeq; E.t+=dt;
+  if(E.t<EBP.WHISTLE){ ebpHold(); for(const q of S.queue) q.at+=dt; EBP.n.held++; }   // a: every incoming wave waits (the wave clock, the queued groups); the foot's clocks are frozen with the snap
+  if(E.t>=EBP.KEEL && !E.run){ E.run=1; const p=ebpSpot(f); E.sx=p.x; E.sy=p.y; EBP.n.run++; tdLog(f,'ebp-run',[p.x,p.y]); ebpLog(['run', Math.round(f.x), Math.round(f.y), p.x, p.y]); }
+  if(E.run && !E.at && E.t<EBP.WHISTLE) ebpRun(f,dt,E);
+  if(E.t>=EBP.SAY && !E.said){ E.said=1; let ok=false; try{ ok=commSayAs(kbSpeaker(f), EBP.LINE, {rank:3, hz:KB_HZ, hold:EBP.HOLD}); }catch(e){ ebpErr('say',e); } EBP.n.said++; tdLog(f,'ebp-say',ok? 1 : 0); ebpLog(['say', ok? 1 : 0, Math.round(f.x), Math.round(f.y)]); }
+  if(E.t>=EBP.WHISTLE){ ebpWhistle(f,E); f.ebpSeq=null; }
+}
+{ const t0=kbTick; kbTick=function(f,dt){ if(f && f.ebpSeq){ try{ ebpSeqTick(f,dt); }catch(e){ ebpErr('seq',e); f.ebpSeq=null; f.gnT=Math.min(f.gnT,0); } } return t0.apply(this,arguments); }; }
+{ const u0=kbUnhorse; kbUnhorse=function(f,u){
+  if(!ebpKing(f)) return u0.apply(this,arguments);
+  EBP.hush=1; let r; try{ r=u0.apply(this,arguments); } finally{ EBP.hush=0; }   // today's unhorse whole, but EN GARDE! (his line takes its place, EBP-Q3)
+  try{ ebpUnhorse(f,u); }catch(e){ ebpErr('unhorse',e); }
+  return r; }; }
+{ const c0=commSayAs; commSayAs=function(spk,key,opts){ if(EBP.hush && key==='EN GARDE!'){ EBP.n.hushed++; return false; } return c0.apply(this,arguments); }; }
+{ const d0=drawTeddy; drawTeddy=function(f,wbk){   // the three seconds' picture: the keel as today, then the foot mold running / standing (draw-only swaps, restored)
+  const E=f && f.ebpSeq; if(!E || f.gnSt!=='snap') return d0.apply(this,arguments);
+  if(E.t<EBP.KEEL){ const g=f.gnT; f.gnT=Math.max(0,EBP.KEEL-E.t); try{ return d0.apply(this,arguments); } finally{ f.gnT=g; } }
+  const st=f.gnSt, kw=f.kbWalk; f.gnSt='foot'; f.kbWalk=f.ebpRunning? 1 : 0; try{ return d0.apply(this,arguments); } finally{ f.gnSt=st; f.kbWalk=kw; } }; }
+// ── 4 HIS PARRY, PHASE 2 ONLY ──
+function ebpBlade(u){ try{ if(!u || u.dead || u.type!=='sarge') return false; const sw=unitSargeStats(u); return (sw.w==='lightsaber' || sw.w==='commander') && !unarmedU(u,sw); }catch(e){ return false; } }   // THE SABER (key lightsaber) or THE CLAYMORE (key commander), the blade in hand
+function ebpBlock(f,u){
+  f.ebpPar=0; f.ebpBlkN=(f.ebpBlkN|0)+1; f.kbDash=null; f.kbWind=null; f.kbWalk=0; f.kbParT=EBP.STALL; f.kbParFs=(u.x>=f.x)? 1 : -1;   // the stall: kbFootTick's own planted beat (no wind, no flight, no cut, no step; the dash clock holds)
+  const RM=reducedMotion(), hex=(unitSargeStats(u).w==='lightsaber')? (saberHexU(u)||'#EAF4FF') : '#C9D2D8', mx=(f.x+u.x)/2, my=(f.y+u.y)/2-26;
+  S.fx.push({k:'ring',x:mx,y:my,r:6,R:40,t:0,dur:0.26,col:hex}); S.fx.push({k:'flash',x:mx,y:my,ang:0.6,R:RM?18:30,lw:RM?3:4,t:0,dur:0.14});
+  if(!RM){ for(let ti=0;ti<6;ti++){ const th=(((f.x|0)*0.73+(f.y|0)*1.21+ti*0.897)%1), ta=th*6.283, ca=Math.cos(ta), sa=Math.sin(ta), td=4+((ti*0.37+th)%1)*5, tl=td+7+th*7; S.fx.push({k:'tracer',x1:mx+ca*td,y1:my+sa*td,x2:mx+ca*tl,y2:my+sa*tl,t:0,dur:0.11,col:'#EAF4FF',w:1.6}); } }   // kbParry's own sparks (hashed off his post, no dice)
+  S.floats.push({x:f.x,y:f.y-84,txt:'PARRY!',t:0,col:'#EAF4FF'}); bfSfx(SFX.snap,f.x,f.y);   // the game's own word for a parry (x7) over HIM; the saber's block sound
+  if(bfHumanU(u) && !u.coopBy && !RM){ S.shake=Math.max(S.shake,0.18); if(!S.coop) S.hitStop=Math.max(S.hitStop||0,KB_PARRY_STOP); }   // the punch: YOUR Sarge alone, never in co-op, never under reduced motion (the sniper's own law)
+  tdLog(f,'ebp-block',u.type);
+}
+{ const h0=hurt; hurt=function(f,dmg,src,fire9){
+  if(f && f.ebpPar!=null && src && src.type==='sarge' && !fire9 && EBP_ON){
+    try{ if(f.kbLife===2 && f.gnSt==='foot' && !f.dead && f.hp>0 && ebpKing(f) && ebpBlade(src)){
+      const who=String(src.cid||('u'+(src.id|0))), w9=unitSargeStats(src).w;
+      if(f.ebpPar!==1){ EBP.n.spent++; if(EBP.sw.length<4000) EBP.sw.push([+S.t.toFixed(2),'spent',w9]); }
+      else { const m=f.ebpSw||(f.ebpSw={}), n=m[who]=(m[who]|0)+1, r=rxRoll('ebp:par:'+rxDoorKey()+':'+ebpSalt()+':'+(f.foN|0)+':'+who+':'+n); EBP.n.roll++;
+        if(r<EBP.PARRY){ EBP.n.block++; if(EBP.sw.length<4000) EBP.sw.push([+S.t.toFixed(2),'block',w9]); ebpBlock(f,src); return; }
+        if(EBP.sw.length<4000) EBP.sw.push([+S.t.toFixed(2),'land',w9]); EBP.n.land++; } } }catch(e){ ebpErr('parry',e); }
+  }
+  return h0.apply(this,arguments); }; }
+{ const k0=kbCut; kbCut=function(f,L){ const n0=(L && L.took)? L.took.length : 0; const r=k0.apply(this,arguments);
+  try{ if(f && f.ebpPar===0 && L && L.took && L.took.length>n0 && ebpKing(f)){ f.ebpPar=1; EBP.n.rearm++; if(EBP.sw.length<4000) EBP.sw.push([+S.t.toFixed(2),'rearm',L.took[L.took.length-1].type]); tdLog(f,'ebp-rearm'); } }catch(e){ ebpErr('cut',e); }   // his next cut that lands on one of your men arms the parry again
+  return r; }; }
+// ── 5 NO WAVE COUNTER IN A PARK BOSS FIGHT ──
+const EBP_WRE={ lang:null, re:null };
+function ebpWaveRe(){ if(EBP_WRE.lang!==LANG || !EBP_WRE.re){ const a='\u0001', b='\u0002', tp=String(tf('WAVE %1 / %2', a, b)), esc=tp.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); EBP_WRE.re=new RegExp('^'+esc.split(a).join('\\d+').split(b).join('\\d+')+'$'); EBP_WRE.lang=LANG; } return EBP_WRE.re; }   // the wave card's count in the player's tongue, whoever counts (the stream's, the cove's own CARD-LBW count)
+{ const s0=sqHudLine; sqHudLine=function(){ const s=s0.apply(this,arguments);
+  try{ if(ebpPark() && typeof s==='string' && ebpWaveRe().test(s)){ const r=RAID_INFO[S.raid.k]; if(r && r.name){ EBP.n.hud++; return t(r.name); } } }catch(e){ ebpErr('hud',e); }
+  return s; }; }
+{ const b0=drawBaseBar; drawBaseBar=function(x,y,w,k,label,col){
+  if(EBP_ON && typeof label==='string' && label.indexOf(' · ')>0 && ebpPark()){ const m=/ · \d+\/\d+$/.exec(label); if(m){ EBP.n.chip++; arguments[4]=label.slice(0,m.index); } }   // the plate's life chip (EMPEROR BEAR · 1/2, PRINCESS CROAK · 1/3): the name alone
+  return b0.apply(this,arguments); }; }
+// his line in every tongue as he wrote it (EBP-Q3: the French IS the line; the house's own row grammar, x7)
+Object.assign(TR["ja"]||(TR["ja"]={}), {"Suivez-moi, à la gloire!":"Suivez-moi, à la gloire!"});
+Object.assign(TR["ko"]||(TR["ko"]={}), {"Suivez-moi, à la gloire!":"Suivez-moi, à la gloire!"});
+Object.assign(TR["zh-Hans"]||(TR["zh-Hans"]={}), {"Suivez-moi, à la gloire!":"Suivez-moi, à la gloire!"});
+Object.assign(TR["de"]||(TR["de"]={}), {"Suivez-moi, à la gloire!":"Suivez-moi, à la gloire!"});
+Object.assign(TR["ru"]||(TR["ru"]={}), {"Suivez-moi, à la gloire!":"Suivez-moi, à la gloire!"});
+Object.assign(TR["es"]||(TR["es"]={}), {"Suivez-moi, à la gloire!":"Suivez-moi, à la gloire!"});
+Object.assign(TR["ar"]||(TR["ar"]={}), {"Suivez-moi, à la gloire!":"Suivez-moi, à la gloire!"});
+GVT.ebp=function(o){ o=o||{}; if(o.zero){ for(const k in EBP.n) EBP.n[k]=0; EBP.sw.length=0; EBP.log.length=0; EBP.err=0; EBP.e=''; }
+  for(const k of ['P1','WALK','STOP','REACH','CUT','CUT1','UP','RUN','SAY','WHISTLE','BACK','RUNMIN','RUNMAX','HOLD','TAGS','PARRY','STALL']) if(o[k]!=null && isFinite(+o[k])) EBP[k]=+o[k];
+  let king=null; try{ const f=S.foes.find(g=>g.type==='bearnaparte' && !g.dead); if(f) king={ x:Math.round(f.x), y:Math.round(f.y), hp:+f.hp.toFixed(2), hpMax:+f.hpMax.toFixed(2), life:f.kbLife|0, st:f.gnSt, p1:(f.ebpP1==null? null : f.ebpP1), seq:f.ebpSeq? { t:+f.ebpSeq.t.toFixed(2), at:f.ebpSeq.at, said:f.ebpSeq.said } : null, par:(f.ebpPar==null? null : f.ebpPar), parT:+(f.kbParT||0).toFixed(2), u:f.ebpU? f.ebpU.type : null }; }catch(e){}
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:EBP_ON, park:ebpPark()? 1 : 0, dials:{ P1:EBP.P1, WALK:EBP.WALK, STOP:EBP.STOP, REACH:EBP.REACH, CUT:EBP.CUT, CUT1:EBP.CUT1, UP:EBP.UP, KEEL:EBP.KEEL, RUN:EBP.RUN, SAY:EBP.SAY, WHISTLE:EBP.WHISTLE, BACK:EBP.BACK, TAGS:EBP.TAGS, PARRY:EBP.PARRY, STALL:EBP.STALL, LINE:EBP.LINE }, n:Object.assign({},EBP.n), king, sw:EBP.sw.slice(-400), log:EBP.log.slice(-200), err:EBP.err, e:EBP.e,
+    key:(function(){ try{ return localStorage.getItem('gvt_ebp'); }catch(e){ return null; } })() }; };
+// ═══ END CARD-EBP ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
