@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.25","md5":"9005033abb7ba1e9a0b7c1e0b9627cc8","sha":"399a00d3ed","at":"2026-11-10T21:55:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.26","md5":"fd98feaa994285d508a6d6b2e8887334","sha":"ee86e4ea4d","at":"2026-11-10T22:35:12Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93494,7 +93494,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.25';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.26';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -225872,6 +225872,189 @@ GVT.ebp=function(o){ o=o||{}; if(o.zero){ for(const k in EBP.n) EBP.n[k]=0; EBP.
   return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:EBP_ON, park:ebpPark()? 1 : 0, dials:{ P1:EBP.P1, WALK:EBP.WALK, STOP:EBP.STOP, REACH:EBP.REACH, CUT:EBP.CUT, CUT1:EBP.CUT1, UP:EBP.UP, KEEL:EBP.KEEL, RUN:EBP.RUN, SAY:EBP.SAY, WHISTLE:EBP.WHISTLE, BACK:EBP.BACK, TAGS:EBP.TAGS, PARRY:EBP.PARRY, STALL:EBP.STALL, LINE:EBP.LINE }, n:Object.assign({},EBP.n), king, sw:EBP.sw.slice(-400), log:EBP.log.slice(-200), err:EBP.err, e:EBP.e,
     key:(function(){ try{ return localStorage.getItem('gvt_ebp'); }catch(e){ return null; } })() }; };
 // ═══ END CARD-EBP ═══
+// ═══ CARD-PTR · THE PARATROOPERS (sec:CARD-PTR; design/paratroopers-1110/00-CARD-PTR.md; board J58, lane gvt-p4). FROM WYATT, 11/10/2026 about 15:55 EST, typed on Maker 1, card 3 of 3 of his
+// Sky Fortress patch notes ("Please queue them optimally. 1. 1 to 3 different jumps in the jumpr queue implemented directly into the game."; the sisters CARD-BBL, the Big Bomber's lanes, and CARD-WVB, the
+// wave bombers). HIS NOTES THIS SECTION BUILDS, verbatim: "- Give the paratrooper plane x3 hp. Have it drop a parachuting enemy unit every 2 seconds, until destroyed. " · "- The first troop that will be
+// parachuted out of the plane will always be a cluster of one sniper Sarge and two regular rivalmen parachuting in." · "- After phase 1 give the player 200 dogtags " · "- After phase one, have the enemy
+// troops scattered, parachuting across the screen. Think five riflemen here, two flammers there, two bazookas here. "
+// READ AS (the plan's readings; each on a named cell): "the paratrooper plane" = THE DROP SHIP (skyship) · "phase 1" = the whistle to THE FIRST GATE (R.gates[0], the first air raid's siren: PTR_P1 1;
+// 2 = THE SKY IS CLEAR! after the first raid; PTR-Q1) · "sniper Sarge" = the Tan elite tansniper · "rivalmen" = riflemen (tanrifle) · "flammers" = tanflame · "bazookas" = tanbazooka.
+// 1 · THREE TIMES THE HP (skyShipHp wrapped by name): her bar = SKY_T[t].shp x PTR_HPX (3: 84 · 108 · 132 · 156), x the sky's price as shipped.
+// 2 · A MAN EVERY 2 SECONDS UNTIL SHE IS DESTROYED (skyShipFly wrapped by name -> ptrShipFly): she no longer flies home. At the roof's ends (PTR_TURN) she turns and comes back along her lane, her
+//     picture facing the way she flies (PTR_STAY 1; 0 = off the west edge and round again from the east: PTR-Q3). One man steps out of her door every SKY_SHIP_EVERY s while her door is over the band
+//     (the roof east of the deploy hem and short of its east eave, outside the toy box's ring PTR_BOX_R), his seat under her door on her track by the shipped hash (ptrSeat: skySeat's rows, the whole
+//     band's columns; the holes as shipped: a seat in a bomb hole drops him through); each under his chute. Every PTR_SAP-th man out is THE SAPPER (PTR-Q5; never a man of the cluster: the men are
+//     numbered 1, 2, 3 for it). She HOLDS HER DOOR while PTR_CAP of her troopers are alive (PTR-Q4), from an air raid's siren to THE SKY IS CLEAR! (PTR_HOLD 1, PTR-Q8), and over the box's ring and
+//     off the band; at MAYDAY's cry (or the fight over) she flies off west, door shut, and is gone. ONE SHIP ALOFT (skyDropFile wrapped by name; PTR_ONE 1, PTR-Q2): the Big Bomber's turn launches the
+//     next ship only when none is aloft, and never sooner than PTR_GAP s after the last one fell (a turn inside that wait launches her when it ends, once the raid's sky is down). Shot down: no more
+//     men (the ones under chutes land), her wreck by the wreck road as shipped (skyShipWreck, the crash: not forked here).
+// 3 · THE CLUSTER (PTR_CLUSTER 1 = every ship's first drop; 2 = the fight's first ship alone; 0 = none: PTR-Q6): three chutes out of her door in one beat, landing as a knot (inside PTR_KNOT px):
+//     ONE SNIPER SARGE (tansniper: his own row's brain, his aim, his reach, his heavy round, through the house's doors) and TWO RIFLEMEN; her 2 s clock starts from it. A trooper's bar is the tier's
+//     cell T.thp x his row's share of a rifleman's (FDEF hp: the sniper 5 against 2 = x2.5, PTR-Q7). Sarge, the first time, through the chat box: "Sniper under that chute! Get him before he sets up!"
+// 4 · AFTER PHASE 1, 200 DOG TAGS (skyRaidGate wrapped by name; PTR_P1 2 reads THE SKY IS CLEAR! of the first raid): once a fight, PTR_TAGS at every tier, by the bounty blob's own landing lines
+//     (gtxTag, the purse, the lifetime count, SFX.blip) with its "+200" float at the purse (psfFloat). No banner, no card. A party: every phone pays its own commander (the house's group cut, GTX,
+//     makes it 190 with two or more commanders; the blob itself would pay NOBODY in a party at a moment no man struck: oktPays): PTR-Q9.
+// 5 · AFTER PHASE 1, THE SCATTERED DROP: at the same moment three clusters come down under the game's own chutes out of the sky, with no ship, PTR_SCAT_GAP s apart: PTR_SCAT[t].r RIFLEMEN in one
+//     place, .f FLAMERS in another, .b BAZOOKAS in a third (5 · 2 · 2 at every tier, PTR-Q10), one seat in each third of the roof's width (your side included), never inside the toy box's ring, on
+//     the hem's first px, a hole, a vent or an eave, the men of a cluster within PTR_SCAT_SPREAD px of its seat; the seats by a hash every sim of a party shares (rxRoll on the raid's door and
+//     COOP.code; solo: the raid's own start clock). Bars: the trooper's cell x the row's share (a flamer 6 against 2, a bazooka 3 against 2). Sarge, through the chat box, once: "Paratroopers all over
+//     the roof! Clean them up!" Never a banner.
+// NO INSTANT KO IS ADDED (11/3, Wyatt via Isaac): the sniper's round, the flame and the rocket are amounts of damage through their own rows' doors, the house's priced hits, every save keeping its say.
+// THE SWITCH: ?ptr=0 on a device (gvt_ptr '0'; ?ptr=1 clears it) = the fight as v31.25 on that device (the ship's bar, one file a ship and home, no cluster, no tags at the gate, no scatter), outside
+// rooms; inside a room or a party (S.coop) the new rules always run, so every phone runs one fight (CARD-GSA's grammar). GVT.ptr() = the rigs' read. THE LAB: twelve RULES rows for the sky. A SISTER
+// that wants a man under a chute calls ptrChute(type, x, y, {hp, alt, sw, ship}). Zero css, zero META fields, zero server bytes, zero sw bytes; two words x7; no die (hashes and the clock: the twin law).
+const PTR_ON=(function(){ try{ const q=/[?&]ptr=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_ptr','0'); else localStorage.removeItem('gvt_ptr'); } return localStorage.getItem('gvt_ptr')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const PTR_HPX={ e:3, m:3, h:3, g:3 };                                            // HIS "x3 hp": her bar = SKY_T[t].shp x this (28 · 36 · 44 · 52 -> 84 · 108 · 132 · 156)
+const SKY_SHIP_EVERY={ e:2, m:2, h:2, g:2 };                                     // HIS "every 2 seconds": the seconds between two men out of her door
+const PTR_ONE={ e:1, m:1, h:1, g:1 };                                            // PTR-Q2: 1 = one drop ship aloft at a time; 0 = one out of every turn as shipped, each staying till destroyed
+const PTR_GAP={ e:8, m:8, h:8, g:8 };                                            // PTR-Q2: the next ship never sooner than this many s after the last one fell
+const PTR_STAY={ e:1, m:1, h:1, g:1 };                                           // PTR-Q3: 1 = she turns at the roof's ends and stays over it; 0 = off the west edge and round again from the east
+const PTR_CAP={ e:8, m:10, h:12, g:14 };                                         // PTR-Q4: at most this many of her troopers alive (under chutes or on the roof); at the cap she holds her door
+const PTR_SAP={ e:6, m:6, h:6, g:6 };                                            // PTR-Q5: every this-many-th man out of a ship is THE SAPPER (0 = none)
+const PTR_CLUSTER={ e:1, m:1, h:1, g:1 };                                        // PTR-Q6: 1 = every ship's first drop is the cluster; 2 = the fight's first ship alone; 0 = no cluster
+const PTR_HOLD={ e:1, m:1, h:1, g:1 };                                           // PTR-Q8: 1 = she holds her door from an air raid's siren to THE SKY IS CLEAR!; 0 = she keeps dropping through it
+const PTR_P1={ e:1, m:1, h:1, g:1 };                                             // PTR-Q1: phase 1 ends at 1 = the first air raid's siren (the first gate); 2 = THE SKY IS CLEAR! after the first raid; 0 = no phase-1 payoff
+const PTR_TAGS={ e:200, m:200, h:200, g:200 };                                   // PTR-Q9: HIS 200 dog tags after phase 1, once a fight
+const PTR_SCAT={ e:{ r:5, f:2, b:2 }, m:{ r:5, f:2, b:2 }, h:{ r:5, f:2, b:2 }, g:{ r:5, f:2, b:2 } };   // PTR-Q10: HIS "five riflemen here, two flammers there, two bazookas here"
+const PTR_TURN=[SKY_WEST, SKY_W-SKY_EAST_PAD];                                   // her turns (x of her middle): the Big Bomber's own ends of the roof (180 · 1840)
+const PTR_BAND=[58+SKY_HOLE_HEM, SKY_W-58];                                      // the drop band's columns: east of the deploy hem's first px, short of the east eave (the holes' own x law)
+const PTR_BOX_R=200, PTR_KNOT=40, PTR_CLUS_OFF=[[0,0],[-17,-9],[17,9]];          // the toy box's ring (px) · the cluster's knot (px: every two of the three inside it) · the cluster's seats about the door's (the sniper first)
+const PTR_SCAT_GAP=0.6, PTR_SCAT_SPREAD=50, PTR_SCAT_ALT=300, PTR_SCAT_CLR=12;   // the scatter: s between its clusters · a cluster's men within this of its seat · how high their chutes open (px over the seat) · the px kept clear of a hole's or a vent's rim beyond the spread
+const PTR_SAY_SNIPER='Sniper under that chute! Get him before he sets up!', PTR_SAY_SCAT='Paratroopers all over the roof! Clean them up!';   // Sarge (rank 3; the ENGLISH keys, t() at commSayAs, 7 tables)
+const PTR_SAY_WAIT=[0.8, 2.0], PTR_SAY_SCAT_WAIT=[0.6, 7.0];                     // a line waits for Sarge's card to close from the first number of s, never past the second (the sniper's before he lands)
+const PTR={ on:PTR_ON, n:{ ships:0, skip:0, defer:0, late:0, fell:0, home:0, off:0, men:0, clus:0, snipers:0, saps:0, capHold:0, raidHold:0, p1:0, paid:0, scat:0, scatMen:0, sayS:0, sayP:0, chute:0 }, last:{}, err:0, e:'' };
+function ptrErr(w,e){ PTR.err++; if(PTR.e.length<400) PTR.e+=w+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function ptrOn(){ return !!((PTR.on===1 || S.coop) && skyOn()); }   // the device's switch, outside rooms; a room or a party always runs the new rules (CARD-GSA's lockstep grammar)
+function ptrT(T){ const v=T[skyTier()]; return (typeof v==='number' && isFinite(v))? v : ((typeof T.h==='number')? T.h : 0); }   // this tier's cell (a tier the row lacks: HARD's)
+function ptrSalt(){ try{ return (S.coop && COOP && COOP.code)? String(COOP.code) : String(Math.round(((S.raid && S.raid.t0)||0)*1000)); }catch(e){ return '0'; } }   // a die every sim of a party shares (CARD-RZB's rzbKey grammar)
+function ptrRoll(s){ return rxRoll('ptr:'+s+':'+rxDoorKey()+':'+ptrSalt()); }   // [0,1) off a key (FNV-1a + dice9: rxRoll's grammar)
+function ptrRowX(type){ const d=FDEF[type], r=FDEF.tanrifle; return (d && r && d.hp>0 && r.hp>0)? d.hp/r.hp : 1; }   // a row's share of a rifleman's bar (the sniper 5 / 2, a flamer 6 / 2, a bazooka 3 / 2)
+function ptrZ(R){ return R.ptr||(R.ptr={ ships:[], fellAt:null, pend:null, born:0, men:0, peak:0, capT:0, raidT:0, p1:null, scat:null, said:{ s:0, p:0 }, drops:[], lives:[], snipers:0, saps:0, sayS:null, sayP:null }); }   // the fight's ledger (on the sky's own state: a new raid, a new ledger)
+function ptrAlive(){ let n=0; for(const m of S.foes){ if(m.ptrShip && !m.dead && !m.falling && !m.fellVoid) n++; } return n; }   // her troopers alive (under chutes or on the roof)
+function ptrAloft(){ for(const f of S.foes){ if(f.def && f.def.ship && !f.dead && !f.shipGone && f.hp>0) return f; } return null; }   // a drop ship in the sky
+function ptrBoxClear(x,y,pad){ const b=skyBox(); return Math.hypot(x-b.x,y-b.y)>=PTR_BOX_R+(pad||0); }
+function ptrSeat(x,y){ const s=skySeat(x,y); return { x:Math.max(PTR_BAND[0],Math.min(PTR_BAND[1],Math.round(x))), y:s.y }; }   // skySeat's rows (the eaves kept), the whole band's columns (skySeat's own columns are the old door band 220 to 1120)
+function ptrChute(type,x,y,o){ o=o||{}; const f=spawnFoe(type, x, y, null, false); if(!f) return null; const T=SKY_T[skyTier()]||SKY_T.e;   // THE ONE ROAD A MAN COMES DOWN UNDER A CHUTE (a sister calls it too)
+  const hp=(o.hp!=null)? +o.hp : (T.thp||4)*ptrRowX(type); f.hp=f.hpMax=Math.max(1,Math.round(hp));
+  f.skyDrop={ t:0, x, y, sw:(o.sw!=null)? o.sw : 0, alt:Math.max(40, o.alt||(SKY_ALT+40)), ship:o.ship? 1 : 0 }; f.shot=0; f.aimT=0; f.form=null;   // under his chute, his trigger held (skyPass swings him and lands him; skyAirY and skyDrawChute read D.alt)
+  S.fx.push({k:'ring',x,y,r:6,R:30,t:0,dur:0.5,col:'rgba(255,255,255,0.7)'}); PTR.n.chute++;
+  return f; }
+function ptrShipNew(f,K,R){ const Z=ptrZ(R), c=Math.round(ptrT(PTR_CLUSTER)); Z.born++; Z.ships.push(f); PTR.n.ships++;
+  return { j:0, clk:SKY_SHIP.pre, clus:(c===1 || (c===2 && Z.born===1))? 1 : 0, off:0, turns:0, hold:'', born:+R.t.toFixed(2), drops:[] }; }
+function ptrDropMan(f,K,Q,T,R,dx,type,ox,oy,j0){ const C=SKY_SHIP, P=R.ships||(R.ships=skyShipNew()), Z=ptrZ(R); Q.j++; const j=Q.j, jh=(j0!=null)? j0 : j;
+  const y0=foeBandY(f.y+SKY_ALT+((((K.i*31+jh*17)%5)-2)*C.jit/2)), s9=ptrSeat(Math.round(dx+ox), Math.round(y0+oy));   // under her door on her track: the shipped hash's scatter across it (the cluster's three share its first man's row)
+  const m=ptrChute(type, s9.x, s9.y, { alt:Math.max(40, s9.y-(f.y-C.sill)), sw:j*1.3+K.i, ship:1 }); if(!m) return null;
+  m.ptrShip=K.i+1; m.ptrJ=j; K.out++; K.n=K.out; P.men++; R.dropped=(R.dropped|0)+1; Z.men++; PTR.n.men++;   // K.n follows K.out: her wreck counts no file "lost" (she has no file; skyShipWreck reads them)
+  const sp=Math.round(ptrT(PTR_SAP)); if(type==='tanrifle' && sp>0 && j%sp===0 && !(Q.clus && j<=3)){ const Q9=R.saps||(R.saps=skySapNew()); m.skySap=1; m.spdMul=(m.spdMul||1)*SKY_SAP.run; Q9.out++; Q9.l.push(m); Z.saps++; PTR.n.saps++; }   // EVERY SIXTH MAN OUT IS THE SAPPER (the shipped man: skySapTick runs him)
+  if(type==='tansniper'){ Z.snipers++; PTR.n.snipers++; }
+  Q.drops.push(+R.t.toFixed(2)); if(Z.drops.length<400) Z.drops.push({ t:+R.t.toFixed(2), s:K.i, j, type, x:s9.x, y:s9.y, sap:m.skySap? 1 : 0 });
+  return m; }
+function ptrShipFly(f,dt,T){ const R=S.raid.sky, P=R.ships||(R.ships=skyShipNew()), C=SKY_SHIP, Z=ptrZ(R); let K=f.sky;
+  if(!K || !K.ship) K=f.sky={ dir:-1, bankT:0, ship:1, i:P.launched++, x:f.x, y:f.y, door:SKY_DROP_X[1], n:0, out:0, gapT:0, open:0, shutT:0, born:S.t };
+  const Q=K.ptr||(K.ptr=ptrShipNew(f,K,R)), B=skyBoss(), rd=S.raid, over=!!(rd.won || rd.kingDown || S.cleared || S.lives<=0 || S.mode!=='play');
+  if(!Q.off && (over || !B || hrtS3Down(B))){ Q.off=1; PTR.n.off++; }   // MAYDAY's cry (or the fight over): she flies off west, door shut
+  const stay=ptrT(PTR_STAY)>=0.5;
+  if(Q.off){ K.dir=-1; K.x-=C.spd*1.4*dt; }
+  else { K.x+=K.dir*C.spd*dt;
+    if(stay){ if(K.dir<0 && K.x<=PTR_TURN[0]){ K.x=PTR_TURN[0]; K.dir=1; K.bankT=0.7; Q.turns++; } else if(K.dir>0 && K.x>=PTR_TURN[1]){ K.x=PTR_TURN[1]; K.dir=-1; K.bankT=0.7; Q.turns++; } }   // SHE STAYS: she turns at the roof's ends and comes back
+    else if(K.x< -f.def.w){ K.x=SKY_W+f.def.w/2+C.lead*C.spd; K.dir=-1; Q.turns++; try{ SFX.prop(); }catch(e){} } }   // PTR-Q3's other cell: round again from the east (her drone's tell)
+  f.x=K.x; f.y=K.y;
+  if(!K.seen && f.x<=SKY_W+f.def.w/2){ K.seen=1; P.seen++; if(!P.said){ P.said=1; try{ commSayAs(null, 'Drop ship! Shoot it down before they jump!', {rank:3, always:1}); }catch(e){} } }   // Sarge, the first time one shows (as shipped)
+  if(Q.off){ if(K.open===1){ K.open=2; K.shutT=0; } if(f.x< -f.def.w) f.shipGone=1; return; }   // off the west edge and gone (skyTroopTick lifts her: no bounty, no puff)
+  const dx=f.x-K.dir*C.doorX, sy=foeBandY(f.y+SKY_ALT), alive=ptrAlive(); if(alive>Z.peak) Z.peak=alive;   // the door's seat over the roof (aft of her middle, whichever way she flies)
+  let hold=''; if(ptrT(PTR_HOLD)>=0.5 && skyRaidUp(R)) hold='raid'; else if(alive>=Math.round(ptrT(PTR_CAP))) hold='cap'; else if(dx<PTR_BAND[0] || dx>PTR_BAND[1] || !ptrBoxClear(dx,sy)) hold='band';
+  if(hold==='raid'){ Z.raidT+=dt; if(Q.hold!=='raid') PTR.n.raidHold++; } else if(hold==='cap'){ Z.capT+=dt; if(Q.hold!=='cap') PTR.n.capHold++; }
+  Q.hold=hold;
+  if(hold){ if(K.open===1){ K.shutT+=dt; if(K.shutT>=C.shut){ K.open=2; } } if(Q.clk<C.pre) Q.clk=C.pre; return; }   // HER DOOR HELD: it slides shut; her clock rests (and gives the next man the door's beat when it runs again)
+  Q.clk-=dt;
+  if(Q.clk<=C.pre && K.open!==1){ K.open=1; K.shutT=0; P.doors++; bfSfx(SFX.clank, f.x, f.y); }   // THE DOOR OPENS a beat before the next man
+  if(Q.clk>0) return;
+  Q.clk+=Math.max(0.2, ptrT(SKY_SHIP_EVERY)); K.shutT=0;
+  if(Q.clus && Q.j===0){ PTR.n.clus++; const L=['tansniper','tanrifle','tanrifle'];   // THE CLUSTER: three chutes in one beat, a knot
+    for(let i=0;i<3;i++) ptrDropMan(f,K,Q,T,R,dx,L[i],PTR_CLUS_OFF[i][0],PTR_CLUS_OFF[i][1],1);
+    if(!Z.said.s && Z.sayS==null){ Z.sayS=R.t; }   // Sarge, the first time: queued (ptrSay waits for his card to close, never past the sniper's landing)
+    Q.clusAt=+R.t.toFixed(2); PTR.last.clus={ t:Q.clusAt, ship:K.i, x:Math.round(dx) }; }
+  else ptrDropMan(f,K,Q,T,R,dx,'tanrifle',0,0);   // ONE MAN EVERY 2 SECONDS
+  bfSfx(SFX.swish, f.x, f.y); }
+function ptrSay(R){ const Z=ptrZ(R), cs=(k)=>{ try{ return !!commSayAs(null, k, {rank:3, always:1}); }catch(e){ return false; } };   // the two lines, each once a fight: they wait for Sarge's card to close (the drop ship's and the raid's own lines are read whole), never past their last beat
+  if(Z.sayS!=null && !Z.said.s){ const a=R.t-Z.sayS; if(a>=PTR_SAY_WAIT[0] && (!COMM.say || a>=PTR_SAY_WAIT[1])){ if(cs(PTR_SAY_SNIPER) || a>=PTR_SAY_WAIT[1]+3){ Z.said.s=1; PTR.n.sayS++; PTR.last.sayS=+R.t.toFixed(2); } } }
+  if(Z.sayP!=null && !Z.said.p){ const a=R.t-Z.sayP; if(a>=PTR_SAY_SCAT_WAIT[0] && (!COMM.say || a>=PTR_SAY_SCAT_WAIT[1])){ if(cs(PTR_SAY_SCAT) || a>=PTR_SAY_SCAT_WAIT[1]+3){ Z.said.p=1; PTR.n.sayP++; PTR.last.sayP=+R.t.toFixed(2); } } } }
+function ptrPay(R){ const v0=Math.round(ptrT(PTR_TAGS)); if(!(v0>0)) return 0; let v=v0; try{ v=gtxTag(smtTagV(v0)); }catch(e){ v=v0; }   // the bounty blob's own landing lines, at the purse (the pour's float)
+  S.plastic=(+S.plastic||0)+v; try{ if(META && META.stats) META.stats.tags=(META.stats.tags|0)+v; }catch(e){} try{ SFX.blip(); }catch(e){} try{ S.floats.push(psfFloat('+'+v)); }catch(e){}
+  PTR.n.paid+=v; return v; }
+function ptrScatSeats(R){ const n=3, w=(PTR_BAND[1]-PTR_BAND[0])/n, sp=PTR_SCAT_SPREAD, s0=skySeat(0,-1e4).y+sp, s1=skySeat(0,1e4).y-sp, out=[];   // one seat in each third of the roof's width: a hash every sim shares, kept off the box's ring, the holes, the vents and the eaves
+  const pm=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]][Math.min(5,Math.floor(ptrRoll('perm')*6))];   // which third takes which cluster
+  const pits=((S.cfg && S.cfg.terrain && S.cfg.terrain.pits)||[]).filter(p=>p.sky), rocks=(S.cfg && S.cfg.terrain && S.cfg.terrain.rocks)||[];
+  for(let k=0;k<n;k++){ const a=PTR_BAND[0]+w*pm[k]+sp+8, b=PTR_BAND[0]+w*(pm[k]+1)-sp-8; let best=null, bs=-1e9;
+    for(let tr=0;tr<24;tr++){ const x=Math.round(a+(b-a)*ptrRoll('x'+k+':'+tr)), y=Math.round(s0+(s1-s0)*ptrRoll('y'+k+':'+tr));
+      let c=Math.hypot(x-skyBox().x,y-skyBox().y)-(PTR_BOX_R+sp);   // the clearance: the box's ring, then every hole's and vent's rim
+      for(const p of pits) c=Math.min(c, Math.hypot(x-p.x,y-p.y)-(p.r+sp+PTR_SCAT_CLR));
+      for(const r9 of rocks) c=Math.min(c, Math.hypot(x-r9.x,y-r9.y)-(r9.r+sp+PTR_SCAT_CLR));
+      if(c>=0){ best={ x, y, tr, c:Math.round(c) }; break; } if(c>bs){ bs=c; best={ x, y, tr, c:Math.round(c) }; } }
+    out.push(best); }
+  return out; }   // out[k] = the seat of cluster k (0 the riflemen, 1 the flamers, 2 the bazookas)
+function ptrScatOff(n,i,rot){ if(n<=1) return [0,0]; const r=(n<=2)? 18 : 30, a=rot+i*2*Math.PI/n; return [Math.round(Math.cos(a)*r), Math.round(Math.sin(a)*r*0.8)]; }   // a cluster's men about its seat (inside PTR_SCAT_SPREAD)
+function ptrPhase1(R,B,why){ const Z=ptrZ(R); if(Z.p1) return; const v=ptrPay(R); const G=PTR_SCAT[skyTier()]||PTR_SCAT.h;
+  Z.p1={ why, at:+R.t.toFixed(2), paid:v, lives:S.lives|0 }; PTR.n.p1++; PTR.last.p1=Z.p1;
+  const L=[['tanrifle', Math.max(0,Math.round(+G.r||0))], ['tanflame', Math.max(0,Math.round(+G.f||0))], ['tanbazooka', Math.max(0,Math.round(+G.b||0))]];
+  if(L[0][1]+L[1][1]+L[2][1]>0){ const seats=ptrScatSeats(R); Z.scat={ t0:R.t, k:0, seats, kinds:L.map(q=>q[0]), n:L.map(q=>q[1]), men:[], at:[] }; PTR.n.scat++; Z.sayP=R.t; } }
+function ptrScatTick(R){ const Z=ptrZ(R), Q=Z.scat; if(!Q || Q.k>=3) return;   // THE SCATTERED DROP: cluster k steps out of the sky PTR_SCAT_GAP x k s after the moment
+  while(Q.k<3 && R.t-Q.t0>=PTR_SCAT_GAP*Q.k-1e-9){ const k=Q.k, s=Q.seats[k], n=Q.n[k], rot=ptrRoll('rot'+k)*Math.PI*2; Q.k++; Q.at.push(+R.t.toFixed(2)); if(!s || n<=0) continue;
+    for(let i=0;i<n;i++){ const o=ptrScatOff(n,i,rot), p=ptrSeat(s.x+o[0], s.y+o[1]); const m=ptrChute(Q.kinds[k], p.x, p.y, { alt:PTR_SCAT_ALT, sw:k*2.1+i*1.3, ship:0 }); if(m){ m.ptrScat=k+1; Q.men.push({ id:m.id, type:m.type, x:p.x, y:p.y, k }); PTR.n.scatMen++; } }
+    bfSfx(SFX.swish, s.x, s.y); } }
+function ptrTick(T,R,dt){ const Z=ptrZ(R), B=skyBoss(), rd=S.raid, over=!!(rd.won || rd.kingDown || S.cleared || S.lives<=0 || S.mode!=='play');   // skyTroopTick's foot, every frame of the sky raid
+  for(let i=Z.ships.length-1;i>=0;i--){ const f=Z.ships[i]; if(f.shipGone){ Z.ships.splice(i,1); PTR.n.home++; Z.lives.push({ i:f.sky? f.sky.i : -1, born:f.sky&&f.sky.ptr? f.sky.ptr.born : null, end:+R.t.toFixed(2), how:'off', men:f.sky? f.sky.out|0 : 0, turns:f.sky&&f.sky.ptr? f.sky.ptr.turns : 0 }); continue; }
+    if(f.dead || f.hp<=0 || S.foes.indexOf(f)<0){ Z.ships.splice(i,1); Z.fellAt=R.t; PTR.n.fell++; Z.lives.push({ i:f.sky? f.sky.i : -1, born:f.sky&&f.sky.ptr? f.sky.ptr.born : null, end:+R.t.toFixed(2), how:'down', men:f.sky? f.sky.out|0 : 0, turns:f.sky&&f.sky.ptr? f.sky.ptr.turns : 0 }); } }   // SHOT DOWN: the clock of the next one starts
+  if(Z.pend!=null){ if(over || !B || hrtS3Down(B)) Z.pend=null;   // a launch the 8 s rule held back: it goes when the wait ends and the raid's sky is down
+    else if(R.t>=Z.pend && !ptrAloft() && !hrtS2Up(R)){ Z.pend=null; const n0=R.drops|0; PTR_DF0(B,T,R); if((R.drops|0)>n0) PTR.n.late++; } }
+  if(!Z.p1 && Math.round(ptrT(PTR_P1))===2 && R.air && (R.air.clears|0)>=1) ptrPhase1(R,B,'clear1');   // PTR-Q1's other cell: THE SKY IS CLEAR! after the first raid
+  ptrScatTick(R); ptrSay(R); }
+function ptrRead(){ const R=(S.raid && S.raid.sky)||null, Z=R && R.ptr; let hp=null; try{ if(skyOn()) hp=skyShipHp(SKY_T[skyTier()]); }catch(e){}
+  return { cv:GVT_CV, on:PTR.on, dev:PTR_ON, live:skyOn()? ptrOn() : null, tier:skyOn()? skyTier() : null, hp, n:Object.assign({},PTR.n), last:PTR.last, err:PTR.err, e:PTR.e,
+    z:Z? { fellAt:Z.fellAt, pend:Z.pend, born:Z.born, men:Z.men, peak:Z.peak, capT:+Z.capT.toFixed(2), raidT:+Z.raidT.toFixed(2), p1:Z.p1, snipers:Z.snipers, saps:Z.saps, said:Object.assign({},Z.said), drops:Z.drops.slice(-60), lives:Z.lives.slice(),
+      scat:Z.scat? { t0:+Z.scat.t0.toFixed(2), k:Z.scat.k, seats:Z.scat.seats, n:Z.scat.n.slice(), at:Z.scat.at.slice(), men:Z.scat.men.slice() } : null } : null,
+    ships:S.foes.filter(f=>f.def && f.def.ship && !f.dead).map(f=>{ const K=f.sky||{}, Q=K.ptr||{}; return { i:K.i, x:Math.round(f.x), y:Math.round(f.y), dir:K.dir, hp:f.hp, max:f.hpMax, open:K.open, out:K.out|0, j:Q.j|0, clk:(Q.clk!=null)? +Q.clk.toFixed(2) : null, hold:Q.hold||'', off:Q.off|0, turns:Q.turns|0, clus:Q.clus|0, born:Q.born }; }),
+    alive:skyOn()? ptrAlive() : 0, troopers:S.foes.filter(m=>m.ptrShip && !m.dead).map(m=>({ id:m.id, type:m.type, s:m.ptrShip, j:m.ptrJ, hp:m.hp, max:m.hpMax, air:!!m.skyDrop, sap:!!m.skySap, x:Math.round(m.x), y:Math.round(m.y) })),
+    dials:{ hpx:Object.assign({},PTR_HPX), every:Object.assign({},SKY_SHIP_EVERY), one:Object.assign({},PTR_ONE), gap:Object.assign({},PTR_GAP), stay:Object.assign({},PTR_STAY), cap:Object.assign({},PTR_CAP), sap:Object.assign({},PTR_SAP), clus:Object.assign({},PTR_CLUSTER), hold:Object.assign({},PTR_HOLD), p1:Object.assign({},PTR_P1), tags:Object.assign({},PTR_TAGS), scat:JSON.parse(JSON.stringify(PTR_SCAT)), turn:PTR_TURN.slice(), band:PTR_BAND.slice(), boxR:PTR_BOX_R, knot:PTR_KNOT },
+    lab:(typeof BLB_RULES!=='undefined')? BLB_RULES.filter(function(q){ return /^(PTR_|SKY_SHIP_EVERY)/.test(q[0]); }).map(function(q){ return q[0]; }) : null }; }
+let PTR_DF0=null;   // the shipped skyDropFile (the late launch calls it past the wrap's own rule)
+try{
+  // 1 · HER BAR x3
+  { const hp0=skyShipHp; skyShipHp=function(T){ if(!ptrOn()) return hp0.apply(this,arguments); try{ return Math.max(1,Math.round((T.shp||28)*ptrT(PTR_HPX)*skyPrice(skyTier()))); }catch(e){ ptrErr('hp',e); return hp0.apply(this,arguments); } }; }
+  // 2 · ONE SHIP ALOFT, AND NEVER SOONER THAN PTR_GAP s AFTER THE LAST ONE FELL (the Big Bomber's turn: hrtS1Turn; the rested clock as shipped)
+  { const df0=skyDropFile; PTR_DF0=df0; skyDropFile=function(B,T,R){ if(!ptrOn() || !R || !(ptrT(PTR_ONE)>=0.5)) return df0.apply(this,arguments);
+      try{ const Z=ptrZ(R); if(ptrAloft()){ PTR.n.skip++; return; } const g=ptrT(PTR_GAP); if(Z.fellAt!=null && R.t-Z.fellAt<g){ if(Z.pend==null){ Z.pend=Z.fellAt+g; PTR.n.defer++; } return; } }catch(e){ ptrErr('file',e); }
+      return df0.apply(this,arguments); }; }
+  // 2 · HER FLIGHT, HER DOOR, HER MEN, THE CLUSTER
+  { const sf0=skyShipFly; skyShipFly=function(f,dt,T){ if(!ptrOn()) return sf0.apply(this,arguments); try{ return ptrShipFly(f,dt,T); }catch(e){ ptrErr('fly',e); return sf0.apply(this,arguments); } }; }
+  // 4 + 5 · THE FIRST GATE: phase 1's end (PTR_P1 1)
+  { const rg0=skyRaidGate; skyRaidGate=function(T,i,R,B){ const r=rg0.apply(this,arguments); try{ if(ptrOn() && i===0 && R && Math.round(ptrT(PTR_P1))===1) ptrPhase1(R,B,'gate1'); }catch(e){ ptrErr('gate',e); } return r; }; }
+  // the frame's foot: the ships that fell, the late launch, PTR_P1 2's moment, the scatter's clusters, Sarge's two lines
+  { const tt0=skyTroopTick; skyTroopTick=function(T,R,dt){ const r=tt0.apply(this,arguments); try{ if(ptrOn() && R) ptrTick(T,R,dt); }catch(e){ ptrErr('tick',e); } return r; }; }
+  // THE WORDS x7 (Sarge's two lines)
+  { const W9={ ar:['قناص تحت تلك المظلة! أوقفوه قبل أن يتمركز!‏','مظليون في كل مكان على السطح! تخلصوا منهم!‏'], ja:['あの パラシュートに そげきへいだ！ かまえる まえに たおせ！','やねじゅうに パラシュートへいだ！ かたづけろ！'], ko:['저 낙하산에 저격병이다! 자리 잡기 전에 잡아라!','지붕 곳곳에 낙하산병이다! 쓸어버려라!'],
+      'zh-Hans':['那顶降落伞下有狙击手！趁他还没架好枪，干掉他！','屋顶上到处都是伞兵！把他们清理干净！'], de:['Scharfschütze unter dem Fallschirm! Erwischt ihn, bevor er in Stellung geht!','Fallschirmjäger überall auf dem Dach! Räumt sie weg!'],
+      ru:['Снайпер под тем парашютом! Достаньте его, пока он не занял позицию!','Десантники по всей крыше! Зачистите их!'], es:['¡Francotirador bajo ese paracaídas! ¡Atrápalo antes de que se aposte!','¡Paracaidistas por todo el tejado! ¡Acaba con ellos!'] };
+    for(const k9 in W9){ const o9={}; o9[PTR_SAY_SNIPER]=W9[k9][0]; o9[PTR_SAY_SCAT]=W9[k9][1]; Object.assign(TR[k9]||(TR[k9]={}), o9); } }
+  // THE LAB: twelve RULES rows for the sky (CARD-ICN4's grammar: the device's saved cells re-applied when the lab booted first)
+  if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES) && !BLB_RULES.some(function(r){ return r[0]==='PTR_HPX'; })){
+    BLB_RULES.push(['PTR_HPX', ()=>PTR_HPX, "THE DROP SHIP'S BAR: x her shipped bar (his x3) (PTR)", 'sky'],
+                   ['SKY_SHIP_EVERY', ()=>SKY_SHIP_EVERY, "THE DROP SHIP: s between two men out of her door (his 2) (PTR)", 'sky'],
+                   ['PTR_ONE', ()=>PTR_ONE, "THE DROP SHIP: 1 = one ship aloft at a time; 0 = one out of every turn (PTR)", 'sky'],
+                   ['PTR_GAP', ()=>PTR_GAP, "THE DROP SHIP: s after one falls before the next (PTR)", 'sky'],
+                   ['PTR_STAY', ()=>PTR_STAY, "THE DROP SHIP: 1 = she turns and stays over the roof; 0 = round again from the east (PTR)", 'sky'],
+                   ['PTR_CAP', ()=>PTR_CAP, "THE DROP SHIP: her troopers alive at most (she holds her door at it) (PTR)", 'sky'],
+                   ['PTR_SAP', ()=>PTR_SAP, "THE DROP SHIP: every this-many-th man is the sapper (0 = none) (PTR)", 'sky'],
+                   ['PTR_CLUSTER', ()=>PTR_CLUSTER, "THE CLUSTER (sniper + 2 riflemen): 1 = every ship's first drop; 2 = the fight's first ship; 0 = none (PTR)", 'sky'],
+                   ['PTR_HOLD', ()=>PTR_HOLD, "THE DROP SHIP: 1 = she holds her door through an air raid; 0 = she keeps dropping (PTR)", 'sky'],
+                   ['PTR_P1', ()=>PTR_P1, "PHASE 1 ENDS: 1 = the first air raid's siren; 2 = THE SKY IS CLEAR! after it; 0 = no payoff (PTR)", 'sky'],
+                   ['PTR_TAGS', ()=>PTR_TAGS, "DOG TAGS AFTER PHASE 1 (his 200) (PTR)", 'sky'],
+                   ['PTR_SCAT', ()=>PTR_SCAT, "THE SCATTERED DROP: r riflemen · f flamers · b bazookas (his 5 · 2 · 2) (PTR)", 'sky']);
+    if(typeof blbShip==='function' && typeof BLB==='object' && BLB && BLB.ship) blbShip();
+    if(typeof BLB==='object' && BLB && BLB.booted && BLB.over && typeof blbCellSet==='function'){ for(const id of ['PTR_HPX','SKY_SHIP_EVERY','PTR_ONE','PTR_GAP','PTR_STAY','PTR_CAP','PTR_SAP','PTR_CLUSTER','PTR_HOLD','PTR_P1','PTR_TAGS','PTR_SCAT']){ const o=BLB.over[id]; if(o) for(const k of Object.keys(o)) blbCellSet(id,k,o[k]); } } }
+} catch(e){ ptrErr('boot',e); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.ptr) GVT.ptr=function(o){ o=o||{}; if(o.on===0 || o.on===1) PTR.on=o.on; return ptrRead(); }; }catch(e){} },0);   // the rigs' door (GVT is built below)
+// ═══ END CARD-PTR ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
