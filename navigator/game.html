@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.28","md5":"a3e2cf492d695dfb498e750be4b7812c","sha":"76359a30e6","at":"2026-11-10T23:24:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.29","md5":"6ce9d2e0c0726172da9f1413393295df","sha":"31fee541b4","at":"2026-11-10T23:40:51Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93646,7 +93646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.28';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.29';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -226447,6 +226447,93 @@ function wvbRead(){ const R=S.raid && S.raid.sky, W9=R && R.wvb, A=R && R.air, t
     ss:wvbSSRead(), planes:S.foes.filter(f=>f.type==='skybomber').map(f=>({ id:f.id|0, x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(2), max:f.hpMax, dead:!!f.dead, raid:!!f.skyRaid, i:f.skyRaidI, pass:f.sky? f.sky.pass|0 : 0, peel:!!(f.sky && f.sky.peel), sticks:f.sky? f.sky.sticks|0 : 0, gone:!!f.skyGone, hd:(f.sky && f.sky.hd!=null)? +f.sky.hd.toFixed(2) : null, tg:(f.sky && f.sky.tg)? { x:Math.round(f.sky.tg.x), y:Math.round(f.sky.tg.y), n:f.sky.tg.n } : null })) }; }
 try{ if(window.GVT) GVT.wvb=wvbRead; else setTimeout(function(){ try{ if(window.GVT) GVT.wvb=wvbRead; }catch(e){} }, 0); }catch(e){}
 // ═══ END CARD-WVB ═══
+// ═══ CARD-BSD · BILL'S STREET, FOUR FIXES: THE BANDIT RIDERS 20 % SLOWER WHILE THEY TRAMPLE, THE BUILDINGS BLOCK AS TALL AS THEY STAND, BILL ALREADY WAITS FOR THE 10 SECOND MARK, THE BIG SNAKE NEVER BEFORE 25 SECONDS AND SIX DESERT MICE WITH HIM (sec:CARD-BSD; design/bill-street-1110/00-CARD-BSD.md; jumpr 3217, board J59, lane gvt; card 1 of 3 of Wyatt's Buffalo Bill patch notes, the sisters CARD-QDC and CARD-CHE)
+// WYATT 11/10/2026 about 17:00 EST, typed on Maker 1, verbatim: "- Slow bandit riders 20% while trampling our units." "- Raise the obstruction area for the buildings in this fight. Currently, visually, they're taller than the area they obstruct,
+//   so units are able to just walk through the top of these buildings." "- Have Buffalo Bill, wait until the 10-second mark of a match before coming out. That way, the player can accumulate some dog tags by then."
+//   "- Delay the big snake's appearance so that he can't appear in the first 25 seconds. When the snake comes in, have it accompanied by the enemy mice, six of them."
+// THE FIGHT: THE BUFFALO BILL SHOWDOWN (raid bbs, Outlaw Town's Main Street on the taller mat). Every change here is a wrap BY NAME; no other line of the page moves.
+// 1 THE RIDERS: a bandit rider (wrider: the rides, the rally's extra ride, CARD-OTS-PH2's +4 a commander) walks at x BSD.rideX (0.8) for every frame a standing man of ours is inside his trample
+//   reach (def.ride.ramR, 52: the bumper block's own circle), and at his full pace the frame he is clear. The seat is THE ONE SPEED SEAT petChillX (the foe aura line multiplies it into every walker's
+//   pace, after the cold and the ice), wrapped by name: nothing else of his changes (his gun, his bar, his road, his knock). Bill on his horse is not a bandit rider (his gallop knocks nobody: BSD-Q3).
+// 2 THE BUILDINGS: today each building blocks with its footprint's two circles at its foot (C2's bbsBld: r = the footprint's depth / 2), while its picture stands 50 to 132 px taller, and the men are drawn
+//   OVER the pictures (every piece is rug art under the men): a man behind a building walked on its roof. THE RAISE (BSD_TOPS, measured on the rasters the players see, alpha 128, the hotel's chimney
+//   smoke left out; solved by kit/roofBSD.py): a row of circles a building whose tops stand ON its drawn roofline and whose feet reach into its old block, C2's own grammar (art bbshit, cov, the same
+//   key, footprint and grp as the building's own circles: one building to every reader: the walkers' and the foes' shoulders, the street planner's map, the cover rule and the rounds that stop on a
+//   wall, the placement, Bill's seats, the blaze). FUZZIES 4 + 1, THE HOTEL 3 + 1 (the +1: the door's gap between the two foot circles, where a man could stand on the front wall), THE HOP INN 4,
+//   THE WATER TOWER 1. No man of either army stands inside a picture (every opaque pixel down to the porch lies inside a disc's 16 px shoulder); the back desert stays open behind every roof; FUZZIES' east disc keeps the giant snake's road down the gap (x 742) outside every shoulder. A row these numbers were
+//   not measured on (?ots=0, ?back=0) keeps its own block. bbsStreetTerrain wrapped by name: the raise added to the cell, the street planner's map rebuilt over it (btwProps' own last line).
+// 3 BILL: NO BYTE. He already waits: the house's DIG IN grace (SQ_GRACE 10, every door: the code door, a night room after its bell, the Boss Lab) pushes his wave at 10.0 s of the match's clock,
+//   he is born at 11.0 s 70 px past the east rim and walks on; a phone's glass first shows him near 29 s; the purse holds 300 tags at 10 s alone (BSD-Q2).
+// 4 THE SNAKE: the giant sandsnake (CARD-OTS-SNAKE's sleeper, CARD-OTS-SNAKE2's hunt) never wakes before BSD.snakeAt (25 s) of the fight's own clock (S.raid.bbs.t, the clock his own 20 s rides): a man
+//   who walks into his mound earlier, or his own 20 s clock, waits until 25 s (snakeWake and snake2Tick wrapped by name), so every phone of a room wakes him on the same second (the referee's early
+//   word never reached a guest: the wire keeps an 'e' that is a number only). EACH TIME HE COMES ONTO MAIN STREET (down the gap the first time, then after every rest under the sand) six DESERT
+//   MICE (wmouse, the campaign's own enemy mouse, the row the Showdown pours) burst out of the sand round him: the places on the room's die (rxRoll on the door + his entrance + the mouse), the tier's
+//   own posse dials above EASY (BBS_POSSE: x1.5 health, x1.15 pace), their own muster numbers (BSD.fon + entrance x 10 + mouse; the pour's numbers stand), never more than BSD.mice.cap (12) of his alive.
+// NOTHING OVER THE FIELD (CLAUDE.md 10/22): zero words, zero banners; the snake's own rattle and burst are the call. Zero server, sw.js, save keys, css.
+// THE SWITCH: ?bsd=0 on a device = today's street (the riders, the blocks, the snake's 20 s, no mice), outside rooms only (S.coop: a room, a party, a spectator = this card always, so every phone of a
+//   room runs one rule); ?bsd=1 clears it. GVT.bsd(o) = the rigs' door.
+const BSD_ON=(function(){ try{ const q=/[?&]bsd=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bsd','0'); else localStorage.removeItem('gvt_bsd'); } return localStorage.getItem('gvt_bsd')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const BSD_TOPS={   // THE RAISE: each building's circles RELATIVE to its footprint's top-left (fx, fy): [dx, dy, r]; fw x fh (and pw, the picture's width) = the footprint they were measured on (v31.25, CARD-OTS's row on CARD-OTS-BACK's mat)
+  saloon:{ fw:170, fh:80, pw:0,   c:[[22,-27,39],[65,-31,43],[107,-31,43],[144,-28,40],[85,56,24]] },   // FUZZIES: the false front's gable 182..198 (was blocked from 256) + the door's gap between its two foot circles
+  store: { fw:150, fh:80, pw:0,   c:[[36,-39,51],[74,-32,44],[112,-41,53],[75,60,18]] },     // THE HOTEL: the roof ledge 203, the flag 190, the chimney 186 (was 280) + the door's gap between its two foot circles
+  inn:   { fw:170, fh:90, pw:140, c:[[23,-8,20],[64,-19,31],[106,-21,33],[147,-8,20]] },     // THE HOP INN: the gable 251..215, the crow on its ridge (was 270)
+  tower: { fw:62,  fh:62, pw:0,   c:[[31,-19,31]] } };                                       // THE WATER TOWER: the tank's roof and its finial 248 (was 298)
+const BSD={ on:BSD_ON, rideX:0.8, snakeAt:25, fon:800000, mice:{ n:6, cap:12, r0:40, r1:96 },
+  stats:{ raised:0, circles:0, skip:0, slowF:0, held:0, sleptF:0, ins:0, mice:0, capped:0, errs:0 }, last:null, err:null };
+function bsdErr(e){ BSD.stats.errs++; BSD.err=String(e && e.message || e).slice(0,200); }
+function bsdLive(){ return !!(BSD.on || S.coop); }   // the switch, outside rooms only
+function bsdOn(){ return !!(bsdLive() && bbsOn()); }   // this card, on Bill's street
+// ───── 1 THE RIDERS
+function bsdTramples(f){ const R=(f && f.def && f.def.ride && f.def.ride.ramR) || 52;   // a standing man of ours inside his trample reach (the bumper block's circle): the dead, the jet-borne, the falling and a man still dropping in are not under his hooves
+  for(const u of S.units){ if(!u || u.dead || u.jetT>0 || u.dropT>0 || u.falling) continue; const dx=u.x-f.x, dy=u.y-f.y; if(dx<R && dx>-R && dy<R && dy>-R && dx*dx+dy*dy<R*R) return true; }
+  return false; }
+{ const pc0=petChillX; petChillX=function(o){ const k=pc0.apply(this, arguments);
+  try{ if(o && o.type==='wrider' && !o.dead && o.def && o.def.ride && bsdOn() && bsdTramples(o)){ BSD.stats.slowF++; return k*BSD.rideX; } }catch(e){ bsdErr(e); }
+  return k; }; }   // WRAPPED BY NAME: every other caller and every other walker reads it byte-what-it-was
+// ───── 2 THE BUILDINGS
+function bsdRaise(t){   // the terrain cell: every building of the row gets its raise (the same key, footprint and grp as its own circles); the street planner's map rebuilt over the cell
+  if(!t || !Array.isArray(t.rocks) || t.bsdRaised) return 0; let n=0; const seen={}, R=t.rocks.slice();
+  for(const rk of R){ if(!rk || rk.art!=='bbshit' || rk.bsd || !rk.key) continue; const T9=BSD_TOPS[rk.key]; if(!T9) continue; const id=rk.key+'|'+rk.fx+'|'+rk.fy; if(seen[id]) continue; seen[id]=1;
+    if(rk.fw!==T9.fw || rk.fh!==T9.fh || (rk.pw||0)!==T9.pw){ BSD.stats.skip++; continue; }   // a row these numbers were not measured on keeps its own block
+    for(const c of T9.c){ const x=rk.fx+c[0], y=rk.fy+c[1]; t.rocks.push({ x:x, y:y, lx:x, r:c[2], art:'bbshit', cov:1, grp:rk.grp, lead:0, key:rk.key, fx:rk.fx, fy:rk.fy, fw:rk.fw, fh:rk.fh, pw:rk.pw||0, bsd:1 }); n++; } }
+  if(n){ t.streets=bbsGraph(t.rocks); t.bsdRaised=n; BSD.stats.raised++; BSD.stats.circles=n; }
+  return n; }
+{ const st0=bbsStreetTerrain; bbsStreetTerrain=function(){ const t=st0.apply(this, arguments);
+  try{ if(t && bsdLive() && typeof BACK==='object' && BACK.laid && typeof OTS==='object' && OTS.laid && typeof BTW==='object' && BTW.laid) bsdRaise(t); }catch(e){ bsdErr(e); }
+  return t; }; }   // WRAPPED BY NAME (outermost: after CARD-BTW's props and their graph)
+// ───── 4 THE SNAKE AND HIS MICE
+function bsdSnakeAsleep(f){ return !!(f && f.bbsSnake && f.bbsSnake.st==='sleep'); }
+function bsdSnakeEarly(){ const B=S.raid && S.raid.bbs; return !(B && (+B.t||0)>=BSD.snakeAt); }   // the fight's own clock (the bbs bag's, from its first frame: the one his 20 s rode)
+{ const w0=snakeWake; snakeWake=function(f){ try{ if(bsdOn() && bsdSnakeAsleep(f) && bsdSnakeEarly()){ BSD.stats.held++; return; } }catch(e){ bsdErr(e); } return w0.apply(this, arguments); }; }   // WRAPPED BY NAME (outermost): no wake before 25 s, by a man at his mound or by any clock
+function bsdMiceUp(){ let n=0; for(const q of S.foes) if(q && q.bsdMouse && !q.dead) n++; return n; }
+function bsdMouseAt(k,j,sx,sy){   // the j-th mouse of his k-th entrance: a place round him on the room's die, on Main Street's band
+  const key='bsdm:'+rxDoorKey()+':'+k+':'+j, a=rxRoll(key+':a')*Math.PI*2, d=BSD.mice.r0+rxRoll(key+':d')*(BSD.mice.r1-BSD.mice.r0), ST=BTW_TOWN.street;
+  const x=Math.max(60, Math.min(W-40, sx+Math.cos(a)*d)), y=Math.max(ST.y0+30, Math.min(ST.y1-14, sy+Math.sin(a)*d*0.6));   // Main Street's band, clear of the hitching rail on its far curb
+  return [Math.round(x), Math.round(y)]; }
+function bsdMice(f){   // SIX DESERT MICE come in with him (each entrance onto Main Street): born through spawnFoe (every birth stamp of the house rides), the tier's posse dials, their own muster numbers
+  const M=BSD.mice, k=(f.bsdIn=(f.bsdIn|0)+1), up=bsdMiceUp(), n=Math.max(0, Math.min(M.n, M.cap-up)); BSD.stats.ins++;
+  BSD.last={ k:k, t:+(((S.raid && S.raid.bbs)? S.raid.bbs.t : S.t)||0).toFixed(2), x:Math.round(f.x), y:Math.round(f.y), up:up, n:n, at:[] };
+  if(!n){ BSD.stats.capped++; return 0; }
+  const q0=(S.foeSeq||(S.foeSeq={})), seq0=q0.wmouse, P=(bbsTier()==='e')? null : BBS_POSSE; let made=0;
+  try{ for(let j=0;j<n;j++){ const p=bsdMouseAt(k,j,f.x,f.y), m=spawnFoe('wmouse', p[0], p[1], null, false); if(!m) continue;
+      m.bsdMouse=1; m.foN=BSD.fon+k*10+j;   // THE MUSTER NUMBER: his own (the referee's fall word names him on every glass), never one of the pour's
+      if(P){ if(P.hpX) m.hp=m.hpMax=Math.max(1, Math.round(m.hpMax*P.hpX)); if(P.spdx) m.spdMul=+P.spdx||1; }
+      S.fx.push({ k:'puff', x:p[0], y:p[1]-4, t:0, dur:0.42, R:15 }); made++; BSD.last.at.push(p); } }
+  finally{ if(seq0==null) delete q0.wmouse; else q0.wmouse=seq0; }   // the pour's muster numbers stand whatever came in here
+  BSD.stats.mice+=made; return made; }
+{ const t0=snake2Tick; snake2Tick=function(dt,Bb){ let f=null, st0=null;
+  try{ if(bsdOn()){ f=S.foes.find(q=>q && q.bbsSnake && !q.dead)||null; if(f){ if(bsdSnakeAsleep(f) && bsdSnakeEarly()){ BSD.stats.sleptF++; return; } st0=f.bbsSnake.s2? f.bbsSnake.s2.st : null; } } }catch(e){ bsdErr(e); f=null; }
+  const r=t0.apply(this, arguments);
+  try{ if(f && !f.dead && (st0==='down2' || st0==='rest') && f.bbsSnake && f.bbsSnake.s2 && f.bbsSnake.s2.st==='rise') bsdMice(f); }catch(e){ bsdErr(e); }   // he came onto Main Street: down the gap (the first time) or up from his rest
+  return r; }; }   // WRAPPED BY NAME (C2's street clock calls it by name every frame)
+// ───── THE RIGS' DOOR
+function bsdRead(o){ o=o||{}; if(o.on!=null) BSD.on=o.on? 1 : 0; if(o.reset){ for(const k in BSD.stats) BSD.stats[k]=0; BSD.err=null; BSD.last=null; }
+  const TR=S.cfg && S.cfg.terrain, sn=S.foes? S.foes.find(q=>q && q.bbsSnake) : null;
+  return { cv:GVT_CV, on:BSD.on, live:bsdLive()? 1 : 0, here:bsdOn()? 1 : 0, rideX:BSD.rideX, snakeAt:BSD.snakeAt, mice:Object.assign({}, BSD.mice), raised:TR? (TR.bsdRaised|0) : 0,
+    tops:(TR && Array.isArray(TR.rocks))? TR.rocks.filter(r=>r && r.bsd).map(r=>[r.key, r.x, r.y, r.r]) : [], snake:sn? { st:sn.bbsSnake.st, s2:sn.bbsSnake.s2? sn.bbsSnake.s2.st : null, ins:sn.bsdIn|0, x:Math.round(sn.x), y:Math.round(sn.y), dead:!!sn.dead } : null,
+    miceUp:S.foes? bsdMiceUp() : 0, clock:(S.raid && S.raid.bbs)? +(+S.raid.bbs.t).toFixed(2) : null, last:BSD.last? JSON.parse(JSON.stringify(BSD.last)) : null, stats:Object.assign({}, BSD.stats), err:BSD.err }; }
+try{ if(window.GVT) GVT.bsd=bsdRead; else setTimeout(function(){ try{ if(window.GVT) GVT.bsd=bsdRead; }catch(e){} }, 0); }catch(e){}
+// ═══ END CARD-BSD ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
