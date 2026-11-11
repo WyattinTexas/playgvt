@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.35","md5":"0288d7287df4d6efd65a750e8cae310a","sha":"50cbbcb02e","at":"2026-11-11T01:30:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.36","md5":"0cd58d5d5c76432d4fe4b186bb14601d","sha":"c38d62f4b1","at":"2026-11-11T04:17:12Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93646,7 +93646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -227195,6 +227195,48 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.imh) GVT.imh=function(o){ o=o|
   if(o.reset){ for(const k of Object.keys(IMH.n)) IMH.n[k]=0; IMH.err=0; IMH.e=''; }
   return imhRead(); }; }catch(e){} }, 0);
 // ═══ END CARD-IMH ═══
+// ═══ CARD-CYT · THE CAVE YETI PAYS 10 DOG TAGS LESS AT EVERY DIFFICULTY (sec:CARD-CYT; design/cave-yeti-pays-1110/00-CARD-CYT.md; jumpr 3220, built on Maker 1 as M3220; the fourth card of Wyatt's Ice Caves patch notes of 11/10/2026).
+// FROM WYATT, 11/10/2026 about 16:50 EST, typed on Maker 1, verbatim: "reduce the dogtag amount by 10 for each difficulty for killing hte cave yetis" (his answer to ICS-Q1 of CARD-ICS; it replaces his note "-Lower dog tag amount from 25 to 20.").
+// 1 · THE CUT: in THE ICE CAVES a cave yeti (the foe row cyeti, the plain savage out of the holes) pays what CARD-ICN4's CAVES_TAGX gives him MINUS CAVES_CY_CUT[tier] dog tags: 40 · 36 · 32 · 30 becomes 30 · 26 · 22 · 20, never under 1.
+//     Set at the spawn (spawnFoe wrapped by name, round CARD-ICN4's own wrap) on the one road the blob pays by (f.bountyMul: foeFell's mint rounds def.bounty x bountyMul), from the tier, never a die (the twin law: every sim of a party stamps the same men).
+//     The party's x0.95 (CARD-GTX's gtxTag at the pickup) rides on top as shipped: 29 · 25 · 21 · 19. The spearman, the fisher, the swordsman, the Snapper, THE FEROCIOUS YETI's 300 and every foe outside the caves are not touched.
+//     A cave yeti CARD-ICN4 did not stamp (?icn4=0 on the device: he pays his plain 10 there) is not cut.
+// 2 · THE LAB: one RULES row for THE ICE CAVES (CAVES_CY_CUT), so Raziya turns it on her device and her export carries a changed cell; the device's saved cells are re-applied here (CARD-ICN4's grammar: blbBoot ran before this row stood). 0 in a cell = that tier pays as before this card.
+// THE SWITCH: ?cyt=0 on this device = the pay of before (40 · 36 · 32 · 30; gvt_cyt '0', ?cyt=1 clears it): no cut, no row. The wrap is laid on every device and a party room pays one pay on every seat (the twin-sim law: the device key is not read there).
+// GVT.cyt({ cut:{e,m,h,g}, reset:1 }) = the rigs' door + read. Zero words, css, META fields, server or sw bytes.
+const CAVES_CY_CUT={ e:10, m:10, h:10, g:10 };   // THE CAVE YETI PAYS THIS MANY DOG TAGS LESS: his "by 10 for each difficulty" is this row (EASY · MEDIUM · HARD · MEGA)
+const CYT={ on:1, wrapped:0, cutN:0, bare:0, err:0, e:'' };
+try{ const q=/[?&]cyt=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cyt','0'); else localStorage.removeItem('gvt_cyt'); } CYT.on=(localStorage.getItem('gvt_cyt')==='0')? 0 : 1; }catch(e){ CYT.on=1; }   // the switch (the house's sticky grammar)
+function cytErr(w,e){ CYT.err++; if(CYT.e.length<400) CYT.e+=w+':'+String(e && e.message || e).slice(0,80)+' '; }
+function cytParty(){ try{ return !!(S.coop || coopLaunching); }catch(e){ return false; } }   // a party room (CARD-IMH's reader: the launch's own flag counts, the first bodies are born inside it)
+function cytOn(){ return !!((CYT.on || cytParty()) && cavesOn()); }   // the switch, or a party room (one pay on every seat), in THE ICE CAVES
+function cytCut(){ const v=+CAVES_CY_CUT[cavesTier()]; return (isFinite(v) && v>0)? v : 0; }   // this tier's cut (a cell the lab turns plays at the next birth; a tier the row lacks, 0 or under: no cut)
+function cytStamp(f){   // a cave yeti just born in the caves: the cut comes off his dog tags
+  if(f.icn4X==null){ CYT.bare++; return; }   // CARD-ICN4 did not stamp him (its switch is off on this device): his plain bounty stands
+  const b=+f.def.bounty, cut=cytCut(); if(!(b>0) || !(cut>0)) return;
+  const pay0=Math.round(b*(f.bountyMul||1)); if(!(pay0>1)) return;   // what CAVES_TAGX gives him, by the mint's own rounding (1 or under: nothing to take)
+  const pay=Math.max(1, Math.round(pay0-cut)); if(!(pay<pay0)) return;   // never under 1
+  f.bountyMul=pay/b; f.cytWas=pay0; f.cytPay=pay; CYT.cutN++; }   // the mint's round(def.bounty x bountyMul) now reads pay exactly
+try{ const sf0=spawnFoe; spawnFoe=function(type,x,y,form,gu){ const f=sf0.apply(this,arguments);
+    if(f && f.type==='cyeti' && f.def && f.def.cave && !f.def.boss && cytOn()){ try{ cytStamp(f); }catch(e){ cytErr('spawn',e); } }
+    return f; };
+  CYT.wrapped=1;
+}catch(e){ cytErr('wrap',e); }
+// ── 2 · THE LAB: the row in THE RULES for THE ICE CAVES (the device's saved cells re-applied: blbBoot ran before this row stood)
+if(CYT.on){ try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES)){
+  BLB_RULES.push(['CAVES_CY_CUT', ()=>CAVES_CY_CUT, 'THE CAVE YETI PAYS THIS MANY DOG TAGS LESS', 'caves']);
+  if(typeof blbShip==='function' && typeof BLB==='object' && BLB && BLB.ship) blbShip();
+  if(typeof BLB==='object' && BLB && BLB.booted && BLB.over && typeof blbCellSet==='function'){ const o=BLB.over.CAVES_CY_CUT; if(o) for(const k of Object.keys(o)) blbCellSet('CAVES_CY_CUT',k,o[k]); }
+} }catch(e){ cytErr('lab',e); } }
+function cytRead(){ const on=(typeof cavesOn==='function') && cavesOn();
+  return { cv:GVT_CV, on:CYT.on, wrapped:CYT.wrapped, party:cytParty()? 1 : 0, live:cytOn()? 1 : 0, caves:on? 1 : 0, tier:on? cavesTier() : null, cut:Object.assign({},CAVES_CY_CUT), now:on? cytCut() : null,
+    n:{ cutN:CYT.cutN, bare:CYT.bare }, err:CYT.err, e:CYT.e,
+    lab:(typeof BLB_RULES!=='undefined')? BLB_RULES.filter(function(r){ return r[0]==='CAVES_CY_CUT'; }).map(function(r){ return r[0]; }) : null }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.cyt) GVT.cyt=function(o){ o=o||{};
+  if(o.cut) for(const k of Object.keys(o.cut)) CAVES_CY_CUT[k]=+o.cut[k];
+  if(o.reset){ CYT.cutN=0; CYT.bare=0; }
+  return cytRead(); }; }catch(e){} }, 0);   // the rigs' door + read
+// ═══ END CARD-CYT ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
