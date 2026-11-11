@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.52","md5":"e6fa182517a8104c421b8d61f5da10bc","sha":"9c52e28ad3","at":"2026-11-11T21:19:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.53","md5":"5a770fed1b2dfbef91cc210287ac6234","sha":"584d74607f","at":"2026-11-11T23:17:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93863,7 +93863,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.52';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.53';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -228988,6 +228988,195 @@ if(window.GVT && !GVT.oad) GVT.oad=function(o){ o=o||{}; if(o.one!=null) OAD.one
   return { on:OAD.on, one:OAD.one, day:oadDay(), wk:oadWk(), saleDay:META.saleDay||'', saleDue:META.saleDue|0, launches:META.launches|0, sdiFirst:META.sdiFirst|0, bdToldWk:META.bdToldWk||'', bdToldDay:META.bdToldDay||'',
     annWk:String((BDD && BDD.annWk)||''), spent:{ sale:oadSpent('sale'), night:oadSpent('night') }, held:Object.assign({}, OAD.held), dealt:Object.assign({}, OAD.dealt), log:OAD.log.slice() }; };   // the rig's read and hand (o.one = the shared day dial)
 // ═══ END CARD-OAD ═══
+// ═══ CARD-LZP · THE LASER PROMOTION: THE LASER ROOM COMES TO THE ROOM, NOW AND THEN (sec:CARD-LZP; design/laser-promo-1111/00-CARD-LZP.md; jumpr 3270, built on Maker 1 as M3270) ═══
+// FROM WYATT, by phone (jumpr remote, dictated) 11/11/2026 21:49:42 UTC = 16:49 EST, verbatim: "Please create a promotion banner that will occasionally show for the lasers. It's just to really showcase the different colored lasers that they can buy just using their stars, and it also is one of our coolest-looking screens. It will be our chance to actually put that into the forefront of the app experience. We want the screen to really feel just like it does in the lasers room, right, but it is dismissible, of course."
+// THE STAGE (#lzpStage, the whole glass, no footer, the supply drop's own seat and z 26): Floop's Lab's LASER ROOM as CARD-LRC built it, drawn by the room's own painters on a canvas of its own (lrcDrawGun, lrcCam, LRC_TRACK,
+// lrcSeatYaw, lrcCamLerp, lrcEase, lrcModelOf, lrcBeam, lrcName, lrcDoes; CARD-LZC's track; CARD-LFR's zap): the grey studio and its construction lines, the ✕ and the piggy where the room's bar seats them, LASER ROOM / FLOOP'S LAB and
+// CONFIGURE / YOUR BEAM, three guns on the track, the colour's name huge in its own colour with LASERS over it and the power line under it, the star plate (500) or the LEVEL plate, the rail of power cells. Its own clock (LZP), never the room's (LRC):
+// the room's state is untouched. THE SHOW: the guns roll down the track by themselves (LZP.ROLL), each arrival lights its core and fires one beam; a cell or a swipe picks a colour and a tap on the glass fires the gun (the range's zap; no dial,
+// no pay); the player's hand holds the roll for LZP.HOLD. Every gun lit in its own colour (LZP.LIT 1, ⚑ LZP-Q4; the room shows a gun before its rung grey). THE DOORS: TAKE ME THERE = the LASER ROOM's page (lchLabPage, the nmSurpGo road
+// the stock card walks) opened on the colour on the glass, its one button ringed (nmSpot); NOT NOW and the ✕ = the room. Zero new words (LASER ROOM, FLOOP'S LAB, CONFIGURE, YOUR BEAM, LASERS, TAKE ME THERE, NOT NOW are keys x7).
+// THE PACE ("occasionally", REC ⚑ LZP-Q1..Q3): at a quiet room landing (the ceremony chain's last seat: saleSweep, wrapped by name, outermost: the drop deals first), and only when nothing else dealt at that landing (MB_DEALT 0), never the tour or its
+// landing, a party, a rite, a card, another pop-up; the commander at LZP.MIN_LVL; a colour he can buy today (on the shelf, not his); at most one showing every LZP.GAP days; never while the supply drop is owed (it deals first).
+// THE LAW OF THE DAY (CARD-OAD, Wyatt 11/11: "Stop showing a popup from logging in more than once per day"): the promotion is a login pop-up: never on a day that already had one (the drop, the night's card), and its day is theirs (oadSpent
+// wrapped by name: the drop owed waits for tomorrow, still owed; the night's card sits that day out, its pill tells the night). THE LOUD ROOM: while the stage stands nothing deals behind or over it (roomQuiet, evAnnQuiet, fsiBusy, oadOver
+// wrapped by name); a navigation tears it down (hideAllOverlays). Comet-law flats (not in META_DEFAULT): lzpDay (the day it last stood) · lzpN (showings) · lzpGo (TAKE ME THERE). Zero server bytes, zero sw.js, zero edits to shipped
+// functions. ?lzp=0 (device key gvt_lzp) = as shipped; ?lzp=1 clears it. The rigs' door: GVT.lzp().
+const LZP=(function(){
+  const on=(function(){ try{ const q=/[?&]lzp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_lzp','0'); else localStorage.removeItem('gvt_lzp'); } return localStorage.getItem('gvt_lzp')==='0'? 0 : 1; }catch(e){ return 1; } })();
+  return { on, GAP:3, MIN_LVL:5, NEED:0, LIT:1, ROLL:2600, HOLD:5200, SWAP:950, BEAM:420, SHOT:170, KICK:110,   // ⚑ the dials: days between showings · the commander's level · stars the piggy must hold (0 = everyone) · every gun lit · the show's beat, the hand's hold, the swap, the beam, a shot, the kick (ms)
+    el:null, sel:null, cur:null, swap:null, beam:null, shots:[], kick:-1e9, hold:0, next:0, first:0, run:0, T:null, scr:null, pts:{}, last:null, arr:[], fired:0, dealt:0, went:0, shut:0, log:[] };   // arr = the guns that came into the middle this showing (the last 16), fired = the arrival beams
+})();
+window.GVT_LZP=LZP;
+function lzpNow(){ return LZP.T!=null? LZP.T : performance.now(); }   // the stage's clock (LZP.T pins it for a rig)
+function lzpIds(){ return LASER_COLORS.map(b=>b.id); }   // the rail = the colours a star buys (the eight army colours; the won irons are never sold)
+function lzpPrev(id){ const o=lzpIds(), i=o.indexOf(id); return o[(i+o.length-1)%o.length]; }
+function lzpNext(id){ const o=lzpIds(), i=o.indexOf(id); return o[(i+1)%o.length]; }
+function lzpBuyable(id){ return !lrcOwned(id) && !lrcLocked(id); }   // on the shelf today and not his: UI.laser sells it for 500★
+function lzpDay(){ try{ return (typeof oadDay==='function')? oadDay() : todayStr(); }catch(e){ return ''; } }
+function lzpDayN(s){ const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(String(s||'')); return m? Math.round(Date.UTC(+m[1], +m[2]-1, +m[3])/86400000) : null; }   // a date's day number (YYYY-MM-DD, todayStr's grammar)
+function lzpDaySpent(){ const d=lzpDay(); if(!d) return false; if(META.lzpDay===d) return true; try{ if(typeof OAD==='object' && OAD && OAD.on && OAD.one) return META.saleDay===d || META.bdToldDay===d; }catch(e){} return false; }   // today already had its login pop-up (CARD-OAD's two stamps, and this one's)
+function lzpDropOwed(){ try{   // the supply drop is owed and could deal at this landing: it goes first, the promotion waits for another day
+  if(!(SALE_EVERY>0)) return false;
+  if(typeof SDI==='object' && SDI && SDI.on && typeof SDI.owed==='function'){ if((META.lvl|0)>=SDR.OPEN_LVL && SDI.cheapest()===0) return !!(META.saleDue|0) && spOn(); return SDI.owed() && SDI.ready(); }   // CARD-SDI's call (owed, the piggy holds the cheapest crate), or the FIRE SALE where every crate is emptied
+  return !!(META.saleDue|0) && spOn();
+}catch(e){ return false; } }
+const LZP_RITES=['sabrite','soulrite','pickrite','rfrite','toothrite','seyrite','sqlrite','pbkrite','mclrite','paintrite','icerite','picker','mboxPop','rupHost','tmkPage','nbCard','evKnock'];
+function lzpRite(){ for(const id of LZP_RITES){ const e=document.getElementById(id); if(e && !e.classList.contains('hidden') && (id!=='rupHost' || e.firstElementChild)) return id; } return ''; }   // a rite, a choice or a page of the landing stands
+function lzpWhy(){ try{   // '' = the promotion can deal now; else the first reason it waits (the rigs read it)
+  if(!LZP.on) return 'off';
+  if(!(LCH.on && LRC.on)) return 'room';   // its door is the lab's LASER ROOM
+  if(LZP.el || document.getElementById('lzpStage')) return 'up';
+  if(S.mode!=='menu' || shopIsOpen() || COOP || S.coop) return 'busy';
+  if(tourDue() || tourLive() || tailHeld()) return 'tour';
+  if((META.lvl|0)<LZP.MIN_LVL) return 'lvl';
+  const ids=lzpIds(); if(!ids.some(id=>!lrcOwned(id))) return 'owned';
+  if(!ids.some(lzpBuyable)) return 'stock';
+  if((META.starBank|0)<LZP.NEED) return 'bank';
+  const a=lzpDayN(META.lzpDay), b=lzpDayN(lzpDay()); if(a!=null && (b==null || b-a<LZP.GAP)) return 'gap';   // a clock turned back reads as too soon
+  if(lzpDaySpent()) return 'day';
+  if(lzpDropOwed()) return 'drop';
+  if((MB_DEALT|0)>0 || milePopUp()) return 'landing';   // the only pop-up of its landing
+  if(SPOP.el || NAOFF.el || IAP_STATE.busy || document.getElementById('ageGate') || document.getElementById('sdiStage') || document.getElementById('sdrStage')) return 'pop';
+  if(lzpRite()) return 'rite';
+  if(!roomQuiet()) return 'quiet';
+  return '';
+}catch(e){ return 'err'; } }
+function lzpNote(what){ try{ if(LZP.log.length<60) LZP.log.push({ what, d:lzpDay(), sel:LZP.sel, launches:META.launches|0, t:Math.round(lzpNow()) }); }catch(e){} }
+// ── THE WORDS ON THE GLASS (the room's own grammar: lrcBigHTML, lrcPriceHTML, lrcChipHTML, the lock button's LEVEL) ──
+function lzpBigHTML(id){ const b=lrcBeam(id), name=lrcName(id); return '<span class="lzp-kick">LASERS</span><b class="lzp-w'+(name.length>7? ' long' : '')+'" style="--lhex:'+b.hex+'">'+name+'</b><small style="--lhex:'+b.hex+'">'+lrcDoes(id)+'</small>'; }
+function lzpPlateHTML(id){ if(lrcOwned(id)) return ''; if(lrcLocked(id)) return '<span class="lzp-lock">'+gly('lock')+' LEVEL '+trLvl(id)+'</span>';
+  return '<span class="lzp-price"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>500</span>'; }   // the star plate a star buys it with; the lock and its level before its rung; nothing once it is his
+function lzpChipHTML(b){ const id=b.id, lk=lrcLocked(id), ow=lrcOwned(id), eq=META.laserOn===id; return '<button type="button" class="lzp-chip'+(id===LZP.sel? ' on' : '')+(lk? ' lock' : ow? ' own' : ' shut')+(eq? ' eqd' : '')+'" data-id="'+id+'" style="--c:'+b.hex+'" onclick="lzpPick(\''+id+'\')"><i></i>'+((lk || !ow)? gly('lock') : '')+'</button>'; }
+function lzpRailHTML(){ return LASER_COLORS.map(lzpChipHTML).join(''); }
+function lzpWords(scramble){ const id=LZP.sel; const big=document.getElementById('lzpBig'), plate=document.getElementById('lzpPlate'), rail=document.getElementById('lzpRail'); if(!big || !plate || !rail || !id) return;
+  big.innerHTML=lzpBigHTML(id); plate.innerHTML=lzpPlateHTML(id); rail.innerHTML=lzpRailHTML();
+  if(LZP.scr){ clearInterval(LZP.scr); LZP.scr=null; }
+  if(scramble && !lrcRM() && LANG==='en' && LZP.T==null){ const name=lrcName(id); let n=0; const w=big.querySelector('.lzp-w'); if(w) w.textContent='';
+    LZP.scr=setInterval(()=>{ n++; const el=document.querySelector('#lzpBig .lzp-w'); if(!el){ clearInterval(LZP.scr); LZP.scr=null; return; } let s=''; for(let i=0;i<name.length;i++) s+= name[i]===' '? ' ' : (i<n-2? name[i] : LRC_SCR[Math.floor(Math.random()*26)]); el.textContent=s; if(n>name.length+2){ clearInterval(LZP.scr); LZP.scr=null; el.textContent=name; } }, 38); } }   // the room's glitching caption (English, motion allowed; a pinned clock shows the word whole)
+function lzpStageHTML(){ return '<div class="lzp-studio"></div><canvas id="lzpCanvas" class="lzp-cv"></canvas>'
+  +'<button type="button" class="sh-x lzp-x" aria-label="close" onclick="lzpClose(\'x\')">✕</button>'
+  +'<div class="sh-reg lzp-reg" data-notr>'+SH_PIG+'<b>'+META.starBank+'★</b>'+wkGlyph()+'</div>'
+  +'<div class="lzp-cap lzp-tl"><b>LASER ROOM</b><small>FLOOP\'S LAB</small></div><div class="lzp-cap lzp-tr"><b>CONFIGURE</b><small>YOUR BEAM</small></div><i class="lzp-cross lzp-bl"></i><i class="lzp-cross lzp-br"></i>'
+  +'<div class="lzp-big" id="lzpBig">'+lzpBigHTML(LZP.sel)+'</div>'
+  +'<div class="lzp-side" id="lzpSide"><div class="lzp-plate" id="lzpPlate">'+lzpPlateHTML(LZP.sel)+'</div><button type="button" class="lzp-btn lzp-go" onclick="lzpGo()">TAKE ME THERE</button><button type="button" class="lzp-no" onclick="lzpClose(\'no\')">NOT NOW</button></div>'
+  +'<div class="lzp-rail" id="lzpRail">'+lzpRailHTML()+'</div>'; }
+// ── THE SHOW: the room's carousel on the stage's own clock (lrcRender's track, word for word, with LZP for LRC; no dial, no pay) ──
+function lzpLit(id){ return (LZP.LIT || !lrcLocked(id))? 1 : 0; }
+function lzpArrive(tms){ LZP.next=tms+LZP.ROLL; LZP.arr.push(LZP.cur); if(LZP.arr.length>16) LZP.arr.shift(); if(!lrcRM()){ LZP.beam={ t0:tms, dur:LZP.BEAM }; LZP.fired++; } if(LZP.first){ LZP.first=0; if(LZP.T==null){ try{ lfrPew(); }catch(e){} } } }   // a gun in the middle: its beam, the next roll's time; the entrance's one zap
+function lzpAuto(tms){ if(LZP.swap || !LZP.next || tms<LZP.next || tms<LZP.hold) return; lzpPick(lzpNext(LZP.sel), 1); }   // the show's own hand, held while the player's is on the glass
+function lzpPick(id, auto){ if(!LZP.el || !id || id===LZP.sel || LZP.swap) return; const o=lzpIds(); if(o.indexOf(id)<0) return; const now=lzpNow();
+  if(!auto){ try{ audio(); SFX.blip(); }catch(e){} LZP.hold=now+LZP.HOLD; }
+  const d=o.indexOf(id)-o.indexOf(LZP.cur), dir=((d>0 && d<=o.length/2) || (d<0 && -d>o.length/2))? 1 : -1;   // the shorter way round the rail (lrcPick's law)
+  LZP.sel=id; if(lrcRM()){ LZP.cur=id; LZP.swap=null; lzpWords(false); lzpArrive(now); return; }   // reduced motion: a cut
+  LZP.swap={ from:LZP.cur, to:id, dir:dir, t0:now, dur:LZP.SWAP }; lzpWords(true); }
+function lzpShot(){ if(!LZP.el || !LZP.cur) return false; const t=lzpNow(); try{ audio(); }catch(e){} if(LZP.T==null){ try{ lfrPew(); }catch(e){} } LZP.shots.push({ t0:t, w:0.8+Math.random()*0.5 }); if(LZP.shots.length>24) LZP.shots.shift(); LZP.kick=t; LZP.hold=t+LZP.HOLD; return true; }   // THE RANGE'S SHOT (CARD-LFR's feel): a beam in flight, the kick, the zap; nothing counted, nothing paid
+function lzpBind(p){ const pts=LZP.pts;   // the glass is the trigger (lfrBind's grammar, by pointer id): a finger down fires, a swipe swaps; the cells and the doors keep their own taps
+  p.addEventListener('pointerdown', e=>{ if(e.button>0) return; const tg=e.target; if(tg && tg.closest && tg.closest('.lzp-chip,.lzp-btn,.lzp-no,.lzp-x,.lzp-reg')) return; pts[e.pointerId]={ x:e.clientX, y:e.clientY }; lzpShot(); }, {passive:true});
+  p.addEventListener('pointerup', e=>{ const d=pts[e.pointerId]; delete pts[e.pointerId]; if(!d) return; const dx=e.clientX-d.x, dy=e.clientY-d.y; if(Math.abs(dx)>40 && Math.abs(dy)<70) lzpPick(dx<0? lzpNext(LZP.sel) : lzpPrev(LZP.sel)); }, {passive:true});
+  p.addEventListener('pointercancel', e=>{ delete pts[e.pointerId]; }, {passive:true}); }
+function lzpRender(cv, tms){ const W=cv.clientWidth||1, H=cv.clientHeight||1, dpr=Math.min(2, window.devicePixelRatio||1); if(cv.width!==Math.round(W*dpr) || cv.height!==Math.round(H*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  const ctx=cv.getContext('2d'); if(!ctx) return; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H); if(!LZP.cur) return; const t=tms/1000, guns=[];
+  lzpAuto(tms);
+  if(!LZP.swap){ guns.push({ id:lzpPrev(LZP.cur), s0:3 }); guns.push({ id:lzpNext(LZP.cur), s0:1 }); guns.push({ id:LZP.cur, s0:2, live:true }); }   // at rest: the bottom ghost, the top ghost, the gun in the middle
+  else { const sw=LZP.swap, p=(tms-sw.t0)/sw.dur; if(p>=1){ LZP.cur=sw.to; LZP.swap=null; lzpArrive(tms); return lzpRender(cv, tms); } const e=lrcEase(p), d=sw.dir, coreOut=lrcEase(p/0.42), coreIn=lrcEase((p-0.5)/0.5);
+    const ids=d>0? [lzpNext(sw.to), sw.to, sw.from, lzpPrev(sw.from)] : [lzpPrev(sw.to), sw.to, sw.from, lzpNext(sw.from)];   // CARD-LZC's track: four guns a seat along, the same half roll, the same slide
+    for(let j=0;j<4;j++){ const s0=d>0? j : 4-j, g={ id:ids[j], s0:s0, s1:s0+d, e:e }; if(s0===2){ g.coreDx=coreOut*120; g.coreA=1-coreOut; } if(s0+d===2){ g.coreDx=(1-coreIn)*120; g.coreA=coreIn; g.live=true; g.flash=(p>0.9? (p-0.9)/0.1 : 0); } guns.push(g); } }
+  guns.sort((a,b)=>(a.live?1:0)-(b.live?1:0)); if(LZP.T!=null) LZP.last=guns;
+  for(let i=0;i<guns.length;i++){ const g=guns[i], SA=LRC_TRACK[g.s0], SB=(g.s1==null? null : LRC_TRACK[g.s1]), camA=lrcCam(SA, W, H, t, lrcSeatYaw(g.s0), SA.ph), cam=SB? lrcCamLerp(camA, lrcCam(SB, W, H, t, lrcSeatYaw(g.s0)+(g.s1-g.s0)*Math.PI, SB.ph), g.e) : camA, alpha=SB? SA.a+(SB.a-SA.a)*g.e : SA.a, hex=lrcBeam(g.id).hex, lit=lzpLit(g.id), model=lrcModelOf(g.id); g.cam=cam; g.a=alpha;
+    if(g.live){ const k=Math.max(0, 1-(tms-LZP.kick)/LZP.KICK); if(k>0 && !lrcRM()){ cam.cx-=7*k; cam.roll+=0.05*k; } }   // the recoil (lfrKick's)
+    lrcDrawGun(ctx, { model:model, hex:hex, lit:lit, coreDx:g.coreDx||0, coreA:g.coreA, alpha:alpha, cam:cam });
+    if(g.flash){ const em=lrcProj(model.emitter,cam); ctx.save(); ctx.globalAlpha=g.flash*lit; ctx.fillStyle='#fff'; ctx.shadowColor=hex; ctx.shadowBlur=30; ctx.beginPath(); ctx.arc(em[0],em[1],10+10*g.flash,0,Math.PI*2); ctx.fill(); ctx.restore(); }   // the hoop's flash as the core lands
+    if(g.live && LZP.beam){ const bp=(tms-LZP.beam.t0)/LZP.beam.dur; if(bp>=1 || bp<0) LZP.beam=null; else { const em=lrcProj(model.emitter,cam), mz=lrcProj(model.muzzle,cam); let ddx=mz[0]-em[0], ddy=mz[1]-em[1]; const dl=Math.hypot(ddx,ddy)||1; ddx/=dl; ddy/=dl; ctx.save(); ctx.globalAlpha=1-bp; ctx.lineCap='round'; ctx.shadowColor=hex; ctx.shadowBlur=16; ctx.strokeStyle=hex; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(em[0],em[1]); ctx.lineTo(em[0]+ddx*1600, em[1]+ddy*1600); ctx.stroke(); ctx.shadowBlur=0; ctx.strokeStyle='#fff'; ctx.lineWidth=1.8; ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(em[0],em[1],8*(1-bp)+4,0,Math.PI*2); ctx.fill(); ctx.restore(); } }   // the arrival's beam (the room's equip beam)
+    if(g.live && LZP.shots.length){ const em=lrcProj(model.emitter,cam), mz=lrcProj(model.muzzle,cam); let dx=mz[0]-em[0], dy=mz[1]-em[1]; const dl=Math.hypot(dx,dy)||1; dx/=dl; dy/=dl; const col=lit? hex : '#C9CDD2', a=LZP.shots;   // the range's beams (lfrBeams's)
+      for(let k=a.length-1;k>=0;k--){ const b=a[k], p=(tms-b.t0)/LZP.SHOT; if(p>=1 || p<0){ a.splice(k,1); continue; } const run=Math.min(1, p*3.2), tail=Math.max(0, (p-0.35)/0.65);
+        ctx.save(); ctx.globalAlpha=1-p*0.6; ctx.lineCap='round'; ctx.shadowColor=col; ctx.shadowBlur=14; ctx.strokeStyle=col; ctx.lineWidth=4*b.w; ctx.beginPath(); ctx.moveTo(em[0]+dx*1600*tail, em[1]+dy*1600*tail); ctx.lineTo(em[0]+dx*1600*run, em[1]+dy*1600*run); ctx.stroke(); ctx.shadowBlur=0; ctx.strokeStyle='#fff'; ctx.lineWidth=1.4*b.w; ctx.stroke();
+        if(p<0.5){ ctx.globalAlpha=1-p*2; ctx.fillStyle='#fff'; ctx.shadowColor=col; ctx.shadowBlur=18; ctx.beginPath(); ctx.arc(em[0],em[1],9*(1-p*2)+3,0,Math.PI*2); ctx.fill(); } ctx.restore(); } } } }
+function lzpFrame(){ const cv=document.getElementById('lzpCanvas'); if(!cv || !LZP.el){ LZP.run=0; return; } try{ lzpRender(cv, lzpNow()); }catch(e){} if(LZP.T==null) requestAnimationFrame(lzpFrame); else LZP.run=0; }   // the clock stops by itself when the stage is gone
+// ── THE STAGE UP, THE DOORS, THE STAGE DOWN ──
+function lzpDeal(force){   // force = a rig's look (no stamps, no pace); else the landing's own deal after lzpWhy() said ''
+  if(LZP.el) return true; if(!force && lzpWhy()) return false;
+  const ids=lzpIds(), first=ids.find(lzpBuyable) || ids.find(id=>!lrcOwned(id)) || ids[0];   // the show opens on the first colour a star buys today
+  if(!force){ META.lzpDay=lzpDay(); META.lzpN=(META.lzpN|0)+1; try{ saveMeta(); }catch(e){} }   // the latch first, the glass second (the flag-first law): the day and the pace are spent where the stage stands
+  lzpCss();
+  const st=document.createElement('div'); st.id='lzpStage'; st.setAttribute('role','dialog'); if(lrcRM()) st.classList.add('rm'); document.body.appendChild(st); LZP.el=st;
+  LZP.cur=LZP.sel=lzpPrev(first); LZP.swap=null; LZP.beam=null; LZP.shots.length=0; LZP.kick=-1e9; LZP.hold=0; LZP.next=0; LZP.first=1; LZP.last=null; LZP.arr=[]; LZP.fired=0; for(const k in LZP.pts) delete LZP.pts[k];
+  st.innerHTML=lzpStageHTML();   // on the page first: the innerHTML hook translates the words
+  lzpBind(st);
+  lzpPick(first, 1);   // the first gun rolls into the middle down the track (a cut under reduced motion)
+  LZP.dealt++; lzpNote(force? 'look' : 'dealt');
+  if(!LZP.run){ LZP.run=1; if(LZP.T==null) requestAnimationFrame(lzpFrame); }
+  return true; }
+function lzpDown(why, fade){ const st=LZP.el; if(!st) return; LZP.el=null; LZP.swap=null; LZP.beam=null; LZP.shots.length=0; if(LZP.scr){ clearInterval(LZP.scr); LZP.scr=null; }
+  if(fade){ st.classList.add('out'); setTimeout(()=>{ try{ st.remove(); }catch(e){} }, 240); } else { try{ st.remove(); }catch(e){} } }
+function lzpClose(why){ if(!LZP.el) return; try{ audio(); SFX.blip(); }catch(e){} LZP.shut++; lzpNote(why||'x'); lzpDown(why, !lrcRM() && LZP.T==null); }   // NOT NOW / the ✕: the room, as it was
+function lzpGo(){ if(!LZP.el) return; const id=LZP.sel; try{ audio(); SFX.blip(); }catch(e){} LZP.went++; META.lzpGo=(META.lzpGo|0)+1; try{ saveMeta(); }catch(e){} lzpNote('go'); lzpDown('go', false);   // TAKE ME THERE: the stage goes at once, the room's page takes the glass
+  try{ if(S.mode!=='menu') return; if(document.querySelector('#roomModal .rmback')) UI.closeModal(); lchLabPage('lasers');   // nmSurpGo's road for a gun (the lab opened on the LASER ROOM's page)
+    if(LRC.on && id && document.getElementById('lrcBig') && lrcBeams().some(b=>b.id===id)){ LRC.sel=LRC.cur=id; LRC.swap=null; LRC.beam=null; lrcWords(false); lzpRing('shgn-'+id); } }catch(e){} }   // the room opens on the colour that was on the glass, its one button ringed (TAKE ME THERE's landing)
+function lzpRing(elId){ const el=document.getElementById(elId); if(!el) return false; el.classList.add('nm-lit'); clearTimeout(NM_T); NM_T=setTimeout(()=>{ NM_T=0; try{ document.querySelectorAll('#toyshop .nm-lit, #roomModal .nm-lit').forEach(e=>e.classList.remove('nm-lit')); }catch(e){} }, NM_SPOT_MS); return true; }   // nmSpot's ring and its one clock, WITHOUT its scrollIntoView: on the LASER ROOM's page (overflow hidden, the whole glass) that call lifts the page ~15 px and bares a strip at its foot (measured, LZP-F1)
+function lzpSweep(){ try{ return lzpWhy()===''? lzpDeal(false) : false; }catch(e){ return false; } }
+function lzpCss(){ if(document.getElementById('lzpCss')) return; const css=document.createElement('style'); css.id='lzpCss'; css.textContent=[   // the LASER ROOM's own rules (CARD-LRC's #shLab block) under #lzpStage, the bar's two corners where the room's bar seats them
+  '#lzpStage{position:fixed;inset:0;z-index:26;overflow:hidden;background:#7E8184;color:#F4EBD6;font-family:var(--ui);font-weight:bold;--woodsh:#5c4326;--gold:#D9A544;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:rgba(0,0,0,0);animation:lzpIn .28s ease-out both}',
+  '#lzpStage,#lzpStage *,#lzpStage *::before,#lzpStage *::after{box-sizing:border-box}',
+  '#lzpStage.out{animation:lzpOut .22s ease-in both;pointer-events:none}',
+  '@keyframes lzpIn{from{opacity:0}to{opacity:1}}@keyframes lzpOut{from{opacity:1}to{opacity:0}}',
+  '#lzpStage .lzp-studio{position:absolute;inset:0;background:linear-gradient(118deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 28%), linear-gradient(296deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 30%), linear-gradient(160deg, #9A9C9F 0%, #7F8285 45%, #5F6266 100%)}',
+  '#lzpStage .lzp-studio::before{content:"";position:absolute;inset:-40%;background:repeating-linear-gradient(118deg, rgba(255,255,255,.07) 0 1px, transparent 1px 46px), repeating-linear-gradient(118deg, rgba(255,255,255,.035) 0 1px, transparent 1px 11px)}',
+  '#lzpStage .lzp-studio::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 50% 45%, transparent 55%, rgba(0,0,0,.28) 100%)}',
+  '#lzpStage canvas.lzp-cv{position:absolute;inset:0;width:100%;height:100%;display:block}',
+  '#lzpStage .sh-x.lzp-x{position:absolute;z-index:3;left:clamp(6px,1.2vw,14px);top:calc((clamp(42px,12vh,58px) - clamp(36px,8vh,44px)) / 2);font-family:var(--uih);font-size:16px}',
+  '#lzpStage .sh-reg.lzp-reg{position:absolute;z-index:3;right:clamp(6px,1.2vw,14px);top:calc(clamp(42px,12vh,58px) / 2);transform:translateY(-50%);font-family:var(--uih);font-size:16px;background:#2A1D12;border-color:#8E6A28;box-shadow:0 3px 8px rgba(0,0,0,.45);pointer-events:none}',
+  '#lzpStage .sh-reg.lzp-reg b{color:#F1D08A;font-weight:900}',
+  '#lzpStage .lzp-cap{position:absolute;top:52px;font-family:var(--ui);font-size:clamp(9px,2.8vh,12px);line-height:1.25;letter-spacing:.14em;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none}',
+  '#lzpStage .lzp-cap b{display:block;font-weight:400}#lzpStage .lzp-cap small{display:block;font-size:.8em;letter-spacing:.2em;opacity:.7;margin-top:2px}',
+  '#lzpStage .lzp-cap.lzp-tl{left:16px}#lzpStage .lzp-cap.lzp-tr{right:16px;text-align:right}',
+  '#lzpStage .lzp-cross{position:absolute;width:9px;height:9px;opacity:.55;pointer-events:none}#lzpStage .lzp-cross::before,#lzpStage .lzp-cross::after{content:"";position:absolute;background:#fff}#lzpStage .lzp-cross::before{left:4px;top:0;width:1px;height:9px}#lzpStage .lzp-cross::after{top:4px;left:0;width:9px;height:1px}',
+  '#lzpStage .lzp-cross.lzp-bl{left:14px;bottom:14px}#lzpStage .lzp-cross.lzp-br{right:14px;bottom:14px}',
+  '#lzpStage .lzp-big{position:absolute;left:18px;bottom:clamp(50px,14vh,62px);max-width:56%;font-family:var(--ui);color:#fff;pointer-events:none}',
+  '#lzpStage .lzp-big .lzp-kick{display:block;margin:0 0 3px 3px;font-size:clamp(10px,3.4vh,15px);line-height:1.1;letter-spacing:.3em;font-weight:700;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.45), 0 0 6px rgba(0,0,0,.35)}',   /* LASERS over the word: the dark edge keeps it clear of the ghost gun's white wire behind it */
+  '#lzpStage .lzp-big .lzp-w{display:block;font-size:clamp(40px,19vh,84px);line-height:.9;font-weight:900;letter-spacing:-.01em;color:var(--lhex,#fff);text-shadow:0 2px 0 rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;text-overflow:clip}',
+  '#lzpStage .lzp-big .lzp-w.long{font-size:clamp(28px,13vh,58px)}',
+  '#lzpStage .lzp-big small{display:block;margin:6px 0 0 3px;font-size:clamp(9px,3vh,13px);letter-spacing:.18em;text-transform:uppercase;color:#fff;text-shadow:0 0 8px var(--lhex), 0 0 18px var(--lhex), 0 1px 0 rgba(0,0,0,.4)}',
+  '#lzpStage .lzp-side{position:absolute;right:16px;top:38%;display:flex;flex-direction:column;align-items:flex-end;gap:clamp(6px,1.8vh,10px);font-family:var(--ui)}',
+  '#lzpStage .lzp-plate:empty{display:none}',
+  '#lzpStage .lzp-price{display:inline-flex;align-items:center;gap:4px;padding:3px 12px 3px 9px;border-radius:7px;background:linear-gradient(180deg,#F4D27A,#C9A227 60%,#A8821C);border:2px solid #7A5A10;color:#3A2A0A;font-size:clamp(20px,7vh,34px);line-height:1.05;font-weight:900;letter-spacing:.02em;box-shadow:0 3px 0 rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.55);transform:rotate(-3deg)}',
+  '#lzpStage .lzp-price svg{width:.95em;height:.95em;fill:#FFF6D6;stroke:#7A5A10;stroke-width:1.2;filter:drop-shadow(0 1px 0 rgba(0,0,0,.35))}',
+  '#lzpStage .lzp-lock{display:inline-flex;align-items:center;gap:6px;padding:clamp(5px,1.6vh,8px) clamp(12px,3vw,18px);border-radius:7px;background:linear-gradient(180deg,#9AA0A6,#5C6166);color:#1E2225;font-size:clamp(14px,4.6vh,22px);line-height:1;letter-spacing:.1em;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.4);transform:rotate(-3deg);white-space:nowrap}',
+  '#lzpStage .lzp-lock .gly{width:.9em;height:.9em;fill:currentColor}',
+  '#lzpStage .lzp-btn{display:inline-flex;align-items:center;gap:6px;padding:clamp(6px,1.8vh,9px) clamp(14px,3.4vw,22px);border:none;border-radius:7px;font-family:var(--ui);font-size:clamp(14px,4.6vh,22px);line-height:1;letter-spacing:.1em;font-weight:700;color:#3A2A0A;background:linear-gradient(180deg,#E8C878,#B08A38);box-shadow:0 3px 0 rgba(0,0,0,.4);cursor:pointer;white-space:nowrap}',
+  '#lzpStage .lzp-btn:active{transform:translateY(1px);box-shadow:0 2px 0 rgba(0,0,0,.4)}',
+  '#lzpStage .lzp-no{background:none;border:none;margin:0;padding:clamp(4px,1.2vh,6px) 2px;font-family:var(--ui);font-size:clamp(11px,3.4vh,15px);line-height:1;letter-spacing:.16em;font-weight:700;color:rgba(255,255,255,.88);text-decoration:underline;text-underline-offset:3px;text-shadow:0 1px 2px rgba(0,0,0,.35);cursor:pointer}',
+  '#lzpStage .lzp-rail{position:absolute;left:0;right:0;bottom:clamp(8px,2.2vh,12px);display:flex;justify-content:center;align-items:flex-end;gap:clamp(7px,1.3vw,12px);pointer-events:none}',
+  '#lzpStage .lzp-chip{position:relative;width:clamp(26px,7.4vh,34px);height:clamp(34px,9.6vh,44px);padding:0;border:2px solid rgba(0,0,0,.4);border-radius:9px;background:linear-gradient(180deg, rgba(255,255,255,.55) 0, rgba(255,255,255,.08) 28%, rgba(0,0,0,0) 55%, rgba(0,0,0,.35) 100%), var(--c);box-shadow:0 0 10px var(--c), inset 0 -6px 8px rgba(0,0,0,.3), 0 2px 4px rgba(0,0,0,.4);cursor:pointer;pointer-events:auto;transition:transform .18s}',
+  '#lzpStage .lzp-chip::before{content:"";position:absolute;left:18%;right:18%;top:-5px;height:6px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#5E6367,#2B2F33);border:1px solid rgba(0,0,0,.5);border-bottom:none}',
+  '#lzpStage .lzp-chip i{position:absolute;left:22%;top:14%;width:16%;height:46%;border-radius:4px;background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.15))}',
+  '#lzpStage .lzp-chip.on{transform:translateY(-6px) scale(1.14);border-color:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.3), 0 0 16px var(--c), inset 0 -6px 8px rgba(0,0,0,.3)}',
+  '#lzpStage .lzp-chip.lock{filter:saturate(.35) brightness(.72)}',
+  '#lzpStage .lzp-chip .gly{position:absolute;left:50%;top:50%;width:52%;height:52%;transform:translate(-50%,-50%);fill:#FFF3C4;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}',
+  '#lzpStage .lzp-chip.eqd::after{content:"";position:absolute;left:50%;bottom:-8px;width:60%;height:3px;margin-left:-30%;border-radius:2px;background:#B9E8FF;box-shadow:0 0 6px #59E3FF}',
+  '#lzpStage.rm,#lzpStage.rm *{animation:none!important;transition:none!important}',
+  '@media (prefers-reduced-motion: reduce){#lzpStage,#lzpStage *{animation:none!important;transition:none!important}}'
+  ].join('\n'); document.head.appendChild(css); }
+if(LZP.on){
+  const _sale=saleSweep; saleSweep=function(){ const r=_sale.apply(this, arguments); if(r) return r; return lzpSweep(); };   // THE SEAT: the ceremony chain's last (sec 0821's, by name, outermost over CARD-OAD's): the drop deals first; on a landing it left alone the promotion may
+  if(typeof oadSpent==='function'){ const _os=oadSpent; oadSpent=function(k){ if(_os.apply(this, arguments)) return true; try{ const d=oadDay(); return !!(d && OAD.one && META.lzpDay===d); }catch(e){ return false; } }; }   // CARD-OAD's day: a day the promotion stood is the day's one login pop-up
+  if(typeof oadOver==='function'){ const _oo=oadOver; oadOver=function(){ try{ if(document.getElementById('lzpStage')) return true; }catch(e){} return _oo.apply(this, arguments); }; }   // the night's card never deals over the stage
+  if(typeof roomQuiet==='function'){ const _rq=roomQuiet; roomQuiet=function(){ try{ if(document.getElementById('lzpStage')) return false; }catch(e){} return _rq.apply(this, arguments); }; }   // THE LOUD ROOM (CARD-SDI's grammar): gifts, door lights, nudges, the idle pill, the sale's late tries wait for it to go
+  if(typeof evAnnQuiet==='function'){ const _eq=evAnnQuiet; evAnnQuiet=function(){ try{ if(document.getElementById('lzpStage')) return false; }catch(e){} return _eq.apply(this, arguments); }; }   // the night's PRIME TIME and T−5 JOIN cards wait for it too
+  if(typeof fsiBusy==='function'){ const _fsi=fsiBusy; fsiBusy=function(){ try{ if(document.getElementById('lzpStage')) return true; }catch(e){} return _fsi.apply(this, arguments); }; }   // Sarge's first-area line holds back while it stands (CARD-WWY's trap 3)
+  const _hide=hideAllOverlays; hideAllOverlays=function(){ try{ if(LZP.el) lzpDown('nav', false); }catch(e){} return _hide.apply(this, arguments); };   // a navigation tears it down clean
+}
+if(window.GVT && !GVT.lzp) GVT.lzp=function(o){ o=o||{};   // the rig's read and hand
+  if(o.T!==undefined) LZP.T=o.T; if(o.frame){ const cv=document.getElementById('lzpCanvas'); if(cv) try{ lzpRender(cv, lzpNow()); }catch(e){} }
+  if(o.look) lzpDeal(true); if(o.deal) lzpSweep(); if(o.pick) lzpPick(o.pick); if(o.shot) lzpShot(); if(o.close) lzpClose(o.close===true? 'rig' : o.close); if(o.go) lzpGo();
+  const st=document.getElementById('lzpStage');
+  return { on:LZP.on, up:!!st, why:lzpWhy(), sel:LZP.sel, cur:LZP.cur, swap:LZP.swap? { from:LZP.swap.from, to:LZP.swap.to, dir:LZP.swap.dir } : null, beam:!!LZP.beam, shots:LZP.shots.length, run:LZP.run, next:Math.round(LZP.next), hold:Math.round(LZP.hold),
+    arr:LZP.arr.slice(), fired:LZP.fired, day:lzpDay(), lzpDay:META.lzpDay||'', lzpN:META.lzpN|0, lzpGo:META.lzpGo|0, dealt:LZP.dealt, went:LZP.went, shut:LZP.shut, gap:LZP.GAP, minLvl:LZP.MIN_LVL, lvl:META.lvl|0, bank:META.starBank|0,
+    big:(document.querySelector('#lzpBig .lzp-w')||{}).textContent||null, kick:(document.querySelector('#lzpBig .lzp-kick')||{}).textContent||null, does:(document.querySelector('#lzpBig small')||{}).textContent||null,
+    plate:(document.getElementById('lzpPlate')||{}).textContent||'', price:!!document.querySelector('#lzpPlate .lzp-price'), lock:!!document.querySelector('#lzpPlate .lzp-lock'),
+    chips:Array.from(document.querySelectorAll('#lzpRail .lzp-chip')).map(c=>c.getAttribute('data-id')), chipOn:Array.from(document.querySelectorAll('#lzpRail .lzp-chip.on')).map(c=>c.getAttribute('data-id')),
+    track:(LZP.last? LZP.last.map(g=>({ id:g.id, s0:g.s0, s1:(g.s1==null? null : g.s1), live:!!g.live, a:+(g.a||0).toFixed(3), lit:lzpLit(g.id) })) : null), log:LZP.log.slice() }; };
+// ═══ END CARD-LZP ═══
 // ═══ CARD-TKF · THE V1 TAN TANK FIRES: ITS GUN WAITS FOR A MAN IN REACH, AND ITS SHOT LEAVES THE BARREL (sec:CARD-TKF; design/tan-tank-fire-1111/00-CARD-TKF.md; FROM WYATT by phone (jumpr remote) 11/11/2026, verbatim: "In the campaign, the v1 tan tanks aren't currently firing. This is a bug report. Please fix.") ═══
 // THE FAULT (measured on v31.47 over every campaign rung 1-100 that fields a V1 tank, with a green line that holds): the cannon's drum (8 s; the V2's 6.15 s) ran from the tank's birth and spent its
 // round whether or not a green stood in its reach, so it fired BLANK every 8 s from the rim on and reached the line with a random drum: its first shell came 0 to 8 s after a green stepped inside
