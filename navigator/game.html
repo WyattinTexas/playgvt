@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.36","md5":"0cd58d5d5c76432d4fe4b186bb14601d","sha":"c38d62f4b1","at":"2026-11-11T04:17:12Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.37","md5":"f94aff7e3332cb49bd638b08956f1a67","sha":"a06bb14c4f","at":"2026-11-11T04:28:15Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93646,7 +93646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.37';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -221301,6 +221301,52 @@ function ppoRead(){ return { on:PPO.on, wrapped:!!PPO.old, bg:!!PPO.bg0, split:P
 try{ if(window.GVT && !GVT.ppo) GVT.ppo=ppoRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.ppo) GVT.ppo=ppoRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-PPO ═══
+// ═══ CARD-HPS THE ROOM RESTS UNDER A PAGE THAT FILLS THE GLASS (sec:CARD-HPS; design/hero-page-smooth-1110/00-CARD-HPS.md; jumpr 3228, built on Maker 1 as M3228). FROM WYATT'S PHONE by the jumpr
+// remote 11/10/2026 17:54 EST (22:54:28 UTC), dictated, one screenshot (PRINCESS CROAK on THE PALACE, HERO 6 OF 7), verbatim: "Bug report: Character information screen for heroes is still insanely
+// laggy." ═══
+// THE FINDING, two causes. (1) His phone had never met CARD-PPO's cure (v31.08, 11/9): his save was written by client v30.91 eight minutes before the report, and no iPhone build that carries the cure
+// had been opened on a phone (the record's §2; a matter of builds, not of this section). (2) THIS SECTION'S: on today's game, on HIS OWN save, the heroes' page still cost the painter 8 to 14 ms a
+// frame in WebKit (36 to 56 frames a second on a Mac; a stock save with an empty room: 2 ms and 60). The engine's own layer list says why: the page fills the whole glass (CARD-HAU's law: one
+// full-glass slide), and the bedroom BEHIND it went on running under it: its 45 loops (the ship's twinkles, the raid's flags, the patrol, the pets, the plane, the elephant) stepped on the room's
+// clock and the room's two big layers (#roomStage 1324 x 612, the pets' layer 1306 x 600: 55 MB at three dots a point) were painted again 40 to 60 times a second where nobody can see them.
+// THE OFF-SCREEN LAW (1162z, his word of 9/21: "what the glass does not show does not run and does not paint") already rests the room under every opaque cover through ONE funnel (msPauseSync's
+// word: the scenes, the fort, the map, the shop, the rites, and since CARD-DLG-F the open toy box, a card that fills the glass). The heroes' page (10/9) was never on that list.
+// THE CURE: a card of #roomModal that FILLS THE GLASS (its box reaches all four edges, square corners, an opaque ground, nothing see-through: measured, never a list of names, so the next
+// full-glass page his 10/5 rule asks for gets the law by itself) counts as a cover in the funnel's own word. dlgfCover (the toy box's test, the one term of msPauseSync's list that speaks of a
+// card) is wrapped BY NAME: the toy box's answer OR this one. Under such a page the room wears #menu.ms-under exactly as under the fort: every loop in #menuBody paused and #menuBody unpainted;
+// the room's clock steps nothing (mfpCovered), the dogs', the cat's and the robot's tickers hold (msRoomHid). THE EARS: one MutationObserver on #roomModal's own children asks the funnel the
+// moment a card is dealt or leaves, so the room rests on the page's first frame and stands again in the same frame as the ✕ (never a blank room behind a closing page; the half-second tick
+// remains the net). A card seen filling the glass holds its answer until it leaves (a resize asks again); a card that does not fill it is asked again at each sync (an entrance that is still
+// growing). No existing line changed. A card that leaves any of the room showing (every pop-up) = byte what it was.
+// ?hps=0 = the room runs under a full-glass page as before on this device (remembered as gvt_hps '0'), ?hps=1 = the cure again. GVT.hps() = the rigs' read ({ on:0|1 } flips it for the page's
+// life). Zero words, save keys, server or sw bytes; no css. UNDO = design/hero-page-smooth-1110/kit/applyHPS.py --undo.
+// FOR LATER CARDS: a new page that fills the glass through roomModal needs nothing (give its card an opaque background colour and square corners); a full-glass page that is NOT a #roomModal
+// card (a scene of its own) adds its test to msPauseSync's list, as the fort and the toy box did.
+var HPS={ on:(function(){ try{ var q=/[?&]hps=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_hps','0'); else localStorage.removeItem('gvt_hps'); } return localStorage.getItem('gvt_hps')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  el:null, yes:0, tests:0, covers:0, syncs:0, err:0, old:null, mo:null };   // the switch · the card last asked and its answer · the counts (the rigs' read) · the wrapped test · the ears
+function hpsFills(c){   // does this card fill the glass: all four edges reached, square corners, an opaque ground, itself fully shown
+  const W=window.innerWidth, H=window.innerHeight, r=c.getBoundingClientRect(); if(!(W>0 && H>0) || r.left>0.5 || r.top>0.5 || r.right<W-0.5 || r.bottom<H-0.5) return false;
+  const cs=getComputedStyle(c); if(cs.display==='none' || cs.visibility!=='visible' || !(parseFloat(cs.opacity)>=1)) return false;
+  const m=/^rgba?\(([^)]*)\)$/.exec(String(cs.backgroundColor||'').trim()); if(!m) return false;   // a ground the engine words another way = not known opaque: the room runs as before
+  const p=m[1].split(/[\s,\/]+/).filter(Boolean); if(p.length<3 || (p.length>=4 && !(parseFloat(p[3])>=1))) return false;
+  if(parseFloat(cs.borderTopLeftRadius)>0 || parseFloat(cs.borderTopRightRadius)>0 || parseFloat(cs.borderBottomLeftRadius)>0 || parseFloat(cs.borderBottomRightRadius)>0) return false;   // a round corner shows the room
+  return true; }
+function hpsCover(){ if(!HPS.on) return false; let c=null; try{ c=document.querySelector('#roomModal .rmcard'); }catch(e){ c=null; }
+  if(!c){ HPS.el=null; HPS.yes=0; return false; }
+  if(HPS.el===c && HPS.yes) return true;   // this card was seen filling the glass: it holds until it leaves
+  let y=false; HPS.tests++; try{ y=hpsFills(c); }catch(e){ HPS.err++; y=false; } HPS.el=c; HPS.yes=y? 1 : 0; if(y) HPS.covers++; return y; }
+try{ if(typeof dlgfCover==='function'){ HPS.old=dlgfCover;   // the one term of msPauseSync's list that speaks of a #roomModal card (CARD-DLG-F's toy box): wrapped BY NAME
+  dlgfCover=function(){ let a=false; try{ a=!!HPS.old.apply(this, arguments); }catch(e){ a=false; } if(a) return true; try{ return hpsCover(); }catch(e){ HPS.err++; return false; } }; } }catch(e){}
+function hpsSync(){ HPS.syncs++; try{ msPauseSync(); }catch(e){ HPS.err++; } }
+(function(){ try{ const m=document.getElementById('roomModal'); if(!m || typeof MutationObserver!=='function') return;   // THE EARS: a card dealt, a card gone = the funnel asked before the next paint
+  HPS.mo=new MutationObserver(hpsSync); HPS.mo.observe(m, { childList:true }); }catch(e){} })();
+try{ window.addEventListener('resize', function(){ HPS.yes=0; hpsSync(); }); }catch(e){}   // a turned or resized glass: the card is measured again
+function hpsRead(o){ o=o||{}; if(o.on!=null){ HPS.on=o.on? 1 : 0; HPS.yes=0; hpsSync(); }
+  const m=document.getElementById('menu'), c=document.querySelector('#roomModal .rmcard'); let f=null; try{ f=c? hpsFills(c) : null; }catch(e){ f=null; }
+  return { on:HPS.on, wrapped:!!HPS.old, ears:!!HPS.mo, card:c? String(c.className) : null, fills:f, cover:hpsCover(), under:!!(m && m.classList.contains('ms-under')), hid:msRoomHid(), tests:HPS.tests, covers:HPS.covers, syncs:HPS.syncs, err:HPS.err }; }
+try{ if(window.GVT && !GVT.hps) GVT.hps=hpsRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.hps) GVT.hps=hpsRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-HPS ═══
 // ═══ CARD-BPR THE BANNER'S CIRCLE ALWAYS SHOWS ITS ENEMY · NO WAVE CHIP UNDER IT (sec:CARD-BPR; design/banner-portrait-1104/00-CARD-BPR.md; jumpr 3013, built on Maker 1 as M3013).
 // ISAAC by the jumpr guest link 11/4/2026 20:20 EST (his live switch, card 2277), verbatim: "let's fix this bug on a lot of campaign levels. The right side with the circle previewing the enemy is
 // usually empty. Run an audit and make sure that doesn't happen. Also get rid of the Wave X tab under it. It's kind of a spoiler alert. Fix that empty circle and get rid of the wave indicator.
