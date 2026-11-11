@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.37","md5":"f94aff7e3332cb49bd638b08956f1a67","sha":"a06bb14c4f","at":"2026-11-11T04:28:15Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.38","md5":"273beadd73f71427031ecb8082cc6de6","sha":"976e4cec4c","at":"2026-11-11T04:38:50Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93646,7 +93646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.37';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.38';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -227283,6 +227283,149 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.cyt) GVT.cyt=function(o){ o=o|
   if(o.reset){ CYT.cutN=0; CYT.bare=0; }
   return cytRead(); }; }catch(e){} }, 0);   // the rigs' door + read
 // ═══ END CARD-CYT ═══
+// ═══ CARD-PTP · THE PALACE'S PILLARS AND FOUNTAINS STAND TALL: NO MAN WALKS OVER THEIR TOPS ANY MORE, AND A MAN BEHIND A COLUMN IS DRAWN BEHIND IT (sec:CARD-PTP; design/tall-pillars-1110/00-CARD-PTP.md; jumpr 3222, built on Maker 1 as M3222; card 4 of 5 cut from Raziya's Princess Croak notes, round 5: design/raziya-bear-feedback-1108/round5/00-ROUND5.md)
+// RAZIYA (the boss-fight tester, Fey on Discord) 11/8/2026, verbatim: "that units keep wandering over the top of pillars is kind of immersion breaking 😛 and the very tops of fountains. making units clip behind them would require separating the assets, I know, but in that case they should probably obstruct higher up too. that'll add some asymmetry to the battlefield; units won't be able to cling to the top of the map, but after going around the pond on the bottom side, they'd be able to wander underneath the pillars there."
+// WYATT 11/10/2026 16:45 EST on Discord (message 1569830379291025440), verbatim: "Yes and get it to the finish line. please analyze this feedback here & create a new task for getting this fight done. Organize the notes into tasks and get it done so we can test again."
+// WHO: PRINCESS CROAK'S PALACE alone (a raid on key 'palace', every tier, solo, party and the Boss Lab: startRaidBattle is every door). Every other room's rocks and draw are byte-what-they-were (each wrap asks for the palace's own stamp first).
+//   1 THE NORTH ROW OBSTRUCTS HIGHER. A prop of the palace (art 'column' or 'fountain') whose base stands north of the aisle's middle (PTP.MIDY) is drawn rising into the walking band, so at the fight's start it gets a TALL FOOTPRINT: its OWN circle (the same r) repeated up its drawn height, PTP.STEP apart at most (the canyon wall's chain grammar), up to the circle whose top touches its painted top (PTP.TOP: the abacus of a column, the frog mask's mane of a fountain, in r above the base, read off pmColumn / pmFountain's own numbers). Where the lane left above that top would be narrower than PTP.LANE (a man's two shoulders), the chain runs on to the top of the foes' band (FOE_TOP), so the top of the room is no corridor. The rows join terrain.rocks with NCB-13's footprint art 'ncbfoot' (the floor painter's own skip: nothing paints them) and ptpFoot, so every mover that reads the rocks reads the tall footprint with no edit of its own: the walk's shoulder and the stall escape, the deploy refusal (canPlace), the jet's landing (jetLandOK), a ram's bonk (the gnome guard's, Francis's lock), every shove's bonk (ggShoveStep: CARD-PKB's knockback rides it), her face-shot hop's landing (pcLandOK). The plate's petal scatter (pmPetals) reads the rocks as the room had them, so the floor is the same picture.
+//   2 THE STEER READS A TALL PROP AS ONE PIECE, AND THE WAY ROUND IS UNDERNEATH. rockSteer (every walker) and frkSteer (a pet's way round) take their tangent round ONE circle enclosing each north group (its base and its chain), while the push-out keeps the exact chain: a tangent never lands inside the chain. A walk whose straight line would cut a north footprint aims first at the floor just south of that prop's base, at its goal's own x (THE WAY UNDER: the top is closed, so every way round is underneath), then on. A march goal that stands inside a footprint (the men's front line at x 929 lies on the 880 column's shoulder) steps out to the shaft's face on the walker's side, or under the base for a walker south of it (bfMarch: the march's own goal-override grammar, the river's bank, the canyon's mouth), so nobody is pinned against a pillar.
+//   3 THE DEPTH. Every column and fountain stands IN the room at its base's depth (draw()'s actors, through olvActors, which draw() calls on every fight off the battleground): when a figure stands behind one (feet north of its base, inside its box), the floor exactly as it stands under the figures this frame (THE PLATE, MEGA's moonlight, her arrow's dim, Laura's tonal band, every ring) is lifted through that prop's own coverage (its painter, alone, at the plate's own scale and pixel grid) and drawn back at the prop's depth: a man whose feet are north of the base is hidden by it, a man south of it stands over it (the trains', the boulders' and NCB-13's law). The plate is never edited or re-baked; with nobody behind a prop nothing extra is drawn.
+// WRAPPED BY NAME (no body edited): startRaidBattle · pmPetals · rockSteer · frkSteer · bfMarch · olvActors. Zero server, sw.js, CSS, save, wire or word bytes; nothing redrawn (the palace's own painters, as they stand).
+// THE SWITCH: ?ptp=0 on a device (gvt_ptp '0'; ?ptp=1 clears it) = the rocks and the draw as v31.28 on that device (CARD-RZB's grammar: a device switch; a party whose phones disagree runs two rules). GVT.ptp() = the rigs' read; GVT.ptp({depth:0}) parks the depth law alone for a rig's A/B.
+const PTP={
+  MIDY:360,      // the aisle's middle (the rose runner's y 300..420): a prop whose base stands north of it is in the north row
+  STEP:30,       // the chain's most spacing between two circles of a tall footprint (px)
+  TOP:{ column:2.86, fountain:1.79 },   // the painted top over the base, in r: pmColumn's top (y - r*2.55) less its abacus (2 - r*0.31) · pmFountain's frog mask (y - r*1.42) less its mane (r*0.3*1.24)
+  LANE:32,       // a lane narrower than this above a footprint (two shoulders of ROCK_PAD_FOE) is closed: the chain runs on to FOE_TOP
+  FIG_UP:170,    // the depth law's look behind a prop: a figure this far over its painted top still counts (a tall foe, a jet in the air)
+  FIG_W:60,      // ...and this far either side of its box (plus half the figure's own width)
+  depth:1, mask:[], occ:[], sv:null, n:{ build:0, foot:0, steer:0, under:0, goal:0, rest:0, frk:0, petal:0, occ:0, drawn:0, mask:0, skip:0 }, err:0, e:'' };
+var PTP_ON=(function(){ try{ const m=/[?&]ptp=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_ptp','0'); else localStorage.removeItem('gvt_ptp'); } return localStorage.getItem('gvt_ptp')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-RTD's grammar)
+function ptpErr(k,e){ PTP.err++; if(PTP.e.length<400) PTP.e+=k+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function ptpTall(rk){ return !!(rk && (rk.art==='column' || rk.art==='fountain')); }
+function ptpTop(rk){ return rk.y-rk.r*(PTP.TOP[rk.art]||PTP.TOP.column); }   // the painted top of a column or a fountain (world y)
+function ptpBox(rk){ return [rk.x-rk.r*1.3, ptpTop(rk)-8, rk.x+rk.r*1.95, rk.y+rk.r*1.05]; }   // the world box its painter stays inside (the shadow east, the plinth, the capital or the mask): the depth law's mask and lift
+// ── 1 THE NORTH ROW OBSTRUCTS HIGHER: the tall footprints, once, at the fight's start ──
+function ptpBuild(T){
+  if(!T || T.ptp || !Array.isArray(T.rocks)) return;
+  const R=T.rocks; if(R.some(k=>k && k.ptpFoot)){ T.ptp=1; return; }   // a terrain that already carries them (never twice)
+  const tall=[], north=[], add=[];
+  for(let i=0;i<R.length;i++){ const rk=R[i]; if(!ptpTall(rk)) continue; tall.push(i); if(rk.y<PTP.MIDY) north.push(i); }
+  T.ptpN=[];
+  for(const i of north){ const rk=R[i], top=ptpTop(rk); let topC=top+rk.r;   // the top circle's top edge on the painted top
+    if(top-ROCK_PAD_FOE-FOE_TOP<PTP.LANE) topC=Math.min(topC, FOE_TOP+rk.r);   // no lane worth the name above it: the chain runs on to the band's top
+    const span=rk.y-topC; if(!(span>1)) continue; const n=Math.max(1, Math.ceil(span/PTP.STEP));
+    for(let k=1;k<=n;k++) add.push({ x:rk.x, y:+(rk.y-span*k/n).toFixed(2), r:rk.r, art:'ncbfoot', ptpFoot:1, ptpOf:i });   // the prop's own circle, up its drawn height (no paint of its own: the floor painter skips 'ncbfoot')
+    T.ptpN.push({ i:i, top:+top.toFixed(2), topC:+topC.toFixed(2), n:n, cy:+((rk.y+topC)/2).toFixed(2), cr:+(span/2+rk.r).toFixed(2) }); }   // ...and the one circle that encloses the group (the steer's)
+  for(const f of add) R.push(f);
+  T.ptpTall=tall; T.ptp=1; PTP.n.build++; PTP.n.foot+=add.length; PTP.sv=null; }
+{ const b0=startRaidBattle; startRaidBattle=function(tier,rk){
+  const r=b0.apply(this,arguments);
+  try{ if(PTP_ON && S.raid && S.raid.k==='palace' && S.raid.cfg===S.cfg && S.cfg && S.cfg.terrain && S.cfg.terrain.palace) ptpBuild(S.cfg.terrain); }catch(e){ ptpErr('build',e); }
+  return r; }; }
+{ const p0=pmPetals; pmPetals=function(g,WD,HT){   // the plate's petals scatter round the room's own rocks, as they always have (never round a footprint: the floor stays the same picture)
+  const T=S.cfg && S.cfg.terrain; if(!T || !T.ptp || !Array.isArray(T.rocks)) return p0.apply(this,arguments);
+  const R=T.rocks; T.rocks=R.filter(k=>!(k && k.ptpFoot)); PTP.n.petal++;
+  try{ return p0.apply(this,arguments); } finally{ T.rocks=R; } }; }
+// ── 2 THE STEER READS A TALL PROP AS ONE PIECE ──
+function ptpSteerTerr(){ const T=S.cfg && S.cfg.terrain; return (T && T.ptp && T.ptpN && T.ptpN.length && Array.isArray(T.rocks) && !S.bf)? T : null; }
+function ptpSteerRocks(T){ const R=T.rocks, V=PTP.sv; if(V && V.T===T && V.R===R && V.n===R.length) return V.v;
+  const big={}; for(const g of T.ptpN) big[g.i]=g; const v=[];
+  for(let i=0;i<R.length;i++){ const rk=R[i]; if(!rk || rk.ptpFoot) continue; const g=big[i]; v.push(g? { x:rk.x, y:g.cy, r:g.cr, art:rk.art, ptpSteer:1 } : rk); }
+  PTP.sv={ T:T, R:R, n:R.length, v:v }; return v; }
+function ptpSegD(px,py,qx,qy,ax,ay,bx,by){   // the least distance between two segments (PQ, AB), 0 where they cross
+  const pt=(x,y,x0,y0,x1,y1)=>{ const dx=x1-x0, dy=y1-y0, L=dx*dx+dy*dy, t=L>0? Math.max(0,Math.min(1,((x-x0)*dx+(y-y0)*dy)/L)) : 0; return Math.hypot(x-(x0+dx*t), y-(y0+dy*t)); };
+  const c1=(qx-px)*(ay-py)-(qy-py)*(ax-px), c2=(qx-px)*(by-py)-(qy-py)*(bx-px), c3=(bx-ax)*(py-ay)-(by-ay)*(px-ax), c4=(bx-ax)*(qy-ay)-(by-ay)*(qx-ax);
+  if(((c1>0&&c2<0)||(c1<0&&c2>0)) && ((c3>0&&c4<0)||(c3<0&&c4>0))) return 0;
+  return Math.min(pt(px,py,ax,ay,bx,by), pt(qx,qy,ax,ay,bx,by), pt(ax,ay,px,py,qx,qy), pt(bx,by,px,py,qx,qy)); }
+function ptpCross(T,x,y,gx,gy,pad){   // the north group whose tall footprint (its base and its chain, each circle at r + pad) the straight walk from (x,y) to (gx,gy) would cut: the nearest one along the walk, or null
+  let best=null, bt=1e9; const R=T.rocks, L=Math.hypot(gx-x,gy-y)||1;
+  for(const g of T.ptpN){ const rk=R[g.i]; if(!rk) continue; const Rr=rk.r+(pad||0);
+    if(ptpSegD(x,y,gx,gy, rk.x,g.topC, rk.x,rk.y)>=Rr) continue;
+    const t=((rk.x-x)*(gx-x)+(rk.y-y)*(gy-y))/L; if(t<bt){ bt=t; best={ g:g, rk:rk, Rr:Rr }; } }
+  return best; }
+function ptpUnder(T,x,y,gx,gy,pad){   // THE WAY UNDER: a walk that would cut a north footprint aims first at the floor just south of that prop's base, at the goal's own x (the top of the room is closed: every way round is underneath)
+  const c=ptpCross(T,x,y,gx,gy,pad); if(!c) return null;
+  return { x:gx, y:c.rk.y+c.Rr+8 }; }
+{ const s0=rockSteer; rockSteer=function(x,y,gx,gy,pad,xtra,tan){
+  const T=ptpSteerTerr(); if(!T) return s0.apply(this,arguments);
+  const u9=ptpUnder(T,x,y,gx,gy,pad);   // read on the room's own rocks (the exact footprint), before the steer's view goes in
+  const R=T.rocks; T.rocks=ptpSteerRocks(T); PTP.n.steer++;
+  try{
+    if(u9){ PTP.n.under++; const st=s0.call(this,x,y,u9.x,u9.y,pad,xtra,tan); if(st) return st; const d=Math.hypot(u9.x-x,u9.y-y); return d>1? { x:(u9.x-x)/d, y:(u9.y-y)/d } : null; }   // round the prop (the steer's own tangent) toward the way under, or straight to it on a clear line
+    return s0.apply(this,arguments); } finally{ T.rocks=R; } }; }
+{ const f0=frkSteer; frkSteer=function(x,y,gx,gy,pad,minR){
+  const T=ptpSteerTerr(); if(!T) return f0.apply(this,arguments);
+  const u9=minR? null : ptpUnder(T,x,y,gx,gy,pad);   // a pet on foot goes under too (a flier's own law, minR, flies round the big rocks as frkSteer reads them); read on the room's own rocks
+  const R=T.rocks; T.rocks=ptpSteerRocks(T); PTP.n.frk++;
+  try{
+    if(u9){ const st=f0.call(this,x,y,u9.x,u9.y,pad,minR); if(st) return st; const d=Math.hypot(u9.x-x,u9.y-y); return d>1? { x:(u9.x-x)/d, y:(u9.y-y)/d } : null; }
+    return f0.apply(this,arguments); } finally{ T.rocks=R; } }; }
+function ptpGoalOut(T,u,g){   // a march goal standing inside a north prop's tall footprint (the front line at x 929 lies on the 880 column's shoulder) steps out to the face the walker is on: the march's own goal-override grammar (the river's bank, the canyon's mouth)
+  const R=T.rocks;
+  for(const n of T.ptpN){ const rk=R[n.i]; if(!rk) continue; const Rr=rk.r+ROCK_PAD_FOE;
+    if(g.x<=rk.x-Rr || g.x>=rk.x+Rr || g.y>=rk.y+Rr || g.y<=n.topC-Rr) continue;
+    let inside=Math.hypot(g.x-rk.x,g.y-rk.y)<Rr; if(!inside) for(const k of R){ if(k && k.ptpFoot && k.ptpOf===n.i && Math.hypot(g.x-k.x,g.y-k.y)<Rr){ inside=true; break; } }
+    if(!inside) continue;
+    PTP.n.goal++;
+    if(u.y>rk.y) return { x:g.x, y:rk.y+Math.sqrt(Math.max(0,Rr*Rr-(g.x-rk.x)*(g.x-rk.x)))+2 };   // a walker south of the base: the floor just under it
+    return { x:(u.x<rk.x)? rk.x-Rr-2 : rk.x+Rr+2, y:g.y }; }   // else the shaft's face on his own side
+  return g; }
+{ const m0=bfMarch; bfMarch=function(u,dt,goal){
+  const T=ptpSteerTerr(); if(!T || !goal || !u) return m0.apply(this,arguments);
+  const g2=ptpGoalOut(T,u,goal); if(g2===goal) return m0.apply(this,arguments);
+  if(Math.hypot(g2.x-u.x,g2.y-u.y)<=Math.max(1.5,((u.def && u.def.moveSpd)||36)*(dt||0))){ PTP.n.rest++; return; }   // there: he stands (the march's own halt reads his first spot, inside the prop, and would never call him arrived)
+  return m0.call(this,u,dt,g2); }; }
+// ── 3 THE DEPTH: a column or a fountain stands at its base's depth ──
+function ptpDepthTerr(){ const T=S.cfg && S.cfg.terrain; return (PTP.depth && T && T.ptp && T.ptpTall && T.ptpTall.length && !S.bf && pmPlateOn() && PM_PLATE.tiles)? T : null; }
+function ptpBehind(rk){   // a figure stands behind this prop (its feet north of the base, inside the prop's box): only then is anything drawn
+  const up=(rk.y-ptpTop(rk))+PTP.FIG_UP, side=rk.r*1.95+PTP.FIG_W;
+  const near=(o,w)=>{ const dy=rk.y-o.y; return dy>0 && dy<up+w && Math.abs(o.x-rk.x)<side+w*0.5; };
+  for(const u of S.units){ if(u && !u.dead && near(u, (u.def && u.def.w)||0)) return true; }
+  for(const f of S.foes){ if(f && !f.dead && near(f, (f.def && f.def.w)||0)) return true; }
+  for(const p of (S.pets||[])){ if(p && p.phase!=='gone' && near(p, 0)) return true; }
+  return false; }
+function ptpMask(i,rk,P){   // the prop's own coverage: its painter alone on a clear canvas, at THE PLATE's scale and on its pixel grid (an integer offset of k*x, the tiles' own phase)
+  const k=P.k, key=P.key+'|'+i+'|'+rk.x+','+rk.y+','+rk.r+','+rk.art; let M=PTP.mask[i]; if(M && M.key===key) return M;
+  const b=ptpBox(rk), px0=Math.floor(b[0]*k), py0=Math.floor(b[1]*k), w=Math.max(1, Math.ceil(b[2]*k)-px0), h=Math.max(1, Math.ceil(b[3]*k)-py0);
+  const c=(M && M.c) || document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); g.setTransform(k,0,0,k,-px0,-py0); pmRockArt(g,rk);
+  M={ key:key, c:c, k:k, px0:px0, py0:py0, w:w, h:h, bx0:b[0], by0:b[1], bx1:b[2], by1:b[3] }; PTP.mask[i]=M; PTP.n.mask++; return M; }
+function ptpLift(i,rk,m,fast,P){   // the floor as it stands under the figures this frame, through the prop's coverage, in the glass's own pixels
+  const M=ptpMask(i,rk,P), cv=cx.canvas; let X0, Y0, X1, Y1;
+  if(fast){ X0=Math.round(m.e)+M.px0; Y0=Math.round(m.f)+M.py0; X1=X0+M.w; Y1=Y0+M.h; }   // THE PLATE's fast blit: 1:1 at the camera's integer offset (pmPlateBlit's own rounding)
+  else { X0=Math.floor(m.a*M.bx0+m.e); Y0=Math.floor(m.d*M.by0+m.f); X1=Math.ceil(m.a*M.bx1+m.e); Y1=Math.ceil(m.d*M.by1+m.f); }   // a pinch in flight: the plate's scaled blit
+  const sx0=Math.max(0,X0), sy0=Math.max(0,Y0), sx1=Math.min(cv.width,X1), sy1=Math.min(cv.height,Y1); if(sx1<=sx0 || sy1<=sy0) return null;   // off the glass
+  const w=X1-X0, h=Y1-Y0; let O=PTP.occ[i]; if(!O) O=PTP.occ[i]={ c:document.createElement('canvas') }; if(O.c.width!==w || O.c.height!==h){ O.c.width=w; O.c.height=h; }
+  const g=O.c.getContext('2d'); g.setTransform(1,0,0,1,0,0); g.globalAlpha=1; g.globalCompositeOperation='source-over'; g.clearRect(0,0,w,h);
+  g.drawImage(cv, sx0, sy0, sx1-sx0, sy1-sy0, sx0-X0, sy0-Y0, sx1-sx0, sy1-sy0);
+  g.globalCompositeOperation='destination-in';
+  if(fast) g.drawImage(M.c,0,0); else { g.setTransform(m.a,0,0,m.d,m.e-X0,m.f-Y0); g.drawImage(M.c, M.px0/M.k, M.py0/M.k, M.w/M.k, M.h/M.k); g.setTransform(1,0,0,1,0,0); }
+  g.globalCompositeOperation='source-over';
+  return { c:O.c, X0:X0, Y0:Y0, i:i }; }
+function ptpLiftDraw(o){ cx.save(); cx.setTransform(1,0,0,1,0,0); cx.globalAlpha=1; cx.globalCompositeOperation='source-over'; cx.drawImage(o.c, o.X0, o.Y0); cx.restore(); PTP.n.drawn++; }
+function ptpActors(A){
+  const T=ptpDepthTerr(); if(!T) return; const P=PM_PLATE, m=cx.getTransform();
+  if(Math.abs(m.b)>1e-6 || Math.abs(m.c)>1e-6 || !(m.a>0) || !(m.d>0)) return;
+  const fast=(Math.abs(m.a-P.k)<1e-3 && Math.abs(m.d-P.k)<1e-3);
+  for(const i of T.ptpTall){ const rk=T.rocks[i]; if(!ptpTall(rk)) continue; if(!ptpBehind(rk)){ PTP.n.skip++; continue; }
+    const o=ptpLift(i,rk,m,fast,P); if(!o) continue; PTP.n.occ++;
+    A.push({ y:rk.y, f:()=>ptpLiftDraw(o) }); } }   // at its base's depth: a figure north of it drawn first (hidden where it stands), one south of it after (over it)
+{ const o0=olvActors; olvActors=function(A){
+  const r=o0.apply(this,arguments);
+  try{ ptpActors(A); }catch(e){ ptpErr('act',e); }
+  return r; }; }
+// ── THE RIGS' READ ──
+function ptpRig(o){ o=o||{}; if(o.depth!=null) PTP.depth=o.depth? 1 : 0; if(o.reset){ for(const k in PTP.n) PTP.n[k]=0; PTP.err=0; PTP.e=''; }
+  const T=S.cfg && S.cfg.terrain, live=!!(T && T.ptp), R=live? T.rocks : [];
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:PTP_ON, depth:PTP.depth, live:live,
+    dials:{ midY:PTP.MIDY, step:PTP.STEP, top:Object.assign({},PTP.TOP), lane:PTP.LANE, figUp:PTP.FIG_UP, figW:PTP.FIG_W },
+    tall:live? (T.ptpTall||[]).map(i=>({ i:i, x:R[i].x, y:R[i].y, r:R[i].r, art:R[i].art, top:+ptpTop(R[i]).toFixed(2), box:ptpBox(R[i]).map(v=>+v.toFixed(2)) })) : [],
+    north:live? (T.ptpN||[]).map(g=>Object.assign({},g)) : [],
+    foot:live? R.filter(k=>k && k.ptpFoot).map(k=>({ x:k.x, y:k.y, r:k.r, of:k.ptpOf })) : [],
+    steer:live && T.ptpN && T.ptpN.length? ptpSteerRocks(T).filter(k=>k.ptpSteer).map(k=>({ x:k.x, y:k.y, r:k.r, art:k.art })) : [],
+    n:Object.assign({},PTP.n), err:PTP.err, e:PTP.e, key:(function(){ try{ return localStorage.getItem('gvt_ptp'); }catch(e){ return null; } })() }; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.ptp=ptpRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (oreRig's grammar)
+// ═══ END CARD-PTP ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
