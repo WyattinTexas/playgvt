@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.46","md5":"75ea2d973285a7480bcd1057413aef84","sha":"f7ec215ffd","at":"2026-11-11T07:37:24Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.47","md5":"a3f32da3ae7f9095ef7494aff90d7c88","sha":"d5f7fded28","at":"2026-11-11T08:23:09Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93824,7 +93824,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.46';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -228800,6 +228800,57 @@ function ggrGiveRig(ids){ const o=META.outfit; if(!o) return 0; if(!Array.isArra
 function ggrWearRig(ids){ const o=META.outfit; if(!o) return []; o.wear=(ids||[]).slice(); return o.wear.slice(); }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.ggr={ S:GGR, P:GGR_P, ids:GGR_IDS, run:GGR_RUN, shown:ggrShown, rig:ggrRig, give:ggrGiveRig, wear:ggrWearRig, grant:ggrGrant, part:ggrPartSVG, tile:ggrTileInner, tune:ggrTune, taken:ggrTakenX, troop:ggrTroopX, book:ggrBook, sum:ggrSum, mummy:ggrMummy, toss:ggrTossMine, presents:ggrThrowPresents, zap:ggrZap, teleTo:ggrTeleTo, saves:ggrSaves, stand:ggrStand, afterHit:ggrAfterHit, key:ggrKey, die:ggrDie, heal:ggrHeal, cvImg:ggrCvImg, frac:ggrHealthFrac, thru:ggrThru, mineHit:ggrMineHit, open:ggrOpen }; }catch(e){} },0);
 // ═══ END CARD-GGR ═══
+// ═══ CARD-OAD · ONE A DAY: A POP-UP FROM LOGGING IN COMES AT MOST ONCE A DAY (sec:CARD-OAD; design/once-a-day-1111/00-CARD-OAD.md; jumpr 3246, built on Maker 1 as M3246)
+// FROM WYATT, by phone (jumpr remote, dictated) 11/11/2026 05:12:47 UTC = 00:12 EST, verbatim: "Stop showing a popup from logging in more than once per day to players. We dont want to annoy the player"
+// THE READ: "logging in" is the game's LAUNCH: the app opened (a page load), or a return after SALE_AWAY_MIN minutes away (sec 0821: "a kid who flips to YouTube and back in a minute has not logged in again");
+// a new build's reload (0559 nbGo) is a page load too. Two pop-ups deal BECAUSE the player opened the game, and both dealt more than once a day:
+// (1) THE SUPPLY DROP: sec 0821's FIRE SALE card (starPop('sale')) and, since CARD-SDI, the SUPPLY DROP INBOUND sky. Every fifth launch owes one (META.saleDue), so a day of ten opens dealt two.
+// (2) THE NIGHT'S PRIME TIME CARD (0516 bdAnnTry: the desert's, the Tundra's or the Rooftop Duel's "TONIGHT AT ..."). Its latch (BDD.annWk) lived only as long as the page ("a launch is a fresh slate"),
+//     so every open from the noon wake to the bell dealt it again, every bell day; the nights are daily.
+// THE LAW: ONE LOGIN POP-UP A DAY (todayStr(): the device's own date, the NO MORE ADS pitch's own day, 0410). Whichever deals first takes the day; the other waits. Never the same one twice in a day, never two
+// stacked at one login (the drop deals at the landing, the night's card a second later on the room's tick: before this card it stood ON TOP of the drop's sky, measured).
+// · The supply drop: the count stands (every fifth launch still owes one). A deal stamps META.saleDay; a drop owed on a day that already had its login pop-up waits, STILL OWED (META.saleDue untouched), for
+//   the next day's first quiet landing: never lost, never two in a day. One gate for both faces and every road that deals one at a launch (the landing's chain, the long return saleReturn, the price answer saleLate): a wrap of
+//   saleSweep by name, the outermost (over CARD-SDI's). A player's own taps open the FIRE SALE as shipped (BUY NOW on a crate's short card, the piggy, the NO ADS chip): never gated, never counted.
+// · The night's card: once a night AND once a day, kept in the SAVE (META.bdToldWk = the bell's key BD.wk, META.bdToldDay = the date), so a reopened app or a new build's reload never deals it again; on a
+//   day the drop already took, it sits the day out (the band's pill tells the night all day, and a tap on it still opens the card: evInfo, the player's own ask, never latched). It never deals OVER another
+//   pop-up (the drop's sky, the star pop-up, the NO MORE ADS pitch): it waits for the room's next quiet second. The T−5 JOIN card and the 45-second knock are the bell's own door: as shipped.
+// · Untouched: the king's PRIME TIME card (once per king, ever: 0522b), the NO MORE ADS pitch (once a day already), the hall card (its day and the morning after), the owed cards (each once).
+// ⚑ OAD.one: 1 = ONE login pop-up a day in all (REC, OAD-Q1: the drop and the night's card share the day) · 0 = each keeps its own day (two on some days, one after the other). ?oad=0 (device key gvt_oad) = as shipped; ?oad=1 clears it.
+// Comet-law flats (not in META_DEFAULT; an older build tolerates them): saleDay · bdToldWk · bdToldDay. Zero strings, zero CSS, zero server bytes, zero edits to shipped functions. The rigs' door: GVT.oad().
+const OAD=(function(){
+  const on=(function(){ try{ const q=/[?&]oad=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_oad','0'); else localStorage.removeItem('gvt_oad'); } return localStorage.getItem('gvt_oad')==='0'? 0 : 1; }catch(e){ return 1; } })();
+  return { on, one:1, hw:'', held:{ sale:0, night:0 }, dealt:{ sale:0, night:0 }, log:[] };
+})();
+window.GVT_OAD=OAD;
+function oadDay(){ try{ return todayStr(); }catch(e){ return ''; } }
+function oadWk(){ try{ return String((BD && BD.wk)||''); }catch(e){ return ''; } }
+function oadSpent(k){   // true = today already had this login pop-up (the night's card: or this night already had it)
+  const d=oadDay(); if(!d) return false;
+  if(k==='sale') return META.saleDay===d || (!!OAD.one && META.bdToldDay===d);
+  const wk=oadWk();
+  return (!!wk && META.bdToldWk===wk) || META.bdToldDay===d || (!!OAD.one && META.saleDay===d);
+}
+function oadOver(){ try{ return !!(document.getElementById('sdiStage') || (SPOP && SPOP.el) || (NAOFF && NAOFF.el)); }catch(e){ return false; } }   // another pop-up stands: the drop's sky, the star pop-up (any face), the NO MORE ADS pitch
+function oadNote(k, what){ try{ OAD[what][k]++; if(OAD.log.length<60) OAD.log.push({ k, what, d:oadDay(), wk:oadWk(), launches:META.launches|0 }); }catch(e){} }
+if(OAD.on){
+  const _sale=saleSweep; saleSweep=function(){   // THE SUPPLY DROP: at most one a day, and none on a day that already had its login pop-up
+    try{ if(oadSpent('sale')){ if((META.saleDue|0) || (typeof SDI==='object' && SDI && SDI.on && !META.sdiFirst)) oadNote('sale','held'); return false; } }catch(e){}   // the day already had its login pop-up: the drop owed waits for tomorrow, still owed
+    const r=_sale.apply(this, arguments);
+    if(r){ try{ META.saleDay=oadDay(); saveMeta(); oadNote('sale','dealt'); }catch(e){} }   // the day rides the deal's own task (the shipped seat burned META.saleDue first, flag-first)
+    return r;
+  };
+  const _ann=bdAnnTry; bdAnnTry=function(){   // THE NIGHT'S PRIME TIME CARD: one a night, at most one a day, none on a day the drop took, never over another pop-up
+    try{ if(oadSpent('night')){ const wk=oadWk(); if(wk && OAD.hw!==wk && BDD.annWk!==wk){ OAD.hw=wk; oadNote('night','held'); } return false; } if(oadOver()) return false; }catch(e){}   // the room's 1 s tick asks every second: a spent day is noted once a page for a night, never dealt; another pop-up standing = the next quiet second
+    const r=_ann.apply(this, arguments);
+    if(r){ try{ META.bdToldWk=oadWk(); META.bdToldDay=oadDay(); saveMeta(); oadNote('night','dealt'); }catch(e){} }   // in the save, beside the session's own latch (BDD.annWk, set by the shipped deal)
+    return r;
+  };
+}
+if(window.GVT && !GVT.oad) GVT.oad=function(o){ o=o||{}; if(o.one!=null) OAD.one=o.one? 1 : 0;
+  return { on:OAD.on, one:OAD.one, day:oadDay(), wk:oadWk(), saleDay:META.saleDay||'', saleDue:META.saleDue|0, launches:META.launches|0, sdiFirst:META.sdiFirst|0, bdToldWk:META.bdToldWk||'', bdToldDay:META.bdToldDay||'',
+    annWk:String((BDD && BDD.annWk)||''), spent:{ sale:oadSpent('sale'), night:oadSpent('night') }, held:Object.assign({}, OAD.held), dealt:Object.assign({}, OAD.dealt), log:OAD.log.slice() }; };   // the rig's read and hand (o.one = the shared day dial)
+// ═══ END CARD-OAD ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
