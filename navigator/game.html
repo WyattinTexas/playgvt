@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.38","md5":"273beadd73f71427031ecb8082cc6de6","sha":"976e4cec4c","at":"2026-11-11T04:38:50Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.39","md5":"748fe42946ecb8bd971d3f1ff2af00b7","sha":"1c16569514","at":"2026-11-11T04:46:13Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93646,7 +93646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.38';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -96141,7 +96141,7 @@ function sqTick(dt){
     else if(nw && nw.bossGate && (S.foes.some(f2=>f2.type===nw.bossGate && !f2.dead) || S.queue.some(q=>q.t===nw.bossGate))) sq.nextT=gateHold(nw,sq);
     else if(nw && nw.hpGate && (function(g9){   // 0340: the DUEL gate — the wave holds while the named boss stands ABOVE the fraction (or hasn't walked on yet); his fall opens every gate (moot — the croak fork flushes the tail)
       const b9=S.foes.find(f9=>f9.type===g9.t && !f9.dead);
-      if(b9){ if(g9.clk){ if(nw.clkAt==null) nw.clkAt=sq.t; if(sq.t-nw.clkAt>=g9.clk) return false; }   // 0612 D1b THE GATE CLOCK — an OPT-IN row key (never an engine law: croak D.gates, KING BEAR's life cell and every keyless king ride this block exactly as before): the wave releases at its gate OR clk s after it first became the next wave with the named boss STANDING (the b9 scan — while he is only in S.queue the gate holds regardless, else a gate could release before its boss exists); the stamp rides the per-battle wave row
+      if(b9){ if(g9.pfl) return pflHold(nw,g9,b9,sq);   /* CARD-PFL: a palace row holds while her court stands, then releases at her fraction or after the idle clock */ if(g9.clk){ if(nw.clkAt==null) nw.clkAt=sq.t; if(sq.t-nw.clkAt>=g9.clk) return false; }   // 0612 D1b THE GATE CLOCK — an OPT-IN row key (never an engine law: croak D.gates, KING BEAR's life cell and every keyless king ride this block exactly as before): the wave releases at its gate OR clk s after it first became the next wave with the named boss STANDING (the b9 scan — while he is only in S.queue the gate holds regardless, else a gate could release before its boss exists); the stamp rides the per-battle wave row
         return g9.life? ((b9.kbLife|0)<g9.life) : b9.hp>b9.hpMax*g9.k; }   // 0595: a `life` cell holds the wave while the named boss has not yet reached that life (KING BEAR's ground duel — his mounted bar runs 100 → 0 and refills; a raw fraction would read life two as "still above")
       return S.queue.some(q9=>q9.t===g9.t);
     })(nw.hpGate)) sq.nextT=gateHold(nw,sq);   // 0305 BF-02: the PHASE gate — the next act waits for the NAMED boss to fall (or leak through), never for his army (actGate's whole-field wait would contradict "when he is defeated, it moves to the next phase"); the queue clause closes the not-yet-spawned race (the win door's own idiom)
@@ -125794,7 +125794,7 @@ function update(dt){
     if(f.def.ride && !f.boss && f.x<W-10) updateFoeRide(f,dt);     // 0339: the mounted bandit — the gun that never halts (trample rides the jeep bumper block above)
     if(f.def.bur && !f.boss && f.x<W-10) updateFoeSnake(f,dt);     // 0339: the rattlesnake's burrow machine
     if(f.def.sneak && !f.boss && f.x<W-10) updateFoeSneak(f,dt);   // 0339: the mouse's cloak clock + cheese drop
-    if(f.def.harp && f.x<W-60) updateFoePrincess(f,dt);   // 0947e THE PALACE RAID: PRINCESS CROAK's harp brain (the croak's seat, her own machine)
+    if(f.def.harp && f.x<(pflOn()? W-10 : W-60)) updateFoePrincess(f,dt);   /* CARD-PFL: her brain runs to W-10 like every other boss line (the 8:53 wall softlock) */   // 0947e THE PALACE RAID: PRINCESS CROAK's harp brain (the croak's seat, her own machine)
     if(f.def.croak && f.x<W-60) updateFoeCroak(f,dt);     // 0340: the duel brain — the march walks him ON, then the street is his (0370: BOTH kings — def.croak)
     if(f.def.fan && f.x<W-10) foeFanTick(f,dt);            // 0500: THE OUTLAW SLUG BARRAGE, tan side — a `fan` row storms the crowd in his reach (an overlay on his walk, his drum and his hold; BUFFALO BILL's park row)
     if(f.def.robo) updateFoeRobo(f,dt);                   // FM-GVT-ROBO-01: the rogue robot owns his feet from his first tick — the zig walk-on IS his entrance (west at angles from W+70); both weapons ride his own clocks in every state
@@ -227426,6 +227426,158 @@ function ptpRig(o){ o=o||{}; if(o.depth!=null) PTP.depth=o.depth? 1 : 0; if(o.re
     n:Object.assign({},PTP.n), err:PTP.err, e:PTP.e, key:(function(){ try{ return localStorage.getItem('gvt_ptp'); }catch(e){ return null; } })() }; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.ptp=ptpRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (oreRig's grammar)
 // ═══ END CARD-PTP ═══
+// ═══ CARD-PFL · THE PALACE FLOWS: PRINCESS CROAK'S WAVES COME ON HER BAR, A PURSE FOR EVERY WAVE CLEARED, AND FIVE FIXES (sec:CARD-PFL; design/palace-flows-1110/00-CARD-PFL.md; board J70, lane gvt-p4, jumpr 3221).
+// FROM WYATT, Discord 11/10/2026 16:45 EST (1569830379291025440), his go on Raziya's Princess Croak notes, verbatim: "Yes and get it to the finish line. please analyze this feedback here & create a new task for getting this fight
+// done. Organize the notes into tasks and get it done so we can test again." RAZIYA (11/8, as Fey): "more important is that the spread of the waves is fixed so the game can flow: wave appears, player has a big fight and earns
+// a bunch of dogtags, princess is alone, player pushes forward and deals some damage. at some later threshold, the next wave appears" · "just as important is that the amount of dogtags earned from each wave is substantial".
+// 1 THE WAVES COME ON HER BAR (C1). raidCfg WRAPPED BY NAME shapes the palace's rows (pflShape): every hpGate row of hers carries pfl:1, THE COURT RETURNS (k 0, today on PC_RETURN_CLK alone) take fractions below the last
+//   gate (PFL_RET_K, PFL-Q2), and every group is stamped with its wave (pflW). sqTick's hpGate clause asks pflHold for a pfl row (the one text hunk there): THE WAVE HOLDS while any body of her court stands or is still
+//   to come (pflCourtUp: a non-boss foe; a bubble, a body off the floor and a body neither hurt nor moved for PFL_STILL_S stand aside, the fight always moves), then releases at HER FRACTION of the bar she stands on, or
+//   after PFL_IDLE[tier] seconds counted ONLY while the court is down (the IDLE CLOCK, PFL-Q1: today's PC_GATE_CLK numbers). The referee's word as before (sqRef); every guest follows the relay.
+//   HER WORDS WITH THE BODIES: sqPushWave WRAPPED BY NAME calls pflRelease(n, row) on every sim the moment a wave's bodies are released: the row's bark in her window (rank 3, as her brain said it), the shake, and on
+//   MEDIUM up an arrow row starts THE LIGHT ARROW with it (pflArrowTry; deferred while she retreats or already charges). updateFoePrincess WRAPPED BY NAME empties her D.gates on a pfl fight (her HP latch never speaks
+//   to nobody again). THE SEATS FOR LATER CARDS (CARD-PKB, CARD-PYK): pflRelease(n, row) and pflCleared(n, row, x, y), each wrapped by name.
+// 2 A PURSE FOR EVERY WAVE CLEARED (C2). spawnGroup WRAPPED BY NAME tags every body a wave fields (pflW = its wave number; the bodies sqPushWave fields itself, CARD-PCW's, are tagged by the push); a per-frame pass
+//   (sqTick WRAPPED BY NAME, every sim) finds the frame a released wave's last body is down (none standing, none to come) and calls pflCleared: THE WAVE BONUS (PFL_PURSE[tier], PFL-Q3) flies to the purse from where
+//   the last body stood, the bounty's own blob (S.blobs, smtTagV; x0.95 in a group at the pickup, CARD-GTX). Every player's own purse (a wave cleared is nobody's kill alone). The open's court is a wave too.
+// 3 THE WALL SOFTLOCK (X4, her clip at 8:53). update's call site runs her brain to x < W-10 like every other boss line (the one text hunk there; it was W-60, while her hop could land at W-40 and freeze her mid-hop with no
+//   brain), AND pcLandOK WRAPPED BY NAME refuses a landing east of her band (x > W-80 = 1840): she never lands where she cannot act, and a bar's zero at the wall flies her retreat (pcRetTick lives in the brain).
+// 4 THE POND FROGS STOP AT THE RIM (X3). In the palace, ggShoveStep WRAPPED BY NAME walks a man of yours along this frame's slide (the step's own smoothstep and 10 px hops): a slide that would carry him inside the pool's
+//   brink (r + PIT_KEEP) ends where he stands at the brink, with a splash ring and the splash so the player sees why he slid. The pit stays (CARD-FSD: a fall defeats); a shove that MEANS the fall sets shv.fall = 1
+//   right after ggShove (pflFall(u), CARD-PKB's harp knockback), and the slide runs as shipped. A foe shoved in falls as shipped. PFL-Q4.
+// 5 THE TOAD'S GEAR (X5). drawSargeOutfit and drawSargeWeapon WRAPPED BY NAME paint nothing while u.toadT > 0 (the toad mold wears his helmet already): no boots, jacket, hat, gloves, gun or pack over the frog; his gear returns with him. PFL-Q5.
+// 6 VEHICLES IMMUNE TO THE STING (C7). updateFoeSwoop WRAPPED BY NAME: a vehicle's held-man lease (kyHeldT) the sting raised is put back the same frame; the sting's pips still land. The toad curse scans Sarge only
+//   already (gnCasterTick): no vehicle can be polymorphed.
+// 7 THE BOSS LAB'S TRY AGAIN KEEPS THE LAB (X1, every lab fight). A TRY AGAIN tap on a lost lab fight (S.raid.blb) marks the retry; startRaid WRAPPED BY NAME runs blbLaunch(rk, tier) for it: the same fight, tier, kit,
+//   rules, dials and level (the lab's stock army worn again), never the account's own army. Continue and HEADQUARTERS as today. PFL-Q6.
+// THE SWITCH (CARD-CHE's grammar): ?pfl=0 (device key gvt_pfl) = today's palace and today's five on THIS device outside rooms (the lab's retry rides it too); a party, a room or a spectator (S.coop) always runs the new
+// rules, so two phones run one rule. Zero server bytes, zero sw.js, css, save or wire bytes, zero new words (the barks are her own lines). Two lab RULES rows (PFL_IDLE, PFL_PURSE). GVT.pfl() = the rigs' door. ═══
+const PFL_ON=(function(){ try{ const q=/[?&]pfl=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pfl','0'); else localStorage.removeItem('gvt_pfl'); } return localStorage.getItem('gvt_pfl')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const PFL_IDLE={ e:56, m:48, h:42, g:42 };   // PFL-Q1 THE IDLE CLOCK: a wave comes after this many seconds with her court down, whatever her bar reads (today's PC_GATE_CLK numbers, now counted idle only)
+const PFL_RET_K={ e:[0.25,0.2,0.15,0.1,0.05], m:[0.25,0.2,0.15,0.1,0.05], h:[0.27,0.24,0.21,0.18,0.15,0.12,0.08,0.04], g:[0.22,0.2,0.17,0.15,0.12,0.09,0.07,0.04] };   // PFL-Q2 THE COURT RETURNS on her bar, below the last gate
+const PFL_PURSE={ e:120, m:150, h:180, g:200 };   // PFL-Q3 THE WAVE BONUS: dog tags a wave cleared pays
+const PFL_STILL_S=30;   // a body of her court neither hurt nor moved 24 px for this long holds no wave (a frog on the rim, a fairy hovering alone: the fight always moves)
+const PFL={ n:{ shaped:0, hold:0, rel:0, bark:0, arrow:0, arrowLate:0, clear:0, purse:0, tagged:0, brink:0, toad:0, toadGun:0, sting:0, lab:0, labGo:0, labMiss:0, wall:0 }, err:0, e:'', wrapped:0, lab:null, vk:[] };
+function pflErr(w,e){ PFL.err++; if(PFL.e.length<400) PFL.e+=w+':'+String(e && e.message || e).slice(0,80)+' '; }
+function pflOn(){ return !!(PFL_ON || S.coop); }   // the switch, outside rooms only
+function pflLive(){ return !!(S.cfg && S.cfg.pfl && palaceRaid()); }   // this fight was built with the new rows
+function pflTier(){ const t=S.raid && S.raid.t; return (t==='m' || t==='h' || t==='g')? t : 'e'; }
+function pflNum(T,k,d){ const v=+(T && T[k]); return (isFinite(v) && v>=0)? v : d; }
+function pflState(){ const sq=S.sq; if(!sq) return { w:{}, log:[], hold:null }; return sq.pfl || (sq.pfl={ w:{}, log:[], hold:null }); }
+function pflHer(){ for(const f of S.foes){ if(f && f.def && f.def.harp && !f.dead) return f; } return null; }
+function pflShape(c, tier){   // the palace's rows, shaped once at the build (a pure function of the tier: every sim builds the same rows)
+  const R=PFL_RET_K[tier] || PFL_RET_K.e; let ri=0;
+  c.waves.forEach((w,i)=>{ for(const g of (w.groups||[])) g.pflW=i+1;
+    const G=w.hpGate; if(!G || G.t!=='princess') return;
+    G.pfl=1; G.pflT=tier; if(!(+G.k>0)){ G.k=(ri<R.length)? R[ri] : Math.max(0.01, +((R[R.length-1]||0.05)*0.5).toFixed(3)); G.ret=1; ri++; } });
+  c.pfl=1; PFL.n.shaped++; return c; }
+function pflStill(f){ const t=S.t; if(f.pflSX==null || Math.hypot(f.x-f.pflSX, f.y-f.pflSY)>24 || f.hp!==f.pflSH){ f.pflSX=f.x; f.pflSY=f.y; f.pflSH=f.hp; f.pflST=t; return false; } return (t-f.pflST)>=PFL_STILL_S; }
+function pflOff(f){ return f.x>W+200 || f.x<-60 || f.y<-60 || f.y>WORLD_H+60; }   // far off the floor: holds nothing (a body still walking on from the east door holds: it is coming)
+function pflCourtBody(f){ return !!(f && !f.dead && !f.boss && !(f.def && (f.def.boss || f.def.bubbleOf)) && !pflOff(f) && !pflStill(f)); }
+function pflCourtN(){ let n=0; for(const q of S.queue){ if(q && q.t!=='princess') n++; } for(const f of S.foes){ if(pflCourtBody(f)) n++; } return n; }
+function pflCourtUp(){ for(const q of S.queue){ if(q && q.t!=='princess') return true; } for(const f of S.foes){ if(pflCourtBody(f)) return true; } return false; }
+function pflHold(nw, g9, b9, sq){   // sqTick's hpGate clause on a pfl row (the referee, about once a second): true = the wave holds
+  try{ const P=pflState(), n=S.wave+1, W9=P.w[n] || (P.w[n]={ n }); const t=sq.t;
+    if(W9.t0==null){ W9.t0=+t.toFixed(2); W9.idle=0; W9.up=0; W9.at=t; }
+    const dt=Math.max(0, Math.min(5, t-W9.at)); W9.at=t; PFL.n.hold++;
+    if(pflCourtUp()){ W9.up+=dt; return true; }   // never a wave over standing bodies
+    W9.idle+=dt;
+    if(b9.hp<=b9.hpMax*g9.k){ P.hold={ n, why:'bar', idle:+W9.idle.toFixed(1) }; return false; }   // her fraction, on the bar she stands on
+    const N=pflNum(PFL_IDLE, pflTier(), 56); if(N>0 && W9.idle>=N){ P.hold={ n, why:'idle', idle:+W9.idle.toFixed(1) }; return false; }   // nobody dents her: the next wave anyway
+    return true;
+  }catch(e){ pflErr('hold',e); return b9.hp>b9.hpMax*g9.k; } }
+function pflArrowTry(f){ const D=f && f.duel, H=f && f.def && f.def.harp; if(!(f && f.pflArrow>0) || !D || !H || f.dead || f.pcRet || D.st==='charge') return false;
+  f.pflArrow--; D.st='charge'; D.t=H.arrowT; D.arrows++; f.pcTell=0; f.pcHopT=0; f.hopZ=0; f.pcPluck=0; f.pcU=null;   // her brain's own charge, byte for byte (the dim, the gather, the three bolts)
+  bfSfx(PCV.rise, f.x, f.y); tdLog(f,'arrow-charge',D.arrows); PFL.n.arrow++; return true; }
+function pflRelease(n, w){   // A WAVE'S BODIES ARE RELEASED (every sim, from the relayed wave number): her words and her arrow with them. THE SEAT for CARD-PKB and CARD-PYK (wrap it by name).
+  const P=pflState(), W9=P.w[n] || (P.w[n]={ n }); if(W9.rel!=null) return; W9.rel=+S.t.toFixed(2); W9.born=W9.born|0; PFL.n.rel++;
+  const G=w && w.hpGate, f=pflHer(), h=P.hold; const why=(h && h.n===n)? h.why : ((n===1)? 'open' : (sqRef()? 'push' : 'relay'));
+  W9.why=why; W9.tags0=S.plastic|0; W9.frac=f? +(f.hp/Math.max(1,f.hpMax)).toFixed(3) : null; W9.bar=f? (f.pcLife||1) : null;
+  P.log.push({ ev:'rel', n, t:W9.rel, why, idle:(h && h.n===n)? h.idle : null, frac:W9.frac, bar:W9.bar, tags:W9.tags0, name:(w && w.name) || null });
+  if(!(G && G.pfl) || !f) return;
+  if(G.bark){ commSayAs(princessSpeaker(), G.bark, {rank:3}); PFL.n.bark++; }
+  if(!G.ret && !reducedMotion()) S.shake=Math.max(S.shake,0.2);
+  if(G.arrow && PC_ARROW_TIER[pflTier()]){ f.pflArrow=(f.pflArrow|0)+1; if(!pflArrowTry(f)) PFL.n.arrowLate++; } }
+function pflCleared(n, w, x, y){   // A WAVE CLEARED: the wave bonus to the purse from where its last body stood. THE SEAT for CARD-PKB and CARD-PYK (wrap it by name).
+  const P=pflState(), W9=P.w[n] || (P.w[n]={ n }); const v=Math.round(pflNum(PFL_PURSE, pflTier(), 0)), f=pflHer(); PFL.n.clear++;
+  P.log.push({ ev:'clear', n, t:+S.t.toFixed(2), tags:S.plastic|0, v, frac:f? +(f.hp/Math.max(1,f.hpMax)).toFixed(3) : null, bar:f? (f.pcLife||1) : null, x:Math.round(x||0), y:Math.round(y||0) });
+  if(v>0){ S.blobs.push({ x:(x!=null? x : campDeployX()+60), y:(y!=null? y : WORLD_H/2)-8, v:smtTagV(v), t:0 }); W9.paid=v; PFL.n.purse++; } }
+function pflPass(){   // every frame on every sim: a released wave whose last body is down (none standing, none to come) is cleared once
+  const P=pflState(); for(const k in P.w){ const W9=P.w[k]; if(W9.rel==null || W9.cleared!=null || !(W9.born>0)) continue; const n=+k;
+    let q=0; for(const g of S.queue){ if(g && g.pflW===n) q++; }
+    let a=0; for(const f of S.foes){ if(f && f.pflW===n){ if(!f.dead){ a++; W9.x=f.x; W9.y=f.y; } else if(W9.x==null){ W9.x=f.x; W9.y=f.y; } } }
+    if(q===0 && a===0){ W9.cleared=+S.t.toFixed(2); pflCleared(n, S.cfg.waves[n-1], W9.x, W9.y); } } }
+function pflTag(i0, n){ const P=pflState(), W9=P.w[n] || (P.w[n]={ n }); let k=0; for(const f of S.foes){ if(!f || f.id<i0 || f.pflW!=null || f.boss || (f.def && (f.def.boss || f.def.bubbleOf))) continue; f.pflW=n; k++; } W9.born=(W9.born|0)+k; PFL.n.tagged+=k; return k; }
+function pflFall(u){ if(u && u.shv) u.shv.fall=1; return u; }   // a shove that MEANS the fall (CARD-PKB): right after ggShove; the slide then runs as shipped
+function pflBrink(o, sv, dt){   // this frame's slide walked as the step walks it: the point at the pool's brink it would cross, or null (a rock first, or no pool on the way)
+  const T9=S.cfg && S.cfg.terrain, pits=((T9 && T9.pits) || []).filter(p=>!p.sky); if(!pits.length) return null;
+  const ss=k8=>k8*k8*(3-2*k8), k0=Math.min(1,(sv.dur-sv.t)/sv.dur), t1=sv.t-dt, k1=Math.min(1,(sv.dur-Math.max(0,t1))/sv.dur);
+  let move=(sv.p||GG_PUSH)*(ss(k1)-ss(k0)), x=o.x, y=o.y;
+  while(move>0){ const st=Math.min(10,move); move-=st; const nx=x+sv.x*st, ny=y+sv.y*st;
+    for(const rk of (T9.rocks||[])){ if(Math.hypot(nx-rk.x,ny-rk.y)<rk.r+10) return null; }   // the bonk comes first: as shipped
+    for(const p of pits){ const R=p.r+PIT_KEEP, d0=Math.hypot(x-p.x,y-p.y), d1=Math.hypot(nx-p.x,ny-p.y); if(d1<R && d1<d0) return { x, y, p }; }
+    x=Math.max(40,Math.min(W-40,nx)); y=Math.max(60,Math.min(WORLD_H-84,ny)); }
+  return null; }
+function pflSplash(o, p){ const a=Math.atan2(o.y-p.y, o.x-p.x), sx=p.x+Math.cos(a)*(p.r+6), sy=p.y+Math.sin(a)*(p.r+6);
+  S.fx.push({k:'ring',x:sx,y:sy,r:6,R:34,t:0,dur:0.4,col:'#9FD8F2'}); S.fx.push({k:'ring',x:o.x,y:o.y-6,r:4,R:22,t:0,dur:0.3,col:'#CDEFFF'});
+  try{ if(typeof SFX==='object' && SFX && SFX.boatSplash) bfSfx(SFX.boatSplash, o.x, o.y); }catch(e){} }
+// ── 1 + 2 · THE ROWS, THE RELEASE, THE PASS, THE TAGS
+{ const rc0=raidCfg; raidCfg=function(tier,rk){ const c=rc0.apply(this,arguments); try{ if(c && c.terrain && c.terrain.palace && !c.pfl && pflOn()) pflShape(c, (tier==='m' || tier==='h' || tier==='g')? tier : 'e'); }catch(e){ pflErr('cfg',e); } return c; };
+  PFL.wrapped++; }
+{ const sp0=sqPushWave; sqPushWave=function(n,remote){ const w0=S.wave|0, i0=idc; const r=sp0.apply(this,arguments);
+    try{ if(S.wave>w0 && pflLive()){ const k=S.wave; pflTag(i0, k); pflRelease(k, S.cfg.waves[k-1]); } }catch(e){ pflErr('push',e); }
+    return r; };
+  PFL.wrapped++; }
+{ const sg0=spawnGroup; spawnGroup=function(g,wk9){ const n=(g && g.pflW>0)? g.pflW : 0, i0=idc; const r=sg0.apply(this,arguments);
+    try{ if(n && pflLive()) pflTag(i0, n); }catch(e){ pflErr('tag',e); }
+    return r; };
+  PFL.wrapped++; }
+{ const st0=sqTick; sqTick=function(dt){ const r=st0.apply(this,arguments); try{ if(S.mode==='play' && pflLive()) pflPass(); }catch(e){ pflErr('pass',e); } return r; };
+  PFL.wrapped++; }
+{ const uf0=updateFoePrincess; updateFoePrincess=function(f,dt){
+    let live=false; try{ live=pflLive(); if(live && f && f.pflArrow>0) pflArrowTry(f); }catch(e){ pflErr('arrow',e); }
+    const r=uf0.apply(this,arguments);
+    try{ if(live && f && f.duel && f.duel.gates && f.duel.gates.length) f.duel.gates.length=0; }catch(e){ pflErr('gates',e); }   // her HP latch never speaks on a pfl fight: the release does
+    return r; };
+  PFL.wrapped++; }
+// ── 3 · THE WALL
+{ const pl0=pcLandOK; pcLandOK=function(x,y){ if(pflOn() && x>W-80){ PFL.n.wall++; return false; } return pl0.apply(this,arguments); };
+  PFL.wrapped++; }
+// ── 4 · THE POOL'S BRINK
+{ const gs0=ggShoveStep; ggShoveStep=function(o,dt){
+    try{ const sv=o && o.shv; if(sv && !sv.fall && sv.dur>0 && pflOn() && palaceRaid() && S.units.indexOf(o)>=0){ const B=pflBrink(o, sv, dt);
+      if(B){ o.x=B.x; o.y=B.y; o.shv=null; pflSplash(o, B.p); PFL.n.brink++; tdLog(o,'pfl-brink',[Math.round(o.x),Math.round(o.y)]); return; } } }catch(e){ pflErr('shove',e); }
+    return gs0.apply(this,arguments); };
+  PFL.wrapped++; }
+// ── 5 · THE TOAD
+{ const ds0=drawSargeOutfit; drawSargeOutfit=function(u){ if(u && u.type==='sarge' && u.toadT>0 && pflOn()){ PFL.n.toad++; return; } return ds0.apply(this,arguments); };
+  PFL.wrapped++; }
+{ const dw0=drawSargeWeapon; drawSargeWeapon=function(u){ if(u && u.type==='sarge' && u.toadT>0 && pflOn()){ PFL.n.toadGun++; return; } return dw0.apply(this,arguments); };   // his gun and his pack too: nothing of his floats over the frog
+  PFL.wrapped++; }
+// ── 6 · THE STING
+{ const uw0=updateFoeSwoop; updateFoeSwoop=function(f,dt){
+    let V=null; try{ if(f && f.def && f.def.sting && +f.def.sting.stun>0 && pflOn()){ V=PFL.vk; V.length=0; for(const u of S.units){ if(u && !u.dead && u.def && u.def.vehicle) V.push(u, u.kyHeldT||0); } } }catch(e){ pflErr('sting0',e); V=null; }
+    const r=uw0.apply(this,arguments);
+    try{ if(V) for(let i=0;i<V.length;i+=2){ const u=V[i]; if((u.kyHeldT||0)>V[i+1]){ u.kyHeldT=V[i+1]; PFL.n.sting++; } } }catch(e){ pflErr('sting',e); }
+    return r; };
+  PFL.wrapped++; }
+// ── 7 · THE LAB'S TRY AGAIN
+document.addEventListener('click', function(e){ try{ const b=e.target && e.target.closest && e.target.closest('#retryBtn,#againBtn,#winHqBtn,#bfBtn,#hqBtn'); if(!b) return; PFL.lab=null;
+    if(b.id==='retryBtn' && pflOn() && S.mode!=='play' && S.raid && S.raid.blb && S.raid.blb.rk && typeof blbLaunch==='function'){ PFL.lab={ rk:S.raid.blb.rk, tier:S.raid.blb.tier||S.raid.t, at:Date.now() }; PFL.n.lab++; } }catch(err){ pflErr('lab',err); } }, true);
+{ const sr0=startRaid; startRaid=function(tier){ const L=PFL.lab; PFL.lab=null;
+    try{ if(L && pflOn() && RAID_CUR===L.rk && Date.now()-L.at<180000){ if(blbLaunch(L.rk, L.tier)){ PFL.n.labGo++; return; } PFL.n.labMiss++; } }catch(e){ pflErr('labgo',e); }
+    return sr0.apply(this,arguments); };
+  PFL.wrapped++; }
+// ── THE LAB'S SHEET AND RULES
+{ const bg0=blbGate; blbGate=function(w){ try{ const G=w && w.hpGate; if(G && G.pfl) return 'WAITS FOR HER COURT TO FALL, THEN '+String(G.t||'').toUpperCase()+' AT '+Math.round((+G.k||0)*100)+'% (OR '+Math.round(pflNum(PFL_IDLE, G.pflT || 'e', 56))+' s WITH THE COURT DOWN)'; }catch(e){} return bg0.apply(this,arguments); };
+  PFL.wrapped++; }
+try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES) && !BLB_RULES.some(r=>r[0]==='PFL_IDLE')){ BLB_RULES.push(['PFL_IDLE', ()=>PFL_IDLE, 'THE NEXT WAVE AFTER (s), HER COURT DOWN (CARD-PFL)', 'palace'], ['PFL_PURSE', ()=>PFL_PURSE, 'DOG TAGS A WAVE CLEARED PAYS (CARD-PFL)', 'palace']); if(typeof blbShip==='function' && typeof BLB==='object' && BLB && BLB.ship) blbShip(); } }catch(e){ pflErr('blb',e); }
+function pflRead(o){ o=o||{}; const P=(S.sq && S.sq.pfl) || null, f=pflHer();
+  return { cv:GVT_CV, on:pflOn()? 1 : 0, sw:PFL_ON, live:pflLive(), wrapped:PFL.wrapped, err:PFL.err, e:PFL.e, n:Object.assign({}, PFL.n), dials:{ idle:Object.assign({}, PFL_IDLE), ret:JSON.parse(JSON.stringify(PFL_RET_K)), purse:Object.assign({}, PFL_PURSE), still:PFL_STILL_S },
+    log:P? P.log.slice() : [], waves:P? JSON.parse(JSON.stringify(P.w)) : {}, court:(S.mode==='play' && S.raid)? pflCourtN() : null, her:f? { hp:Math.round(f.hp), max:Math.round(f.hpMax), x:Math.round(f.x), y:Math.round(f.y), life:f.pcLife||1, ret:!!f.pcRet, st:f.duel? f.duel.st : null, hop:+(f.pcHopT||0).toFixed(2), z:+(f.hopZ||0).toFixed(1), arrows:f.duel? f.duel.arrows : 0 } : null,
+    wave:S.wave|0, waves9:(S.cfg && S.cfg.waves)? S.cfg.waves.length : 0, tags:S.plastic|0, lab:PFL.lab }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.pfl) GVT.pfl=function(o){ return pflRead(o); }; }catch(e){} }, 0);
+// ═══ END CARD-PFL ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
