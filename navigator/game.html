@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.39","md5":"748fe42946ecb8bd971d3f1ff2af00b7","sha":"1c16569514","at":"2026-11-11T04:46:13Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.40","md5":"d1dcbb2425673d141511475ad9c4c0f2","sha":"83ac688da2","at":"2026-11-11T05:53:03Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93646,7 +93646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.40';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -126798,6 +126798,7 @@ function update(dt){
           if(u.type==='sarge' && dshRay(u,sh)){ tdLog(sh.src,'arrow-blocked',u.type); continue; }   /* CARD-SHD THE SHIELD'S RULE, seat 4 of 5 (the ray lane): her light ray is a BIG hit: it stops at the shield for a crack and the ray goes on */
           if(petFrBlock(u)){ tdLog(sh.src,'arrow-blocked',u.type); continue; }   // 0947f FRANCIS — THE BLOCK: a light arrow is blocked once (the man is tested once — hit[id]) and the ray goes on
           S.fx.push({k:'ring',x:u.x,y:u.y-24,r:6,R:44,t:0,dur:0.3,col:'#FFFFFF'}); S.fx.push({k:'puff',x:u.x,y:u.y-28,t:0,dur:0.4,R:18,col:'#ffffff'}); S.fx.push({k:'flash',x:u.x,y:u.y-24,ang:0,R:26,lw:3,t:0,dur:0.14});
+          if(pkbArrowHit(u,sh)) continue;   /* CARD-PKB THE KNOCKBACK: her ray pushes him west (a machine a share, short of the water) instead of the quiet kill below */
           if(u.def && u.def.vehicle) u.hits=gritCap(u);
           knockKill(u,true); tdLog(sh.src,'arrow-kill',u.type); }
         if(sh.gone || sh.x<campDeployX()-10) S.shots.splice(i,1);   // the rays end at the deploy line (the toy box is never hit — a man dragged home behind the line is safe: the window)
@@ -227578,6 +227579,234 @@ function pflRead(o){ o=o||{}; const P=(S.sq && S.sq.pfl) || null, f=pflHer();
     wave:S.wave|0, waves9:(S.cfg && S.cfg.waves)? S.cfg.waves.length : 0, tags:S.plastic|0, lab:PFL.lab }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.pfl) GVT.pfl=function(o){ return pflRead(o); }; }catch(e){} }, 0);
 // ═══ END CARD-PFL ═══
+// ═══ CARD-PKB · THE HARP KNOCKS BACK AND THE COURT CASTS (sec:CARD-PKB; design/harp-knockback-1110/00-CARD-PKB.md; board J79, lane gvt-p4, jumpr 3223). Card 2 of 5 cut from Raziya's Princess Croak notes, on Wyatt's go.
+// FROM WYATT, Discord 11/10/2026 16:45 EST (1569830379291025440), verbatim: "Yes and get it to the finish line. please analyze this feedback here & create a new task for getting this fight done. Organize the notes into tasks and get it
+// done so we can test again." RAZIYA (11/8, as Fey), verbatim: "how about a knockback? that can push the player back to the left, maybe SOME units are killed if they get pushed back into pillars, fountains or over the glass
+// covering the water" · "vehicles can be more resistant to the knockback and be much more likely to stop short of the water" · "teleportation could be used to spawn units closer to the line / perilously close to the toybox
+// (with some kind of flashy visual and distinct audio indicators)" · "the wizards probably should hurl a fireball or something. it'll lag too much to strike non-stationary targets from across the room, but closer up, they can
+// wipe out a clump of infantry" · "using an adjusted harp attack to set up a wave could work out better than letting it happen randomly. i.e. the infantry get pushed back, some wizards appear with some melee gnomes in front of
+// the fountains and hold the player's forces at bay there" · "the armored gnomes seem perfect for their damage type. Grenadiers come to mind because there are (and could be many more) small, clustered enemies".
+// 1 THE KNOCKBACK (C5). Her light arrow's bolt on a man of yours PUSHES him west along the bolt (ggShove, PC_ARROW_PUSH px, PKB-Q1) instead of the quiet kill: the one text hunk in update's shots loop asks pkbArrowHit first,
+//   after every reflect has had its say (the commando's charge, the blue wall, the teal, the dome, the mirror blade, the shield, Francis). A column or a fountain stops him with the house's bonk (one pip; the rocks at HEAD,
+//   CARD-PTP's tall footprints with them); the pool is a fall (pflFall: CARD-PFL's road); THE WATER (ggShoveStep WRAPPED BY NAME): a knockback that carries him into the water stairs off a plank is a fall (unitFall's pit door:
+//   CARD-FSD's law, the field's door; PKB-Q2), and a man on a plank slides on across it. THE GLASS: the fight's first knockback cracks the water stairs' sheen where her bolts cross it (the crack, a splash ring and the ice's
+//   crack; painted over the water, under every figure, for the rest of the fight: frbDrawRings WRAPPED BY NAME, paint only). EASY gets the arrow too (PKB-Q3): its 0.5 release (THE GUARD TURNS OUT) carries it with her line
+//   'Hear my harp!' (pflRelease WRAPPED BY NAME, CARD-PFL's seat; PC_ARROW_TIER is left as it is). The arrow's tell is the dim and her gather, as shipped. No man is killed by the light itself any more.
+// 2 VEHICLES HOLD (C6). A machine crossed by her bolt slides PKB_VEH.k (0.3, PKB-Q4) of the push through THIS shove's own gate (ggCanShove stays as it is for every other shove); its slide stops PKB_VEH.bank px short of the
+//   water (off a plank) and at the pool's brink. Infantry are pushed in full ("infantry will always be valuable because of how cheap they are to deploy").
+// 3 THE WAVE ON THE KNOCKBACK'S BEAT (C9, C3). On the release that carries the arrow, the wave's ground court (gnomes, knights, slingers, sages) SPOUTS in front of the two fountains (spawnGroup WRAPPED BY NAME: tight
+//   clusters west of each fountain, PKB_FT.at s after the release = as the bolts fly), with PKB_FT.sage sages a fountain on MEDIUM up (PKB-Q8): the battle moves west, then the player wins the room back.
+// 4 TELEPORTED ARRIVALS (C4). One ground group a wave arrives by THE TELEPORT RING near the line (x 850..950, moved east with a wider line; never on a man, never behind the line, never in a rock, a pit or the water): MEDIUM
+//   up every wave after the open but the arrow's; EASY the returns from the PKB_TP.eFrom-th (PKB-Q5). The ring is fx kind 'pcteleport' (the sheet's key) with a sound of its own (a rising chime and a shimmer).
+// 5 THE SAGE'S FIREBALL (C8). gnCasterTick WRAPPED BY NAME: every PKB_FB.cd s the sage (in the palace, PKB-Q6) hurls a fireball (the sheet's key 'gsagefireball') at the densest clump of your men within PKB_FB.reach; it flies at
+//   PKB_FB.spd px/s on an arc to where they stood, a ring closing on the floor under it (the fair tell); it lands PKB_FB.pips pips (tanHit: every save keeps its say) on every man inside PKB_FB.r and lights a fire patch.
+//   A man who moves is not there. His rings and his curse stay as shipped. The flight steps every frame on every sim (sqTick WRAPPED BY NAME); the ball and the ring paint over the field (skyDraw WRAPPED BY NAME).
+// 6 THE BAZOOKA BITES THE ARMORED GNOMES. rzbBzk WRAPPED BY NAME (the triceratops' own door to splash's vehicle multiplier): THE GNOME KNIGHT in the palace takes the bazooka's x2.4 (VX2_MUL) like a machine (PKB-Q7).
+//   Rockets never start colliding. The arrivals of 3 and 4 come in tight clusters: the grenadier's targets.
+// THE SWITCH (CARD-PFL's grammar): ?pkb=0 (device key gvt_pkb) = today's arrow, arrivals, sage and bazooka on THIS device outside rooms; a party, a room or a spectator (S.coop) always runs the new rules. Zero server,
+// sw.js, css, save or wire bytes; zero new words (her line 'Hear my harp!' is shipped x7). Three lab RULES rows (PC_ARROW_PUSH, PKB_VEH, PKB_FB). No banner over the field (Wyatt 10/22). GVT.pkb() = the rigs' door. ═══
+const PKB_ON=(function(){ try{ const q=/[?&]pkb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pkb','0'); else localStorage.removeItem('gvt_pkb'); } return localStorage.getItem('gvt_pkb')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const PC_ARROW_PUSH={ e:220, m:220, h:220, g:220 };   // PKB-Q1 THE KNOCKBACK: px her bolt pushes a man west, per tier
+const PKB_VEH={ k:0.3, bank:24 };   // PKB-Q4 a machine slides this share of the push, and stops this many px short of the water (off a plank) and at the pool's brink
+const PKB_FT={ at:2.0, sage:{ e:0, m:1, h:1, g:1 }, dx:56 };   // PKB-Q8 THE WAVE AT THE FOUNTAINS: s after the release (her bolts fly at 2.0) · sages a fountain · px west of a fountain's centre
+const PKB_TP={ x0:850, line:90, clear:70, dur:0.8, eFrom:3 };   // PKB-Q5 THE TELEPORT: the band's west edge (x 850..950) · never nearer the line than this · px from any man · the ring's s · EASY: the returns from this one
+const PKB_FB={ cd:9, reach:420, spd:260, r:60, pips:2, arc:70, first:4 };   // PKB-Q6 THE SAGE'S FIREBALL: every (s) · reach (px) · flight (px/s) · splash (px) · pips · the arc's height · his first after (s)
+const PKB_EASY_K=0.5;   // PKB-Q3 EASY's release that carries the arrow (her 0.5 gate: THE GUARD TURNS OUT)
+const PKB_GROUND={ gnome:1, gknight:1, gslinger:1, gsage:1 };   // her court on foot (the groups that spout at the fountains and teleport; wasps, hornets, fairies and frogs come as shipped)
+const PKB={ n:{ push:0, held:0, veh:0, bank:0, water:0, killed:0, crack:0, easyArrow:0, mark:0, ft:0, ftSage:0, tp:0, tpTight:0, fb:0, fbLand:0, fbHit:0, bzk:0 }, err:0, e:'', wrapped:0, fs:null };
+function pkbErr(w,e){ PKB.err++; if(PKB.e.length<400) PKB.e+=w+':'+String(e && e.message || e).slice(0,80)+' '; }
+function pkbOn(){ return !!(PKB_ON || S.coop); }   // the switch, outside rooms only
+function pkbTier(){ const t=S.raid && S.raid.t; return (t==='m' || t==='h' || t==='g')? t : 'e'; }
+function pkbNum(T,k,d){ const v=+(T && T[k]); return (isFinite(v) && v>=0)? v : d; }
+function pkbFs(){ const c=S.cfg||null; if(PKB.fs && PKB.fs.cfg===c) return PKB.fs;   // this fight's own state (a new fight builds a new cfg)
+  return (PKB.fs={ cfg:c, rel:{}, crack:null, fb:[], log:[], push:0, held:0, veh:0, bank:0, water:0, pool:0, bonk:0, tp:0, ft:0, fb0:0, fbHit:0, fbDown:0 }); }
+function pkbLog(ev,o){ const F=pkbFs(); if(F.log.length<400) F.log.push(Object.assign({ ev, t:+S.t.toFixed(2) }, o||{})); }
+function pkbHarp(sh){ const s=sh && sh.src; return !!(s && s.def && s.def.harp && !(sh.bounce|0) && !sh.la); }   // HER OWN ray (a ray thrown back by a knight's shield, and every mod's lane, are not)
+function pkbRiver(){ const T=S.cfg && S.cfg.terrain; return (T && T.river) || null; }
+function pkbWater(x,y){ const RV=pkbRiver(); if(!RV) return false; return x>RV.x-4 && x<RV.x+RV.w+4 && Math.abs(y-rvBridge(RV,y))>RV.bw*0.55; }   // in the water, off the planks (the wade's own test)
+function pkbNearWater(x,y,m){ const RV=pkbRiver(); if(!RV) return false; return x>RV.x-4-m && x<RV.x+RV.w+4+m && Math.abs(y-rvBridge(RV,y))>RV.bw*0.55; }
+function pkbGone(u){ return !!(!u || u.dead || u.falling || u.fellVoid || S.units.indexOf(u)<0); }   // fellVoid: a man the pit took this frame (killed outside the loop)
+function pkbH(a,b,c){ let h=(Math.imul(a|0,374761393)+Math.imul(b|0,668265263)+Math.imul(c|0,1274126177))>>>0; h=Math.imul(h^(h>>>13),1274126177)>>>0; return ((h^(h>>>16))>>>0)/4294967296; }   // a fixed hash (paint and seats: zero dice)
+// ── 1 + 2 · THE KNOCKBACK (asked by the hunk in update's shots loop)
+function pkbArrowHit(u, sh){   // her ray on a man of yours, every reflect already answered: true = THE KNOCKBACK (the kill line below the hunk never runs)
+  if(!pkbOn() || !pkbHarp(sh) || !u || u.dead) return false;
+  try{ const P=pkbNum(PC_ARROW_PUSH, pkbTier(), 220); if(!(P>0)) return false;
+    const F=pkbFs(), ux=(sh.ux!=null? sh.ux : -1), uy=sh.uy||0, veh=!!(u.def && u.def.vehicle);
+    if(veh){ if(pkbVehShove(u, sh, P*pkbNum(PKB_VEH,'k',0.3))){ F.veh++; PKB.n.veh++; } else { F.held++; PKB.n.held++; } }
+    else if(ggCanShove(u)){ ggShove(u, u.x-ux*100, (u.y-18)-uy*100, sh.src, sh, P); if(u.shv){ u.shv.pkb=1; if(typeof pflFall==='function') pflFall(u); } F.push++; PKB.n.push++; }   // along the bolt; the pool takes him (the shove MEANS the fall)
+    else { F.held++; PKB.n.held++; }   // a man no shove moves (the stake): he holds where he stands, unharmed
+    pkbLog('push', { type:u.type, id:u.id, x:Math.round(u.x), y:Math.round(u.y), veh:veh? 1 : 0 });
+    tdLog(sh.src,'arrow-push',u.type); pkbCrack(sh); return true;
+  }catch(e){ pkbErr('hit',e); return false; } }
+function pkbVehShove(u, sh, P){   // THIS shove's own gate for a machine (ggCanShove refuses every machine, and stays so for every other shove)
+  if(!(P>0) || u.dead || u.falling || u.jetT>0 || u.stkT>0 || u.dropT>0 || (u.hp!=null && u.hp<=0)) return false;
+  const ux=(sh.ux!=null? sh.ux : -1), uy=sh.uy||0, d=Math.hypot(ux,uy)||1;
+  u.shv={ t:GG_T, dur:GG_T, x:ux/d, y:uy/d, src:sh.src, p:P, pkb:1, veh:1 };
+  S.fx.push({k:'ring',x:u.x,y:u.y-16,r:4,R:30,t:0,dur:0.22,col:'#CDE6FF'}); if(sh && !sh.whoosh){ sh.whoosh=1; bfSfx(SFX.jet, u.x, u.y); }
+  return true; }
+function pkbWalk(o, sv, dt){   // this frame's slide walked hop by hop as ggShoveStep walks it (its smoothstep, its 10 px hops, its clamps): what it meets first, or null (the house's own step then)
+  const T9=S.cfg && S.cfg.terrain; if(!T9) return null;
+  const ss=k8=>k8*k8*(3-2*k8), k0=Math.min(1,(sv.dur-sv.t)/sv.dur), t1=sv.t-dt, k1=Math.min(1,(sv.dur-Math.max(0,t1))/sv.dur);
+  let move=(sv.p||GG_PUSH)*(ss(k1)-ss(k0)), x=o.x, y=o.y; const veh=!!sv.veh, B=pkbNum(PKB_VEH,'bank',24);
+  while(move>0){ const st=Math.min(10,move); move-=st; const nx=x+sv.x*st, ny=y+sv.y*st;
+    for(const rk of (T9.rocks||[])){ if(Math.hypot(nx-rk.x,ny-rk.y)<rk.r+10) return null; }   // a rock first: the house's bonk, as shipped
+    const x1=Math.max(40,Math.min((S.bf? WORLD_W : W)-40,nx)), y1=roofField()? ny : Math.max(60,Math.min(WORLD_H-84,ny));
+    if(veh){ if(pkbWater(x1,y1) || (pkbNearWater(x1,y1,B) && !pkbNearWater(x,y,B))) return { k:'bank', x, y };   // a machine stops short of the water...
+      for(const p of (T9.pits||[])){ if(p.sky) continue; const R=p.r+PIT_KEEP, d0=Math.hypot(x-p.x,y-p.y), d1=Math.hypot(x1-p.x,y1-p.y); if(d1<R && d1<d0) return { k:'bank', x, y, pool:1 }; } }   // ...and at the pool's brink
+    else { if(voidAt(x1,y1)) return null;   // the pool: the house's fall
+      if(pkbWater(x1,y1)) return { k:'water', x:x1, y:y1 }; }   // off a plank into the water: a fall
+    x=x1; y=y1; }
+  return null; }
+function pkbSplash(x,y){ S.fx.push({k:'ring',x:x,y:y-2,r:6,R:40,t:0,dur:0.45,col:'#9FD8F2'}); S.fx.push({k:'ring',x:x,y:y-6,r:4,R:22,t:0,dur:0.3,col:'#E4F6FF'}); S.fx.push({k:'puff',x:x,y:y-8,t:0,dur:0.4,R:16,col:'#DDF3FF'});
+  try{ if(typeof SFX==='object' && SFX && SFX.boatSplash) bfSfx(SFX.boatSplash, x, y); }catch(e){} }
+// ── 1 · THE GLASS: the fight's first knockback cracks the water stairs' sheen where her bolts cross it
+function pkbCrackStar(x,y,i){ const rays=[], N=8; for(let k=0;k<N;k++){ const a=(k+0.6*pkbH(k*13+i*7, y, 17))*2*Math.PI/N, L=24+22*pkbH(k, i*5+y, 29), pts=[[0,0]]; let px=0, py=0;
+    for(let s=1;s<=3;s++){ const aa=a+(pkbH(k*3+s, y+i, 41)-0.5)*0.8, l=L/3; px+=Math.cos(aa)*l; py+=Math.sin(aa)*l*0.85; pts.push([+px.toFixed(1), +py.toFixed(1)]); } rays.push(pts); }
+  return { x, y, rays }; }
+function pkbCrack(sh){ const F=pkbFs(); if(F.crack) return; const RV=pkbRiver(); if(!RV){ F.crack={ none:1 }; return; }
+  const her=sh && sh.src, xc=RV.x+RV.w/2, ys=[]; for(const s of S.shots){ if(s && s.k==='lightarrow' && s.src===her && !(s.bounce|0) && ys.indexOf(Math.round(s.y0))<0) ys.push(Math.round(s.y0)); }
+  if(!ys.length) ys.push(Math.round(sh.y0!=null? sh.y0 : sh.y)); ys.sort((a,b)=>a-b);
+  const pts=[]; for(const y of ys){ if(pkbWater(xc,y)) pts.push(pkbCrackStar(xc,y,pts.length)); }
+  if(!pts.length){ const m=ys[(ys.length/2)|0]; for(const d of [60,-60,100,-100,140,-140]){ if(pkbWater(xc,m+d)){ pts.push(pkbCrackStar(xc,m+d,0)); break; } } }   // every lane on a plank: the nearest water
+  F.crack={ t:S.t, rv:{ x:RV.x, w:RV.w, bw:RV.bw, by:rvBridges(RV).slice() }, pts }; PKB.n.crack++;
+  for(const p of pts){ S.fx.push({k:'ring',x:p.x,y:p.y,r:6,R:46,t:0,dur:0.5,col:'rgba(220,244,255,0.95)'}); S.fx.push({k:'puff',x:p.x,y:p.y-4,t:0,dur:0.45,R:16,col:'#DDF3FF'}); }
+  if(pts.length){ const p=pts[0]; try{ bfSfx(SFX.icecrack, p.x, p.y); if(SFX.boatSplash) bfSfx(SFX.boatSplash, p.x, p.y); }catch(e){} }
+  pkbLog('crack', { n:pts.length, y:pts.map(p=>p.y) }); }
+function pkbCrackDraw(){ const F=PKB.fs; if(!F || F.cfg!==S.cfg || !F.crack || !F.crack.pts || !F.crack.pts.length) return; const C=F.crack, RV=C.rv, RM=reducedMotion();
+  const k=RM? 1 : Math.max(0,Math.min(1,(S.t-C.t)/0.28)), hb=RV.bw/2;
+  cx.save(); cx.beginPath(); let y0=-40; for(const by of C.rv.by.slice().sort((a,b)=>a-b)){ cx.rect(RV.x-3, y0, RV.w+6, Math.max(0, by-hb-y0)); y0=by+hb; } cx.rect(RV.x-3, y0, RV.w+6, WORLD_H+80-y0); cx.clip();   // the water alone, never the planks
+  cx.lineCap='round'; cx.lineJoin='round';
+  for(const p of C.pts){ for(let pass=0;pass<2;pass++){ const o9=pass? 0 : 0.9; cx.strokeStyle=pass? 'rgba(240,250,255,0.92)' : 'rgba(24,62,104,0.4)'; cx.lineWidth=pass? 1.4 : 3;
+      for(const r of p.rays){ cx.beginPath(); cx.moveTo(p.x+o9, p.y+o9); for(let s=1;s<r.length;s++) cx.lineTo(p.x+r[s][0]*k+o9, p.y+r[s][1]*k+o9); cx.stroke(); }
+      for(const s of [1,2]){ cx.beginPath(); p.rays.forEach((r,j)=>{ const q=r[s]; if(j) cx.lineTo(p.x+q[0]*k+o9, p.y+q[1]*k+o9); else cx.moveTo(p.x+q[0]*k+o9, p.y+q[1]*k+o9); }); cx.closePath(); cx.stroke(); } }   // the web: two rings joining the rays (glass, not ice)
+    cx.fillStyle='rgba(255,255,255,0.9)'; cx.beginPath(); cx.arc(p.x,p.y,2.2,0,7); cx.fill(); }
+  cx.restore(); }
+// ── 3 + 4 · THE ARRIVALS: the fountains on the arrow's beat, the teleport near the line
+function pkbFountains(){ const R=(S.cfg && S.cfg.terrain && S.cfg.terrain.rocks) || []; return R.filter(k=>k && k.art==='fountain' && !k.ptpFoot).slice().sort((a,b)=>a.y-b.y); }
+function pkbFree(x,y,pad){ const T9=S.cfg && S.cfg.terrain; if(!T9) return true; if(y<FOE_TOP+16 || y>FOE_BOT-16) return false;
+  for(const rk of (T9.rocks||[])){ if(Math.hypot(x-rk.x,y-rk.y)<rk.r+pad) return false; }
+  for(const p of (T9.pits||[])){ if(Math.hypot(x-p.x,y-p.y)<p.r+pad) return false; }
+  return !pkbNearWater(x,y,pad); }
+function pkbCluster(cx9,cy9,n,west){ const pts=[];   // a tight cluster (a sunflower: about 30 px between neighbours), every seat on the floor, west of the anchor when asked
+  for(let i=0;i<n;i++){ const r=18*Math.sqrt(i), a=i*2.39996; let dx=r*Math.cos(a), dy=r*Math.sin(a)*0.8; if(west) dx=-Math.abs(dx); let x=cx9+dx, y=cy9+dy;
+    for(let g=0;g<8 && !pkbFree(x,y,10);g++){ x-=10; y+=(y<cy9)? 4 : (y>cy9? -4 : 0); }
+    pts.push([Math.round(x), Math.round(Math.max(FOE_TOP+16, Math.min(FOE_BOT-16, y)))]); }
+  return pts; }
+function pkbClear(x,y){ let m=1e9; for(const u of S.units){ if(!u || u.dead) continue; const d=Math.hypot(u.x-x,u.y-y); if(d<m) m=d; } return m; }
+function pkbTpPick(n, gi, nb){   // the ring's seat: a fixed list near the line in an order fixed by (wave, group, tier); the first with every man PKB_TP.clear px past the cluster's own edge, else the clearest
+  const xs=[850,875,900,925,950], ys=[180,250,320,390,460,530], C=[], T='emhg'.indexOf(pkbTier()); for(const x of xs) for(const y of ys) C.push([x,y]);
+  C.sort((a,b)=>(pkbH(a[0],a[1],n*31+gi*7+T)-pkbH(b[0],b[1],n*31+gi*7+T)) || (a[0]-b[0]) || (a[1]-b[1]));
+  const dx=Math.max(0, campDeployX()+pkbNum(PKB_TP,'line',90)-pkbNum(PKB_TP,'x0',850)), need=pkbNum(PKB_TP,'clear',70)+18*Math.sqrt(Math.max(0,(nb|0)-1)); let best=null, bc=-1;
+  for(const c of C){ const x=c[0]+dx, y=c[1]; if(!pkbFree(x,y,34)) continue; const cl=pkbClear(x,y); if(cl>=need) return { x, y, cl:Math.round(cl) }; if(cl>bc){ bc=cl; best={ x, y, cl:Math.round(cl) }; } }
+  return best; }
+function pkbTpSfx(){ tone(660,1320,0.22,'sine',0.05); tone(990,1980,0.3,'triangle',0.04); setTimeout(()=>{ tone(1320,2640,0.28,'sine',0.035); noise(0.18,0.035,6000); },90); }   // THE TELEPORT's own voice: a rising chime and a shimmer
+function pkbSpawnAt(sg, self, g, wk9, pts){   // the group born at these seats through the house's spout (spawnGroup's own dice, CARD-PFL's tags), its per-seat white ring and thump left out (the caller says where it came)
+  const g2=Object.assign({}, g, { f:'spout', pts, per:1, quiet:1, pkbDone:1 }); const n0=S.fx.length, b0=bfSfx; let r;
+  bfSfx=function(fn,x,y){ if(fn===SFX.thump) return; return b0.apply(this,arguments); };
+  try{ r=sg.call(self, g2, wk9); } finally { bfSfx=b0; }
+  for(let i=S.fx.length-1;i>=n0;i--){ const e=S.fx[i]; if(e && e.k==='ring' && e.col==='#ffffff' && e.R===44) S.fx.splice(i,1); }
+  return r; }
+function pkbArrive(sg, self, g, wk9){   // a marked group of her court arrives at the fountains or by the teleport ring; false = as shipped
+  const F=pkbFs(), n=Math.max(1, g.n|0);
+  if(g.pkbFt){ const FT=pkbFountains(); if(!FT.length) return false; const dx=pkbNum(PKB_FT,'dx',56), pts=[];
+    const per=FT.map((k,i)=>Math.floor(n/FT.length)+(i<n%FT.length? 1 : 0)); FT.forEach((k,i)=>{ for(const p of pkbCluster(k.x-dx, k.y, per[i], true)) pts.push(p); });
+    const r=pkbSpawnAt(sg, self, g, wk9, pts); F.ft+=pts.length; PKB.n.ft+=pts.length;
+    const ns=g.pkbFtLead? (pkbNum(PKB_FT.sage, pkbTier(), 0)|0) : 0;
+    if(ns>0){ const sp=[]; FT.forEach(k=>{ for(let j=0;j<ns;j++) sp.push([Math.round(k.x-dx-22-j*24), Math.round(k.y+(j%2? 22 : -22))]); });
+      pkbSpawnAt(sg, self, Object.assign({}, g, { t:'gsage', n:sp.length, pkbFt:0, pkbFtLead:0 }), wk9, sp); F.ft+=sp.length; PKB.n.ftSage+=sp.length; }
+    for(const k of FT){ pkbSplash(k.x-dx, k.y); }
+    pkbLog('fountains', { n:pts.length, sages:ns*FT.length, t9:g.t, w:g.pflW|0 }); return (r===undefined)? true : r; }
+  if(g.pkbTp){ const P=pkbTpPick(g.pflW|0, g.pkbTpI|0, n); if(!P) return false; const pts=pkbCluster(P.x, P.y, n, false);
+    const r=pkbSpawnAt(sg, self, g, wk9, pts); F.tp++; PKB.n.tp++; if(P.cl<pkbNum(PKB_TP,'clear',70)+18*Math.sqrt(n-1)) PKB.n.tpTight++;
+    S.fx.push({k:'pcteleport', x:P.x, y:P.y, t:0, dur:pkbNum(PKB_TP,'dur',0.8), n:pts.length}); S.fx.push({k:'ring',x:P.x,y:P.y,r:10,R:70,t:0,dur:0.5,col:'#F28BD8',lw:4});
+    bfSfx(pkbTpSfx, P.x, P.y); if(!reducedMotion()) S.shake=Math.max(S.shake,0.2);
+    pkbLog('teleport', { x:P.x, y:P.y, cl:P.cl, n:pts.length, t9:g.t, w:g.pflW|0, pts }); return (r===undefined)? true : r; }
+  return false; }
+function pkbRetIdx(n){ const W9=S.cfg.waves; if(!W9[n-1] || !W9[n-1].hpGate || !W9[n-1].hpGate.ret) return 0; let k=0; for(let i=0;i<n;i++){ const G=W9[i].hpGate; if(G && G.ret) k++; } return k; }
+function pkbOnRelease(n, w){   // CARD-PFL's release seat (every sim, the moment wave n's bodies are released): EASY's arrow, then the marks on wave n's queued groups (the fountains, the teleport)
+  const F=pkbFs(); if(F.rel[n]) return; F.rel[n]=1;
+  const G=w && w.hpGate, T=pkbTier(), f=pflHer(); let arrow=!!(G && G.pfl && G.arrow && PC_ARROW_TIER[T]);
+  if(!arrow && T==='e' && G && G.pfl && !G.ret && Math.abs((+G.k||0)-PKB_EASY_K)<1e-6 && f){   // EASY's arrow (PKB-Q3): her line, then her own charge (CARD-PFL's pflArrowTry, deferred while she is busy)
+    if(!G.bark) commSayAs(princessSpeaker(), 'Hear my harp!', {rank:3});
+    f.pflArrow=(f.pflArrow|0)+1; pflArrowTry(f); PKB.n.easyArrow++; arrow=true; pkbLog('easyArrow', { n }); }
+  const Q=S.queue.filter(q=>q && q.pflW===n && !q.pkbDone), ground=q=>PKB_GROUND[q.t]===1 && q.f!=='spout';
+  if(arrow){ let lead=true; for(const q of Q){ if(!ground(q)) continue; q.pkbFt=1; if(lead){ q.pkbFtLead=1; lead=false; } q.at=Math.max(+q.at||0, S.waveT+pkbNum(PKB_FT,'at',2)); PKB.n.mark++; } return; }
+  if(n<=1) return;   // the open's court walks in as shipped
+  if(T==='e' && pkbRetIdx(n)<pkbNum(PKB_TP,'eFrom',3)) return;
+  const cand=Q.filter(ground); if(!cand.length) return; const pick=cand.find(q=>q.t==='gnome') || cand[0]; pick.pkbTp=1; pick.pkbTpI=Q.indexOf(pick); PKB.n.mark++; }
+// ── 5 · THE SAGE'S FIREBALL
+function pkbFbOn(f){ return !!(f && !f.dead && f.def && f.def.caster && pkbOn() && palaceRaid() && S.mode==='play'); }
+function pkbFbAim(f){ const R=pkbNum(PKB_FB,'reach',420), rr=pkbNum(PKB_FB,'r',60), G=[];   // the densest clump of your men within his reach (its men's middle); ties: the nearer, then the lower id
+  for(const u of S.units){ if(!u || u.dead || u.jetT>0 || u.falling || u.dropT>0 || u.cloakT>0 || u.burrow || u.trk) continue; if(S.drag && S.drag.unit===u) continue; if(Math.hypot(u.x-f.x,u.y-f.y)>R) continue; G.push(u); }
+  if(!G.length) return null; let best=null, bn=0, bd=1e9;
+  for(const u of G){ let n=0; for(const v of G) if(Math.hypot(v.x-u.x,v.y-u.y)<=rr) n++; const d=Math.hypot(u.x-f.x,u.y-f.y); if(n>bn || (n===bn && (d<bd-1e-6 || (Math.abs(d-bd)<=1e-6 && (u.id|0)<(best.id|0))))){ bn=n; bd=d; best=u; } }
+  let sx=0, sy=0, k=0; for(const v of G){ if(Math.hypot(v.x-best.x,v.y-best.y)<=rr){ sx+=v.x; sy+=v.y; k++; } } return { x:sx/k, y:sy/k, n:bn }; }
+function pkbFbTick(f, dt){ if(f.pkbFbCd==null) f.pkbFbCd=pkbNum(PKB_FB,'first',4); f.pkbFbCd-=dt*fzTick(f);
+  if(f.pkbFbCd>0 || f.gnRaise>0 || f.gnRingT>0 || f.gnCurse>0) return;   // never mid-spell (his rings, his curse)
+  const A=pkbFbAim(f); if(!A){ f.pkbFbCd=0.5; return; }   // nobody in reach: he looks again in half a second
+  f.pkbFbCd=pkbNum(PKB_FB,'cd',9); const hx=f.x-14, d=Math.hypot(A.x-hx, A.y-f.y), dur=Math.max(0.3, d/Math.max(1, pkbNum(PKB_FB,'spd',260)));
+  const F=pkbFs(); F.fb.push({ k:'gsagefireball', src:f, fx:hx, fy:f.y, h0:40, ex:A.x, ey:A.y, t:0, dur, n:A.n }); F.fb0++; PKB.n.fb++;
+  foeAim(f, A); S.fx.push({k:'ring',x:hx,y:f.y-40,r:4,R:20,t:0,dur:0.25,col:'#FF9A3A'}); bfSfx(SFX.wwhoosh, f.x, f.y);
+  pkbLog('throw', { x:Math.round(A.x), y:Math.round(A.y), n:A.n, dur:+dur.toFixed(2), sx:Math.round(f.x), sy:Math.round(f.y) }); }
+function pkbFbSrc(B){ return { type:'gsage', x:B.fx, y:B.fy, dead:false, hp:null, def:FDEF.gsage || {}, pipN:0, id:-1 }; }   // a ball whose sage fell in its flight still lands (a blameless stand-in)
+function pkbFbLand(B){ const R=pkbNum(PKB_FB,'r',60), P=pkbNum(PKB_FB,'pips',2), F=pkbFs(), s=(B.src && !B.src.dead && S.foes.indexOf(B.src)>=0)? B.src : pkbFbSrc(B); let hit=0, down=0;
+  for(const u of S.units.slice()){ if(!u || u.dead || u.jetT>0 || u.falling || u.dropT>0) continue; if(Math.hypot(u.x-B.ex,u.y-B.ey)>R) continue;
+    const p0=s.pipN; s.pipN=P; try{ tanHit(u, B.ex, B.ey, s, 1); } finally { s.pipN=p0||0; } hit++; if(pkbGone(u)) down++; }
+  fsIgnite(B.ex, B.ey, s, R, FS_LIFE);
+  S.fx.push({k:'ring',x:B.ex,y:B.ey,r:8,R:R+10,t:0,dur:0.45,col:'#FF7A2A'}); S.fx.push({k:'puff',x:B.ex,y:B.ey-8,t:0,dur:0.5,R:24,col:'#FFB25A'}); S.fx.push({k:'flash',x:B.ex,y:B.ey-10,ang:0,R:30,lw:4,t:0,dur:0.18});
+  bfSfx(SFX.boom, B.ex, B.ey); if(!reducedMotion()) S.shake=Math.max(S.shake,0.18);
+  F.fbHit+=hit; F.fbDown+=down; PKB.n.fbLand++; PKB.n.fbHit+=hit; pkbLog('fireball', { x:Math.round(B.ex), y:Math.round(B.ey), aimN:B.n, hit, down }); }
+function pkbFbStep(dt){ const F=PKB.fs; if(!F || F.cfg!==S.cfg || !F.fb.length) return; const keep=[];
+  for(const B of F.fb){ B.t+=dt; if(B.t>=B.dur){ pkbFbLand(B); continue; } keep.push(B); } F.fb=keep; }
+function pkbFbXY(B,k){ const gx=B.fx+(B.ex-B.fx)*k, gy=B.fy+(B.ey-B.fy)*k, h=B.h0*(1-k)+Math.sin(Math.PI*k)*pkbNum(PKB_FB,'arc',70); return [gx, gy, gy-h]; }   // the ground under the ball, and the ball
+function pkbFbDraw(){ const F=PKB.fs; if(!F || F.cfg!==S.cfg || !F.fb.length) return; const R=pkbNum(PKB_FB,'r',60), RM=reducedMotion();
+  for(const B of F.fb){ const k=Math.max(0,Math.min(1,B.t/B.dur)), q=pkbFbXY(B,k), rr=R*(1-0.7*k)+6; cx.save();
+    cx.globalAlpha=0.3+0.45*k; cx.strokeStyle='#FF7A2A'; cx.lineWidth=2; cx.setLineDash([7,5]); cx.beginPath(); cx.ellipse(B.ex,B.ey,rr,rr*0.45,0,0,7); cx.stroke(); cx.setLineDash([]);   // the fair tell: the ring closing on where it lands
+    cx.globalAlpha=0.16+0.22*k; cx.fillStyle='#000'; cx.beginPath(); cx.ellipse(q[0],q[1],7+5*k,3+2.5*k,0,0,7); cx.fill();   // its shadow on the floor
+    if(!RM) for(let j=4;j>=1;j--){ const p=pkbFbXY(B, Math.max(0,k-j*0.035)); cx.globalAlpha=0.55*(1-j/5); cx.fillStyle=(j>2)? '#E2471B' : '#FF8A3A'; cx.beginPath(); cx.arc(p[0],p[2],Math.max(1.5,8.5-j*1.4),0,7); cx.fill(); }   // the trail
+    const fl=RM? 1 : 1+0.12*Math.sin(S.t*31+B.fx); cx.globalAlpha=0.32; cx.fillStyle='#FF9A3A'; cx.beginPath(); cx.arc(q[0],q[2],15*fl,0,7); cx.fill();
+    cx.globalAlpha=1; const gr=cx.createRadialGradient(q[0]-2,q[2]-2,1,q[0],q[2],10*fl); gr.addColorStop(0,'#FFFBE0'); gr.addColorStop(0.45,'#FFC23A'); gr.addColorStop(1,'#E2471B'); cx.fillStyle=gr; cx.beginPath(); cx.arc(q[0],q[2],9*fl,0,7); cx.fill();
+    cx.restore(); } }
+function pkbStar(x,y,r){ cx.beginPath(); cx.moveTo(x,y-r*1.8); cx.lineTo(x+r*0.45,y-r*0.45); cx.lineTo(x+r*1.8,y); cx.lineTo(x+r*0.45,y+r*0.45); cx.lineTo(x,y+r*1.8); cx.lineTo(x-r*0.45,y+r*0.45); cx.lineTo(x-r*1.8,y); cx.lineTo(x-r*0.45,y-r*0.45); cx.closePath(); cx.fill(); }
+function pkbTpDraw(){ for(const e of S.fx){ if(!e || e.k!=='pcteleport') continue; const k=Math.max(0,Math.min(1,e.t/e.dur)), RM=reducedMotion(); cx.save();   // THE TELEPORT RING: a column of light, two rings on the floor, the sparks
+    if(!RM){ const a=(k<0.25? k/0.25 : 1-(k-0.25)/0.75)*0.55, g=cx.createLinearGradient(0,e.y-150,0,e.y); g.addColorStop(0,'rgba(255,214,250,0)'); g.addColorStop(1,'rgba(255,214,250,'+a.toFixed(3)+')'); cx.fillStyle=g; cx.fillRect(e.x-24,e.y-150,48,150); }
+    const r1=18+46*k, r2=10+64*Math.min(1,k*1.4); cx.globalAlpha=1-k; cx.lineWidth=4*(1-k)+1.5; cx.strokeStyle='#F28BD8'; cx.beginPath(); cx.ellipse(e.x,e.y,r1,r1*0.42,0,0,7); cx.stroke();
+    cx.strokeStyle='#FFE27A'; cx.lineWidth=2.5*(1-k)+1; cx.beginPath(); cx.ellipse(e.x,e.y,r2,r2*0.42,0,0,7); cx.stroke();
+    if(!RM){ cx.fillStyle='#FFFFFF'; for(let i=0;i<8;i++){ const a=i*Math.PI/4+k*3, rr=24+40*k; cx.globalAlpha=(1-k)*0.95; pkbStar(e.x+Math.cos(a)*rr, e.y-10+Math.sin(a)*rr*0.42-40*k*(i%2), 3.5*(1-k)+1.2); } }
+    cx.restore(); } }
+// ── THE WRAPS (each by name, each the last of its name on the page)
+{ const pr0=pflRelease; pflRelease=function(n,w){ const r=pr0.apply(this,arguments); try{ if(pkbOn() && pflLive()) pkbOnRelease(n,w); }catch(e){ pkbErr('rel',e); } return r; };
+  PKB.wrapped++; }
+{ const sg0=spawnGroup; spawnGroup=function(g,wk9){
+    try{ if(g && !g.pkbDone && (g.pkbFt || g.pkbTp) && pkbOn() && pflLive()){ const r=pkbArrive(sg0, this, g, wk9); if(r!==false) return; } }catch(e){ pkbErr('spawn',e); }
+    return sg0.apply(this,arguments); };
+  PKB.wrapped++; }
+{ const gs0=ggShoveStep; ggShoveStep=function(o,dt){
+    const sv=o && o.shv; let watch=false, d0=false;
+    try{ if(sv && sv.pkb && sv.dur>0 && pkbOn()){ watch=true; d0=pkbGone(o); const B=pkbWalk(o, sv, dt);
+        if(B && B.k==='bank'){ o.x=B.x; o.y=B.y; o.shv=null; pkbFs().bank++; PKB.n.bank++; S.fx.push({k:'ring',x:o.x,y:o.y-4,r:6,R:26,t:0,dur:0.3,col:'#CDE6FF'}); tdLog(o,'pkb-bank',[Math.round(o.x),Math.round(o.y)]); return; }
+        if(B && B.k==='water'){ o.x=B.x; o.y=B.y; o.shv=null; pkbSplash(o.x,o.y); pkbFs().water++; PKB.n.water++; PKB.n.killed++; pkbLog('water', { type:o.type, id:o.id, x:Math.round(o.x), y:Math.round(o.y) }); unitFall(o,{kind:'pit'}); return; } } }catch(e){ pkbErr('step',e); watch=false; }
+    const r=gs0.apply(this,arguments);
+    try{ if(watch && !d0 && pkbGone(o)){ const F=pkbFs(), pool=!!voidAt(o.x,o.y); if(pool) F.pool++; else F.bonk++; PKB.n.killed++; pkbLog(pool? 'pool' : 'bonk', { type:o.type, id:o.id, x:Math.round(o.x), y:Math.round(o.y) }); } }catch(e){ pkbErr('step2',e); }
+    return r; };
+  PKB.wrapped++; }
+{ const gc0=gnCasterTick; gnCasterTick=function(f,dt){ const r=gc0.apply(this,arguments); try{ if(pkbFbOn(f)) pkbFbTick(f,dt); }catch(e){ pkbErr('fb',e); } return r; };
+  PKB.wrapped++; }
+{ const st0=sqTick; sqTick=function(dt){ const r=st0.apply(this,arguments); try{ if(S.mode==='play') pkbFbStep(dt); }catch(e){ pkbErr('fbstep',e); } return r; };
+  PKB.wrapped++; }
+{ const rb0=rzbBzk; rzbBzk=function(f){ if(f && f.type==='gknight' && pkbOn() && palaceRaid()){ PKB.n.bzk++; return true; } return rb0.apply(this,arguments); };   // THE KNIGHT takes the machine's multiplier (splash's one reader of this door)
+  PKB.wrapped++; }
+{ const fd0=frbDrawRings; frbDrawRings=function(){ try{ pkbCrackDraw(); }catch(e){ pkbErr('crack',e); } return fd0.apply(this,arguments); };   // over the rug and the boxes, under every figure
+  PKB.wrapped++; }
+{ const sd0=skyDraw; skyDraw=function(){ const r=sd0.apply(this,arguments); try{ pkbTpDraw(); pkbFbDraw(); }catch(e){ pkbErr('draw',e); } return r; };   // the bomber overlay's layer: over the figures, under the words
+  PKB.wrapped++; }
+try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES) && !BLB_RULES.some(r=>r[0]==='PC_ARROW_PUSH')){ BLB_RULES.push(['PC_ARROW_PUSH', ()=>PC_ARROW_PUSH, "HER HARP'S KNOCKBACK (px) (CARD-PKB)", 'palace'], ['PKB_VEH', ()=>PKB_VEH, 'A MACHINE: k (share of the push) · bank (px short of the water) (CARD-PKB)', 'palace'], ['PKB_FB', ()=>PKB_FB, "THE SAGE'S FIREBALL: cd · reach · spd · r · pips · arc · first (CARD-PKB)", 'palace']); if(typeof blbShip==='function' && typeof BLB==='object' && BLB && BLB.ship) blbShip(); } }catch(e){ pkbErr('blb',e); }
+function pkbRead(){ const F=(PKB.fs && PKB.fs.cfg===S.cfg)? PKB.fs : null;
+  return { cv:GVT_CV, on:pkbOn()? 1 : 0, sw:PKB_ON, wrapped:PKB.wrapped, err:PKB.err, e:PKB.e, n:Object.assign({}, PKB.n),
+    dials:{ push:Object.assign({}, PC_ARROW_PUSH), veh:Object.assign({}, PKB_VEH), ft:JSON.parse(JSON.stringify(PKB_FT)), tp:Object.assign({}, PKB_TP), fb:Object.assign({}, PKB_FB), easyK:PKB_EASY_K },
+    fs:F? { crack:F.crack? { t:F.crack.t, n:(F.crack.pts||[]).length, pts:(F.crack.pts||[]).map(p=>[p.x,p.y]) } : null, push:F.push, held:F.held, veh:F.veh, bank:F.bank, water:F.water, pool:F.pool, bonk:F.bonk, tp:F.tp, ft:F.ft, fb:F.fb0, fbHit:F.fbHit, fbDown:F.fbDown, flying:F.fb.length, log:F.log.slice(-200) } : null }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.pkb) GVT.pkb=function(o){ return pkbRead(o); }; }catch(e){} }, 0);
+// ═══ END CARD-PKB ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
