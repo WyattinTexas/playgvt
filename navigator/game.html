@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.31","md5":"b4c08ffe9c67918d0d282d89c62fd76d","sha":"0909de2ba5","at":"2026-11-11T00:31:33Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.32","md5":"4babea3630755f4e5dfbe7bfb5009eea","sha":"d2987cc712","at":"2026-11-11T00:59:39Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93646,7 +93646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -219419,6 +219419,90 @@ function rpsRead(o){ o=o||{}; try{ if(o.zero){ RPS.err=0; RPS.e=''; RPS.n=0; RPS
     sheet:m? { row:!!row, ring:ring? ring.id : null, now:now? now.id : null, rows:m.querySelectorAll('.rcp-row').length, note:!!(now && now.querySelector('.rps-nt svg')) } : null, err:RPS.err, e:RPS.e }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.rps) GVT.rps=rpsRead; }catch(e){} }, 0);   // the late attach (CARD-BVX's grammar)
 // ═══ END CARD-RPS ═══
+// ═══ CARD-FSP THE FILM HAS THE SPEAKER (sec:CARD-FSP; design/film-has-speaker-1110/00-CARD-FSP.md; jumpr 3205, board M3205, built on Maker 1;
+// WYATT by phone 11/10/2026 14:32 EST (jumpr remote, sent 19:32:16 UTC), dictated, verbatim: "Bug report: When entering Bear Park and the cinematic loaded, the music for Bear Park kept playing, so there were two music
+//   tracks going on at the same time.")
+// BEFORE (v31.19): the twelve first-open films share ONE hush, snduHush (CARD-SND): it wrote zero ONCE into the two volume knobs that stood at the moment the film mounted (the place's bed LOC.g, the theme THEME.g), and the
+//   music engine was never told a film stands. So whatever came after that write played under the film, on top of the film's own music (measured on v31.19 in Chrome, the level of the game's own sound at the speaker while
+//   THE EMPEROR'S NEW FOES played: design/film-has-speaker-1110/logs/probe-base-*.log):
+//     THE TOLL, every player's first walk into BEAR PARK: tollTake's pay path is closeBarricade() then openParkScene('teddy'). closeBarricade knocks the room's music back (locSync + themeHome: CARD-BMR, written when the
+//       park opened in the same breath). Since CARD-ENF the film stands between the wall and the park, so that knock finds the BEDROOM: the record player's record of this arrival (CARD-RPS) starts decoding, or the room's
+//       theme is asked for one tick later. The hush found no knob to zero (the wind's pass was just let go) and the record played at full under the film's whole minute: 70 samples of 70 loud.
+//     A BED STILL FADING IN (home from a fight, a launch, then the door inside the fade): a zero written inside the ramp does not cancel it; the knob JUMPS to full at the ramp's end. 50 of 50.
+//     A BED STILL DECODING: no pass yet = no knob; it started at full when the decode landed. 50 of 50.
+//     THE ROOM'S OWN SONG after the wall: themeHome's knock, one tick after the film mounted, started the theme under it. 50 of 50.
+//     ANY LATER KNOCK brought a hushed bed back: locGate / themeGate (MUSIC MODE's hand, msmApply), the sound medic's fresh pass on a swapped context, the put-away's release, a second door opened under the film (a
+//       party's walk: the park's own bed started under the film).
+//   Only a bed that had long settled before the door was tapped went quiet. BEAR PARK's record (the Teddy Bear Waltz) and the DRUM CADENCE are records on the fort's player and are the film's own two tunes, so the record
+//   under the film could be the very tune the film was playing, out of step with it.
+// NOW (this sec alone; two names wrapped BY NAME, no hunk in another card's code; no sim state, nothing on the wire, no save key, no word, no css, no sound file): a film that has taken the speaker is a STATE the engine reads.
+//   1 THE FILMS' DOOR (snduHush, the one door all twelve films knock on their way in and out): on the way IN the old zero is written first (the cut stays as sharp as it was), then the state goes up and the engine is
+//     knocked by its own door (locSync): the bed's pass is let go, the theme hands the speaker over (themeHand), a decode in flight lands dropped, the Gnome Park's night goes with its bed. On the way OUT (the film's end,
+//     its ✕, a load error) the state goes down BEFORE the film's own door call, so the scene that door opens knocks its own bed exactly as before; one tick later one knock of this card's own (locSync, and
+//     themeRevive where the film took the room's own song) brings the music back where the film's door opened no scene (NEMESIS's card over the room). The room's music no longer pops back for the length of the door's crossfade between a film and its park.
+//   2 THE SPEAKER (locNow, outside every other wrap): while a film has the speaker the place is THE FILM ('film': no row of LOC_TRACKS, so no bed can start there) and nothing under it is asked (the record player draws
+//     no record for a room nobody hears). Every road of the theme already stands down while a place holds the speaker (themeTry, themeStart, themeRevive, the decode's landing, the chip), so the theme cannot start either.
+//     The two switches, MUSIC MODE, the put-away law and the medic all find no pass to bring back.
+//   THE GARDEN KEEPS TIME (1175's contract) across a film at the palace's oak doors: the garden's clock is read as the film takes the speaker and handed back once the lobby stands, as the door itself would have held it.
+//   THE COUNT IS READ OFF THE PAGE. The state counts the films it saw mount and that still stand; a film that left the page without its own way out (no road does that today) is counted no more at the next read,
+//   at the next film's door, or within nine seconds, and when the last one is gone the speaker goes home. It cannot leave the game silent, and it cannot be carried into the next film's count.
+//   THE AUDIO GRAPH STAYS AWAKE UNDER A FILM, AS BEFORE. With no music burning under the film CARD-BTY would put the idle graph to sleep after twenty seconds (before this card a hushed bed burned on and kept it
+//   awake), and a film that plays to its END gives no tap to wake it. So the speaker's own door is asked as a film mounts and every nine seconds while it stands (audio(): the ask is stamped there, nothing is
+//   played, no context is ever created here): the END finds the graph running and the park's music starts at once, with nothing owed to a phone's willingness to wake a graph outside a tap.
+//   THE ROOM'S OWN SONG comes back after a film only where the film took it (it was playing, wanted or armed as the film mounted): a room whose song had ended for the session stays as it was, and no song is ever
+//   started over a screen that plays its own track. A bed needs no such care: the door's own knock (locSync) plays what the place says, and a screen with its own track says nothing.
+//   SARGE'S LAST DANCE with the page's own music (LDNU.pageMusic 1, CARD-SLM's module; dormant) never knocks snduHush, so this card never meets it. The films' own sound is not touched: v.muted follows the HQ mute as before.
+// THE SWITCH: ?fsp=0 writes the device key gvt_fsp=0 = the page before (nothing wrapped); ?fsp=1 clears it. GVT.fsp(o) = the rigs' door (o.zero clears the counts).
+const FSP_LIVE=1;
+const FSP_ID='film';
+const FSP_ASK_MS=9000;
+const FSP={ on:(function(){ try{ const q=/[?&]fsp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_fsp','0'); else localStorage.removeItem('gvt_fsp'); } return localStorage.getItem('gvt_fsp')==='0'? 0 : FSP_LIVE; }catch(e){ return FSP_LIVE; } })(),
+  up:0, els:[], blind:0, th:0, iv:0, mgc:null, t:0, wrapped:0, n:{ in:0, out:0, late:0, heal:0, ask:0 }, err:0, e:'' };   // up = the films holding the speaker (one, but for a second door opened under a standing film) · els = the films this card saw mount · blind = films it could not see (none today) · th = the room's own song is owed back · iv = the speaker's door is being asked · mgc = the garden's clock, held across a film at the palace's doors · t = the late knock's ticket · n = the counts (in / out = the door's knocks · late = the knocks one tick after a film · heal = a film that left without its way out · ask = the engine's asks answered THE FILM)
+function fspErr(w,e){ FSP.err++; if(FSP.e.length<300) FSP.e+=w+':'+String((e && e.message)||e).slice(0,80)+' '; }
+function fspLive(){ if(FSP.els.length) FSP.els=FSP.els.filter(function(el){ return !!(el && el.isConnected); }); return FSP.els.length+FSP.blind; }   // the films on the page right now
+function fspDown(heal){ FSP.up=0; FSP.blind=0; FSP.els.length=0; if(FSP.iv){ clearInterval(FSP.iv); FSP.iv=0; } if(heal){ FSP.n.heal++; FSP.mgc=null; } fspLate(); }   // the last film is gone: the state down, the door asked no more, the late knock
+function fspUp(){ if(FSP.up<=0) return false;   // a film has the speaker
+  const live=fspLive(); if(live<FSP.up){ FSP.up=live; if(live<=0){ fspDown(1); return false; } }   // a film left the page without its way out: counted no more; the last one gone, the speaker goes home
+  return true; }
+function fspAsk(){ try{ if(fspUp() && AC) audio(); }catch(e){ fspErr('ask',e); } }   // the speaker's own door, every FSP_ASK_MS while a film stands (and the count read off the page with it)
+function fspIn(){   // a film takes the speaker (right after its own mount and the old zero)
+  const was=fspUp();
+  const el=document.body? document.body.lastElementChild : null;   // every film mounts as the page's last child and knocks in the same breath
+  if(el && /uFilm$/.test(el.id||'')){ if(FSP.els.indexOf(el)<0) FSP.els.push(el); } else FSP.blind++;
+  if(!was){ FSP.mgc=(LOC.id==='moongarden' && LOC.src)? { t0:LOC.t0, gen:LOC.gen } : null;   // THE GARDEN KEEPS TIME: its clock as the film takes the speaker (handed back by the late knock if the lobby stands then)
+    if(THEME.src || THEME.want || THEME.armed) FSP.th=1;   // the room's own song had the speaker, or was on its way: owed back at the end
+    try{ if(AC) audio(); }catch(e){ fspErr('door',e); }   // the speaker's own door at the mount (a door opened by no finger, a party's walk, stamps no ask of its own)
+    if(!FSP.iv) FSP.iv=setInterval(fspAsk, FSP_ASK_MS); }
+  FSP.up=FSP.els.length+FSP.blind; FSP.n.in++; FSP.t++;   // a knock still owed by a film that just ended is void: this film's own end knocks
+  locSync(); }   // the engine's own door: the place is THE FILM now
+function fspOut(){   // the film gives the speaker back (its end, its ✕, a load error): BEFORE the old un-hush and the film's own door call. It has already left the page (every film removes itself, then knocks)
+  if(FSP.up<=0) return; FSP.n.out++;
+  const live=fspLive();
+  if(live<FSP.up) FSP.up=live; else if(FSP.blind>0){ FSP.blind--; FSP.up--; } else FSP.up--;   // a film this card saw is read off the page · one it could not see is counted out
+  if(FSP.up<=0) fspDown(0); }
+function fspLate(){ const my=++FSP.t;   // one tick after the last film: the door it opened has knocked its own bed by now and this knock finds the same place (nothing happens); where no door knocked, the music of the place he stands in comes back
+  try{ if(AC) audio(); }catch(e){ fspErr('wake',e); }   // the speaker's own door once more on the way out (a graph asleep for any reason wakes here; never created here)
+  setTimeout(function(){ try{ if(my!==FSP.t || FSP.up>0) return; FSP.n.late++;
+      locSync();
+      const c=FSP.mgc; FSP.mgc=null; if(c && !LOC.mgc && (LOC.id==='palace' || LOC.id==='arabesque') && c.gen===SFXW.gen) LOC.mgc=c;   // the garden's clock, as the oak doors would have held it had no film stood between (locOffset reads it once on the way back)
+      const th=FSP.th; FSP.th=0; if(th) themeRevive();   // THE ROOM'S OWN SONG, where the film took it (its guards whole: the menu alone, the chip, no pass burning, no place with a bed of its own)
+    }catch(e){ fspErr('late',e); } }, 0); }
+if(FSP.on && !LOC_TRACKS[FSP_ID]){
+  // 1 THE FILMS' DOOR
+  { const h0=snduHush; snduHush=function(on){
+      if(on){ let r; try{ r=h0.apply(this, arguments); } finally{ try{ fspIn(); }catch(e){ fspErr('in',e); } } return r; }
+      try{ fspOut(); }catch(e){ fspErr('out',e); }
+      return h0.apply(this, arguments); }; }
+  // 2 THE SPEAKER
+  { const n0=locNow; locNow=function(){ let up=false; try{ up=fspUp(); }catch(e){ fspErr('loc',e); } if(up){ FSP.n.ask++; return FSP_ID; } return n0.apply(this, arguments); }; }
+  FSP.wrapped=1;
+}
+function fspRead(o){ o=o||{}; try{ if(o.zero){ for(const k in FSP.n) FSP.n[k]=0; FSP.err=0; FSP.e=''; } }catch(e){ fspErr('rig',e); }
+  let films=[]; try{ films=Array.prototype.map.call(document.querySelectorAll('[id$="uFilm"]'), function(d){ return d.id; }); }catch(e){}
+  return { cv:GVT_CV, on:FSP.on, live:FSP_LIVE, wrapped:FSP.wrapped, up:FSP.up, saw:FSP.els.length, blind:FSP.blind, films:films, mgc:!!FSP.mgc, th:FSP.th, asking:!!FSP.iv, n:Object.assign({}, FSP.n), loc:{ id:LOC.id, src:!!LOC.src, busy:LOC.busy||null, gain:(LOC.g? +LOC.g.gain.value.toFixed(4) : null) },
+    theme:{ src:!!THEME.src, started:!!THEME.started, dead:!!THEME.dead, want:!!THEME.want, armed:!!THEME.armed }, err:FSP.err, e:FSP.e }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.fsp) GVT.fsp=fspRead; }catch(e){} }, 0);   // the late attach (CARD-BVX's grammar)
+// ═══ END CARD-FSP ═══
 // ═══ CARD-DER · THE DESERT STARTS AT THE RING, ON EVERY LANE (sec:CARD-DER; design/desert-early-start-1102/00-CARD-DER.md; J14, lane gvt-p2, acct I Spacely, Fable 5.1 at max). FROM WYATT by phone 11/2/2026 20:33 EST (jumpr remote), verbatim: "The match started 2 minutes early. In fact, the play started, and then I got the push notification that in 2 minutes it was supposed to start. We played 2 minutes early, and then, when there were like 30 seconds left, we had another character even be able to join the game, so it was a 3 versus 2. After the game, the losing team, for some reason, had a 'Try Again' button, but there's no 'Try Again' button after the Battle of the Desert, just 'Continue'." and "One team was able to play down infinite units, but they kept dying."
 // WHAT HAPPENED (room F7VTW, 11/2 20:25-20:32 EST, read off the box): a chair's app relaunched in the hold (20:28:45); the rejoin note knocked and rejoined through the plain room lane (/room/join), which launches the fight with no hold and no desert dressing; at 20:29:55 the founder put his app away for a second and HQ handed the whistle to that chair (CARD-DAR: the longest-seated awake commander); its running clock reached every screen and CARD-HLD's rule 1 (the hold follows the referee) rang every bell at 20:30, two minutes before the ring (20:32). The pour and the bounties ran over a six-minute "match" (the units); a chair seated at 20:30:24 landed in a running fight with 30 s on the adopted clock (the 3 v 2); the verdict came one second after the ring; the loss face dealt the plain battleground's TRY AGAIN.
 // THE LAW NOW (?der=0 = HEAD, remembered on the device as gvt_der; ?der=1 forgets it):
