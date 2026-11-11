@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.47","md5":"a3f32da3ae7f9095ef7494aff90d7c88","sha":"d5f7fded28","at":"2026-11-11T08:23:09Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.48","md5":"6eb70c05f49c94cf3fe5db39e4d3f854","sha":"a5a665e56b","at":"2026-11-11T17:43:47Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93824,7 +93824,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -126051,11 +126051,13 @@ function update(dt){
     if((f.type==='tank'||f.type==='tankv2'||f.def.rcTank) && !rcGun(f)){   // OC-8: a DRIVEN R/C tank fires the tank's own cannon; spinning it is silent, hijacked its shells land on tans (rcGun — false for every other hull)
       f.shot+=dt;
       const v2=!!f.def.v2, aoe=TANK_AOE+(v2? T2_SPLASH_ADD : 0);   // 0593 THE V2 FOE TANK: the player's V2 deltas at the SAME seats they land on his (the drum ×T2_RATE_MUL, the blast +T2_SPLASH_ADD); the tank's own numbers byte-what-they-were
+      tkfHold(f, 8*tkSlowMul(f)/(v2? T2_RATE_MUL : 1));   // CARD-TKF THE GUN WAITS FOR A MAN: nobody in its reach = the drum waits at three quarters, never a blank shell (sec:CARD-TKF; ?tkf=0 = the shipped drum)
       if(f.shot>=8*tkSlowMul(f)/(v2? T2_RATE_MUL : 1)){
         f.shot=0;
         const cands=S.units.filter(u=>!u.dead&&!(u.jetT>0)&&bfCanTarget(f,u)&&Math.hypot(u.x-f.x,u.y-f.y)<TANK_RNG);   // 0129: the cannon fires flat — a trench man is below it (the BF tank has never been in TRENCH_EXEMPT either)
         if(cands.length){ const u=cands[(Math.random()*cands.length)|0]; foeAim(f,u);   // 0652: the hull turns (no turret grammar on this mold — ⚑ Q3)
           const dkb=duckBlock(f.x+42*foeFaceX(f),f.y-44,u.x,u.y-18);
+          tkfShotFx(f,u,dkb);   // CARD-TKF THE SHOT LEAVES THE BARREL: the muzzle's smoke and flash and the shell's streak to where it lands (sec:CARD-TKF; ?tkf=0 = the shipped picture)
           if(dkb){ SFX.boom(); duckBlockFx(dkb); }
           else { SFX.boom(); S.shake=0.5;
             S.fx.push({k:'ring',x:u.x,y:u.y-6,r:8,R:aoe,t:0,dur:0.34,col:'rgba(255,214,138,0.8)'});
@@ -228851,6 +228853,30 @@ if(window.GVT && !GVT.oad) GVT.oad=function(o){ o=o||{}; if(o.one!=null) OAD.one
   return { on:OAD.on, one:OAD.one, day:oadDay(), wk:oadWk(), saleDay:META.saleDay||'', saleDue:META.saleDue|0, launches:META.launches|0, sdiFirst:META.sdiFirst|0, bdToldWk:META.bdToldWk||'', bdToldDay:META.bdToldDay||'',
     annWk:String((BDD && BDD.annWk)||''), spent:{ sale:oadSpent('sale'), night:oadSpent('night') }, held:Object.assign({}, OAD.held), dealt:Object.assign({}, OAD.dealt), log:OAD.log.slice() }; };   // the rig's read and hand (o.one = the shared day dial)
 // ═══ END CARD-OAD ═══
+// ═══ CARD-TKF · THE V1 TAN TANK FIRES: ITS GUN WAITS FOR A MAN IN REACH, AND ITS SHOT LEAVES THE BARREL (sec:CARD-TKF; design/tan-tank-fire-1111/00-CARD-TKF.md; FROM WYATT by phone (jumpr remote) 11/11/2026, verbatim: "In the campaign, the v1 tan tanks aren't currently firing. This is a bug report. Please fix.") ═══
+// THE FAULT (measured on v31.47 over every campaign rung 1-100 that fields a V1 tank, with a green line that holds): the cannon's drum (8 s; the V2's 6.15 s) ran from the tank's birth and spent its
+// round whether or not a green stood in its reach, so it fired BLANK every 8 s from the rim on and reached the line with a random drum: its first shell came 0 to 8 s after a green stepped inside
+// its 185 (the shortest reach of any tan gun, so every green gun was on it the whole wait). 93 tanks: 43 never fired one shell; 275 blank drums against 160 shells. And a shell that did go left
+// nothing at the barrel: the boom, then a ring at the man's feet (the player's own tank throws a muzzle flash, smoke and a shell you can follow).
+// THE FIX, two seats inside the cannon's own branch in update() (the foe tanks alone: tank, tankv2, a driven R/C tank; every other gun untouched):
+// (1) THE GUN WAITS FOR A MAN (tkfHold): while no green stands in its reach (the cannon's own test: standing, not in the air, bfCanTarget, inside TANK_RNG) the drum stops at the walk-on charge
+//     (SHOT_SEED's three quarters: TKF.hold) instead of firing blank, so the first shell comes ~2 s after a green steps in (the V2's ~1.5 s): v2.53's own promise ("first shell ~2s after a green
+//     is in reach"). After a shell the drum runs from 0 as it always did. The cannon's numbers (the drum, TANK_RNG 185, TANK_AOE 52, the knocks, the duck) are what they were.
+// (2) THE SHOT LEAVES THE BARREL (tkfShotFx): the player's tank's own muzzle picture at the tan barrel (the smoke puff and the flash: its two fx rows byte for byte) and the shell's streak from the
+//     barrel to where it lands (the duck's block point when the duck eats it): an amber line (the cannon ring's own colour) over a white core, a brass round tearing down it in a tenth of a
+//     second. Presentation only: no number, no die, no sound.
+// ?tkf=0 = off for that page (the shipped drum and picture). GVT.tkf() = the rigs' door.
+const TKF={ on:(function(){ try{ return (new URLSearchParams(location.search).get('tkf')==='0')? 0 : 1; }catch(e){ return 1; } })(), hold:0.75, col:'rgba(255,214,138,0.95)', w:5, dur:0.16, core:'#ffffff', cw:2, cdur:0.1, slug:'#B9862F', slugH:'#FFF6D0', sdur:0.1, n:{ held:0, shots:0 } };
+function tkfOn(){ try{ return !!TKF.on; }catch(e){ return false; } }   // false before this section has run (a frame stepped at load meets the shipped cannon)
+function tkfReach(f){ for(const u of S.units){ if(!u.dead && !(u.jetT>0) && bfCanTarget(f,u) && Math.hypot(u.x-f.x,u.y-f.y)<TANK_RNG) return true; } return false; }   // the cannon's own candidate test (its filter, clause for clause), answered at the first man
+function tkfHold(f,full){ if(!tkfOn() || !(f.shot>=full*TKF.hold) || tkfReach(f)) return; f.shot=full*TKF.hold; TKF.n.held++; }   // nobody in reach: the drum waits at three quarters (a green stepping in = the last quarter, then the shell)
+function tkfShotFx(f,u,dkb){ if(!tkfOn() || !u) return; const fz=foeFaceX(f), mx=f.x+42*fz, my=f.y-44, x2=dkb? dkb.x : u.x, y2=dkb? dkb.y : u.y-6;   // the barrel = the cannon's own shell origin (duckBlock's first point); the end = the ring's centre, or the duck's block point
+  S.fx.push({k:'puff',x:mx,y:my,t:0,dur:0.4,R:14}); S.fx.push({k:'flash',x:mx,y:my,ang:Math.atan2(y2-my,x2-mx),R:20,lw:3.2,t:0,dur:0.13});   // the player's tank's muzzle, byte for byte (smoke first: fx draw in push order)
+  S.fx.push({k:'tracer',x1:mx,y1:my,x2,y2,t:0,dur:TKF.dur,col:TKF.col,w:TKF.w}); S.fx.push({k:'tracer',x1:mx,y1:my,x2,y2,t:0,dur:TKF.cdur,col:TKF.core,w:TKF.cw});   // the shell's streak: amber over a white core
+  S.fx.push({k:'slug',x1:mx,y1:my,x2,y2,t:0,dur:TKF.sdur,col:TKF.slug,colH:TKF.slugH}); TKF.n.shots++; }   // the shell itself, a brass round tearing down the streak (the slug's own optional col/colH)
+setTimeout(function(){ try{ if(window.GVT && !GVT.tkf) GVT.tkf=function(o){ o=o||{}; if(o.on!=null) TKF.on=o.on? 1 : 0; if(o.reset){ TKF.n.held=0; TKF.n.shots=0; }
+  return { cv:GVT_CV, on:TKF.on, hold:TKF.hold, rng:TANK_RNG, aoe:TANK_AOE, seed:SHOT_SEED.tank, n:Object.assign({},TKF.n), key:(function(){ try{ return new URLSearchParams(location.search).get('tkf'); }catch(e){ return null; } })() }; }; }catch(e){} }, 0);   // the rigs' door + read
+// ═══ END CARD-TKF ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
