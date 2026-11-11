@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.41","md5":"a90cad9764939ffd30ee40056881d2a0","sha":"fed1053bf9","at":"2026-11-11T06:09:56Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.42","md5":"73ef0ae50e636bf2c118e9d1bfa33132","sha":"4a2430be88","at":"2026-11-11T06:18:45Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -60733,6 +60733,7 @@ function netSync(){
       body:JSON.stringify({device:META.deviceId,name:META.name,stars:META.starsLifetime,lvl:META.lvl,campaign:META.campaign,color:META.dyeOn||null,saber:saberHex(),defense:META.defense||undefined,
         // the battleground ladders report in here; /challenge still pays every star
         bf1w:META.bfRecord[1].w,bf1l:META.bfRecord[1].l,bf2w:META.bfRecord[2].w,bf2l:META.bfRecord[2].l,
+        bg:bgmWire(), bgl:bgmLastWire(),   // CARD-BGM THE GAME NAMES ITS MODE: this save's own counts of finished fights by word, and the last one (HQ's daily report reads them; an older HQ reads only the keys it knows; ?bgm=0 sends neither)
         // 0398: THE ADVENTURE COUNT reports in — one int, the ledgers as
         // shipped (advCount reads, never edits); a v24 box reads only the
         // keys it knows (the soul-field precedent), v25 clamps it monotonic
@@ -78172,6 +78173,7 @@ function hrdEnd(){
   const n=S.wave|0, best=Math.max(META.hrdBest|0, n), isNew=n>0 && n>(S.hrd.best0|0);
   for(const b of S.blobs){ const v9=gtxTag(b.v); S.plastic+=v9; if(META.stats) META.stats.tags=(META.stats.tags|0)+v9; } S.blobs.length=0;   // B2: the tags still in the air land (the blob road's own sum) — the fort fell before they reached the purse
   if(META.stats && (S.aceKills||0)>(META.stats.bestUnitKills|0)) META.stats.bestUnitKills=S.aceKills;   // B2: the campaign loss's own banking (the ace, the medals), then the save and the sync
+  bgmRun(isNew);   // CARD-BGM: a survival run is a game of its own mode (surv), won when it set a new best wave; the save and the sync on the next line carry it
   META.hrdBest=best; try{ checkAch(); }catch(e){} saveMeta(); try{ netSync(); }catch(e){}
   try{ commClear(); }catch(e){} try{ hqClose(); }catch(e){} try{ sqNoteClear(); }catch(e){}
   S.mode='lose'; S.hrd.over=1;
@@ -93750,7 +93752,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.41';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.42';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -105150,6 +105152,40 @@ function bfWhistle(reason, fromRelay, after){
   if((mine==='time'||mine==='sudden'||mine==='edge'||mine==='walk') && !bf.jingled && !bf.opener){   /* CARD-OBX: the opener's sting rings at its flag (startVictoryFlag) */ bf.jingled=true; SFX.victory(); }   // 0896: + walk
   setTimeout(()=>{ if(S.bf!==bf || bf.resolved) return; S.slowmo=1; go(); }, BF_TIME_LEAD*1000);
 }
+// ═══ CARD-BGM THE GAME NAMES ITS BATTLEGROUNDS MODE (sec:CARD-BGM; design/bg-modes-1110/00-CARD-BGM.md; jumpr 3210, built on Maker 1 as M3210). FROM WYATT by phone on Discord 11/10/2026 12:12 EST (message 1569761796506521713), verbatim:
+// "Also, keep track of what different mode they were playing inside of Battlegrounds. That way, we know which modes are popular and which mode might have been the one that they stopped playing on."
+// HQ could read two modes alone, off the rise of the two ladder books every phone sends (server v169): a 3v3, a featured battle, a private battle, a survival run, the Gauntlet and the Globe were told apart nowhere, and a game that moves no
+// book was never heard of. So the game says it itself. At the ONE battleground verdict (endBattlefield: `won` known, the torch stamped, before the away branch and the books) and at a survival run's end (hrdEnd) it counts the finished fight under a
+// short word: META.bgBook = { word: [won, lost] } (this save's own counts since this card) and META.bgLast = [word, 1 or 0] (the last one). Both ride every sync (netSync: bg, bgl); HQ books each RISE of a count under its word and keeps the last
+// fight as the phone says it (the card's server slice; an older HQ reads only the keys it knows).
+// THE ONE LIST is bgmRules: the first row that fits names the fight. The words: b + the size for a plain battle from the Battlefield screen, alone or with a party (b1 = PLAY, b2 = 2v2, b3 .. b10 = MORE BATTLES), feat, priv, surv, gaunt, globe;
+// and, fought on the same field but not picked on that screen, raid, nem, bell, away: the game names those too, and HQ's own list says which words are modes (his correction is one line there, or one row here).
+// Nothing a player sees changes: no screen, no word, no sound, no pay. Two top-level fields of the save a game before this card does not know (such a field has always survived its load, its save and HQ). A fight counts at its verdict: a battle
+// walked out of counts nowhere, as on the ladder. ?bgm=0 = no count and no key on the wire (HQ then reads this phone by size, as it reads an older game). Zero css, zero words, zero sw.js bytes. The rig's reads: META.bgBook, bgmMode(S.bf). ═══
+function bgmOn(){ if(bgmOn.v==null){ try{ bgmOn.v=(new URLSearchParams(location.search).get('bgm')!=='0'); }catch(e){ bgmOn.v=true; } } return bgmOn.v; }   // the switch, read once
+function bgmKind(bf){ try{ return (bf.room && bf.pbp && bf.pbp.k) || ''; }catch(e){ return ''; } }   // a room battle's own kind, stamped once at its launch (CARD-PBP's roomStartBattle: gl · ga · bd · bf · room): it stands whatever became of the room by the verdict
+function bgmGlobe(bf){ try{ return !!(bf.gl || (bf.away && bf.away.gl) || bgmKind(bf)==='gl' || (bf.room && COOP && COOP.gl && COOP.gl.cc)); }catch(e){ return bgmKind(bf)==='gl'; } }   // a fight for a country: the army road (startAwayBattle's gl) or the live room (its launch stamp, or COOP.gl), either chair; gllFight's read, and a room's flag only on a room battle
+function bgmRules(){ return bgmRules.v || (bgmRules.v=[   // THE ONE LIST: [the word, the test], read top down, the first row that fits; a null word = counted nowhere
+  [null,    bf=>!!(bf.watch || bf.opener)],                    // a watcher's chair (it never reaches the verdict) · the opener (the first battle is always a victory: on no book)
+  ['globe', bf=>bgmGlobe(bf)],                                 // THE GLOBE
+  ['away',  bf=>!!bf.away],                                    // an away duel (the rankings' challenge): not picked on the Battlefield screen
+  ['gaunt', bf=>!!(bf.torch || bgmKind(bf)==='ga' || gaTorchFight(bf))],   // THE GAUNTLET: the computer's knock or a torch room (its launch stamp, or the torch stamped since: the party's duel for the torch)
+  ['bell',  bf=>!!(bf.bd || bgmKind(bf)==='bd')],              // a bell battle (the desert, the tundra, the rooftop duel): not picked on that screen
+  ['raid',  bf=>!!bf.raid],                                    // the daily raid, the day's Nemesis among them: not picked on that screen
+  ['nem',   bf=>!!bf.nem],                                     // a Nemesis ambush (the park claims, the bank): not picked on that screen
+  ['priv',  bf=>!!(bf.room && bgmKind(bf)!=='bf')],            // PRIVATE BATTLE: the war table's own door or a code (CARD-PBP's kind 'room'); a friendly past the day's ranked cap is one too (⚑ BGM-Q3)
+  ['feat',  bf=>!!bf.feat],                                    // FEATURED BATTLE
+  ['b',     bf=>true] ]); }                                    // a plain battle from the Battlefield screen, alone, in the queue's theater or as a party (CARD-PBP's kind 'bf'): b + its size
+function bgmMode(bf){ try{ if(!bf) return null; for(const r of bgmRules()){ if(r[1](bf)) return r[0]==='b'? 'b'+Math.max(1, Math.min(99, bf.team|0)) : r[0]; } }catch(e){} return null; }   // the word of this battle (null = not counted)
+function bgmBook(make){ let B=META.bgBook; if(!B || typeof B!=='object' || Array.isArray(B)){ B={}; if(make) META.bgBook=B; } return B; }   // the save's book; a save without one gets it at its first counted fight (make), never from a read: a sync writes nothing into the save (a fresh object, never a default's: the field has no default)
+function bgmCount(word, won){ if(!bgmOn() || typeof word!=='string' || !/^[a-z0-9]{1,8}$/.test(word)) return false;   // one finished fight: its word's pair + 1, and it is the last one
+  const B=bgmBook(1); let e=B[word]; if(!Array.isArray(e) || e.length!==2){ if(!(word in B) && Object.keys(B).length>=24) return false; e=B[word]=[0,0]; }   // HQ keeps 24 words a player: so does the save
+  e[0]=Math.max(0, e[0]|0)+(won? 1 : 0); e[1]=Math.max(0, e[1]|0)+(won? 0 : 1); META.bgLast=[word, won? 1 : 0]; return true; }
+function bgmNote(bf, won){ try{ if(!bf || bf.bgmDone) return false; bf.bgmDone=1; const w=bgmMode(bf); return w? bgmCount(w, !!won) : false; }catch(e){ return false; } }   // endBattlefield's seat: once a battle (the latch rides the battle), before the books; the verdict's own saveMeta and netSync carry it
+function bgmRun(isNew){ try{ const H9=S.hrd; if(!H9 || H9.bgmDone || (S.wave|0)<1) return false; H9.bgmDone=1; return bgmCount('surv', !!isNew); }catch(e){ return false; } }   // hrdEnd's seat: a survival run that saw its first wave is a game, once a run (a run saved and continued is one run); won = a new best wave (⚑ BGM-Q2)
+function bgmWire(){ try{ if(!bgmOn()) return undefined; const B=bgmBook(0), o={}; let n=0; for(const k of Object.keys(B)){ const e=B[k]; if(n>=24) break; if(/^[a-z0-9]{1,8}$/.test(k) && Array.isArray(e) && e.length===2){ o[k]=[Math.max(0, Math.min(100000, e[0]|0)), Math.max(0, Math.min(100000, e[1]|0))]; n++; } } return o; }catch(e){ return undefined; } }   // netSync's bg: every word with its pair; {} until the first fight (HQ then knows this game names its modes)
+function bgmLastWire(){ try{ if(!bgmOn()) return undefined; const L=META.bgLast; return (Array.isArray(L) && L.length===2 && typeof L[0]==='string' && /^[a-z0-9]{1,8}$/.test(L[0]))? [L[0], L[1]? 1 : 0] : undefined; }catch(e){ return undefined; } }   // netSync's bgl: the last fight, as this phone knows the order
+// ═══ end of sec:CARD-BGM ═══
 function endBattlefield(reason, fromRelay){
   const bf=S.bf; if(!bf||bf.resolved) return;
   jhkTick();   // CARD-PRP JANE'S HANDKERCHIEF: a battleground with her on the field counts too (once: the stamp is spent here)
@@ -105242,6 +105278,7 @@ function endBattlefield(reason, fromRelay){
   // inside /away/report (awayRecord adopts the reply) — this verdict never
   // calls /rated, and bfRecord/bfWins/bfLosses stay untouched (not a live
   // battleground result). A loss still pays its lesson (XP_LOSS).
+  bgmNote(bf, won);   // CARD-BGM THE GAME NAMES ITS MODE: this fight is counted under its word (META.bgBook, META.bgLast), win or lose, every chair its own; the saves and the syncs below carry it to HQ
   if(bf.away){
     const nmU=String(bf.away.name||'COMMANDER').toUpperCase();
     const rr=awayRecord(bf.away, won);
