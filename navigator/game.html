@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.58","md5":"6346b917d78604a2dcac35408a499226","sha":"246adfa34c","at":"2026-11-12T05:53:35Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.59","md5":"c39118a1297f5b2ec5d6d6f52714a6d3","sha":"30da8974d4","at":"2026-11-12T20:01:31Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -78858,6 +78858,7 @@ function soulChip(kind,id){ return soulIs(kind,id)? '<span class="acsoul">✦ SO
 const SOUL_EXTRA=['spy','kingyeti','kingrex','medic','kingcroak','jane','kingbear','princess','grenadier'];   // 1027 CARD-ML-A3: PRINCESS CROAK rides the validator (soulPool deals ownedUnits — forever is forever)   // 0556: KING BEAR rides the validator too (soulPool deals ownedUnits)   // 0372: the outlaw king rides the widened validator (the 0365 lane) · 0446: jane too — soulPool() deals ownedUnits, and her splice puts her there (forever is forever)
 if(META.soul!=null){ const m=/^([uw]):(.+)$/.exec(String(META.soul));
   if(!m || (m[1]==='u'? (TRAY_ORDER.indexOf(m[2])<0 && SOUL_EXTRA.indexOf(m[2])<0) : SARGE_ORDER.indexOf(m[2])<0)) META.soul=null; }
+slkGate();   /* CARD-SLK: THE SHIELD is the code's alone (META.slkKey, the code SHIELD): off for every army that has not typed it, set before the cut reads the switch */
 dshSargeCut();   /* CARD-SHD: ?dsh=0 = THE SHIELD off SARGE_ORDER and out of his hand (the pistol, META.dshHand); on again = the hand it left */
 spsSargeCut();   // CARD-SPS: THE SPELLBOOK off SARGE_ORDER (its last seat) and out of his hand (the pistol, META.spsHand), the alarm mark (META.spsNew); or, off the shelf, both handed back. After the soul's normaliser on purpose: a 'w:spellbook' soul is never nulled (forever is forever)
 // ===== 0545 THE PICK AT THE SUMMIT — THE GENERAL'S FAVOR (FM-GVT-GIFTS-01 §2 ·
@@ -93947,7 +93948,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.58';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -229644,6 +229645,29 @@ function slpRead(o){ o=o||{}; const me=()=>(typeof S==='object' && S && S.pets)?
     pets:R.map(q=>({ key:q.key, r:q.r|0, phase:q.phase, state:q.state, x:+q.x.toFixed(1), y:+q.y.toFixed(1), fx:q.fx, t:+(q.t||0).toFixed(3), cd:+(q.cd||0).toFixed(3), left:q.left|0, leaps:q.leaps|0, smashes:q.smashes|0, smashed:q.smashed|0, whirls:q.whirls|0, blown:q.blown|0, turned:q.turned|0, lastDmg:q.lastDmg==null? null : +(+q.lastDmg).toFixed(4), dmg:+slpDmg(q).toFixed(4), R:+smhR(q).toFixed(1), whirlR:+slpWhirlR(q).toFixed(1), blow:slpBlow(q), flat:smhFlat(q), n:smhN(q), rest:+smhCd(q).toFixed(3), sl:q.sl? { x1:+q.sl.x1.toFixed(1), y1:+q.sl.y1.toFixed(1), T:+q.sl.T.toFixed(3), h:+q.sl.h.toFixed(1), d:+q.sl.d.toFixed(1) } : null })) }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.slp) GVT.slp=function(o){ return slpRead(o); }; }catch(e){} }, 0);   // hung on the DEBUG API once the page is up (CARD-PYK's grammar)
 // ═══ END CARD-SLP ═══
+// ═══ CARD-SLK · THE SHIELD IS THE CODE'S ALONE: LEVEL 30 NO LONGER GIVES IT; TYPE SHIELD IN THE CODES ROOM (sec:CARD-SLK; design/shield-lock-1112/00-CARD-SLK.md; FROM WYATT, 11/12/2026 14:28 EST by phone on Discord 1570520753336492083, verbatim: "Also disable the shield equipment for anyone else right now. You should have to go into the code room and type `shield`. It's not going to be unlocked by regular methods.") ═══
+// THE LEVER is CARD-SHD's own off switch (DSH.on: the shield off SARGE_ORDER, wkOwned('shield') no, a save holding it fields the pistol (META.dshHand), the lab's shield parts out of the lab: every
+//   dshOn() door asks at call time), made THE DEFAULT for every army that has not typed the code. slkGate() runs on the load line just before dshSargeCut() (a function declaration: hoisted, so
+//   the line reaches it from above), so the cut, the trophy's list (TRC_WPN, read at load after it) and every later door see the lock. A device's own ?dsh=0 still turns it off.
+// THE CODE: SHIELD at the codes counter (the counter's own normaliser: any case) = META.slkKey (rides the save to every device of that army), the shield in META.sargeUnlocked (its rank and
+//   records were never touched), the switch on again in this page (the shield back at its seat on SARGE_ORDER, the hand it left), and its card once (riteFire: the weapon's own ceremony).
+// NOT REGULAR: no level, part, rung or rescue reaches it (the grant walks SARGE_ORDER, and the shield is not on it); no URL switch opens it. The undo is the version before.
+function slkCoded(){ try{ return !!(META && (META.slkKey || (Array.isArray(META.codes) && META.codes.indexOf('SHIELD')>=0))); }catch(e){ return false; } }
+function slkGate(){ try{ DSH.slkDev=DSH.on? 1 : 0; DSH.slk=0; if(DSH.on && !slkCoded()){ DSH.on=0; DSH.slk=1; } }catch(e){ try{ DSH.err++; }catch(e2){} } }   // on the load line, before dshSargeCut()
+var SLK={ n:0, err:0 };
+function slkOpen(){ META.slkKey=1; if(!Array.isArray(META.sargeUnlocked)) META.sargeUnlocked=[]; if(META.sargeUnlocked.indexOf(DSH.wk)<0) META.sargeUnlocked.push(DSH.wk);
+  try{ if(DSH.slk && DSH.slkDev){ DSH.on=1; DSH.slk=0;
+      if(SARGE_ORDER.indexOf(DSH.wk)<0){ const at=(DSH.seat>=0)? Math.min(DSH.seat, SARGE_ORDER.length) : SARGE_ORDER.length; SARGE_ORDER.splice(at, 0, DSH.wk); }
+      if(META.dshHand && META.sargeWeapon===META.dshHand && DSH.old.wkOwned(DSH.wk)){ META.sargeWeapon=DSH.wk; DSH.hand=DSH.wk; }
+      if(META.dshHand!==undefined) delete META.dshHand; } }catch(e){ SLK.err++; }
+  SLK.n++; }
+SECRET_CODES.SHIELD={ has:()=>!!META.slkKey && dshOn(), take(){ slkOpen(); },
+  get say(){ return t('SARGE CAN USE THE SHIELD NOW. Equip it at the Training Academy!'); },
+  get held(){ return t('THE SHIELD IS ALREADY YOURS'); }, card:()=>riteFire(null) };
+try{ GVT.slk=function(){ const g=f=>{ try{ return f(); }catch(e){ return null; } };   // the rig's door: the read, no writes
+  return { on:DSH.on, dev:DSH.slkDev, locked:DSH.slk, coded:slkCoded(), key:!!META.slkKey, n:SLK.n, err:SLK.err + (DSH.err|0), order:g(()=>SARGE_ORDER.slice()), own:g(()=>wkOwned(DSH.wk)),
+    hand:g(()=>META.sargeWeapon), unlocked:g(()=>(META.sargeUnlocked||[]).indexOf(DSH.wk)>=0), rank:g(()=>(META.sargeUp||{})[DSH.wk]||0), lvl:g(()=>META.lvl|0), codes:g(()=>(META.codes||[]).slice()), trc:g(()=>TRC_WPN.slice()) }; }; }catch(e){}
+// ═══ END CARD-SLK ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
