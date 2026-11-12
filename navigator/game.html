@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.53","md5":"5a770fed1b2dfbef91cc210287ac6234","sha":"584d74607f","at":"2026-11-11T23:17:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.54","md5":"e8df080a131a82b8e054fa70b7ae53ad","sha":"3a18e0fd2e","at":"2026-11-12T00:29:10Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -58750,6 +58750,89 @@ function kbesRig(){ const g=function(f){ try{ return f(); }catch(e){ return null
     seats:g(function(){ const L=[]; for(const u of DCV.riders){ const c=u.dcv; if(!c || !c.E) continue; for(const q of kbesSeats(u,c)) L.push({ of:u.id, st:c.st, W:c.W? 1 : 0, s:q.s, x:+q.x.toFixed(1), y:+q.y.toFixed(1), dir:q.dir, ux:+c.ux.toFixed(3), uy:+c.uy.toFixed(3), sx:Math.round(u.x), sy:Math.round(u.y), kills:q.p.src.kills|0 }); } return L; }),
     men:g(function(){ return S.units.filter(function(k){ return k.kbesOf!=null; }).map(function(k){ return { id:k.id, type:k.type, of:k.kbesOf, s:k.kbesS, x:Math.round(k.x), y:Math.round(k.y), dead:!!k.dead, hp:(k.hp==null)? null : +(+k.hp).toFixed(2), hpMax:(k.hpMax==null)? null : k.hpMax, hits:k.hits|0, kills:k.kills|0, gift:!!k.ckGift, kbOf:k.kbOf, side:k.side||null, seat:(k.seat==null)? null : k.seat, by:k.coopBy||null, ride:!!k.kbRide }; }); }) }; }
 // ═══ end sec:CARD-SHD4 ═══
+// ═══ sec:CARD-ESW · THE ESCORT'S SWORDS: THE EMPEROR'S HORSEMEN CARRY A REAL SABRE, AND THEIR STRIKE IS A CUT YOU SEE (design/escort-swords-1111/00-CARD-ESW.md; J60, 11/11/2026)
+// HIS WORD (Wyatt, 11/11/2026 18:58 EST by phone on Discord, message 1570226277829578794, a swipe-reply to THE EMPEROR'S ESCORT's film), verbatim: "Make sure that the cavalry riding
+// with him have their swords displaying correctly. Currently, they look slightly broken. We can also emphasize the strike more and really pretty it up."
+// THE FAULT: the horseman's two molds (T_CAVALRY_ALLY 'reins', T_CAVALRY_ALLY_POINT 'point') wore SABRE_HANG, a 38 x 3.4 blade at the hip, on a rider painted at 0.36 of the
+// charger's width: about 0.8 px of steel hanging straight down through the red saddle cloth, a broken white stick (the film, 4.6 to 5.6 s). The same fault the Emperor had on 9/17
+// (1079 / CARD-SWP: kbSteedSabre). THE FIX, the Emperor's own law (ONE sword, in the raised paw, its own painter): the two molds take the 'sabre' arm with the paw EMPTY and no
+// hanging blade (the in-line hunks at the molds), and tdMount paints THIS sabre in the paw between the charger and the rider (escSabre; the paw closes over the grip), on the
+// canvas (no raster: no box to clip the tip, crisp at every size). Its angle reads the ride: shouldered at rest, tipped forward on the move, POINTED like a lance in the charge,
+// raised high while Sarge's sword swings. THE STRIKE: the horseman's hit is his trample (kbAllyTrample on every field; kbesTrample for the escort's seats in the charge). Each
+// hit he lands now cuts: the blade sweeps forward and down through the man in 0.09 s (the hit's own instant), a crescent of light follows the edge and fades, a star flares
+// at the point, and the steel sings (escCutSfx: tone() and noise() alone). At most one cut a rider every ESW.GAP s. Nothing over the field: every mark is drawn with the
+// rider (the 10/22 rule). No dice: the glint's beat and the sparks' rays come off the rider's id. No wire, save, server or css bytes: each screen paints its own copy
+// of the court (the court is never on the wire). The trample's numbers byte-what-they-were (the cut is its picture). ?esw=0 = the commit before (the hanging blade, no cut).
+var ESW={ on:(function(){ try{ const m=/[?&]esw=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_esw','0'); else localStorage.removeItem('gvt_esw'); } return localStorage.getItem('gvt_esw')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  R:{ kbcavalry:1, kbcavalryup:1 },   // the rider keys this sabre rides on (the Emperor's own court horseman, every field; the escort's seats paint the same keys)
+  PAW:[-48.88,-86.0],   // the 'sabre' arm's paw (R2_POSES.sabre's P (14,46) under ted's 1.06 about (62,126) = (11.12,41.2)) from the rider's anchor: drawSprite seats the 120 x 160 box (y from -20) at (60, 127.2)
+  K:1.42,               // the sabre's scale over the rider's (a rider is 120 units wide): about 28 px of blade on a 41 px rider, 2.2 px of steel (the hairline was 0.8)
+  LEN:58, W:5.0,        // the blade, in sabre units (the grip and the guard below)
+  A_REST:-0.30, A_UP:-0.62, A_CHARGE:-1.36, A_REAR:-0.06, A_CUT:-2.50,   // radians from straight up; negative = forward (the mold faces west; the flip mirrors it east)
+  T_CUT:0.09, T_HOLD:0.06, T_BACK:0.19, T_FADE:0.17, GAP:0.30,   // the cut's clock (s): the sweep, the follow-through, the recovery; the crescent's fade; one cut a rider per GAP
+  GOLD:'#d9a544', RED:'#c8102e',   // the house's FR_GOLD and FR_RED (they live inside TEDDY_CAST_SRC's block, out of reach here)
+  n:{ paint:0, cut:0, seat:0, sound:0, cres:0, star:0 }, cur:null, curSt:null, sndAt:-9, err:0, why:'' };
+function escOn(k){ return !!(ESW.on && ESW.R[k]); }
+function escEase(q){ q=Math.max(0,Math.min(1,q)); return 1-(1-q)*(1-q); }
+function escBase(u,key){   // the sabre's angle off the ride (never off the clock)
+  const st=ESW.curSt;
+  if(st!=null){ if(st==='ride') return ESW.A_CHARGE; if(st==='swing') return ESW.A_REAR; return (key==='kbcavalryup')? ESW.A_UP : ESW.A_REST; }   // the escort's seats: the call's own state
+  const R=u && u.kbRide;
+  if(R && R.way && R.way.charge && R.mv) return ESW.A_CHARGE;   // the charge: the point leads
+  return (key==='kbcavalryup')? ESW.A_UP : ESW.A_REST; }
+function escAngle(u,key){ const b=escBase(u,key), C=u && u.escCut; if(!C) return b;
+  const t=S.t-C.t0; if(t<0 || t>ESW.T_CUT+ESW.T_HOLD+ESW.T_BACK){ return b; }
+  if(t<=ESW.T_CUT) return b+(ESW.A_CUT-b)*escEase(t/ESW.T_CUT);   // the sweep: forward and down through the man
+  if(t<=ESW.T_CUT+ESW.T_HOLD) return ESW.A_CUT;   // the follow-through
+  const q=(t-ESW.T_CUT-ESW.T_HOLD)/ESW.T_BACK; return ESW.A_CUT+(b-ESW.A_CUT)*(q*q*(3-2*q)); }   // the recovery to the ride's own angle
+function escBlade(s,u){   // the cavalry sabre, pointing up from the paw at (0,0), in sabre units at s px each: a curved steel blade (the edge forward), the white edge, the fuller, the gold stirrup hilt, the red knot
+  const L=ESW.LEN, W=ESW.W, px=1/s, ga=cx.globalAlpha;
+  cx.scale(s,s); cx.lineJoin='round'; cx.lineCap='round';   // inside the caller's own save (escSabre: one save, one restore)
+  cx.strokeStyle=ESW.RED; cx.lineWidth=1.6; cx.beginPath(); cx.moveTo(1.6,-1); cx.quadraticCurveTo(5.5,4,4.5,10); cx.stroke();   // the knot's cord (behind the hilt)
+  cx.fillStyle=ESW.GOLD; cx.beginPath(); cx.arc(4.5,11,1.9,0,7); cx.fill();
+  cx.fillStyle='#3b2a1c'; cx.beginPath(); cx.moveTo(-1.6,-1.5); cx.lineTo(1.6,-1.5); cx.lineTo(1.3,8); cx.lineTo(-1.3,8); cx.closePath(); cx.fill();   // the grip
+  const g=cx.createLinearGradient(-W*0.5,0,W*0.6,0); g.addColorStop(0,'#ffffff'); g.addColorStop(0.45,'#dfe6ed'); g.addColorStop(1,'#93a1ae');
+  cx.fillStyle=g; cx.strokeStyle='#2f3740'; cx.lineWidth=Math.max(0.55,0.75*px);
+  cx.beginPath(); cx.moveTo(-W*0.5,-2.5); cx.quadraticCurveTo(-W*0.5+L*0.05,-L*0.56,L*0.09,-L);   // the edge (forward) up to the point
+  cx.quadraticCurveTo(W*0.5+L*0.075,-L*0.52,W*0.5,-2.5); cx.closePath(); cx.fill(); cx.stroke();   // the spine (back) down to the guard
+  cx.strokeStyle='rgba(255,255,255,0.95)'; cx.lineWidth=Math.max(0.5,0.6*px); cx.beginPath(); cx.moveTo(-W*0.5+0.7,-4); cx.quadraticCurveTo(-W*0.5+0.7+L*0.05,-L*0.56,L*0.09-0.4,-L+2.5); cx.stroke();   // the white edge
+  cx.strokeStyle='rgba(70,84,98,0.55)'; cx.lineWidth=0.7; cx.beginPath(); cx.moveTo(W*0.18,-6); cx.quadraticCurveTo(W*0.25+L*0.05,-L*0.45,W*0.18+L*0.06,-L*0.72); cx.stroke();   // the fuller
+  cx.strokeStyle=ESW.GOLD; cx.lineWidth=1.7; cx.beginPath(); cx.moveTo(-W*0.5-1.6,-2.2); cx.lineTo(W*0.5+1.8,-2.2); cx.stroke();   // the crossbar
+  cx.lineWidth=1.3; cx.beginPath(); cx.moveTo(-W*0.5-1.4,-2.2); cx.quadraticCurveTo(-W*0.5-4.2,4,-1.2,8.6); cx.stroke();   // the stirrup bow (the knuckle guard, forward)
+  cx.fillStyle='#b8862e'; cx.beginPath(); cx.arc(0,8.8,1.5,0,7); cx.fill();   // the pommel
+  if(u && !reducedMotion() && !(u.escCut && S.t-u.escCut.t0<0.6)){ const q=((S.t*0.37+((u.id|0)%11)*0.29)%1);   // THE GLINT: a light runs up the blade now and then (a beat off his id: no dice)
+    if(q<0.16){ const k=q/0.16, y=-4-(L-8)*k, a=Math.sin(Math.PI*k); cx.globalAlpha=ga*0.95*a; cx.fillStyle='#ffffff'; cx.beginPath(); cx.moveTo(L*0.02*k,y-3.2); cx.lineTo(L*0.02*k+1.3,y); cx.lineTo(L*0.02*k,y+3.2); cx.lineTo(L*0.02*k-1.3,y); cx.closePath(); cx.fill(); cx.globalAlpha=ga; } } }
+function escSeat(x,y,rw,rot,flip){ const b=rw/120; cx.translate(x,y); if(flip) cx.scale(-1,1); cx.rotate(rot||0); cx.translate(ESW.PAW[0]*b,ESW.PAW[1]*b); return b; }   // the rider's own transform chain, to the paw
+function escSabre(f,x,y,rw,rot,flip,key){ let sv=0; try{   // tdMount's seat: BEHIND the rider (his paw closes over the grip), over the charger
+  const u=f||ESW.cur; cx.save(); sv=1; const b=escSeat(x,y,rw,rot,flip); cx.rotate(escAngle(u,key)); escBlade(b*ESW.K,u); cx.restore(); sv=0; ESW.n.paint++;
+}catch(e){ ESW.err++; ESW.why=String(e && e.message || e).slice(0,120); if(sv) try{ cx.restore(); }catch(x){} } }   // ONE save, ONE restore, on every road (a throw never leaves the canvas's stack a step deep)
+function escOver(f,x,y,rw,rot,flip,key){ const u=f||ESW.cur, C=u && u.escCut; if(!C) return; const t=S.t-C.t0; if(t<0 || t>ESW.T_CUT+ESW.T_FADE) return;
+  let sv=0; try{ cx.save(); sv=1; const b=escSeat(x,y,rw,rot,flip), s=b*ESW.K, L=ESW.LEN*s, a0=escBase(u,key), a1=escAngle(u,key), rm=reducedMotion();   // THE CRESCENT: from where the cut began to where the blade is, at the blade's reach, then gone
+    const th0=-Math.PI/2+a0, th1=-Math.PI/2+Math.min(a1,a0), fade=(t<=ESW.T_CUT)? 1 : Math.max(0,1-(t-ESW.T_CUT)/ESW.T_FADE);
+    if(th1<th0-0.05){ const ring=(r0,r1,al,col,from)=>{ const s0=th0+(th1-th0)*(from||0); cx.globalAlpha=al*fade; cx.fillStyle=col; cx.beginPath(); cx.arc(0,0,r1,s0,th1,true); cx.arc(0,0,r0,th1,s0,false); cx.closePath(); cx.fill(); };
+      ring(L*0.38,L*1.10,0.26,'#bfe6ff',0); ring(L*0.62,L*1.06,0.55,'#ffffff',0.35); ring(L*0.92,L*1.04,0.95,'#ffffff',0.15);   // the halo, the body, the bright rim (the trail thins behind the edge)
+      ESW.n.cres++; }
+    if(t>=ESW.T_CUT*0.7 && t<=ESW.T_CUT+0.13){ const k=(t-ESW.T_CUT*0.7)/(ESW.T_CUT*0.3+0.13), sz=(1-k)*7*s/0.49, tx=Math.cos(-Math.PI/2+ESW.A_CUT)*L, ty=Math.sin(-Math.PI/2+ESW.A_CUT)*L;   // THE STAR at the point, as the cut lands
+      cx.globalAlpha=Math.min(1,1.4*(1-k)); cx.fillStyle='#ffffff'; cx.beginPath(); cx.moveTo(tx,ty-sz); cx.lineTo(tx+sz*0.22,ty-sz*0.22); cx.lineTo(tx+sz,ty); cx.lineTo(tx+sz*0.22,ty+sz*0.22); cx.lineTo(tx,ty+sz); cx.lineTo(tx-sz*0.22,ty+sz*0.22); cx.lineTo(tx-sz,ty); cx.lineTo(tx-sz*0.22,ty-sz*0.22); cx.closePath(); cx.fill();
+      if(!rm){ cx.fillStyle='#fff3c4'; for(let i=0;i<3;i++){ const r9=(0.6+i*0.9+((u.id|0)%5)*0.31), d9=(3+k*14)*s/0.49; cx.beginPath(); cx.arc(tx+Math.cos(r9)*d9,ty+Math.sin(r9)*d9,Math.max(0.6,1.4*(1-k)),0,7); cx.fill(); } }   // three sparks fly off the steel (their rays off his id)
+      ESW.n.star++; }
+    cx.restore(); sv=0;
+  }catch(e){ ESW.err++; ESW.why=String(e && e.message || e).slice(0,120); if(sv) try{ cx.restore(); }catch(x){} } }
+function escCutSfx(){ const ac=audio(); if(!ac || !soundOn) return; const t=ac.currentTime; noise(0.06,0.07,4200); tone(1900,3300,0.07,'triangle',0.028,t); tone(4200,4050,0.16,'sine',0.012,t+0.03); }   // the steel sings: a swish and a thin ring (tone() and noise() alone: the native speaker's bridge carries them)
+function escCut(u){ if(!u || !ESW.on) return; if(u.escCut && S.t-u.escCut.t0<ESW.GAP) return; u.escCut={ t0:S.t }; ESW.n.cut++;
+  if(S.t-ESW.sndAt>0.12){ ESW.sndAt=S.t; try{ bfSfx(SFX.escCut || escCutSfx,u.x,u.y); ESW.n.sound++; }catch(e){} } }   // the house's row (SFX.escCut): the films' sound log reads it
+function escHits(T){ if(!T) return false; for(const id in T){ if(T[id]===S.t) return true; } return false; }   // a man stamped THIS frame (the trample stamps S.t on every man it hits)
+// ---- the strike: the two tramples, wrapped by name (their numbers untouched; the cut is their picture)
+const _escAllyTram=kbAllyTrample;
+kbAllyTrample=function(u,P){ const r=_escAllyTram.apply(this,arguments); try{ if(ESW.on && u && u.type==='kbcavalry' && u.kbRide && escHits(u.kbRide.tram)) escCut(u); }catch(e){ ESW.err++; } return r; };
+const _escSeatTram=kbesTrample;
+kbesTrample=function(u,c,q){ const r=_escSeatTram.apply(this,arguments); try{ const p=q && q.p; if(ESW.on && p && p.src && escHits(p.tram)){ const n0=ESW.n.cut; escCut(p.src); if(ESW.n.cut>n0) ESW.n.seat++; } }catch(e){ ESW.err++; } return r; };
+// ---- the escort's seats are painted with no unit (tdMount(null, ...)): the seat's stand-in carries the cut, the call's state the angle
+const _escSeatPaint=kbesPaint;
+kbesPaint=function(q,c){ ESW.cur=(q && q.p && q.p.src) || null; ESW.curSt=(c && c.st) || ''; try{ return _escSeatPaint.apply(this,arguments); } finally{ ESW.cur=null; ESW.curSt=null; } };
+function escRig(){ return { on:ESW.on, n:Object.assign({},ESW.n), err:ESW.err, K:ESW.K, LEN:ESW.LEN, PAW:ESW.PAW.slice(),
+  why:ESW.why, molds:(function(){ try{ const T=TEDDY_CAST_SRC.src, a=T.kbcavalry||'', b=T.kbcavalryup||''; return { hang:a.indexOf('M0 0 L-2 38')>=0 || b.indexOf('M0 0 L-2 38')>=0, same:a===b, len:a.length }; }catch(e){ return null; } })() }; }   // the rig door: the read, no writes
+// ═══ end sec:CARD-ESW ═══
 function spsRig(){ const ids=SPS.ids, m=f=>ids.reduce((o,id)=>{ try{ o[id]=f(id); }catch(e){ o[id]=null; } return o; },{}), g=f=>{ try{ return f(); }catch(e){ return null; } };   // the rig door (GVT.sps): the read, no writes
   return { cv:GVT_CV, on:SPS.on, wk:SPS.wk, ids:ids.slice(), at:Object.assign({},SPS.at), seat:SPS.seat, paid:SPS.paid.slice(), hand:SPS.hand, seen:SPS.seen, n:ENH_ORDER.length, order:m(id=>ENH_ORDER.indexOf(id)), own:m(enhOwns), sw:m(enhOn), shelved:m(spsShelved), lsv:m(lsvShelved), sold:m(labSold),
     sarge:{ order:SARGE_ORDER.slice(), has:SARGE_ORDER.indexOf(SPS.wk), wk:wkOwned(SPS.wk), owned:spbOwned(), rec:SPS.old.spbOwned(), w:META.sargeWeapon||null, hand:g(plrHand), bag:g(()=>sargeStats().w), rank:(META.sargeUp&&META.sargeUp[SPS.wk])|0, spsHand:META.spsHand||null, spsNew:META.spsNew|0, seenIt:(META.sargeSeen||[]).indexOf(SPS.wk)>=0, lvl:SPB_LVL, unlock:SARGE_WEAPONS[SPS.wk].unlock, soul:META.soul||null, news:g(fortNews) },
@@ -89877,6 +89960,7 @@ const SFX = {
   boom:  ()=>{ noise(0.35,0.22,700); tone(120,40,0.3,'sine',0.14); },
   cotboom:()=>{ noise(0.35,0.2,380); tone(60,22,0.34,'sine',0.16); },   // 0586 THE COTTON LANDS: the boom one octave down (120→40 becomes 60→22, the noise darker) — the pop-cannon's own thud in the thock's family; no new asset
   thock: ()=>tone(180,120,0.07,'sine',0.2),
+  escCut: ()=>escCutSfx(),   /* CARD-ESW THE ESCORT'S SWORDS: a horseman's cut, the steel singing (a swish and a thin ring: tone() and noise() alone) */
   dshClank: ()=>{ tone(1250,760,0.07,'square',0.05); tone(3400,2900,0.04,'triangle',0.03); noise(0.03,0.06,5000); },   /* CARD-SHD THE CLANK: a round stopped by the shield, a dull clank with a bright tick (never the saber's sound) */
   dshBash: ()=>{ tone(210,70,0.16,'sine',0.16); tone(880,520,0.10,'square',0.06); noise(0.07,0.12,2400); },   /* CARD-SHD THE BASH: the shield driven into a man, a flat heavy clang */
   dshCrack: ()=>{ noise(0.05,0.14,3200); tone(520,180,0.12,'square',0.07); tone(140,60,0.14,'sine',0.12); },   /* CARD-SHD THE CRACK: a big hit stopped, a snap over a low thud */
@@ -93863,7 +93947,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.53';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.54';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -115476,8 +115560,8 @@ function tdMount(f,x,y,hw,rear,riderKey,lean,flip,alpha,sabW){   // the General 
   const dx=(rear?0.111:0.128)*hw*(flip?-1:1), dy=(rear?0.40:0.361)*hw;
   if(alpha!=null) cx.globalAlpha=alpha;
   drawSprite(hk,x,y,hw,lean,0,hi,flip);
-  if(sabW) kbSteedSabre(x+dx,y-dy,hw*0.36,lean-0.05,flip,sabW,riderKey==='kbsteedup');   // 1079: BEHIND the rider — his paw closes over the grip and the on-foot-size tassel never crosses his small face; over the horse
-  drawSprite(riderKey,x+dx,y-dy,hw*0.36,lean-0.05,0,ri,flip);
+  if(sabW) kbSteedSabre(x+dx,y-dy,hw*0.36,lean-0.05,flip,sabW,riderKey==='kbsteedup'); else if(escOn(riderKey)) escSabre(f,x+dx,y-dy,hw*0.36,lean-0.05,flip,riderKey); /* CARD-ESW: the horseman's sabre in his raised paw */   // 1079: BEHIND the rider — his paw closes over the grip and the on-foot-size tassel never crosses his small face; over the horse
+  drawSprite(riderKey,x+dx,y-dy,hw*0.36,lean-0.05,0,ri,flip); if(escOn(riderKey)) escOver(f,x+dx,y-dy,hw*0.36,lean-0.05,flip,riderKey); /* CARD-ESW: the cut's crescent and star */
   if(alpha!=null) cx.globalAlpha=1;
 }
 // 1079 THE SWORD ON THE HORSE: the on-foot sabre's own sprite (kbsabre — the hero's box, 120 × 188 from y −48) painted at the ON-FOOT width sw (never the rider's 0.36), its GRIP seated in the rider's raised PAW, inside the rider's own transform chain (drawSprite's: the seat, the flip, the lean) — so the blade a kid sees on the horse is the blade he sees on foot, to the pixel. KB_SAB_PAW = the 'sabre' arm's paw (R2_POSES.sabre's P (14,46) under ted's 1.06 about (62,126) → (11.12,41.2)) from the rider's anchor (drawSprite seats a 120 × 140 mold's (60, 128.8) on its point) in rider-mold units; KB_SAB_GRIP = the same paw inside the sword's box (y + 48). On a moving frame (kbsteedup: the trot, the charge, the prance) the blade tips FORWARD about the paw by KB_SAB_TIP — the point the rider's arm used to make (⚑ FP-C, 0 = the on-foot angle on every frame).
@@ -140711,8 +140795,8 @@ const T_ROYAL_LEAD_CHARGE=ted({hat:'bearskin',coat:COAT_GUARD,sleeve:FR_BLUE,boo
 const T_ROYAL_LEAD=ted({hat:'bearskin',coat:COAT_GUARD,sleeve:FR_BLUE,boots:1,arms:'hold',prop:MUSKET+STANDARD(false),s:1.06});   // ...THE SQUAD LEADER: the paw-print standard planted beside the slung musket (prop concatenation — the SWAGGER+WHISTLE precedent), a size up
 const T_ROYAL_ALLY_CHARGE=ted({hat:'bearskin',coat:COAT_GUARD,sleeve:KB_ALLY_SLEEVE,boots:1,arms:'hold',prop:MUSKET_LEVEL});   // 0910 REV 2 THE GUARD FIGHTS: THE ROYAL GUARD's charge pose — the gold sleeve + the musket levelled, the bayonet fixed (T_ROYAL_CHARGE's own dress) through the wind, the flight and the cuts
 const T_ROYAL_ALLY=ted({hat:'bearskin',coat:COAT_GUARD,sleeve:KB_ALLY_SLEEVE,boots:1,arms:'hold',prop:MUSKET});   // 0909 ⚑ Q13 THE ROYAL GUARD, ally edition: the same blue coat, the emperor's GOLD sleeve
-const T_CAVALRY_ALLY=ted({hat:'bearskin',coat:COAT_GUARD,arms:'reins',sleeve:KB_ALLY_SLEEVE,boots:1,prop:SABRE_HANG,s:1.06,cheek:1});   // 0909 THE CAVALRY, ally edition (the gold sleeve)
-const T_CAVALRY_ALLY_POINT=ted({hat:'bearskin',coat:COAT_GUARD,arms:'point',sleeve:KB_ALLY_SLEEVE,boots:1,prop:SABRE_HANG,s:1.06,cheek:1});
+const T_CAVALRY_ALLY=(ESW.on? ted({hat:'bearskin',coat:COAT_GUARD,arms:'sabre',sleeve:KB_ALLY_SLEEVE,boots:1,s:1.06,cheek:1}) /* CARD-ESW THE ESCORT'S SWORDS: the 'sabre' arm with the paw EMPTY (escSabre paints the blade in it, tdMount); no SABRE_HANG (0.8 px of steel through the saddle cloth) */ : ted({hat:'bearskin',coat:COAT_GUARD,arms:'reins',sleeve:KB_ALLY_SLEEVE,boots:1,prop:SABRE_HANG,s:1.06,cheek:1}));   // 0909 THE CAVALRY, ally edition (the gold sleeve)
+const T_CAVALRY_ALLY_POINT=(ESW.on? T_CAVALRY_ALLY /* CARD-ESW: the moving frame wears the same arm; the point is the BLADE's (the Emperor's T_STEED_EB_POINT law) */ : ted({hat:'bearskin',coat:COAT_GUARD,arms:'point',sleeve:KB_ALLY_SLEEVE,boots:1,prop:SABRE_HANG,s:1.06,cheek:1}));
 const T_STEED_EB=CAPE_EB+ted({hat:'bicorneFR',coat:GEN_COAT_FR,arms:'sabre',sleeve:FR_BLUE,boots:1,prop:CROWN_KB,s:1.06,cheek:1});   // 1079 THE SWORD ON THE HORSE (FM-GVT-FORT-PETS-02; Wyatt 9/17: "While Emperor Bear is on his horse, his sword seems to be very tiny. It needs to be long and the normal size while he's on the horse, as it is when he's off the horse."): THE GATE — 0909 seated him with SABRE_HANG (a 38 × 3.4 blade at the hip, never the hero's own) on a rider drawn at w·1.35·0.36 = 0.486 of his on-foot size: the steel painted 0.84 px thick against the on-foot blade's 3.45. THE LAW: ONE sword — the rider takes the on-foot arm (round 7's own 'sabre' pose: "up and forward; the far paw to the reins") with the paw EMPTY, and THE EMPEROR'S blade rides in it as its own sprite at the ON-FOOT width (kbsabre below · tdMount · kbSteedSabre). The boss's molds (T_KING_BEAR…) are his — byte-still (⚑ FP-B)   // 0909 THE STEED (§4.6): the Emperor's own cape on the king's seated rider pose
 const T_STEED_EB_POINT=T_STEED_EB;   // 1079: the moving frame wears the same arm — the point is the BLADE's now (kbSteedSabre tips it forward, KB_SAB_TIP)   // …the point on a moving frame
 const T_SABRE_EB='<g transform="translate(62 126) scale(1.06) translate(-62 -126)">'+SABRE_ALOFT_EB+'</g>';   // 1079: THE ON-FOOT SWORD, re-used verbatim — SABRE_ALOFT_EB (the string T_EMPEROR carries) inside ted()'s own wrapper (cx 62 · fy 126 · s 1.06), rastered in the hero's own box (TEDDY_BOX.kbsabre = the kingbear row) → the same pixels, the box's own west edge and all
