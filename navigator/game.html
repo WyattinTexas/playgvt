@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.59","md5":"c39118a1297f5b2ec5d6d6f52714a6d3","sha":"30da8974d4","at":"2026-11-12T20:01:31Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.60","md5":"decb98207366e2f19800cd6f1bcdbe66","sha":"fcd730ec4b","at":"2026-11-12T20:24:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93948,7 +93948,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.60';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -229668,6 +229668,177 @@ try{ GVT.slk=function(){ const g=f=>{ try{ return f(); }catch(e){ return null; }
   return { on:DSH.on, dev:DSH.slkDev, locked:DSH.slk, coded:slkCoded(), key:!!META.slkKey, n:SLK.n, err:SLK.err + (DSH.err|0), order:g(()=>SARGE_ORDER.slice()), own:g(()=>wkOwned(DSH.wk)),
     hand:g(()=>META.sargeWeapon), unlocked:g(()=>(META.sargeUnlocked||[]).indexOf(DSH.wk)>=0), rank:g(()=>(META.sargeUp||{})[DSH.wk]||0), lvl:g(()=>META.lvl|0), codes:g(()=>(META.codes||[]).slice()), trc:g(()=>TRC_WPN.slice()) }; }; }catch(e){}
 // ═══ END CARD-SLK ═══
+// ═══ CARD-DFG · THE DOGFIGHTER FLIES GRACEFULLY (sec:CARD-DFG; design/dogfighter-flight-1111/build-dfg/00-BUILD-DFG.md; the pass ../00-DESIGN-DFG.md, jumpr 3274, built on Maker 1 as M3274,
+// landed by card 3274m; FROM WYATT by phone 11/12/2026 01:15 UTC: "Run a design pass for the dogfighter. We need him flying well and gracefully. Our new model for the dogfighter is nice, but we
+// need to adjust its movement patterns to really nail it down and make it feel fulfilling."; his go on Discord 11/12/2026 14:13 EST, 1570516829351190613, verbatim: "Set live" = every call its REC).
+// THE READ: Laura's plane (CARD-PLN) is a SIDE VIEW; the flight under it was cut 9/30 for the old TOP-DOWN mold (CARD-DF3-A), so the picture was turned to the MAP heading: a plane flying down the
+// carpet was drawn in a nosedive, half the oval's turns pointed its nose at the ground while it climbed, the dodge and the victory roll were drawn as cartwheels, and the dogfight whirled.
+// THE FLIGHT NOW (every number a dial in DFG; the code below is the pass's prototype kit/proto-dfg.js by named changes, build-dfg/kit/mk_sec.py):
+// 1 THE PICTURE READS THE FLIGHT: the drawing faces east or west and pitches with the climb (nose down in a dive, up in a zoom), a little tilt from the depth, Laura's bank lean at half, eased by a
+//   spring; her one side-view drawing turned in its own plane, never squashed · 2 THE TURN-AROUND IS FLOWN SIDE-ON: up and over (the reversal) or over and down (the split-S, when high), the facing
+//   swapped at the vertical · 3 THE LEGS run the screen's long way (at most LEG_DEP off level) · 4 THE HUNT flies PASSES: lead pursuit, the heading near level, a quick reversal when the target is
+//   behind, the guns live again from REV_FIRE of it · 5 THE DODGE is a JINK (a dip and a recover; the hit gap is still the rule) · 6 THE VICTORY ROLL is a VICTORY LOOP · 7 THE CORPS' PLANES wear
+//   the same picture rule (their flight is theirs). The run's pick is side-on (RUN_DEP). Reduced motion: the tilt halved, the jink and the loop off, the flight the same.
+// UNTOUCHED: the run's law, the burst's reach and cone, the hit gap, the damage, the bar, the box pass, the fall (today's picture), the ACES loop, the engine's sound, the Bomber. Wraps BY NAME
+// (dfFly, dfHunt, dfRunPick, dfPass, dfFlightDraw, skyDrawPlane, dfBodyDraw over CARD-PLN's, dfRelay, coopSend): no shipped line changes. Zero words, save keys, server or sw bytes.
+// THE PARTY: the flight lives in the sim, so the launch word 'dfl' carries rf:'g' (a key the server's CMD_KEYS holds since v117: zero server bytes); a friend's plane whose word lacks it (an older
+// client's) is marked dfgOld and flies the old way on this screen too, and an older client never reads rf on that word. ?dfg=0 = the whole section off (sticky gvt_dfg; ?dfg=1 clears): every plane
+// as before and no mark sent. GVT.dfg() = the rigs' read (GVT.dfg({dial:n}) sets a dial for the session); GVT.dfgPic(p) = where the drawing's nose and canopy point.
+var DFG=(function () {
+  const DFG = { ver: 'dfg-1', on: (function () { try { const q = /[?&]dfg=([01])/.exec(location.search || ''); if (q) { if (q[1] === '0') localStorage.setItem('gvt_dfg', '0'); else localStorage.removeItem('gvt_dfg'); } return localStorage.getItem('gvt_dfg') === '0' ? 0 : 1; } catch (e) { return 1; } })(),   // THE SWITCH (CARD-PLN's grammar): ?dfg=0 sticks, ?dfg=1 clears
+    DEPTH: 0.30, LEAN: 0.5, CLIMB_GAIN: 1.0, PITCH_W: 9,
+    REV_T: 1.25, REV_UP: 44, REV_SLOW: 0.55, REV_FAST: 1.22, REV_DEP: 0.35, HREV_T: 0.8, HREV_UP: 34, HREV_SLOW: 0.8,
+    SPLIT_T: 1.2, SPLIT_DOWN: 36,
+    LEG_DEP: 0.42, HUNT_DEP: 0.70, HUNT_BEHIND: 1.57, HUNT_HOLD: 0.15, HUNT_EXTEND: 0, HUNT_LONG: 0, HUNT_REV_CD: 0.9, ROW_L: 140, AIM_T: 0.32, LEAD_MAX: 0.8, RUN_DEP: 0.96, ALT_PEAK: 1.32,
+    JINK_T: 0.45, JINK_DROP: 14, JINK_NOSE: 0.30, JINK_CD: 1.5, JINK_FADE: 0.15, LOOP_KEEP: 1,
+    VLOOP_T: 1.25, VLOOP_R: 30,
+    OVER_T: 0.62,
+    REV_FIRE: 0.45,
+    n: { rev: 0, split: 0, jink: 0, jinkSkip: 0, vloop: 0, over: 0, draw: 0, revFire: 0 } };
+  const PI = Math.PI, HALF = PI / 2;
+  const sm = x => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+  const wrap = a => { while (a > PI) a -= 2 * PI; while (a < -PI) a += 2 * PI; return a; };
+  const depOf = hd => Math.atan2(Math.sin(hd), Math.abs(Math.cos(hd)));            // the heading's angle off level (+ = toward the camera, down the screen)
+  const clampDep = (wh, face, lim) => { const d = Math.max(-lim, Math.min(lim, Math.atan2(Math.sin(wh), Math.abs(Math.cos(wh))))); return Math.atan2(Math.sin(d), face * Math.cos(d)); };   // the wanted heading kept on the FACING side, at most lim off level (a turn-around is a reversal, never a flat swing through the vertical)
+
+  // ── THE PICTURE'S STATE (one per plane: face ±1, ph = the nose's pitch in the plane's own frame, + = up; a manoeuvre's clock when one is flown)
+  function G(o, hd) { let g = o.dfg; if (!g) { const c = Math.cos(hd || 0); g = o.dfg = { face: (c >= 0) ? 1 : -1, ph: 0, pv: 0, ws: null, wv: 0, alt: null, man: null, jinkAt: -9, revAt: -9, behind: 0, wh: null, tp: null }; } return g; }
+  function climbPitch(o, g, dt, alt, spd) { const a0 = (g.alt == null) ? alt : g.alt; g.alt = alt; const cr = (dt > 0) ? (alt - a0) / dt : 0; return DFG.CLIMB_GAIN * Math.atan2(cr, Math.max(60, spd || 150)); }
+  // the pitch the flight asks for outside a manoeuvre: the climb + a little of the depth (nose a touch down coming toward the camera) + the bank's lean (Laura's lean, halved)
+  function wantPitch(g, cp, hd, bank) { return cp - DFG.DEPTH * depOf(hd) - DFG.LEAN * (typeof PLN_TILT === 'number' ? PLN_TILT : 0.3) * Math.sin(bank || 0) * g.face * (Math.cos(hd) >= 0 ? 1 : -1); }
+  // a critically damped spring: the picture's pitch eases to what it wants (no snap when the climb changes)
+  function spring(g, want, dt) { const w = DFG.PITCH_W, x = g.ws - want; const a = -w * w * x - 2 * w * g.wv; g.wv += a * dt; g.ws += g.wv * dt; }
+  function loopKeep(o) { const r = o.roll; if (DFG.LOOP_KEEP && r && r.k === 'victory') r.dfgS = -(r.dfgS || 1); }   // the facing swapped INSIDE a victory loop: the loop turns the other way in the drawing's own frame from here, so the nose on the screen never jumps (the mirrored drawing, the same loop)
+  // one step of the picture (mine: from dfPass; the Corps': lazily from the draw). ws = the eased pitch the flight asks for (always kept); a manoeuvre starts from
+  // the picture's own angle, goes to the vertical, swaps the facing there, and hands back to ws: no frame ever jumps
+  function picStep(o, dt, hd, alt, spd, bank) {
+    const g = G(o, hd), cp = climbPitch(o, g, dt, alt, spd), M = g.man;
+    if (g.ws == null) { g.ws = g.ph; g.wv = 0; }
+    spring(g, wantPitch(g, cp, hd, bank), dt);
+    if (M) { if (M.ph0 == null) M.ph0 = g.ph; M.t += dt; const k = Math.min(1, M.t / M.T);
+      if (M.k === 'rev' || M.k === 'split' || M.k === 'over') { const up = (M.k === 'split') ? -1 : (M.k === 'over' ? M.dir : 1);
+        if (k < 0.5) g.ph = M.ph0 + (up * HALF - M.ph0) * sm(k / 0.5);
+        else { if (!M.swapped) { M.swapped = 1; g.face = M.to; loopKeep(o); } const w = 1 - sm((k - 0.5) / 0.45); g.ph = w * up * HALF + (1 - w) * g.ws; } }
+      if (k >= 1) { if (!M.swapped) { g.face = M.to; loopKeep(o); } g.man = null; g.ph = g.ws; }
+      return; }
+    g.ph = g.ws;
+    const f = (Math.cos(hd) >= 0) ? 1 : -1;
+    if (f !== g.face && Math.abs(Math.cos(hd)) > 0.08) { g.man = { k: 'over', t: 0, T: DFG.OVER_T, to: f, dir: (Math.sin(hd) > 0) ? -1 : 1 }; DFG.n.over++; }   // a facing swap nobody flew: a quick pitch-over (up when the plane heads away, down when it comes toward us)
+  }
+  // the picture: nose + canopy on the screen (the trace reads it; the draw turns the drawing to it)
+  function picOf(o, hdFallback) { const g = G(o, hdFallback); let ph = g.ph, face = g.face; return { ph, face }; }
+  DFG.pic = function (p) {
+    if (p.down) { const hd = (p.hd == null) ? (p.dir < 0 ? PI : 0) : p.hd, R9 = dfHeadRot(hd); let rot = R9.rot + 0.25 + 0.6 * Math.min(1, p.down.t / DF_FALL); const lean = PLN_TILT * Math.sin((p.bank || 0) + (p.rollA || 0)), A = rot + (R9.flip ? -lean : lean); return R9.flip ? { nx: -Math.cos(A), ny: Math.sin(A), ux: -Math.sin(A), uy: -Math.cos(A) } : { nx: Math.cos(A), ny: Math.sin(A), ux: Math.sin(A), uy: -Math.cos(A) }; }
+    const c = cosm(p), q = picOf(p, p.hd), ph = q.ph + c.dph, f = q.face;
+    return { nx: f * Math.cos(ph), ny: -Math.sin(ph), ux: -f * Math.sin(ph), uy: -Math.cos(ph) };
+  };
+  // the cosmetic manoeuvres (no sim byte): THE JINK (the dodge's picture) and THE VICTORY LOOP (the salute's picture), read off the game's own p.roll clock
+  function cosm(p) { const r = p.roll; if (!r || reducedMotion()) return { dph: 0, dx: 0, dy: 0 };
+    let jf = 1; if (r.k === 'dodge' && p.dfg && p.dfg.man) { if (!(DFG.JINK_FADE > 0)) return { dph: 0, dx: 0, dy: 0 }; jf = 1 - sm(p.dfg.man.t / DFG.JINK_FADE); if (jf <= 0) return { dph: 0, dx: 0, dy: 0 }; }   // a jink in flight when a turn-around begins FADES in JINK_FADE s (the prototype cut it in one frame: a snap of the nose and a hop of the body); gone before the facing swaps
+    const k = Math.max(0, Math.min(1, r.t / r.dur));
+    if (r.k === 'victory') { const th = (r.dfgS || 1) * 2 * PI * sm(k), R = DFG.VLOOP_R, f = (p.dfg ? p.dfg.face : 1); return { dph: th, dx: f * R * Math.sin(th) * 0.8, dy: -R * (1 - Math.cos(th)) }; }
+    return { dph: -jf * DFG.JINK_NOSE * Math.sin(2 * PI * k), dx: 0, dy: jf * DFG.JINK_DROP * Math.sin(PI * k) }; }
+
+  // ── THE REVERSAL, FLOWN SIDE-ON (the patrol's ends and the hunt's turn-arounds): the x of the pace goes +v → 0 → −v, the body up and over (or over and down), the facing swapped at the vertical
+  function revStart(p, kind, rowY, quick) { const g = G(p, p.hd); const f0 = g.face;
+    p.dfgRev = { k: kind, t: 0, T: quick ? DFG.HREV_T : ((kind === 'split') ? DFG.SPLIT_T : DFG.REV_T), up: quick ? DFG.HREV_UP : DFG.REV_UP, slow: quick ? DFG.HREV_SLOW : DFG.REV_SLOW, f0: f0, alt0: p.alt, gy0: p.gy, row: (rowY == null) ? p.gy : rowY, top: 0 };
+    g.man = { k: kind, t: 0, T: p.dfgRev.T, to: -f0 }; p.st = (kind === 'split') ? 'split' : 'rev'; p.stT = 0; p.wing = 0; p.rollA = 0; DFG.n[kind]++;
+    const L = dfLedger(); if (kind === 'split') L.splits = (L.splits | 0) + 1; }
+  function revStep(p, dt) { const R = p.dfgRev; R.t += dt; p.stT += dt; const k = Math.min(1, R.t / R.T), e = sm(k);
+    const SL = R.slow, spdK = (k < 0.5) ? 1 - (1 - SL) * Math.sin(PI * k) : (k < 0.8 ? SL + (DFG.REV_FAST - SL) * sm((k - 0.5) / 0.3) : DFG.REV_FAST + (1 - DFG.REV_FAST) * sm((k - 0.8) / 0.2));
+    const v = p.spd * spdK, vx = R.f0 * v * Math.cos(PI * e), dy = R.row - p.gy, vy = Math.max(-DFG.REV_DEP * v, Math.min(DFG.REV_DEP * v, dy * 2.2));
+    if (R.k === 'split') p.alt = Math.max(30, R.alt0 - DFG.SPLIT_DOWN * sm(k)); else p.alt = R.alt0 + R.up * Math.sin(PI * Math.pow(k, DFG.ALT_PEAK));
+    p.altT = p.alt; p.spdNow = v; p.spdMul = spdK; p.bank *= Math.max(0, 1 - dt * 5);
+    if (Math.hypot(vx, vy) > 1) p.hd = Math.atan2(vy, vx);
+    const WX = S.bf ? WORLD_W : W; p.gx = Math.max(40, Math.min(WX - 40, p.gx + vx * dt)); p.gy = Math.max(DF_TOP + Math.max(DF_ALT, p.alt), Math.min(WORLD_H - 30, p.gy + vy * dt)); dfPlace(p);
+    if (!R.top && k >= 0.5) { R.top = 1; if (p.wingBox) { p.wingBox = 0; try { dfBoxTurn(p); } catch (e) {} } }
+    if (k >= 1) { p.dfgRev = null; p.st = p.hunt ? 'hunt' : 'patrol'; p.altT = DF_ALT; p.hd = (R.f0 > 0) ? PI : 0; if (Math.abs(vy) > 1) p.hd = Math.atan2(vy, -R.f0 * Math.abs(v)); p.dfg && (p.dfg.revAt = S.t); return true; }
+    return false; }
+
+  // ── THE PATROL (dfFly's place): the legs flown along the screen's long way, the reversal at each end side-on
+  const fly0 = dfFly;
+  dfFly = function (p, dt) {
+    if (!DFG.on || p.dfgOld) return fly0.apply(this, arguments);
+    const V = p.oval;
+    if (p.dfgRev) { revStep(p, dt); return; }
+    if (p.hunt) { p.hunt = null; p.st = 'patrol'; p.rollA = 0; p.wpDir = (p.gx > (V.x0 + V.x1) / 2) ? -1 : 1; p.lane = (p.gy < (V.y0 + V.y1) / 2) ? 0 : 1; }
+    if (p.st === 'rev') p.st = 'patrol';
+    if (dfOvalEnd(p, p.gx, V)) { p.wpDir = -p.wpDir; p.lane = 1 - p.lane; const wb = ((p.wpDir < 0 && p.boxDir > 0) || (p.wpDir > 0 && p.boxDir < 0)) ? 1 : 0; const L = dfLedger(); L.wingovers = (L.wingovers | 0) + 1; dfRows(p); const V2 = p.oval;
+      const g = G(p, p.hd); if (g.face !== p.wpDir) { p.wingBox = wb; revStart(p, 'rev', p.lane ? V2.y1 : V2.y0); return; } p.wingBox = 0; if (wb) { try { dfBoxTurn(p); } catch (e) {} } }
+    const g = G(p, p.hd); let wh = dfbAim(p); wh = clampDep(wh, g.face, DFG.LEG_DEP);
+    dfSteer(p, wh, dt); p.wing = 0; p.altT = (p.roll && p.roll.k === 'victory') ? DF_ALT + DF_VROLL_UP : DF_ALT; dfAltStep(p, dt, p.spd); dfFlyStep(p, dt); };
+
+  // ── THE HUNT (dfHunt's place): passes, not a compass needle
+  const hunt0 = dfHunt;
+  dfHunt = function (p, dt) {
+    if (!DFG.on || p.dfgOld) return hunt0.apply(this, arguments);
+    const T = dfAirPick(p); if (!T) { if (p.dfgRev && p.st !== 'patrol') { revStep(p, dt); return true; } return false; }
+    const g = G(p, p.hd);
+    if (p.st !== 'hunt' && p.st !== 'split' && p.st !== 'rev') { p.st = 'hunt'; p.altT = DF_ALT; }
+    p.hunt = { k: T.k, o: T.o }; const WX = S.bf ? WORLD_W : W;
+    if (p.dfgRev) { const R0 = p.dfgRev; revStep(p, dt); p.cd -= dt;
+      if (p.cd <= 0 && R0.t / R0.T >= DFG.REV_FIRE) { const dd = Math.hypot(T.x - p.x, T.y - p.y), ahead = Math.cos(Math.atan2(T.y - p.y, T.x - p.x) - p.hd); if (dd <= df2AirR(p, T) && ahead > df2Ahead(p, T)) { p.cd = DF_CD; DFG.n.revFire++; dfAirStrafe(p, T); } else p.cd = 0.15; }
+      else if (p.cd < 0.15) p.cd = 0.15; return true; }
+    // the lead: where the target will be when the rounds arrive (its pace read off its last seat)
+    const tp = g.tp; let vx = 0, vy = 0; if (tp && tp.o === T.o && dt > 0) { vx = (T.x - tp.x) / dt; vy = (T.y - tp.y) / dt; } g.tp = { o: T.o, x: T.x, y: T.y };
+    const d0 = Math.hypot(T.x - p.x, T.y - p.y), lead = Math.min(DFG.LEAD_MAX, d0 / Math.max(120, p.spdNow * 1.6));
+    const A9 = dfEdgeAim(p.x, p.y, T.x + vx * lead, T.y + vy * lead, WX, DF_TOP, WORLD_H - 30 - DF_ALT, 70);
+    let wh = Math.atan2(A9[1] - p.y, A9[0] - p.x); const behind = Math.abs(Math.atan2(Math.sin(wh), Math.cos(wh) * g.face)) > DFG.HUNT_BEHIND;
+    g.behind = behind ? g.behind + dt : 0;   // THE EXTEND: past the target the plane flies on (HUNT_EXTEND px, or HUNT_LONG s) before it reverses: a pass, then a wingover and the next pass
+    if (g.behind >= DFG.HUNT_HOLD && (d0 >= DFG.HUNT_EXTEND || g.behind >= DFG.HUNT_LONG) && S.t - g.revAt >= DFG.HUNT_REV_CD && p.alt >= DF_ALT * 0.85) { revStart(p, (p.alt > DF_ALT + 6) ? 'split' : 'rev', Math.max(DF_TOP + DF_ALT, Math.min(WORLD_H - 40, T.o && T.o.y != null ? (T.y + (p.alt || DF_ALT)) : p.gy)), 1); g.behind = 0; return true; }
+    { const ax = A9[0] - p.x, ay = A9[1] - p.y, dep = Math.max(-DFG.HUNT_DEP, Math.min(DFG.HUNT_DEP, Math.atan2(ay, Math.abs(ax) + DFG.ROW_L))); wh = Math.atan2(Math.sin(dep), g.face * Math.cos(dep)); }   // THE ROW-FOLLOW: the nose eases toward the target's row (no saturation, no weave), always on the facing side
+    if (g.wh == null) g.wh = wh; g.wh = g.wh + wrap(wh - g.wh) * Math.min(1, dt / DFG.AIM_T);   // the aim smoothed: no wobble when the target jinks
+    dfSteer(p, g.wh, dt);
+    dfAltStep(p, dt, p.spd); dfFlyStep(p, dt);
+    p.cd -= dt; if (p.cd <= 0) { if (p.alt < DF_ALT * 0.6) { p.cd = 0.15; return true; } const dd = Math.hypot(T.x - p.x, T.y - p.y), ahead = Math.cos(Math.atan2(T.y - p.y, T.x - p.x) - p.hd);
+      if (dd <= df2AirR(p, T) && ahead > df2Ahead(p, T)) { p.cd = DF_CD; dfAirStrafe(p, T); } else p.cd = 0.15; }
+    return true; };
+
+  // ── THE STRAFING RUN SIDE-ON: the pick takes a man whose line from the shadow lies on the facing side, at most RUN_DEP off level (a dive seen from the side, never a dive into the screen)
+  const pick0 = dfRunPick;
+  dfRunPick = function (p) { if (!DFG.on || p.dfgOld) return pick0.apply(this, arguments); const f = pick0.apply(this, arguments); if (!f) return f; const g = G(p, p.hd), dx = f.x - p.gx, dy = f.y - p.gy;
+    if (dx * g.face <= 0 || Math.abs(Math.atan2(dy, Math.abs(dx))) > DFG.RUN_DEP) { DFG.n.runSkip = (DFG.n.runSkip | 0) + 1; return null; } return f; };
+  // ── THE PICTURE'S CLOCK for my planes (once a sim step, after the plane moved) + THE DODGE'S THROTTLE + THE LOOP'S LENGTH
+  const pass0 = dfPass;
+  dfPass = function (dt) { const r = pass0.apply(this, arguments);
+    try { if (DFG.on && S.dfs) for (const p of S.dfs) { if (p.gone || p.down || p.dfgOld) continue;
+      if (p.roll && p.roll.k === 'dodge' && !p.roll.dfg) { const g = G(p, p.hd); if (S.t - g.jinkAt < DFG.JINK_CD || g.man || p.dfgRev) { p.roll = null; DFG.n.jinkSkip++; } else { g.jinkAt = S.t; p.roll.dfg = 1; p.roll.dur = DFG.JINK_T; DFG.n.jink++; } }
+      if (p.roll && p.roll.k === 'victory' && !p.roll.dfg) { p.roll.dfg = 1; p.roll.dur = DFG.VLOOP_T; DFG.n.vloop++; }
+      const pitchAce = (typeof acePitch === 'function') ? acePitch(p) : 0;
+      if (p.st === 'aloop' && pitchAce) { const g = G(p, p.hd); g.ph = -pitchAce; g.pv = 0; g.alt = p.alt; continue; }
+      picStep(p, dt, p.hd, p.alt, p.spdNow, p.bank); } } catch (e) { DFG.err = String(e && e.stack || e).slice(0, 300); }
+    return r; };
+
+  // ── THE DRAW: the drawing faced and pitched (her one side-view drawing turned in its own plane, never squashed); the shadow, the slide and the bob as today
+  let CUR = null;
+  const fd0 = dfFlightDraw; dfFlightDraw = function (p) { if (!DFG.on || p.down || p.dfgOld) return fd0.apply(this, arguments); CUR = p; try { return fd0.apply(this, arguments); } finally { CUR = null; } };
+  const sd0 = skyDrawPlane; skyDrawPlane = function (f) { const K = f && f.sky; if (!DFG.on || !K || K.hd == null || f.boss) return sd0.apply(this, arguments);
+    const last = K.dfgT; const dt = (last == null) ? 0 : Math.max(0, Math.min(0.1, S.t - last)); K.dfgT = S.t; if (dt > 0 || K.dfg == null) picStep(K, dt, K.hd, (K.alt != null) ? K.alt : SKY_ALT, K.spdNow || 150, K.bank || 0);
+    CUR = K; try { return sd0.apply(this, arguments); } finally { CUR = null; } };
+  const bd0 = dfBodyDraw;
+  dfBodyDraw = function (im, w, gx, gy, alt, ref, hd, bank, rollA, roll, wob, bob, downK, pitch) {
+    const o = CUR; if (!DFG.on || !o || !o.dfg || downK != null) return bd0.apply(this, arguments);
+    DFG.n.draw++; const RM = reducedMotion(), ak = Math.max(0, Math.min(1.6, alt / ref)), s = dfScale(alt, ref), g = o.dfg;
+    cx.save(); cx.globalAlpha = Math.max(0.06, 0.26 - 0.10 * ak); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(gx, gy, w * 0.40 * s, w * 0.085 * s, 0, 0, 7); cx.fill(); cx.restore();
+    const c = (o.type === 'dogfighter') ? cosm(o) : { dph: 0, dx: 0, dy: 0 }, ph = (RM ? 0.5 : 1) * (g.ph + c.dph), face = g.face;
+    const q = [-Math.sin(hd), Math.cos(hd)], slide = (RM ? 0 : DF_SLIDE) * Math.sin(bank || 0);
+    const bx = gx + q[0] * slide + c.dx, by = gy - alt + q[1] * slide + c.dy + ((RM || !bob || roll) ? 0 : Math.sin(S.t * 5 + wob) * 2.0);
+    const h = w * (im.height / im.width); cx.save(); cx.translate(bx, by - h * 0.42 * s); if (face < 0) cx.scale(-1, 1); cx.rotate(-ph); cx.scale(s, s); cx.drawImage(im, -w / 2, -h / 2, w, h); cx.restore(); };
+  // ── THE PARTY (DFG-F1): the flight lives in the sim, so each screen must fly a friend's plane the way its owner's screen does. MY launch word carries rf:'g' (the server's CMD_KEYS holds rf:
+  // one lowercase letter; an older client never reads it on 'dfl'); a friend's plane whose word lacks it flies the old way here (dfgOld). The battlefield's word rides the same door.
+  const relay0 = dfRelay;
+  dfRelay = function (cm) { const n0 = (S.dfs || []).length, r = relay0.apply(this, arguments);
+    try { if (DFG.on && S.dfs && !(cm && cm.rf === 'g')) for (let i = n0; i < S.dfs.length; i++) { const p = S.dfs[i]; if (p && !p.mine) { p.dfgOld = 1; DFG.n.old = (DFG.n.old | 0) + 1; } } } catch (e) { DFG.err = String(e && e.stack || e).slice(0, 300); }
+    return r; };
+  const send0 = coopSend;
+  coopSend = function (cm) { try { if (DFG.on && cm && cm.k === 'dfl' && cm.rf == null) cm.rf = 'g'; } catch (e) {} return send0.apply(this, arguments); };
+  // ── THE RIGS' DOOR: the read, and a dial set for the session (numbers the table already holds; on = 0 | 1; never saved)
+  DFG.read = function (o) { if (o && typeof o === 'object') for (const k in o) { if (k !== 'n' && typeof DFG[k] === 'number' && typeof o[k] === 'number' && isFinite(o[k])) DFG[k] = (k === 'on') ? (o[k] ? 1 : 0) : o[k]; }
+    return { ver: DFG.ver, on: DFG.on, n: Object.assign({}, DFG.n), err: DFG.err || null }; };
+  return DFG;
+})();
+setTimeout(function () { try { if (window.GVT) { if (!GVT.dfg) GVT.dfg = function (o) { return DFG.read(o); }; if (!GVT.dfgPic) GVT.dfgPic = function (p) { return DFG.pic(p); }; } } catch (e) {} }, 0);   // hung on the DEBUG API once the page is up (CARD-PYK's grammar)
+// ═══ END CARD-DFG ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
