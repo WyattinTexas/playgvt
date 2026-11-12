@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.64","md5":"e48da144a0b9d78a0f08320521cfb05a","sha":"1ee7c489b1","at":"2026-11-12T21:29:37Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.65","md5":"f3d9fa073cd3036f7f7e8c7ec9a7d9b6","sha":"eb20930b3c","at":"2026-11-12T21:39:42Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93952,7 +93952,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.64';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.65';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -230276,6 +230276,44 @@ try{
 } catch(e){ ptr2Err('boot',e); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.ptr2) GVT.ptr2=function(o){ o=o||{}; if(o.on===0 || o.on===1){ PTR2.on=o.on; ptr2P1Set(o.on? PTR2_P1 : 1); } return ptr2Read(); }; }catch(e){} },0);   // the rigs' door (CARD-PTR's own grammar)
 // ═══ END CARD-PTR2 ═══
+// ═══ CARD-JGL · A KICK NEVER LIFTS THE ROOM (sec:CARD-JGL; design/juggle-lag-1112/00-CARD-JGL.md; built on Maker 1, branch air/juggle-lag). FROM WYATT, 11/12/2026 ~15:00 EST, typed on Maker 1, verbatim:
+//   "When juggling the soccer ball, the game is acting remarkably laggy. For having all the files, we really expect a lag-free experience, as what we're really doing here is so simple."
+// THE CAUSE (measured on the iPhone's engine at an iPhone Pro's glass, 874 x 402 at 3 dots, his own save, his backyard, the dinosaurs' ball; the record's section 2):
+//   the juggle's own code is light (the step and the paint together under 0.2 ms a frame). THE COUNTER over the ball is not. It is an html chip inside #roomStage (.starfloat.run), and every kick
+//   plays .tick's 0.34 s pulse on it: a CSS animation of `transform`. An engine gives an element whose transform (or opacity) a CSS animation moves a LAYER OF ITS OWN, and #roomStage is itself
+//   transformed (the room's fit to the glass), so the engine must lift THE WHOLE ROOM onto a new layer too (WebKit's own word for it: transformWithCompositedDescendants): 1,306 x 600 points =
+//   3,918 x 1,800 dots = 26.9 MB, made and painted in full (every still-room canvas, the whole svg) AT EVERY KICK, and thrown away a third of a second later, the room painted back into the page.
+//   A run of juggling = the engine's layers going 36.8 MB to 65 MB and back once a kick. The same lift at a rung's flare (kuflare), at the send-off when the ball lands (starup: transform and
+//   opacity), at every +N★ float over a room, and at each pat of a dog (CARD-PAW's counter is the same idiom).
+// THE CURE: the four keyframes a float plays (starup, pigtick, kuflare, pawflare) move three REGISTERED CUSTOM PROPERTIES instead of `transform` and `opacity` themselves, and .starfloat reads
+//   them (transform: translateY(var(--jgl-y)) scale(var(--jgl-s)); opacity: var(--jgl-o)). The same numbers on the same clock, the same easing, the same end pose (fill forwards holds the
+//   properties); but no animation names `transform` or `opacity`, so the engine makes no layer for the chip and never lifts the room: the pulse is a small repaint inside the room's own frame.
+//   Measured: the layers stand at 36.8 MB through a whole run (65 MB at every kick before); the worst frame in the half second after a kick, paired turn by turn in one page: 96 ms to 67 ms on
+//   a Mac whose plain frame stood at 56 ms in both.
+// ONE STYLE ELEMENT (#jglCss, the last in the head: a later @keyframes of the same name is the one the engine plays), NO SHIPPED LINE CHANGED. An engine without registered properties
+//   (CSS.registerProperty: Safari before 16.4) gets nothing and plays the game as it shipped. #srmBg .sra-float carries a translateX(-50%) of its own that the shipped starup always overrode: its
+//   line below keeps what the shipped game drew. A NEW float class with a transform or an opacity of its own needs its line here (batteryJGL's T7 reads every rule in the page and fails on one).
+// OFF: ?jgl=0 on a device (key gvt_jgl; ?jgl=1 lifts it) = no style element, the shipped keyframes; GVT.jgl() is the rigs' door ({on}: the sheet on or off in a living page).
+var JGL={ on:1, ok:0, why:'' };
+try{ const q=/[?&]jgl=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_jgl','0'); else localStorage.removeItem('gvt_jgl'); } if(localStorage.getItem('gvt_jgl')==='0') JGL.on=0; }catch(e){}
+const JGL_PROPS=[['--jgl-y','<length>','0px'],['--jgl-s','<number>','1'],['--jgl-o','<number>','1']];
+const JGL_CSS='.starfloat{transform:translateY(var(--jgl-y)) scale(var(--jgl-s));opacity:var(--jgl-o)}'
+  +'#srmBg .sra-float.starfloat{transform:translateY(var(--jgl-y)) scale(var(--jgl-s))}'
+  +'@keyframes starup{from{--jgl-y:0px;--jgl-o:1}to{--jgl-y:-46px;--jgl-o:0}}'
+  +'@keyframes pigtick{0%{--jgl-s:1}30%{--jgl-s:1.3}100%{--jgl-s:1}}'
+  +'@keyframes kuflare{0%{--jgl-s:1}35%{--jgl-s:1.9}100%{--jgl-s:1}}'
+  +'@keyframes pawflare{0%{--jgl-s:1}35%{--jgl-s:1.8}100%{--jgl-s:1}}';
+function jglArm(){ if(!JGL.on){ JGL.why='off'; return 0; } if(document.getElementById('jglCss')) return 1;
+  try{ if(!(window.CSS && typeof CSS.registerProperty==='function')){ JGL.why='no registered properties on this engine'; return 0; }
+    for(const p of JGL_PROPS){ try{ CSS.registerProperty({ name:p[0], syntax:p[1], inherits:false, initialValue:p[2] }); }catch(e){ if(!(e && e.name==='InvalidModificationError')) throw e; } }   // registered already (a second arm in one page): fine
+    const s=document.createElement('style'); s.id='jglCss'; s.textContent=JGL_CSS; (document.head||document.documentElement).appendChild(s); JGL.ok=1; JGL.why=''; return 1;
+  }catch(e){ JGL.why=String((e && e.message) || e); return 0; } }
+function jglRead(o){ if(o && typeof o==='object' && 'on' in o){ JGL.on=o.on? 1 : 0; let s=document.getElementById('jglCss'); if(!s && JGL.on){ jglArm(); s=document.getElementById('jglCss'); } if(s) s.disabled=!JGL.on; }
+  const s=document.getElementById('jglCss'); return { on:JGL.on, ok:JGL.ok, live:!!(s && !s.disabled), why:JGL.why }; }
+jglArm();
+try{ if(window.GVT && !GVT.jgl) GVT.jgl=jglRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.jgl) GVT.jgl=jglRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-JGL ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
