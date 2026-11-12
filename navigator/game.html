@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.60","md5":"decb98207366e2f19800cd6f1bcdbe66","sha":"fcd730ec4b","at":"2026-11-12T20:24:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.61","md5":"0cca185c953b5347d55341a698f68037","sha":"d565b51a26","at":"2026-11-12T20:32:25Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93948,7 +93948,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.60';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.61';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -229652,7 +229652,10 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.slp) GVT.slp=function(o){ retu
 // THE CODE: SHIELD at the codes counter (the counter's own normaliser: any case) = META.slkKey (rides the save to every device of that army), the shield in META.sargeUnlocked (its rank and
 //   records were never touched), the switch on again in this page (the shield back at its seat on SARGE_ORDER, the hand it left), and its card once (riteFire: the weapon's own ceremony).
 // NOT REGULAR: no level, part, rung or rescue reaches it (the grant walks SARGE_ORDER, and the shield is not on it); no URL switch opens it. The undo is the version before.
-function slkCoded(){ try{ return !!(META && (META.slkKey || (Array.isArray(META.codes) && META.codes.indexOf('SHIELD')>=0))); }catch(e){ return false; } }
+// THE KEEP (Wyatt, 11/12/2026 15:05 EST, verbatim: "We can let him keep it for now."): an army that BOUGHT THE EMPEROR'S ESCORT (1500 stars, a shield part; one army, before the lock) keeps
+//   THE SHIELD as if it had typed the code. Nobody can buy the Escort now without the shield (it leaves the lab with it), so the keep reaches no one new. One line to take out when he says.
+function slkKept(){ try{ const o=META.enh && META.enh.own; return Array.isArray(o) && o.indexOf('emperorsescort')>=0; }catch(e){ return false; } }
+function slkCoded(){ try{ return !!(META && (META.slkKey || (Array.isArray(META.codes) && META.codes.indexOf('SHIELD')>=0) || slkKept())); }catch(e){ return false; } }
 function slkGate(){ try{ DSH.slkDev=DSH.on? 1 : 0; DSH.slk=0; if(DSH.on && !slkCoded()){ DSH.on=0; DSH.slk=1; } }catch(e){ try{ DSH.err++; }catch(e2){} } }   // on the load line, before dshSargeCut()
 var SLK={ n:0, err:0 };
 function slkOpen(){ META.slkKey=1; if(!Array.isArray(META.sargeUnlocked)) META.sargeUnlocked=[]; if(META.sargeUnlocked.indexOf(DSH.wk)<0) META.sargeUnlocked.push(DSH.wk);
@@ -229665,7 +229668,7 @@ SECRET_CODES.SHIELD={ has:()=>!!META.slkKey && dshOn(), take(){ slkOpen(); },
   get say(){ return t('SARGE CAN USE THE SHIELD NOW. Equip it at the Training Academy!'); },
   get held(){ return t('THE SHIELD IS ALREADY YOURS'); }, card:()=>riteFire(null) };
 try{ GVT.slk=function(){ const g=f=>{ try{ return f(); }catch(e){ return null; } };   // the rig's door: the read, no writes
-  return { on:DSH.on, dev:DSH.slkDev, locked:DSH.slk, coded:slkCoded(), key:!!META.slkKey, n:SLK.n, err:SLK.err + (DSH.err|0), order:g(()=>SARGE_ORDER.slice()), own:g(()=>wkOwned(DSH.wk)),
+  return { on:DSH.on, dev:DSH.slkDev, locked:DSH.slk, coded:slkCoded(), kept:slkKept(), key:!!META.slkKey, n:SLK.n, err:SLK.err + (DSH.err|0), order:g(()=>SARGE_ORDER.slice()), own:g(()=>wkOwned(DSH.wk)),
     hand:g(()=>META.sargeWeapon), unlocked:g(()=>(META.sargeUnlocked||[]).indexOf(DSH.wk)>=0), rank:g(()=>(META.sargeUp||{})[DSH.wk]||0), lvl:g(()=>META.lvl|0), codes:g(()=>(META.codes||[]).slice()), trc:g(()=>TRC_WPN.slice()) }; }; }catch(e){}
 // ═══ END CARD-SLK ═══
 // ═══ CARD-DFG · THE DOGFIGHTER FLIES GRACEFULLY (sec:CARD-DFG; design/dogfighter-flight-1111/build-dfg/00-BUILD-DFG.md; the pass ../00-DESIGN-DFG.md, jumpr 3274, built on Maker 1 as M3274,
