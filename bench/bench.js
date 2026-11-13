@@ -180,7 +180,7 @@
     wrap('campFlowLaunch', function(){ last.exit = 'AFTER THE UPGRADE AND THE CARDS, BEFORE L' + ((META.campaign | 0) + 1) + ' (the flow)'; }, null);
     wrap('bfAgainLaunch', function(){ last.exit = 'PLAY AGAIN (the battleground\'s exit)'; }, null);
     function adWhy(){   // the gate's own inputs, in squadAdGate's own order, read before it runs; never a branch inside it
-      var o = { at:Date.now(), game:(META.adGames | 0), exit:last.exit || 'VERDICT EXIT', why:[], due:false, prov:'?' };
+      var o = { at:Date.now(), game:(META.adGames | 0), exit:last.exit || 'VERDICT EXIT', why:[], due:false, prov:'?', shows:(B.ads? B.ads.shows | 0 : 0) };   // CARD-BPF: shows = the bridge's count of cards asked for before this exit
       try{
         var a = GVT.ads(); var games = o.game; o.prov = a.provider;
         var sq = !!((S.bf && S.bf.sqAdT) || (S.sq && S.sq.sqAdT)); if(sq) o.why.push('a squad exit (never on the bench)');
@@ -202,8 +202,12 @@
       }catch(e){ o.why.push('the gate could not be read: ' + (e && e.message)); }
       return o;
     }
-    wrap('squadAdGate', adWhy, function(r, pre){ var shown = !!(B.ads && B.ads.pend && B.ads.pend.at >= pre.at); last.exit = '';
-      B.log('AD', 'GAME ' + pre.game + ' · ' + pre.exit + ' · ' + (shown? 'AD PLACEMENT shown' : (pre.due? 'DUE, ' : 'NO BREAK (') + (pre.why.length? pre.why.join('; ') : 'no reason read: a bench finding') + (pre.due? '' : ')'))); });
+    // CARD-BPF (11/13/2026) THE EXIT ROW KNOWS THE GAME'S HOLD. Since CARD-ADH (10/20) the game asks for a card and holds the post ADH_LEAD ms (the verdict stays up until the ad covers it), so
+    // nothing has reached the bridge yet when the gate returns: every card that then showed had been logged first as DUE, no reason read: a bench finding. A due break with no reason against it
+    // is now logged as ASKED, and the finding is written only if no card came within 3 s of the ask (the bridge's own count of shows).
+    wrap('squadAdGate', adWhy, function(r, pre){ var came = function(){ return !!(B.ads && ((B.ads.shows | 0) > pre.shows || (B.ads.pend && B.ads.pend.at >= pre.at))); }, shown = came(), asked = !shown && pre.due && !pre.why.length; last.exit = '';
+      B.log('AD', 'GAME ' + pre.game + ' · ' + pre.exit + ' · ' + (shown? 'AD PLACEMENT shown' : asked? 'DUE: the game asked for the card and holds the post a moment (the card follows)' : (pre.due? 'DUE, ' : 'NO BREAK (') + (pre.why.length? pre.why.join('; ') : 'no reason read: a bench finding') + (pre.due? '' : ')')));
+      if(asked) setTimeout(function(){ if(!came()) B.log('AD', 'GAME ' + pre.game + ' · ' + pre.exit + ' · DUE, and no card came within 3 s of the ask: a bench finding'); }, 3000); });
     wrap('hideAllOverlays', function(){ if(adCard) adFinish(adCard.m.kind === 'int', 'torn down by the game (an abort: the held launch still fires once)'); }, null);
     // the birthday gate (the phone's true beat): the log records the TRACK, never the date
     wrap('ageGateAnswer', null, function(t){ if(t) B.log('AD', 'BIRTHDAY GATE answered · track ' + t + (t === 'teen'? ' · the bench answers init: the provider arms' : ' · child track: zero ads on this throwaway, forever (an answer is sticky)')); else B.log('AD', 'BIRTHDAY GATE: an incomplete answer (the card stays)'); });
@@ -687,7 +691,7 @@
       r.appendChild(btn('CLOSE', '', function(){ closeOv('benchSheet'); }));
       o.appendChild(r);
       var items = el('div', { id:'benchSheetItems' });
-      items.appendChild(el('div', { 'class':'item' }, [btn('EVERY SEAT ' + (dials.seat? 'ON' : 'OFF'), dials.seat? 'on' : '', function(){ flip('seat'); }), D.createTextNode('An AD PLACEMENT card at every exit where a phone could break: the six-game cradle and the campaign-5 cliff lifted, the first game not free, the clock every game. The minute gap and the sitting cap stand (the phone\'s own law). Switches TRACK PRE-ANSWERED on. OFF = the phone\'s rhythm.')]));
+      items.appendChild(el('div', { 'class':'item' }, [btn('EVERY SEAT ' + (dials.seat? 'ON' : 'OFF'), dials.seat? 'on' : '', function(){ flip('seat'); }), D.createTextNode('An AD PLACEMENT card at every exit where a phone could break: the level start lifted, a card due at every game from the first. The minute gap and the sitting cap stand (the phone\'s own law). Switches TRACK PRE-ANSWERED on. OFF = the phone\'s rhythm.')]));
       items.appendChild(el('div', { 'class':'item' }, [btn('TRACK PRE-ANSWERED ' + (dials.track? 'ON' : 'OFF'), dials.track? 'on' : '', function(){ flip('track'); }), D.createTextNode('The birthday gate answered 13+ by the dial, so no gate asks and the ad provider is armed from boot. OFF: the gate asks once per reset at the first room visit, the phone\'s true beat; the log records the track, never the date. The header names either switch.')]));
       items.appendChild(el('div', { 'class':'item' }, [btn('RETREAT', 'warn', retreat), D.createTextNode('Forfeit the running battle through the game\'s own loss door: the tan walk into the box, the tan flag, the loss face (TRY AGAIN, the tenth of XP, quiet mercy on the attempt after two straight losses). On L1 the game\'s own rule turns it into THE TAN RETREAT?! The row reads RETREAT (forfeit).')]));
       items.appendChild(el('div', { 'class':'item' }, [btn('THE LEDGER', '', function(){ closeOv('benchSheet'); openLedger(); }), D.createTextNode('The reward road read against the game\'s own tables: every prize OWED, HELD (the game\'s own pacing, named), GRANTED, ANNOUNCED (the ticket, the card), TAKEN; MISSING only when a landing\'s line ended without it; DRIFT where HEAD\'s rung differs from the design road. The strip shows the next three rungs; COPY RUN carries the whole road above the log.')]));
