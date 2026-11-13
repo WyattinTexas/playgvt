@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.74","md5":"191693a744f28a00fab089b1a999942b","sha":"9a10fa4819","at":"2026-11-13T01:41:36Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.75","md5":"582ff3c5031315d5569d8b772c703257","sha":"f84a9abb6f","at":"2026-11-13T04:17:58Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93812,7 +93812,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -219855,6 +219855,89 @@ function mawRead(o){ o=o||{}; try{ if(o.warm) mawWarm(1); }catch(e){ mawErr('rig
     knock:{ owed:mawOwed(), quiet:mawQuiet(), k:MAW.k, timer:!!MAW.t, knocks:MAW.knocks, healed:MAW.healed, kid:MAW.kid }, loc:{ id:LOC.id, src:!!LOC.src, busy:LOC.busy||null, armed:!!LOC.armed }, err:MAW.err, e:MAW.e }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.maw) GVT.maw=mawRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-MAW ═══
+// ═══ sec:CARD-MGR · A FIGHT A DEAD PAGE TOOK IS HANDED BACK (design/mid-game-reset-1112/00-CARD-MGR.md; jumpr 3305, built on Maker 1 as M3305). FROM WYATT'S PHONE, 11/12/2026 19:56:34 EST, dictated, verbatim: "We just had our game reset when we were in the middle of a 4v4 game. It was super weird and went back to the home screen. This is not okay. Audit why this happened, and we need to prevent this from happening in the future." ═══
+// THE READ (the record's §1, from HQ's logs and the game's own endx tally): nothing reset him. His iPhone ended the game's page under him (the web view's process, twice in four minutes: at the attic's menu, then about 70 s into the 4v4), and the
+// App Store app did what it is built to do with a dead page: load the game again from the top, PRESS START. The fight lived only in that page, so the player stood at the title with no word of what happened. The same happens to players every day.
+// THE CHANGE (this section alone, no shipped line touched): while a fight shows, the page keeps one small note (localStorage gvt_mgr: the kind of fight, a battlefield's size and map, the time, refreshed every 5 s; marked when the page is hidden, taken
+// away at the verdict or the menu). A page that starts and finds a FRESH note that nobody marked (5 minutes) knows the last page died in that fight. It then (1) opens the room by itself the moment the game is up (a veteran's own door: showMenu(), the
+// line PRESS START runs; a brand-new save keeps its title) and (2) deals ONE small card in the room's top band on a quiet second (the #nbCard grammar, body-parented, z 26 under every modal, never over a fight): THE BATTLE WAS CUT OFF, and for a plain
+// battlefield against the queue BACK TO THE BATTLE = the war table's own launcher of the same size (UI.wtPlay), one tap. NOT NOW, 45 s shown, or a fight the player walks into folds it for good; a ceremony, a pop-up or a door over the room makes it step aside
+// and it is dealt again on the next quiet second (never past three minutes after the start). A fight left by the player (the page hidden, a tab closed) is never read as a death.
+// A fight in company (S.coop) keeps no note: HQ holds that seat and the squad's own rejoin card (0322 REPORT BACK TO YOUR SQUAD?) is its way back.
+// ?mgr=0 = off on this device (localStorage gvt_mgroff '1'; ?mgr=1 clears it). GVT.mgr() = the read. Nothing is sent to HQ; the save (gvt_meta) is not touched.
+var MGR={ on:1, K:'gvt_mgr', FRESH_MS:300000, BEAT_MS:5000, CARD_MS:45000, GIVE_MS:180000, t0:Date.now(), note:null, died:null, opened:0, card:0, cardT:0, shown:0, deals:0, took:'', ticks:0, err:0, e:'' };
+function mgrErr(w, e){ try{ MGR.err++; MGR.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function mgrLoad(){ try{ const o=JSON.parse(localStorage.getItem(MGR.K)||'null'); return (o && typeof o==='object' && typeof o.k==='string' && typeof o.t==='number')? o : null; }catch(e){ return null; } }
+function mgrSave(o){ try{ if(o) localStorage.setItem(MGR.K, JSON.stringify(o)); else localStorage.removeItem(MGR.K); }catch(e){} }
+function mgrKind(){   // what shows: a plain battlefield against the queue ('bf', its size and map), any other battlefield ('bfx'), any other fight ('play')
+  const bf=S.bf;
+  if(!bf) return { k:'play', n:0, m:'' };
+  const plain=!S.coop && !bf.opener && !bf.ga && !bf.raid && !bf.away && !bf.bd && !bf.nem && !bf.gl && !bf.feat;   // company, the tutorial's opener, the Gauntlet, a raid, an away duel, the desert, the Nemesis, the globe and the featured battle have doors of their own
+  return { k:plain? 'bf' : 'bfx', n:Math.max(1, Math.min(10, bf.team|0)), m:String(bf.mapId||'').slice(0,24) };
+}
+function mgrTick(){
+  try{
+    if(!MGR.on) return;
+    MGR.ticks++;
+    const now=Date.now();
+    if(S.mode==='play' && !S.coop){   // a fight in company is not this card's: its seat is held at HQ and the squad's own rejoin card (0322) brings its player back
+      const k=mgrKind(), o=MGR.note;
+      if(!o || o.k!==k.k || o.n!==k.n || o.m!==k.m){ MGR.note={ k:k.k, n:k.n, m:k.m, t:now, t0:now, h:document.hidden? 1 : 0 }; mgrSave(MGR.note); }
+      else if(!document.hidden && now-o.t>=MGR.BEAT_MS){ o.t=now; o.h=0; mgrSave(o); }
+    } else if(MGR.note){ MGR.note=null; mgrSave(null); }
+    if(MGR.died){ if(!MGR.opened) mgrOpen(); if(!MGR.card) mgrCardTry(); }
+  }catch(e){ mgrErr('tick', e); }
+}
+function mgrHide(h){ try{ const o=MGR.note; if(!MGR.on || !o) return; o.h=h? 1 : 0; if(!h) o.t=Date.now(); mgrSave(o); }catch(e){ mgrErr('hide', e); } }   // hidden or left = the player's own leave; shown again = the fight goes on
+function mgrOpen(){   // the room by itself, once the game says it is up: a veteran's own door (the title's showMenu), never a new save's first shot
+  try{
+    if(!window.__GVT_BOOT){ if(Date.now()-MGR.t0>MGR.GIVE_MS) MGR.opened=-1; return; }
+    MGR.opened=1;
+    const t=document.getElementById('title');
+    if(S.mode==='title' && t && !t.classList.contains('hidden') && (META.campaign>0 || META.opener)){ try{ audio(); }catch(e){} showMenu(); MGR.opened=2; }
+  }catch(e){ MGR.opened=-1; mgrErr('open', e); }
+}
+function mgrCardClear(why){ try{ const el=document.getElementById('mgrCard'); if(el){ clearInterval(el._t); el.remove(); } MGR.card=2; if(why && !MGR.took) MGR.took=why; }catch(e){ mgrErr('clear', e); } }
+function mgrCardHold(){ try{ const el=document.getElementById('mgrCard'); if(el){ clearInterval(el._t); el.remove(); MGR.shown+=Date.now()-MGR.cardT; } MGR.card=0; }catch(e){ mgrErr('hold', e); } }   // a ceremony, a pop-up or a door over the room: the card steps aside and comes back (its 45 s count only while it shows)
+function mgrCardTry(){   // ONE card, on a quiet second in the room; a player who went on by himself (a fight, a door) is not chased past three minutes
+  try{
+    if(Date.now()-MGR.t0>MGR.GIVE_MS){ MGR.card=-1; return; }
+    if(S.mode!=='menu' || !roomQuiet() || document.getElementById('mgrCard')) return;
+    const d=MGR.died, bf=d.k==='bf';
+    const el=document.createElement('div'); el.id='mgrCard';
+    el.innerHTML='<div class="sqb-t" data-notr>'+TXT(d.k==='play'? 'THE FIGHT WAS CUT OFF' : 'THE BATTLE WAS CUT OFF')+'</div>'
+      +'<div class="sqb-s" data-notr>'+TXT(bf? 'THE GAME STOPPED UNDER YOU. IT DID NOT COUNT AS A LOSS.' : 'THE GAME STOPPED UNDER YOU.')+'</div>'
+      +'<div class="sqb-r">'+(bf? '<button type="button" class="mbtn mgr-go" data-notr>'+TXT('BACK TO THE BATTLE')+'</button>' : '')
+      +'<button type="button" class="mbtn alt mgr-no" data-notr>'+TXT(bf? 'NOT NOW' : 'OKAY')+'</button></div>';
+    document.body.appendChild(el);
+    MGR.card=1; MGR.cardT=Date.now(); MGR.deals++;
+    const go=el.querySelector('.mgr-go');
+    if(go) go.onclick=()=>{ try{ audio(); }catch(e){} MGR.took='go'; mgrCardClear('go'); try{ openWarTable(); UI.wtPlay(d.n>2? d.n : d.n===2? 2 : 1); }catch(e){ mgrErr('go', e); } };   // the war table's own launcher of that size: the queue, the map the player stands on
+    el.querySelector('.mgr-no').onclick=()=>{ try{ audio(); SFX.clack(); }catch(e){} MGR.took='no'; mgrCardClear('no'); };
+    el._t=setInterval(()=>{ try{ if(S.mode==='play' || MGR.shown+(Date.now()-MGR.cardT)>MGR.CARD_MS) mgrCardClear('fold'); else if(S.mode!=='menu' || !roomQuiet()) mgrCardHold(); }catch(e){ mgrCardClear('fold'); } }, 500);   // a fight the player went into, or 45 s shown = folded for good; anything else over the room = it steps aside
+  }catch(e){ MGR.card=-1; mgrErr('card', e); }
+}
+function mgrRead(o){ o=o||{}; try{ if(o.died){ MGR.died=o.died; MGR.opened=0; MGR.card=0; MGR.shown=0; MGR.deals=0; MGR.took=''; MGR.t0=Date.now(); } }catch(e){ mgrErr('rig', e); }   // a rig may hand a death in (o.died = a note); the read alone changes nothing
+  return { cv:GVT_CV, on:MGR.on, note:MGR.note? Object.assign({}, MGR.note) : null, stored:mgrLoad(), died:MGR.died? Object.assign({}, MGR.died) : null, opened:MGR.opened, card:MGR.card, up:!!document.getElementById('mgrCard'), shown:MGR.shown, deals:MGR.deals, took:MGR.took, ticks:MGR.ticks, err:MGR.err, e:MGR.e }; }
+try{
+  (function(){
+    let q=null; try{ q=new URLSearchParams(location.search).get('mgr'); }catch(e){}
+    try{ if(q==='0') localStorage.setItem('gvt_mgroff', '1'); else if(q==='1') localStorage.removeItem('gvt_mgroff'); }catch(e){}
+    try{ MGR.on=localStorage.getItem('gvt_mgroff')==='1'? 0 : 1; }catch(e){ MGR.on=1; }
+    const o=mgrLoad(), now=Date.now();
+    mgrSave(null);   // a note is spent by the page that finds it: one death, one card, never a second
+    if(MGR.on && o && !o.h && now>=o.t && now-o.t<=MGR.FRESH_MS) MGR.died=o;
+    const st=document.createElement('style'); st.id='mgrCss';
+    st.textContent='#mgrCard{position:fixed;left:50%;top:max(62px,calc(env(safe-area-inset-top,0px) + 54px));transform:translateX(-50%);z-index:26;background:rgba(24,26,19,0.96);border:2px solid #D9A544;border-radius:14px;padding:10px 16px 12px;color:#F4E9C8;font-family:var(--ui);font-weight:bold;font-size:clamp(12px,2.6vh,17px);letter-spacing:0.06em;box-shadow:0 6px 20px rgba(0,0,0,0.5);max-width:86vw;text-align:center}'
+      +'#mgrCard .sqb-t{color:#FFD97A}#mgrCard .sqb-s{font-size:0.78em;opacity:0.9;margin-top:3px;letter-spacing:0.08em}#mgrCard .sqb-r{display:flex;gap:10px;justify-content:center;margin-top:9px}#mgrCard .mbtn{font-size:clamp(11px,2.2vh,15px);padding:0.5rem 0.9rem}';
+    (document.head || document.documentElement).appendChild(st);
+    document.addEventListener('visibilitychange', function(){ mgrHide(document.hidden); });
+    window.addEventListener('pagehide', function(){ mgrHide(true); });
+    setInterval(mgrTick, 1000);
+  })();
+}catch(e){ mgrErr('boot', e); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.mgr) GVT.mgr=mgrRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-MGR ═══
 // ═══ CARD-DER · THE DESERT STARTS AT THE RING, ON EVERY LANE (sec:CARD-DER; design/desert-early-start-1102/00-CARD-DER.md; J14, lane gvt-p2, acct I Spacely, Fable 5.1 at max). FROM WYATT by phone 11/2/2026 20:33 EST (jumpr remote), verbatim: "The match started 2 minutes early. In fact, the play started, and then I got the push notification that in 2 minutes it was supposed to start. We played 2 minutes early, and then, when there were like 30 seconds left, we had another character even be able to join the game, so it was a 3 versus 2. After the game, the losing team, for some reason, had a 'Try Again' button, but there's no 'Try Again' button after the Battle of the Desert, just 'Continue'." and "One team was able to play down infinite units, but they kept dying."
 // WHAT HAPPENED (room F7VTW, 11/2 20:25-20:32 EST, read off the box): a chair's app relaunched in the hold (20:28:45); the rejoin note knocked and rejoined through the plain room lane (/room/join), which launches the fight with no hold and no desert dressing; at 20:29:55 the founder put his app away for a second and HQ handed the whistle to that chair (CARD-DAR: the longest-seated awake commander); its running clock reached every screen and CARD-HLD's rule 1 (the hold follows the referee) rang every bell at 20:30, two minutes before the ring (20:32). The pour and the bounties ran over a six-minute "match" (the units); a chair seated at 20:30:24 landed in a running fight with 30 s on the adopted clock (the 3 v 2); the verdict came one second after the ring; the loss face dealt the plain battleground's TRY AGAIN.
 // THE LAW NOW (?der=0 = HEAD, remembered on the device as gvt_der; ?der=1 forgets it):
