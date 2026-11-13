@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.05","md5":"419efb5d1f761d23454ea47030436f78","sha":"8a52341a0e","at":"2026-11-13T15:25:13Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.06","md5":"db399df3a17388491fe06ac6cb15cbbb","sha":"7893159da4","at":"2026-11-13T15:33:03Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -72964,6 +72964,22 @@ function skySapPack(x,y,w,fl,lit){ const d=fl? -1 : 1, s=w/50*1.3; cx.save(); cx
   if(lit){ const k=reducedMotion()? 1 : 0.6+0.4*Math.sin(S.t*18+x*0.13); cx.fillStyle='rgba(255,210,74,'+(0.85*k).toFixed(2)+')'; cx.beginPath(); cx.arc(8,-20,2.8+1.3*k,0,7); cx.fill(); cx.fillStyle='#FF7A3A'; cx.beginPath(); cx.arc(8,-20,1.5,0,7); cx.fill(); }
   cx.restore(); }
 function skySapDraw(f){ skySapPack(f.x, f.y, f.def.w, foeFl(f), 1); }   // over his own row's picture (drawFoe's latch)
+// ═══ CARD-HSS A HELD SAPPER'S SATCHEL STAYS ON HIS BACK (jumpr 3336, board J59-3336; design/held-sapper-satchel-1113/00-CARD-HSS.md; the brief: design/drawn-twice-1112/cards/CARD-HSS-held-sapper-satchel.md, a fault CARD-DFT found on the way) ═══
+// drawFoe draws a HELD man (0424 THE ROYAL GRIP's branch: f.kyHeldT>0, not a boss, not ducked, not falling) hovering: his picture kyl9=17+3*sin(S.t*16) px up and swaying sin(S.t*16)*0.05 about his
+// feet (drawSprite turns him after the mirror). The sapper's satchel (skySapDraw just above, CARD-SF3-C) is painted by drawFoe's outer pass at his SEAT: while the Dark Dragon tossed a sapper (or
+// anything held him) the satchel sat about 17 px low on him, on his hips, not his back.
+// THE CURE (paint only: no number of a fight moves; no line above or below is edited): skySapDraw wrapped BY NAME. Under the held branch's own condition the satchel is laid under the same hover
+// and the same sway, from the same clock, about the same feet (up kyl9, turned as his mirrored picture turns), so it sits on his back exactly where it sits on a man standing. Every other call as before.
+// THE SWITCH: ?hss=0 on a device (gvt_hssoff '1'; ?hss=1 clears it) = the satchel at his seat as before. GVT.hss() = the rigs' read; GVT.hss({ on:0|1 }) at run time.
+const HSS={ on:(function(){ try{ const q=/[?&]hss=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_hssoff','1'); else localStorage.removeItem('gvt_hssoff'); } return localStorage.getItem('gvt_hssoff')==='1'? 0 : 1; }catch(e){ return 1; } })(),
+  base:skySapDraw, n:0, err:0 };   // base = the game's own satchel painter (skySapDraw, just above) · n = the satchels laid under a held man's hover
+function hssHeld(f){ return !!(f && f.kyHeldT>0 && !f.boss && !f.burrow && !f.falling); }   // drawFoe's own held branch, word for word: he is drawn hovering
+function hssDraw(f){ if(HSS.on!==1 || !hssHeld(f)) return HSS.base.apply(this, arguments);
+  let k9, a9, m9; try{ k9=17+3*Math.sin(S.t*16); a9=Math.sin(S.t*16)*0.05; m9=foeFl(f)? -1 : 1; }catch(e){ HSS.err++; return HSS.base.apply(this, arguments); }   // the held branch's own hover and sway; foeFl = his picture's own mirror this frame
+  cx.save(); try{ cx.translate(f.x, f.y-k9); cx.rotate(m9*a9); cx.translate(-f.x, -f.y); HSS.n++; return HSS.base.apply(this, arguments); } finally{ cx.restore(); } }   // his picture's own move about his feet: up k9, turned a9 (a mirrored picture turns the other way)
+skySapDraw=hssDraw;
+setTimeout(function(){ try{ if(window.GVT && !GVT.hss) GVT.hss=function(o){ if(o && o.on!=null) HSS.on=o.on? 1 : 0; return { cv:GVT_CV, on:HSS.on, outer:(skySapDraw===hssDraw)? 1 : 0, n:HSS.n, err:HSS.err }; }; }catch(e){} }, 0);   // after the page's whole script (the game writes GVT further down)
+// ═══ END CARD-HSS ═══
 function skyStone(f){ const R=S.raid && S.raid.sky, D=f.skyDrop; if(!R || !D || !skyOn()) return false;   // A SHOT CHUTE DROPS LIKE A STONE (foeFell's fork: the kill is counted and paid by its own door; this is his picture): the canopy tears away at the height he hung, he drops to his seat
   (R.stones||(R.stones=[])).push({ x:f.x, y:f.y, alt:f.y-skyAirY(f), t:0, type:f.type, img:foeCmdImg(f), w:f.def.w, sd:(Math.round(D.sw*10)%2)? 1 : -1, sap:f.skySap? 1 : 0, down:0, sink:0 });
   R.stoneN=(R.stoneN|0)+1; bfSfx(SFX.snap, f.x, f.y); return true; }
@@ -93923,7 +93939,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.05';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
