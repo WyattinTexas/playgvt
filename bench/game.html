@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.21","md5":"a8964e5367f6585a0877ed2ed7d97413","sha":"a79f55f0b7","at":"2026-11-13T23:24:24Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.22","md5":"4dd403a4eea0f9cbbe87c204163ecd1f","sha":"805f82231e","at":"2026-11-13T23:45:22Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93993,7 +93993,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -231555,6 +231555,223 @@ function bbeRead(o){ o=o||{}; if(o.on===0 || o.on===1) BBE.on=o.on; if(o.part){ 
     lab:(typeof BLB_RULES!=='undefined')? BLB_RULES.filter(function(q){ return /^BBE_/.test(q[0]); }).map(function(q){ return q[0]; }) : null }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bbe) GVT.bbe=bbeRead; }catch(e){} },0);   // the rigs' door (GVT is built below)
 // ═══ END CARD-BBE ═══
+// ═══ CARD-SFT · THE SKY FORTRESS BY DIFFICULTY: THE DROPS AND THEIR BARS BY TIER, THE DOG TAG CUT, THE LAST CHARGE'S BAR, A TAIL GUN YOU CAN SEE, SNIPER SARGES IN THE OPEN, BOMBS ON YOUR MEN ONLY (sec:CARD-SFT; design/sky-fortress-tiers-1113/00-CARD-SFT.md; built on Maker 1, branch air/sky-fortress-tiers, the Big Mac lands it) ═══
+// FROM WYATT, 11/13/2026 about 12:40 EST, typed on Maker 1 with a picture of the fight (IMG_7965), verbatim: "The Mega features in the fight, such as the dogfighter escort in the beginning and the
+// parachuting troops, need to be on each of the difficulties. Just slightly reduce the amount of parachuting troops for each difficulty, and scale up the health of the parachuting enemies as the difficulty
+// goes up. For hard, lower all dog tag gains from this fight by 10 dog tags each per unit you destroy, and on Mega, reduce by 15 each. The turret for the big bomber currently isn't shooting. It needs to be
+// shooting, though. When we did start a game, we realized that our character is being hit from very far away by some source. It looks like perhaps the turret, but it's quite confusing in reality for the
+// player. [...] We need to make sure the graphic for the turret shooting is noticeable. It should be targeting nearby units and pelting them with a turret that's about as strong as the turret on the King
+// Yeti fight. [...] Currently, the parachuting enemy units feel like they are free dog tags, and they need to have their health scaled up. For Hard, make them just about a level 80 version of whatever unit
+// they are. For Mega, we want them to be a level 95 unit of whatever it is. We need to make sure that when the Sniper Sarges land, they're noticeable. We want them firing an energy shot, and we want them to
+// be targeted. [...] Let's have them land in an open area. We don't want them landing and falling in a pit. It seems to happen to our Saber Sarge enemy each time [...] it seems like we need to spawn a few
+// more of them. They should be appearing for every difficulty, just more of them for Mega and Hard." · THE SAME HOUR, his second word on the last charge: "For hard, instead of 1.5, actually increase that
+// to 3, and for mega, increase that to 5 times more HP while the plane is doing its final charge." · AND: "there is also a case where the bomber is bombing the right side of the screen, but he should only
+// be bombing our units and our toy box. He shouldn't be bombing just the right side of the screen for no reason."
+// WHAT IT DOES (every seat wrapped by name; no shipped line edited):
+//  1 · THE DROPS BY TIER (ptr2FloodPlan · bbeDropPlan): the flood after phase one and the last charge's drop come at every tier, a little smaller a tier down (SFT_FLOOD, SFT_DROP: x waves of r riflemen,
+//      f flamers, b bazookas, and s SNIPER SARGES in all, each sniper alone on a seat of his own). The escorts stay CARD-BBE's four at every tier.
+//  2 · THEIR BARS BY LEVEL (ptrChute): a man who comes down under a chute on this roof has the bar of that unit at level SFT_LV (10 · 25 · 80 · 95) off the game's own table (bfHpAt of your rifleman, your
+//      flamer, your bazooka; x the sky's price), never less than he had. THE SNIPER SARGE keeps his 500 (CARD-PTR2). THE SAPPER keeps the bar he had (he is a runner at the box, not a fighter).
+//  3 · THE DOG TAG CUT (spawnFoe · oktPays): every foe of this fight but the Big Bomber pays SFT_TAG_CUT fewer dog tags (HARD 10, MEGA 15), never under 0; a foe that pays 0 drops no tag.
+//  4 · THE LAST CHARGE'S BAR (hrtS5Bar): the wreck's bar at MAYDAY's cry x SFT_WRECK_X (HARD 3, MEGA 5).
+//  5 · A TAIL GUN YOU CAN SEE, ON THE MEN NEAR HER (bbeTurBurst): it fires only at men within SFT_TUR_R px of the turret's point on the roof (400: King Yeti's turret's reach; it was 840), each round King
+//      Yeti's field round by his own law (SFT_TUR_HP HP of the man's unit sheet: 1.25 · 1.5 · 1.75 · 2; a heavy a fifth, a machine a fifth of that), and every round is drawn: a thick bolt and its
+//      bright core from the turret on her tail to the man, the round itself, a muzzle star at the turret, a ring where it lands. NO INSTANT KO IS ADDED: a round is an amount of damage.
+//  6 · THE SNIPER SARGES ARE SEEN (drawFoe · tanHit · the foot): each lands with a flash and two rings, stands on a ring of light, charges a light at his muzzle while he aims, and his round is an
+//      ENERGY SHOT (a wide beam, its core, the round, the star, the ring). His damage, his clock and his reach are his row's, untouched. No plate, no banner, no word.
+//  7 · IN THE OPEN (skyPass · skyTanFall): a sniper Sarge's seat is picked on the part of the roof a phone shows, clear of the toy box, the vents, the holes, the other clusters and her slide's line. A
+//      sniper Sarge or THEIR SABER SARGE whose chute hangs over a hole drifts to the nearest open roof; on the roof neither steps onto a hole's brink, and a hole that opens under one puts him beside it.
+//      THE DROP IS AIMED (Wyatt, the same day, on "we want them to be targeted", verbatim: "you, the CPU, should be dropping the enemy snipers in positions where the CPU thinks it gives the sniper the
+//      best chance of being safe"): the moment a sniper Sarge steps out of the sky (ptr2FloodNow · bbeDropTick) his seat is picked again among his plan's clear tries: the one FURTHEST FROM EVERY MAN OF
+//      YOURS on the roof then, still on the glass, clear of the holes, the other clusters and her slide's line. No man of yours on the roof: his planned seat.
+//  8 · BOMBS ON YOUR MEN ONLY (skyStick): outside the box run she holds her stick until one of your men is under it, and a bomb of the stick that would fall SFT_STICK_NEAR px or more from every man
+//      is not dropped. The box run at the toy box is as shipped.
+// THE TWIN LAW: no die (hashes and the clock). THE SWITCH: ?sft=0 on a device (gvt_sft '0'; ?sft=1 clears it) = the fight as it stood before this card on that device, outside rooms; in a room or a party
+// (S.coop) the new rules always run. GVT.sft(o) = the rigs' door ({ on, part:{ many, lv, tags, wreck, tur, snipe, open, stick, aim }, zero }). THE LAB: nine RULES rows for the sky. Zero css, words, save
+// keys, server and sw bytes; no new drawing (light and lines only).
+const SFT_ON=(function(){ try{ const q=/[?&]sft=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_sft','0'); else localStorage.removeItem('gvt_sft'); } return localStorage.getItem('gvt_sft')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const SFT_LV={ e:10, m:25, h:80, g:95 };                                         // HIS "level 80" (HARD) and "level 95" (MEGA): the level a parachuting man's bar is read at; EASY and MEDIUM are this card's reading of "scale up ... as the difficulty goes up" (0 = the bar he had)
+const SFT_FLOOD={ e:{ x:3, r:4, f:2, b:1, s:1 }, m:{ x:3, r:5, f:2, b:2, s:2 }, h:{ x:4, r:4, f:2, b:2, s:3 }, g:{ x:4, r:5, f:2, b:2, s:4 } };   // THE FLOOD after phase one: x waves of r riflemen · f flamers · b bazookas, and s sniper Sarges in all (22 · 29 · 35 · 40 men; it was 36 at every tier, no sniper)
+const SFT_DROP={ e:{ x:3, r:4, f:2, b:1, s:2 }, m:{ x:3, r:5, f:2, b:2, s:3 }, h:{ x:4, r:4, f:2, b:2, s:4 }, g:{ x:4, r:5, f:2, b:2, s:5 } };    // THE LAST CHARGE'S DROP, the same grammar (23 · 30 · 36 · 41 men; it was 40 at every tier, 4 of them snipers)
+const SFT_TAG_CUT={ e:0, m:0, h:10, g:15 };                                      // HIS "lower all dog tag gains from this fight by 10 ... per unit you destroy, and on Mega, reduce by 15": dog tags off every foe's pay (never under 0)
+const SFT_WRECK_X={ e:1, m:1, h:3, g:5 };                                        // HIS second word: the wreck's bar at the last charge x this (HARD 3, MEGA 5)
+const SFT_TUR_R={ e:400, m:400, h:400, g:400 };                                  // HER TAIL GUN's reach, px on the roof ("targeting nearby units": King Yeti's turret's RAID_TUR_RNG; CARD-BBL's 840 picks, this card's burst holds its fire past this)
+const SFT_TUR_HP={ e:1.25, m:1.5, h:1.75, g:2 };                                 // a round: HP of the man's unit sheet ("about as strong as the turret on the King Yeti fight": KYF_YHP's own four numbers)
+const SFT_TUR_HEAVYX={ e:0.2, m:0.2, h:0.2, g:0.2 };                             // ... on a heavy (a bazooka, a flamer, a commando, a grenadier, a machine): King Yeti's KYF_HEAVYX
+const SFT_STICK_NEAR={ e:150, m:150, h:150, g:150 };                             // HER STICK: a bomb this far or more from every one of your men is not dropped (0 = as shipped)
+const SFT_STICK_RETRY=0.6;                                                       // s before a held stick looks again
+const SFT_MIRROR={ tanrifle:'rifleman', tanflame:'flame', tanbazooka:'bazooka' };   // "a level 80 version of whatever unit they are": the Tan row and your unit it mirrors
+const SFT_SN_X=[460,1180], SFT_SN_Y1=520, SFT_SN_BOX=130, SFT_SN_ROCK=60;        // a sniper Sarge's seat: the roof's columns a phone shows · no lower than this row (the tray) · px beyond the toy box's ring · px off a vent's rim
+const SFT_SEP=110, SFT_LINE=100, SFT_TRIES=40;                                   // px between two clusters' seats · px a seat keeps off her slide's line (the last charge) · hashed tries a seat
+const SFT_PAD=26, SFT_BRINK=12, SFT_DRIFT=140;                                   // IN THE OPEN: px of roof a seat keeps from a hole's rim · the brink a Sarge on foot keeps · px/s a chute drifts off a hole
+const SFT_HEX='#5CF2FF', SFT_TUR_HEX='#FFA62B';                                  // the sniper Sarge's energy · the tail gun's bolt
+const SFT_CUE=1.0;                                                               // the energy shot's and the landing's cue: at most one a second
+const SFT_AIM_Q=40;                                                              // THE AIMED DROP: px a seat's distance to your nearest man is read in (a tie keeps the earlier try: a guest's men trail the referee's by the wire's beat, a few px never change the pick)
+const SFT={ on:SFT_ON, part:{ many:1, lv:1, tags:1, wreck:1, tur:1, snipe:1, open:1, stick:1, aim:1 }, n:{ aimed:0, floods:0, drops:0, lv:0, sap:0, tagCut:0, tagZero:0, wreck:0, turB:0, turR:0, turFar:0, snChute:0, snLand:0, snShot:0, steer:0, hop:0, brink:0, saved:0, sticks:0, stickHeld:0, bombs:0, bombCut:0 }, cueT:-9, err:0, e:'' };
+function sftErr(w,e){ SFT.err++; if(SFT.e.length<400) SFT.e+=w+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function sftOn(){ return !!((SFT.on===1 || S.coop) && skyOn()); }   // the device's switch, outside rooms; a room or a party always runs the new rules (CARD-PTR's lockstep grammar)
+function sftT(C){ const v=C[skyTier()]; return (v==null)? C.h : v; }   // this tier's cell
+function sftOver(){ const rd=S.raid; return !!(!rd || rd.won || rd.kingDown || S.cleared || S.lives<=0 || S.mode!=='play'); }
+function sftInt(v,lo,hi){ return Math.max(lo,Math.min(hi,Math.round(+v||0))); }
+function sftCue(fn,x,y){ if(S.t-SFT.cueT<SFT_CUE) return; SFT.cueT=S.t; try{ bfSfx(fn,x,y); }catch(e){} }
+// ── 7 · IN THE OPEN: the roof's holes, a clear seat ──
+function sftPits(){ return (S.cfg && S.cfg.terrain && S.cfg.terrain.pits)||[]; }
+function sftHoleClr(x,y,pad){ let c=1e6; for(const p of sftPits()){ if(p.sky) c=Math.min(c, Math.hypot(x-p.x,y-p.y)-(p.r+pad)); } return c; }   // px of roof between a seat and the nearest hole's rim (less the pad)
+function sftSeatOk(x,y,pad){ if(sftHoleClr(x,y,pad)<0) return false; const b=skyBox(); if(Math.hypot(x-b.x,y-b.y)<PTR_BOX_R) return false;
+  for(const r9 of ((S.cfg && S.cfg.terrain && S.cfg.terrain.rocks)||[])){ if(Math.hypot(x-r9.x,y-r9.y)<r9.r+10) return false; } return true; }
+function sftOpenSeat(x,y,pad){ if(sftSeatOk(x,y,pad)) return null; const ya=skySeat(0,-1e4).y, yb=skySeat(0,1e4).y;   // null = he is in the open already; else the nearest open seat (rings out from where he is: no die)
+  for(let r=24;r<=384;r+=24) for(let a=0;a<16;a++){ const an=a*Math.PI/8, nx=Math.round(x+Math.cos(an)*r), ny=Math.round(y+Math.sin(an)*r*0.8); if(nx<PTR_BAND[0] || nx>PTR_BAND[1] || ny<ya || ny>yb) continue; if(sftSeatOk(nx,ny,pad)) return { x:nx, y:ny }; }
+  return null; }
+function sftSpecial(f){ return !!(f && !f.dead && (f.type==='skysarge' || f.sftSn)); }   // THEIR SABER SARGE · a sniper Sarge who came down under a chute
+function sftKeep(dt){ const P=sftPits(); let any=false; for(const p of P){ if(p.sky){ any=true; break; } } if(!any) return;
+  for(const f of S.foes){ if(!sftSpecial(f) || f.falling || f.fellVoid) continue; const D=f.skyDrop;
+    if(D){ if(D.hanky) continue; const to=sftOpenSeat(D.x,D.y,SFT_PAD); if(!to) continue;   // HIS CHUTE HANGS OVER A HOLE: it drifts to the nearest open roof (the last third of a second it is there)
+      const dx=to.x-D.x, dy=to.y-D.y, d=Math.hypot(dx,dy), st=(D.t>=SKY_DROP_T-0.35)? d : Math.min(d,SFT_DRIFT*dt); if(d>0){ D.x+=dx/d*st; D.y+=dy/d*st; } if(!f.sftSteer){ f.sftSteer=1; SFT.n.steer++; } continue; }
+    for(const p of P){ if(!p.sky) continue; const dx=f.x-p.x, dy=f.y-p.y, d=Math.hypot(dx,dy), r=p.r+SFT_BRINK; if(d>=r) continue;   // ON THE ROOF: never on a hole's brink
+      if(d<p.r*0.5 || d<1e-6){ const to=sftOpenSeat(f.x,f.y,SFT_PAD); if(to){ f.x=to.x; f.y=to.y; SFT.n.hop++; } } else { f.x=p.x+dx/d*r; f.y=p.y+dy/d*r; SFT.n.brink++; } } } }
+if(typeof skyTanFall==='function'){ const tf0=skyTanFall; skyTanFall=function(f){   // THE ONE DOOR a Tan goes down a bomb hole through: a Sarge is put on the open roof beside it
+    try{ if(sftSpecial(f) && !f.falling && sftOn() && SFT.part.open && !sftOver()){ const to=sftOpenSeat(f.x,f.y,SFT_PAD); if(to){ f.x=to.x; f.y=to.y; if(S.fx.length<500) S.fx.push({k:'puff',x:f.x,y:f.y-6,t:0,dur:0.35,R:14,col:'#ffffff'}); SFT.n.saved++; return; } } }catch(e){ sftErr('fall',e); }
+    return tf0.apply(this, arguments); }; }
+// ── 1 · THE DROPS BY TIER ──
+function sftPlanG(tag,C,line,holes){ const X=sftInt(C.x,0,8), S9=sftInt(C.s,0,12), G=[], all=[], sp=PTR_SCAT_SPREAD, y0=skySeat(0,-1e4).y+sp, y1=skySeat(0,1e4).y-sp, w3=(PTR_BAND[1]-PTR_BAND[0])/3;
+  const bx=skyBox(), rocks=(S.cfg && S.cfg.terrain && S.cfg.terrain.rocks)||[], KD=[['tanrifle',C.r],['tanflame',C.f],['tanbazooka',C.b]];
+  const seat=function(a,b,ya,yb,key,o){ const L=[];   // the best of SFT_TRIES hashed tries: clear of the box's ring and the vents (hard), then the room to her slide's line and the clusters already seated
+    for(let tr=0;tr<SFT_TRIES;tr++){ const x=Math.round(a+(b-a)*ptrRoll(tag+'x'+key+':'+tr)), y=Math.round(ya+(yb-ya)*ptrRoll(tag+'y'+key+':'+tr));
+      let c=Math.hypot(x-bx.x,y-bx.y)-(PTR_BOX_R+o.sp+(o.box||0)); for(const r9 of rocks) c=Math.min(c, Math.hypot(x-r9.x,y-r9.y)-(r9.r+o.sp+(o.rock||PTR_SCAT_CLR)));
+      let d=1e6; if(line>0) d=Math.abs(y-bbeLineY(x))-line; for(const q of all) d=Math.min(d, Math.hypot(x-q.x,y-q.y)-SFT_SEP);
+      L.push({ x:x, y:y, tr:tr, c:Math.round(c), d:Math.round(Math.min(d,9999)), sc:(c<0)? c-1e6 : Math.min(c,d) }); }
+    L.sort(function(p,q){ return (q.sc-p.sc) || (p.tr-q.tr); });
+    let best=L[0]; const alt=L.slice(1).filter(function(q){ return q.c>=0; }).slice(0,o.alts||10).map(function(q){ return [q.x,q.y]; });
+    if(holes && sftHoleClr(best.x,best.y,o.sp+PTR_SCAT_CLR)<0){ for(const q of alt){ if(sftHoleClr(q[0],q[1],o.sp+PTR_SCAT_CLR)>=0){ best={ x:q[0], y:q[1], tr:-1, c:best.c, d:best.d, moved:1 }; break; } } }   // the last charge: a hole that stands open on the seat now moves it to the seat's next clear try
+    best.alt=alt; delete best.sc; all.push(best); return best; };
+  let sn=0;
+  for(let w9=0;w9<X;w9++){
+    for(let k=0;k<3;k++){ const n=sftInt(KD[k][1],0,12); if(!(n>0)) continue; const col=(k+w9)%3;   // each kind in a different third of the roof's width, the thirds turning wave by wave
+      G.push({ w:w9, k:k, kind:KD[k][0], n:n, s:seat(PTR_BAND[0]+w3*col+sp+8, PTR_BAND[0]+w3*(col+1)-sp-8, y0, y1, 'g'+G.length, { sp:sp }), now:null }); }
+    const want=Math.floor(S9*(w9+1)/X)-Math.floor(S9*w9/X);   // the sniper Sarges, shared out over the waves, each alone on a seat in the open
+    for(let j=0;j<want;j++){ G.push({ w:w9, k:3, kind:'tansniper', n:1, s:seat(SFT_SN_X[0], SFT_SN_X[1], y0, Math.min(y1,SFT_SN_Y1), 's'+sn, { sp:0, box:SFT_SN_BOX, rock:SFT_SN_ROCK, alts:SFT_TRIES }), now:null }); sn++; } }
+  return G; }
+if(typeof ptr2FloodPlan==='function'){ const fp0=ptr2FloodPlan; ptr2FloodPlan=function(R){ if(!sftOn() || !SFT.part.many) return fp0.apply(this, arguments);   // THE FLOOD after phase one (CARD-PTR2's ticker steps it out, its hole law moves a seat a hole stands on)
+    try{ const Q=ptrZ(R).scat, C=SFT_FLOOD[skyTier()]||SFT_FLOOD.h, G=sftPlanG('sfF',C,0,0); if(G.length){ PTR2.n.floods++; SFT.n.floods++; return { t0:Q.t0, i:0, many:sftInt(C.x,0,8), G:G, men:[], at:[], sft:1 }; } }catch(e){ sftErr('flood',e); }
+    return fp0.apply(this, arguments); }; }
+if(typeof bbeDropPlan==='function'){ const dp0=bbeDropPlan; bbeDropPlan=function(R){ if(!sftOn() || !SFT.part.many) return dp0.apply(this, arguments);   // THE LAST CHARGE'S DROP (CARD-BBE's ticker steps it out)
+    try{ const C=SFT_DROP[skyTier()]||SFT_DROP.h, G=sftPlanG('sfD',C,SFT_LINE,1); if(G.length){ SFT.n.drops++; return { t0:R.t, i:0, G:G, men:[], sft:1 }; } }catch(e){ sftErr('drop',e); }
+    return dp0.apply(this, arguments); }; }
+// ── THE SNIPER SARGE'S DROP IS AIMED: the safest of his plan's clear tries, read the moment he steps out ──
+function sftSafeSeat(G,i9,line){ const g=G[i9], s0=g && g.s; if(!s0) return null; const men=[]; for(const u of S.units){ if(!sftManOff(u)) men.push(u); } if(!men.length) return null;
+  const C=[[s0.x,s0.y]].concat(s0.alt||[]); let best=null, bs=-1, bm=0;
+  for(let k=0;k<C.length;k++){ const c=C[k], x=c[0], y=c[1]; if(sftHoleClr(x,y,SFT_PAD+PTR_SCAT_CLR)<0) continue; if(k>0 && line>0 && Math.abs(y-bbeLineY(x))<line*0.6) continue;   // (his planned seat stands in the choice whatever its room: the pick is never less safe than the plan)
+    let ok=true; for(let j=0;k>0 && j<G.length && ok;j++){ if(j===i9 || G[j].kind!=='tansniper') continue; const q=G[j].now||G[j].s; if(q && Math.hypot(x-q.x,y-q.y)<SFT_SEP) ok=false; } if(!ok) continue;   // two snipers never share a seat; his own riflemen about him are no danger to him
+    let md=1e9; for(const u of men) md=Math.min(md, Math.hypot(u.x-x,u.y-y)); const q9=Math.floor(md/SFT_AIM_Q); if(q9>bs){ bs=q9; best=c; bm=md; } }
+  if(!best) return null; SFT.n.aimed++; return Object.assign({}, s0, { x:best[0], y:best[1], px0:s0.x, py0:s0.y, safe:Math.round(bm), moved:(best[0]!==s0.x || best[1]!==s0.y)? 1 : 0 }); }
+if(typeof ptr2FloodNow==='function'){ const fn0=ptr2FloodNow; ptr2FloodNow=function(F,i9){   // THE FLOOD: CARD-PTR2's ticker asks for the seat as the cluster steps out
+    try{ const g=F && F.G && F.G[i9]; if(g && g.kind==='tansniper' && F.sft && SFT.part.aim && sftOn()){ const s=sftSafeSeat(F.G,i9,0); if(s) return s; } }catch(e){ sftErr('aimF',e); }
+    return fn0.apply(this, arguments); }; }
+if(typeof bbeDropTick==='function'){ const dt0=bbeDropTick; bbeDropTick=function(R){   // THE LAST CHARGE: the sniper clusters that step out this frame take their safest seat first (CARD-BBE's ticker reads g.s)
+    try{ const F=R && R.bbe && R.bbe.drop; if(F && F.sft && F.i<F.G.length && SFT.part.aim && sftOn() && !sftOver()){ for(let j=F.i;j<F.G.length && R.t-F.t0>=BBE_DROP_AT+BBE_DROP_GAP*j-1e-9;j++){ const g=F.G[j]; if(g.kind!=='tansniper' || g.aimed) continue; g.aimed=1; const s=sftSafeSeat(F.G,j,SFT_LINE); if(s) g.s=g.now=s; } } }catch(e){ sftErr('aimD',e); }
+    return dt0.apply(this, arguments); }; }
+// ── 2 · THEIR BARS BY LEVEL ──
+function sftLvHp(type){ const mt=SFT_MIRROR[type], lv=sftInt(sftT(SFT_LV),0,RANK_MAX); if(!mt || !(lv>0)) return 0; return Math.max(1,Math.round(bfHpAt(mt,lv)*skyPrice(skyTier()))); }   // that unit's bar at this tier's level, off the game's own table
+if(typeof ptrChute==='function'){ const pc0=ptrChute; ptrChute=function(type,x,y,o){ const f=pc0.apply(this, arguments);
+    try{ if(f && sftOn()){ if(type==='tansniper'){ f.sftSn=1; SFT.n.snChute++; }
+        if(SFT.part.lv && !(o && o.hp!=null)){ const h=sftLvHp(type); if(h>f.hpMax){ f.sftHp0=f.hpMax; f.hp=f.hpMax=h; SFT.n.lv++; } } } }catch(e){ sftErr('lv',e); } return f; }; }
+// ── 3 · THE DOG TAG CUT ──
+function sftTagStamp(f){ const cut=+sftT(SFT_TAG_CUT), b=+f.def.bounty; if(!(cut>0) || !(b>0)) return; const pay0=Math.round(b*(f.bountyMul||1)); if(!(pay0>0)) return;
+  const pay=Math.max(0, Math.round(pay0-cut)); f.bountyMul=pay/b; f.sftWas=pay0; f.sftPay=pay; SFT.n.tagCut++; if(pay===0) SFT.n.tagZero++; }   // the mint's round(def.bounty x bountyMul) now reads pay exactly
+if(typeof spawnFoe==='function'){ const sf0=spawnFoe; spawnFoe=function(type,x,y,form,gu){ const f=sf0.apply(this, arguments);
+    try{ if(f && f.def && f.type!=='skyfort' && !f.boss && !f.def.boss && SFT.part.tags && sftOn()) sftTagStamp(f); }catch(e){ sftErr('tag',e); } return f; }; }
+if(typeof oktPays==='function'){ const ok0=oktPays; oktPays=function(f,u){ if(f && f.sftPay===0) return false; return ok0.apply(this, arguments); }; }   // a foe whose pay is 0 drops no tag
+// ── 4 · THE LAST CHARGE'S BAR ──
+if(typeof hrtS5Bar==='function'){ const hb0=hrtS5Bar; hrtS5Bar=function(f){ const v=hb0.apply(this, arguments);
+    try{ if(sftOn() && SFT.part.wreck){ const x=+sftT(SFT_WRECK_X); if(x>0 && x!==1){ SFT.n.wreck++; return Math.max(1,Math.round(v*x)); } } }catch(e){ sftErr('wreck',e); } return v; }; }
+// ── 5 · A TAIL GUN YOU CAN SEE, ON THE MEN NEAR HER ──
+function sftTurPaint(g,L,rounds){ const RM=reducedMotion(); if(S.fx.length>520) return;
+  for(let i=0;i<rounds.length;i++){ const m=rounds[i], b=RM? 0 : -i*0.07, oy=(i-(rounds.length-1)/2)*5, tx=m.x+oy, ty=m.y-18, a=Math.atan2(ty-g.y,tx-g.x);   // round i is born i x 0.07 s after the first (King Yeti's burst's grammar)
+    S.fx.push({k:'tracer',x1:g.x,y1:g.y,x2:tx,y2:ty,t:b,dur:0.2,col:SFT_TUR_HEX,w:5});
+    S.fx.push({k:'tracer',x1:g.x,y1:g.y,x2:tx,y2:ty,t:b,dur:0.14,col:'#FFF6D8',w:2});
+    S.fx.push({k:'slug',x1:g.x,y1:g.y,x2:tx,y2:ty,t:b,dur:0.16,col:'#FFE9A8',colH:'#ffffff'});
+    S.fx.push({k:'flash',x:g.x,y:g.y,ang:a,R:RM?12:20,lw:3,t:b,dur:0.12});
+    S.fx.push({k:'puff',x:tx,y:ty+16,t:b+0.14,dur:0.28,R:9,col:'#FFD9A0'}); }
+  for(const m of L){ S.fx.push({k:'ring',x:m.x,y:m.y-14,r:3,R:18,t:0.14,dur:0.24,col:SFT_TUR_HEX}); S.fx.push({k:'ring',x:m.x,y:m.y-14,r:1,R:9,t:0.14,dur:0.16,col:'#ffffff'}); }   // the impact rings, once a man
+  S.fx.push({k:'ring',x:g.x,y:g.y,r:3,R:22,t:0,dur:0.2,col:'#FFD24A'}); }
+function sftTurBurst(f,g,gx,gy,u,r){ const r2=Math.min(r, Math.max(60,+sftT(SFT_TUR_R)||400));
+  if(!u || bbeManOff(u) || Math.hypot(u.x-gx,u.y-gy)>r2){ SFT.n.turFar++; return 0; }   // nobody near her: the gun holds its fire
+  const n=sftInt(bbeT(BBE_TUR_N),1,9), D=Math.max(0.05,+sftT(SFT_TUR_HP)||1), hx=Math.max(0,+sftT(SFT_TUR_HEAVYX)||0.2), L=[], rounds=[]; let m=u, k=0;
+  for(let i=0;i<n;i++){ if(i>0){ m=null; let md=r2; for(const o of S.units){ if(bbeManOff(o) || L.indexOf(o)>=0) continue; const d=Math.hypot(o.x-gx,o.y-gy); if(d<md){ md=d; m=o; } } if(!m) m=L.find(function(o){ return !bbeManOff(o); })||null; if(!m) break; }   // THE FAN: the nearest men in reach, a lone man takes them all
+    if(L.indexOf(m)<0) L.push(m); rounds.push({ x:m.x, y:m.y });
+    if(m.type==='aagun'){ f.pipN=((m.def && m.def.chip)||1)*Math.max(0.05,+bbeT(BBE_TUR_PIP)||1); try{ tanHit(m, gx, gy, f); } finally{ f.pipN=0; } }   // THE AA GUN: a chip, as CARD-BBE built it
+    else { const hv=kyfHeavy(m); kyfHpHit(m, D*(hv? hx : 1)*((m.def && m.def.vehicle)? KYF_MACHX : 1), gx, gy); }   // King Yeti's field round, by his own door (every save keeps its say)
+    k++; }
+  sftTurPaint(g,L,rounds);
+  if(S.t-((f.bbeCue==null)? -9 : f.bbeCue)>=BBE_TUR_CUE){ f.bbeCue=S.t; bfSfx(SFX.tpew, g.x, g.y); }
+  try{ bblTurFlash(g); }catch(e){}
+  SFT.n.turB++; SFT.n.turR+=k; BBE.n.rounds+=k; return k; }
+if(typeof bbeTurBurst==='function'){ const tb0=bbeTurBurst; bbeTurBurst=function(f,g,gx,gy,u,r){ if(!sftOn() || !SFT.part.tur) return tb0.apply(this, arguments);
+    try{ return sftTurBurst(f,g,gx,gy,u,r); }catch(e){ sftErr('tur',e); return 0; } }; }
+// ── 6 · THE SNIPER SARGES ARE SEEN ──
+function sftSnMuzzle(f){ const k=(typeof ptr2BigOf==='function')? ptr2BigOf(f) : 1, sd=foeFl(f)? 1 : -1; return { x:f.x+sd*18*k, y:f.y-32*k }; }   // his rifle's muzzle (the base's own seat for this row, at CARD-PTR2's size)
+function sftSnLand(f){ f.sftDown=+S.t.toFixed(2); SFT.n.snLand++; if(S.fx.length>520) return;
+  S.fx.push({k:'ring',x:f.x,y:f.y-4,r:6,R:66,t:0,dur:0.55,col:SFT_HEX}); S.fx.push({k:'ring',x:f.x,y:f.y-4,r:4,R:38,t:0.08,dur:0.4,col:'#ffffff'});
+  S.fx.push({k:'flash',x:f.x,y:f.y-26,ang:-Math.PI/2,R:reducedMotion()?14:24,lw:3,t:0,dur:0.2}); sftCue(SFX.laser, f.x, f.y); }
+function sftSnShot(src,u){ SFT.n.snShot++; if(S.fx.length>520) return; const z=sftSnMuzzle(src), tx=u.x, ty=u.y-18, a=Math.atan2(ty-z.y,tx-z.x);
+  S.fx.push({k:'tracer',x1:z.x,y1:z.y,x2:tx,y2:ty,t:0,dur:0.3,col:SFT_HEX,w:7}); S.fx.push({k:'tracer',x1:z.x,y1:z.y,x2:tx,y2:ty,t:0,dur:0.2,col:'#ffffff',w:2.5});
+  S.fx.push({k:'slug',x1:z.x,y1:z.y,x2:tx,y2:ty,t:0,dur:0.16,col:SFT_HEX,colH:'#ffffff'}); S.fx.push({k:'flash',x:z.x,y:z.y,ang:a,R:reducedMotion()?12:20,lw:3,t:0,dur:0.14});
+  S.fx.push({k:'ring',x:tx,y:ty,r:4,R:26,t:0.05,dur:0.3,col:SFT_HEX}); S.fx.push({k:'ring',x:tx,y:ty,r:2,R:12,t:0.05,dur:0.2,col:'#ffffff'}); sftCue(SFX.laser, src.x, src.y); }
+if(typeof tanHit==='function'){ const th0=tanHit; tanHit=function(u,fx,fy,src,fire9){   // his round's one door: the energy shot is drawn as it leaves (paint alone: the round is his row's)
+    if(src && src.sftSn===1 && src.type==='tansniper' && u){ try{ if(SFT.part.snipe && sftOn()) sftSnShot(src,u); }catch(e){ sftErr('shot',e); } }
+    return th0.apply(this, arguments); }; }
+if(typeof drawFoe==='function'){ const d0=drawFoe; drawFoe=function(f){ if(!f || f.sftSn!==1 || f.skyDrop || f.falling || f.dead || !SFT.part.snipe) return d0.apply(this, arguments);
+    let on=false; try{ on=sftOn(); }catch(e){ on=false; } if(!on) return d0.apply(this, arguments);
+    const RM=reducedMotion();
+    try{ cx.save(); cx.globalAlpha=RM? 0.7 : 0.6+0.3*Math.sin(S.t*5+(f.id|0)); cx.strokeStyle=SFT_HEX; cx.lineWidth=3; cx.beginPath(); cx.ellipse(f.x, f.y+2, 24, 9, 0, 0, Math.PI*2); cx.stroke(); cx.restore(); }catch(e){ sftErr('ring',e); }   // the ring of light he stands on
+    const r=d0.apply(this, arguments);
+    try{ if(f.aimT>0 && f.def && f.def.aim>0){ const k=Math.max(0,Math.min(1,1-f.aimT/f.def.aim)), z=sftSnMuzzle(f), R9=3+9*k+(RM? 0 : 1.5*Math.sin(S.t*16));   // the light at his muzzle grows as he aims
+        cx.save(); cx.globalAlpha=0.3+0.5*k; cx.fillStyle=SFT_HEX; cx.beginPath(); cx.arc(z.x,z.y,R9,0,Math.PI*2); cx.fill(); cx.globalAlpha=0.6+0.4*k; cx.fillStyle='#ffffff'; cx.beginPath(); cx.arc(z.x,z.y,R9*0.42,0,Math.PI*2); cx.fill(); cx.restore(); } }catch(e){ sftErr('orb',e); }
+    return r; }; }
+// ── 8 · BOMBS ON YOUR MEN ONLY ──
+function sftManOff(u){ return !!(!u || u.dead || u.jetT>0 || u.falling || (S.drag && S.drag.unit===u)); }   // skyStick's own skips
+if(typeof skyStick==='function'){ const ss0=skyStick; skyStick=function(B,T,R,box){ if(box || !B || !B.sky || !R || !SFT.part.stick || !sftOn()) return ss0.apply(this, arguments);   // THE BOX RUN: as shipped
+    let near=0; try{ near=Math.max(0,+sftT(SFT_STICK_NEAR)||0); }catch(e){ near=0; } if(!(near>0)) return ss0.apply(this, arguments);
+    try{ const dir=B.sky.dir, n9=Math.max(1,hrtS1Stick(B,T)|0), xa=B.x+dir*60, xb=B.x+dir*(60+(n9-1)*90), lo=Math.min(xa,xb)-near, hi=Math.max(xa,xb)+near; let any=false;
+      for(const u of S.units){ if(sftManOff(u)) continue; if(u.x>=lo && u.x<=hi){ any=true; break; } }
+      if(!any){ SFT.n.stickHeld++; R.stickT=SFT_STICK_RETRY; return; } }catch(e){ sftErr('stick',e); return ss0.apply(this, arguments); }   // nobody under her: she holds her stick and looks again
+    const n0=R.bombs.length, r=ss0.apply(this, arguments);
+    try{ let kept=0; for(let i=R.bombs.length-1;i>=n0;i--){ const b=R.bombs[i]; let ok=false; for(const u of S.units){ if(sftManOff(u)) continue; if(Math.hypot(u.x-b.x,u.y-b.y)<=near){ ok=true; break; } } if(ok) kept++; else { R.bombs.splice(i,1); SFT.n.bombCut++; } }
+      SFT.n.sticks++; SFT.n.bombs+=kept; if(!kept) R.stickT=SFT_STICK_RETRY; }catch(e){ sftErr('bombs',e); }
+    return r; }; }
+// ── the frame's doors ──
+function sftFoot(){ for(const f of S.foes){ if(f.dead) continue;
+    if(f.sftSn===1 && !f.skyDrop && !f.sftDown && !f.falling) sftSnLand(f);   // a sniper Sarge's landing
+    if(f.skySap && f.sftHp0!=null && !f.sftSap){ f.sftSap=1; if(f.hp>=f.hpMax){ f.hp=f.hpMax=f.sftHp0; if(typeof f.ptr2H==='number') f.ptr2H=f.hp; SFT.n.sap++; } } } }   // THE SAPPER keeps the bar he had
+if(typeof skyPass==='function'){ const sp0=skyPass; skyPass=function(dt){
+    try{ if(skyOn() && S.raid.sky && SFT.part.open && sftOn() && !sftOver()) sftKeep(dt); }catch(e){ sftErr('keep',e); }   // BEFORE the landings: a chute over a hole has drifted clear
+    const r=sp0.apply(this, arguments);
+    try{ if(skyOn() && S.raid.sky && sftOn()) sftFoot(); }catch(e){ sftErr('foot',e); } return r; }; }
+// THE LAB: nine RULES rows for the sky (CARD-ICN4's grammar: the device's saved cells re-applied when the lab booted first)
+try{ if(typeof BLB_RULES!=='undefined' && Array.isArray(BLB_RULES) && !BLB_RULES.some(function(r){ return r[0]==='SFT_LV'; })){
+  BLB_RULES.push(['SFT_LV', ()=>SFT_LV, "THE PARATROOPERS' BARS: each is that unit at this level (his HARD 80, MEGA 95; 0 = the bar he had) (SFT)", 'sky'],
+                 ['SFT_FLOOD', ()=>SFT_FLOOD, "THE FLOOD AFTER PHASE ONE: x waves of r riflemen · f flamers · b bazookas, s sniper Sarges in all (plays in place of PTR_SCAT x PTR2_MANY) (SFT)", 'sky'],
+                 ['SFT_DROP', ()=>SFT_DROP, "THE LAST CHARGE'S DROP: x waves of r · f · b, s sniper Sarges in all (plays in place of BBE_DROP x BBE_DROP_X) (SFT)", 'sky'],
+                 ['SFT_TAG_CUT', ()=>SFT_TAG_CUT, "DOG TAGS OFF EVERY FOE'S PAY IN THIS FIGHT (his HARD 10, MEGA 15; never under 0) (SFT)", 'sky'],
+                 ['SFT_WRECK_X', ()=>SFT_WRECK_X, "THE LAST CHARGE: the wreck's bar x this (his HARD 3, MEGA 5) (SFT)", 'sky'],
+                 ['SFT_TUR_R', ()=>SFT_TUR_R, "HER TAIL GUN fires only at men within this many px of her (King Yeti's turret: 400) (SFT)", 'sky'],
+                 ['SFT_TUR_HP', ()=>SFT_TUR_HP, "HER TAIL GUN: HP of the man's sheet a round (King Yeti's turret: 1.25 · 1.5 · 1.75 · 2) (SFT)", 'sky'],
+                 ['SFT_TUR_HEAVYX', ()=>SFT_TUR_HEAVYX, "HER TAIL GUN on a heavy or a machine: x this (SFT)", 'sky'],
+                 ['SFT_STICK_NEAR', ()=>SFT_STICK_NEAR, "HER BOMBS: one this far or more from every man of yours is not dropped (0 = as before) (SFT)", 'sky']);
+  if(typeof blbShip==='function' && typeof BLB==='object' && BLB && BLB.ship) blbShip();
+  if(typeof BLB==='object' && BLB && BLB.booted && BLB.over && typeof blbCellSet==='function'){ for(const id of ['SFT_LV','SFT_FLOOD','SFT_DROP','SFT_TAG_CUT','SFT_WRECK_X','SFT_TUR_R','SFT_TUR_HP','SFT_TUR_HEAVYX','SFT_STICK_NEAR']){ const o=BLB.over[id]; if(o) for(const k of Object.keys(o)) blbCellSet(id,k,o[k]); } } }
+}catch(e){ sftErr('lab',e); }
+function sftRead(o){ o=o||{}; if(o.on===0 || o.on===1) SFT.on=o.on; if(o.part){ for(const k in o.part){ if(k in SFT.part) SFT.part[k]=o.part[k]? 1 : 0; } }
+  if(o.zero){ for(const k in SFT.n) SFT.n[k]=0; SFT.err=0; SFT.e=''; }
+  const on=skyOn(), R=on? (S.raid.sky||null) : null;
+  return { cv:GVT_CV, on:SFT.on, dev:SFT_ON, live:on? sftOn() : null, tier:on? skyTier() : null, part:Object.assign({},SFT.part), n:Object.assign({},SFT.n), err:SFT.err, e:SFT.e,
+    cells:{ lv:Object.assign({},SFT_LV), flood:JSON.parse(JSON.stringify(SFT_FLOOD)), drop:JSON.parse(JSON.stringify(SFT_DROP)), tagCut:Object.assign({},SFT_TAG_CUT), wreckX:Object.assign({},SFT_WRECK_X), turR:Object.assign({},SFT_TUR_R), turHp:Object.assign({},SFT_TUR_HP), turHeavy:Object.assign({},SFT_TUR_HEAVYX), stickNear:Object.assign({},SFT_STICK_NEAR) },
+    bars:on? { rifle:sftLvHp('tanrifle'), flame:sftLvHp('tanflame'), baz:sftLvHp('tanbazooka') } : null,
+    snipers:on? S.foes.filter(function(f){ return f.sftSn===1 && !f.dead; }).map(function(f){ return { id:f.id, x:Math.round(f.x), y:Math.round(f.y), hp:f.hp, max:f.hpMax, air:f.skyDrop? 1 : 0, down:f.sftDown||null, fall:f.falling? 1 : 0 }; }) : null,
+    holes:on? sftPits().filter(function(p){ return p.sky; }).map(function(p){ return [Math.round(p.x),Math.round(p.y),p.r]; }) : null, bombs:R? R.bombs.length : null,
+    lab:(typeof BLB_RULES!=='undefined')? BLB_RULES.filter(function(q){ return /^SFT_/.test(q[0]); }).map(function(q){ return q[0]; }) : null }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.sft) GVT.sft=sftRead; }catch(e){} },0);   // the rigs' door (GVT is built below)
+// ═══ END CARD-SFT ═══
 // ═══ CARD-JGL · A KICK NEVER LIFTS THE ROOM (sec:CARD-JGL; design/juggle-lag-1112/00-CARD-JGL.md; built on Maker 1, branch air/juggle-lag). FROM WYATT, 11/12/2026 ~15:00 EST, typed on Maker 1, verbatim:
 //   "When juggling the soccer ball, the game is acting remarkably laggy. For having all the files, we really expect a lag-free experience, as what we're really doing here is so simple."
 // THE CAUSE (measured on the iPhone's engine at an iPhone Pro's glass, 874 x 402 at 3 dots, his own save, his backyard, the dinosaurs' ball; the record's section 2):
