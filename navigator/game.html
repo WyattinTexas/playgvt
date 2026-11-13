@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.82","md5":"5f2720ede439e6bd5a6aea73e44ed12d","sha":"8e89fc7e7c","at":"2026-11-13T06:28:58Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.83","md5":"3909f9694451e33599cc462d8f7f8340","sha":"c7ef576679","at":"2026-11-13T07:25:14Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93823,7 +93823,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.82';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.83';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -219791,25 +219791,58 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsp) GVT.fsp=fspRead; }catch(e
 //   2 THE SECOND KNOCK (every road): while a place that has a bed stands with no pass, both switches on, the graph running and nothing armed to a tap, the engine's own door (locTry) is knocked again after 4 s, then 8, 16, 32, 60: a file that
 //     arrives late (the app fetching it at first use), a server that listens again, a line that came back. Nothing is asked while a pass plays, during a put-away, on a napping graph, or of a place with no row (THE FILM).
 // Nothing of the engine is changed: its one door is knocked, and the music's one door (odvBytes) gains a second road behind its first. THE SWITCH: ?maw=0 writes the device key gvt_maw=0 = the page before (nothing wrapped, nothing warmed); ?maw=1 clears it. GVT.maw() = the rigs' read; GVT.maw({ warm:1 }) starts the warm-up now.
+// CARD-MAW2 · THE SHELF ANSWERS FIRST, AND THE DOOR HAS A CLOCK (jumpr 3309; design/music-always-warm-1112/maw2-3309/00-CARD-MAW2.md). The same bug report, and his standing word, 11/12/2026 16:39 EST, typed on Maker 1, verbatim: "Yes fix- and dont ask in these situations".
+// What CARD-MAW's landing measured that it left (land-3292/LANDING-3292.md section 8): a music file's request that is TAKEN AND NEVER ANSWERED kept the engine's one decode busy for ever (LOC.busy; the theme's THEMEB.busy the same), so no place could load its music
+// again that session, the shelf never asked and the second knock never due. And: the shelf's handle was opened once a session (a phone that drops the page's IndexedDB connection left every later read failing); the warm-up read every kept file whole at each open. Four hardenings, in this section alone:
+//   A THE SHELF ANSWERS FIRST: a music file the shelf is KNOWN to hold this session (the warm-up found it there or put it there, or the shelf answered for it) is read from the shelf before any fetch; the road is asked only when the shelf has no answer. A kept file is right for ever: its name is its hash.
+//   B THE DOOR HAS A CLOCK: a music file's fetch (the files the warm-up lists, the room's song among them; never a film, a lab clip or a sound) is the door's own, kept where the page keeps its promise (ODV_FETCH), so the page's own door answers every asker as before.
+//     No answer for MAW.clock ms (no headers, or no new bytes; 16 s for a name cut once already, 32 s after that, 8 s again once it answers: on the app a file the phone lacks is downloaded WHOLE before its server answers, up to the app's own 25 s, so the second ask outlasts it) and it is CUT: every asker hears no() through the page's door (its second road asks the shelf first; then the engine's own reset: LOC.busy cleared), the page lets the promise go, and the second knock comes
+//     again after its first wait (the room's song: its own door, themeTry, while the theme is still wanted). The warm-up counts a cut the clock will widen as no failure. A late answer cannot reach an asker twice (the promise settled once; the request is aborted). The music's names are learned once at the wrap, through the door (THE CENSUS: nothing fetched, nothing decoded).
+//   C THE HANDLE HEALS: the shelf's handle is let go on its close and versionchange events and on a read or a write that throws; that ask opens it again ONCE and asks again. An open or a read that has not answered in MAW.dbWait ms answers "not here" (a write: MAW.putWait ms).
+//   D THE WARM-UP ASKS BY KEY: it sees that a file stands on the shelf by its key alone (getKey); the bytes are read only when a place asks for them.
 const MAW_LIVE=1;
 const MAW={ on:(function(){ try{ const q=/[?&]maw=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_maw','0'); else localStorage.removeItem('gvt_maw'); } return localStorage.getItem('gvt_maw')==='0'? 0 : MAW_LIVE; }catch(e){ return MAW_LIVE; } })(),
   first:12000, gap:400, busy:3000, rest:30000, maxFail:6, list:null, i:0, ok:0, skip:0, fail:0, bytes:0, done:0, going:0, wt:0,   // the warm-up: its first ask after the boot (ms) · between files · while a fight runs or the page is hidden · after a failure · the failures that end it
-  steps:[4000, 8000, 16000, 32000, 60000], k:0, t:0, knocks:0, healed:0, kid:null, inline:0, wrapped:0, db:null, dbDead:0, dbq:[], cap:null, names:{}, shelf:0, swept:0, err:0, e:'' };                        // the second knock: its waits · the step · the timer · the knocks made · the passes they brought · the place being watched
+  steps:[4000, 8000, 16000, 32000, 60000], k:0, t:0, knocks:0, healed:0, kid:null, inline:0, wrapped:0, db:null, dbDead:0, dbq:[], cap:null, names:{}, shelf:0, swept:0, err:0, e:'',                        // the second knock: its waits · the step · the timer · the knocks made · the passes they brought · the place being watched
+  clock:8000, dbWait:3000, putWait:10000, music:null, kept:{}, cuts:{}, recut:0, shelfFirst:0, shelfMiss:0, cut:0, late:0, opens:0, drops:0, dbFail:0, slow:0 };   // CARD-MAW2: a music fetch's clock (ms without an answer; doubled for a name cut again, to 4x) · the cuts of each name since it last answered · the warm-up's asks again after a cut · a shelf open's or read's · a write's · the music's names (the census) · the names known kept · the shelf's first answers · its misses · fetches cut · late answers · the handle's opens · drops · failed opens · slow asks
 function mawErr(w,e){ MAW.err++; if(MAW.e.length<300) MAW.e+=w+':'+String((e && e.message)||e).slice(0,80)+' '; }
 function mawApp(){ try{ return location.protocol==='http:' && /^(127\.0\.0\.1|localhost)$/.test(location.hostname); }catch(e){ return false; } }   // the app's loopback road (and a rig's)
 function mawFiles(){ const out=[], seen={}; const add=function(id){ const t=LOC_TRACKS[id]; if(t && !t.gen && !seen[id]){ seen[id]=1; out.push(id); } };   // the rows of LOC_TRACKS whose music is a file (a bed the page makes has none), the lands first; then the room's own song
   try{ for(const id of ['soccer','snow','roof','western','secretroom']) add(id); for(const k in LOC_TRACKS) add(k); out.push('*theme'); }catch(e){ mawErr('files',e); }
   return out; }
 // THE SHELF: IndexedDB gvt_maw, one store 'm': key = the file's name in the served copy ('@m/<hash>.<ext>'), value = its bytes (an ArrayBuffer). Every door answers its callback once; any failure answers "not here".
+// CARD-MAW2 C THE HANDLE HEALS: mawDrop lets a handle go (its close and versionchange events, a read or a write that throws); the ask that found it dead opens it again ONCE and asks again. An open or a read with no answer in MAW.dbWait ms answers "not here".
+function mawDrop(db){ if(!db) return; if(MAW.db===db){ MAW.db=null; MAW.drops++; } try{ db.close(); }catch(e){} }
 function mawDb(cb){ if(MAW.db){ cb(MAW.db); return; } if(MAW.dbDead){ cb(null); return; }
-  MAW.dbq.push(cb); if(MAW.dbq.length>1) return;
-  const fin=function(db){ if(db) MAW.db=db; else MAW.dbDead=1; const q=MAW.dbq; MAW.dbq=[]; for(const f of q){ try{ f(db); }catch(e){ mawErr('dbq',e); } } };
-  try{ const rq=indexedDB.open('gvt_maw', 1); rq.onupgradeneeded=function(){ try{ rq.result.createObjectStore('m'); }catch(e){} }; rq.onsuccess=function(){ fin(rq.result); }; rq.onerror=function(){ fin(null); }; rq.onblocked=function(){ fin(null); }; }catch(e){ fin(null); } }
-function mawGet(v, cb){ mawDb(function(db){ if(!db){ cb(null); return; } let done=false; const fin=function(x){ if(done) return; done=true; cb((x instanceof ArrayBuffer && x.byteLength>0)? x : null); };
-  try{ const rq=db.transaction('m','readonly').objectStore('m').get(v); rq.onsuccess=function(){ fin(rq.result); }; rq.onerror=function(){ fin(null); }; }catch(e){ fin(null); } }); }
-function mawPut(v, buf, cb){ mawDb(function(db){ if(!db){ cb(false); return; } let done=false; const fin=function(x){ if(done) return; done=true; cb(x); };
-  try{ const tx=db.transaction('m','readwrite'); tx.objectStore('m').put(buf, v); tx.oncomplete=function(){ fin(true); }; tx.onerror=function(){ fin(false); }; tx.onabort=function(){ fin(false); }; }catch(e){ fin(false); } }); }
-function mawSweep(keep){ mawDb(function(db){ if(!db) return; try{ const st=db.transaction('m','readwrite').objectStore('m'), rq=st.getAllKeys(); rq.onsuccess=function(){ try{ for(const k of rq.result||[]) if(!keep[k]){ st.delete(k); MAW.swept++; } }catch(e){} }; }catch(e){} }); }   // names the game no longer has
+  MAW.dbq.push(cb); if(MAW.dbq.length>1) return;   // an open is on its way: it answers every asker
+  let over=false, t=0;
+  const keep=function(db){ if(MAW.db && MAW.db!==db){ try{ db.close(); }catch(e){} return MAW.db; } MAW.db=db; MAW.opens++; db.onclose=function(){ mawDrop(db); }; db.onversionchange=function(){ mawDrop(db); }; return db; };   // the browser closed it (a long put-away can end WebKit's storage process), or another page asks to change the shelf: let it go
+  const fin=function(db){ if(over){ if(db) keep(db); return; } over=true; if(t){ clearTimeout(t); t=0; }   // a handle that comes after the clock is kept for the next ask
+    if(db) db=keep(db); else MAW.dbFail++;
+    const q=MAW.dbq; MAW.dbq=[]; for(const f of q){ try{ f(db); }catch(e){ mawErr('dbq',e); } } };
+  let rq=null; try{ rq=indexedDB.open('gvt_maw', 1); }catch(e){ MAW.dbDead=1; fin(null); return; }   // no IndexedDB at all: the page before
+  t=setTimeout(function(){ t=0; fin(null); }, MAW.dbWait);
+  rq.onupgradeneeded=function(){ try{ rq.result.createObjectStore('m'); }catch(e){} }; rq.onsuccess=function(){ fin(rq.result); }; rq.onerror=function(){ fin(null); }; rq.onblocked=function(){ fin(null); }; }
+function mawAsk(v, key, cb){ let done=false, tries=0, t=0;   // ONE read of the shelf: the file's bytes (key 0), or whether its name stands there (key 1: CARD-MAW2 D)
+  const fin=function(x){ if(done) return; done=true; if(t){ clearTimeout(t); t=0; } cb(x); };
+  t=setTimeout(function(){ t=0; if(done) return; MAW.slow++; if(MAW.db) mawDrop(MAW.db); fin(null); }, MAW.dbWait);   // a read with no answer in MAW.dbWait ms answers "not here" (and the next ask opens a fresh handle)
+  const go=function(){ mawDb(function(db){ if(done) return; if(!db){ fin(null); return; }
+    let rq=null; try{ const st=db.transaction('m','readonly').objectStore('m'); rq=!key? st.get(v) : (typeof st.getKey==='function')? st.getKey(v) : st.count(v); }
+    catch(e){ mawDrop(db); if(++tries<2){ go(); return; } fin(null); return; }   // the handle is dead (closed under the page): let it go, open again ONCE, read again
+    rq.onsuccess=function(){ const r=rq.result; fin(key? ((r!==undefined && r!==0)? 1 : null) : ((r instanceof ArrayBuffer && r.byteLength>0)? r : null)); };
+    rq.onerror=function(){ mawDrop(db); if(!done && ++tries<2){ go(); return; } fin(null); }; }); };
+  go(); }
+function mawGet(v, cb){ mawAsk(v, 0, cb); }
+function mawHas(v, cb){ mawAsk(v, 1, function(x){ cb(!!x); }); }
+function mawPut(v, buf, cb){ let done=false, tries=0, t=0;
+  const fin=function(x){ if(done) return; done=true; if(t){ clearTimeout(t); t=0; } cb(x); };
+  t=setTimeout(function(){ t=0; if(done) return; MAW.slow++; fin(false); }, MAW.putWait);
+  const go=function(){ mawDb(function(db){ if(done) return; if(!db){ fin(false); return; }
+    let tx=null; try{ tx=db.transaction('m','readwrite'); tx.objectStore('m').put(buf, v); }
+    catch(e){ mawDrop(db); if(++tries<2){ go(); return; } fin(false); return; }   // the handle is dead: let it go, open again ONCE, write again
+    tx.oncomplete=function(){ fin(true); }; tx.onerror=function(){ fin(false); }; tx.onabort=function(){ fin(false); }; }); };
+  go(); }
+function mawSweep(keep){ mawDb(function(db){ if(!db) return; try{ const st=db.transaction('m','readwrite').objectStore('m'), rq=st.getAllKeys(); rq.onsuccess=function(){ try{ for(const k of rq.result||[]) if(!keep[k]){ st.delete(k); MAW.swept++; } }catch(e){} }; }catch(e){ mawDrop(db); } }); }   // names the game no longer has
 function mawNext(ms){ if(MAW.wt) clearTimeout(MAW.wt); MAW.wt=setTimeout(function(){ MAW.wt=0; try{ mawStep(); }catch(e){ mawErr('step',e); } }, ms); }
 function mawStep(){
   if(!MAW.going || MAW.done) return;
@@ -219819,15 +219852,15 @@ function mawStep(){
   let over=false;
   const end=function(ok, kind, n){ if(over) return; over=true;
     if(cap.v && !cap.had) delete ODV_FETCH[cap.v];   // the page's own copy of the bytes is let go (a file the page had loaded itself is not ours to drop)
-    if(!ok){ MAW.fail++; mawNext(MAW.rest); return; }
+    if(!ok){ if(kind==='cut'){ MAW.recut++; mawNext(MAW.steps[0]); return; } MAW.fail++; mawNext(MAW.rest); return; }   // CARD-MAW2 B: a cut the clock will widen is no failure: the same file again after the knock's first wait (on the app the download the ask started goes on)
     if(kind==='kept') MAW.skip++; else { MAW.ok++; MAW.bytes+=n|0; }
     MAW.i++; mawNext(kind==='kept'? 0 : MAW.gap); };
   const ok=function(a){ if(cap.inCall){ cap.sync=true; return; }
       if(a===null){ end(true, 'kept', 0); return; }   // on the shelf already (the door's word to the warm-up)
       let buf=null; try{ buf=a.buffer.slice(a.byteOffset, a.byteOffset+a.byteLength); }catch(e){}
       if(!buf || !cap.v){ end(false); return; }
-      mawPut(cap.v, buf, function(put){ end(put, 'new', buf.byteLength); }); },
-    no=function(){ if(cap.inCall){ cap.sync=true; return; } end(false); };
+      mawPut(cap.v, buf, function(put){ if(put) MAW.kept[cap.v]=1; end(put, 'new', buf.byteLength); }); },   // CARD-MAW2 A: put = known kept
+    no=function(){ if(cap.inCall){ cap.sync=true; return; } const c=cap.v? (MAW.cuts[cap.v]|0) : 0; end(false, (c>(cap.c|0) && c<3)? 'cut' : ''); };   // CARD-MAW2 B: the clock cut it, and the next ask's clock is wider
   try{ if(id==='*theme') odvBytes(THEME_M4A, ok, no); else odvBytes(LOC_TRACKS[id].b64, ok, no); }catch(e){ cap.inCall=false; MAW.cap=null; mawErr('ask',e); end(false); return; }   // the music's ONE door (CARD-ODV-M)
   cap.inCall=false; MAW.cap=null;
   if(cap.sync){ over=true; MAW.done=1; MAW.going=0; MAW.inline=1; }   // answered inside the call: this page holds its music inline (the raw source): nothing to warm
@@ -219845,25 +219878,55 @@ function mawWatch(){
       else mawWatch();
     }catch(e){ mawErr('knock',e); } }, MAW.steps[Math.min(MAW.k, MAW.steps.length-1)]);
 }
+// CARD-MAW2 B THE DOOR'S CLOCK
+function mawNop(){}
+function mawCensus(){ if(MAW.music) return; MAW.music={};   // THE CENSUS: the music's served names, learned once through the music's one door (the dist guard reads a clip's name nowhere else); the wrap answers a census ask at once: nothing fetched, nothing decoded, no callback
+  let ids=[]; try{ ids=mawFiles(); }catch(e){ mawErr('census',e); }
+  for(const id of ids){ MAW.cap={ census:1, id:id }; try{ if(id==='*theme') odvBytes(THEME_M4A, mawNop, mawNop); else odvBytes(LOC_TRACKS[id].b64, mawNop, mawNop); }catch(e){ mawErr('census',e); } }
+  MAW.cap=null; }
+function mawBody(r, arm){ const b=r.body; if(!b || typeof b.getReader!=='function') return r.arrayBuffer();   // the bytes as they come, each piece winding the clock again (a slow road that still moves is never cut); no stream: the whole answer at once
+  const rd=b.getReader(), parts=[]; let n=0;
+  const pump=function(){ return rd.read().then(function(x){ if(x.done){ const out=new Uint8Array(n); let o=0; for(const c of parts){ out.set(c, o); o+=c.byteLength; } return out.buffer; } parts.push(x.value); n+=x.value.byteLength; arm(); return pump(); }); };
+  return pump(); }
+function mawClock(v){ if(!MAW.music || !MAW.music[v] || ODV_FETCH[v]) return;   // not a music file, or the page holds its promise already (on its way, or answered)
+  const ms=MAW.clock*Math.pow(2, Math.min(MAW.cuts[v]|0, 2));   // 8 s; 16 s for a name cut once since it last answered; 32 s after that (the app's own first-use download takes up to 25 s: the second ask outlasts it)
+  let ac=null; try{ if(typeof AbortController==='function') ac=new AbortController(); }catch(e){ ac=null; }
+  let t=0, over=false;
+  const p=new Promise(function(res, rej){
+    const cut=function(){ t=0; if(over) return; over=true; MAW.cut++; MAW.cuts[v]=(MAW.cuts[v]|0)+1; try{ if(ac) ac.abort(); }catch(e){} rej(new Error('maw clock')); mawAgain(v); };   // no answer for MAW.clock ms: CUT, and every asker hears no() through the page's door
+    const arm=function(){ if(over) return; if(t) clearTimeout(t); t=setTimeout(cut, ms); };
+    const end=function(){ over=true; if(t){ clearTimeout(t); t=0; } };
+    arm();
+    fetch(v.slice(1), ac? { signal:ac.signal } : undefined).then(function(r){ if(over){ MAW.late++; return null; } if(!r.ok) throw new Error('odv '+r.status); arm(); return mawBody(r, arm); })   // the page's own request (its address; the cut its one option)
+      .then(function(buf){ if(over) return; end(); MAW.cuts[v]=0; res(buf); }, function(e){ if(over) return; end(); rej(e); }); });
+  ODV_FETCH[v]=p; }   // where the page keeps its promise: the page's door (odvBytes) answers every asker from it, and lets it go when it fails
+function mawAgain(v){ setTimeout(function(){ try{ if(!mawOwed()) return; if(MAW.t){ clearTimeout(MAW.t); MAW.t=0; } MAW.k=0; mawWatch(); }catch(e){ mawErr('again',e); } }, 0);   // after a cut: a silent place's second knock comes again after its FIRST wait
+  if(MAW.music && MAW.music[v]==='*theme') setTimeout(function(){ try{ if(THEME.want && !THEMEB.buf && !THEMEB.busy) themeTry(); }catch(e){ mawErr('again',e); } }, MAW.steps[0]); }   // ...and the room's song (it has no knock of its own): its own door again while it is still wanted
 if(MAW.on){
   // THE DOOR'S SECOND ROAD: a file of the served copy whose fetch fails is answered from the shelf; the warm-up's own ask (MAW.cap) is told the file's name and is answered null when the shelf holds it already
+  // CARD-MAW2: a census ask learns a music file's name and asks for nothing (B); a music file the shelf is known to hold is read from the shelf FIRST (A); a music file's fetch is the door's own, on the clock (B); the warm-up sees the shelf by key (D)
   { const o0=odvBytes; odvBytes=function(v, ok, no){
+      const c0=MAW.cap; if(c0 && c0.census){ MAW.cap=null; if(typeof v==='string' && v.charCodeAt(0)===64) MAW.music[v]=c0.id; return; }   // THE CENSUS (B): nothing fetched, nothing decoded, no answer
       if(!(typeof v==='string' && v.charCodeAt(0)===64)) return o0.apply(this, arguments);
       const cap=MAW.cap; MAW.cap=null;
       if(cap){ cap.v=v; cap.had=!!ODV_FETCH[v]; MAW.names[v]=1;
-        mawGet(v, function(x){ if(x){ try{ ok(null); }catch(e){} return; } cap.had=!!ODV_FETCH[v]; o0(v, ok, no); });   // asked for only when the shelf lacks it
+        mawHas(v, function(has){ if(has){ MAW.kept[v]=1; try{ ok(null); }catch(e){} return; } cap.had=!!ODV_FETCH[v]; cap.c=MAW.cuts[v]|0; mawClock(v); o0(v, ok, no); });   // asked for only when the shelf lacks it (D: by its key alone; B: on the clock)
         return; }
-      let handed=false;
-      return o0(v, function(a){ handed=true; return ok(a); }, function(){
-        if(handed){ if(no) no(); return; }   // the site's own throw after the bytes were handed over: its reset, as before
-        mawGet(v, function(x){ if(!x){ try{ if(no) no(); }catch(e){} return; } MAW.shelf++; try{ ok(new Uint8Array(x)); }catch(e){ try{ if(no) no(); }catch(_){} } }); }); }; }
+      const hand=function(x){ let a; try{ a=new Uint8Array(x); }catch(e){ try{ if(no) no(); }catch(_){} return; } try{ ok(a); }catch(e){ try{ if(no) no(); }catch(_){} } };   // the site's contract: ok() once with its own fresh bytes; its own throw reaches its own reset
+      const road=function(){ let handed=false; mawClock(v);   // B: a music file's fetch is on the clock
+        return o0(v, function(a){ handed=true; return ok(a); }, function(){
+          if(handed){ if(no) no(); return; }   // the site's own throw after the bytes were handed over: its reset, as before
+          mawGet(v, function(x){ if(!x){ try{ if(no) no(); }catch(e){} return; } MAW.shelf++; MAW.kept[v]=1; hand(x); }); }); };
+      if(MAW.kept[v]){ mawGet(v, function(x){ if(x){ MAW.shelfFirst++; hand(x); return; } MAW.kept[v]=0; MAW.shelfMiss++; road(); }); return; }   // A THE SHELF FIRST: the road only when the shelf has no answer
+      return road(); }; }
   { const t0=locTry; locTry=function(){ const r=t0.apply(this, arguments); try{ mawWatch(); }catch(e){ mawErr('watch',e); } return r; }; }
-  MAW.wrapped=1;
+  MAW.wrapped=1; mawCensus();   // CARD-MAW2 B: the music's names, once, now that the door is wrapped
   if(mawApp() && !navigator.webdriver) setTimeout(function(){ try{ mawWarm(); }catch(e){ mawErr('warm',e); } }, 0);   // LF1 (the landing, jumpr 3292): a DRIVEN browser (a rig: navigator.webdriver) never warms by itself; a phone is not driven. A rig that wants the warm-up says it is not driven before the page's first byte, or calls GVT.maw({ warm:1 })
 }
+function mawTwo(){ let n=0, k=0; try{ if(MAW.music) n=Object.keys(MAW.music).length; for(const v in MAW.kept) if(MAW.kept[v]) k++; }catch(e){} return { music:MAW.music? n : null, kept:k, first:MAW.shelfFirst, miss:MAW.shelfMiss, cut:MAW.cut, recut:MAW.recut, late:MAW.late, clock:MAW.clock, opens:MAW.opens, drops:MAW.drops, dbFail:MAW.dbFail, slow:MAW.slow }; }   // CARD-MAW2's read
 function mawRead(o){ o=o||{}; try{ if(o.warm) mawWarm(1); }catch(e){ mawErr('rig',e); }
   return { cv:GVT_CV, on:MAW.on, live:MAW_LIVE, wrapped:MAW.wrapped, app:mawApp(), warm:{ files:MAW.list? MAW.list.length : null, i:MAW.i, ok:MAW.ok, skip:MAW.skip, fail:MAW.fail, bytes:MAW.bytes, going:MAW.going, done:MAW.done, inline:MAW.inline, db:MAW.db? 1 : (MAW.dbDead? -1 : 0), shelf:MAW.shelf, swept:MAW.swept },
-    knock:{ owed:mawOwed(), quiet:mawQuiet(), k:MAW.k, timer:!!MAW.t, knocks:MAW.knocks, healed:MAW.healed, kid:MAW.kid }, loc:{ id:LOC.id, src:!!LOC.src, busy:LOC.busy||null, armed:!!LOC.armed }, err:MAW.err, e:MAW.e }; }
+    knock:{ owed:mawOwed(), quiet:mawQuiet(), k:MAW.k, timer:!!MAW.t, knocks:MAW.knocks, healed:MAW.healed, kid:MAW.kid }, loc:{ id:LOC.id, src:!!LOC.src, busy:LOC.busy||null, armed:!!LOC.armed }, two:mawTwo(), err:MAW.err, e:MAW.e }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.maw) GVT.maw=mawRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-MAW ═══
 // ═══ sec:CARD-MGR · A FIGHT A DEAD PAGE TOOK IS HANDED BACK (design/mid-game-reset-1112/00-CARD-MGR.md; jumpr 3305, built on Maker 1 as M3305). FROM WYATT'S PHONE, 11/12/2026 19:56:34 EST, dictated, verbatim: "We just had our game reset when we were in the middle of a 4v4 game. It was super weird and went back to the home screen. This is not okay. Audit why this happened, and we need to prevent this from happening in the future." ═══
