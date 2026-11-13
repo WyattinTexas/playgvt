@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.06","md5":"db399df3a17388491fe06ac6cb15cbbb","sha":"7893159da4","at":"2026-11-13T15:33:03Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.07","md5":"23ba5f1e69ff6f16ba0e47543bb39b1a","sha":"d3255829bf","at":"2026-11-13T15:39:36Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -58193,6 +58193,24 @@ function dshRig(){ const g=f=>{ try{ return f(); }catch(e){ return null; } };   
   return { on:DSH.on, C:DSH.C, n:DSH.n, err:DSH.err, order:g(()=>SARGE_ORDER.slice()), own:g(()=>wkOwned(DSH.wk)), hand:g(()=>META.sargeWeapon), rank:g(()=>(META.sargeUp||{})[DSH.wk]||0), lvl:g(()=>META.lvl|0),
     men:g(()=>S.units.filter(u=>u.dsh && !u.dead).map(u=>({ id:u.id, x:Math.round(u.x), y:Math.round(u.y), hits:u.hits||0, hp:u.hp, cr:u.dsh.cr, scar:u.dsh.scar, n:u.dsh.n, fs:u.dsh.fs }))), stalled:DSH.st.length }; }
 // ═══ end sec:CARD-SHD ═══
+// ═══ CARD-DUT ONE OF YOUR OWN MEN THE GAME DRAWS THROUGH A SECOND CALL IS DRAWN ONCE (jumpr 3335, board J58-3335; design/units-drawn-twice-1113/00-CARD-DUT.md; the brief: design/drawn-twice-1112/cards/CARD-DUT-units-drawn-twice.md, a fault CARD-DFT found on the way: its twin, on drawUnit) ═══
+// The game's own drawUnit (far down this script) calls drawUnit AGAIN by its global name for three kinds of man of yours, each under its own latch: a man a chess piece has knocked (cfaFlyDraw, u.cfaIn),
+// Floop's mega copy (fmcDraw, u.fmcIn) and a man of the trench kit going under, climbing out or standing in his own trench (trkDraw, u.trkDr). The global name is the outermost of the cards' wraps of
+// drawUnit, so for such a man every wrap ran a second time inside its own first run: a lift (the Dark Dragon's toss, CARD-EC9's machine, the rowboat), a jolt (the flinch, the lunge), a sink (the swimmer),
+// a tumble (the shark's spit) and a mark (a shadow, the cavalry's horses, the hull, the dragon's jet) were laid twice, and two wraps changed the man himself on their second run (a spat man lost his
+// tumble; King Croak's glide snapped to where he was drawn).
+// THE CURE (CARD-DFT's own, on the other painter; paint only; no line above or below is edited): the game's own painter is kept HERE, before any card wraps it (the first wrap is CARD-SHD2's, in the
+// section right below; a function declaration is whole from the script's first line, so this line reads the game's own drawUnit). Once the page's whole script has run (every wrap laid) ONE more wrap
+// goes outside them all, and a call that comes while the game's own latch is up for that man (its own second call, nothing else) goes straight to the game's painter: under the canvas and the fields the
+// first pass laid ONCE. A wrap that guards itself (CARD-GGR's shrink) reads the same; a man drawn once, as before, is not touched. A wrap a later card lays at load stays inside this one.
+// THE SWITCH: ?dut=0 on a device (gvt_dut '0'; ?dut=1 clears it) = the page as it stood (nothing wrapped). GVT.dut() = the rigs' read; GVT.dut({ on:0|1 }) at run time.
+const DUT={ on:(function(){ try{ const q=/[?&]dut=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dut','0'); else localStorage.removeItem('gvt_dut'); } return localStorage.getItem('gvt_dut')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  base:drawUnit, w:null, n:0, err:0 };   // base = the game's own painter (this line runs before any card's wrap of drawUnit) · w = the outer wrap, once laid · n = the second calls sent straight to the painter
+function dutOuter(o){ return function(u){ if(u && DUT.on===1 && (u.cfaIn || u.fmcIn || u.trkDr)){ DUT.n++; return DUT.base.call(this, u); } return o.apply(this, arguments); }; }   // the game's own second call for this man: its painter, once; every other call goes on as before
+function dutLay(){ if(DUT.on===1 && !DUT.w){ DUT.w=dutOuter(drawUnit); drawUnit=DUT.w; } }   // outside every wrap laid so far
+setTimeout(function(){ try{ dutLay(); }catch(e){ DUT.err++; }
+  try{ if(window.GVT && !GVT.dut) GVT.dut=function(o){ if(o && o.on!=null){ DUT.on=o.on? 1 : 0; try{ dutLay(); }catch(e){ DUT.err++; } } return { cv:GVT_CV, on:DUT.on, laid:DUT.w? 1 : 0, outer:(DUT.w && drawUnit===DUT.w)? 1 : 0, own:(String(DUT.base).slice(0,21)==='function drawUnit(u){')? 1 : 0, n:DUT.n, err:DUT.err }; }; }catch(e){} }, 0);   // after the page's whole script: every load-time wrap is inside · own 1 = the kept painter is the game's own declared drawUnit
+// ═══ END CARD-DUT ═══
 // ═══ sec:CARD-SHD2 · RETURN TO SENDER AND CALL THE CAVALRY: THE SHIELD'S RUNGS AT RANK 5 AND RANK 10, EACH A WON LAB PART (jumpr 3201, slice c of CARD-SHD; the record design/shield-cavalry-1110/00-CARD-SHD2.md; the design pass CARD-DSH, design/dragon-shield-1109/00-DESIGN-DSH.md sec 2 item 5, sec 2b, sec 6 item 3).
 // FROM WYATT by phone on Discord, 11/10/2026 10:47 EST, verbatim: "This is a great start. Please add a new task in the jumpr queue to perfect the shield integration, where we want it to be at level 30 that the player gets it."
 // And his note of 11/9/2026 23:45 EST, verbatim: "A lot of cool reflect moves, some that just really knock somebody back, but you got to be in range." ... "But most importantly, he has the cavalry charge. He's able to summon a cavalry that will run from off-screen to him. When it reaches him, he mounts it, and he gains a charge attack. He can charge right through fire and go through anything, break through, and when he finishes, he finishes with an energy sword attack. Feeling like Proto Man finishing a swing, but while on a horse, and even making a satisfying "shing" sound when you nail it. The game goes slow-mo for 0.5 seconds for everybody to really feel the moment. Dealing massive damage between 400 and 800 damage at level 100. The shield learns this at level 10 and" (the note ends there: DSH-Q1).
@@ -93939,7 +93957,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
