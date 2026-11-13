@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.14","md5":"e7bdd3fc3e50fbf767151ba49d3f9e9f","sha":"2af993d04c","at":"2026-11-13T20:31:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.15","md5":"dbdbed8b5f969c1dbd865cfd840cd18b","sha":"4c2420cf1b","at":"2026-11-13T20:46:26Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93972,7 +93972,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.14';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -233374,7 +233374,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fpe) GVT.fpe=function(){ retur
 //   peaks at 1,337 MB; but the shelf was written 1.5 s after a bitmap was made, after the peak, so a page iOS ended AT the peak had kept nothing and its next start was as heavy.
 // WHAT (four parts, each with its switch):
 //   1 NO SOFT PAINT FIRST (?pfh=0 off, key gvt_pfh). THE PROMOTION WALL (the tiles of the fort's PROMOTIONS card and of the PROMOTION! picker, .pw-tile): when three or more of its pictures are new to this
-//     device in one deal, a picture with no bitmap yet is not painted until CARD-CRP puts its bitmap (one style rule on an img with a filtered svg and no srcset; nothing is written on the game's own nodes):
+//     device in one deal, a picture with no bitmap yet is not painted until CARD-CRP's bitmap for it is in (one style rule on an img with a filtered svg and no bitmap in: part 5):
 //     the wall stands at once, its names and plates as ever, and each soldier arrives sharp, one after another, in CARD-CRP's own order. THE YARD: when the yard is laid and CARD-FYP has three or more bitmaps
 //     to make, a drawing of the yard's moving half is not painted until its bitmap is set (one style rule on an <image> that still wears an svg). Either rule is lifted the moment its maker has nothing
 //     left in flight, or after PFP.cap / PFP.capY ms whatever happens: what has no bitmap by then (a drawing that moves by itself, one too big for a bitmap) shows as the drawing it is, as before.
@@ -233387,27 +233387,34 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fpe) GVT.fpe=function(){ retur
 //     what it kept, as before.
 //   4 A BITMAP IS KEPT THE MOMENT IT IS MADE (?pfw=0 off, key gvt_pfw): CARD-HVM's shelf wrote 1.5 s after a bitmap was made; it now writes PFP.gap ms after (its own dial, HVK.gap). The bitmaps are small
 //     (a megabyte for the castle's 45), so a page that is ended in its heaviest second has already kept what it made, and the next start does not make it again.
+//   5 THE BITMAP IS IN BEFORE THE SOLDIER IS SHOWN (?pfb=0 off, key gvt_pfb; round 2, found on this card's own stills of v32.12): WebKit goes on painting an img's OLD picture until the new one has
+//     finished loading, so for the 3 to 7 ms a bitmap takes to come in after CARD-CRP writes it as srcset, a paint would still show the drawing, soft (a frame seldom falls there; a snapshot did). The
+//     wall's rule of part 1 therefore lets a soldier go when its bitmap's own load event has come (the img then wears data-pfp, the one mark this section writes on a node of the game), not when the
+//     srcset is written: no paint can fall between the two. With the part off the rule reads the srcset, as in v32.12. The yard's drawings keep their rule: WebKit sends no load event for an svg <image>.
 // WHERE: only where CARD-CRP is on (WebKit at 2+ dots a point) and where CARD-FYP is armed (WebKit). On Chrome, Android and the desktops nothing is armed, nothing is asked for and not one byte reads differently.
 // HOW: crpLook, crpDone (over CARD-HVM's wrapper), fypLay (over CARD-FYP2's), fypMake and fypFrame wrapped BY NAME; two style nodes (pfpCssC, pfpCssY) that stand with media "not all" and are switched to "all"
-//   only while a rule is armed; two dials of CARD-HVM set (HVK.gap; HVM.minF while a wall is being painted). No shipped line changes. Zero words, save keys, server or sw bytes. No drawing is redrawn and every
+//   only while a rule is armed; one listener for load on its way down the page (where CARD-CRP is on); two dials of CARD-HVM set (HVK.gap; HVM.minF while a wall is being painted). No shipped line changes. Zero words, save keys, server or sw bytes. No drawing is redrawn and every
 //   bitmap is the one CARD-CRP and CARD-FYP made before: nothing here is a new picture (no tile).
-// Switches: ?pfh=0 · ?pfy=0 · ?pfg=0 · ?pfw=0 = that part as before on this device (remembered as gvt_pfh / gvt_pfy / gvt_pfg / gvt_pfw '0'), =1 = that part again. GVT.pfp() = the rigs' read ({ h, y, g, w }
-//   flips a part for the page's life; { bulk, min, cap, capY, yardAt, gap } the dials). UNDO = design/pictures-first-paint-1113/kit/applyPFP.py --undo.
+// Switches: ?pfh=0 · ?pfy=0 · ?pfg=0 · ?pfw=0 · ?pfb=0 = that part as before on this device (remembered as gvt_pfh / gvt_pfy / gvt_pfg / gvt_pfw / gvt_pfb '0'), =1 = that part again. GVT.pfp() = the rigs'
+//   read ({ h, y, g, w, b } flips a part for the page's life; { bulk, min, cap, capY, yardAt, gap } the dials). UNDO = design/pictures-first-paint-1113/kit/applyPFP.py --undo.
 // FOR LATER CARDS: a card that wraps crpLook, crpDone, fypLay, fypMake or fypFrame stands after END CARD-PFP and calls through. A new screen whose pictures should arrive sharp the same way adds its selector to
 //   PFP.where (a screen CARD-CRP serves: <img> with an svg src). A painter that draws an svg picture into a canvas and keeps the bitmap can let the drawing go with pfpForget(url) when no img shows it any more.
 //   A rig that judges a still of the promotion wall or of the yard on WebKit waits for GVT.pfp().card 0, .yard 0 and .hold 0 (or sets ?pfh=0); a rig that times the yard behind the PROMOTIONS card on a page that
-//   has kept nothing reads PFP.yardAt.
+//   has kept nothing reads PFP.yardAt. A card that copies or reads the wall's imgs meets data-pfp="1" on those whose bitmap is in (it means nothing outside this section's rule).
 var PFP={ h:(function(){ try{ var q=/[?&]pfh=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pfh','0'); else localStorage.removeItem('gvt_pfh'); } return localStorage.getItem('gvt_pfh')==='0'? 0 : 1; }catch(e){ return 1; } })(),
   w:(function(){ try{ var q=/[?&]pfw=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pfw','0'); else localStorage.removeItem('gvt_pfw'); } return localStorage.getItem('gvt_pfw')==='0'? 0 : 1; }catch(e){ return 1; } })(),
   y:(function(){ try{ var q=/[?&]pfy=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pfy','0'); else localStorage.removeItem('gvt_pfy'); } return localStorage.getItem('gvt_pfy')==='0'? 0 : 1; }catch(e){ return 1; } })(),
   g:(function(){ try{ var q=/[?&]pfg=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pfg','0'); else localStorage.removeItem('gvt_pfg'); } return localStorage.getItem('gvt_pfg')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  b:(function(){ try{ var q=/[?&]pfb=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pfb','0'); else localStorage.removeItem('gvt_pfb'); } return localStorage.getItem('gvt_pfb')==='0'? 0 : 1; }catch(e){ return 1; } })(),
   where:'.pw-tile', bulk:3, min:140, cap:2400, capY:3000, yardAt:1700, tick:50, gap:150,   // the dials: the screens whose imgs wait for their bitmap (a selector) · the fewest new pictures in one deal that arm a rule · the least time a rule stands, ms · the most, the wall's and the yard's · a yard owed behind a wall that is being painted is laid no sooner than this after the wall was dealt, ms · the watch's tick · the shelf's wait, ms
   look0:null, lay0:null, done0:null, make0:null, frame0:null, fr:null, gap0:0, f0:null, ht:0, cb:0, cOn:0, c0:0, cT:0, cSeen:0, cIdle:0, cTid:0, yOn:0, y0:0, yIdle:0, yTid:0,   // the wrapped doors · the wrapper CARD-FYP just built · CARD-HVM's own wait · CARD-HVM's own frames before a yard owed is laid (kept while this section holds them), the timer that gives them back · new pictures looked at in this task · the wall's rule: armed, since, last new picture, CARD-CRP's count at the arming, quiet ticks, the watch · the yard's the same
-  n:{ cArm:0, cDone:0, cCap:0, few:0, hold:0, yArm:0, yDone:0, yCap:0, yFew:0, go:0, goC:0, goS:0, goY:0 }, last:'', err:0 };
+  n:{ cArm:0, cDone:0, cCap:0, few:0, hold:0, yArm:0, yDone:0, yCap:0, yFew:0, go:0, goC:0, goS:0, goY:0, in:0 }, last:'', err:0 };
 function pfpSheet(id, css){ let st=document.getElementById(id); if(st) return st;   // a style node that stands switched off (media "not all") until its rule is armed
   st=document.createElement('style'); st.id=id; st.media='not all'; st.textContent=css; (document.head||document.documentElement).appendChild(st); return st; }
 function pfpCssC(){ const w=String(PFP.where||'').split(',').map(function(s){ return s.trim(); }).filter(Boolean); if(!w.length) return null;
-  return pfpSheet('pfpCssC', w.map(function(s){ return s+' img[src^="data:image/svg+xml"][src*="%3Cfilter"]:not([srcset]),'+s+' img[src^="data:image/svg+xml"][src*="<filter"]:not([srcset])'; }).join(',')+'{visibility:hidden !important}'); }   // an img of the wall whose picture is a filtered svg (CARD-CRP's own test, crpFx) and wears no bitmap yet
+  const no=PFP.b? ':not([data-pfp])' : ':not([srcset])';   // part 5: its bitmap is not in yet (the part off: no bitmap written yet, v32.12's rule)
+  const css=w.map(function(s){ return s+' img[src^="data:image/svg+xml"][src*="%3Cfilter"]'+no+','+s+' img[src^="data:image/svg+xml"][src*="<filter"]'+no; }).join(',')+'{visibility:hidden !important}';   // an img of the wall whose picture is a filtered svg (CARD-CRP's own test, crpFx)
+  const st=pfpSheet('pfpCssC', css); if(st.textContent!==css) st.textContent=css; return st; }
 function pfpCssY(){ return pfpSheet('pfpCssY', '#fortBg svg:not(.fyp-l0) image[href^="data:image/svg+xml"]{visibility:hidden}'); }   // a drawing of the yard's own paint (never the still layers') that still wears its svg
 // ───── 1 · THE PROMOTION WALL: CARD-CRP's first look at an img counts the pictures that are new to this device; three or more in one deal arm the rule
 function pfpBurst(){ const n=PFP.cb; PFP.cb=0; if(!PFP.h || !n) return; if(n<PFP.bulk && !PFP.cOn){ PFP.n.few++; return; } pfpCardOn(); }
@@ -233423,9 +233430,16 @@ function pfpCardTick(){ PFP.cTid=0; if(!PFP.cOn) return;
   }catch(e){ PFP.err++; pfpCardOff('fault'); return; }
   PFP.cTid=setTimeout(pfpCardTick, PFP.tick); }
 try{ if(typeof crpLook==='function' && typeof CRP==='object' && CRP){ PFP.look0=crpLook;   // CARD-CRP's first look at an img (added, or its src changed): wrapped BY NAME
-  crpLook=function(img){ const r=PFP.look0.apply(this, arguments);
+  crpLook=function(img){ try{ if(img && img.hasAttribute && img.hasAttribute('data-pfp') && img.getAttribute('src')!==img.__crpS) img.removeAttribute('data-pfp'); }catch(e){ PFP.err++; }   // part 5: its picture changed, the old bitmap's mark goes with it (read before CARD-CRP's look files the new picture)
+    const r=PFP.look0.apply(this, arguments);
     try{ if(PFP.h && CRP.on && img && img.__crpK && !img.__crpU && CRP.bmp.get(img.__crpK)!==0 && PFP.where && img.closest && img.closest(PFP.where)){ if(!PFP.cb++) Promise.resolve().then(pfpBurst); } }catch(e){ PFP.err++; }   // a filtered picture of the wall with no bitmap kept: counted, and the count read when this task's looks are done (before the frame paints)
     return r; }; } }catch(e){}
+// ───── 5 · THE BITMAP IS IN BEFORE THE SOLDIER IS SHOWN: an img of the wall is marked when the bitmap CARD-CRP put on it has finished loading (its own load event; the engine has swapped the
+//   picture it paints by then). The wall's rule of part 1 reads that mark. Measured on the Mac's system WebKit (rig/lab/flow-lab15.js): right after the srcset is written the img is not complete,
+//   12 of 12; its load event comes 3 to 7 ms later with the img complete, 12 of 12; an svg <image> whose href is swapped gets no load event at all (so the yard's rule stays as it was).
+function pfpIn(ev){ try{ const t=ev && ev.target; if(!t || t.localName!=='img' || !t.__crpU || !PFP.where) return;   // an img CARD-CRP has put a bitmap on
+    if(t.complete && t.naturalWidth>0 && t.hasAttribute('srcset') && !t.hasAttribute('data-pfp') && t.closest(PFP.where)){ t.setAttribute('data-pfp', '1'); PFP.n.in++; } }catch(e){ PFP.err++; } }
+try{ if(PFP.look0 && typeof CRP==='object' && CRP && CRP.on) document.addEventListener('load', pfpIn, true); }catch(e){}   // load does not bubble: it is heard on its way down (only where CARD-CRP is on)
 // ───── 2 · THE YARD WAITS FOR A WALL THAT IS BEING PAINTED: CARD-HVM lays a yard owed behind a card two frames after the card (its own count, HVM.minF). While the wall's rule is armed that count is held; it is given back when
 //   the wall is done and PFP.yardAt ms have passed since the wall was dealt. CARD-HVM's own step goes on watching meanwhile (the card gone, the scene shut, a yard the game laid itself), so every one of its
 //   ways out is still its own. Measured: the fort's new layers no longer stand on the wall's paints and on the room's last second (a cold castle 1,386 · 1,393 MB against 1,440 .. 1,579 without the wait).
@@ -233469,10 +233483,11 @@ try{ if(typeof fypMake==='function' && typeof fypFrame==='function'){ PFP.make0=
 function pfpGap(){ try{ if(typeof HVK!=='object' || !HVK || !(HVK.gap>0)) return; if(!((typeof CRP==='object' && CRP && CRP.on) || (typeof FYP==='object' && FYP && FYP.on && FYP.wk))) return; if(PFP.w){ if(!PFP.gap0) PFP.gap0=HVK.gap; HVK.gap=Math.min(PFP.gap0, PFP.gap); } else if(PFP.gap0) HVK.gap=PFP.gap0; }catch(e){ PFP.err++; } }
 pfpGap();
 function pfpRead(o){ if(o && typeof o==='object'){ ['bulk','min','cap','capY','yardAt','tick','gap'].forEach(function(k){ if(o[k]!=null && +o[k]>=0) PFP[k]=+o[k]; });
-    if('h' in o){ PFP.h=o.h? 1 : 0; if(!PFP.h){ pfpCardOff('dial'); pfpYardOff('dial'); } } if('y' in o){ PFP.y=o.y? 1 : 0; if(!PFP.y) pfpFree(); } if('g' in o) PFP.g=o.g? 1 : 0; if('w' in o) PFP.w=o.w? 1 : 0; if('w' in o || 'gap' in o) pfpGap(); }
-  let hid=0, hidY=0; try{ if(PFP.cOn){ const L=document.querySelectorAll('img'); for(let i=0;i<L.length;i++) if(L[i].__crpK && !L[i].hasAttribute('srcset') && getComputedStyle(L[i]).visibility==='hidden' && L[i].closest(PFP.where)) hid++; }
+    if('h' in o){ PFP.h=o.h? 1 : 0; if(!PFP.h){ pfpCardOff('dial'); pfpYardOff('dial'); } } if('y' in o){ PFP.y=o.y? 1 : 0; if(!PFP.y) pfpFree(); } if('g' in o) PFP.g=o.g? 1 : 0; if('w' in o) PFP.w=o.w? 1 : 0; if('w' in o || 'gap' in o) pfpGap();
+    if('b' in o){ PFP.b=o.b? 1 : 0; try{ if(document.getElementById('pfpCssC')) pfpCssC(); }catch(e){ PFP.err++; } } }
+  let hid=0, hidY=0; try{ if(PFP.cOn){ const L=document.querySelectorAll('img'); for(let i=0;i<L.length;i++) if(L[i].__crpK && getComputedStyle(L[i]).visibility==='hidden' && L[i].closest(PFP.where)) hid++; }
     if(PFP.yOn){ const L=document.querySelectorAll('#fortBg svg:not(.fyp-l0) image'); for(let i=0;i<L.length;i++) if((L[i].getAttribute('href')||'').lastIndexOf('data:image/svg+xml', 0)===0) hidY++; } }catch(e){}
-  return { h:PFP.h, y:PFP.y, g:PFP.g, w:PFP.w, wrapped:!!(PFP.look0 && PFP.lay0 && PFP.done0 && PFP.make0), card:PFP.cOn, yard:PFP.yOn, hold:(PFP.f0!=null)? 1 : 0, yardAt:PFP.yardAt, waiting:hid, waitingY:hidY, n:Object.assign({}, PFP.n), last:PFP.last, where:PFP.where, bulk:PFP.bulk, min:PFP.min, cap:PFP.cap, capY:PFP.capY,
+  return { h:PFP.h, y:PFP.y, g:PFP.g, w:PFP.w, b:PFP.b, wrapped:!!(PFP.look0 && PFP.lay0 && PFP.done0 && PFP.make0), card:PFP.cOn, yard:PFP.yOn, hold:(PFP.f0!=null)? 1 : 0, yardAt:PFP.yardAt, waiting:hid, waitingY:hidY, n:Object.assign({}, PFP.n), last:PFP.last, where:PFP.where, bulk:PFP.bulk, min:PFP.min, cap:PFP.cap, capY:PFP.capY,
     gap:(typeof HVK==='object' && HVK)? HVK.gap : null, gap0:PFP.gap0, err:PFP.err }; }
 try{ if(window.GVT && !GVT.pfp) GVT.pfp=pfpRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.pfp) GVT.pfp=pfpRead; }catch(e){} }, 0);   // the rig door (the house's way)
