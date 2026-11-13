@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.18","md5":"6fe55a86a013601f3e151b83935f29cd","sha":"7473ffb968","at":"2026-11-13T23:00:45Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.19","md5":"acfe27d34f52a0199f185f007f254990","sha":"521ad4bfac","at":"2026-11-13T23:07:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93972,7 +93972,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -130315,6 +130315,126 @@ cx.drawImage=function(im,a,b,c,d,e,f,g,h){
 setInterval(function(){ if(BDR.n) bdrSweep(performance.now(), false); }, 5000);   // no draws at all (a menu, a room, the fort): the unused bitmaps are let go all the same
 function bdrRead(){ return { on:BDR.on, n:BDR.n, live:BDR.live, made:BDR.made, hit:BDR.hit, cull:BDR.cull, pass:BDR.pass, cap:BDR.cap, full:BDR.full, drop:BDR.drop, anim:BDR.anim }; }
 // ═══ END CARD-BDR ═══
+// ═══ CARD-CFZ · THE BIG FILTERED PICTURES ON THE BATTLE CANVAS, PAINTED SHARP ON THE iPHONE (sec:CARD-CFZ; design/canvas-fuzz-1113/00-CARD-CFZ.md; FROM WYATT by phone 11/13/2026 12:17 EST,
+// jumpr 3349, his notes on the King Croak fight's snake, verbatim: "We're also seeing that he is looking fuzzy, so let's keep that in mind when working on these animations."; his rule of 11/12/2026
+// 16:39 EST: a bug report IS the ask for its fix)
+// THE CAUSE (CARD-SNR's probe design/snake-rotation-1113/rig/probeFuzz.mjs; this card's census design/canvas-fuzz-1113/rig/census.mjs): CARD-BDR just above paints every svg picture the battle canvas
+// draws ONCE into a bitmap at the size it lands on the glass (G.drawImage(im,0,0,W9,H9)). Chrome draws an svg there as vectors. WebKit (every iPhone and iPad, the App Store app, Safari) runs a
+// picture's SVG FILTERS at the picture's OWN size and stretches what they made (CARD-CRP's law for an <img>; its CRP-F1 left the canvas as it was). Laura's light redraw (CARD-LRD) gave the figures
+// her shadows and grain as filters, so every figure drawn bigger than its own picture reads soft on the iPhone: the Rattler worst (w 326 world = 436 canvas px from a 150 x 150 picture, 2.9x).
+// THE CURE, the picture alone (no drawing's bytes, no sim, no clock moves; WebKit only, never Chromium): this wrap sits right on CARD-BDR's drawImage (every later wrap of cx.drawImage stands over
+// it, so it is handed exactly the picture BDR is, a plane's still twin included). When BDR has just made a bitmap of a still svg picture that carries a filter, more than CFZ.min its own size (1.3x: BDR's
+// steps of 1.41x and up; under it WebKit already reads 0.80-0.97 of Chrome on the glass), that bitmap is painted AGAIN, after the frame, from a copy of the very same drawing whose root is sized to the bitmap (width and height = the bitmap's: WebKit then runs her filters at full size, her
+// look kept), into a new canvas of the same size that takes the soft one's place in BDR's own record (E.c). Every BDR law stands: its ladder (2^(1/4) steps of its own scale, so a breathing scale
+// does not paint again), the cull, the per-frame cap, the 20 s keep, the budget (no bitmap is added: one sharp for one soft), the bitmaps dropped when a picture's src changes. Until the sharp one
+// is in, the picture draws as today (never a blank frame). ONE paint at a time, 2.5 s after the frame that asked, 400 ms apart, the biggest stretch first, the copy let go at once (CARD-PFP's finding, 11/13: WebKit keeps
+// every data: drawing it painted, about 16 MB each, until something else prunes its cache).
+// Switches: ?cfz=0 = today's soft canvas pictures on this device (remembered as gvt_cfz '0'), ?cfz=1 = on anywhere (a Chrome rig too), ?cfz=auto = the rule again. GVT.cfz() = the rigs' read.
+// Zero words, css, save keys, server or sw bytes; no DOM node. Nothing in the sim reads it.
+const CFZ={ on:0, why:'', min:1.3, maxPx:1100000, wait:2500, gap:40, nest:120, rest:400, perMin:40, same:6, cell:40, keepN:24, keepPx:6e6, keepMs:60000, q:[], busy:0, ms:0, max:0, ld:0, log:[], win:[], t0:0, di:null,
+  keep:new Map(), kn:0, kpx:0, forget:0, stub:null, sweepT:0,
+  n:{ saw:0, plain:0, small:0, big:0, ask:0, paint:0, put:0, gone:0, bad:0, err:0, rate:0, go:0, diff:0, again:0, kept:0, reuse:0, freed:0 } };   // ⚑ CFZ-F1 the dials: min 1.3x its own size (BDR's steps of 1.41x and up: under it WebKit already reads 0.80-0.97 of Chrome on the glass, the census's table) · maxPx 1.1 M dots a paint · wait 2.5 s after the frame that asked (past a fight start's own memory peak and a figure's own first, long frame: the system WebKit's footprint read, the record's §5) · gap 40 ms between its decode and its paint (120 for a drawing that holds pictures) · rest 400 ms after one · 40 paints a minute · same 6 and cell 40 (of 255: the mean and the worst of 16 x 16 cells) · the kept sharp bitmaps BDR let go: 24, 6 M dots (24 MB), 60 s
+const CFZ_PIC=new WeakMap();   // BDR's record of a picture → { s: its src, ok: a still svg that carries a filter } (read once a record: BDR makes a new record when a picture's src changes)
+const CFZ_SEEN=new WeakSet();   // BDR's bitmaps (its entries) already looked at
+const CFZ_SHARP=new WeakSet();  // BDR's bitmaps painted sharp here
+function cfzGate(){ let w='';
+  try{ const q=/[?&]cfz=(0|1|auto)(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='auto') localStorage.removeItem('gvt_cfz'); else localStorage.setItem('gvt_cfz', q[1]); } w=localStorage.getItem('gvt_cfz')||''; }catch(e){}
+  if(w==='0') return [0, 'off on this device (gvt_cfz 0)'];
+  if(w==='1') return [1, 'on on this device (gvt_cfz 1)'];
+  if(navigator.userAgentData) return [0, 'not WebKit (Chromium)'];   // Chrome, Edge, Android, the desktops' Chromium shells, and a Chrome rig wearing an iPhone's name (WebKit has no userAgentData)
+  const ua=navigator.userAgent||'';
+  const wk=!!window.__rslEarly || (/AppleWebKit\//.test(ua) && /Safari\//.test(ua) && !/Chrome\/|Chromium\/|CriOS\/|Edg\/|EdgiOS\/|OPR\/|Android|Firefox\/|FxiOS\/|Electron\//.test(ua));   // CARD-CRP's rule: iOS (CARD-RSL-EARLY's mark) or Safari on a Mac
+  if(!wk) return [0, 'not WebKit'];
+  return [1, 'WebKit at '+(window.devicePixelRatio||1)+' dots a point']; }   // every dot count: the stretch is read in the canvas's own px (CV_DPR in it)
+function cfzFx(s){ if(typeof s!=='string' || s.length<80 || s.lastIndexOf('data:image/svg+xml', 0)!==0) return false; const c=s.indexOf(','); if(c<0 || /;base64/i.test(s.slice(0, c))) return false;
+  return s.indexOf('%3Cfilter', c)>0 || s.indexOf('<filter', c)>0; }   // a percent-encoded svg document that carries a filter (the game's pictures: sprURI, lagSpr, sargeWepURI …)
+function cfzBad(svg){ return /<(?:animate|animateTransform|animateMotion|set|foreignObject|script|video|audio|iframe)\b|@keyframes|[;{"'\s]animation(?:-name)?\s*:|\bhref\s*=\s*["']\s*(?:https?:|\/\/)/i.test(svg); }   // moves by itself or reaches outside: left as it is (CARD-CRP's test)
+function cfzSized(svg, W, H){ return svg.replace(/<svg\b([^>]*)>/, function(m, a){ return '<svg'+a.replace(/\s(?:width|height)\s*=\s*(["'])[^"']*\1/g, '')+' width="'+W+'" height="'+H+'">'; }); }   // the root at the bitmap's size (CARD-CRP's crpSized)
+function cfzForget(u){ try{ const k=new Image(); k.loading='lazy'; k.crossOrigin='anonymous'; k.src=u; k.removeAttribute('src'); CFZ.n.go++; }catch(e){ CFZ.n.err++; } }   // CARD-PFP's way: the same url asked again in the other CORS mode, lazy, off the page: the engine drops the copy it kept
+function cfzSaw(im){   // BDR has just made a bitmap of this picture: look at its new bitmaps
+  try{ CFZ.n.saw++; const rec=BDR_REC.get(im); if(!rec || !rec.svg || !rec.b) return;
+    let P=CFZ_PIC.get(rec); if(!P){ const s=im.getAttribute('src'); P={ s:s, ok:cfzFx(s) }; CFZ_PIC.set(rec, P); }
+    const nw=im.naturalWidth, nh=im.naturalHeight;
+    for(const k in rec.b){ const E=rec.b[k]; if(!E || !E.c || CFZ_SEEN.has(E)) continue; CFZ_SEEN.add(E);
+      if(!P.ok){ CFZ.n.plain++; continue; }   // no filter: Chrome and WebKit paint it alike (sharp)
+      const W=E.c.width, H=E.c.height;
+      if(!(W>nw*CFZ.min || H>nh*CFZ.min)){ CFZ.n.small++; continue; }   // drawn at about its own size or under it: nothing stretched
+      if(W*H>CFZ.maxPx){ CFZ.n.big++; continue; }   // a paint grows with its dots: past the dial it stays as today
+      if(cfzReuse(P, E, W, H)) continue;   // painted sharp before, let go by BDR, kept here: back in at once, no paint
+      CFZ.n.ask++; CFZ.q.push({ im:im, P:P, E:E, W:W, H:H, st:W/nw, tries:0 }); }
+    if(CFZ.q.length>1) CFZ.q.sort(function(a, b){ return b.st-a.st; });   // the biggest stretch first
+    cfzPump(); }catch(e){ CFZ.n.err++; } }
+function cfzLive(j){ const E=j.E; return !!E && BDR_LIVE.has(E) && E.rec.b[E.k]===E && !!E.c && E.c.width===j.W && E.c.height===j.H; }   // BDR still holds this bitmap, at this size
+function cfzPump(){ if(CFZ.busy || !CFZ.q.length) return; CFZ.busy=1; setTimeout(cfzLoad, CFZ.wait); }   // ONE paint at a time, a while after the frame that asked (a figure's first frame already pays its soft render)
+function cfzNext(rest){ setTimeout(function(){ CFZ.busy=0; if(CFZ.q.length){ CFZ.busy=1; setTimeout(cfzLoad, CFZ.gap); } }, rest? CFZ.rest : 0); }   // after a paint: a rest, so two paints never land back to back (the next one's load at once after it)
+function cfzLoad(){ let j=null;
+  try{ while(CFZ.q.length){ const q=CFZ.q.shift(); if(cfzLive(q)){ j=q; break; } CFZ.n.gone++; }
+    if(!j) return cfzNext();
+    const now=Date.now(); while(CFZ.win.length && now-CFZ.win[0]>60000) CFZ.win.shift();
+    if(CFZ.win.length>=CFZ.perMin){ CFZ.n.rate++; return cfzNext(); }   // a guard on a frame's worth of paints a second: past it the picture stays as today
+    const s=j.P.s; if(j.im.getAttribute('src')!==s){ CFZ.n.gone++; return cfzNext(); }   // its src changed in place: BDR lets this record go when the new drawing loads
+    const c=s.indexOf(','); let svg=null;
+    try{ svg=decodeURIComponent(s.slice(c+1)); }catch(x){}
+    if(!svg || cfzBad(svg)){ CFZ.n.bad++; return cfzNext(); }
+    j.nest=svg.indexOf('<image')>=0;
+    const u='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(cfzSized(svg, j.W, j.H)); svg=null; j.u=u;
+    const im=new Image(); let up=0; j.t0=performance.now(); CFZ.ld++;
+    const go=function(){ if(up) return; up=1; clearTimeout(j.tm); j.t1=performance.now(); setTimeout(function(){ cfzPaint(j, im); }, j.nest? CFZ.nest*(1+j.tries) : CFZ.gap); };   // a drawing that holds pictures: a longer breath, for them to decode
+    const fail=function(){ if(up) return; up=1; clearTimeout(j.tm); CFZ.n.err++; cfzLetGo(j, im); cfzNext(); };
+    im.onload=go; im.onerror=fail; j.tm=setTimeout(fail, 9000);
+    im.src=u; if(im.decode) im.decode().then(go, function(){});   // decode() answers as soon as the picture is ready
+  }catch(e){ CFZ.n.err++; cfzNext(); } }
+function cfzPaint(j, im){ const t2=performance.now(); let put=0, d=null;
+  try{ if(cfzLive(j)){ const c=document.createElement('canvas'); c.width=j.W; c.height=j.H; const g=c.getContext('2d');
+      if(g){ g.drawImage(im, 0, 0, j.W, j.H); g.getImageData(0, 0, 1, 1); CFZ.n.paint++; CFZ.win.push(Date.now());   // WebKit runs an svg's draw when the canvas is read: her filters run HERE, in this task, never in the next frame
+        d=cfzSame(c, j.E.c);   // the sharp one beside the soft one, each shrunk to 16 x 16 cells: a part missing (a picture inside the drawing not decoded yet) shows here
+        if(!d || d[0]>CFZ.same || d[1]>CFZ.cell){ c.width=0; c.height=0; CFZ.n.diff++; if(j.tries<1 && cfzLive(j)){ j.tries++; CFZ.n.again++; CFZ.q.push(j); } }   // not the same picture: the soft one stays; one more try after a longer breath
+        else if(cfzLive(j)){ const E=j.E, old=E.c; E.c=c; CFZ_SHARP.add(E); try{ old.width=0; old.height=0; }catch(x){} CFZ.n.put++; put=1; }   // the sharp bitmap in the soft one's place; width 0 hands the soft one's pixels back (CARD-BDR's law)
+        else { c.width=0; c.height=0; CFZ.n.gone++; } } }
+    else CFZ.n.gone++; }
+  catch(x){ CFZ.n.err++; }
+  const ms=performance.now()-t2; CFZ.ms+=ms; if(ms>CFZ.max) CFZ.max=ms;
+  if(CFZ.log.length>=40) CFZ.log.shift(); CFZ.log.push([j.W, j.H, +j.st.toFixed(2), Math.round((j.t1||t2)-j.t0), Math.round(ms), put, d? d[0] : -1, d? d[1] : -1]);
+  const again=!put && !!j.E && CFZ.q.indexOf(j)>=0; cfzLetGo(j, im, again); cfzNext(1); }
+function cfzSame(a, b){   // two pictures, each shrunk to 64 x 64 (the engine's best smoothing) and averaged into 16 x 16 cells: [the mean difference, the worst cell's] (0..255, every channel); null = not read
+  try{ const t=document.createElement('canvas'); t.width=128; t.height=64; const g=t.getContext('2d'); g.imageSmoothingEnabled=true; try{ g.imageSmoothingQuality='high'; }catch(x){}
+    g.drawImage(a, 0, 0, 64, 64); g.drawImage(b, 64, 0, 64, 64); const D=g.getImageData(0, 0, 128, 64).data; t.width=0; t.height=0;
+    let s=0, w=0; for(let cy=0;cy<16;cy++) for(let cx9=0;cx9<16;cx9++){ let e=0;
+      for(let q=0;q<4;q++){ let p=0, r=0; for(let y=cy*4;y<cy*4+4;y++) for(let x=cx9*4;x<cx9*4+4;x++){ const i=(y*128+x)*4+q; p+=D[i]; r+=D[i+256]; } e+=Math.abs(p-r)/16; }
+      s+=e; if(e/4>w) w=e/4; }
+    return [+(s/1024).toFixed(2), +w.toFixed(1)]; }catch(e){ return null; } }
+function cfzLetGo(j, im, keep){ CFZ.ld=Math.max(0, CFZ.ld-1); try{ im.onload=im.onerror=null; im.removeAttribute('src'); }catch(x){} if(j.u) cfzForget(j.u); j.u=null; if(!keep){ j.im=null; j.E=null; j.P=null; } }   // the sized copy goes at once (a job tried again keeps its picture)
+function cfzReuse(P, E, W, H){ const L=CFZ.keep.get(P); if(!L) return false;
+  for(let i=0;i<L.length;i++){ const e=L[i]; if(e.W!==W || e.H!==H) continue; L.splice(i, 1); if(!L.length) CFZ.keep.delete(P); CFZ.kn--; CFZ.kpx-=W*H;
+    const old=E.c; E.c=e.c; CFZ_SHARP.add(E); try{ old.width=0; old.height=0; }catch(x){} CFZ.n.reuse++; return true; }   // the kept sharp one is BDR's bitmap again (its own canvas: nothing copied)
+  return false; }
+function cfzKeep(P, c){ const W=c.width, H=c.height; if(!(W>0 && H>0) || W*H>CFZ.keepPx){ try{ c.width=0; c.height=0; }catch(x){} return; }
+  let L=CFZ.keep.get(P); if(!L){ L=[]; CFZ.keep.set(P, L); } L.push({ c:c, W:W, H:H, t:performance.now() }); CFZ.kn++; CFZ.kpx+=W*H; CFZ.n.kept++;
+  if(CFZ.kn>CFZ.keepN || CFZ.kpx>CFZ.keepPx) cfzSweep(0, 1); }
+function cfzSweep(all, over){ const now=performance.now(), A=[];   // the kept ones go: all of them (the battle canvas has drawn no picture for 4 s: a menu, a room, the fort), the old ones, then the oldest past the caps
+  CFZ.keep.forEach(function(L, P){ for(let i=0;i<L.length;i++) A.push([L[i], P]); });
+  A.sort(function(a, b){ return a[0].t-b[0].t; });
+  for(let i=0;i<A.length;i++){ const e=A[i][0], P=A[i][1]; if(!(all || now-e.t>CFZ.keepMs || (over && (CFZ.kn>CFZ.keepN || CFZ.kpx>CFZ.keepPx)))) continue;
+    const L=CFZ.keep.get(P), k=L? L.indexOf(e) : -1; if(k>=0) L.splice(k, 1); if(L && !L.length) CFZ.keep.delete(P);
+    try{ e.c.width=0; e.c.height=0; }catch(x){} CFZ.kn--; CFZ.kpx-=e.W*e.H; CFZ.n.freed++; } }
+function cfzUnkeep(P){ const L=CFZ.keep.get(P); if(!L) return; CFZ.keep.delete(P); for(let i=0;i<L.length;i++){ try{ L[i].c.width=0; L[i].c.height=0; }catch(x){} CFZ.kn--; CFZ.kpx-=L[i].W*L[i].H; CFZ.n.freed++; } }
+function cfzRead(o){ if(o && o.on!=null) CFZ.on=o.on? 1 : 0;
+  let kept=0, px=0; try{ BDR_LIVE.forEach(function(E){ if(CFZ_SHARP.has(E)){ kept++; px+=E.px; } }); }catch(e){}
+  return { cv:GVT_CV, on:CFZ.on, why:CFZ.why, wrapped:CFZ.di? 1 : 0, n:Object.assign({}, CFZ.n), q:CFZ.q.length, busy:CFZ.busy, idle:(!CFZ.busy && !CFZ.q.length)? 1 : 0, ms:Math.round(CFZ.ms), max:Math.round(CFZ.max),
+    kept:kept, px:px, mb:+(px*4/1048576).toFixed(2), held:CFZ.kn, heldMb:+(CFZ.kpx*4/1048576).toFixed(2), log:CFZ.log.slice(), min:CFZ.min, maxPx:CFZ.maxPx, bdr:(typeof bdrRead==='function')? bdrRead() : null }; }
+(function(){ try{ const g=cfzGate(); CFZ.on=g[0]; CFZ.why=g[1]; if(!CFZ.on) return;
+    if(typeof BDR!=='object' || !BDR || !BDR.on || typeof BDR_REC!=='object' || typeof BDR_LIVE!=='object' || typeof cx!=='object' || !cx || typeof cx.drawImage!=='function'){ CFZ.on=0; CFZ.why='CARD-BDR is off'; return; }
+    CFZ.t0=Date.now(); const D0=CFZ.di=cx.drawImage;   // CARD-BDR's drawImage
+    cx.drawImage=function(im){ const m0=BDR.made, r=D0.apply(cx, arguments); if(BDR.made!==m0 && CFZ.on) cfzSaw(im); return r; };   // BDR made a bitmap in this very call: of this picture
+    CFZ.stub=document.createElement('canvas'); CFZ.stub.width=0; CFZ.stub.height=0;
+    const dr0=CFZ.drop0=bdrDrop; bdrDrop=function(e){   // BDR lets a bitmap go (unused 20 s, or over its budget): a sharp one is kept here a while (BDR zeroes a stub in its place), so the next time BDR makes that size it is back without a paint
+      try{ if(e && !CFZ.forget && CFZ_SHARP.has(e) && e.c && e.c.width){ const P=CFZ_PIC.get(e.rec); if(P){ const c=e.c; e.c=CFZ.stub; CFZ_SHARP.delete(e); cfzKeep(P, c); } } }catch(x){ CFZ.n.err++; }
+      return dr0.apply(this, arguments); };
+    const fg0=CFZ.forget0=bdrForget; bdrForget=function(rec){ CFZ.forget++; try{ const P=CFZ_PIC.get(rec); if(P) cfzUnkeep(P); return fg0.apply(this, arguments); } finally{ CFZ.forget--; } };   // the picture's src changed in place: its bitmaps, sharp or kept, are of the old drawing: all go
+    setInterval(function(){ if(!CFZ.kn) return; try{ cfzSweep(performance.now()-BDR.lastT>4000? 1 : 0, 0); }catch(x){ CFZ.n.err++; } }, 5000);   // no picture on the battle canvas for 4 s: every kept one goes; else the ones unused CFZ.keepMs
+  }catch(e){ CFZ.on=0; CFZ.why='failed to start: '+String(e && e.message || e).slice(0, 80); } })();
+setTimeout(function(){ try{ if(window.GVT && !GVT.cfz) GVT.cfz=cfzRead; }catch(e){} }, 0);   // the rig door (the game's own GVT is made far below)
+// ═══ END CARD-CFZ ═══
 
 function drawSprite(k,x,y,w,rot,wob,imgOverride,flip){
   const im=imgOverride||IMG[k]; if(!im) return;
