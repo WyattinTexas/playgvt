@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.09","md5":"8a2b6b95fc7d22c4ef083387e6b48fbc","sha":"345922dfe9","at":"2026-11-13T16:55:52Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.10","md5":"b370ddb5582bf08090da02ff34ea6e7a","sha":"83e2745f47","at":"2026-11-13T17:47:58Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -81374,6 +81374,21 @@ function crbRefl(o,im,w,h){ if(!CRB.on || !CRB.refl) return; let r=CRB_REFL.get(
 function crbPool(u){ if(!CRB.on || u.dead || u.falling || !chsOn()) return; const im=CRB_IMG.pool||(CRB_IMG.pool=crbBake(52,24,g=>{ const r=24, x=26, y=12; g.translate(x,y); g.scale(1,0.42); const gr=g.createRadialGradient(0,0,2,0,0,r); gr.addColorStop(0,'rgba(255,248,220,0.55)'); gr.addColorStop(1,'rgba(255,248,220,0)'); g.fillStyle=gr; g.beginPath(); g.arc(0,0,r,0,7); g.fill(); g.setTransform(1,0,0,1,0,0);
     g.strokeStyle='rgba(255,236,160,0.9)'; g.lineWidth=2; g.beginPath(); g.ellipse(x,y,r*0.8,r*0.32,0,0,7); g.stroke(); }));   // THE POOL: a lit disc + a gold ring under each of YOUR men: a man reads as a man, never as a piece
   if(im.complete && im.naturalWidth) cx.drawImage(im,u.x-26,u.y+4-12); }
+// ═══ CARD-CPT THE CHESS FIGHT'S LIT POOL IS PAINTED ONCE (jumpr 3343, board J65-3343; design/chess-pool-twice-1113/00-CARD-CPT.md; the brief: design/units-drawn-twice-1113/cards/CARD-CPT-chess-pool-twice.md, a fault CARD-DUT found on the way) ═══
+// The game's own drawUnit paints the lit pool (crbPool, right above) at its head, BEFORE the doors of Floop's copy (fmcDraw, latch u.fmcIn) and of the trench kit (trkDraw, latch u.trkDr). Both doors
+// call drawUnit AGAIN for the same man (CARD-DUT sends that call to the game's own painter, where the line stands), so in the chess fight a copy had TWO pools, the second inside the copy's scale
+// about his feet (x1.15 to x1.35: a second gold ring, a little larger, the whole fight), and a man of the trench kit a second one inside the trench's clip and sink.
+// THE CURE (paint only; no line of drawUnit or crbPool edited): crbPool WRAPPED BY NAME: while the man's own latch for that second call is up it paints nothing, so his pool is painted once, at the
+// first entry, at its own size on the floor. Every other call goes to the game's painter as before (a knocked man's pool too: cfaFlyDraw's u.cfaIn is not this latch). A card that wraps crbPool
+// stands after this section and calls through.
+// THE SWITCH: ?cpt=0 on a device (gvt_cpt '0'; ?cpt=1 clears it) = the page as it stood. GVT.cpt() = the rigs' read: on, outer (the global name is this wrap), own (the kept painter is the game's own
+// crbPool), n (the second calls answered with no pool); GVT.cpt({ on:0|1 }) at run time.
+const CPT={ on:(function(){ try{ const q=/[?&]cpt=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cpt','0'); else localStorage.removeItem('gvt_cpt'); } return localStorage.getItem('gvt_cpt')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  base:crbPool, n:0 };   // base = the game's own painter of the pool · n = the second calls answered with no pool
+function cptPool(u){ if(u && CPT.on===1 && (u.fmcIn || u.trkDr)){ CPT.n++; return; } return CPT.base.apply(this, arguments); }   // the man's own latch for drawUnit's second call: his pool is on the floor already
+crbPool=cptPool;
+setTimeout(function(){ try{ if(window.GVT && !GVT.cpt) GVT.cpt=function(o){ if(o && o.on!=null) CPT.on=o.on? 1 : 0; return { cv:GVT_CV, on:CPT.on, outer:(crbPool===cptPool)? 1 : 0, own:(String(CPT.base).slice(0,20)==='function crbPool(u){')? 1 : 0, n:CPT.n }; }; }catch(e){} }, 0);   // after the page's whole script (the game's own GVT is made far below)
+// ═══ END CARD-CPT ═══
 function crbSpotImg(r,rgb,a){ const k=r+'|'+rgb+'|'+a; return CRB_IMG[k]||(CRB_IMG[k]=crbBake(Math.ceil(r*3.2)+4,Math.ceil(r*3.2*0.62)+4,g=>{ const R=r*1.6, cx0=R+2, cy0=R*0.62+2; g.translate(cx0,cy0); g.scale(1,0.62);
     const h=g.createRadialGradient(0,0,r*0.7,0,0,R); h.addColorStop(0,'rgba('+rgb+','+(a*0.35)+')'); h.addColorStop(1,'rgba('+rgb+',0)'); g.fillStyle=h; g.beginPath(); g.arc(0,0,R,0,7); g.fill();   // the halo
     const c=g.createRadialGradient(0,0,0,0,0,r); c.addColorStop(0,'rgba('+rgb+','+a+')'); c.addColorStop(0.85,'rgba('+rgb+','+(a*0.8)+')'); c.addColorStop(1,'rgba('+rgb+',0)'); g.fillStyle=c; g.beginPath(); g.arc(0,0,r,0,7); g.fill(); })); }   // the crisp disc
@@ -93957,7 +93972,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.09';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.10';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
