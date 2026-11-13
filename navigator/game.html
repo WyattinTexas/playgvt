@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.19","md5":"acfe27d34f52a0199f185f007f254990","sha":"521ad4bfac","at":"2026-11-13T23:07:35Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.20","md5":"0ba2c65f345468ca18d74936e2ba413e","sha":"4866eddadf","at":"2026-11-13T23:15:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -81389,6 +81389,27 @@ function cptPool(u){ if(u && CPT.on===1 && (u.fmcIn || u.trkDr)){ CPT.n++; retur
 crbPool=cptPool;
 setTimeout(function(){ try{ if(window.GVT && !GVT.cpt) GVT.cpt=function(o){ if(o && o.on!=null) CPT.on=o.on? 1 : 0; return { cv:GVT_CV, on:CPT.on, outer:(crbPool===cptPool)? 1 : 0, own:(String(CPT.base).slice(0,20)==='function crbPool(u){')? 1 : 0, n:CPT.n }; }; }catch(e){} }, 0);   // after the page's whole script (the game's own GVT is made far below)
 // ═══ END CARD-CPT ═══
+// ═══ CARD-KPF A KNOCKED MAN'S LIT POOL STAYS ON THE FLOOR (jumpr 3353, board J76; design/knocked-pool-floor-1113/00-CARD-KPF.md; the brief: design/chess-pool-twice-1113/cards/CARD-KPF-knocked-pool-on-floor.md, a fault CARD-CPT found on the way) ═══
+// In the chess fight the game's own drawUnit paints a man's lit pool (crbPool, CARD-CRB) right AFTER the chess knock's door. For a man a piece knocks, that door (cfaFlyDraw, latch u.cfaIn) draws
+// him again inside the knock's tumble (translate(u.x,u.y-z); rotate(a); translate(-u.x,-u.y)), so his one pool was painted INSIDE the tumble: in the air it rose with him (43 px up at the top of the
+// arc, turned 45 degrees); on his back it was turned 90 degrees, a gold ring standing on its edge at his feet. CARD-CRB's own law: "The light lands on the FLOOR only".
+// THE CURE (paint only; no line of drawUnit, cfaFlyDraw or crbPool edited): cfaFlyDraw WRAPPED BY NAME remembers the canvas transform at its door (the floor's, every wrap of the first entry laid:
+// the very transform a man standing there has his pool painted under). crbPool WRAPPED BY NAME (outside CARD-CPT's wrap, calling through) paints the knock's own second call (u.cfaIn up, and no
+// deeper latch: Floop's copy and the trench kit are CARD-CPT's) under that remembered transform: his pool lies flat, at its own size, on the floor at his ground seat (u.x, u.y+4: in the flight
+// cfaShoveMan runs u.x, u.y along the ground under the arc; on his back they are his feet), at the same place in the order of paints, painted once. Every other call goes on as before.
+// A card that wraps cfaFlyDraw or crbPool stands after this section and calls through.
+// THE SWITCH: ?kpf=0 on a device (gvt_kpf '0'; ?kpf=1 clears it) = the page as it stood. GVT.kpf() = the rigs' read: on, outer (both global names are this section's wraps), own (the kept door is
+// the game's own cfaFlyDraw, the kept painter CARD-CPT's wrap), n (the knocked men's pools laid on the floor); GVT.kpf({ on:0|1 }) at run time.
+const KPF={ on:(function(){ try{ const q=/[?&]kpf=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_kpf','0'); else localStorage.removeItem('gvt_kpf'); } return localStorage.getItem('gvt_kpf')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  door:cfaFlyDraw, pool:crbPool, at:[], n:0 };   // door = the game's own knock door · pool = the painter as it stands here (CARD-CPT's wrap) · at = the floor remembered at each knock's door being drawn · n = the pools laid on the floor
+function kpfDoor(u){ if(KPF.on!==1 || !u || typeof cx.getTransform!=='function') return KPF.door.apply(this, arguments);   // a browser without getTransform draws as ever
+  const m=cx.getTransform(); KPF.at.push([u, m.a, m.b, m.c, m.d, m.e, m.f]); try{ return KPF.door.apply(this, arguments); } finally { KPF.at.pop(); } }   // the floor at the knock's door
+function kpfPool(u){ const F=KPF.at.length? KPF.at[KPF.at.length-1] : null;
+  if(F && u===F[0] && KPF.on===1 && u.cfaIn && !u.fmcIn && !u.trkDr){ KPF.n++; cx.save(); cx.setTransform(F[1],F[2],F[3],F[4],F[5],F[6]); try{ return KPF.pool.apply(this, arguments); } finally { cx.restore(); } }   // the knock's own second call: his pool on the floor
+  return KPF.pool.apply(this, arguments); }
+cfaFlyDraw=kpfDoor; crbPool=kpfPool;
+setTimeout(function(){ try{ if(window.GVT && !GVT.kpf) GVT.kpf=function(o){ if(o && o.on!=null) KPF.on=o.on? 1 : 0; return { cv:GVT_CV, on:KPF.on, outer:(cfaFlyDraw===kpfDoor && crbPool===kpfPool)? 1 : 0, own:(String(KPF.door).slice(0,23)==='function cfaFlyDraw(u){' && typeof cptPool==='function' && KPF.pool===cptPool)? 1 : 0, n:KPF.n }; }; }catch(e){} }, 0);   // after the page's whole script (the game's own GVT is made far below)
+// ═══ END CARD-KPF ═══
 function crbSpotImg(r,rgb,a){ const k=r+'|'+rgb+'|'+a; return CRB_IMG[k]||(CRB_IMG[k]=crbBake(Math.ceil(r*3.2)+4,Math.ceil(r*3.2*0.62)+4,g=>{ const R=r*1.6, cx0=R+2, cy0=R*0.62+2; g.translate(cx0,cy0); g.scale(1,0.62);
     const h=g.createRadialGradient(0,0,r*0.7,0,0,R); h.addColorStop(0,'rgba('+rgb+','+(a*0.35)+')'); h.addColorStop(1,'rgba('+rgb+',0)'); g.fillStyle=h; g.beginPath(); g.arc(0,0,R,0,7); g.fill();   // the halo
     const c=g.createRadialGradient(0,0,0,0,0,r); c.addColorStop(0,'rgba('+rgb+','+a+')'); c.addColorStop(0.85,'rgba('+rgb+','+(a*0.8)+')'); c.addColorStop(1,'rgba('+rgb+',0)'); g.fillStyle=c; g.beginPath(); g.arc(0,0,r,0,7); g.fill(); })); }   // the crisp disc
@@ -93972,7 +93993,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
