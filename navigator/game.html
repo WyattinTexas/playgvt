@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.84","md5":"f2b32e0dcbbfcc0a3e52d935f5196a42","sha":"ab367792de","at":"2026-11-13T07:53:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.85","md5":"5e55c981a1d1314fb3f72f62687f6933","sha":"90f7187b9d","at":"2026-11-13T08:07:45Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -52540,6 +52540,51 @@ var KNS={ id:'knightset', on:(function(){ try{ const q=/[?&]kns=([01])/.exec(loc
   reach:30, soak:2/3, blk:2, cut:0.3, stride:0.15, chase:0.3, wind:0.26, blkT:0.3, sayGap:0.7, hex:'#C8202F',
   n:{ latch:0, block:0, crack:0, off:0, swing:0, soaked:0, said:0, pierce:0, fell:0, charge:0 }, err:0, e:'', px:[], fr:0, pxF:-1, pull:null, pullT:-1, im:{} };   // the part · its switch (?kns=1) · the sword's reach · the plate · the shield's count · THE CUT's seconds · a leg frame's seconds · the lab's red · the fight's books · the pieces on the rug
 if(KNS.on===1){ try{ if(ENH_ORDER.indexOf(KNS.id)<0) ENH_ORDER.push(KNS.id); }catch(e){} }
+// ═══ CARD-KOS · THE OFF SWITCH KEEPS AN OWNER'S PART (inside sec:CARD-KNB-EARLY's first block, beside the switch; design/knight-set-owners-1112/00-CARD-KOS.md; jumpr 3320, built on Maker 1 as M3320; cut by CARD-KNB-LAURA, jumpr 3307, its finding KL-F2, on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card) ═══
+// THE FAULT: while KNS.on is 0 the id is not in ENH_ORDER, and the save's rebuilds after the load line keep only the ids that are (the lab's: the job, the parked sheets, done, seen, told, the wreck; the enh normaliser: own and on).
+//   A save that OWNED the part lost it at that start, the next save wrote it away, HQ carried that to every phone of the army, and the part's return found it unowned (1,500 stars again, none back).
+// NOW, ONE TOP-LEVEL KEY OF THE SAVE: META.knsAside = { v:1, own, on, seen, told, done (each ['knightset'] or absent), park:[[id, pct, span]], boom } holds what an off start would have dropped. It is written only for a save
+//   that holds the part (owned, or paid for on the bench); a save that never had it gets no key. No line of the game reads it: in memory an off start is a non-owner's (no id, no card, no mold, no knight).
+//   It travels as every top-level key the game does not know: the load (Object.assign), saveMeta (all of META), the push (acsPhone drops the phone's own keys only), HQ (gvt_server.py acs_clean pops ACS_PHONE only), the
+//   pull (acsPick writes HQ's copy whole), an older game (keeps what it does not know), CARD-OTA3 (sees the id MOVED into this key, so it parks nothing twice).
+// THE SEAT: keepLoad (sec:CARD-OTA3), wrapped by name: the save's load line calls it with the parsed save, inside its own v===1 guard, before META is made of it (a declaration: hoisted, so this block can wrap it).
+//   OFF: after CARD-OTA3's own start (what waited in its parking place is home first, so it is set aside too). A research on the bench leaves it as a sheet (labPark's own law: the fraction and the span, never the clock),
+//   and one already due LANDS (owned and fitted; the gag armed on it healed, CARD-LNF's heal): the bench is free for another part. ON: the key's things go home BEFORE CARD-OTA3 takes the offer (consumed on purpose,
+//   never 'dropped'), and once more after its start (a copy it brought home): fill only, never over what is there; the key is dropped. Then the rebuilds keep them as any owner's: owned and switched as they were,
+//   a sheet resumes on the bench (CARD-LRS), a rival fitted since comes off by the part's own both-ON law (sec:CARD-KNB: the newest part he paid for).
+// THE UNDO: these lines out (design/knight-set-owners-1112/kit/apply_kos.py --undo). No switch of its own: it changes only what an off start writes. Rig door: KNS.kos.
+KNS.kos={ n:{ aside:0, home:0, rows:0 }, err:0, e:'', old:null };   // the books: starts that set the part aside · starts that brought it home · the things moved · errors caught · CARD-OTA3's own keepLoad
+function knsKosObj(v){ return !!v && typeof v==='object' && !Array.isArray(v); }
+function knsKosRow(p){ return Array.isArray(p) && p[0]===KNS.id; }   // a sheet of the part: [id, pct, span]
+function knsKosAside(m){ const id=KNS.id, k0=m.knsAside; if(k0!==undefined && !(knsKosObj(k0) && k0.v===1)) return 0;   // OFF: the part's things out of the offer (m = the parsed save) into m.knsAside · a key of a later format: left whole
+  const k=k0 || { v:1 }, e=m.enh, l=m.lab; let n=0;
+  const put=key=>{ if(!Array.isArray(k[key])) k[key]=[]; if(k[key].indexOf(id)<0) k[key].push(id); n++; };
+  const cut=(o,key)=>{ if(!knsKosObj(o) || !Array.isArray(o[key]) || o[key].indexOf(id)<0) return false; o[key]=o[key].filter(x=>x!==id); return true; };
+  const sheet=r=>{ k.park=(Array.isArray(k.park)? k.park : []).filter(p=>!knsKosRow(p)); k.park.push(r); n++; };
+  if(cut(e,'own')) put('own'); if(cut(e,'on')) put('on');
+  if(knsKosObj(l)){ for(const key of ['seen','told','done']) if(cut(l,key)) put(key);
+    if(Array.isArray(l.park) && l.park.some(knsKosRow)){ const r=l.park.filter(knsKosRow).pop(); l.park=l.park.filter(p=>!knsKosRow(p)); if(!l.park.length) delete l.park; if(+r[1]>=100){ put('own'); put('on'); } else sheet(r.slice(0,3)); }   // a parked sheet (paid, waiting): verbatim, the last row of the id (the rebuild's own law); one that reads 100 is finished and LANDS (the rebuild keeps a sheet only under 100: KOS-F1)
+    if(l.job===id){ const now=Date.now(), due=+l.due||0, span=(+l.span>0)? +l.span : 4;   // 4 = labHours' answer for a price LAB_HOURS does not list
+      if(now>=due){ put('own'); put('on'); } else sheet([id, Math.max(0, Math.min(99, Math.floor(100*(1-(due-now)/(span*3600000))))), span]);   // due = it LANDS (owned and fitted) · running = its sheet (the fraction rounded DOWN: never a second bought)
+      l.job=null; l.due=0; l.span=0; if(l.boom===2) l.boom=1; }   // the bench free; the gag armed on it healed
+    if(l.boom===id){ k.boom=id; l.boom=1; n++; } }   // CARD-FL's wreck (the souvenir of this part): aside; the gag stays spent
+  if(n){ m.knsAside=k; KNS.kos.n.aside++; KNS.kos.n.rows+=n; } return n; }
+function knsKosHome(m){ const id=KNS.id, k=m.knsAside; if(!(knsKosObj(k) && k.v===1)) return 0;   // ON: the key's things home (fill only), the key dropped · a key of a later format: left whole
+  delete m.knsAside; let n=0; const has=a=>Array.isArray(a) && a.indexOf(id)>=0;
+  const fill=(o,key)=>{ if(!Array.isArray(o[key])) o[key]=[]; if(o[key].indexOf(id)<0){ o[key].push(id); n++; } };
+  if(has(k.own)){ if(!knsKosObj(m.enh)) m.enh={ own:[], on:[] }; fill(m.enh,'own'); if(has(k.on)) fill(m.enh,'on'); }
+  const own=knsKosObj(m.enh) && has(m.enh.own), r=Array.isArray(k.park)? k.park.filter(knsKosRow).pop() : null;
+  if(r && !own){ if(!knsKosObj(m.lab)) m.lab={}; const L=m.lab; if(L.job!==id && !(Array.isArray(L.park) && L.park.some(knsKosRow))){ if(!Array.isArray(L.park)) L.park=[]; L.park.push(r.slice(0,3)); n++; } }   // the sheet back on the park (an owned part needs none; the job on the bench is never parked)
+  const l=m.lab; if(knsKosObj(l)){ for(const key of ['seen','told','done']) if(has(k[key]) && Array.isArray(l[key])) fill(l,key);   // only a list the save keeps (a save without one is seeded from what it owns)
+    if(k.boom===id && (l.boom===0 || l.boom===1)){ l.boom=id; n++; } }
+  KNS.kos.n.home++; KNS.kos.n.rows+=n; return n; }
+if(typeof keepLoad==='function'){ KNS.kos.old=keepLoad;
+  keepLoad=function(m){ const K=KNS.kos, ok=knsKosObj(m), err=e=>{ K.err++; K.e=String(e && e.message || e).slice(0,200); };   // the wrap (the load line's one call: m = the parsed save, its v === 1)
+    if(ok && KNS.on===1 && m.knsAside!==undefined){ try{ knsKosHome(m); }catch(e){ err(e); } }   // ON: home before CARD-OTA3 takes the offer
+    const r=K.old.apply(this, arguments);
+    if(ok){ try{ if(KNS.on!==1) knsKosAside(m); else if(m.knsAside!==undefined){ knsKosHome(m); if(m.knsAside===undefined){ try{ if(OTK && OTK.raw) delete OTK.raw.knsAside; }catch(e2){} } } }catch(e){ err(e); } }   // OFF: after its start · ON: a copy its start brought home (and out of the offer it took)
+    return r; }; }
+// ═══ END CARD-KOS ═══
 // 0542 THE WIRE LAW: enhWire() relays the ON ids in THIS order and the server keeps the first 32 (clamp_cmd v[:32] since v41 — 0551;
 // the away lineup's _away_lo_clean mo[:32] since v43 — 0557; the 0542 note that said 24 is retired — 0724). 31 ids now (0735 THE
 // FREEZE BEAM is the 31st; the two pistol expertises and the two commando muzzles are exclusive pairs, so at most 29 are ever ON).
@@ -93823,7 +93868,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.84';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
