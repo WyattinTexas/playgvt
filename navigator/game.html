@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.79","md5":"0d6931314cbb64a1d7ccefa02a8090be","sha":"c45b4c6c10","at":"2026-11-13T05:39:25Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.80","md5":"49e91d39e1b153541937c8bf42e61d7b","sha":"db77846ead","at":"2026-11-13T06:03:49Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93823,7 +93823,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.79';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.80';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -231071,6 +231071,78 @@ try{ if(typeof bfxFx==='function'){ SOS.was=bfxFx;   // THE SEAT: the fx loop's 
 try{ if(window.GVT && !GVT.sos) GVT.sos=sosRig; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.sos) GVT.sos=sosRig; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-SOS ═══
+// ═══ CARD-BYP · THE BACKYARD AT REST: EACH REPAINT DRAWS ITS FELT PICTURES FROM BITMAPS OF THEMSELVES (sec:CARD-BYP; design/backyard-paints-1112/00-CARD-BYP.md; jumpr 3298, Maker 1's flags JGL-F3 and JGL-F2,
+//   cut by the landing of CARD-JGL). FROM WYATT, 11/12/2026 ~15:00 EST, typed on Maker 1, verbatim: "When juggling the soccer ball, the game is acting remarkably laggy. For having all the files, we really expect a
+//   lag-free experience, as what we're really doing here is so simple." · his rule, 16:39 EST: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game"
+// THE CAUSE (read on the iPhone's engine: Playwright WebKit as the iPhone app at an iPhone Pro's glass, 874 x 402 at 3 dots, the backyard at rest, nobody touching):
+//   (1) THE BOX. The yard's ~80 loops stand all over it and the room's clock (CARD-MFP) steps them together; past five patches a frame WebKit paints ONE box around them all (measured here: 2 to 5 movers each its own
+//       patch, a sixth one box over half the glass, the whole yard 90 % of it; nothing moving, nothing painted). That is the engine's rule (CARD-DCH found it on 10/4) and it cannot shrink at the same clock.
+//   (2) WHAT EACH REPAINT COSTS. Inside that box the painter draws every SVG PICTURE again (an <image> whose picture is an svg document) from its vectors, its filters and its masks, every time: WebKit keeps no bitmap
+//       of a picture made of svg. Laura's felt egg in the dino corner (LUP_EGG: six filters, three of them noise, eight masks, drawn from a 966 x 1319 canvas at 40 x 51 points) was 112 M of the painter's 245 M
+//       instructions a repaint, alone; each kickabout dino 10 M; winter's Henry 16 M.
+// THE CURE. (A) Every svg picture inside the room's stage whose own svg carries a filter or a mask is drawn from a PNG OF ITSELF at the glass's dots (its scale on the glass x devicePixelRatio), made once, kept by
+//   its picture, made again bigger when the glass grows past it; only the <image>'s href changes (its own svg stays on it as data-byp-src): the element, its box, its transforms and every loop over it stay as
+//   they are (the same picture, the same motion, the same clock). WebKit runs such a picture's filters at its OWN size in its units, so the bitmap is made the way WebKit draws it when nothing disturbs it: a picture
+//   drawn small from a big canvas (the egg: 966 x 1319 units for 106 x 145 dots) is rendered at the glass's dots; one stretched up from a small canvas (a toy soldier: 54 x 63 units for 148 x 173 dots) is
+//   rendered at its own size, then enlarged smoothly to the glass's dots (measured: WebKit's own drawing of the soldier is soft at first and crisper once its picture is set again; this bitmap is within 49 of
+//   the first, where WebKit's second drawing is 109 from it). A picture the game writes again is the game's again (the next sweep reads it afresh). (B) JGL-F2: a keepy-uppy run reads xrBand() ONCE (kuStep asked it on
+//   every frame of a leaning run: about 1.5 ms of forced layout a frame), and again when the glass changes.
+// OFF: ?byp=0 (device key gvt_byp; ?byp=1 lifts it) = every picture as the svg it ships and xrBand on every frame. GVT.byp() = { on, ok, why, n, made, hit, swaps, err, cache, xr, xrHit, wrapped };
+//   GVT.byp({on:0|1}) switches in a living page (the paired rig's switch: off puts every svg back). New names: BYP, BYP_K, BYP_MAXPX, BYP_GROW, BYP_SWEEP_MS, BYP_CACHE, bypText, bypDear, bypNeed, bypKey, bypMake, bypNext, bypSwap, bypScan,
+//   bypSoon, bypUnswapAll, bypArm, bypRead, GVT.byp, the attributes data-byp and data-byp-src (the picture's own svg, kept on the element while it is drawn from its bitmap). WRAPPED BY NAME (the shipped function first and whole): kuStep, xrBand.
+var BYP={ on:(function(){ try{ const q=/[?&]byp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_byp','0'); else localStorage.removeItem('gvt_byp'); } return localStorage.getItem('gvt_byp')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  ok:0, why:'', made:0, hit:0, swaps:0, back:0, err:0, t:0, cache:new Map(), orig:new WeakMap(), live:new Set(), q:[], making:0, soon:0, mo:null, iv:0, armed:0, ku:null, xr:0, xrHit:0, wrapped:[] };
+const BYP_K=1, BYP_MAXPX=1536, BYP_GROW=1.12, BYP_SWEEP_MS=1500, BYP_CACHE=48;   // the bitmap's dots per glass dot (1: the felt's grain kept; 1.5 and 2 measured softer) · a side's cap · made again past 12 % more dots · the slow sweep · pictures kept
+function bypText(h){ const i=h.indexOf(','); if(i<0) return ''; const meta=h.slice(0, i).toLowerCase(), body=h.slice(i+1); if(meta.indexOf('base64')>=0){ try{ return atob(body); }catch(e){ return ''; } } return body; }
+function bypDear(h){ if(typeof h!=='string' || !/^data:image\/svg\+xml[;,]/i.test(h.slice(0, 24))) return false; return /(<|%3c)(filter|mask)(\s|>|%)/i.test(bypText(h)); }   // a filter or a mask: run again at every repaint
+function bypNeed(im){ let W=0, H=0; try{ W=im.width.baseVal.value; H=im.height.baseVal.value; }catch(e){} if(!(W>0 && H>0)) return null;
+  const r=im.getBoundingClientRect(); if(!(r.width>0 && r.height>0)) return null;
+  try{ if(getComputedStyle(im).visibility==='hidden') return null; let q=im.parentNode; for(let i=0; q && q.nodeType===1 && i<14; i++, q=q.parentNode){ if(q.id==='roomStage') break; if(+getComputedStyle(q).opacity===0) return null; } }catch(e){}   // not drawn: no bitmap
+  let m=null; try{ m=im.getScreenCTM(); }catch(e){} if(!m) return null; const d=(window.devicePixelRatio||1)*BYP_K;
+  let w=Math.ceil(W*Math.hypot(m.a, m.b)*d), h=Math.ceil(H*Math.hypot(m.c, m.d)*d); const ow=Math.ceil(W), oh=Math.ceil(H), up=(ow*oh<w*h)? 1 : 0;
+  const cap=Math.max(w, h)/BYP_MAXPX; if(cap>1){ w=Math.ceil(w/cap); h=Math.ceil(h/cap); }
+  return (w>0 && h>0)? { w, h, ow, oh, up } : null; }   // the picture's scale on the glass (every transform over it, the stage's fit too; a turn does not change it) in the glass's own dots; up = its own canvas (its size in its units, where WebKit runs its filters) is smaller than that
+function bypKey(h){ let a=2166136261, b=5381; for(let i=0; i<h.length; i++){ const c=h.charCodeAt(i); a^=c; a=Math.imul(a, 16777619); b=(Math.imul(b, 33)^c)|0; } return (a>>>0).toString(36)+'.'+(b>>>0).toString(36)+'.'+h.length; }   // the picture, read whole (two hashes and its length)
+function bypMake(key, h, need){ const c={ png:'', img:null, w:need.w, h:need.h, ow:need.ow, oh:need.oh, up:need.up, err:0, at:Date.now() }; BYP.cache.set(key, c); BYP.q.push([c, h]); if(!BYP.making) bypNext(); return c; }
+function bypNext(){ const job=BYP.q.shift(); if(!job){ BYP.making=0; return; } BYP.making=1; const c=job[0], im=new Image();   // one picture at a time (the render of a felt svg is the main thread's)
+  const fail=why=>{ c.err=1; BYP.err++; BYP.why=String(why).slice(0, 90); setTimeout(bypNext, 30); };
+  im.onload=function(){ try{ const cv=document.createElement('canvas'); cv.width=c.w; cv.height=c.h; const x=cv.getContext('2d');
+      if(c.up){ const a=document.createElement('canvas'); a.width=c.ow; a.height=c.oh; a.getContext('2d').drawImage(im, 0, 0, c.ow, c.oh); x.imageSmoothingEnabled=true; try{ x.imageSmoothingQuality='high'; }catch(e){} x.drawImage(a, 0, 0, c.w, c.h); a.width=a.height=0; }   // stretched up: its own canvas first (its filters at that size, as WebKit runs them), then enlarged smoothly
+      else x.drawImage(im, 0, 0, c.w, c.h);
+      const png=cv.toDataURL('image/png'); cv.width=cv.height=0;
+      const im2=new Image(); im2.onload=function(){ c.png=png; c.img=im2; BYP.made++; bypSoon(0); setTimeout(bypNext, 30); }; im2.onerror=function(){ fail('decode png'); }; im2.src=png; }catch(e){ fail('make: '+(e && e.message || e)); } };
+  im.onerror=function(){ fail('load svg'); }; im.src=job[1]; }
+function bypSwap(im, h, c){ BYP.orig.set(im, h); im.__bypPng=c.png; im.__bypC=c; BYP.live.add(im); im.setAttribute('data-byp-src', h); im.setAttribute('href', c.png); im.setAttribute('data-byp', c.w+'x'+c.h); BYP.swaps++; }   // the drawing itself stays on the element (data-byp-src): the one-drawing audit and any reader still find Laura's svg
+function bypScan(){ if(!BYP.on || !BYP.ok) return; const st=document.getElementById('roomStage'); if(!st || typeof S==='undefined' || S.mode!=='menu') return; BYP.t++;
+  const L=st.getElementsByTagName('image');
+  for(let i=0; i<L.length; i++){ const im=L[i]; const h=im.getAttribute('href'); if(h==null) continue; let src=h;
+    if(im.__bypPng!==undefined){ if(h===im.__bypPng) src=BYP.orig.get(im);   // drawn from its bitmap now: kept, or a bigger one when the glass grew past it
+      else { BYP.orig.delete(im); BYP.live.delete(im); im.__bypPng=undefined; im.__bypC=undefined; im.removeAttribute('data-byp'); im.removeAttribute('data-byp-src'); } }   // the game wrote a picture again: it is the game's again
+    if(src===h){ if(im.__bypSeen===h){ if(!im.__bypDear) continue; } else { im.__bypSeen=h; im.__bypDear=bypDear(h); if(!im.__bypDear) continue; } }
+    const need=bypNeed(im); if(!need) continue;
+    const k=(im.__bypKs===src && im.__bypK) || (im.__bypKs=src, im.__bypK=bypKey(src)); let c=BYP.cache.get(k);
+    if(c && c.png && im.__bypC===c && !(need.w>c.w*BYP_GROW || need.h>c.h*BYP_GROW)) continue;   // in hand, big enough
+    if(c && (need.w>c.w*BYP_GROW || need.h>c.h*BYP_GROW) && !c.next){ c.next=1; const gw=Math.max(need.w, c.w), gh=Math.max(need.h, c.h), n=bypMake(k+'+', src, { w:gw, h:gh, ow:need.ow, oh:need.oh, up:(need.ow*need.oh<gw*gh)? 1 : 0 }); n.of=k; continue; }   // grown: a bigger one is made, the old stays till it is ready
+    if(c && c.png){ if(im.__bypC!==c){ bypSwap(im, src, c); BYP.hit++; } } else if(!c) bypMake(k, src, need); }
+  for(const [k2, n] of BYP.cache){ if(n.of && n.png){ BYP.cache.set(n.of, n); BYP.cache.delete(k2); n.of=0; bypSoon(0); } else if(n.of && n.err){ BYP.cache.delete(k2); } }   // a bigger one ready: it takes the picture's place
+  if(BYP.cache.size>BYP_CACHE){ const used=new Set(); for(const im of BYP.live) if(im.isConnected && im.__bypC) used.add(im.__bypC); else BYP.live.delete(im); for(const [k3, c3] of BYP.cache){ if(BYP.cache.size<=BYP_CACHE) break; if(!used.has(c3) && (c3.png || c3.err)) BYP.cache.delete(k3); } } }
+function bypSoon(ms){ if(BYP.soon) return; BYP.soon=setTimeout(function(){ BYP.soon=0; try{ bypScan(); }catch(e){ BYP.err++; BYP.why='scan: '+String(e && e.message || e).slice(0, 80); } }, ms==null? 150 : ms); }
+function bypUnswapAll(){ for(const im of BYP.live){ try{ if(im.isConnected && im.getAttribute('href')===im.__bypPng){ im.setAttribute('href', BYP.orig.get(im)); BYP.back++; } im.removeAttribute('data-byp'); im.removeAttribute('data-byp-src'); }catch(e){} im.__bypPng=undefined; im.__bypC=undefined; im.__bypSeen=undefined; BYP.orig.delete(im); } BYP.live.clear(); }
+function bypArm(){ if(BYP.armed || !BYP.on || !BYP.ok) return; const m=document.getElementById('menu'); if(!m){ setTimeout(bypArm, 1000); return; } BYP.armed=1;
+  try{ BYP.mo=new MutationObserver(function(){ if(BYP.on) bypSoon(); }); BYP.mo.observe(m, { childList:true, subtree:true, attributes:true, attributeFilter:['href'] }); }catch(e){ BYP.why='observer: '+e; }
+  BYP.iv=setInterval(function(){ if(BYP.on && !document.hidden) bypSoon(0); }, BYP_SWEEP_MS); window.addEventListener('resize', function(){ if(BYP.on) bypSoon(300); }); bypSoon(0); }
+function bypRead(o){ if(o && o.on!==undefined){ const want=o.on? 1 : 0; if(want!==BYP.on){ BYP.on=want; if(want){ bypArm(); bypSoon(0); } else bypUnswapAll(); } } if(o && o.scan) bypScan();
+  let n=0; for(const im of BYP.live) if(im.isConnected && im.getAttribute('href')===im.__bypPng) n++;
+  return { on:BYP.on, ok:BYP.ok, why:BYP.why, n, made:BYP.made, hit:BYP.hit, swaps:BYP.swaps, back:BYP.back, err:BYP.err, cache:BYP.cache.size, queue:BYP.q.length, scans:BYP.t, xr:BYP.xr, xrHit:BYP.xrHit, wrapped:BYP.wrapped.slice() }; }
+(function(){ try{ const cv=document.createElement('canvas'); BYP.ok=(typeof MutationObserver==='function' && typeof Image==='function' && !!(cv.getContext && cv.toDataURL))? 1 : 0; if(!BYP.ok) BYP.why='no canvas, image or observer: the shipped pictures'; }catch(e){ BYP.ok=0; BYP.why='probe: '+e; }
+  try{ const ku0=window.kuStep, xr0=window.xrBand; if(typeof ku0==='function' && typeof xr0==='function'){
+      window.kuStep=function(now){ if(!BYP.on) return ku0.apply(this, arguments); const was=BYP.ku; BYP.ku=(typeof KU!=='undefined' && KU) || null; try{ return ku0.apply(this, arguments); }finally{ BYP.ku=was; } };   // the run in hand while its frame runs (kuStepB lends KU)
+      window.xrBand=function(){ const k=BYP.ku; if(!k || !BYP.on) return xr0.apply(this, arguments); const key=innerWidth+'x'+innerHeight+'|'+roomCur(), m=k.__bypXr; if(m && m.key===key){ BYP.xrHit++; return m.v; } const v=xr0.apply(this, arguments); k.__bypXr={ key:key, v:v }; BYP.xr++; return v; };   // one read a run, again when the glass changes
+      BYP.wrapped.push('kuStep', 'xrBand'); } else BYP.why=(BYP.why? BYP.why+' · ' : '')+'kuStep/xrBand not found'; }catch(e){ BYP.why='wrap: '+e; }
+  bypArm(); })();
+try{ if(window.GVT && !GVT.byp) GVT.byp=bypRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.byp) GVT.byp=bypRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-BYP ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
