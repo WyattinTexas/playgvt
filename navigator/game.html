@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.10","md5":"b370ddb5582bf08090da02ff34ea6e7a","sha":"83e2745f47","at":"2026-11-13T17:47:58Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.11","md5":"55ec5db478d440a4a0d7dcdee87ca72f","sha":"2a0ad2ad1e","at":"2026-11-13T19:06:10Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93972,7 +93972,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.10';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -232365,6 +232365,65 @@ function wflRead(o){ if(o && o.on!==undefined){ const want=o.on? 1 : 0; if(want!
 try{ if(window.GVT && !GVT.wfl) GVT.wfl=wflRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.wfl) GVT.wfl=wflRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-WFL ═══
+// ═══ CARD-EGL · THE EAGLE FLIES IN VIEW AGAIN: LAURA'S FELT EAGLE IS SEEN FOR ITS WHOLE 44 s FLIGHT OVER WESTERN LAND (sec:CARD-EGL; design/eagle-flies-1113/00-CARD-EGL.md; jumpr 3339, board J62;
+//   CARD-WFL's flag WFL-F1, cut by its landing, jumpr 3321m). FROM WYATT, his rule of 11/12/2026 16:39 EST (jumpr 3284), verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that
+//   we do not want a laggy screen in the game" (a fault found on the way: fixed and landed, then he and Laura are told).
+// THE CAUSE (read on v32.07, Playwright WebKit as the iPhone app and Chrome for Testing, CARD-WFL on and ?wfl=0 alike: rig/probeEGL.mjs): Laura's light redraw of the eagle (CARD-LRD over CARD-OLR's
+//   bake) gives each of its 14 felt layers its own copy of the flight chain (#Leagle-wws-eagle > .wws-eg the 44 s flight across the sky > .wws-egb the bob > rotate(90) scale(.62) > .wws-egw the wings'
+//   beat) and puts the layer's felt filters (Leagle-gvtTEX<n>, Leagle-gvtUP<n>: filterUnits userSpaceOnUse, their regions fixed round the eagle's SEAT, x 283 to 322 of the room) ABOVE that chain. A
+//   filter draws nothing outside its region, so the eagle showed only while the flight carried it through that window: from 13.7 s to 15.2 s of its 44 s (whole from 14.2 to 14.7 s), nothing the rest
+//   of the way. CARD-WFL kept that clip on purpose (its road B: the lifted filters' regions as clips).
+// THE CURE (the eagle's drawing, its felt, its loops and its clocks untouched; nothing else in the room changes): wwsEagleSVG, the figure's door (CARD-OLR's and CARD-LRD's wraps inside it), wrapped
+//   BY NAME. In the markup it hands out, each layer's felt filters move from above its flight chain to just INSIDE the flight loop (.wws-eg), round the bob (.wws-egb), between a translate(-seat) and a
+//   translate(+seat) (the seat = the flight group's own transform attribute, translate(300,124)): the felt's own units are the room's own whenever the eagle stands at its seat (under reduced motion
+//   the same pixels as before), and the flight carries the felt's regions with the bird (his grain and lift ride with him, as CARD-WFL's bitmaps of him already did). The bob and the wings' beat stay
+//   under the felt, as shipped. CARD-WFL then draws each layer from its bitmap as before (the same 14 units over a loop, the bob), its clips now riding the flight. Only a layer whose felt stands on a
+//   plain chain down to the flight group is moved (no transform, clip, mask, opacity, style or class on the way; anything else stays as it ships and is counted in GVT.egl().miss). TWINS: one layer
+//   (the tail's two light strokes, Leagle-gvtTEX22 over Leagle-gvtUP8) holds TWO copies of the flight chain, the same tags down to the same flight group (the same seat, the same clock): their contents
+//   are laid in the first copy's flight group, in their order, so the felt still works on the two together as shipped. The ghost (CARD-WCL R2: the bake's outline copies at the seat, hidden by their
+//   transform) holds no flight group and is not touched.
+// OFF: ?egl=0 (device key gvt_egl; ?egl=1 lifts it) = the eagle's markup as it ships. GVT.egl() = { cv, on, outer, calls, made, layers, twins, miss, err, why, seat, ms }; GVT.egl({on:0|1}) switches in a
+//   living page (the room is painted again when Western Land shows). New names: EGL, EGL_FELT, eglOn, eglFix, eglRead, GVT.egl, the attribute data-egl. Nothing shipped is edited.
+var EGL={ on:(function(){ try{ const q=/[?&]egl=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_egl','0'); else localStorage.removeItem('gvt_egl'); } return localStorage.getItem('gvt_egl')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  base:null, wrap:null, calls:0, made:0, layers:0, twins:0, miss:0, err:0, why:'', seat:null, ms:0 };   // base = the door as it stood (CARD-OLR's wrap) · made = markups mended · layers = felt layers moved under the flight, twins = copies laid in their twin (the last paint)
+const EGL_FELT=/^url\(#([^)"'\s]*gvt(?:TEX|UP)\d+)\)$/;   // the felt pipeline's own two filters (CARD-WFL's wflFelt grammar)
+function eglOn(){ return EGL.on===1; }
+// THE MEND, on the markup string: its tags read once (a tree of start and end positions), each flight group (class wws-eg) with a felt layer on a plain chain above it: those filters taken off
+// their groups and laid inside the flight group, round its content (and its twins' contents, those copies taken out), between translate(-seat) and translate(+seat); every other byte as handed in
+function eglFix(s){ if(typeof s!=='string' || s.indexOf('wws-eg')<0 || !/gvt(?:TEX|UP)\d/.test(s)) return s;   // no flight or no felt (?lrd=0, ?olr=0): nothing to move
+  const t0=performance.now(), re=/<(\/?)([A-Za-z][\w:.-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g, root={ kids:[], parent:null, a:'' }; let cur=root, m;
+  while((m=re.exec(s))){ if(m[1]){ if(cur!==root){ cur.c0=m.index; cur.c1=re.lastIndex; cur=cur.parent; } continue; } const n={ a:m[3], o0:m.index, o1:re.lastIndex, kids:[], parent:cur }; cur.kids.push(n); if(/\/\s*$/.test(m[3])) n.c0=n.c1=n.o1; else cur=n; }
+  const at=(n, k)=>{ const r=new RegExp('\\s'+k+'="([^"]*)"').exec(n.a); return r? r[1] : null; }, cls=n=>' '+(at(n, 'class')||'')+' ', tag=n=>s.slice(n.o0, n.o1);
+  const spine=n=>{ const L=[]; for(let q=n; q; q=q.kids.length===1? q.kids[0] : null){ L.push(q); if(cls(q).indexOf(' wws-eg ')>=0) return L; } return null; };   // a chain of single children down to its flight group
+  const plain=n=>!/\s(?!(?:filter|data-grp|id)=)[\w:-]+=/.test(n.a);   // only a felt filter, a layer's name or an id on the way: nothing that moves, clips or fades
+  const flights=[]; const walk=n=>{ for(const k of n.kids){ if(cls(k).indexOf(' wws-eg ')>=0) flights.push(k); walk(k); } }; walk(root);
+  const ed=[], gone=new Set(); let layers=0, twins=0, seat=null;
+  for(const E of flights){ if(gone.has(E)) continue; const q=/^\s*translate\(\s*(-?[\d.]+(?:e-?\d+)?)\s*[,\s]\s*(-?[\d.]+(?:e-?\d+)?)\s*\)\s*$/.exec(at(E, 'transform')||''); if(!q || E.c0==null) { EGL.miss++; continue; }
+    const X=+q[1], Y=+q[2], F=[], T=[]; let ch=E, p=E.parent, stuck=false;
+    for(; p && p!==root && cls(p).indexOf(' olrfig ')<0; ch=p, p=p.parent){ if(!plain(p)){ stuck=true; break; }
+      if(p.kids.length!==1){ const sp=T.length? null : spine(ch); const tw=[];   // TWINS (one level): every other child the same chain of tags down to the same flight group
+        if(!sp || sp[sp.length-1]!==E || !p.kids.every(k=>{ if(k===ch) return true; const sk=spine(k); if(!sk || sk.length!==sp.length || !sk.every((n, i)=>tag(n)===tag(sp[i])) || sk[sk.length-1].c0==null || k.c1==null) return false; tw.push({ top:k, E:sk[sk.length-1] }); return true; })){ stuck=true; break; }
+        T.push(...tw); }
+      const f=EGL_FELT.exec(at(p, 'filter')||''); if(f) F.unshift({ n:p, id:f[1] }); }
+    if(stuck){ for(let r=p; r && r!==root && cls(r).indexOf(' olrfig ')<0; r=r.parent) if(EGL_FELT.test(at(r, 'filter')||'')){ EGL.miss++; break; } }   // a felt layer above a branch: shared, left as it ships
+    if(!F.length) continue;
+    for(const L of F){ const tag=s.slice(L.n.o0, L.n.o1), cut=tag.replace(' filter="'+at(L.n, 'filter')+'"', ''); if(cut===tag){ F.length=0; break; } L.cut=cut; }
+    if(!F.length){ EGL.miss++; continue; }
+    for(const L of F) ed.push([L.n.o0, L.n.o1, L.cut]);
+    for(const w of T){ ed.push([w.top.o0, w.top.c1, '']); gone.add(w.E); }   // a twin's copy out; its content laid in this flight group, after this one's own (their order)
+    ed.push([E.o1, E.o1, '<g data-egl="1" transform="translate('+(-X)+','+(-Y)+')">'+F.map(L=>'<g filter="url(#'+L.id+')">').join('')+'<g transform="translate('+X+','+Y+')">'], [E.c0, E.c0, T.map(w=>s.slice(w.E.o1, w.E.c0)).join('')+'</g>'.repeat(F.length+2)]);
+    layers++; twins+=T.length; seat=[X, Y]; }
+  if(!ed.length){ EGL.ms+=performance.now()-t0; return s; }
+  ed.sort((a, b)=>b[0]-a[0] || b[1]-a[1]); let o=s; for(const e of ed) o=o.slice(0, e[0])+e[2]+o.slice(e[1]);
+  EGL.made++; EGL.layers=layers; EGL.twins=twins; EGL.seat=seat; EGL.ms+=performance.now()-t0; return o; }
+(function(){ try{ const f0=window.wwsEagleSVG; if(typeof f0!=='function'){ EGL.why='no wwsEagleSVG: the eagle as it ships'; return; } EGL.base=f0;
+  EGL.wrap=window.wwsEagleSVG=function(){ const s=f0.apply(this, arguments); EGL.calls++; if(!eglOn()) return s; try{ return eglFix(s); }catch(e){ EGL.err++; EGL.why='fix: '+String(e && e.message || e).slice(0, 80); return s; } }; }
+  catch(e){ EGL.err++; EGL.why='wrap: '+String(e && e.message || e).slice(0, 80); } })();
+function eglRead(o){ if(o && o.on!=null){ const w=o.on? 1 : 0; if(w!==EGL.on){ EGL.on=w; try{ if(S.mode==='menu' && roomCur()==='western') renderMenu(); }catch(e){} } }
+  return { cv:GVT_CV, on:EGL.on, outer:(EGL.wrap && window.wwsEagleSVG===EGL.wrap)? 1 : 0, calls:EGL.calls, made:EGL.made, layers:EGL.layers, twins:EGL.twins, miss:EGL.miss, err:EGL.err, why:EGL.why, seat:EGL.seat, ms:+EGL.ms.toFixed(2) }; }
+try{ if(window.GVT && !GVT.egl) GVT.egl=eglRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.egl) GVT.egl=eglRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-EGL ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
