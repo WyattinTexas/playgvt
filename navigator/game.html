@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.76","md5":"d62ad5a78dc59363676078174c5bd3d7","sha":"4ef5225711","at":"2026-11-13T04:27:25Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.77","md5":"d6200c7c831472f7392b007b35bea912","sha":"09857c91e0","at":"2026-11-13T04:57:12Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93823,7 +93823,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.76';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.77';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -230852,6 +230852,103 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.bdh) GVT.bdh=function(o){ o=o|
     molds:Object.keys(BDH_ART.mold).map(m=>[m, !!(IMG[m] && IMG[m].width>0)]), w:unitW('blackdragon'), giant:[RAM_SPARE.indexOf('blackdragon')>=0?1:0, HERO_REFL.blackdragon?1:0], khp:KHP.who.blackdragon?1:0, feats:BDH_FEATS.map((r,i)=>hsRungName('blackdragon',i+1)), rankMine:META.up.blackdragon|0, burns:BDH.burns.length, toss:BDH.toss.length, gulps:Object.assign({}, BDH.n), geo:BDH_ART.geo, lanes:BDH.lanes.slice(), fires:(S.fires||[]).filter(p=>p.bdh).length,
     unit:u? { id:u.id, x:Math.round(u.x), y:Math.round(u.y), hp:u.hp, hpMax:u.hpMax, hits:u.hits|0, grit:(function(){ try{ return gritCap(u); }catch(e){ return null; } })(), rank:bdhRank(u), pose:(u.bdhPose && S.t<u.bdhPoseT)? u.bdhPose : '', act:u.bdh && u.bdh.act? u.bdh.act.k : null, dmg:u.bdh? +(+u.bdh.dmg).toFixed(3) : 0, lastBite:u.bdh? u.bdh.lastBite : null, n:u.bdh? Object.assign({}, u.bdh.n) : null, cd:u.bdh? { bt:+u.bdh.bt.toFixed(2), wb:+u.bdh.wb.toFixed(2), gp:+u.bdh.gp.toFixed(2), so:+u.bdh.so.toFixed(2) } : null, lift:Math.round(u.bdhLift||0), img:(function(){ try{ const im=unitImg('blackdragon',u); for(const k in IMG) if(IMG[k]===im) return k; }catch(e){} return ''; })() } : null }; }; }catch(e){} }, 0);
 // ═══ END CARD-BDH ═══
+// ═══ CARD-RLF · THE ROOM IS NEVER LIFTED (sec:CARD-RLF; design/room-never-lifted-1112/00-CARD-RLF.md; built on Maker 1 as M3293, jumpr 3293, Maker 1's flag JGL-F1). FROM WYATT, 11/12/2026, typed on Maker 1, verbatim:
+//   "When juggling the soccer ball, the game is acting remarkably laggy. For having all the files, we really expect a lag-free experience, as what we're really doing here is so simple." · on this flag: "Stop waiting for me. Send."
+// THE CAUSE (CARD-JGL's, read again chip by chip on the iPhone's engine, every room): #roomStage is transformed (the room's fit to the glass), so an html chip INSIDE it whose transform or opacity a CSS animation
+//   moves gets a layer of its own, and the engine must then lift THE WHOLE ROOM onto a layer too (WebKit: transformWithCompositedDescendants), plus #dogTop and the head over it: +45 to +66 MB of layers while the
+//   chip moves (and far more where the chip lies under the still room's canvases: below). The chips that hold it FOR GOOD: the LOG's NEW in the head (every room while the book has news), the "!" on the FORT and CHEST tabs, the raid pill's alarm, the gold pills (the piggy's daily TAP,
+//   FORT GREEN's picks, the squad's CAMPAIGN), the idle nudge's beacon pill, the BATTLEFIELD pill on an event night, the night pill's JOIN chip and King Yeti's snow inside it (every room from noon to the bell),
+//   and the roof's shooting-star tap box (always, on the roof). And for a moment: a toy dropped into the CHEST (its ghost, a room-size outer svg), the magic bone or the walnut in a mouth, a toy off the roof, a locked pill's shake, the night pill's refusal shake, the piggy's three puffs, Hunter's hearts, the pond's missed cast, the
+//   yeti pill's duck while the ice fishing runs. AND THE BIGGEST: a lit tile in the bedroom's still room (CARD-DLG-E's halo, the idle nudge's light): +246 MB, every idle spell.
+// THE CURE (CARD-JGL's way): those keyframes move REGISTERED CUSTOM PROPERTIES (--rlf-s a scale, --rlf-o an opacity, --rlf-x / --rlf-y a translate, --rlf-on a one-shot's switch, --rlf-so the star's opacity) and the
+//   chip's own transform or opacity reads them. The same numbers on the same clock with the same easing and the same end pose; but no animation names transform or opacity, so the engine makes no layer for the
+//   chip and never lifts the room. TWO ROADS: a keyframe only these chips play is NAMED AGAIN here (blink · beacon · ndsfall · rf-shoot · dlgeTr/Pk/Dn/Up · roofsink · roofdrop · mbsparkle · pigpuff · hunhearts · bfmiss: the last @keyframes of a name is the one an
+//   engine plays, and the shipped rules still decide whether and when it runs), and every rule that plays it reads the properties; a keyframe the rest of the game shares (fnxBeat: every NEW in the game · shno /
+//   shno3: the shop's shakes · evpulse: the you-there card's take) is left as it ships and the stage's chips alone take a copy (rlf-*), each copy under the shipped rule's own weather (reduced motion, the "!"
+//   tab's stillness, a later rule of the same weight): the browser was asked, not the comments (the raid pill's alarm blinks under reduce as shipped; a beacon, a NEW and the JOIN pulse do not).
+// ONE STYLE ELEMENT (#rlfCss, appended to the head at boot, after every sheet that names those keyframes: batteryRLF's S2 holds it so), NO SHIPPED LINE CHANGED. An engine without registered properties (CSS.registerProperty: Safari before 16.4) gets nothing and plays the game as it shipped.
+// NOT CURED HERE, KNOWN (the record's section 3): CARD-SQZ's press (the Web Animations scale / translate / filter on a pressed pill or head button, and its .sqz-on slide) lifts the room for the half second
+//   a finger is down; the plane's flight layer (#wpfly: travel, land, the intro, the park) lifts it for the flight; the stage's own quakes and flickers (#roomStage.roofquake / .smquake / .smthud / .bb19*) move the
+//   whole stage, where a layer is the right tool. Each is its own question (RLF-F1, RLF-F2).
+// A NEW CHIP: an html element inside #roomStage never takes a CSS animation, transition or will-change of transform, translate, scale, rotate, opacity or filter. Move a property of RLF_PROPS (or a new one
+//   registered here) and read it, as below. batteryRLF's static law (S1) reads every rule in the page and fails on one that would.
+// OFF: ?rlf=0 on a device (key gvt_rlf; ?rlf=1 lifts it) = no style element, the shipped game; GVT.rlf() is the rigs' door ({on}: the sheet on or off in a living page).
+var RLF={ on:1, ok:0, why:'', ghosts:0, raw:0, wrapped:null };
+try{ const q=/[?&]rlf=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_rlf','0'); else localStorage.removeItem('gvt_rlf'); } if(localStorage.getItem('gvt_rlf')==='0') RLF.on=0; }catch(e){}
+const RLF_PROPS=[['--rlf-s','<number>','1'],['--rlf-o','<number>','1'],['--rlf-x','<length-percentage>','0px'],['--rlf-y','<length-percentage>','0px'],['--rlf-on','<number>','0'],['--rlf-so','<number>','0']];
+const RLF_NP='@media (prefers-reduced-motion: no-preference){', RLF_RM='@media (prefers-reduced-motion: reduce){';
+const RLF_CSS=''
+  // ── THE PILLS (ROOM_SPOTS' .roomtag; the static seat is .roomtag's translate(-50%,-50%)) ──
+  // blink (the raid's alarm, the gold pills; the robot's antenna in the bedroom's svg plays it too): named again, every player reads --rlf-o
+  +'@keyframes blink{0%,65%{--rlf-o:1}75%,100%{--rlf-o:0.15}}'
+  +'#roomStage .roomtag.alarm,#roomStage .roomtag.gold{opacity:var(--rlf-o)}.robant{opacity:var(--rlf-o)}'
+  // beacon (the idle nudge's pill, the plane's nudge pill, BATTLEFIELD on an event night): named again; the box-shadow still breathes in it
+  +'@keyframes beacon{0%,100%{--rlf-s:1;box-shadow:0 0 10px rgba(255,210,74,0.9)}50%{--rlf-s:1.05;box-shadow:0 0 26px 6px rgba(255,210,74,0.9)}}'
+  +'#roomStage .roomtag.beacon,#roomStage #rtag-bf.evlive{transform:translate(-50%,-50%) scale(var(--rlf-s))}'
+  // shno (a locked pill's no: the ICE CAVES before King Yeti): the shop shakes with it too, so the pill takes a copy. The shipped pill is rotate(-9deg) translateX(x) while it shakes and back on its seat after
+  // (the class stays 80 ms past the 0.42 s): --rlf-on is 1 only inside the copy. A later rule of the same weight (alarm, gold, beacon, BATTLEFIELD's evlive) wins over the shake as shipped: those pills never take it.
+  +'@keyframes rlf-shno{0%,100%{--rlf-on:1;--rlf-x:0px}20%{--rlf-on:1;--rlf-x:-7px}40%{--rlf-on:1;--rlf-x:7px}60%{--rlf-on:1;--rlf-x:-5px}80%{--rlf-on:1;--rlf-x:5px}}'
+  +'#roomStage .roomtag.deny:not(.alarm):not(.gold):not(.beacon):not(.evlive){animation-name:rlf-shno;transform:translate(calc(-50% + 50% * var(--rlf-on)),calc(-50% + 50% * var(--rlf-on))) rotate(calc(-9deg * var(--rlf-on))) translateX(var(--rlf-x))}'
+  // the yeti pill's duck while the ice fishing runs (a 0.15 s transition of opacity): the same fade on a registered property
+  +'#roomStage #rtag-yetipark.fgduck{--rlf-o:0;opacity:var(--rlf-o);transition:--rlf-o 0.15s}'
+  // NWB2's chips carry transform:none!important under their beat, so THE LOG's "!" in the head never moves on the glass, in either engine (measured in pixels: 46 px in every one of 48 frames through a
+  // run on WebKit; WebKit's getComputedStyle reports the beat all the same, and WebKit still gives the chip a layer for it: the room was lifted for a beat nobody sees). The copy's read is a plain
+  // declaration: NWB2's !important wins over it too, and the chip stays as still as it ships.
+  // ── THE "!" ON A TAB (CARD-NWB2's .fnx-b on FORT GREEN's and the CHEST's pill) and THE LOG's NEW IN THE HEAD (NWB2's chips): fnxBeat is every NEW in the game, so the stage's alone take a copy; reduce stops them as shipped
+  +'@keyframes rlf-fnxBeat{0%,70%,100%{--rlf-s:1}80%{--rlf-s:1.17}89%{--rlf-s:.96}}'
+  +RLF_NP+'#roomStage .fnx-b{animation-name:rlf-fnxBeat;transform:scale(var(--rlf-s))}'
+  +'html.nwb2c #roomStage .sh-new,html.nwb2c #roomStage .wr-new,html.nwb2c #roomStage .wt-new,html.nwb2c #roomStage .cbk-new,html.nwb2c #roomStage .cbk-newtag{animation-name:rlf-fnxBeat!important;transform:scale(var(--rlf-s))}}'
+  // ── THE NIGHT PILL IN THE HEAD (#evDoor): the JOIN chip's pulse (evpulse: the you-there card's take shares it: a copy) · King Yeti's snow (ndsfall: named again, a 2D translate; the shipped was translate3d) · its refusal shake (shno3: the shop's: a copy)
+  +'@keyframes rlf-evpulse{from{--rlf-s:1}to{--rlf-s:1.09}}'
+  +RLF_NP+'#roomStage #evDoor .ev-go{animation-name:rlf-evpulse;transform:scale(var(--rlf-s))}}'
+  +'@keyframes ndsfall{0%{--rlf-x:0px;--rlf-y:0px}100%{--rlf-x:-8px;--rlf-y:50%}}'
+  +'#evDoor .ev-snow i{transform:translate(var(--rlf-x),var(--rlf-y))}'
+  +'@keyframes rlf-shno3{0%,100%{--rlf-x:0px}20%{--rlf-x:-6px}40%{--rlf-x:6px}60%{--rlf-x:-4px}80%{--rlf-x:4px}}'
+  +RLF_NP+'#roomStage #evDoor.deny:not(.live.bd){animation-name:rlf-shno3;transform:translateX(var(--rlf-x))}}'
+  +RLF_RM+'#roomStage #evDoor.deny:not(.live){animation-name:rlf-shno3;transform:translateX(var(--rlf-x))}}'
+  // ── THE ROOF'S SHOOTING STAR (CARD-SHS): the star in the roof's svg and its tap box (#rfShootHot, an html box riding the same keyframes in the stage's px): named again, both read; visibility still steps in it
+  +'@keyframes rf-shoot{0%{--rlf-x:300px;--rlf-y:62px;--rlf-so:0;visibility:hidden}.1%{visibility:visible}.8%,6.5%{--rlf-so:1}8.5%{--rlf-x:560px;--rlf-y:166px;--rlf-so:0;visibility:hidden}8.6%,100%{--rlf-x:300px;--rlf-y:62px;--rlf-so:0;visibility:hidden}}'
+  +'.rf-shoot,#rfShootHot{transform:translate(var(--rlf-x),var(--rlf-y));opacity:var(--rlf-so)}'
+  // ── A LIT TILE IN THE STILL ROOM (CARD-DLG-E's halo: a lit sleeper's glow as two still bitmaps in one html box, crossfading by opacity on the tile's own clock; the idle nudge in the bedroom): the four
+  //    crossfades are played by the halo's canvases alone (named again, read). DLG-E meant the compositor to do the breath; inside the transformed stage that lifted the bedroom and, by overlap, every
+  //    still-room canvas and svg over the halo with it (41 layers, 246 to 278 MB on an iPhone Pro's glass, on every idle spell): a crossfade of two small canvases is a small repaint instead
+  +'@keyframes dlgeTr{0%,100%{--rlf-o:1}50%{--rlf-o:0}}@keyframes dlgePk{0%,100%{--rlf-o:0}50%{--rlf-o:1}}@keyframes dlgeDn{from{--rlf-o:1}to{--rlf-o:0}}@keyframes dlgeUp{from{--rlf-o:0}to{--rlf-o:1}}'
+  +'.dlge-halo>.dlge-cv{opacity:var(--rlf-o)}'
+  // ── THE GHOSTS (CARD-RLF found them: an OUTER svg the size of the room appended to the stage is a box like any html one; only what is drawn INSIDE an svg never takes a layer):
+  //    a toy off the roof (roofsink into the gap, roofdrop off the edge) and the magic bone's sparkle: named again, read
+  +'@keyframes roofsink{from{--rlf-y:0px;--rlf-s:1;--rlf-o:1}60%{--rlf-o:0.9}to{--rlf-y:64px;--rlf-s:0.55;--rlf-o:0}}.roofghost.gap{transform:translateY(var(--rlf-y)) scale(var(--rlf-s));opacity:var(--rlf-o)}'
+  +'@keyframes roofdrop{from{--rlf-y:0px;--rlf-o:1}55%{--rlf-o:0.95}to{--rlf-y:230px;--rlf-o:0}}.roofghost.edge{transform:translateY(var(--rlf-y));opacity:var(--rlf-o)}'
+  +'@keyframes mbsparkle{0%{--rlf-s:0.4;--rlf-o:0}30%{--rlf-o:1}100%{--rlf-s:1.7;--rlf-o:0}}.roofghost.mbsparkle{transform:scale(var(--rlf-s));opacity:var(--rlf-o)}'
+  //    a toy dropped into the CHEST (chestSwallow) and the bone or the walnut in a mouth (dogFeed, xh2NutFeed): the painter writes the ghost's END inline (transform + opacity) under a 0.5 s transition;
+  //    rlfGhost (below) moves that end onto the properties the moment the painter returns (no style pass between: the transition has not begun), and the same transition runs on them. A ghost whose end it
+  //    cannot read wears data-rlf-raw and the shipped transition, untouched
+  +'.roofghost.chestghost:not([data-rlf-raw]),.roofghost.mbghost:not([data-rlf-raw]){transform:translate(var(--rlf-x),var(--rlf-y)) scale(var(--rlf-s));opacity:var(--rlf-o);transition:--rlf-x 0.5s cubic-bezier(0.5,0,0.9,0.4),--rlf-y 0.5s cubic-bezier(0.5,0,0.9,0.4),--rlf-s 0.5s cubic-bezier(0.5,0,0.9,0.4),--rlf-o 0.5s ease-in}'
+  // ── FOR A MOMENT: the piggy's three puffs · Hunter's hearts · the pond's missed cast (each played by one rule alone: named again)
+  +'@keyframes pigpuff{from{--rlf-x:0px;--rlf-y:0px;--rlf-s:0.5;--rlf-o:0.9}to{--rlf-x:18px;--rlf-y:-13px;--rlf-s:2.1;--rlf-o:0}}'
+  +'.pigpuff{transform:translate(var(--rlf-x),var(--rlf-y)) scale(var(--rlf-s));opacity:var(--rlf-o)}'
+  +'@keyframes hunhearts{0%{--rlf-o:0;--rlf-y:8px;--rlf-s:.6}20%{--rlf-o:1;--rlf-y:0px;--rlf-s:1.1}100%{--rlf-o:0;--rlf-y:-30px;--rlf-s:1}}'
+  +'.hun-hearts{transform:translateY(var(--rlf-y)) scale(var(--rlf-s));opacity:var(--rlf-o)}'
+  +'@keyframes bfmiss{0%{--rlf-o:0}10%{--rlf-o:1}72%{--rlf-o:1}100%{--rlf-o:0}}'
+  +'#bfover.bfmiss{opacity:var(--rlf-o)}';
+function rlfArm(){ if(!RLF.on){ RLF.why='off'; return 0; } if(document.getElementById('rlfCss')) return 1;
+  try{ if(!(window.CSS && typeof CSS.registerProperty==='function')){ RLF.why='no registered properties on this engine'; return 0; }
+    for(const p of RLF_PROPS){ try{ CSS.registerProperty({ name:p[0], syntax:p[1], inherits:false, initialValue:p[2] }); }catch(e){ if(!(e && e.name==='InvalidModificationError')) throw e; } }   // registered already (a second arm in one page): fine
+    const s=document.createElement('style'); s.id='rlfCss'; s.textContent=RLF_CSS; (document.head||document.documentElement).appendChild(s); RLF.ok=1; RLF.why=''; return 1;
+  }catch(e){ RLF.why=String((e && e.message) || e); return 0; } }
+function rlfRead(o){ if(o && typeof o==='object' && 'on' in o){ RLF.on=o.on? 1 : 0; let s=document.getElementById('rlfCss'); if(!s && RLF.on){ rlfArm(); s=document.getElementById('rlfCss'); } if(s) s.disabled=!RLF.on; }
+  const s=document.getElementById('rlfCss'); return { on:RLF.on, ok:RLF.ok, live:!!(s && !s.disabled), why:RLF.why, wrapped:(RLF.wrapped||[]).slice(), ghosts:RLF.ghosts|0, raw:RLF.raw|0, last:!!(s && s===document.head.lastElementChild) }; }
+const RLF_GHOST=/^translate\(\s*(-?[\d.]+)px\s*,\s*(-?[\d.]+)px\s*\)\s*scale\(\s*(-?[\d.]+)\s*\)$/;
+function rlfGhost(){ const s=document.getElementById('rlfCss'), st=document.getElementById('roomStage'); if(!RLF.on || !RLF.ok || !s || s.disabled || !st) return 0; let n=0;
+  for(const g of st.querySelectorAll(':scope > .roofghost.chestghost, :scope > .roofghost.mbghost')){ if(g.hasAttribute('data-rlf') || g.hasAttribute('data-rlf-raw')) continue; const tf=String(g.style.transform||'').trim(), op=g.style.opacity; if(!tf) continue;
+    const m=RLF_GHOST.exec(tf); if(!m || op===''){ g.setAttribute('data-rlf-raw', ''); RLF.raw=(RLF.raw|0)+1; continue; }
+    g.style.setProperty('--rlf-x', m[1]+'px'); g.style.setProperty('--rlf-y', m[2]+'px'); g.style.setProperty('--rlf-s', m[3]); g.style.setProperty('--rlf-o', op); g.style.removeProperty('transform'); g.style.removeProperty('opacity'); g.setAttribute('data-rlf', ''); n++; }
+  RLF.ghosts=(RLF.ghosts|0)+n; return n; }
+RLF.wrapped=[];
+for(const nm of ['chestSwallow', 'dogFeed', 'xh2NutFeed']){ try{ const f0=window[nm]; if(typeof f0!=='function') continue; window[nm]=function(){ const r=f0.apply(this, arguments); try{ rlfGhost(); }catch(e){} return r; }; RLF.wrapped.push(nm); }catch(e){} }   // by name, the shipped painter first and whole (a later card wraps over this one)
+rlfArm();
+try{ if(window.GVT && !GVT.rlf) GVT.rlf=rlfRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.rlf) GVT.rlf=rlfRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-RLF ═══
 // ═══ CARD-OTA3 · THE GAME KEEPS WHAT IT DOES NOT KNOW (sec:CARD-OTA3; design/ota-game-keeps-1110/00-CARD-OTA3.md; build card 3 of 9 of CARD-OTA, THE GAME UPDATES ITSELF; FROM WYATT, his go 11/10/2026 00:49 EST by phone on Discord 1569589920165666939, answering the design pass's eight decisions, verbatim: "Regarding question 3, yes, I'm already aware, and it was when we were trying to get the Music mode to work, so don't worry about that one. Go with recommendations." = OTA-Q6, the two save cards first; this is the game's one) ═══
 // THE HAZARD (seen on the rig 11/10, proof P10): at every start the game rebuilds the save's lists and records against its OWN tables and key lists (the normalisers after the load line: lab parts, the lab's record, pets with their XP,
 //   names and coats, outfits, decor's keys, wallpapers, rooms, the toys in the rooms, the fort's pets, the record player, the parks, every first-clear ledger, sixty more) and drops what it does not list. An OLDER game that opens a
