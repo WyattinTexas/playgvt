@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.81","md5":"54e5a7859ad34fb967782f3d8f0d4411","sha":"fd48d93eef","at":"2026-11-13T06:12:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.82","md5":"5f2720ede439e6bd5a6aea73e44ed12d","sha":"8e89fc7e7c","at":"2026-11-13T06:28:58Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93823,7 +93823,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.81';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.82';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -221870,6 +221870,231 @@ function hpaRead(o){ o=o||{}; if(o.on!=null){ HPA.on=o.on? 1 : 0; try{ msPauseSy
 try{ if(window.GVT && !GVT.hpa) GVT.hpa=hpaRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.hpa) GVT.hpa=hpaRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-HPA ═══
+// ═══ CARD-FYP · THE FORT'S YARD KEEPS ITS PACE (sec:CARD-FYP; design/fort-yard-pace-1112/00-CARD-FYP.md; jumpr 3295; Maker 1's flag HPA-F2 of CARD-HPA). FROM WYATT'S PHONE, 11/12/2026 14:11 EST, verbatim:
+//   "Run an audit to see why these character screens are really laggy right now. It could be drawing it over and over again or something, but they're unbearable even on great devices currently."
+//   and, typed on Maker 1 at 16:39 EST when the audit asked whether to fix the yard itself too, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game"
+// WHY (the fort opened by the door a player takes, UI.fort(), and nothing else; his own save and the stock veteran; WebKit as his phone and the app's own engine; the record's section 2):
+//   the yard is ONE svg (1,700 to 1,850 nodes) and 35 to 120 CSS loops live inside it (the flag, the dust, the stars, the lamps, the men's small moves). An engine cannot move a piece of an svg without
+//   painting the svg again, so EVERY FRAME painted the whole yard again, and with it (1) its 76 PICTURES, each an SVG drawing nested as an <image>: 18,229 shapes and 821 shadow and grain filters (Laura's
+//   light redraw, CARD-LRD), redone from their shapes on every frame: for a while the engine keeps a picture's filter results, then it works all 821 out again on each frame, and the yard falls from
+//   30 frames a second to 6 for good (his phone's 5 to 7); (2) the fort's own signs, buttons and top bar and the east extension, which shared the yard's paint and were painted again with it;
+//   (3) the still art (the sky, the wall, the parapet, the gatehouse, the racks on the wall), 600 nodes that never move.
+// WHAT (no drawing redrawn, restyled or replaced; the director, the walkers, the kings, the pets, the taps, the cards as they are; the game's own yard is built exactly as before and stays the one the game talks to):
+//   1 EVERY PICTURE THAT IS PAINTED AGAIN IS PAINTED ONCE. A nested drawing that stands in the moving part of the yard is painted once by the engine itself (her filters as this engine draws them) into
+//     a bitmap at twice the dots it shows at (CARD-MPO's grammar) and set where the drawing stood, on the same <image> (a png data: url: the page's policy shows pictures from 'self' and data: alone).
+//     The bitmap is the picture's whole BOX, painted by the engine through an <image> of that box with the picture's own fit: where the engine sets a drawing in its box, and what it shows of it
+//     past the drawing's own frame (a king's shield, a hat's brim), is the engine's own doing in the bitmap as in the yard.
+//     A pose the director hands a figure later is swapped the same way (at once when its bitmap is made already). The bitmaps are kept for the session, under FYP.px dots in all.
+//   2 THE YARD ON A LAYER OF ITS OWN (and the east extension on its own): a loop in the yard no longer repaints the signs, the buttons and the top bar. Set once at the lay, never mid-play (CARD-JGL's law).
+//   3 THE STILL ART IS PAINTED ONCE. Every piece painted BEFORE the floor's own band (CARD-FLY's sort: the walkers and what stands among them), with no loop in it, no id, nothing over it that moves, is copied onto a layer of its own under the
+//     yard (svg.fyp-l0, the same box, the same viewBox, the same page rules) and unpainted in the yard (data-fyp="0"). A still piece the game touches later, or that starts a loop, goes back to the yard
+//     in that same frame (and what stands over it with it): the picture never changes, only who paints it. Everything from the first walker on stays in the yard, in the game's own order.
+//     By night THE SKY (the yard's first pieces: the sky, the hills, the stars) is a layer of its own under the still layer, and the stars twinkle there by the page's own rules: a star in the
+//     yard's paint would hold the moon over it there, the parapet over the moon, and so on down to the floor. THE NIGHT'S WASH (one rect over the whole yard under a mask) is painted once into a picture.
+//     What the game does to a still piece after the lay (the director gives a sentry his scan) is done again on its copy, in the same frame: the loop plays there, the piece stays where it is.
+// HOW: renderFortScene wrapped BY NAME, OVER CARD-HPA's wrapper (this section stands after END CARD-HPA), and a net under it: a watch on #fortscene takes up a yard laid by any other door
+//   (CARD-HPA lays the yard again by its own kept maker when a card closes) before the frame paints; no shipped line changes. Zero words, save keys, wire, server or sw bytes; the css = the style
+//   node fypCss (four rules). Behind a card CARD-HPA holds and unpaints the yard as before (its rules reach the still layer too: it stands inside #fortscene).
+// WHERE: WEBKIT ONLY (FYP.wk, read off navigator.vendor: the house's test, CARD-AFXN's AFXN_WK and CARD-LGU's wk). On Chrome (Android, Steam, the desktop) NOTHING IS ARMED and the yard is the game's own,
+//   dot for dot: measured there the yard holds 60 frames a second as the game ships it (that engine paints again only what moved and runs her filters on the graphics chip), and a layer of its own
+//   would move three dots in four by one or two levels of 255. GVT.fyp({ wk:1 }) arms it on any engine for the page's life (the rigs' second engine: never what a Chrome player gets).
+// Switches: ?fyp=0 = the yard as the game shipped it on this device (remembered: gvt_fyp '0'), ?fyp=1 = this card again. GVT.fyp() = the rigs' read; GVT.fyp({ on, wk, pic, own, l0 }) flips a half for the
+//   page's life (the yard is laid again); GVT.fyp({ scan:1 }) adds THE CHECK (every copy against its piece, every picture, every mover's reach). UNDO = design/fort-yard-pace-1112/kit/applyFYP.py --undo.
+// FOR LATER CARDS: a card that wraps renderFortScene wraps OVER this section and stands after END CARD-FYP. A new piece of the yard needs nothing: a piece that moves by a CSS loop, carries an id or is
+//   touched by script paints in the yard as ever; a still one is copied by itself. A new svg beside the yard that loops gets its own layer the way .exr-east does (the css rule below).
+var FYP={ on:(function(){ try{ var q=/[?&]fyp=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_fyp','0'); else localStorage.removeItem('gvt_fyp'); } return localStorage.getItem('gvt_fyp')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  wk:(function(){ try{ return /Apple/.test(navigator.vendor||'')? 1 : 0; }catch(e){ return 0; } })(),   // WebKit (his iPhone, every browser on an iPhone, the App Store shell, a Mac's Safari): the one engine that paints the whole yard again for every loop and works her filters out on the processor. Nothing is armed elsewhere
+  pic:1, own:1, l0:1,   // the three halves, each with a dial (the rigs' pairs)
+  M:2, step:8, pad:8, big:1.1e6, side:1280, px:24e6, soft:50000, per:2, washM:0.5,   // the dials: a bitmap at M times the dots it shows at, up a 2^(1/step) ladder · a mover's reach past its box, css px (a piece whose loops only fade has none) · one bitmap's most dots · its longest side · all bitmaps together · a bitmap over this many dots is made on a software canvas · bitmaps in the making at once · the wash's picture, as a share of the glass's dots (0 = the wash by its mask, as ever)
+  lay0:null, bg:null, sv:null, lay:null, sky:null, twins:-1, loops:0, mo:null, mo2:null, n:0, lays:0, nets:0, err:0, why:[], iw:-1, stills:0, live:0, forced:0, fades:0, woke:0, wash:0, echo:0, again:0, againing:0, made:0, hit:0, swaps:0, fail:0, blank:0, skip:0, dots:0, ms:0, busy:0, closing:0, sizeT:0 };
+const FYP_PIC=new Map();    // a drawing (its own href) → Map(size → { u:the png data: url, p:the decoded picture, held so a swap paints at once, W, H, px, t:the lay that used it last })
+const FYP_WAIT=new Map();   // a drawing → Map(size → the <image>s waiting for that bitmap)
+const FYP_SVG=new WeakMap();   // an <image> → the drawing the game gave it (a wider glass asks for a bigger bitmap from it)
+const FYP_KID=new WeakMap();   // a still piece of the yard → its copy on the still layer
+const FYP_BOX=new WeakMap();   // a piece that moves and stands before the first walker → its reach on the glass [l, t, r, b]
+const FYP_PAD=new WeakMap();   // such a piece → the margin its reach was given (0: its loops only fade)
+const FYP_FADE=new WeakSet();   // a still piece that twinkles on the still layer (its loops only fade): its own loop starting is no news
+const FYP_AGAIN=new Set(), FYP_REDO=new Set();   // still pieces the game touched since the last frame · those whose copy must be made again
+const FYP_SHAPE=new Map();     // a drawing → its own width and height [w, h] (its viewBox), or 0
+let FYP_Q=[];
+const FYP_NS='http://www.w3.org/2000/svg', FYP_WALK='.fd-man,.fh-king,.fh-pet', FYP_OFF={ defs:1, style:1, title:1, desc:1, metadata:1, linearGradient:1, radialGradient:1, pattern:1, clipPath:1, mask:1, filter:1, symbol:1, marker:1, script:1 },
+  FYP_ODD='foreignObject,video,canvas,iframe,use,script,animate,animateTransform,animateMotion,set',
+  FYP_FLAT={ offset:1, easing:1, composite:1, computedOffset:1, opacity:1, fill:1, stroke:1, color:1, fillOpacity:1, strokeOpacity:1, stopColor:1, stopOpacity:1, visibility:1, strokeDashoffset:1 };   // what a loop may change and leave the piece's box as it is
+// ───── 1 · THE PICTURES
+function fypShape(h){ let a=FYP_SHAPE.get(h); if(a!==undefined) return a; a=0;
+  try{ const i=h.indexOf(','); let s=''; if(i>0){ const head=h.slice(0,i), body=h.slice(i+1, i+1+1600);
+      if(/;base64/i.test(head)) s=atob(body.slice(0, body.length-(body.length%4))); else { let b=body; const j=b.lastIndexOf('%'); if(j>b.length-3) b=b.slice(0,j); try{ s=decodeURIComponent(b); }catch(e){ s=''; } } }
+    const t=/<svg\b[^>]*>/.exec(s), r=t? t[0] : '', v=/\sviewBox\s*=\s*["']\s*[-+\d.eE]+[\s,]+[-+\d.eE]+[\s,]+([-+\d.eE]+)[\s,]+([-+\d.eE]+)\s*["']/.exec(r);
+    if(v && +v[1]>0 && +v[2]>0) a=[+v[1], +v[2]];
+    else { const w=/\swidth\s*=\s*["']([\d.]+)(?:px)?["']/.exec(r), g=/\sheight\s*=\s*["']([\d.]+)(?:px)?["']/.exec(r); if(w && g && +w[1]>0 && +g[1]>0) a=[+w[1], +g[1]]; } }catch(e){ a=0; }
+  FYP_SHAPE.set(h, a); return a; }
+function fypSize(e, h){   // the bitmap this picture needs where it stands: ITS BOX on the glass (a drawing shows past its own frame wherever its box has room: a king's shield, a hat's brim), M dots a dot, the next step up the ladder (a bitmap is only ever drawn smaller). [W, H, the key, the box's width and height in the yard's units, the fit]
+  if(!fypShape(h)) return null; let r=null, bw=0, bh=0; try{ r=e.getBoundingClientRect(); bw=e.width.baseVal.value; bh=e.height.baseVal.value; }catch(x){ r=null; } if(!r || !(r.width>0.5 && r.height>0.5) || !(bw>0 && bh>0)) return null;
+  const par=e.getAttribute('preserveAspectRatio')||'xMidYMid meet', q=Math.max(r.width/bw, r.height/bh)*FYP.M*(window.devicePixelRatio||1), m=Math.max(bw,bh)*q; if(!(m>=1)) return null;
+  const k=Math.pow(2, Math.ceil(Math.log2(m)*FYP.step-1e-9)/FYP.step)/m, W=Math.max(1,Math.round(bw*q*k)), H=Math.max(1,Math.round(bh*q*k));
+  if(W>FYP.side || H>FYP.side || W*H>FYP.big) return null; return [W, H, W+'x'+H+'|'+bw+'x'+bh+'|'+par, bw, bh, par]; }
+function fypFrame(h, z){   // the picture set in its box by the engine's own rule: a little svg document W x H whose one piece is an <image> of the box's size wearing the drawing and the picture's own fit. Whatever the engine does with a drawing in an <image> in the yard (how it fits it, what it shows past the drawing's frame), it does the same here
+  if(h.indexOf('data:image/svg+xml')!==0 || h.indexOf('"')>=0 || h.indexOf('<')>=0) return null;
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+z[0]+'" height="'+z[1]+'" viewBox="0 0 '+z[3]+' '+z[4]+'"><image x="0" y="0" width="'+z[3]+'" height="'+z[4]+'" preserveAspectRatio="'+z[5]+'" href="'+h.replace(/&/g,'&amp;')+'"/></svg>'); }
+function fypGet(M, h, k){ const by=M.get(h); return by? by.get(k) : undefined; }
+function fypPut(M, h, k, v){ let by=M.get(h); if(!by){ by=new Map(); M.set(h, by); } by.set(k, v); }
+function fypMake(h, z, done){   // the picture painted once by the engine itself into W x H dots; null = it could not be made (the drawing stays). z[3] undefined = h is whole in itself already (the wash)
+  const W=z[0], H=z[1], t0=performance.now();
+  const paint=function(im){ let u=null;
+    try{ const c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d', W*H>FYP.soft? { willReadFrequently:true } : undefined); g.drawImage(im,0,0,W,H);   // a big drawing is painted in the page's own process (two to three times sooner than through the painter and back)
+      let ink=0; for(let j=1;j<=12 && !ink;j++){ const d=g.getImageData(0, Math.min(H-1, Math.floor(H*j/13)), W, 1).data; for(let x=3;x<d.length;x+=4) if(d[x]){ ink=1; break; } }
+      if(!ink){ FYP.blank++; } else u=c.toDataURL('image/png'); c.width=0; c.height=0; }catch(x){ u=null; }
+    if(!u || u.length<64){ done(null); return; }
+    const p=new Image(); p.onload=function(){ FYP.ms+=performance.now()-t0; done({ u:u, p:p, W:W, H:H, px:W*H, t:FYP.n }); }; p.onerror=function(){ done(null); }; p.src=u; };
+  let f=h; if(z[3]!==undefined){ try{ f=fypFrame(h, z); }catch(e){ f=null; } if(!f){ done(null); return; } }
+  const im=new Image(); im.onerror=function(){ done(null); };
+  im.onload=function(){ const go=function(){ paint(im); }; try{ if(im.decode) im.decode().then(go, go); else go(); }catch(e){ go(); } };   // decoded whole (the drawing inside it too) before it is painted
+  im.src=f; }
+function fypPump(){ if(FYP.busy>=FYP.per || !FYP_Q.length) return; let b=0; for(let i=1;i<FYP_Q.length;i++) if(FYP_Q[i].h.length>FYP_Q[b].h.length) b=i; const J=FYP_Q.splice(b,1)[0]; FYP.busy++;   // the heaviest drawing first (the longest: a king, a hero), FYP.per in the making at once
+  fypMake(J.h, J.z, function(E){ FYP.busy--; const L=fypGet(FYP_WAIT, J.h, J.k); const by=FYP_WAIT.get(J.h); if(by){ by.delete(J.k); if(!by.size) FYP_WAIT.delete(J.h); }
+    try{ if(E){ fypPut(FYP_PIC, J.h, J.k, E); FYP.made++; FYP.dots+=E.px; if(L) L.forEach(function(e){ try{ if(e.isConnected && e.getAttribute('href')===J.h){ e.setAttribute('href', E.u); FYP.swaps++; } }catch(x){} }); } else { fypPut(FYP_PIC, J.h, J.k, 0); FYP.fail++; } }catch(x){ FYP.err++; }   // 0 = this drawing could not be made at this size: it stays the drawing, and is not asked again
+    setTimeout(fypPump, 0); }); if(FYP.busy<FYP.per && FYP_Q.length) setTimeout(fypPump, 0); }
+function fypPicOne(e){   // one <image>: it wears its bitmap now when it is made, else it joins the line (and paints as the drawing it is until then)
+  if(!FYP.on || !FYP.wk || !FYP.pic || e.getAttribute('data-fyp')) return 0; const h=e.getAttribute('href'); if(!h || h.indexOf('data:image/svg+xml')!==0) return 0;
+  if(/animate|keyframes|animation|(?:%3C|<)set[%\s>]/.test(h.length>60000? h.slice(0,60000) : h)){ FYP.skip++; return 0; }   // a drawing that moves by itself keeps its own clock (CARD-PPO's rule)
+  const z=fypSize(e, h); if(!z){ FYP.skip++; return 0; } const k=z[2]; FYP_SVG.set(e, h);
+  const E=fypGet(FYP_PIC, h, k); if(E===0) return 0; if(E){ E.t=FYP.n; e.setAttribute('href', E.u); FYP.hit++; return 1; }
+  let L=fypGet(FYP_WAIT, h, k); if(L){ L.add(e); return 2; } L=new Set(); L.add(e); fypPut(FYP_WAIT, h, k, L); FYP_Q.push({ h:h, k:k, z:z }); fypPump(); return 2; }
+function fypPicsIn(root){ if(!FYP.on || !FYP.wk || !FYP.pic || !root) return; try{ if(root.localName==='image'){ if(fypPainted(root)) fypPicOne(root); return; } if(!root.querySelectorAll) return; const L=root.querySelectorAll('image'); for(let i=0;i<L.length;i++) if(fypPainted(L[i])) fypPicOne(L[i]); }catch(e){ FYP.err++; } }
+function fypPainted(e){ const sv=FYP.sv; if(fypMine(e)) return false; if(!sv || !sv.contains(e)) return true; const p=fypTop(sv, e); return !(p && p.getAttribute('data-fyp')==='0'); }   // a picture on the still layer is painted once as the drawing it is; a picture in an unpainted piece is never painted
+function fypTrim(){ if(FYP.dots<=FYP.px) return; const L=[]; FYP_PIC.forEach(function(by, h){ by.forEach(function(E, k){ if(E && E.t<FYP.n) L.push([E.t, h, k, E.px]); }); }); L.sort(function(a,b){ return a[0]-b[0]; });
+  for(let i=0;i<L.length && FYP.dots>FYP.px*0.8;i++){ const by=FYP_PIC.get(L[i][1]); if(by){ by.delete(L[i][2]); if(!by.size) FYP_PIC.delete(L[i][1]); FYP.dots-=L[i][3]; } } }   // over the budget: the bitmaps this lay did not use go first (a picture that wears one keeps showing: its url is whole in itself)
+// ───── 3 · THE STILL ART ON A LAYER OF ITS OWN
+function fypTop(sv, n){ while(n && n.parentNode!==sv) n=n.parentNode; return n||null; }
+function fypHit(a, b){ return a[0]<b[2] && b[0]<a[2] && a[1]<b[3] && b[1]<a[3]; }
+function fypRect(e){ try{ const r=e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; }catch(x){ return [0,0,0,0]; } }
+function fypGeom(){ const sv=FYP.sv; if(!sv) return; [FYP.sky, FYP.lay].forEach(function(L){ if(!L) return; try{
+    ['viewBox','preserveAspectRatio'].forEach(function(a){ const v=sv.getAttribute(a); if(v==null){ if(L.hasAttribute(a)) L.removeAttribute(a); } else if(L.getAttribute(a)!==v) L.setAttribute(a, v); });
+    ['left','top','width','height'].forEach(function(p){ if(L.style[p]!==sv.style[p]) L.style[p]=sv.style[p]; }); }catch(e){ FYP.err++; } }); }
+function fypMine(t){ const a=FYP.lay, b=FYP.sky; return !!((a && (t===a || a.contains(t))) || (b && (t===b || b.contains(t)))); }   // a node of this card's own layers
+function fypTwins(){ if(FYP.twins>=0) return; FYP.twins=0;   // once: every page rule that names the yard's own svg (svg.fhero) gets a twin for the still layers (svg.fyp-l0), right after it, with the same declarations: a copy there is dressed and moves by the very rules its piece is
+  const walk=function(host){ let R=null; try{ R=host.cssRules; }catch(e){ R=null; } if(!R) return; for(let i=0;i<R.length;i++){ const r=R[i]; if(r.cssRules && r.type!==1){ walk(r); continue; } const q=r.selectorText; if(!q || q.indexOf('svg.fhero')<0 || q.indexOf('fyp-')>=0) continue;
+      try{ host.insertRule(q.split('svg.fhero').join('svg.fyp-l0')+'{'+r.style.cssText+'}', i+1); i++; FYP.twins++; }catch(e){} } };
+  try{ for(let i=0;i<document.styleSheets.length;i++){ const sh=document.styleSheets[i]; if(sh.ownerNode && sh.ownerNode.id==='fypCss') continue; walk(sh); } }catch(e){ FYP.err++; } }
+function fypStill(bg, sv){   // the yard just laid: which top-level pieces move, which stand still under everything that moves; the still ones copied onto the layers under the yard and unpainted in the yard
+  const kids=Array.prototype.slice.call(sv.children), N=kids.length; FYP.iw=-1; FYP.stills=0; FYP.live=0; FYP.forced=0; FYP.fades=0; FYP.loops=0; if(!N) return; fypTwins();
+  const mov=new Set(), geo=new Set(); try{ const A=sv.getAnimations({ subtree:true }); for(let i=0;i<A.length;i++){ const t=A[i].effect && A[i].effect.target, p=t? fypTop(sv, t) : null; if(!p) continue; mov.add(p); if(geo.has(p)) continue;
+      let g=1; try{ const K=A[i].effect.getKeyframes(); g=0; for(let j=0;j<K.length && !g;j++) for(const q in K[j]) if(!FYP_FLAT[q]){ g=1; break; } }catch(e){ g=1; } if(g) geo.add(p); } }catch(e){}   // mov: a loop or a slide stands in the piece · geo: one of them moves or reshapes it (a fade or a colour keeps its box)
+  let iw=N; for(let i=0;i<N;i++){ const c=kids[i]; if(FYP_OFF[c.localName]) continue; if(c.getAttribute('data-fly')==='a' || c.matches(FYP_WALK) || c.querySelector(FYP_WALK)){ iw=i; break; } } FYP.iw=iw<N? iw : -1;   // the first walker, or the head of THE FLOOR SORT's band (CARD-FLY's marker: every piece from it on is sorted among the walkers at each stretch of a walk)
+  const K=[]; for(let i=0;i<iw;i++){ const c=kids[i]; if(FYP_OFF[c.localName]){ K.push(0); continue; }   // each piece before the first walker: 0 not painted (defs) · 1 it moves, or script may reach it (an id, an odd thing) · 2 still · 3 its loops only fade or recolour it (a star)
+    const odd=!!(c.id || c.querySelector('[id]') || c.querySelector(FYP_ODD) || FYP_ODD.split(',').indexOf(c.localName)>=0); K.push(odd? 1 : !mov.has(c)? 2 : geo.has(c)? 4 : 3); }   // 4: its loops move or reshape it (a torch's flame)
+  let sky=-1; for(let i=0;i<iw;i++){ if(K[i]===0) continue; if(K[i]===1) break; if(K[i]===3) sky=i; }   // THE SKY: the yard's first pieces, still or fading, up to the last fading one (the sky, the hills, the stars): a layer of their own UNDER the still layer, where the stars twinkle and nothing else is painted again
+  for(let i=0;i<=sky;i++) if(K[i]>=2 && (kids[i].localName==='image' || kids[i].querySelector('image'))){ sky=-1; break; }   // never a picture on a layer that is painted again
+  const mk=function(cls){ const L=document.createElementNS(FYP_NS,'svg'); L.setAttribute('class', cls); L.setAttribute('aria-hidden','true'); return L; }, S=mk('fyp-l0 fyp-sky'), L=mk('fyp-l0'), R=[], F=[]; let n=0, ns=0;
+  for(let i=0;i<N;i++){ const c=kids[i]; if(FYP_OFF[c.localName]) continue;
+    if(i>=iw){ FYP.live++; continue; }   // from the first walker on: the yard's own paint, in the game's own order
+    if(i<=sky){ const k=c.cloneNode(true); S.appendChild(k); FYP_KID.set(c, k); c.setAttribute('data-fyp','0'); ns++; if(K[i]===3) F.push(c); continue; }
+    if(K[i]===1){ const b=fypRect(c), q=[b[0]-FYP.pad, b[1]-FYP.pad, b[2]+FYP.pad, b[3]+FYP.pad]; R.push(q); FYP_BOX.set(c, q); FYP_PAD.set(c, FYP.pad); FYP.live++; continue; }   // script may reach it: it paints in the yard
+    const b=fypRect(c); let over=false; if(b[2]>b[0] || b[3]>b[1]) for(let j=0;j<R.length;j++) if(fypHit(b, R[j])){ over=true; break; }
+    if(over){ R.push(b); FYP_BOX.set(c, b); FYP.forced++; FYP.live++; continue; }   // a still piece painted over a piece that moves: it stays in the yard, above it (and so does what is painted over IT)
+    const k=c.cloneNode(true); L.appendChild(k); FYP_KID.set(c, k); c.setAttribute('data-fyp','0'); n++; if(K[i]>=3) F.push(c); }   // (a piece with loops: its copy runs them, checked below)
+  FYP.stills=n+ns; if(!(n+ns)) return;
+  if(ns){ FYP.sky=S; bg.insertBefore(S, sv); } if(n){ FYP.lay=L; bg.insertBefore(L, sv); } fypGeom();
+  for(let i=0;i<F.length;i++){ const c=F[i], k=FYP_KID.get(c); let same=!!k; try{ if(same){ const A=[c].concat(Array.prototype.slice.call(c.querySelectorAll('*'))), B=[k].concat(Array.prototype.slice.call(k.querySelectorAll('*'))); same=A.length===B.length; for(let j=0;j<A.length && same;j++){ const a=getComputedStyle(A[j]), b=getComputedStyle(B[j]); same=a.animationName===b.animationName && a.animationDuration===b.animationDuration && a.animationDelay===b.animationDelay && a.animationIterationCount===b.animationIterationCount; } } }catch(e){ same=false; }
+    if(!same) fypWake(c, 'loop'); else { FYP_FADE.add(c); FYP.fades++; if(FYP.pic && k.parentNode===FYP.lay){ FYP.loops++; const I=k.localName==='image'? [k] : k.getElementsByTagName('image'), J=c.localName==='image'? [c] : c.getElementsByTagName('image'); if(I.length===J.length) for(let j=0;j<I.length;j++) fypPicCopy(I[j], J[j]); } } } }   // (on the still layer a piece with loops is painted again where it moves: its drawings as bitmaps)   // a fading piece whose copy does not run the very same loops (a page rule that names the yard's own svg) goes back to the yard, with what stands over it
+function fypWake(c, why){   // a still piece is touched or starts to move: it goes back to the yard's own paint now, and every still piece painted after it that stands over it goes with it
+  const sv=FYP.sv; if(!sv || !c || c.getAttribute('data-fyp')!=='0') return false; const k=FYP_KID.get(c); if(k && k.parentNode) k.parentNode.removeChild(k); FYP_KID.delete(c); FYP_FADE.delete(c); c.removeAttribute('data-fyp'); FYP.woke++; if(FYP.why.length<24) FYP.why.push(String(why)+':'+c.localName+(c.getAttribute('data-fa')? '['+c.getAttribute('data-fa')+']' : c.getAttribute('data-fh')? '['+c.getAttribute('data-fh')+']' : c.getAttribute('class')? '.'+c.getAttribute('class') : '')); if(k && k.getAttribute && k.getAttribute('data-fyp')==='w'){ FYP.wash=0; return true; } FYP.stills--; FYP.live++;
+  try{ if(c.parentNode===sv){ const b=fypRect(c); FYP_BOX.set(c, b); fypOver(c, b); } fypPicsIn(c); }catch(e){ FYP.err++; } return true; }
+function fypOver(c, b){ const sv=FYP.sv; if(!(b[2]>b[0] || b[3]>b[1])) return; let s=c.nextElementSibling, i=0; while(s && i++<4000){ const nx=s.nextElementSibling; if(s.getAttribute('data-fyp')==='0' && fypHit(fypRect(s), b)){ const k=FYP_KID.get(s); if(!(k && k.getAttribute('data-fyp')==='w')) fypWake(s, 'over'); } s=nx; } }   // (the wash's picture stands in the yard at the wash's own place: nothing to put back)
+function fypTwin(c, t){ const k=FYP_KID.get(c); if(!k || !k.isConnected || k.getAttribute('data-fyp')==='w') return null; if(t===c) return k; if(t.nodeType!==1) return null; const O=c.getElementsByTagName('*'), N=k.getElementsByTagName('*'); if(O.length!==N.length) return null; for(let i=0;i<O.length;i++) if(O[i]===t) return N[i]; return null; }   // the copy's own node for a node of a still piece
+function fypEcho(c, m){   // the game touched a still piece: an attribute is set the same on its copy (a class the director gives starts the same loop there, at the same moment); anything else and the copy is made again
+  const k=FYP_KID.get(c); if(k && k.getAttribute && k.getAttribute('data-fyp')==='w'){ fypWake(c, m.type); return; }   // (the wash: its rect paints again by its own mask)
+  if(m.type==='attributes'){ const t=m.target, n=fypTwin(c, t), a=m.attributeName; if(n && a){ try{ const ns=m.attributeNamespace||null, v=ns? t.getAttributeNS(ns, a) : t.getAttribute(a); if(v==null){ if(ns) n.removeAttributeNS(ns, a); else n.removeAttribute(a); } else if(ns) n.setAttributeNS(ns, t.getAttributeNode && t.getAttributeNodeNS(ns, a)? t.getAttributeNodeNS(ns, a).name : a, v); else n.setAttribute(a, v); FYP.echo++; FYP_AGAIN.add(c); }catch(e){ FYP_AGAIN.add(c); FYP_REDO.add(c); } }
+    else { FYP_AGAIN.add(c); FYP_REDO.add(c); } }
+  else { FYP_AGAIN.add(c); FYP_REDO.add(c); }
+  if(!FYP.againing){ FYP.againing=1; Promise.resolve().then(fypAgain); } }
+function fypAgain(){ FYP.againing=0; const L=[]; FYP_AGAIN.forEach(function(c){ L.push(c); }); FYP_AGAIN.clear();   // before the frame paints: a copy that must be made again is; a copy that now holds a loop wears bitmaps
+  for(let i=0;i<L.length;i++){ const c=L[i]; try{ if(!c.isConnected || c.getAttribute('data-fyp')!=='0'){ FYP_REDO.delete(c); continue; } let k=FYP_KID.get(c); if(!k || !k.parentNode){ FYP_REDO.delete(c); fypWake(c, 'lost'); continue; }
+      let A=[]; try{ A=c.getAnimations({ subtree:true }); }catch(e){ A=[]; }
+      if(FYP_REDO.has(c)){ FYP_REDO.delete(c); let slide=false; for(let j=0;j<A.length;j++) if(A[j].transitionProperty){ slide=true; break; } if(slide){ fypWake(c, 'slide'); continue; }   // a slide in flight cannot be handed to a fresh copy: the piece goes back to the yard
+        const n=c.cloneNode(true); n.removeAttribute('data-fyp'); k.parentNode.replaceChild(n, k); FYP_KID.set(c, n); k=n; FYP.again++;
+        if(A.length){ const O=c.getElementsByTagName('*'), N=n.getElementsByTagName('*'); if(O.length===N.length){ const B=n.getAnimations({ subtree:true }); for(let j=0;j<A.length;j++){ const t=A[j].effect && A[j].effect.target; let x=t===c? n : null; if(!x) for(let q=0;q<O.length;q++) if(O[q]===t){ x=N[q]; break; } if(!x) continue;
+              for(let q=0;q<B.length;q++) if(B[q].effect && B[q].effect.target===x && B[q].animationName===A[j].animationName){ try{ B[q].currentTime=A[j].currentTime; if(A[j].playState==='paused') B[q].pause(); }catch(e){} break; } } } } }   // each loop of the new copy stands at the moment its own stands in the yard
+      if(A.length && FYP.pic){ const I=k.localName==='image'? [k] : k.getElementsByTagName('image'), J=c.localName==='image'? [c] : c.getElementsByTagName('image'); if(I.length===J.length) for(let j=0;j<I.length;j++) fypPicCopy(I[j], J[j]); }   // a copy that holds a loop is painted again: its drawings as bitmaps
+    }catch(e){ FYP.err++; } } }
+function fypPicCopy(e, o){ const h=e.getAttribute('href'); if(!h || h.indexOf('data:image/svg+xml')!==0) return; const z=fypSize(o, h); if(!z) return; const k=z[2], E=fypGet(FYP_PIC, h, k); if(E===0) return; if(E){ E.t=FYP.n; e.setAttribute('href', E.u); FYP.hit++; return; }
+  let L=fypGet(FYP_WAIT, h, k); if(L){ L.add(e); return; } L=new Set(); L.add(e); fypPut(FYP_WAIT, h, k, L); FYP_Q.push({ h:h, k:k, z:z }); fypPump(); }   // a drawing on a copy: sized by its own in the yard (the same box), swapped the same way
+function fypClose(){ FYP.closing=0; const sv=FYP.sv; if(!sv || !sv.isConnected || !(FYP.lay || FYP.sky)) return;   // a piece that moves before the first walker was touched: its reach is read again, and what it now stands under goes back to the yard
+  try{ let c=sv.firstElementChild, i=0; while(c && i++<4000){ const nx=c.nextElementSibling; if(c.matches(FYP_WALK) || c.querySelector(FYP_WALK)) break; if(FYP_BOX.has(c) && c.getAttribute('data-fyp')!=='0'){ const b=fypRect(c), d=FYP_PAD.get(c)||0, q=[b[0]-d, b[1]-d, b[2]+d, b[3]+d]; FYP_BOX.set(c, q); fypOver(c, q); } c=nx; } }catch(e){ FYP.err++; } }
+// ───── THE NIGHT'S WASH: one rect over the whole yard under a mask (the lamps' holes), after every figure in the paint order. A mask is worked out again on every repaint (CARD-MFP met the same
+//       trap in the room). Here the wash is painted ONCE, by the engine itself with its own mask, into a picture set right after it in the yard (the rect itself unpainted, data-fyp="0"); a
+//       touch of the rect, or of any <defs> of the yard (its mask lives there), puts the rect back and takes the picture away. The picture is soft by nature (flat colour, round soft holes), so it
+//       is kept at FYP.washM of the glass's dots.
+function fypIds(s, seen, out){ const re=/url\(\s*["']?#([^"')\s]+)|href\s*=\s*["']#([^"']+)/g; let m; while((m=re.exec(s))){ const id=m[1]||m[2]; if(seen[id]) continue; seen[id]=1; const e=document.getElementById(id); if(!e || !FYP.sv || !FYP.sv.contains(e)) return false; const x=new XMLSerializer().serializeToString(e); out.push(x); if(!fypIds(x, seen, out)) return false; } return true; }
+function fypWash(sv){ if(!FYP.washM) return; const w=sv.querySelector(':scope > rect[mask]'); if(!w || w.getAttribute('data-fyp') || w.id || !/^url\(/.test(w.getAttribute('mask')||'')) return;
+  const vb=sv.viewBox && sv.viewBox.baseVal, r=sv.getBoundingClientRect(); if(!vb || !(vb.width>0 && vb.height>0) || !(r.width>0)) return;
+  const defs=[], X=new XMLSerializer().serializeToString(w); if(!fypIds(X, {}, defs)) return;   // every id the rect names (its mask, the mask's own fills) stands in the yard and is copied with it
+  let u=r.width/vb.width; try{ const m=sv.getScreenCTM(); if(m && Math.abs(m.a)>0) u=Math.abs(m.a); }catch(e){}   // css px a yard unit, as the yard is fitted
+  const q=FYP.washM*(window.devicePixelRatio||1)*u, W=Math.max(1,Math.round(vb.width*q)), H=Math.max(1,Math.round(vb.height*q)); if(W>4096 || H>4096) return;
+  const src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb.x+' '+vb.y+' '+vb.width+' '+vb.height+'" width="'+W+'" height="'+H+'" preserveAspectRatio="none"><defs>'+defs.join('')+'</defs>'+X+'</svg>'), k=W+'x'+H;   // the yard's whole frame onto the bitmap's whole dots (preserveAspectRatio none: W and H are rounded, and a frame fitted by 'meet' would end a part of a dot short of the bitmap's last row, where the engine then drops the mask's last row: the wash faded out over the glass's last two rows)
+  const set=function(E){ try{ if(!E || !w.isConnected || w.parentNode!==sv || FYP.sv!==sv || w.getAttribute('data-fyp')) return; const im=document.createElementNS(FYP_NS,'image'); im.setAttribute('data-fyp','w'); im.setAttribute('x', vb.x); im.setAttribute('y', vb.y); im.setAttribute('width', vb.width); im.setAttribute('height', vb.height); im.setAttribute('preserveAspectRatio','none'); im.setAttribute('href', E.u);
+      FYP_KID.set(w, im); sv.insertBefore(im, w.nextSibling); w.setAttribute('data-fyp','0'); FYP.wash=1; E.t=FYP.n; }catch(e){ FYP.err++; } };
+  const E=fypGet(FYP_PIC, src, k); if(E){ set(E); return; } if(E===0) return;
+  fypMake(src, [W, H], function(E2){ if(E2){ fypPut(FYP_PIC, src, k, E2); FYP.dots+=E2.px; set(E2); } else fypPut(FYP_PIC, src, k, 0); }); }
+// ───── THE WATCH: what the game does to the yard after the lay
+function fypSeen(recs){ const sv=FYP.sv, bg=FYP.bg; if(!sv || !bg) return;
+  for(let i=0;i<recs.length;i++){ const m=recs[i], t=m.target; try{
+      if(fypMine(t)) continue;
+      if(t===sv){ if(m.type==='attributes'){ fypGeom(); continue; }
+        for(let j=0;j<m.removedNodes.length;j++){ const x=m.removedNodes[j]; if(x.nodeType===1 && x.getAttribute('data-fyp')==='0'){ const k=FYP_KID.get(x); if(k && k.parentNode) k.parentNode.removeChild(k); FYP_KID.delete(x); x.removeAttribute('data-fyp'); FYP.woke++; FYP.stills--; if(x.parentNode===sv){ FYP.live++; } } }   // a still piece the game takes out (or moves): its copy goes; put back, it paints in the yard
+        for(let j=0;j<m.addedNodes.length;j++){ const x=m.addedNodes[j]; if(x.nodeType===1){ if(x.getAttribute('data-fyp')==='0') fypWake(x, 'moved'); fypPicsIn(x); } } continue; }
+      if(sv.contains(t)){ if(m.type==='attributes' && m.attributeName==='data-fyp') continue; const p=fypTop(sv, t);
+        if(p && FYP.wash && FYP_OFF[p.localName]){ const w=sv.querySelector(':scope > rect[mask][data-fyp="0"]'); if(w) fypWake(w, 'defs'); }   // the yard's defs touched (the wash's mask lives there): the rect paints again by its own mask
+        if(p && p.getAttribute('data-fyp')==='0'){ fypEcho(p, m); continue; } else if(p && FYP_BOX.has(p)){ if(!FYP_PAD.get(p)) FYP_PAD.set(p, FYP.pad); if(!FYP.closing){ FYP.closing=1; Promise.resolve().then(fypClose); } } }   // a piece before the first walker that script touches: it has a mover's margin from now on, and its reach is read again before the frame paints
+      if(m.type==='attributes'){ if(m.attributeName==='href' && t.localName==='image' && fypPainted(t)) fypPicOne(t); }
+      else if(m.type==='childList'){ for(let j=0;j<m.addedNodes.length;j++){ const x=m.addedNodes[j]; if(x.nodeType===1) fypPicsIn(x); } }
+    }catch(e){ FYP.err++; } } }
+function fypStir(ev){ try{ const sv=FYP.sv, t=ev && ev.target; if(!sv || !t || t.nodeType!==1 || !sv.contains(t)) return; const p=fypTop(sv, t); if(!p || p.getAttribute('data-fyp')!=='0' || FYP_FADE.has(p)) return; const n=fypTwin(p, t); let same=false;
+    if(n){ if(ev.type==='animationstart'){ same=getComputedStyle(n).animationName===getComputedStyle(t).animationName; if(same && FYP.pic){ FYP_AGAIN.add(p); if(!FYP.againing){ FYP.againing=1; Promise.resolve().then(fypAgain); } } } else { const A=n.getAnimations(); for(let i=0;i<A.length;i++) if(A[i].transitionProperty===ev.propertyName){ same=true; break; } } }
+    if(!same) fypWake(p, ev.type); }catch(e){ FYP.err++; } }   // a loop or a slide the sheet starts on a still piece (a fading piece's copy runs by the same sheet: it stays)
+function fypResize(){ clearTimeout(FYP.sizeT); FYP.sizeT=setTimeout(function(){ try{ const bg=FYP.bg; if(!FYP.on || !FYP.wk || !FYP.pic || !bg || !bg.isConnected) return; const L=bg.querySelectorAll('image'); for(let i=0;i<L.length;i++){ const e=L[i], h=FYP_SVG.get(e), cur=e.getAttribute('href')||''; if(!h || cur.indexOf('data:image/png')!==0 || !fypPainted(e)) continue;
+      const z=fypSize(e, h), E=z? fypGet(FYP_PIC, h, z[2]) : null; if(E && E.u===cur) continue; e.setAttribute('href', h); } }catch(e){ FYP.err++; } }, 300); }   // the glass changed: a picture whose bitmap is not the one its size now asks for goes back to its drawing, and the watch hands it the right one (made, or made now)
+function fypDown(){ try{ if(FYP.mo) FYP.mo.disconnect(); }catch(e){} FYP.mo=null; try{ if(FYP.sv){ FYP.sv.removeEventListener('animationstart', fypStir, true); FYP.sv.removeEventListener('transitionrun', fypStir, true); FYP.sv.removeEventListener('transitionstart', fypStir, true); } }catch(e){}
+  FYP.closing=0; FYP.bg=null; FYP.sv=null; FYP.lay=null; FYP.sky=null; FYP_AGAIN.clear(); FYP_REDO.clear(); }
+function fypBare(){ try{ const bg=document.getElementById('fortBg'); if(!bg) return; const L=bg.querySelectorAll('svg.fyp-l0'); for(let i=0;i<L.length;i++) L[i].parentNode.removeChild(L[i]); const W=bg.querySelectorAll('image[data-fyp="w"]'); for(let i=0;i<W.length;i++) W[i].parentNode.removeChild(W[i]); const H=bg.querySelectorAll('[data-fyp]'); for(let i=0;i<H.length;i++) H[i].removeAttribute('data-fyp'); bg.classList.remove('fyp-own'); }catch(e){} }   // anything of this card's taken off the yard that stands (a fault mid-lay: the game's own yard, whole)
+function fypLay(){   // the yard was just laid (the game's own lay, every earlier wrapper's work on it done)
+  fypDown(); const bg=document.getElementById('fortBg'), sv=bg? bg.querySelector('svg.fhero') : null; if(!FYP.on || !FYP.wk || !bg || !sv) return false;
+  FYP.n++; FYP.lays++; FYP.bg=bg; FYP.sv=sv; FYP.why=[];
+  if(FYP.own) bg.classList.add('fyp-own');
+  if(FYP.l0 && sv.parentNode===bg){ fypStill(bg, sv); FYP.wash=0; fypWash(sv); }
+  if(FYP.pic){ fypPicsIn(bg); fypTrim(); }
+  try{ FYP.mo=new MutationObserver(fypSeen); FYP.mo.observe(bg, { subtree:true, childList:true, attributes:true, characterData:true }); }catch(e){ FYP.err++; }
+  sv.addEventListener('animationstart', fypStir, true); sv.addEventListener('transitionrun', fypStir, true); sv.addEventListener('transitionstart', fypStir, true);
+  return true; }
+try{ if(typeof renderFortScene==='function'){ FYP.lay0=renderFortScene;   // the yard's one maker: wrapped BY NAME, over CARD-HPA's wrapper
+  renderFortScene=function(){ const r=FYP.lay0.apply(this, arguments); try{ fypLay(); }catch(e){ FYP.err++; fypDown(); fypBare(); } return r; }; } }catch(e){}
+(function(){ try{ const fs=document.getElementById('fortscene'); if(fs && typeof MutationObserver==='function'){ FYP.mo2=new MutationObserver(function(){ try{ const bg=document.getElementById('fortBg'); if(bg && bg!==FYP.bg && FYP.on && FYP.wk && bg.querySelector('svg.fhero') && !bg.querySelector('svg.fyp-l0')){ FYP.nets++; fypLay(); } else if(FYP.bg && !FYP.bg.isConnected) fypDown(); }catch(e){ FYP.err++; try{ fypDown(); fypBare(); }catch(x){} } }); FYP.mo2.observe(fs, { childList:true }); } }catch(e){}   // THE NET: a yard laid by a door that does not pass the name (CARD-HPA lays it again by its own kept maker when a card closes) is taken up here, before the frame paints · the fort shut: the yard that is gone is let go
+  try{ window.addEventListener('resize', fypResize); }catch(e){}
+  try{ if(document.getElementById('fypCss')) return; const st=document.createElement('style'); st.id='fypCss';
+    st.textContent='#fortBg.fyp-own > svg.fhero,#fortBg.fyp-own > .exr-east{will-change:transform}'   // the yard and its east extension each on a layer of its own: a loop in one repaints that one alone
+      +'#fortBg svg.fyp-l0{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;will-change:transform}'   // the still layer: the yard's own box (the rule of #fortBg svg.fhero), painted once
+      +'#fortBg.hero-meet svg.fyp-l0{top:calc(50% - 20.3125vw);bottom:auto;height:40.625vw}'   // and its box under the meet (the rule of #fortBg.hero-meet svg.fhero)
+      +'#fortBg svg.fhero > [data-fyp="0"]{visibility:hidden}';   // a still piece that stands on the still layer is not painted in the yard (it keeps its place and its box there)
+    (document.head||document.documentElement).appendChild(st); }catch(e){} })();
+function fypScan(){   // THE CHECK (the rigs'): every copy against its piece, every picture, every reach
+  const out={ copies:0, lost:0, orphans:0, wash:0, styleDiff:0, diffs:[], svgPainted:0, bmpPainted:0, svgStill:0, reachOut:0, reach:[] }; const sv=FYP.sv, lay=FYP.lay, bg=FYP.bg; if(!sv || !bg) return out; out.sky=FYP.sky? FYP.sky.children.length : 0;
+  const P=['display','visibility','opacity','fill','fill-opacity','fill-rule','stroke','stroke-width','stroke-opacity','stroke-dasharray','stroke-dashoffset','stroke-linecap','stroke-linejoin','stroke-miterlimit','transform','transform-origin','transform-box','clip-path','mask','filter','mix-blend-mode','paint-order','font-family','font-size','font-weight','font-style','letter-spacing','text-anchor','stop-color','stop-opacity','color','vector-effect','shape-rendering','animation-name','transition-property'];
+  const H=sv.querySelectorAll(':scope > [data-fyp="0"]'); for(let i=0;i<H.length;i++){ const c=H[i], k=FYP_KID.get(c); if(!k || !k.isConnected){ out.lost++; continue; } if(k.getAttribute('data-fyp')==='w'){ out.wash=1; continue; } out.copies++;
+    const A=[c].concat(Array.prototype.slice.call(c.querySelectorAll('*'))), B=[k].concat(Array.prototype.slice.call(k.querySelectorAll('*'))); if(A.length!==B.length){ out.styleDiff++; if(out.diffs.length<8) out.diffs.push('nodes '+A.length+' / '+B.length+' in '+c.localName); continue; }
+    for(let j=0;j<A.length;j++){ const a=getComputedStyle(A[j]), b=getComputedStyle(B[j]); for(let q=0;q<P.length;q++){ let va=a.getPropertyValue(P[q]), vb=b.getPropertyValue(P[q]); if(P[q]==='visibility' && j===0){ va='visible'; } if(P[q]==='visibility' && va==='hidden' && vb==='visible') continue; if(va!==vb){ out.styleDiff++; if(out.diffs.length<8) out.diffs.push(A[j].localName+'.'+(A[j].getAttribute('class')||'')+' '+P[q]+': '+String(va).slice(0,40)+' / '+String(vb).slice(0,40)); break; } } } }
+  out.orphans=(lay? lay.children.length : 0)+(FYP.sky? FYP.sky.children.length : 0)-out.copies;
+  const I=bg.querySelectorAll('image'); for(let i=0;i<I.length;i++){ const e=I[i], h=e.getAttribute('href')||'', svg=h.indexOf('data:image/svg+xml')===0; if(fypMine(e)){ if(svg) out.svgStill++; continue; } if(!fypPainted(e)) continue; if(svg) out.svgPainted++; else if(h.indexOf('data:image/png')===0) out.bmpPainted++; }
+  let c=sv.firstElementChild, i=0; while(c && i++<4000){ if(c.matches(FYP_WALK) || c.querySelector(FYP_WALK)) break; const q=FYP_BOX.get(c); if(q && c.getAttribute('data-fyp')!=='0'){ const b=fypRect(c); if((b[2]>b[0] || b[3]>b[1]) && (b[0]<q[0]-0.5 || b[1]<q[1]-0.5 || b[2]>q[2]+0.5 || b[3]>q[3]+0.5)){ out.reachOut++; if(out.reach.length<8) out.reach.push(c.localName+'.'+(c.getAttribute('class')||'')+' ['+b.map(function(v){ return Math.round(v); }).join(',')+'] past ['+q.map(function(v){ return Math.round(v); }).join(',')+']'); } } c=c.nextElementSibling; }
+  return out; }
+function fypRead(o){ o=o||{}; let relay=0; ['on','wk','pic','own','l0'].forEach(function(k){ if(o[k]!=null){ const v=o[k]? 1 : 0; if(FYP[k]!==v){ FYP[k]=v; relay=1; } } }); if(o.M!=null && +o.M>0 && FYP.M!==+o.M){ FYP.M=+o.M; relay=1; }
+  if(relay){ try{ if(typeof fortSceneOpen==='function' && fortSceneOpen()) renderFortScene(); }catch(e){ FYP.err++; } }   // a half flipped: the yard that stands is laid again (the game's own re-lay), with or without it
+  let fort=false, layer=false, n=0; try{ fort=typeof fortSceneOpen==='function' && !!fortSceneOpen(); layer=!!((FYP.lay && FYP.lay.isConnected) || (FYP.sky && FYP.sky.isConnected)); FYP_PIC.forEach(function(by){ n+=by.size; }); }catch(e){}
+  const r={ on:FYP.on, wk:FYP.wk, pic:FYP.pic, own:FYP.own, l0:FYP.l0, M:FYP.M, wrapped:!!FYP.lay0, fort:fort, lays:FYP.lays, nets:FYP.nets, layer:layer, stills:FYP.stills, live:FYP.live, forced:FYP.forced, fades:FYP.fades, loops:FYP.loops, twins:FYP.twins, woke:FYP.woke, echo:FYP.echo, again:FYP.again, wash:FYP.wash, firstWalker:FYP.iw,
+    why:FYP.why.slice(), pics:{ kept:n, dots:FYP.dots, made:FYP.made, hit:FYP.hit, swaps:FYP.swaps, wait:FYP_Q.length+FYP.busy, fail:FYP.fail, blank:FYP.blank, skip:FYP.skip, ms:Math.round(FYP.ms) }, err:FYP.err };
+  if(o.scan){ try{ r.scan=fypScan(); }catch(e){ r.scan={ err:String(e && e.message || e) }; } } return r; }
+try{ if(window.GVT && !GVT.fyp) GVT.fyp=fypRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.fyp) GVT.fyp=fypRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-FYP ═══
 // ═══ CARD-BPR THE BANNER'S CIRCLE ALWAYS SHOWS ITS ENEMY · NO WAVE CHIP UNDER IT (sec:CARD-BPR; design/banner-portrait-1104/00-CARD-BPR.md; jumpr 3013, built on Maker 1 as M3013).
 // ISAAC by the jumpr guest link 11/4/2026 20:20 EST (his live switch, card 2277), verbatim: "let's fix this bug on a lot of campaign levels. The right side with the circle previewing the enemy is
 // usually empty. Run an audit and make sure that doesn't happen. Also get rid of the Wave X tab under it. It's kind of a spoiler alert. Fix that empty circle and get rid of the wave indicator.
