@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.93","md5":"5d9e6f8159a47389bd51bf43204bdadc","sha":"d74409282d","at":"2026-11-13T10:19:14Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.94","md5":"8c2a1606e038492233ba89315791bfcb","sha":"16d0b415ce","at":"2026-11-13T10:39:41Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93893,7 +93893,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.93';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.94';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -220026,6 +220026,10 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.maw) GVT.maw=mawRead; }catch(e
 // and it is dealt again on the next quiet second (never past three minutes after the start). A fight left by the player (the page hidden, a tab closed) is never read as a death.
 // A fight in company (S.coop) keeps no note: HQ holds that seat and the squad's own rejoin card (0322 REPORT BACK TO YOUR SQUAD?) is its way back.
 // ?mgr=0 = off on this device (localStorage gvt_mgroff '1'; ?mgr=1 clears it). GVT.mgr() = the read. Nothing is sent to HQ; the save (gvt_meta) is not touched.
+// ROUND 2 (CARD-MG2, design/featured-reset-1112/00-CARD-MG2.md; jumpr 3324, built on Maker 1 as M3324). FROM WYATT'S PHONE, 11/12/2026 22:13:10 EST, dictated, verbatim: "We just had another game. It was a featured one, and halfway through, the game just
+// went back to the main start screen, unprompted. Why did this happen?" The same death (his iPhone ended the page 97 s into the day's FEATURED BATTLE, a 4 v 4), on v31.74, before round 1 was live. Round 1 gave a featured battle the line and OKAY alone;
+// from this round a FEATURED BATTLE against the queue is its own kind of note ('bff') and is handed back like a plain battle while it is still the day's (the same map and size): THE BATTLE WAS CUT OFF · IT DID NOT COUNT AS A LOSS · BACK TO THE BATTLE =
+// the featured battle's own door (UI.wtFeat: the day's map and size, the +30 star first win still to take). Past midnight (another day's card) it gets round 1's line and OKAY. ?mg2=0 = round 2 off on this device (gvt_mg2off '1'; ?mg2=1 clears it).
 var MGR={ on:1, K:'gvt_mgr', FRESH_MS:300000, BEAT_MS:5000, CARD_MS:45000, GIVE_MS:180000, t0:Date.now(), note:null, died:null, opened:0, card:0, cardT:0, shown:0, deals:0, took:'', ticks:0, err:0, e:'' };
 function mgrErr(w, e){ try{ MGR.err++; MGR.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
 function mgrLoad(){ try{ const o=JSON.parse(localStorage.getItem(MGR.K)||'null'); return (o && typeof o==='object' && typeof o.k==='string' && typeof o.t==='number')? o : null; }catch(e){ return null; } }
@@ -220033,9 +220037,10 @@ function mgrSave(o){ try{ if(o) localStorage.setItem(MGR.K, JSON.stringify(o)); 
 function mgrKind(){   // what shows: a plain battlefield against the queue ('bf', its size and map), any other battlefield ('bfx'), any other fight ('play')
   const bf=S.bf;
   if(!bf) return { k:'play', n:0, m:'' };
-  const plain=!S.coop && !bf.opener && !bf.ga && !bf.raid && !bf.away && !bf.bd && !bf.nem && !bf.gl && !bf.feat;   // company, the tutorial's opener, the Gauntlet, a raid, an away duel, the desert, the Nemesis, the globe and the featured battle have doors of their own
-  return { k:plain? 'bf' : 'bfx', n:Math.max(1, Math.min(10, bf.team|0)), m:String(bf.mapId||'').slice(0,24) };
+  const mine=!S.coop && !bf.opener && !bf.ga && !bf.raid && !bf.away && !bf.bd && !bf.nem && !bf.gl, plain=mine && !bf.feat;   // company, the tutorial's opener, the Gauntlet, a raid, an away duel, the desert, the Nemesis and the globe have doors of their own
+  return { k:plain? 'bf' : (mine && bf.feat)? 'bff' : 'bfx', n:Math.max(1, Math.min(10, bf.team|0)), m:String(bf.mapId||'').slice(0,24) };   // ROUND 2: 'bff' = the FEATURED BATTLE against the queue (its own door: UI.wtFeat)
 }
+function mgrFeat(d){ try{ if(!MGR.feat || !d || d.k!=='bff') return false; const f=featBattle(); return !!(f && f.map===d.m && (f.size|0)===(d.n|0)); }catch(e){ mgrErr('feat', e); return false; } }   // ROUND 2: the note's featured battle is still the day's (the same map, the same size); another day's card is not handed back as this one
 function mgrTick(){
   try{
     if(!MGR.on) return;
@@ -220064,7 +220069,7 @@ function mgrCardTry(){   // ONE card, on a quiet second in the room; a player wh
   try{
     if(Date.now()-MGR.t0>MGR.GIVE_MS){ MGR.card=-1; return; }
     if(S.mode!=='menu' || !roomQuiet() || document.getElementById('mgrCard')) return;
-    const d=MGR.died, bf=d.k==='bf';
+    const d=MGR.died, ft=mgrFeat(d), bf=d.k==='bf' || ft;   // ROUND 2: a featured battle that is still the day's is dealt the plain battle's card
     const el=document.createElement('div'); el.id='mgrCard';
     el.innerHTML='<div class="sqb-t" data-notr>'+TXT(d.k==='play'? 'THE FIGHT WAS CUT OFF' : 'THE BATTLE WAS CUT OFF')+'</div>'
       +'<div class="sqb-s" data-notr>'+TXT(bf? 'THE GAME STOPPED UNDER YOU. IT DID NOT COUNT AS A LOSS.' : 'THE GAME STOPPED UNDER YOU.')+'</div>'
@@ -220073,7 +220078,7 @@ function mgrCardTry(){   // ONE card, on a quiet second in the room; a player wh
     document.body.appendChild(el);
     MGR.card=1; MGR.cardT=Date.now(); MGR.deals++;
     const go=el.querySelector('.mgr-go');
-    if(go) go.onclick=()=>{ try{ audio(); }catch(e){} MGR.took='go'; mgrCardClear('go'); try{ openWarTable(); UI.wtPlay(d.n>2? d.n : d.n===2? 2 : 1); }catch(e){ mgrErr('go', e); } };   // the war table's own launcher of that size: the queue, the map the player stands on
+    if(go) go.onclick=()=>{ try{ audio(); }catch(e){} MGR.took='go'; mgrCardClear('go'); try{ openWarTable(); if(ft) UI.wtFeat(); else UI.wtPlay(d.n>2? d.n : d.n===2? 2 : 1); }catch(e){ mgrErr('go', e); } };   // the war table's own launcher of that size: the queue, the map the player stands on · ROUND 2: a featured battle goes back through its own door (the day's map and size)
     el.querySelector('.mgr-no').onclick=()=>{ try{ audio(); SFX.clack(); }catch(e){} MGR.took='no'; mgrCardClear('no'); };
     el._t=setInterval(()=>{ try{ if(S.mode==='play' || MGR.shown+(Date.now()-MGR.cardT)>MGR.CARD_MS) mgrCardClear('fold'); else if(S.mode!=='menu' || !roomQuiet()) mgrCardHold(); }catch(e){ mgrCardClear('fold'); } }, 500);   // a fight the player went into, or 45 s shown = folded for good; anything else over the room = it steps aside
   }catch(e){ MGR.card=-1; mgrErr('card', e); }
@@ -220085,6 +220090,7 @@ try{
     let q=null; try{ q=new URLSearchParams(location.search).get('mgr'); }catch(e){}
     try{ if(q==='0') localStorage.setItem('gvt_mgroff', '1'); else if(q==='1') localStorage.removeItem('gvt_mgroff'); }catch(e){}
     try{ MGR.on=localStorage.getItem('gvt_mgroff')==='1'? 0 : 1; }catch(e){ MGR.on=1; }
+    try{ let q2=null; try{ q2=new URLSearchParams(location.search).get('mg2'); }catch(e){} if(q2==='0') localStorage.setItem('gvt_mg2off', '1'); else if(q2==='1') localStorage.removeItem('gvt_mg2off'); MGR.feat=localStorage.getItem('gvt_mg2off')==='1'? 0 : 1; }catch(e){ MGR.feat=1; }   // ROUND 2's own switch
     const o=mgrLoad(), now=Date.now();
     mgrSave(null);   // a note is spent by the page that finds it: one death, one card, never a second
     if(MGR.on && o && !o.h && now>=o.t && now-o.t<=MGR.FRESH_MS) MGR.died=o;
