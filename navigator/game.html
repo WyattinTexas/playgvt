@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.86","md5":"75380cb05fdd0eb18ba66c194effdeda","sha":"0b5a3a8ea7","at":"2026-11-13T08:16:54Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.87","md5":"013f1af2b4c789b9bd0783509499f4f3","sha":"0154db52e8","at":"2026-11-13T08:37:43Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93868,7 +93868,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.87';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -227047,6 +227047,42 @@ function bdlRead(o){ o=o||{};
     css:!!document.getElementById('bdlcss') }; }
 try{ if(window.GVT) GVT.bdl=bdlRead; }catch(e){}
 // ═══ END CARD-BDL ═══
+// ═══ CARD-MOF · THE MOON ON THE FLOOR (sec:CARD-MOF; design/moon-on-the-floor-1112/00-CARD-MOF.md; jumpr 3313, board M3313, built on Maker 1). FROM WYATT by phone 11/12/2026 20:53 EST (jumpr remote, with a still of his bedroom at 9:15 PM), verbatim:
+// "Right. The sunlight is currently reflecting on the floor, even though it is nighttime. It can't do this. Instead, change the light to be moonlight in the shape of the reflected moon."
+// WHAT HE SAW: CARD-BDL's light on the floor (bdlSunFloorSVG) lays the window's FOUR PANES on the rug by day AND by night; by night only their colour changed (moon blue), so the day's sun patch still lay there under a night window.
+// THE FIX, BY NIGHT ONLY: the four panes go, and the window's own moon lies on the floor in their place: its crescent (windowSVG's disc and bite, read from the window's own string, so the floor follows the window) turned over top to bottom as a
+//   reflection is, laid flat as the floor is seen (MOF_SEAT.k), a soft glow of moonlight round it. By day the four panes, the beam and the wall's glow are CARD-BDL's, byte for byte.
+// HOW: bdlSunFloorSVG is wrapped by name (its one caller, the roomRugSVG wrap, follows); no shipped line changes. Where the light lies is still CARD-BDL's call (bdlSunOK: the live bedroom, never under the map's pin; Laura's seven rugs by BDL_SUN_ON_LAURA).
+//   Static: nothing moves, nothing to stop under reduced motion. No filter, no mask, no transform: one ellipse with a gradient and one path, both with a class (Laura's live pass panels no shape that has one).
+// THE SWITCH: MOF.on is 1 for everyone; ?mof=0 on a device (key gvt_mof) = the four panes by night as before, byte for byte; ?mof=1 lifts the key; GVT.mof() is the rigs' door. With ?bdl=0 there is no light on the floor at all, and nothing of this card runs.
+var MOF={ on:(function(){ try{ const m=/[?&]mof=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_mof','0'); else localStorage.removeItem('gvt_mof'); } return localStorage.getItem('gvt_mof')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  err:0, why:'', n:{ moon:0, panes:0 }, old:null, moon:null, s:'' };
+const MOF_WIN={ r:12, bite:10, dx:4.5, dy:-3.5 };   // the window's crescent as windowSVG paints it by night (the disc r 12 at 864,86, the bite r 10 at 868.5,82.5): the fallback when the window's string no longer reads this way
+const MOF_SEAT={ x:642, y:387, R:50, k:0.62 };   // where it lies: in the light's own footprint (BDL_PANE), under the window, in the clear band between the middle and the right tiles; R = the disc's half width, k = the floor's foreshortening
+const MOF_INK={ hex:'#BED2FB', a:0.5, glow:[0.24,0.1], gr:1.9 };   // moon blue, a step bluer than CARD-BDL's pane blue (#D6E4FF) and inside Laura's attic moonbeam's own run (#D6E4FF to #B3CBF4): it still reads on the snow and cream rugs, where a paler light vanished; the crescent's strength; the glow's two steps and its reach in disc radii (its top stays on the floor: y - R*k*gr = 328 > RN_SEAM)
+function mofF(v){ return String(+v.toFixed(2)); }
+function mofWinMoon(){   // the window's own crescent, read from its night string: the cream disc, then the bite painted in the sky's colour; any other window = the fallback
+  if(MOF.moon) return MOF.moon; let o=null;
+  try{ const m=/<circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="#FFF3C4"\/><circle cx="([\d.]+)" cy="([\d.]+)" r="([\d.]+)" fill="#[0-9A-Fa-f]{6}"\/>/.exec(windowSVG(1));
+    if(m){ const r=+m[3], b=+m[6], dx=+m[4]-(+m[1]), dy=+m[5]-(+m[2]), D=Math.hypot(dx,dy); if(r>0 && b>0 && D>Math.abs(r-b)+0.01 && D<r+b-0.01) o={ r:r, bite:b, dx:dx, dy:dy, src:'window' }; } }catch(e){}
+  return (MOF.moon=o||{ r:MOF_WIN.r, bite:MOF_WIN.bite, dx:MOF_WIN.dx, dy:MOF_WIN.dy, src:'const' }); }
+function mofMoonSVG(){ if(MOF.s) return MOF.s;   // made once: the crescent = the disc less the bite, the bite's side turned over (dy → -dy), both ellipses flattened by k
+  const W=mofWinMoon(), S0=MOF_SEAT, I=MOF_INK, R=S0.R, k=S0.k, rb=W.bite/W.r, dx=W.dx/W.r, dy=-W.dy/W.r, D=Math.hypot(dx,dy), a=(1-rb*rb+D*D)/(2*D), h=Math.sqrt(Math.max(0,1-a*a)), ux=dx/D, uy=dy/D;
+  const X=function(x){ return mofF(S0.x+R*x); }, Y=function(y){ return mofF(S0.y+R*k*y); }, p=[a*ux-h*uy, a*uy+h*ux], q=[a*ux+h*uy, a*uy-h*ux];   // the two horn tips: where the bite's edge crosses the disc's
+  const d='M'+X(p[0])+' '+Y(p[1])+' A'+mofF(R)+' '+mofF(R*k)+' 0 1 1 '+X(q[0])+' '+Y(q[1])+' A'+mofF(R*rb)+' '+mofF(R*k*rb)+' 0 '+((D-a)<0? 1 : 0)+' 0 '+X(p[0])+' '+Y(p[1])+' Z';   // round the lit limb the long way, back along the bite
+  return (MOF.s='<g id="bdlSun" pointer-events="none"><defs><radialGradient id="mofglow"><stop offset="0" stop-color="'+I.hex+'" stop-opacity="'+I.glow[0]+'"/><stop offset="0.55" stop-color="'+I.hex+'" stop-opacity="'+I.glow[1]+'"/><stop offset="1" stop-color="'+I.hex+'" stop-opacity="0"/></radialGradient></defs>'
+    +'<ellipse class="bdlm mofhalo" cx="'+S0.x+'" cy="'+S0.y+'" rx="'+mofF(R*I.gr)+'" ry="'+mofF(R*k*I.gr)+'" fill="url(#mofglow)"/>'   // the glow: the gradient rides the ellipse's own box, so it lies as flat as the moon does
+    +'<path class="bdlm mofmoon" d="'+d+'" fill="'+I.hex+'" fill-opacity="'+I.a+'"/></g>'); }
+if(typeof bdlSunFloorSVG==='function'){ MOF.old=bdlSunFloorSVG; bdlSunFloorSVG=function(night){ const v=MOF.old.apply(this, arguments); if(!MOF.on || !night){ MOF.n.panes++; return v; }   // by day, and with the switch off: CARD-BDL's own string
+  try{ const s=mofMoonSVG(); MOF.n.moon++; return s; }catch(e){ MOF.err++; MOF.why='moon: '+(e && e.message || e); return v; } }; }   // (a client without CARD-BDL's painter has no light to shape: the card stands down)
+// ── THE RIGS' DOOR: GVT.mof() reads; GVT.mof({ on:0|1 }) switches this page (no save, no key) and paints the room again
+function mofRead(o){ o=o||{};
+  if(o.on!=null){ MOF.on=o.on? 1 : 0; try{ if(S.mode==='menu') renderMenu(); }catch(e){ MOF.err++; } }
+  let night=null, sun=null; try{ night=roomNight(); }catch(e){} try{ sun=bdlSunOK(); }catch(e){}
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:MOF.on, err:MOF.err, why:MOF.why, n:Object.assign({}, MOF.n), night:night, sun:sun, wrap:!!MOF.old && typeof bdlSunFloorSVG==='function' && bdlSunFloorSVG!==MOF.old,
+    moon:Object.assign({}, mofWinMoon()), seat:Object.assign({}, MOF_SEAT), ink:{ hex:MOF_INK.hex, a:MOF_INK.a, glow:MOF_INK.glow.slice(), gr:MOF_INK.gr }, svg:mofMoonSVG() }; }
+try{ if(window.GVT) GVT.mof=mofRead; }catch(e){}
+// ═══ END CARD-MOF ═══
 // ═══ CARD-GSA · THREE GAME-WIDE ADJUSTMENTS: YOUR MORTAR AIMS AT THE FURTHEST ENEMY IT CAN REACH, THE SPY MOVES 15 % FASTER, THE GRENADE FLIES 10 % FURTHER (sec:CARD-GSA; design/game-wide-three-1110/00-CARD-GSA.md; FROM WYATT 11/10/2026 about 14:15 EST, typed on Maker 1, card 3 of 3 of his Emperor Bear patch notes, jumpr 3208, board J53), his notes verbatim:
 // "12) Player mortars need to target the furthest enemy it can reach, including the enemy cannons in this fight. This needs to be the case throughout the game."
 // "15) Increase the movement speed of the Spy unit by 15% (While in stealth & out of stealth)"
