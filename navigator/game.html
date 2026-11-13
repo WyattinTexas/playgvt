@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.07","md5":"23ba5f1e69ff6f16ba0e47543bb39b1a","sha":"d3255829bf","at":"2026-11-13T15:39:36Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.08","md5":"4fc0986bfab2321c1f452fa2b12815b2","sha":"754063a473","at":"2026-11-13T15:55:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93957,7 +93957,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -222355,6 +222355,199 @@ function fypRead(o){ o=o||{}; let relay=0; ['on','wk','pic','own','l0'].forEach(
 try{ if(window.GVT && !GVT.fyp) GVT.fyp=fypRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.fyp) GVT.fyp=fypRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-FYP ═══
+// ═══ CARD-FYP2 · THE FORT'S YARD AT 60 IN THE APP (sec:CARD-FYP2; design/fort-yard-60-1113/00-CARD-FYP2.md; jumpr 3333; CARD-FYP's flag FYP-F1). FROM WYATT'S PHONE, 11/12/2026 14:11 EST, verbatim:
+//   "Run an audit to see why these character screens are really laggy right now. It could be drawing it over and over again or something, but they're unbearable even on great devices currently."
+//   and, typed on Maker 1 at 16:39 EST when the audit asked whether to fix the yard itself too, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game"
+// WHY (the yard opened by the door a player takes, his own save, the app's own engine; the record's section 2): CARD-FYP painted the yard's nested drawings once and set the still art BEFORE the floor's
+//   band on a layer under the yard. What a frame still painted was the yard's own moving half, whole, every frame (WebKit paints one box for more than five patches): by day 87 pieces and 989 nodes,
+//   of which only the figures, the lab's moving parts, three target sheets, the flag, the dust and a bird move. The rest stood still and was painted again 60 times a second: the range's tent (108
+//   nodes), the pen's fences, the bench, the crates, the barrel, the lab block's still two thirds (301 nodes, 87 of them faded groups), the vignette (one gradient over the whole glass), and about
+//   thirty range effects that wait at opacity 0 (each a faded group painted to show nothing).
+// WHAT (no drawing redrawn, restyled or replaced; the game's own yard stays the one the game talks to, every piece in the game's own place and order):
+//   EVERY STILL PIECE OF THE YARD'S OWN PAINT IS PAINTED ONCE. A piece with no loop in it and nothing the game writes (a top-level piece, or a still part inside a piece that moves: the lab block)
+//     is painted once by the engine itself (the piece as it stands, dressed in its computed style, with every gradient, clip and filter it names) into a picture on the glass's own dots, and the
+//     picture is set right after the piece, in the piece's own place in the paint order (so a walker still passes before and behind it); the piece itself is not painted (data-fyp2="0").
+//     Inside a piece that moves, still parts that stand side by side share one picture (a run), set right after the last of them.
+//     A piece that paints nothing (an effect waiting at opacity 0) gets no picture: it is simply not painted while it waits.
+//   THE STILL LAYER STAYS STILL: a looping piece CARD-FYP had set on the still layer under the yard (a wall torch, the king's mark) made that whole layer paint again on every frame, beside
+//     the yard: it goes back to the yard's own paint by CARD-FYP's own door (fypWake), so one layer paints again, not two.
+//   WHAT THE GAME TOUCHES WAKES IN THAT SAME FRAME: any write inside a sleeping piece (an attribute, a child, a class), a loop or a slide starting in it, a write on something it stands in that
+//     could restyle it: the picture goes, the piece paints as ever; it sleeps again once it has been quiet (FYP2.quiet ms). The yard's frame or its defs touched, the glass resized: every piece wakes.
+// HOW: fypLay, fypDown and fypBare wrapped BY NAME (this section stands right after END CARD-FYP; CARD-FYP's own wrapper of renderFortScene and its net call them by name), so every yard CARD-FYP
+//   takes up is taken up here after it; a watch of its own on #fortBg; a slow tick (no frame loop). No shipped line changes. Zero words, save keys, wire, server or sw bytes; the css = the style
+//   node fyp2Css (two rules). WEBKIT ONLY, as CARD-FYP (nothing of this runs where CARD-FYP is not armed: FYP.wk, FYP.on).
+// Switches: ?fyp2=0 = CARD-FYP's yard as it shipped (remembered: gvt_fyp2 '0'), ?fyp2=1 = this card again; ?fyp=0 turns both off. GVT.fyp2() = the rigs' read; GVT.fyp2({ on }) flips it for the
+//   page's life; GVT.fyp2({ scan:1 }) adds THE CHECK (every sleeping piece unpainted, its picture seated right after it and undressed). UNDO = design/fort-yard-60-1113/kit/applyFYP2.py --undo.
+// FOR LATER CARDS: a new piece of the yard needs nothing. A piece script writes sleeps only between writes; one that must never sleep carries a running loop, or is a figure (.fd-man, .fh-king,
+//   .fh-pet). Code that walks a yard piece's children meets one more child after a sleeping piece: an <image data-fyp2="b"> (skip it by that mark). A rig reads GVT.fyp2().asleep.
+var FYP2={ on:(function(){ try{ var q=/[?&]fyp2=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_fyp2','0'); else localStorage.removeItem('gvt_fyp2'); } return localStorage.getItem('gvt_fyp2')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  pad:4, pad2:16, min:3, area:40000, big:1.1e6, quiet:1200, hot:3000, tick:500, fast:120, t0:700, slice:5, per:2, deep:4, load:700,   // the dials: a picture's margin round its piece, css px (a second try: pad2) · the fewest nodes worth a picture · a single gradient shape this big is worth one too (css px squared) · one picture's most dots · quiet this long, ms, before a piece sleeps (again) · a node the game wrote counts as written this long · the tick, ms (while pieces wait: fast) · the first look after the lay · the tick's own work, ms · pictures in the making at once · how far down a moving piece is searched for still parts · a picture not loaded by then is set anyway
+  lay0:null, down0:null, bare0:null, sv:null, bg:null, mo:null, tid:0, sizeT:0, n:0, busy:0, scans:0, slept:0, hid:0, woke:0, made:0, hit:0, fail:0, wide:0, seats:0, alls:0, loops:0, dots:0, ms:0, err:0, why:[], wh:{}, bad:'' };
+const FYP2_Z=new Map();        // a sleeping piece → its run { im: the run's picture (null: it paints nothing), L: the run's pieces in order, an: loops stand held in it, px }
+const FYP2_HOT=new Map(), FYP2_DEEP=new Map();   // a node the game wrote → when · a node whose write may restyle what stands in it → when
+const FYP2_T=new WeakMap();    // a node → when it, or anything in it, was last written
+const FYP2_NO=new WeakMap();   // a piece → the lay in which it was found not to sleep (too wide, a gradient outside the yard, a fault): not asked again in that lay
+const FYP2_PEND=new WeakSet(); // a piece whose picture is in the making
+const FYP2_PIC=new Map();      // a piece as it stands (its whole document, hashed, and its dots) → { u, p } · 0 = it paints nothing
+let FYP2_Q=[];
+const FYP2_ODD='text,tspan,textPath,foreignObject,video,canvas,iframe,use,script,animate,animateTransform,animateMotion,set,a,switch,svg',   // what a picture cannot carry (the page's fonts, a clock of its own)
+  FYP2_INH=['fill','fill-opacity','fill-rule','clip-rule','stroke','stroke-width','stroke-opacity','stroke-dasharray','stroke-dashoffset','stroke-linecap','stroke-linejoin','stroke-miterlimit','paint-order','visibility','color','shape-rendering','image-rendering','color-interpolation-filters'],   // what a node takes from the page's rules and from what it stands in: written on its copy
+  FYP2_OWN={ opacity:'1', filter:'none', mask:'none', 'clip-path':'none', 'stop-color':'rgb(0, 0, 0)', 'stop-opacity':'1', 'vector-effect':'none', 'flood-color':'rgb(0, 0, 0)', 'flood-opacity':'1', 'lighting-color':'rgb(255, 255, 255)', isolation:'auto' },   // what it wears itself: written when it is not the plain value, or when an attribute of that name stands
+  FYP2_SAFE={ transform:1, opacity:1, cx:1, cy:1, r:1, rx:1, ry:1, x:1, y:1, x1:1, y1:1, x2:1, y2:1, width:1, height:1, d:1, points:1 };   // an attribute that moves or fades its own node and restyles nothing inside it
+function fyp2Lab(c){ try{ return c.localName+(c.id? '#'+c.id : '')+['data-fa','data-fh','data-afq','data-fly-p','data-lbk','data-fd'].map(function(k){ const v=c.getAttribute(k); return v!=null? '['+k.slice(5)+'='+v+']' : ''; }).join('')+(c.getAttribute('class')? '.'+String(c.getAttribute('class')).trim().split(/\s+/)[0] : ''); }catch(e){ return '?'; } }
+function fyp2Hash(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(36)+'.'+s.length; }
+function fyp2Dress(c, k){   // the copy dressed as its piece stands: every node's computed paint written on its copy (a picture's document has none of the page's rules). '' = dressed; else why not
+  const a=c.getElementsByTagName('*'), b=k.getElementsByTagName('*'); if(a.length!==b.length) return 'nodes'; const A=[c], B=[k]; for(let i=0;i<a.length;i++){ A.push(a[i]); B.push(b[i]); }
+  for(let i=0;i<A.length;i++){ const e=A[i], s=getComputedStyle(e); let t=''; const bm=s.getPropertyValue('mix-blend-mode'); if(bm && bm!=='normal') return 'blend';   // a blend reads what is painted under the piece: never baked
+    for(let j=0;j<FYP2_INH.length;j++){ const v=s.getPropertyValue(FYP2_INH[j]); if(v) t+=FYP2_INH[j]+':'+v+';'; }
+    for(const q in FYP2_OWN){ const v=s.getPropertyValue(q); if(v && (e.hasAttribute(q) || (v!==FYP2_OWN[q] && v.indexOf('none')!==0))) t+=q+':'+v+';'; }   // (a rule beats an attribute of the same name: where the attribute stands the computed value is written over it)
+    const tf=s.getPropertyValue('transform'); if(tf && tf!=='none') t+='transform:'+tf+';transform-origin:'+s.getPropertyValue('transform-origin')+';transform-box:'+(s.getPropertyValue('transform-box')||'view-box')+';';
+    if(s.getPropertyValue('display')==='none') t+='display:none;';
+    const o=B[i].getAttribute('style'); B[i].setAttribute('style', (o? o.replace(/;?\s*$/,';') : '')+t); }
+  return ''; }
+function fyp2Ids(s, seen, out, c){   // every id the run names (a gradient, a clip, a filter, and what those name) is copied with it, dressed the same way: the one the page answers for that id, as the engine reads it (the style pass's defs stand in the room's svg too)
+  const re=/url\(\s*(?:&quot;|["'])?#([^"'&)\s]+)|href\s*=\s*["']#([^"']+)/g; let m; while((m=re.exec(s))){ const id=m[1]||m[2]; if(seen[id]) continue; seen[id]=1; const e=document.getElementById(id); if(!e){ FYP2.bad=id+' not there'; return false; } let inn=false; for(let q=0;q<c.length;q++) if(c[q].contains(e)){ inn=true; break; } if(inn) continue;
+    const k=e.cloneNode(true), bad=fyp2Dress(e, k); if(bad){ FYP2.bad=id+' '+bad; return false; } const x=new XMLSerializer().serializeToString(k); out.push(x); if(!fyp2Ids(x, seen, out, c)) return false; } return true; }
+function fyp2Make(J, done){   // the piece painted once by the engine itself into W x H dots. done({ u, p, px }) · done({ blank:1 }) it paints nothing · done({ edge:1 }) its ink reaches the picture's edge (the margin was too small) · done(null) it could not be made
+  const W=J.W, H=J.H, t0=performance.now(), im=new Image(); im.onerror=function(){ done(null); };
+  im.onload=function(){ const go=function(){ let out=null;
+      try{ const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d', { willReadFrequently:true }); g.drawImage(im,0,0,W,H); const d=g.getImageData(0,0,W,H).data; let ink=0, eT=0, eB=0, eL=0, eR=0;
+        for(let x=0;x<W;x++){ if(d[x*4+3]) eT=1; if(d[((H-1)*W+x)*4+3]) eB=1; } for(let y=0;y<H;y++){ if(d[y*W*4+3]) eL=1; if(d[(y*W+W-1)*4+3]) eR=1; }
+        if(eT || eB || eL || eR) ink=1; else for(let i=3;i<d.length;i+=4) if(d[i]){ ink=1; break; }
+        if(!ink) out={ blank:1 }; else if((eL && !J.clip[0]) || (eT && !J.clip[1]) || (eR && !J.clip[2]) || (eB && !J.clip[3])) out={ edge:1 }; else { const u=cv.toDataURL('image/png'); if(u && u.length>64) out={ u:u, px:W*H }; }
+        cv.width=0; cv.height=0; }catch(x){ out=null; }
+      if(!out || !out.u){ done(out); return; }
+      const p=new Image(); p.onload=function(){ out.p=p; FYP2.ms+=performance.now()-t0; done(out); }; p.onerror=function(){ done(null); }; p.src=out.u; };   // decoded before it is set (held: the swap paints at once)
+    try{ if(im.decode) im.decode().then(go, go); else go(); }catch(e){ go(); } };
+  im.src='data:image/svg+xml;utf8,'+encodeURIComponent(J.doc); }
+function fyp2Fit(J){ const L=J.L; if(J.n!==FYP2.n) return false; let t=0; for(let i=0;i<L.length;i++){ const c=L[i]; if(!c.isConnected || c.parentNode!==J.par || FYP2_Z.has(c) || (i && L[i-1].nextElementSibling!==c)) return false; const w=FYP2_T.get(c)||0; if(w>t) t=w; } return t===J.t; }   // the run as it stood when its picture was asked for: every piece there, side by side, none written since
+function fyp2No(L, w){ for(let i=0;i<L.length;i++) FYP2_NO.set(L[i], FYP2.n); if(w && FYP2.why.length<40) FYP2.why.push(w+':'+fyp2Lab(L[0])+(L.length>1? ' x'+L.length : '')); }
+function fyp2Pump(){ while(FYP2.busy<FYP2.per && FYP2_Q.length){ const J=FYP2_Q.shift(); FYP2.busy++;
+    fyp2Make(J, function(E){ FYP2.busy--; for(let i=0;i<J.L.length;i++) FYP2_PEND.delete(J.L[i]);
+      try{ if(fyp2Fit(J)){   // (touched since: the next tick asks again)
+          if(!E){ FYP2.fail++; fyp2No(J.L, 'fail'); }
+          else if(E.edge){ if(J.tries){ FYP2.wide++; fyp2No(J.L, 'wide'); } else fyp2Sleep(J.L, J.kind, 1); }
+          else { const V=E.blank? 0 : { u:E.u, p:E.p, px:E.px }; FYP2_PIC.set(J.key, V); FYP2.made++; if(V) FYP2.dots+=V.px; fyp2Set(J, V); } } }catch(e){ FYP2.err++; }
+      setTimeout(fyp2Pump, 0); }); } }
+function fyp2Set(J, V){   // the run sleeps: its picture set right after its last piece (unpainted until it is loaded, then the picture shown and the pieces unpainted in one step), or, a run that paints nothing, just unpainted
+  const L=J.L, last=L[L.length-1]; if(J.kind===2 && V!==0){ fyp2No(L, ''); return; }   // loops stand held in it and it shows: it stays the game's own (a held loop can be let go from outside it)
+  const z={ im:null, L:L, an:J.kind===2, px:V? V.px : 0 }, mark=function(){ for(let i=0;i<L.length;i++){ L[i].setAttribute('data-fyp2','0'); FYP2_Z.set(L[i], z); } };
+  if(!V){ mark(); FYP2.hid++; fyp2Hush(); return; }
+  const im=document.createElementNS(FYP_NS,'image'), B=J.box; im.setAttribute('data-fyp2','b'); im.setAttribute('visibility','hidden'); im.setAttribute('x', B[0].toFixed(5)); im.setAttribute('y', B[1].toFixed(5)); im.setAttribute('width', B[2].toFixed(5)); im.setAttribute('height', B[3].toFixed(5)); im.setAttribute('preserveAspectRatio','none');
+  let done=0; for(let i=0;i<L.length;i++) FYP2_PEND.add(L[i]); const off=function(){ for(let i=0;i<L.length;i++) FYP2_PEND.delete(L[i]); };
+  const go=function(){ if(done) return; done=1; off(); try{ if(!fyp2Fit(J) || !im.isConnected){ if(im.parentNode) im.parentNode.removeChild(im); fyp2Hush(); return; }
+      if(im.previousElementSibling!==last) J.par.insertBefore(im, last.nextSibling); im.setAttribute('visibility','visible'); z.im=im; mark(); FYP2.slept++;
+      const p=fypTop(FYP2.sv, last); if(p && p!==last && FYP_BOX.has(p)){ const q=FYP_BOX.get(p), b=fypRect(im); FYP_BOX.set(p, [Math.min(q[0],b[0]), Math.min(q[1],b[1]), Math.max(q[2],b[2]), Math.max(q[3],b[3])]); }   // a picture inside a piece CARD-FYP keeps a reach for: its margin (no ink) is inside that reach
+      fyp2Hush(); }catch(e){ FYP2.err++; } };
+  im.addEventListener('load', go); im.addEventListener('error', function(){ if(done) return; done=1; off(); FYP2.fail++; fyp2No(L, 'load'); try{ if(im.parentNode) im.parentNode.removeChild(im); fyp2Hush(); }catch(e){} }); setTimeout(go, FYP2.load);
+  im.setAttribute('href', V.u); J.par.insertBefore(im, last.nextSibling); fyp2Hush(); }
+function fyp2Sleep(L, kind, tries){   // one run of still pieces (one piece, or pieces that stand side by side in something that moves): its box on the glass's own dots, its document, its picture (kept from before, or made now)
+  const sv=FYP2.sv, c0=L[0], par=c0.parentNode; if(!sv || !par) return;
+  let R, m, l=1e9, t=1e9, x2=-1e9, y2=-1e9, nodes=0, tt=0; try{ R=sv.getBoundingClientRect(); m=par.getScreenCTM(); }catch(e){ fyp2No(L, 'box'); return; }
+  for(let i=0;i<L.length;i++){ let r; try{ r=L[i].getBoundingClientRect(); }catch(e){ r=null; } if(!r || !(r.width>0 || r.height>0)){ FYP2_NO.set(L[i], FYP2.n); return; }   // a piece that takes no room (not shown): it stays the game's own, and the run is made again round it
+    if(r.left<l) l=r.left; if(r.top<t) t=r.top; if(r.right>x2) x2=r.right; if(r.bottom>y2) y2=r.bottom; nodes+=L[i].getElementsByTagName('*').length+1; const w=FYP2_T.get(L[i])||0; if(w>tt) tt=w; }
+  if(!(R.width>0 && R.height>0)) return;
+  if(!m || !m.a || !m.d || Math.abs(m.b)>1e-6*Math.abs(m.a) || Math.abs(m.c)>1e-6*Math.abs(m.d)){ fyp2No(L, 'turn'); return; }   // what it stands in is turned: a picture would not lie on the glass's dots (flipped is fine: the picture is flipped with it, dot for dot)
+  let soft=false; if(nodes<FYP2.min){ let s=null; try{ s=getComputedStyle(c0); }catch(e){} soft=!!(s && kind===1 && L.length===1 && !c0.firstElementChild && /url\(/.test(s.getPropertyValue('fill')||'') && (s.getPropertyValue('stroke')||'none')==='none' && (s.getPropertyValue('filter')||'none')==='none'); if(kind===1 && !(soft && (x2-l)*(y2-t)>=FYP2.area)){ fyp2No(L, ''); return; } }   // a small flat piece is as cheap as its picture; one gradient shape over a big field is not
+  const dpr=window.devicePixelRatio||1, pad=tries? FYP2.pad2 : FYP2.pad, clip=[0,0,0,0]; l-=pad; t-=pad; x2+=pad; y2+=pad;
+  if(l<=R.left){ l=R.left; clip[0]=1; } if(t<=R.top){ t=R.top; clip[1]=1; } if(x2>=R.right){ x2=R.right; clip[2]=1; } if(y2>=R.bottom){ y2=R.bottom; clip[3]=1; } if(!(x2>l && y2>t)){ fyp2No(L, ''); return; }   // inside the yard's own frame (the frame cuts the piece there anyway)
+  let M=dpr, W=0, H=0; for(let pass=0;pass<2;pass++){ const g=function(v, o, up){ const q=(v-o)*M; return o+(up? Math.ceil(q-1e-6) : Math.floor(q+1e-6))/M; };   // whole dots, counted from the yard's own corner
+    const l2=g(l,R.left,0), t2=g(t,R.top,0), r2=g(x2,R.left,1), b2=g(y2,R.top,1); W=Math.round((r2-l2)*M); H=Math.round((b2-t2)*M);
+    if(W*H<=FYP2.big && W<=4096 && H<=4096){ l=l2; t=t2; x2=r2; y2=b2; break; } if(pass || !soft){ fyp2No(L, 'big'); return; } M=dpr/2; }   // a gradient field too big for one picture is kept at half the dots (soft by nature: CARD-FYP's wash)
+  if(!(W>=1 && H>=1)){ fyp2No(L, ''); return; }
+  let X=''; for(let i=0;i<L.length;i++){ const k=L[i].cloneNode(true), bad=fyp2Dress(L[i], k); if(bad){ FYP2_NO.set(L[i], FYP2.n); if(FYP2.why.length<40) FYP2.why.push(bad+':'+fyp2Lab(L[i])); return; } X+=new XMLSerializer().serializeToString(k); }
+  if(/\s(?:x|y|width|height|cx|cy|r|rx|ry|x1|y1|x2|y2)="[^"]*%"/.test(X) || /href="(?!data:|#)/.test(X)){ fyp2No(L, 'frame'); return; }   // a length that is a share of the yard's frame, a picture from the wire: not carried
+  if(/href="data:image\/svg[^"]{0,60000}(?:animate|keyframes|animation|%3Cset)/.test(X)){ fyp2No(L, 'alive'); return; }   // a nested drawing that moves by itself
+  const defs=[]; if(!fyp2Ids(X, {}, defs, L)){ fyp2No(L, 'ref('+FYP2.bad+')'); return; }
+  const ux=Math.min((l-m.e)/m.a, (x2-m.e)/m.a), uy=Math.min((t-m.f)/m.d, (y2-m.f)/m.d), uw=(x2-l)/Math.abs(m.a), uh=(y2-t)/Math.abs(m.d);
+  const doc='<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+W+'" height="'+H+'" viewBox="'+ux+' '+uy+' '+uw+' '+uh+'" preserveAspectRatio="none"><defs>'+defs.join('')+'</defs>'+X+'</svg>', key=fyp2Hash(doc)+'|'+W+'x'+H;
+  const J={ L:L, par:par, kind:kind, tries:tries|0, doc:doc, key:key, W:W, H:H, box:[ux,uy,uw,uh], clip:clip, t:tt, n:FYP2.n }, V=FYP2_PIC.get(key);
+  if(V!==undefined){ FYP2.hit++; J.doc=''; fyp2Set(J, V); return; }
+  for(let i=0;i<L.length;i++) FYP2_PEND.add(L[i]); FYP2_Q.push(J); fyp2Pump(); }
+function fyp2Wake(c, why){ const z=FYP2_Z.get(c); if(!z) return false; try{ const k=(why||'?')+':'+fyp2Lab(z.L[0]); FYP2.wh[k]=(FYP2.wh[k]||0)+1; }catch(e){} try{ for(let i=0;i<z.L.length;i++){ FYP2_Z.delete(z.L[i]); z.L[i].removeAttribute('data-fyp2'); } if(z.im && z.im.parentNode) z.im.parentNode.removeChild(z.im); }catch(e){ FYP2.err++; } FYP2.woke++; return true; }   // the run paints as ever, its picture gone
+function fyp2Runs(){ const S=new Set(); FYP2_Z.forEach(function(z){ S.add(z); }); return Array.from(S); }
+function fyp2WakeAll(){ const L=fyp2Runs(); for(let i=0;i<L.length;i++) fyp2Wake(L[i].L[0], 'all'); return L.length; }
+function fyp2Own(m){ try{ if(m.type==='attributes') return m.attributeName==='data-fyp2' || m.target.getAttribute('data-fyp2')==='b'; if(m.type!=='childList') return false;
+    for(let i=0;i<m.addedNodes.length;i++){ const x=m.addedNodes[i]; if(!(x.nodeType===1 && x.getAttribute('data-fyp2')==='b')) return false; } for(let i=0;i<m.removedNodes.length;i++){ const x=m.removedNodes[i]; if(!(x.nodeType===1 && x.getAttribute('data-fyp2')==='b')) return false; } return true; }catch(e){ return false; } }   // a record this section's own hand made
+function fyp2Hush(){ try{ const mo=FYP.mo; if(!mo) return; const R=mo.takeRecords(), K=[]; for(let i=0;i<R.length;i++) if(!fyp2Own(R[i])) K.push(R[i]); if(K.length) fypSeen(K); }catch(e){ FYP2.err++; } }   // CARD-FYP's watch never hears this section's own writes (what else it had waiting is handed to it now)
+function fyp2Seat(){ let did=0; const L=fyp2Runs();   // the yard's child list changed (CARD-FLY's sort): every picture right after its run again; a run that is no longer side by side, or lost a piece, wakes
+  for(let i=0;i<L.length;i++){ const z=L[i], P=z.L, last=P[P.length-1]; try{ let ok=true; for(let q=0;q<P.length && ok;q++) ok=P[q].isConnected && (!q || P[q-1].nextElementSibling===P[q]);
+      if(!ok){ fyp2Wake(P[0], 'seat'); did=1; }
+      else if(z.im && (z.im.parentNode!==last.parentNode || z.im.previousElementSibling!==last)){ last.parentNode.insertBefore(z.im, last.nextSibling); FYP2.seats++; did=1; } }catch(e){ FYP2.err++; } } return did; }
+function fyp2Seen(recs){ const sv=FYP2.sv, bg=FYP2.bg; if(!sv || !bg) return; const now=performance.now(); let seat=0, all=0, did=0;
+  for(let i=0;i<recs.length;i++){ const m=recs[i]; let t=m.target; try{
+      if(fyp2Own(m)) continue;
+      if(t===sv || t===bg){ if(m.type!=='attributes') seat=1; else if(!(t===bg && m.attributeName==='style')) all=1; continue; }   // the yard's own frame restyled: every piece wakes (a pan, #fortBg's own style, moves the pictures with the yard) · its child list: the seats
+      if(t.nodeType!==1) t=t.parentNode; if(!t || !sv.contains(t)) continue;   // (the fort's signs and buttons)
+      if(m.type==='childList') seat=1; FYP2_HOT.set(t, now);
+      for(let a=t; a && a!==sv; a=a.parentNode){ FYP2_T.set(a, now); if(FYP2_Z.has(a)){ fyp2Wake(a, m.type==='attributes'? m.attributeName : m.type); did=1; } if(a.parentNode===sv && FYP_OFF[a.localName]) all=1; }   // a write inside a sleeping piece: it wakes · the yard's defs touched: every piece wakes
+      if(m.type==='attributes' && !FYP2_SAFE[m.attributeName]){ FYP2_DEEP.set(t, now); if(FYP2_Z.size) FYP2_Z.forEach(function(z, c){ if(c!==t && t.contains(c)){ fyp2Wake(c, 'in:'+m.attributeName); did=1; } }); }   // a class, a style, a state on a node: what sleeps inside it wakes
+    }catch(e){ FYP2.err++; } }
+  if(all){ FYP2.alls++; if(fyp2WakeAll()) did=1; FYP2.n++; }
+  if(seat && fyp2Seat()) did=1;
+  if(did) fyp2Hush(); }
+function fyp2Stir(ev){ try{ const sv=FYP2.sv, t=ev && ev.target; if(!sv || !t || t.nodeType!==1 || !sv.contains(t) || ev.propertyName==='visibility') return;
+    if(ev.type==='animationstart'){ let run=false; try{ const A=t.getAnimations(); for(let i=0;i<A.length;i++) if(A[i].playState!=='paused' && A[i].playState!=='finished' && A[i].playState!=='idle'){ run=true; break; } }catch(e){ run=true; } if(!run) return; }   // a held loop made again (the director re-arms an effect that waits): nothing shows (THE NET in the tick watches it)
+    const now=performance.now(); let did=0; for(let a=t; a && a!==sv; a=a.parentNode){ FYP2_T.set(a, now); if(FYP2_Z.has(a)){ fyp2Wake(a, ev.type); did=1; } } if(did) fyp2Hush(); }catch(e){ FYP2.err++; } }   // a loop or a slide the sheet starts in a sleeping piece
+function fyp2Kind(c, sv, now, B){   // 1 it may sleep · 2 it may sleep if it paints nothing (loops stand held in it) · -1 not as a whole: its still parts, one level down · 0 no
+  if(c.nodeType!==1 || FYP_OFF[c.localName] || c.getAttribute('data-fyp') || c.getAttribute('data-fyp2') || FYP2_NO.get(c)===FYP2.n || FYP2_PEND.has(c)) return 0;
+  if(c.hasAttribute('data-fly') || c.hasAttribute('data-fly-fig') || c.matches(FYP_WALK) || c.querySelector(FYP_WALK)){ FYP2_NO.set(c, FYP2.n); return 0; }   // CARD-FLY's marks · a figure (his picture is a bitmap already, his poses swap)
+  if(B.run.has(c) || B.hot.has(c)) return -1;
+  if(now-(FYP2_T.get(c)||0)<FYP2.quiet) return 0;
+  if(c.parentNode!==sv) for(let a=c.parentNode; a && a!==sv; a=a.parentNode) if(FYP2_DEEP.has(a)) return 0;
+  if(c.localName==='image' || (','+FYP2_ODD+',').indexOf(','+c.localName+',')>=0){ FYP2_NO.set(c, FYP2.n); return 0; }   // a picture stays the yard's own (a bitmap is scaled one way in the yard's paint and another in a canvas: never baked into a run's picture), and so does what a picture cannot carry
+  if(c.querySelector('image,'+FYP2_ODD)) return -1;
+  return B.pau.has(c)? 2 : 1; }
+function fyp2Walk(par, sv, depth, now, B, out){ let run=[]; const flush=function(){ if(run.length){ out.push([run, 1]); run=[]; } };   // inside something that moves, still pieces that stand side by side share one picture; a top-level piece has its own (CARD-FLY sorts them one by one)
+  for(let c=par.firstElementChild; c; c=c.nextElementSibling){ const k=fyp2Kind(c, sv, now, B); if(k===1 && par!==sv){ run.push(c); continue; } flush();
+    if(k>0) out.push([[c], k]); else if(k===-1 && depth<FYP2.deep && c.localName==='g') fyp2Walk(c, sv, depth+1, now, B, out); } flush(); }
+function fyp2Tick(){ FYP2.tid=0; const sv=FYP2.sv; if(!sv || !sv.isConnected || !FYP2.on){ fyp2Down(); return; } let more=false;
+  try{ if(!(document.hidden || (typeof HPA==='object' && HPA && HPA.yard) || FYP_Q.length || FYP.busy)){   // not while the page is away, the yard is held under a card, or CARD-FYP's own pictures are still in the making
+      const now=performance.now(), B={ run:new Set(), pau:new Set(), hot:new Set() }; let did=0;
+      const A=sv.getAnimations({ subtree:true }); for(let i=0;i<A.length;i++){ const t=A[i].effect && A[i].effect.target, st=A[i].playState, S=st==='paused'? B.pau : (st==='running' || st==='pending')? B.run : null; if(!t || !S) continue; for(let a=t; a && a!==sv; a=a.parentNode){ if(S.has(a)) break; S.add(a); } }
+      FYP2_HOT.forEach(function(w, n){ if(now-w>FYP2.hot || !n.isConnected){ FYP2_HOT.delete(n); return; } for(let a=n; a && a!==sv; a=a.parentNode){ if(B.hot.has(a)) break; B.hot.add(a); } });
+      FYP2_DEEP.forEach(function(w, n){ if(now-w>FYP2.hot || !n.isConnected) FYP2_DEEP.delete(n); });
+      FYP2_Z.forEach(function(z, c){ if(z.an && B.run.has(c)){ fyp2Wake(c, 'ran'); did=1; } });   // THE NET: a held loop in a sleeping piece that runs now
+      const out=[]; fyp2Walk(sv, sv, 0, now, B, out); FYP2.scans++; const t0=performance.now(); let i=0; for(;i<out.length;i++){ if(performance.now()-t0>FYP2.slice) break; fyp2Sleep(out[i][0], out[i][1], 0); did=1; } more=i<out.length;
+      if(did) fyp2Hush(); } }catch(e){ FYP2.err++; }
+  FYP2.tid=setTimeout(fyp2Tick, more? FYP2.fast : FYP2.tick); }
+function fyp2Down(){ try{ if(FYP2.mo) FYP2.mo.disconnect(); }catch(e){} FYP2.mo=null; clearTimeout(FYP2.tid); FYP2.tid=0;
+  try{ if(FYP2.sv){ FYP2.sv.removeEventListener('animationstart', fyp2Stir, true); FYP2.sv.removeEventListener('transitionrun', fyp2Stir, true); FYP2.sv.removeEventListener('transitionstart', fyp2Stir, true); } }catch(e){}
+  FYP2.sv=null; FYP2.bg=null; FYP2_Z.clear(); FYP2_HOT.clear(); FYP2_DEEP.clear(); FYP2_Q=[]; }
+function fyp2Bare(){ try{ const bg=document.getElementById('fortBg'); if(!bg) return; const I=bg.querySelectorAll('image[data-fyp2="b"]'); for(let i=0;i<I.length;i++) I[i].parentNode.removeChild(I[i]); const H=bg.querySelectorAll('[data-fyp2]'); for(let i=0;i<H.length;i++) H[i].removeAttribute('data-fyp2'); }catch(e){} }   // anything of this section's taken off the yard that stands (the game's own yard, CARD-FYP's as it shipped)
+function fyp2Lay(ok){   // CARD-FYP just took up a yard (its layers laid, its watch set)
+  if(!ok || !FYP2.on || !FYP.sv || !FYP.bg) return; FYP2.n++; FYP2.sv=FYP.sv; FYP2.bg=FYP.bg; FYP2.why=[];
+  try{ const L=[]; for(let c=FYP2.sv.firstElementChild; c; c=c.nextElementSibling){ if(c.getAttribute('data-fyp')==='0' && FYP_FADE.has(c)){ const k=FYP_KID.get(c); if(k && k.parentNode===FYP.lay) L.push(c); } }   // THE STILL LAYER STAYS STILL: a piece with a loop that CARD-FYP set on the still layer (a wall torch, the king's mark) made that whole layer paint again every frame;
+    const w0=FYP.woke; for(let i=0;i<L.length;i++) if(fypWake(L[i], 'fyp2')){ FYP2.loops++; const c=L[i]; if(c.parentNode===FYP2.sv){ const b=fypRect(c), q=[b[0]-FYP.pad, b[1]-FYP.pad, b[2]+FYP.pad, b[3]+FYP.pad]; FYP_BOX.set(c, q); FYP_PAD.set(c, FYP.pad); fypOver(c, q); } } FYP.woke=w0; }catch(e){ FYP2.err++; }   // it goes back to the yard's own paint by CARD-FYP's own door (and what stands over it with it), where one layer paints again, not two. The sky keeps its stars
+  FYP2.mo=new MutationObserver(fyp2Seen); FYP2.mo.observe(FYP2.bg, { subtree:true, childList:true, attributes:true, characterData:true });
+  FYP2.sv.addEventListener('animationstart', fyp2Stir, true); FYP2.sv.addEventListener('transitionrun', fyp2Stir, true); FYP2.sv.addEventListener('transitionstart', fyp2Stir, true);
+  FYP2.tid=setTimeout(fyp2Tick, FYP2.t0); }
+try{ if(typeof fypLay==='function' && typeof fypDown==='function' && typeof fypBare==='function'){ FYP2.lay0=fypLay; FYP2.down0=fypDown; FYP2.bare0=fypBare;   // CARD-FYP's three doors, wrapped BY NAME (its wrapper of renderFortScene and its net call them by name)
+  fypDown=function(){ try{ fyp2Down(); }catch(e){ FYP2.err++; } return FYP2.down0.apply(this, arguments); };
+  fypBare=function(){ try{ fyp2Bare(); }catch(e){ FYP2.err++; } return FYP2.bare0.apply(this, arguments); };
+  fypLay=function(){ const r=FYP2.lay0.apply(this, arguments); try{ fyp2Lay(r); }catch(e){ FYP2.err++; try{ fyp2Down(); fyp2Bare(); }catch(x){} } return r; }; } }catch(e){}
+(function(){ try{ window.addEventListener('resize', function(){ clearTimeout(FYP2.sizeT); FYP2.sizeT=setTimeout(function(){ try{ if(FYP2.sv){ fyp2WakeAll(); FYP2.n++; fyp2Hush(); } }catch(e){ FYP2.err++; } }, 350); }); }catch(e){}   // the glass changed: every piece wakes and is asked again at its new size
+  try{ if(document.getElementById('fyp2Css')) return; const st=document.createElement('style'); st.id='fyp2Css';
+    st.textContent='#fortBg svg.fhero [data-fyp2="0"],#fortBg svg.fhero [data-fyp2="0"] *{visibility:hidden !important}'   // a sleeping piece is not painted in the yard (it keeps its place and its box there)
+      +'#fortBg svg.fhero image[data-fyp2="b"]{pointer-events:none}';   // its picture, right after it
+    (document.head||document.documentElement).appendChild(st); }catch(e){} })();
+function fyp2Scan(){   // THE CHECK (the rigs'): every sleeping piece unpainted and still, its run's picture seated right after it and undressed; nothing of this section's left over
+  const out={ runs:0, asleep:FYP2_Z.size, pics:0, hidden:0, shown:0, unseated:0, dressed:0, running:0, lost:0, orphans:0, marks:0, rows:[] }, bg=FYP2.bg; if(!bg) return out; const L=fyp2Runs(); out.runs=L.length;
+  for(let i=0;i<L.length;i++){ const z=L[i], P=z.L, last=P[P.length-1]; let n=0; if(z.im) out.pics++; else out.hidden++;
+    for(let q=0;q<P.length;q++){ const c=P[q]; if(!c.isConnected || c.getAttribute('data-fyp2')!=='0' || (q && P[q-1].nextElementSibling!==c)){ out.lost++; continue; } const N=[c].concat(Array.prototype.slice.call(c.getElementsByTagName('*'))); n+=N.length; for(let x=0;x<N.length;x++) if(getComputedStyle(N[x]).visibility!=='hidden'){ out.shown++; break; }
+      try{ const A=c.getAnimations({ subtree:true }); for(let x=0;x<A.length;x++) if(A[x].playState==='running'){ out.running++; break; } }catch(e){} }
+    if(z.im){ if(!z.im.isConnected || z.im.previousElementSibling!==last) out.unseated++; const s=getComputedStyle(z.im), deep=!!(z.im.parentNode && z.im.parentNode.closest && z.im.parentNode.closest('[data-fyp2="0"]')); if(deep) out.nested=(out.nested||0)+1; else if(s.visibility!=='visible' || s.opacity!=='1' || (s.filter && s.filter!=='none') || (s.transform && s.transform!=='none') || (s.mixBlendMode && s.mixBlendMode!=='normal')){ out.dressed++; if(!out.dress) out.dress=fyp2Lab(P[0])+' vis '+s.visibility+' op '+s.opacity+' filter '+s.filter+' tf '+s.transform; } }
+    if(out.rows.length<240) out.rows.push([fyp2Lab(P[0])+(P.length>1? ' x'+P.length : ''), n, z.im? Math.round(z.px) : 0, P[0].parentNode===FYP2.sv? 0 : 1]); }
+  let wait=0; const I=bg.querySelectorAll('image[data-fyp2="b"]'); for(let i=0;i<I.length;i++) if(I[i].getAttribute('visibility')==='hidden') wait++; out.orphans=I.length-out.pics-wait; out.marks=bg.querySelectorAll('[data-fyp2="0"]').length-out.asleep+out.lost;
+  return out; }
+function fyp2Read(o){ o=o||{}; if(o.on!=null){ const v=o.on? 1 : 0; if(v!==FYP2.on){ FYP2.on=v; try{ if(!v){ fyp2WakeAll(); fyp2Hush(); fyp2Down(); fyp2Bare(); } else if(FYP.sv && FYP.sv.isConnected && !FYP2.sv) fyp2Lay(true); }catch(e){ FYP2.err++; } } }
+  ['pad','pad2','min','quiet','tick','slice'].forEach(function(k){ if(o[k]!=null && +o[k]>=0) FYP2[k]=+o[k]; });   // the rigs' dials
+  const U=fyp2Runs(); let pics=0; for(let i=0;i<U.length;i++) if(U[i].im) pics++;
+  const r={ on:FYP2.on, wrapped:!!FYP2.lay0, live:!!(FYP2.sv && FYP2.sv.isConnected), asleep:FYP2_Z.size, runs:U.length, pics:pics, hidden:U.length-pics, slept:FYP2.slept, hid:FYP2.hid, woke:FYP2.woke, made:FYP2.made, hit:FYP2.hit, fail:FYP2.fail, wide:FYP2.wide, seats:FYP2.seats, alls:FYP2.alls, loops:FYP2.loops, scans:FYP2.scans, wait:FYP2_Q.length+FYP2.busy, hot:FYP2_HOT.size, kept:FYP2_PIC.size, dots:FYP2.dots, ms:Math.round(FYP2.ms), why:FYP2.why.slice(), wh:FYP2.wh, err:FYP2.err };
+  if(o.scan){ try{ r.scan=fyp2Scan(); }catch(e){ r.scan={ err:String(e && e.message || e) }; } } return r; }
+try{ if(window.GVT && !GVT.fyp2) GVT.fyp2=fyp2Read; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.fyp2) GVT.fyp2=fyp2Read; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-FYP2 ═══
 // ═══ CARD-BPR THE BANNER'S CIRCLE ALWAYS SHOWS ITS ENEMY · NO WAVE CHIP UNDER IT (sec:CARD-BPR; design/banner-portrait-1104/00-CARD-BPR.md; jumpr 3013, built on Maker 1 as M3013).
 // ISAAC by the jumpr guest link 11/4/2026 20:20 EST (his live switch, card 2277), verbatim: "let's fix this bug on a lot of campaign levels. The right side with the circle previewing the enemy is
 // usually empty. Run an audit and make sure that doesn't happen. Also get rid of the Wave X tab under it. It's kind of a spoiler alert. Fix that empty circle and get rid of the wave indicator.
