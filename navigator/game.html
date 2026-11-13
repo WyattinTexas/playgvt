@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.88","md5":"2762a1d1b4b0b1083aae43d5a49c7ed5","sha":"5cc2ee52cf","at":"2026-11-13T08:51:10Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.89","md5":"75286f579f00d750791f31fee8d65f0b","sha":"f99b9115cc","at":"2026-11-13T09:08:49Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93868,7 +93868,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.88';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.89';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -137341,6 +137341,23 @@ function drawFoe(f){
     cx.fillStyle=k>0.4?'#7FA35C':'#D96A55'; cx.fillRect(f.x-16,f.y-bo,32*k,4);
   }
 }
+// ═══ CARD-DFT A MAN THE GAME DRAWS THROUGH A SECOND CALL IS DRAWN ONCE (jumpr 3302, board J20-3302; design/drawn-twice-1112/00-CARD-DFT.md; the brief: design/paratroopers-land-1112/r3/cards/CARD-DFT-drawn-twice.md, a fault CARD-PTR2 round 3 found on the way) ═══
+// drawFoe above calls drawFoe AGAIN by its global name for two kinds of man: a paper copy (OC-10, the latch OC10_CP) and a sapper (CARD-SF3-C, the latch SKY_SAP_PAINT). The global name is the
+// outermost of the cards' wraps of drawFoe, so for such a man every wrap ran a second time inside its own first run: a lift (the dragon's toss, the kraken's arm, the balloons' float, the band's hop),
+// a tilt (the snappers' leap), a see-through (the cloak), a field (CARD-EC9's y) and a mark (a shadow, the eyes, the clods) were laid twice. A sapper the Dark Dragon tossed hung twice as high as the
+// men beside him, his satchel left on the air below his back.
+// THE CURE (paint only: no number of a fight moves; no line above or below is edited): the game's own painter is kept here, before any card wraps it (CARD-EC9's wrap, the first, is further down).
+// Once the page's whole script has run (every wrap laid) ONE more wrap goes outside them all, and a call that comes while the game's own latch is up for that man (its own second call, nothing else)
+// goes straight to the game's painter: under the canvas and the fields the first pass laid ONCE, his row's own picture, then his satchel or his paper as before. A wrap that guards itself (CARD-GGR's
+// shrink, CARD-PTR2's size) reads the same; every man drawn once, as before, is not touched. A wrap a later card lays at load stays inside this one: it needs no guard of its own for these two men.
+// THE SWITCH: ?dft=0 on a device (gvt_dft '0'; ?dft=1 clears it) = the page as it stood (nothing wrapped). GVT.dft() = the rigs' read; GVT.dft({ on:0|1 }) at run time.
+const DFT={ on:(function(){ try{ const q=/[?&]dft=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dft','0'); else localStorage.removeItem('gvt_dft'); } return localStorage.getItem('gvt_dft')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  base:drawFoe, w:null, n:0, err:0 };   // base = the game's own painter (this line runs before any card's wrap of drawFoe) · w = the outer wrap, once laid · n = the second calls sent straight to the painter
+function dftOuter(o){ return function(f){ if(f && DFT.on===1 && (OC10_CP===f || SKY_SAP_PAINT===f)){ DFT.n++; return DFT.base.call(this, f); } return o.apply(this, arguments); }; }   // the game's own second call for this man: its painter, once; every other call goes on as before
+function dftLay(){ if(DFT.on===1 && !DFT.w){ DFT.w=dftOuter(drawFoe); drawFoe=DFT.w; } }   // outside every wrap laid so far
+setTimeout(function(){ try{ dftLay(); }catch(e){ DFT.err++; }
+  try{ if(window.GVT && !GVT.dft) GVT.dft=function(o){ if(o && o.on!=null){ DFT.on=o.on? 1 : 0; try{ dftLay(); }catch(e){ DFT.err++; } } return { cv:GVT_CV, on:DFT.on, laid:DFT.w? 1 : 0, outer:(DFT.w && drawFoe===DFT.w)? 1 : 0, n:DFT.n, err:DFT.err }; }; }catch(e){} }, 0);   // after the page's whole script: every load-time wrap is inside
+// ═══ END CARD-DFT ═══
 
 // ================= HUD =================
 // (TRAY_ORDER now sits up with VEH_ORDER — the medal case needs it at build time.)
