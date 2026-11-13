@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.97","md5":"94b136b69c9fe14294103de15ace0e85","sha":"a99d74fed1","at":"2026-11-13T13:12:19Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.98","md5":"65ac47ce0044824211070387d2a3098f","sha":"8f20953e31","at":"2026-11-13T13:21:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93893,7 +93893,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.98';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -172614,6 +172614,46 @@ try{ if(typeof buildUnitRim==='function' && !ODL2.b0.ur){ ODL2.b0.ur=buildUnitRi
 function odl2Read(){ let mint=0, asked=0; for(let i=0;i<ODL2.d.length;i++){ const d=ODL2.d[i]; if(d.im) mint++; if(d.asked) asked++; }
   return { on:ODL2.on, live:odl2On(), runs:ODL2.runs, doors:ODL2.doors, asks:ODL2.asks, asked:asked, mint:mint, miss:ODL2.miss, bound:!!(ODL2.b0.ft&&ODL2.b0.fr&&ODL2.b0.ut&&ODL2.b0.ur) }; }
 // ═══ END CARD-ODL-2 ═══
+// ═══ CARD-FFM · THE FIGHT'S FIRST MOMENTS: A DYED PICTURE'S DRAWING IS WRITTEN THE FIRST TIME IT IS DRAWN, NOT ALL AT THE FIGHT'S DOOR (sec:CARD-FFM; design/fight-first-moments-1113/00-CARD-FFM.md;
+//   jumpr 3330, cut by CARD-MGR's landing as its flag MGR-F7). FROM WYATT'S PHONE, 11/12/2026 19:56 EST, verbatim: "We just had our game reset when we were in the middle of a 4v4 game. It was super weird and
+//   went back to the home screen. This is not okay. Audit why this happened, and we need to prevent this from happening in the future." · his rule, 16:39 EST: "Yes fix- and dont ask in these situations."
+// THE CAUSE (the iPhone's engine at his glass, the page's footprint read before and after every call of the fight's door, startBattlefield): each seat's colour gets its dyed set of pictures
+//   (buildUnitTint; on a pale ground buildUnitRim too; a foe's colour buildFoeTint / buildFoeRim), and CARD-ODL-2 runs each set's ORIGINAL builder once under its recorder: every picture's mold dyed,
+//   given Laura's look (lagSpr) and encoded as its data-URL, about 40 a colour, all inside that one call. A 4 v 4 = 8 colours = 320 drawings written at once: the page +186 MB in that call (+14 to +28 MB a
+//   colour; the doors keep 18.6 MB of it, the rest is the writing's own churn, given back late), while a fight draws 18 to 48 of the 320.
+// THE CHANGE: the same doors, in the same order, from the same builder, on the same buckets; a door's drawing is written the first time the door is read: the ORIGINAL builder runs again under CARD-ODL-2's
+//   recorder with every mold but that door's own handed in empty (an empty mold costs nothing: lagSpr hands it back as it is), so the one string it writes is the eager builder's own, byte for byte, and its
+//   decode starts at that same read, as before (undefined until it lands = the shipped fallback). The keys come from one run of the builder with every mold empty. odl2Read's counts keep their meaning.
+// OFF: ?ffm=0 (device key gvt_ffm; ?ffm=1 lifts it) = CARD-ODL-2 exactly as it shipped (also ?odl2=0, which turns CARD-ODL-2 itself off). GVT.ffm() = { on, live, wrapped, keys, made, miss, err, ms }.
+//   New names: FFM, ffmOn, ffmRun, ffmOne, ffmDoor, ffmRead, GVT.ffm, the device key gvt_ffm. WRAPPED BY NAME (the shipped function kept whole, called as it is while the switch is off): odl2Build.
+var FFM={ on:(function(){ try{ const q=/[?&]ffm=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_ffm','0'); else localStorage.removeItem('gvt_ffm'); } return localStorage.getItem('gvt_ffm')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  b0:null, keys:0, made:0, miss:0, err:0, ms:0 };
+function ffmOn(){ return FFM.on===1 && typeof odl2On==='function' && odl2On(); }
+function ffmRun(b0, hex, want){   // the ORIGINAL builder under CARD-ODL-2's own recorder (its fake Image, its amMold seat); every mold but want's handed in EMPTY (want null: every mold): [{k, src}] in the builder's own order
+  const rec=[]; rec.k=null; ODL2.rec=rec; const I0=window.Image, A0=amMold;
+  try{ window.Image=Odl2Fake; amMold=function(k){ rec.k=k; return (want!==null && k===want)? A0.apply(this, arguments) : ''; }; b0.call(null, hex); }
+  catch(e){ FFM.err++; }
+  finally{ window.Image=I0; amMold=A0; ODL2.rec=null; }
+  return rec; }
+function ffmOne(T, b0, hex, k){   // one door's drawing: the bucket lifted for the one run (the builder's own early return reads it), then put back, the same object with its doors
+  const B=T[hex]; let src=null; const t0=performance.now();
+  try{ delete T[hex]; const rec=ffmRun(b0, hex, k); for(let i=0;i<rec.length;i++){ if(rec[i].k===k){ src=rec[i].src; break; } } }
+  finally{ T[hex]=B; FFM.ms+=performance.now()-t0; }
+  return src; }
+function ffmDoor(T, b0, hex, B, k){ const d={ k:k, src:null, im:null, asked:0 }; ODL2.d.push(d);   // CARD-ODL-2's door (odl2Door, its getter and setter as they are), its drawing written at its first read
+  Object.defineProperty(B,k,{ configurable:true, enumerable:true,
+    get:function(){ if(d.im) return d.im; if(!d.asked){ d.asked=1; ODL2.asks++; let src=null; try{ src=ffmOne(T, b0, hex, k); }catch(e){ FFM.err++; } if(src){ FFM.made++; d.src=src; const im=new Image(); im.onload=function(){ d.im=im; ODL2.mint++; }; im.src=src; } else FFM.miss++; } return undefined; },
+    set:function(v){ d.im=v||null; } });
+  ODL2.doors++; }
+try{ if(typeof odl2Build==='function' && !FFM.b0){ FFM.b0=odl2Build;
+    odl2Build=function(T,b0,hex){ if(!ffmOn()) return FFM.b0.apply(this, arguments);
+      if(T[hex]) return b0.call(null, hex);   // the bucket stands: the original's own early return (odl2Build's first line)
+      const rec=ffmRun(b0, hex, null); const B=T[hex]; if(!B) return; ODL2.runs++;   // the builder's keys in its own order, every mold empty: no drawing written yet
+      for(let i=0;i<rec.length;i++){ const r=rec[i]; if(!r.k || !r.src || Object.prototype.hasOwnProperty.call(B,r.k)){ ODL2.miss++; continue; } ffmDoor(T, b0, hex, B, r.k); FFM.keys++; } }; } }catch(e){}
+function ffmRead(){ return { on:FFM.on, live:ffmOn(), wrapped:!!FFM.b0, keys:FFM.keys, made:FFM.made, miss:FFM.miss, err:FFM.err, ms:+FFM.ms.toFixed(1) }; }
+try{ if(window.GVT && !GVT.ffm) GVT.ffm=ffmRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.ffm) GVT.ffm=ffmRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-FFM ═══
 // ═══ CARD-IOT · A MUCH LIGHTER LINE WHERE A BODY PART CROSSES A BODY PART OF THE SAME COLOUR (sec:CARD-IOT; design/interior-outline-test-1016/00-CARD-IOT.md; FROM AL, Wyatt's lead
 // designer, jumpr guest link 10/15/2026 21:59 EDT, verbatim: "lets test out a new rule to the outline pass that if the shape is a body part intersecting another body part of the same color it gets a much
 // lighter interior outline. Can we test on the attached image and also the snake from western world. Also lets try one where (with the same rules) theres no interior outline."). Her two figures, THE WIND-UP
