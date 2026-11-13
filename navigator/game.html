@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.99","md5":"9795db64a591dd61d32c6e64a854fbc7","sha":"3a952e3a78","at":"2026-11-13T13:33:31Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.00","md5":"0f9ab1fc91548ed4c15c687bd61a079e","sha":"22c2efa989","at":"2026-11-13T13:59:00Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -57910,6 +57910,32 @@ META.stripeSeen=Array.isArray(META.stripeSeen)? META.stripeSeen.slice() : [];
   META.bfish={ day: typeof f9.day==='string'? f9.day : '', paid: f9.paid?1:0, smile: f9.smile?1:0 }; })();   // 1163 THE PONDS' FISH THE BONE FISH SMILES: + smile (0/1, ⚑ PF-Q5 it persists) — junk clamps to 0
 (function(){ const l9=META.lake||{};   // CARD-IP THE LAKE FISHES FOREVER — the frozen lake's repeat-catch ledger in the bone fish's shape: { day = the LOCAL calendar day the stars were last paid at the lake, paid } (LAKE_DAILY rolls it FIRST at every repeat cast); junk clamps to the empty ledger; an older client ignores it
   META.lake={ day: typeof l9.day==='string'? l9.day : '', paid: l9.paid?1:0 }; })();
+// ═══ CARD-LPK · A RESEARCH PARKED IN ITS LAST HALF-PERCENT IS NEVER THROWN AWAY (sec:CARD-LPK; design/lab-park-100-1113/00-CARD-LPK.md; jumpr 3331, board J54, lane gvt-p4; found by Maker 1's M3320 on CARD-KOS's road, its side finding KOS-F1, on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card) ═══
+// THE FAULT: labPark (CARD-WW-BENCH) wrote the running job's sheet [id, pct, span] with labPct(), which ROUNDS, so a research parked in its last half-percent (a second part bought, or a parked tile tapped, while it runs) was stored as 100,
+//   and the save's lab rebuild just below keeps a sheet only while its pct is under 100. A start before the bench took the sheet back (CARD-LRS) lost the paid research: not owned, not on the bench, not parked, no star back.
+// NOW, ONE LAW FOR EVERY SHEET THE GAME WRITES: the fraction rounded DOWN, never 100 (CARD-KOS's sheet law; CARD-LF's: leaving and returning never buys a second).
+//   THE PARK: labPark wrapped BY NAME (a declaration of this script, hoisted, so every caller reaches the wrap: the buy door and the open bench's tap on a parked tile). The job's fraction is read before the shipped park clears
+//   its clock; the shipped park runs untouched; the sheet it just wrote takes that number. A job past its due lands as shipped (its own first line); a boom armed keeps the bench as shipped (nothing parked).
+//   THE HEAL, once, here, before the rebuild reads the save (the load line's keepLoad has run: CARD-OTA3's homecoming, CARD-KOS's aside): a sheet of exactly 100 (written before this version, by a phone on an older game, or under
+//   ?lpk=0) is kept as 99: it waits on the park, takes its last 1 % when the bench is free or when he taps it, and lands at the one door (labDueTake). CARD-OTA3's settle reads a parked row by its id: a healed row is never a dropped one.
+// THE SWITCH: ?lpk=0 on a device = the park and the rebuild as shipped (gvt_lpkoff); ?lpk=1 clears it. Zero words, zero css, zero save keys, zero server bytes, zero sw.js. Rig door: lpkRead(). THE UNDO: these lines out (kit/applyLPK.py --undo).
+var LPK={ on:(function(){ try{ const q=/[?&]lpk=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_lpkoff','1'); else localStorage.removeItem('gvt_lpkoff'); } return localStorage.getItem('gvt_lpkoff')==='1'? 0 : 1; }catch(e){ return 1; } })(),
+  n:{ heal:0, park:0, cap:0 }, healed:[], err:0, e:'', old:null };   // the switch · the books: sheets of 100 healed at this start, sheets the park wrote under the law, of them the ones the shipped count would have written at 100 · the ids healed · errors caught · the shipped labPark
+function lpkOn(){ return LPK.on===1; }
+function lpkErr(e){ LPK.err++; LPK.e=String(e && e.message || e).slice(0,200); }
+function lpkFrac(L){ const t=((+L.span>0)? +L.span : labHours(L.job))*3600000; return Math.max(0, Math.min(99, Math.floor(100*(1-(+L.due-Date.now())/t)))); }   // labPct's own count, rounded DOWN and never 100 (a broken clock gives NaN: the caller keeps the shipped number)
+function lpkHeal(l){ let n=0; if(!l || typeof l!=='object' || !Array.isArray(l.park)) return 0;   // the save's own lab: a sheet that reads exactly 100 = a finished research parked in its last half-percent: kept as 99; any other row as it was (the rebuild's own law reads it)
+  for(const p of l.park){ if(Array.isArray(p) && typeof p[0]==='string' && p[0]!==l.job && +p[1]===100){ p[1]=99; LPK.healed.push(p[0]); n++; } }
+  return n; }
+(function(){ if(!lpkOn()) return; try{ LPK.n.heal+=lpkHeal(META.lab); }catch(e){ lpkErr(e); } })();   // THE HEAL, once: META.lab is still the save's own object here (the rebuild below builds the fresh one from it)
+if(typeof labPark==='function'){ LPK.old=labPark;
+  labPark=function(){ const L=META.lab, id=(L && L.job)? L.job : null; let f=NaN;
+    if(lpkOn() && id && Date.now()<+L.due){ try{ f=lpkFrac(L); }catch(e){ lpkErr(e); } }   // read BEFORE the shipped park clears the clock (a job past its due walks the shipped first line: it lands)
+    const r=LPK.old.apply(this, arguments);
+    if(r===true && f>=0 && L.job!==id){ try{ const q=(Array.isArray(L.park)? L.park : []).filter(p=>Array.isArray(p) && p[0]===id).pop(); if(q){ if(+q[1]>=100) LPK.n.cap++; q[1]=f; LPK.n.park++; } }catch(e){ lpkErr(e); } }   // the sheet the shipped park just wrote (its newest row of the id): rounded DOWN, never 100
+    return r; }; }
+function lpkRead(){ const L=(typeof META!=='undefined' && META)? META.lab : null; return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:LPK.on, live:lpkOn()? 1 : 0, key:(function(){ try{ return localStorage.getItem('gvt_lpkoff'); }catch(e){ return null; } })(), n:Object.assign({}, LPK.n), healed:LPK.healed.slice(), err:LPK.err, e:LPK.e, wrapped:(!!LPK.old && labPark!==LPK.old)? 1 : 0, job:L? L.job : null, park:(L && Array.isArray(L.park))? L.park.map(p=>Array.isArray(p)? p.slice() : p) : [] }; }   // the rig door: the read, no writes
+// ═══ END CARD-LPK ═══
 // THE MOD BENCH (v1.22) — nothing to grandfather (no save has ever owned a part),
 // but `enh` is NESTED, so the Object.assign above hands an older profile the
 // DEFAULT object itself and every purchase would write straight into
@@ -93893,7 +93919,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
