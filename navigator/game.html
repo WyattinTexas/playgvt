@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.90","md5":"7bfc1f83fc85f1611c50770404e12d43","sha":"aa20fabf3f","at":"2026-11-13T09:17:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"31.91","md5":"35c560130ad4312cec91b537e72c67d8","sha":"692dab6582","at":"2026-11-13T09:31:48Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93893,7 +93893,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='31.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='31.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -231465,6 +231465,104 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.ldg) GVT.ldg=function(){ const
   return { cv:GVT_CV, v:LDG.v, on:LDG.on, swapped:LDG.swapped, reminted:LDG.reminted, stale:LDG.stale, err:LDG.err, joined:BDH.joined, box:BDH_ART.box, geo:BDH_ART.geo, artIsHers:(BDH_ART.mold===LDG.mold)? 1 : 0,
     molds:ks.map(m=>[m, ldgOurs(IMG[m])? 1 : 0, (IMG[m] && IMG[m].width>0)? 1 : 0, SPRITES_SRC[m]===LDG.mold[m]? 1 : 0]), bmp:Object.keys(LDG.bmp).sort(), lv:LDG.lv, bakes:LDG.bakes, bakeMs:Math.round(LDG.bakeMs), q:LDG.q.length }; }; }catch(e){} }, 0);
 // ═══ END CARD-LDG ═══
+// ═══ CARD-BFI · THE BLUE FIRE INCINERATES, AND STANDS OVER THE MEN IT TOUCHES (sec:CARD-BFI; design/blue-fire-incinerates-1113/00-CARD-BFI.md; jumpr 3323). FROM WYATT'S PHONE (jumpr remote), 11/12/2026 22:13 EST, dictated, verbatim: "The blue fire needs to incinerate and be on a higher layer than units its colliding with" (his screenshot: the Dark Dragon's blue jet painted UNDER the riflemen standing in it). ═══
+// THE CAUSE: sec:CARD-BDH paints his jet (bdhJetDraw) from its wrap of drawUnit, so the jet sat at the DRAGON's depth in draw()'s sort of the figures by y: every man lower on the glass was painted after it, over the fire. The house's other tongue (King Rex's breath) is an fx, over every figure.
+// A · THE JET STANDS OVER THE MEN: inside the figures' pass his jet is OWED, not painted (the canvas transform he was drawn under is kept), and it is painted in draw()'s AIR SEAT (sgrDraw's: after every figure and the shots, under the smoke, the fx, the numbers and the floats). The picture is sec:CARD-BDH's own painter, untouched (the breath on the ground and THE SOAR's falling fire).
+// B · A MAN WHO DIES IN THE FIRE IS INCINERATED: a man on foot who falls while his figure stands in the jet (breathHitsU on the jet's own region: the picture is the hitbox; or THE SOAR's fire spot) does not tip over: a white flash, his own figure as a char silhouette that sinks from the head down, a tongue of the jet's colour (blue white at rank 100, orange with the blue heart below it), embers, and a pile of ash on the floor that fades as the fallen do. Either side, either carpet, his own men too (CARD-RFF).
+//   DRAW ONLY: the three death funnels (hitCheck on the mat, foeFell and knockKill on the rug) run whole; the corpse or the tip-over they laid is taken back and the burn stands in its place. A machine, a boss, a king, a hero, a Sarge, a plush and a flyer keep their own falls; a man who falls outside the jet (the burning lane, THE BURN THAT STAYS) tips over as before.
+// THE SWITCH: ?bfi=0 = the jet at his depth and the tip-over, exactly as v31.85 drew them (this section does nothing) · the device key gvt_bfi · ?bfi=1 clears it. GVT.bfi() = the rigs' read. Reduced motion: the jet still stands over the men (information); the burn is one still beat and the ash. Zero server bytes, zero sw.js, no save key, no wire byte, no new word, no dice.
+const BFI={ v:1, on:(function(){ try{ const q=/[?&]bfi=([01])(?:&|$)/.exec(String(location.search||'')); if(q && q[1]==='0'){ try{ localStorage.setItem('gvt_bfi','0'); }catch(e){} return 0; } if(q){ try{ localStorage.removeItem('gvt_bfi'); }catch(e){} return 1; } return localStorage.getItem('gvt_bfi')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  err:0, seat:0, flush:0, owed:[], ash:[], j0:null, n:{ owed:0, air:0, now:0, burn:0, mat:0, tan:0, own:0 } };
+const BFI_T={ burn:0.9, burnRM:0.4, hold:5, fade:2.5, smoke:2.2, cap:60, sil:2 };   // the dials (s): the burn-up · the same under reduced motion · the ash holds · and fades · its wisp of smoke · the most piles kept · the silhouette's dots a field px
+// ───── WHO BURNS, AND IN WHICH FIRE
+function bfiMan(f){ if(!f || f.jetT>0 || f.falling || f.fellOff || f.burrow) return false; const d=f.def||{}, t=String(f.type||f.k||'');   // a man on foot: never a machine, a boss, a king, a hero, a Sarge, a plush, a flyer (they keep their own falls)
+  if(d.vehicle || d.fly || d.ship || d.hover || d.bubbleOf || d.mine || d.boss || f.boss || f.big || f.side==='nem') return false;
+  if(/^king|sarge|jeep|tank/.test(t) || t==='princess' || t==='jane' || t==='mom' || t==='yeti' || HEROES.indexOf(t)>=0 || TEDDY_CAST[t]) return false;
+  return true; }
+function bfiFire(f){ if(!BDH.joined) return null;   // the dragon whose fire this figure stands in right now (the jet's own wedge, the soar's spot), or null
+  for(const u of S.units){ if(u.type!=='blackdragon' || u.dead || u===f) continue; const A=u.bdh && u.bdh.act; if(!A) continue;
+    if(A.k==='breath'){ if(A.fired && A.kb && breathHitsU(A.kb,f)) return u; }
+    else if(A.k==='soar'){ if(A.fire && Math.hypot(f.x-A.gx,f.y-A.gy)<=BDH_T.soarBeatR+((f.def && f.def.w)||50)*0.3) return u; } }
+  return null; }
+function bfiBurn(x,y,type,img,w,flip,d,lane){ const L=BFI.ash;   // the burn stands where the fall was laid (his own picture, his own width); its dice are his feet (no Math.random: the sim's stream is never drawn from)
+  L.push({ x:x, y:y, type:type, img:img, w:w, flip:!!flip, t0:S.t, cfg:S.cfg, blue:bdhHas(d,100)? 1 : 0, sd:Math.abs(Math.sin(x*12.9898+y*78.233)*43758.5453)%1, sil:null, rim:null, sh:0, ink:0 });
+  if(L.length>BFI_T.cap) bfiFree(L.shift()); BFI.n.burn++; BFI.n[lane]++; }
+function bfiSwap(f,d,lane,fl){ for(let i=S.fx.length-1;i>=0;i--){ const e=S.fx[i];   // the rug: the fresh tip-over at his feet (a man's: a machine's carries its roll) is taken back
+    if(e.k==='fallen' && e.t===0 && e.rot==null && Math.abs(e.x-f.x)<1 && Math.abs(e.y-f.y)<1){ S.fx.splice(i,1); bfiBurn(e.x,e.y,e.type,e.img,e.w,fl,d,lane); return true; } } return false; }
+// ───── THE THREE DEATH FUNNELS, each run whole (the kill, the tag, the purse, the count, the word on the wire are theirs); only the picture of the fall is replaced
+{ const h0=hitCheck; hitCheck=function(f,u){
+    if(!BFI.on || !f || !f.side || f.dead || !(f.hp<=0) || !f.def) return h0.apply(this, arguments);   // the mat's combatant at his zero (every other call passes straight through)
+    let d=null, fl=false; try{ if(bfiMan(f)){ d=bfiFire(f); if(d) fl=!!unitFl(f); } }catch(e){ BFI.err++; d=null; }
+    const r=h0.apply(this, arguments);
+    if(d && f.dead){ try{ const c=S.corpses[S.corpses.length-1]; if(c && c.x===f.x && c.y===f.y && c.type===f.type && !(c.t>0) && c.rot!==3.14){ S.corpses.pop(); bfiBurn(c.x,c.y,c.type,c.img,c.w,fl,d,'mat'); } }catch(e){ BFI.err++; } }
+    return r; }; }
+{ const f0=foeFell; foeFell=function(f,u){
+    if(!BFI.on || !f || S.bf || f.side) return f0.apply(this, arguments);
+    let d=null, fl=false; try{ if(S.foes.indexOf(f)>=0 && bfiMan(f)){ d=bfiFire(f); if(d) fl=!!foeFl(f); } }catch(e){ BFI.err++; d=null; }
+    const r=f0.apply(this, arguments);
+    if(d){ try{ bfiSwap(f,d,'tan',fl); }catch(e){ BFI.err++; } }
+    return r; }; }
+{ const k0=knockKill; knockKill=function(u,quiet){
+    if(!BFI.on || !u || u.dead || quiet) return k0.apply(this, arguments);
+    let d=null, fl=false; try{ if(bfiMan(u)){ d=bfiFire(u); if(d) fl=!!unitFl(u); } }catch(e){ BFI.err++; d=null; }
+    const r=k0.apply(this, arguments);
+    if(d && u.dead){ try{ bfiSwap(u,d,'own',fl); }catch(e){ BFI.err++; } }
+    return r; }; }
+// ───── THE JET IS OWED INSIDE THE FIGURES' PASS, AND PAINTED IN THE AIR SEAT (outside draw()'s pass, or with the switch off, it is painted at once, as shipped)
+BFI.j0=bdhJetDraw;
+bdhJetDraw=function(u){ if(!BFI.on || BFI.flush || !BFI.seat || typeof cx.getTransform!=='function'){ BFI.n.now++; return BFI.j0.apply(this, arguments); }
+  if(!(u && u.bdh && u.bdh.act)) return; const L=BFI.owed, m=cx.getTransform();
+  for(let i=0;i<L.length;i++){ if(L[i][0]===u){ L[i][1]=m; return; } }   // a figure painted twice in one frame owes one jet
+  L.push([u,m]); BFI.n.owed++; };
+function bfiAir(){ const L=BFI.owed; BFI.seat=0;
+  if(L.length){ BFI.flush=1; try{ for(const q of L){ const m=q[1]; cx.save(); try{ cx.setTransform(m.a,m.b,m.c,m.d,m.e,m.f); BFI.j0(q[0]); BFI.n.air++; }catch(e){ BFI.err++; } finally{ cx.restore(); } } } finally{ BFI.flush=0; L.length=0; } }
+  if(BFI.ash.length) bfiBurnDraw(); }
+{ const r0=rbMarksDraw; rbMarksDraw=function(){ const r=r0.apply(this, arguments); if(BFI.on){ try{ BFI.owed.length=0; BFI.seat=1; if(BFI.ash.length) bfiFloor(); }catch(e){ BFI.err++; } } return r; }; }   // draw()'s floor seat, before every figure: the pass begins here, and the ash lies on the floor
+{ const s0=sgrDraw; sgrDraw=function(){ if(BFI.on){ try{ bfiAir(); }catch(e){ BFI.err++; BFI.seat=0; BFI.flush=0; BFI.owed.length=0; } } return s0.apply(this, arguments); }; }   // draw()'s air seat: his jets and the burns, then the smoke and whatever flies
+// ───── THE PICTURES (presentation only: nothing in the fight reads them)
+function bfiSil(e){ if(e.sil!==null) return e.sil; e.sil=0;   // his own figure, twice, once: the picture the fall was laid with, inked as char and inked white hot (source-in), at BFI_T.sil dots a field px
+  try{ const im=e.img, iw=im && (im.width||im.naturalWidth), ih=im && (im.height||im.naturalHeight); if(!(iw>0 && ih>0)) return 0;
+    const w=Math.max(8, Math.min(256, Math.round(e.w*BFI_T.sil))), h=Math.max(8, Math.round(w*ih/iw)), ink=function(col){ const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); g.drawImage(im,0,0,w,h); g.globalCompositeOperation='source-in'; g.fillStyle=col; g.fillRect(0,0,w,h); return c; };
+    e.rim=ink(e.blue? '#F2FAFF' : '#FFF3CF'); e.sh=e.w*ih/iw; e.sil=ink('#17171B'); e.ink=1; }catch(x){ e.sil=0; e.rim=null; BFI.err++; }
+  return e.sil; }
+function bfiFree(e){ for(const c of [e.sil, e.rim]){ if(c && c.width){ try{ c.width=0; c.height=0; }catch(x){} } } e.sil=0; e.rim=null; }   // the burn is over (or the pile is swept): his two inked figures are handed back at once (width 0, CARD-BDR's law: an iPhone keeps a canvas's pixels until then)
+function bfiFloor(){ const L=BFI.ash, T=BFI_T, TB=reducedMotion()? T.burnRM : T.burn, pale=lightField();   // the ash: a low pile where he stood, on the floor (under the fallen and every figure)
+  for(let i=L.length-1;i>=0;i--){ const e=L[i], a=S.t-e.t0; if(e.cfg!==S.cfg || a<0 || a>TB+T.hold+T.fade){ bfiFree(e); L.splice(i,1); } }
+  if(!L.length) return; cx.save();
+  for(const e of L){ const a=S.t-e.t0, g=Math.max(0, Math.min(1, (a-TB*0.3)/(TB*0.7))); if(g<=0) continue;
+    const al=Math.max(0, Math.min(1, (TB+T.hold+T.fade-a)/T.fade)), s=Math.max(0.7, Math.min(1.7, e.w/50))*(0.55+0.45*g), x=e.x, y=e.y+2;
+    cx.globalAlpha=0.3*al; cx.fillStyle=pale? '#3B3F4A' : '#0C0C10'; cx.beginPath(); cx.ellipse(x,y,19*s,6.2*s,0,0,7); cx.fill();   // the scorch under it
+    cx.globalAlpha=0.94*al; cx.fillStyle='#3A3B42'; cx.beginPath(); cx.moveTo(x-13*s,y+1.5*s); cx.quadraticCurveTo(x-9*s,y-4*s,x-3*s,y-6.5*s*g); cx.quadraticCurveTo(x+1*s,y-9*s*g,x+5*s,y-5.5*s*g); cx.quadraticCurveTo(x+10*s,y-3*s,x+13*s,y+1.5*s); cx.quadraticCurveTo(x,y+4.6*s,x-13*s,y+1.5*s); cx.closePath(); cx.fill();   // the pile
+    cx.fillStyle='#74767F'; cx.beginPath(); cx.moveTo(x-6.5*s,y-2.2*s*g); cx.quadraticCurveTo(x-2*s,y-7.4*s*g,x+3.4*s,y-5.6*s*g); cx.quadraticCurveTo(x+0.5*s,y-3.2*s*g,x-6.5*s,y-2.2*s*g); cx.closePath(); cx.fill();   // its lit shoulder
+    cx.fillStyle='#1E1E22'; for(let j=0;j<5;j++){ const q=(e.sd*97+j*0.618)%1, r=(e.sd*53+j*0.382)%1; cx.beginPath(); cx.arc(x+(q-0.5)*30*s, y+(r-0.3)*5*s, (0.8+r*0.9)*s, 0, 7); cx.fill(); }   // the flecks round it
+    if(a<TB+1.4){ cx.globalAlpha=al*Math.max(0, 1-a/(TB+1.4)); cx.fillStyle=e.blue? '#9FD8FF' : '#FFB04A'; for(let j=0;j<3;j++){ const q=(e.sd*41+j*0.618)%1; cx.beginPath(); cx.arc(x+(q-0.5)*14*s, y-(1.5+2.5*((q*7)%1))*s*g, 1.25*s, 0, 7); cx.fill(); } } }   // the last embers in it
+  cx.restore(); }
+function bfiTongue(x,y,bw,H,sway,col){ cx.fillStyle=col; cx.beginPath(); cx.moveTo(x-bw,y); cx.quadraticCurveTo(x-bw*1.15,y-H*0.5,x+sway,y-H); cx.quadraticCurveTo(x+bw*1.15,y-H*0.5,x+bw,y); cx.quadraticCurveTo(x,y+bw*0.5,x-bw,y); cx.closePath(); cx.fill(); }
+function bfiBurnDraw(){ const L=BFI.ash, T=BFI_T, RM=reducedMotion(), TB=RM? T.burnRM : T.burn, pale=lightField();   // the burn-up, over the men and the jet: he flashes white hot, stands as char with a hot rim inside the tongues, sinks from the head down; the embers; then the pile's wisp
+  cx.save();
+  for(const e of L){ const a=S.t-e.t0; if(e.cfg!==S.cfg || a<0) continue; const x=e.x, y=e.y, w=e.w;
+    if(a>=TB){ if(e.sil || e.rim) bfiFree(e); if(RM || a>=TB+T.smoke) continue; const a2=(a-TB)/T.smoke; cx.fillStyle=pale? '#6B6F7A' : '#C9CCD4';
+      for(let j=0;j<3;j++){ const p=(a2*1.3+j/3)%1; cx.globalAlpha=0.24*(1-p)*(1-a2); cx.beginPath(); cx.arc(x+Math.sin(p*5+j*2.1+e.sd*6)*5, y-6-p*34, 3+5*p, 0, 7); cx.fill(); } continue; }
+    const k=a/TB, c=bfiSil(e), h=e.sh||w*1.15, cols=e.blue? ['#2F6FF0','#6FB0FF','#EAF6FF'] : ['#F07A28','#FFB52E','#FFF6D8'];
+    const env=RM? 0.8 : (k<0.16? k/0.16 : k<0.5? 1 : Math.max(0,(1-k)/0.5));   // the tongues: up fast, stand, die down
+    for(let i=0;i<3;i++){ const fl=RM? 1 : 1+0.13*Math.sin(S.t*23+i*2.1+e.sd*9), x0=x+(i-1)*w*0.3, H=h*[0.95,1.38,0.86][i]*env*fl, sw=RM? 0 : Math.sin(S.t*17+i*1.7+e.sd*5)*w*0.08, bw=w*0.22;   // behind him, taller than he is
+      if(H<2) continue; cx.globalAlpha=0.94*Math.min(1,env*1.6); bfiTongue(x0,y+2,bw,H,sw,cols[0]); bfiTongue(x0,y+2,bw*0.68,H*0.74,sw*0.7,cols[1]); bfiTongue(x0,y+2,bw*0.36,H*0.46,sw*0.4,cols[2]); }
+    if(c){ const sy=RM? 1 : (k<0.3? 1 : Math.max(0.08, 1-0.92*Math.pow((k-0.3)/0.7,1.5))), sx=1+(1-sy)*0.25, hot=RM? 0.9 : Math.max(0, 1-k*1.25), ch=RM? 0.92 : (k<0.1? k/0.1 : k<0.74? 1 : Math.max(0,(1-k)/0.26));   // his figure: white hot for a blink, then char with a hot rim; it stands a beat, then sinks from the head down and spreads
+      cx.save(); cx.translate(x,y); if(e.flip) cx.scale(-1,1); cx.scale(sx,sy);
+      if(e.rim && hot>0){ cx.globalAlpha=hot; for(let q=0;q<8;q++) cx.drawImage(e.rim, -w/2+Math.cos(q*0.7854)*1.7, -h+h*0.08+Math.sin(q*0.7854)*1.7, w, h); }
+      cx.globalAlpha=ch; cx.drawImage(c,-w/2,-h+h*0.08,w,h); cx.restore(); }
+    const env2=RM? 0.7 : (k<0.12? 0 : k<0.3? (k-0.12)/0.18 : k<0.7? 1 : Math.max(0,(1-k)/0.3));   // the licks in front of his legs
+    for(let i=0;i<2;i++){ const fl=RM? 1 : 1+0.16*Math.sin(S.t*27+i*3.3+e.sd*11), x0=x+(i? 0.19 : -0.17)*w, H=h*(i? 0.36 : 0.46)*env2*fl, sw=RM? 0 : Math.sin(S.t*19+i*2.9+e.sd*7)*w*0.06, bw=w*0.15;
+      if(H<2) continue; cx.globalAlpha=0.95*Math.min(1,env2*1.5); bfiTongue(x0,y+3,bw,H,sw,cols[0]); bfiTongue(x0,y+3,bw*0.66,H*0.72,sw*0.7,cols[1]); bfiTongue(x0,y+3,bw*0.34,H*0.44,sw*0.4,cols[2]);
+      if(!e.blue && i===0) bfiTongue(x0,y+3,bw*0.3,H*0.3,0,'#3D7BF0'); }   // THE BLUE HEART (Wyatt's round 2 of sec:CARD-BDH) at the root of an orange lick
+    if(!RM){ cx.fillStyle=e.blue? '#CFEAFF' : '#FFD27A';   // the embers rising off him
+      for(let j=0;j<8;j++){ const q=(e.sd*31+j*0.618)%1, r=(e.sd*17+j*0.382)%1; cx.globalAlpha=0.9*(k<0.15? k/0.15 : 1-k); cx.beginPath(); cx.arc(x+(q-0.5)*w*1.1+Math.sin(k*6+j)*4, y-h*(0.2+0.5*r)-k*(34+40*r), Math.max(0.5, 1.9-1.2*k), 0, 7); cx.fill(); } } }
+  cx.restore(); }
+// ───── THE RIG'S DOOR
+setTimeout(function(){ try{ if(window.GVT && !GVT.bfi) GVT.bfi=function(o){ o=o||{}; if(o.on!=null) BFI.on=o.on? 1 : 0;
+  return { cv:GVT_CV, v:BFI.v, on:BFI.on, err:BFI.err, seat:BFI.seat, owed:BFI.owed.length, n:Object.assign({}, BFI.n), t:Object.assign({}, BFI_T),
+    ash:BFI.ash.map(function(e){ return { x:Math.round(e.x), y:Math.round(e.y), type:e.type, w:e.w, flip:e.flip? 1 : 0, blue:e.blue, age:+(S.t-e.t0).toFixed(3), sil:e.ink? 1 : 0, held:(e.sil || e.rim)? 1 : 0 }; }) }; }; }catch(e){} }, 0);
+// ═══ END CARD-BFI ═══
 // ═══ CARD-RLF · THE ROOM IS NEVER LIFTED (sec:CARD-RLF; design/room-never-lifted-1112/00-CARD-RLF.md; built on Maker 1 as M3293, jumpr 3293, Maker 1's flag JGL-F1). FROM WYATT, 11/12/2026, typed on Maker 1, verbatim:
 //   "When juggling the soccer ball, the game is acting remarkably laggy. For having all the files, we really expect a lag-free experience, as what we're really doing here is so simple." · on this flag: "Stop waiting for me. Send."
 // THE CAUSE (CARD-JGL's, read again chip by chip on the iPhone's engine, every room): #roomStage is transformed (the room's fit to the glass), so an html chip INSIDE it whose transform or opacity a CSS animation
