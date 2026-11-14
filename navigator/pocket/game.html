@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.32","md5":"8b2156b3c89b532d1613f109251a4f49","sha":"ecb7cc4dbe","at":"2026-11-14T05:43:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.33","md5":"635d6c6a634676d839f4a4714b64fd5d","sha":"6935cf4abe","at":"2026-11-14T05:55:07Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16539,6 +16539,191 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   var s=document.createElement('script'); s.src=E.src; s.async=true; s.onload=function(){ E.why='loaded'; }; s.onerror=function(){ E.why='error'; };
   E.why='loading'; (document.head || document.documentElement).appendChild(s);
 }catch(e){ E.why='err'; } })();
+</script>
+<script>/* ═══ CARD-AWG-EARLY · THE ATLAS FOR THE WHOLE GAME: EVERY DRAWING THE GAME GIVES AN IMAGE BECOMES A FINISHED PICTURE, AND THE DRAWING IS LET GO (sec:CARD-AWG-EARLY; design/atlas-whole-game-1113/00-CARD-AWG.md; Wyatt 11/13/2026 about 19:50 EST, typed in the session, verbatim: "lets try it. apply the atlas to the whole game. we only have 2 weeks to get everything working perfect; so nows a good time to take a shot") ═══
+   THE FAULT (CARD-ATS's trial, design/sprite-atlas-trial-1113, and this card's rig/exp1): the game makes hundreds of pictures from svg drawings (`img.src = 'data:image/svg+xml…'`: 735 in one Showdown flow, 287 ever drawn),
+     and WebKit keeps every such drawing as a whole document, with its filters' buffers, for the life of the page: also after the game lets the picture go. That is the page's climb to the line where iOS ends it.
+   THE CURE, for every maker at once and with no line of a maker changed: this script stands between the game and the engine where an Image is given a drawing.
+     (1) A drawing this phone has not seen loads EXACTLY AS TODAY. The script notes at which sizes the game draws it; in quiet moments it makes the finished pictures (a PNG at every size drawn, and for a picture never
+         drawn or drawn at other sizes than its own a stand-by copy at its own size, a small figure's also at twice its size), then takes the drawing away from the engine (CARD-PFP's forget) and keeps them on the phone's shelf (IndexedDB gvt_awg, keyed by the drawing's
+         whole address: another colour or a changed drawing is another key).
+     (2) A drawing the shelf holds is never handed to the engine at all: the game's Image answers as loaded (size, complete, onload, decode(), its own address read back) and every draw comes from the finished picture
+         of that size. A size never seen comes from the largest finished picture (the engine's best smoothing) and the exact size is made in the background for the next time.
+     (3) An Image put INTO THE PAGE gets its drawing back and loads as today. Any doubt (no shelf, an error, a picture too large, a drawing that cannot be read back) = today's game for that picture.
+   WebKit only by default (CARD-SRP's rule: every browser on an iPhone, the App Store app, a Mac's Safari). ?awg=0 = off on this device (remembered: gvt_awg '0'); ?awg=1 = on for any engine; ?awg=auto = the rule again.
+     ?atls=0 = no shelf (every start learns again); ?atlc=0 = a drawing is never taken from a live picture (the shelf alone); =1 brings each back. window.__AWG.read() = the rigs' read (GVT.awg once GVT stands).
+   Zero words, css, save keys, server or sw bytes. New names: __AWG, gvt_awg, gvt_awgs, gvt_awgc. Its own <script> BEFORE the game's (buildSprites runs inside the game's script). */
+(function(){
+  var A = window.__AWG = { v:1, on:0, word:'', wk:0, shelf:1, live:1, keys:null, dead:0, db:null, t0:Date.now(), openMs:0, rows:0, err:0, e:'', sc:[],
+    n:{ set:0, thin:0, real:0, pend:0, late:0, conv:0, forgot:0, dom:0, draws:0, exact:0, scaled:0, noted:0, hot:0, jobs:0, rend:0, heal:0, put:0, got:0, miss:0, reads:0, pat:0, bmp:0, clone:0, big:0, bad:0, cut:0 } };
+  function oops(w, x){ A.err++; if(A.e.length < 240) A.e += w + ':' + String((x && x.message) || x).slice(0, 60) + ' '; }
+  try{ var S0 = location.search || '', q = /[?&]awg=(0|1|auto)(?![\w])/.exec(S0);
+    if(q){ if(q[1] === 'auto') localStorage.removeItem('gvt_awg'); else localStorage.setItem('gvt_awg', q[1]); }
+    var w0 = localStorage.getItem('gvt_awg'); A.word = (w0 === '0' || w0 === '1') ? w0 : '';
+    ['s', 'c'].forEach(function(f){ var r = new RegExp('[?&]awg' + f + '=([01])(?![\\w])').exec(S0); if(r){ if(r[1] === '0') localStorage.setItem('gvt_awg' + f, '0'); else localStorage.removeItem('gvt_awg' + f); } });
+    if(localStorage.getItem('gvt_awgs') === '0') A.shelf = 0; if(localStorage.getItem('gvt_awgc') === '0') A.live = 0; }catch(e){ oops('sw', e); }
+  try{ A.wk = /Apple/.test(navigator.vendor || '') ? 1 : 0; }catch(e){}
+  A.on = (A.word === '1') ? 1 : (A.word === '0') ? 0 : A.wk;
+  var d = null; try{ d = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src'); }catch(e){}
+  if(!A.on || !d || !d.set || !d.get || typeof WeakMap !== 'function' || !window.CanvasRenderingContext2D){ A.on = 0; A.read = function(){ return { on:0, word:A.word, wk:A.wk }; }; return; }
+  if(typeof indexedDB === 'undefined') A.shelf = 0;
+  var MAXPX = 4200000, SB_F = 2, SB_PX = 45000, CAP = 2400, PEND_MS = 2500, QUIET = 4000, IDLE = 6000, START = 2500, CALM = 3000, PRE = 'data:image/svg+xml';
+  var H = new WeakMap(), T = {}, Q = [], QL = [], C = [], pumpT = 0, sweepT = 0, lastMint = 0, lastJobMs = 0;
+  var rmAttr = Element.prototype.removeAttribute, clone0 = Node.prototype.cloneNode, getAttr = Element.prototype.getAttribute, hasAttr = Element.prototype.hasAttribute;
+  function hash(s){ var h1 = 0xdeadbeef ^ s.length, h2 = 0x41c6ce57 ^ s.length; for(var i = 0, c; i < s.length; i++){ c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (h2 >>> 0).toString(36) + '.' + (h1 >>> 0).toString(36) + '.' + s.length.toString(36); }
+  function row(k){ return T[k] || (T[k] = { h:k, iw:0, ih:0, r:{}, nr:0, ok:0, bad:0, tried:0, asked:0, draws:{}, nn:0, want:{}, els:[], pend:[], jobs:0, src:null, last:0, sb:0, dirty:0, healing:0 }); }
+
+  // ---- the handle: the game's own Image, answering for a picture the engine does not hold ----
+  var PROPS = ['naturalWidth', 'naturalHeight', 'width', 'height', 'complete', 'decode', 'removeAttribute', 'cloneNode', 'currentSrc', 'getAttribute', 'hasAttribute'];
+  function shadow(img, o){ var t = o.t;
+    var def = function(p, g, s){ Object.defineProperty(img, p, s ? { configurable:true, get:g, set:s } : { configurable:true, get:g }); };
+    def('naturalWidth', function(){ return o.st === 'thin' ? t.iw : 0; }); def('naturalHeight', function(){ return o.st === 'thin' ? t.ih : 0; });
+    def('width', function(){ var a = getAttr.call(this, 'width'); return a != null ? (parseInt(a, 10) || 0) : (o.st === 'thin' ? t.iw : 0); }, function(x){ this.setAttribute('width', x); });
+    def('height', function(){ var a = getAttr.call(this, 'height'); return a != null ? (parseInt(a, 10) || 0) : (o.st === 'thin' ? t.ih : 0); }, function(x){ this.setAttribute('height', x); });
+    def('complete', function(){ return o.st === 'thin' && o.fired === 1; }); def('currentSrc', function(){ return o.v; });
+    Object.defineProperty(img, 'decode', { configurable:true, writable:true, value:function(){ return new Promise(function(res, rej){ var n = 0, look = function(){ var c = H.get(img);
+      if(c !== o){ if(c && c.st === 'real'){ try{ HTMLImageElement.prototype.decode.call(img).then(res, rej); }catch(x){ rej(x); } return; } return c ? rej(new Error('picture changed')) : res(); } if(o.st === 'thin' && o.fired) return res(); if(++n > 400) return rej(new Error('picture not ready')); setTimeout(look, 25); }; look(); }); } });
+    Object.defineProperty(img, 'removeAttribute', { configurable:true, writable:true, value:function(nm){ if(String(nm).toLowerCase() === 'src' && H.get(this) === o) drop(this, o); return rmAttr.apply(this, arguments); } });
+    // the game also reads a picture's address as an ATTRIBUTE (CARD-CFZ decides by it which figure to paint sharp, CARD-SRP which picture to let go): a held picture answers with its drawing's address there too
+    Object.defineProperty(img, 'getAttribute', { configurable:true, writable:true, value:function(nm){ if(H.get(this) === o && String(nm).toLowerCase() === 'src') return o.v; return getAttr.apply(this, arguments); } });
+    Object.defineProperty(img, 'hasAttribute', { configurable:true, writable:true, value:function(nm){ if(H.get(this) === o && String(nm).toLowerCase() === 'src') return true; return hasAttr.apply(this, arguments); } });
+    Object.defineProperty(img, 'cloneNode', { configurable:true, writable:true, value:function(){ var c = clone0.apply(this, arguments); A.n.clone++; try{ if(H.get(this) === o) d.set.call(c, o.v); }catch(e){} return c; } }); }
+  function drop(img, o){ H.delete(img); var t = o.t, i = t.els.indexOf(img); if(i >= 0) t.els.splice(i, 1); i = t.pend.indexOf(img); if(i >= 0) t.pend.splice(i, 1);
+    if(o.sh){ for(var j = 0; j < PROPS.length; j++){ try{ delete img[PROPS[j]]; }catch(e){} } o.sh = 0; } o.st = 'gone'; }
+  function fire(img, o){ setTimeout(function(){ if(H.get(img) !== o || o.st !== 'thin' || o.fired) return; o.fired = 1; try{ img.dispatchEvent(new Event('load')); }catch(e){ oops('ld', e); } }, 0); }
+  function thin(img, t, v, o){ if(!o){ o = { st:'thin', v:v, t:t, fired:0, sh:0 }; H.set(img, o); } else o.st = 'thin'; if(!o.sh){ shadow(img, o); o.sh = 1; } A.n.thin++; fire(img, o); }
+  function pend(img, t, v){ var o = { st:'pend', v:v, t:t, fired:0, sh:0, at:Date.now() }; H.set(img, o); shadow(img, o); o.sh = 1; t.pend.push(img); A.n.pend++;
+    setTimeout(function(){ if(H.get(img) === o && o.st === 'pend'){ A.n.late++; settle(t); } }, PEND_MS); }
+  function real(img, t, v, keep){ var o = { st:'real', v:v, t:t, loaded:0, keep:keep ? 1 : 0, sh:0 }; H.set(img, o); A.n.real++;
+    if(!t.bad && (A.live || A.shelf)){ t.els.push(img);
+      img.addEventListener('load', function(){ if(H.get(img) === o) seen(img, o); });
+      img.addEventListener('error', function(){ if(H.get(img) === o){ t.bad = 1; A.n.bad++; t.els.length = 0; } }); }
+    d.set.call(img, v); }
+  // a live picture has loaded (its load event, or its first draw inside the game's own onload, whichever comes first): its size is the engine's own answer
+  function seen(img, o){ var t = o.t; if(o.loaded) return; o.loaded = 1; if(!t.iw){ t.iw = img.naturalWidth | 0; t.ih = img.naturalHeight | 0; if(!t.iw || !t.ih || t.iw * t.ih > MAXPX){ t.bad = 1; A.n.big++; t.els.length = 0; } }   // a picture this script leaves alone is not held by it either (the game's own let-go frees it, as today)
+    if(!t.bad){ if(!t.last) t.last = Date.now(); if(!t.cq){ t.cq = 1; C.push(t); } kick(); } }
+  // the shelf has answered for this drawing (or will not): every Image waiting on it becomes a handle or loads as today
+  function settle(t){ var P = t.pend; t.pend = []; for(var i = 0; i < P.length; i++){ var img = P[i], o = H.get(img); if(!o || o.st !== 'pend') continue; if(t.ok) thin(img, t, o.v, o); else { drop(img, o); real(img, t, o.v); } } }
+
+  Object.defineProperty(HTMLImageElement.prototype, 'src', { configurable:true, enumerable:true,
+    get:function(){ var o = H.get(this); if(o && o.st !== 'real'){ A.n.reads++; return o.v; } return d.get.call(this); },
+    set:function(v){ var o = H.get(this); if(o) drop(this, o);
+      if(typeof v === 'string' && v.length > 80 && v.lastIndexOf(PRE, 0) === 0 && !this.crossOrigin && !this.isConnected){ var t = null; try{ t = row(hash(v)); }catch(e){ oops('h', e); }
+        if(t){ A.n.set++; lastMint = Date.now();
+          if(t.ok){ thin(this, t, v); return; }
+          if(!t.bad && !t.tried && A.shelf && !A.dead && (A.keys === null || A.keys[t.h])){ pend(this, t, v); if(A.keys) ask(t); return; }
+          real(this, t, v); return; } }
+      d.set.call(this, v); } });
+
+  // ---- a draw: a live picture is noted, a handle is drawn from its finished picture ----
+  function size(ctx, t, a){ var dw, dh; if(a.length >= 9){ dw = a[7] * t.iw / (a[3] || 1); dh = a[8] * t.ih / (a[4] || 1); } else if(a.length >= 5){ dw = a[3]; dh = a[4]; } else { dw = t.iw; dh = t.ih; }
+    var sx = 1, sy = 1; try{ var m = ctx.getTransform(); sx = Math.sqrt(m.a * m.a + m.b * m.b); sy = Math.sqrt(m.c * m.c + m.d * m.d); }catch(e){}
+    var w = Math.round(Math.abs(dw) * sx), h = Math.round(Math.abs(dh) * sy); return [w < 1 ? 1 : w, h < 1 ? 1 : h]; }
+  function note(ctx, o, a){ var t = o.t; if(t.bad || !t.iw) return; var s = size(ctx, t, a), k = s[0] + 'x' + s[1]; t.last = Date.now(); A.n.noted++;
+    if(s[0] !== t.iw || s[1] !== t.ih) t.nn = 1; if(t.draws[k]){ t.draws[k]++; return; } t.draws[k] = 1;
+    if(s[0] * s[1] > MAXPX){ t.bad = 1; A.n.big++; t.els.length = 0; return; } if(!t.r[k]) job(t, s[0], s[1], 0); }
+  function best(t, w, h){ var b = null, bp = 0, big = null, gp = 0; for(var k in t.r){ var im = t.r[k], p = im.naturalWidth * im.naturalHeight; if(p > gp){ gp = p; big = im; }
+      if(im.naturalWidth >= w && im.naturalHeight >= h && (!b || p < bp)){ b = im; bp = p; } } return b || big; }
+  function drawThin(ctx, o, a, di){ var t = o.t, s = size(ctx, t, a), k = s[0] + 'x' + s[1], b = t.r[k], q = null; A.n.draws++; t.last = Date.now();
+    if(!b && t.src && s[0] * s[1] <= MAXPX){ A.n.hot++; if(!t.draws[k]){ t.draws[k] = 1; job(t, s[0], s[1], 0); } var aa = [].slice.call(a); aa[0] = t.src; return di.apply(ctx, aa); }   // its drawing is back with this script (a mend in flight): this size is drawn from the drawing itself, as today, and its finished picture is made
+    if(b) A.n.exact++; else { b = best(t, s[0], s[1]); if(!b) return; A.n.scaled++; if(A.sc.length < 40) A.sc.push(t.iw + 'x' + t.ih + '>' + k + '<' + b.naturalWidth + 'x' + b.naturalHeight); if(!t.want[k] && s[0] * s[1] <= MAXPX){ t.want[k] = 1; heal(t, o.v); }
+      try{ q = ctx.imageSmoothingQuality; if(q && q !== 'high') ctx.imageSmoothingQuality = 'high'; else q = null; }catch(e){ q = null; } }
+    var kx = b.naturalWidth / t.iw, ky = b.naturalHeight / t.ih;
+    try{ if(a.length >= 9) di.call(ctx, b, a[1] * kx, a[2] * ky, a[3] * kx, a[4] * ky, a[5], a[6], a[7], a[8]); else if(a.length >= 5) di.call(ctx, b, a[1], a[2], a[3], a[4]); else di.call(ctx, b, a[1], a[2], t.iw, t.ih); }
+    finally { if(q){ try{ ctx.imageSmoothingQuality = q; }catch(e){} } } }
+  var DI = null;
+  function wrap(P){ if(!P || !P.drawImage) return; var di = P.drawImage; if(!DI) DI = di;
+    P.drawImage = function(img){ var o = (img && typeof img === 'object') ? H.get(img) : undefined; if(!o) return di.apply(this, arguments);
+      if(o.st === 'real'){ try{ if(!o.loaded && img.complete && img.naturalWidth > 0) seen(img, o); if(o.loaded) note(this, o, arguments); }catch(e){ oops('n', e); } return di.apply(this, arguments); }
+      if(o.st === 'thin') return drawThin(this, o, arguments, di); };
+    if(P.createPattern){ var cp = P.createPattern; P.createPattern = function(img){ var o = (img && typeof img === 'object') ? H.get(img) : undefined; if(!o || o.st !== 'thin') return cp.apply(this, arguments);
+      A.n.pat++; var t = o.t, c = document.createElement('canvas'); c.width = t.iw; c.height = t.ih; drawThin(c.getContext('2d'), o, [img, 0, 0, t.iw, t.ih], di); var a = [].slice.call(arguments); a[0] = c; return cp.apply(this, a); }; } }
+  wrap(CanvasRenderingContext2D.prototype); wrap(window.OffscreenCanvasRenderingContext2D && OffscreenCanvasRenderingContext2D.prototype);   // ODV-FLOOR-OK: guarded, only where the engine has it
+  if(window.createImageBitmap){ var cib = window.createImageBitmap;
+    window.createImageBitmap = function(img){ var o = (img && typeof img === 'object') ? H.get(img) : undefined; if(!o || o.st !== 'thin') return cib.apply(this, arguments);
+      A.n.bmp++; var t = o.t, a = arguments, b = best(t, t.iw, t.ih), kx = b.naturalWidth / t.iw, ky = b.naturalHeight / t.ih, sx = 0, sy = 0, sw = t.iw, sh = t.ih, op;
+      if(a.length >= 5){ sx = a[1]; sy = a[2]; sw = a[3]; sh = a[4]; op = a[5]; } else op = a[1];
+      op = Object.assign({}, op || {}); if(op.resizeWidth == null && op.resizeHeight == null){ op.resizeWidth = Math.max(1, Math.round(Math.abs(sw))); op.resizeHeight = Math.max(1, Math.round(Math.abs(sh))); }
+      return cib.call(window, b, sx * kx, sy * ky, sw * kx, sh * ky, op); }; }
+
+  // ---- the finished pictures: made from the live drawing in quiet moments, one at a time ----
+  // the drawing a finished picture is made from: this script's own loaded copy (a mend), or a live Image of the game that still holds it (one the game let go, or gave another picture, is never read)
+  function srcOf(t){ if(t.src) return t.src; for(var i = 0; i < t.els.length; i++){ var e = t.els[i], o = H.get(e); if(o && o.st === 'real' && o.loaded && o.t === t && e.complete && hasAttr.call(e, 'src') && e.naturalWidth === t.iw && e.naturalHeight === t.ih) return e; } return null; }
+  function job(t, w, h, low){ var k = w + 'x' + h; if(t.q && t.q[k]) return; (t.q || (t.q = {}))[k] = 1; t.jobs++; A.n.jobs++; (low ? QL : Q).push([t, w, h]); kick(); }
+  function kick(){ if(!pumpT) pumpT = setTimeout(pump, Math.max(60, lastJobMs * 8, START - (Date.now() - A.t0))); if(!sweepT) sweepT = setTimeout(sweep, 1000); }
+  function pump(){ pumpT = 0; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid){ pumpT = setTimeout(pump, 1000); return; }
+    if(!Q.length && !QL.length) return;
+    // THE CALM RULE: a finished picture is made only while the game is making no new picture (a start, a fight's first seconds, a screen opening are the page's heaviest moments: this work never lands on them),
+    // and only while the drawings already painted for it have been taken from the engine (never more than a handful waiting: each paint holds buffers until its drawing is let go)
+    var nowP = Date.now(), wait = 0; if(nowP - lastMint < CALM) wait = 1; else { for(var ci = 0, held = 0; ci < C.length; ci++){ if(C[ci].nr && !C[ci].jobs && !C[ci].ok && !C[ci].bad && ++held > 6){ wait = 1; break; } } }
+    if(wait){ pumpT = setTimeout(pump, 400); if(!sweepT) sweepT = setTimeout(sweep, 1000); return; }
+    var j = Q.shift() || QL.shift(); var t = j[0], w = j[1], h = j[2], k = w + 'x' + h, t1 = Date.now();
+    var fail = function(why, x){ t.bad = 1; A.n.bad++; t.jobs--; t.els.length = 0; oops(why, x); };
+    var from = t.bad ? null : srcOf(t);
+    if(!from){ t.jobs--; delete t.q[k]; if(!t.bad){ delete t.draws[k]; t.lost = (t.lost | 0) + 1; } }   // the game let this drawing go before its turn came: left to its maker, as today
+    else { try{ var c = document.createElement('canvas'); c.width = w; c.height = h; DI.call(c.getContext('2d'), from, 0, 0, w, h); var u = c.toDataURL('image/png'); c.width = c.height = 0;
+        var b = new Image(); b.onload = function(){ t.r[k] = b; t.nr++; t.jobs--; delete t.q[k]; t.dirty = 1; A.n.rend++; }; b.onerror = function(){ fail('png', 'load'); }; d.set.call(b, u); }catch(e){ fail('job', e); } }
+    lastJobMs = Date.now() - t1; if(Q.length || QL.length) kick(); }
+  function heal(t, v){ if(t.healing || t.bad) return; t.healing = 1; A.n.heal++; var p = new Image();
+    p.onload = function(){ t.src = p; for(var k in t.want){ if(!t.r[k]){ var s = k.split('x'); job(t, +s[0], +s[1], 0); } } if(!t.cq){ t.cq = 1; C.push(t); } kick(); }; p.onerror = function(){ t.healing = 0; }; d.set.call(p, v); }
+  function forget(v){ try{ var k = new Image(); k.loading = 'lazy'; k.crossOrigin = 'anonymous'; d.set.call(k, v); rmAttr.call(k, 'src'); A.n.forgot++; }catch(e){ oops('fg', e); } }   // CARD-PFP's way: the engine's kept copy of a data: drawing is replaced by a load that is cancelled at once
+  // the sweep: a drawing whose finished pictures all stand, and that has been quiet, is taken from the engine; its pictures go on the shelf
+  function sweep(){ sweepT = 0; var now = Date.now(), more = 0;
+    for(var i = C.length - 1; i >= 0; i--){ var t = C[i]; if(t.bad){ C.splice(i, 1); t.cq = 0; t.src = null; continue; }
+      if(t.jobs > 0 || now - t.last < QUIET){ more = 1; continue; }
+      var drawn = 0, k; for(k in t.draws){ drawn = 1; if(!t.r[k]){ job(t, +k.split('x')[0], +k.split('x')[1], 0); } }
+      if((!drawn || t.nn) && !t.sb && srcOf(t)){ if(!drawn && now - t.last < IDLE){ more = 1; continue; }
+        var f = (t.iw * t.ih <= SB_PX) ? SB_F : 1, w = Math.round(t.iw * f), h = Math.round(t.ih * f); t.sb = 1;
+        if(!t.r[t.iw + 'x' + t.ih]) job(t, t.iw, t.ih, 1); if(f > 1.15 && !t.r[w + 'x' + h]) job(t, w, h, 1); }   // the stand-by copies: its own size (the likeliest first draw), and a large one for a draw above it
+      if(t.jobs > 0){ more = 1; continue; } if(!t.nr){ C.splice(i, 1); t.cq = 0; continue; }   // nothing could be made (its drawing was let go): the next live picture of it brings it back here
+      t.ok = 1; if(t.dirty && A.shelf && !A.dead) put(t);
+      var v = null, left = 0, kept = 0, E = t.els.slice();
+      if(A.live){ for(var j = 0; j < E.length; j++){ var img = E[j], o = H.get(img); if(!o || o.st !== 'real'){ var x = t.els.indexOf(img); if(x >= 0) t.els.splice(x, 1); continue; }
+          if(o.keep || img.isConnected){ kept++; continue; } if(!o.loaded){ left++; continue; }
+          v = o.v; try{ rmAttr.call(img, 'src'); o.st = 'thin'; o.fired = 1; shadow(img, o); o.sh = 1; A.n.conv++; }catch(e){ oops('cv', e); } var y = t.els.indexOf(img); if(y >= 0) t.els.splice(y, 1); }
+        if(t.healing && !v && t.src) v = d.get.call(t.src); t.src = null; t.healing = 0; if(v && !left && !kept) forget(v); }
+      else if(t.healing){ var hv = t.src ? d.get.call(t.src) : null; t.src = null; t.healing = 0; if(hv) forget(hv); }
+      if(!left || !A.live){ C.splice(i, 1); t.cq = 0; } else more = 1; }
+    if(more || Q.length || QL.length){ sweepT = setTimeout(sweep, 1000); } }
+
+  // ---- an Image put into the page gets its drawing back (it cannot be drawn there by this script) ----
+  function back(img){ var o = H.get(img); if(!o || o.st === 'real' || o.st === 'gone') return; var t = o.t, v = o.v, was = o.fired; drop(img, o); A.n.dom++;
+    if(was){ var ol = img.onload, oe = img.onerror; img.onload = null; img.onerror = null;   // the game heard this picture load once already: the engine's own load is not told to it a second time
+      var done = function(){ img.removeEventListener('load', done); img.removeEventListener('error', done); if(img.onload === null) img.onload = ol; if(img.onerror === null) img.onerror = oe; };
+      img.addEventListener('load', done); img.addEventListener('error', done); }
+    real(img, t, v, 1); }
+  try{ new MutationObserver(function(ms){ for(var i = 0; i < ms.length; i++){ var a = ms[i].addedNodes; for(var j = 0; j < a.length; j++){ var n = a[j]; if(n.nodeType !== 1) continue;
+      if(n.tagName === 'IMG'){ back(n); continue; } if(n.firstElementChild && n.getElementsByTagName){ var L = n.getElementsByTagName('img'); for(var k = 0; k < L.length; k++) back(L[k]); } } } }).observe(document, { childList:true, subtree:true }); }catch(e){ oops('mo', e); }
+
+  // ---- the shelf (IndexedDB gvt_awg): one row a drawing: its size and its finished pictures ----
+  function shelfDead(w, x){ A.dead = 1; oops(w, x); for(var k in T){ if(T[k].pend.length) settle(T[k]); } }
+  function ask(t){ if(t.asked) return; t.asked = 1; var miss = function(w, x){ t.tried = 1; A.n.miss++; if(x) oops(w, x); settle(t); };
+    try{ var rq = A.db.transaction('p', 'readonly').objectStore('p').get(t.h);
+      rq.onerror = function(){ miss('get', rq.error); };
+      rq.onsuccess = function(){ var R = rq.result; if(!R || !R.iw || !R.ih || !R.r){ miss(); return; } var ks = Object.keys(R.r), left = ks.length, bad = 0; if(!left){ miss(); return; }
+        var fin = function(){ if(--left) return; if(bad || t.ok || t.bad){ if(!t.ok) miss(); else settle(t); return; } t.iw = R.iw; t.ih = R.ih; t.sb = R.sb ? 1 : 0; t.nn = R.nn ? 1 : 0; t.ok = 1; A.n.got++; settle(t); };
+        ks.forEach(function(k){ var b = new Image(); b.onload = function(){ if(!t.ok && !t.r[k]){ t.r[k] = b; t.nr++; } fin(); }; b.onerror = function(){ bad = 1; fin(); }; d.set.call(b, R.r[k]); }); }; }catch(e){ miss('ask', e); } }
+  function put(t){ t.dirty = 0; try{ var R = { h:t.h, iw:t.iw, ih:t.ih, sb:t.sb, nn:t.nn, at:Date.now(), r:{} }; for(var k in t.r) R.r[k] = d.get.call(t.r[k]);
+      var tx = A.db.transaction('p', 'readwrite'); tx.objectStore('p').put(R, t.h); tx.onabort = tx.onerror = function(){ shelfDead('put', tx.error); }; A.n.put++; if(A.keys) A.keys[t.h] = 1; }catch(e){ shelfDead('put', e); } }
+  if(A.shelf){ try{ var rq0 = indexedDB.open('gvt_awg', 1), slow = setTimeout(function(){ if(A.keys === null) shelfDead('open', 'slow'); }, PEND_MS);
+      rq0.onupgradeneeded = function(){ try{ rq0.result.createObjectStore('p'); }catch(e){ oops('up', e); } };
+      rq0.onerror = rq0.onblocked = function(){ clearTimeout(slow); shelfDead('open', rq0.error || 'blocked'); };
+      rq0.onsuccess = function(){ clearTimeout(slow); if(A.dead){ try{ rq0.result.close(); }catch(e){} return; } var db = A.db = rq0.result; db.onversionchange = function(){ try{ db.close(); }catch(e){} A.dead = 1; };
+        try{ var st = db.transaction('p', 'readwrite').objectStore('p'), kq = st.getAllKeys();
+          kq.onerror = function(){ shelfDead('keys', kq.error); };
+          kq.onsuccess = function(){ var K = kq.result || [], o = {}; if(K.length > CAP){ try{ st.clear(); }catch(e){} A.n.cut = K.length; K = []; }   // a shelf grown past its cap (months of changed drawings) is emptied and learned again
+            for(var i = 0; i < K.length; i++) o[K[i]] = 1; A.keys = o; A.rows = K.length; A.openMs = Date.now() - A.t0;
+            for(var k in T){ var t = T[k]; if(!t.pend.length) continue; if(o[k] && !t.tried && !t.bad) ask(t); else settle(t); } }; }catch(e){ shelfDead('keys', e); } }; }catch(e){ shelfDead('open', e); } }
+
+  A.read = function(){ var rows = 0, ok = 0, bad = 0, els = 0, pics = 0, px = 0, pend = 0; for(var k in T){ var t = T[k]; rows++; if(t.ok) ok++; if(t.bad) bad++; els += t.els.length; pend += t.pend.length; pics += t.nr; for(var r in t.r) px += t.r[r].naturalWidth * t.r[r].naturalHeight; }
+    return { v:A.v, on:A.on, word:A.word, wk:A.wk, shelf:A.shelf, live:A.live, dead:A.dead, keys:A.keys ? 1 : 0, shelfRows:A.rows, openMs:A.openMs, rows:rows, ok:ok, bad:bad, liveEls:els, pending:pend, pics:pics, px:px, q:Q.length, ql:QL.length, c:C.length, n:Object.assign({}, A.n), sc:A.sc.slice(), err:A.err, e:A.e }; };
+  A.row = function(v){ var t = T[hash(v)]; return t ? { h:t.h, iw:t.iw, ih:t.ih, ok:t.ok, bad:t.bad, jobs:t.jobs, nn:t.nn, sb:t.sb, draws:Object.assign({}, t.draws), r:Object.keys(t.r), want:Object.keys(t.want), els:t.els.length } : null; };
+  A.nat = d;   // the engine's own src (the rigs' twins check)
+  var gv = 0, gi = setInterval(function(){ try{ if(window.GVT && !GVT.awg){ GVT.awg = function(){ return A.read(); }; clearInterval(gi); } else if(++gv > 120) clearInterval(gi); }catch(e){ clearInterval(gi); } }, 500);
+})();
+/* ═══ END CARD-AWG-EARLY ═══ */
 </script>
 
 <script>
@@ -93993,7 +94178,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.33';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
