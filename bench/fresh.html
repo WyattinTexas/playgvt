@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.44","md5":"f1c5307cdf8d14b7b51f016a6821364b","sha":"509a1377a3","at":"2026-11-14T17:23:30Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.45","md5":"3a46a5281956aeaf75ac23e3b689a4ba","sha":"ea967f6ae3","at":"2026-11-14T18:14:33Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94178,7 +94178,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.44';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.45';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -236033,7 +236033,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.esl2) GVT.esl2=esl2Read; }catc
 // PART 1 THE GUNSHOT ECHO (?wcv=0, gvt_wcv): CARD-WGS's canyon (WGSN: one ConvolverNode per context; WebKit builds two ReverbConvolvers for its mono impulse, 6.5-13.4 MB) was built on the first .44 shot
 //   and kept for the session. Now: built at a fight's door (rugRoom's battle door, one tick later) or by the watch (every half second of a fight) when a .44 can fire there (the player's OUTLAW .44s,
 //   an ally's or the away captain's, a Sarge with BILL'S PISTOL, Bill himself), and let go when the fight is over and its last tail has rung out on the context's own clock (a use outside a fight, the
-//   laser room's preview, 20 s later): cv.buffer = null first (the engine frees the reverb at once), then both nodes off, WGSN.ac / out / cv / ir emptied, so wgsNet builds afresh. wgsPlay still builds
+//   laser room's preview, 20 s later): its reverb freed first (cv.buffer = null in Chrome; a one-frame buffer in WebKit, which ignores null), then both nodes off, WGSN.ac / out / cv / ir emptied, so wgsNet builds afresh. wgsPlay still builds
 //   it on a shot that finds none (CARD-WGS's own road): an echo is never missing, at worst built on a shot as before this card.
 // PART 2 THE THEME AT ZERO (?mzd=0, gvt_mzd): themeDecode's first line asks slgMzdHold: a theme that would play at zero (MUSIC MODE's hush, the HQ mute, the music chip OFF: themeVol's three switches)
 //   is not decoded (26 MB). The hush lifting knocks it back: msmApply (the shell's hint, the MUSIC MODE row) and UI.hqSound knock themeRevive in the menu, and odvThemeTitle at the title when the title
@@ -236076,7 +236076,7 @@ function slgWcvBuild(why){ try{ if(!slgWcvOn() || WGSN.cv || !soundOn) return fa
 }catch(e){ SLG.wcv.err++; return false; } }
 function slgWcvLet(why){ const N=WGSN; if(!N.cv && !N.out) return false; const cv=N.cv, out=N.out;
   N.cv=null; N.out=null; N.ac=null; N.ir={};   // wgsNet builds the next one afresh (its 'a new context = a new clock' line: the crowd law's counts start over, as between two fights they would)
-  try{ if(cv){ try{ cv.buffer=null; }catch(e){} try{ cv.disconnect(); }catch(e){} } }catch(e){}   // the buffer first: the engine frees the whole reverb at once (WebKit's ConvolverNode::setBuffer under its lock)
+  try{ if(cv){ try{ cv.buffer=null; }catch(e){} try{ if(cv.buffer){ const a9=cv.context; cv.buffer=a9.createBuffer(1,1,a9.sampleRate); } }catch(e){} try{ cv.disconnect(); }catch(e){} } }catch(e){}   // the buffer first: Chrome frees the reverb at null; WebKit IGNORES null (the buffer reads back unchanged), so a one-frame buffer takes its place there and the engine frees the old reverb at once (CARD-SLG's fix, v32.41: v32.40 left it to the garbage collector)
   try{ if(out) out.disconnect(); }catch(e){}
   SLG.wcv[why]++; return true; }
 { const w0=wgsPlay; wgsPlay=function(ln, at){ const had=!!WGSN.cv, t0=performance.now(); const r=w0.apply(this, arguments);
