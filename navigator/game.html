@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.27","md5":"0b6c8650e127460120d2b2f41a77877b","sha":"e1f9b7b8d9","at":"2026-11-14T01:09:40Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"32.28","md5":"eab163ee129376c21e23c5d7709b0a5b","sha":"a50472c654","at":"2026-11-14T01:20:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93993,7 +93993,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.27';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.28';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -233722,6 +233722,134 @@ Object.assign(TR["ru"]||(TR["ru"]={}), {"regenerates {0} HP every {1} s": "во�
 Object.assign(TR["es"]||(TR["es"]={}), {"regenerates {0} HP every {1} s": "regenera {0} PS cada {1} s", "+{0}% CRIT chance at night": "+{0}% de probabilidad de CRÍTICO de noche"});
 setTimeout(function(){ try{ if(window.GVT && !GVT.fpe) GVT.fpe=function(){ return { cv:GVT_CV, on:FPE.on, potHp:FPE.potHp, potT:FPE.potT, efCrit:FPE.efCrit, night:fpeNight(), pot:lensLines2('flowerpot'), ef:lensLines2('efhelmet'), stats:{ pot:FPE.stats.pot, err:FPE.stats.err } }; }; }catch(e){} }, 0);   // the rigs' read (no game path calls it)
 // ═══ END CARD-FPE ═══
+// ═══ CARD-KYA · KING YETI'S FIGHT: 5 DOG TAGS LESS A KILL, A TAKEN TURRET KEEPS NOBODY, EVERY CRYSTAL ON ITS OWN COOLDOWN, THE BLUE PIGS COME FROM THE RIGHT OF THE MAP (sec:CARD-KYA; design/king-yeti-adjust-1113/00-CARD-KYA.md;
+// built on Maker 1 in a hand session, account J, branch air/king-yeti-adjust; the Big Mac lands it).
+// FROM WYATT, typed on Maker 1 11/13/2026 about 13:20 EST, verbatim: "Make the following adjustments to the King Yeti fight. This is for all difficulties.
+//   5 less dog tags for each unit you kill.
+//   Adjust system of holding turrets. After a turret is taken, the unit who has taken the turret should now move on, and other units should still continue to pass by the turret if they are nearby. However, upon reaching it, if
+//   it's already yours, they should move on.
+//   King Yeti isn’t using all of his abilities and standing too still. He needs to use each crystal power. That's what King Yeti does. Each power has its own individual cooldown, like a regular Saber Sarge.
+//   King yeti no longer spawns blue pigs; instead they spawn at the right of the map when his ability triggers."
+// 1 · THE DOG TAGS (foeFell wrapped by name, the outermost): in THE ICE CASTLE the dog tag a fallen foe drops is KYA_TAG_CUT (5) smaller than the game minted it (after every multiplier the mint reads: the third act's x1.5, the boosts), never
+//     under 0 (a tag cut to 0 is not dropped). Every kind: the munchkin 6 to 1, the blue pig 10 to 5, the snowman 12 to 7, the big yeti 16 to 11, a sergeant 110 to 105, the king 375 to 370. EASY, MEDIUM, HARD, MEGA and the ULTRA MEGA room.
+// 2 · THE TURRETS (raidHalfPost and raidTick wrapped by name): a taken forward post keeps nobody (CARD-RZB's garrison, 5 points of men standing in the ring, is not read here: its stamps are cleared every frame). The man who took it marches
+//     on the frame it turns ours. A man of the kinds that stood a post who comes within RZB_GAR_R of the ring of a post that is OURS still walks to it (the pass: u.kyaP); the moment he is inside the ring and it is ours he marches on and
+//     that post never calls him again (u.kyaSeen). If it was lost while he walked he takes it back (the shipped retake's steer), then marches on. A pass he cannot finish in KYA_PASS.life s lets him go. EASY .. MEGA (the ULTRA room never
+//     had the garrison). The open post's race, the placed retake, the home turret, the crush: as shipped.
+// 3 · KING YETI'S CRYSTALS (kysKingPost, kysBusy, airMv wrapped by name; the castle's boss king, EASY .. MEGA): CARD-KYS dealt his six crystals one a turn on ONE clock (7.5 s, 6 on HARD and MEGA), so a king who lives 35 s showed
+//     four of them and stood 5 s in his orange channel. Now EACH crystal has its own cooldown, the Saber Sarge's own numbers (TK_CD): RED SEIZE 8 s, BLUE WAVE 10, GREEN VANISH 14, ORANGE CHANNEL 12, TEAL OVERDRIVE 15, SILVER SURGE 12.
+//     Each is cast the moment its cooldown is up and its reason holds (a man in its reach, as before: never on air), the one that has waited longest first, KYA_KING_GAP s (1.5) apart at the least; his first casts come in the hero's
+//     order from the shipped wheel's first step (3.2 s x kyx on the carpet). Only the short acts hold the next cast and his hop (the seize's hold, the wave's front, a swing, the vanish, a dash); the channel, the overdrive and the
+//     surge run on while he hops and casts. THE ORANGE CHANNEL NO LONGER PLANTS HIM (KYA_ORANGE_WALK 1): he and his court mend while he walks. His wheel's summons, his sword, his snowball, his hop: as shipped. Zero dice.
+// 4 · THE BLUE PIGS (kySummon wrapped by name, the outermost): when his piggy flood triggers, the pigs no longer rise beside him: they rise at the right edge of the map (the last KYA_PIG.band px before the east rim, across the middle
+//     lanes) and march in. Their count, their live cap and their bars as shipped (CARD-RZB's). A ring in the pigs' blue on the king says the call. His court (the munchkins) rises as before. EASY .. MEGA and the ULTRA MEGA room.
+// THE SWITCH: ?kya=0 on a device = the castle as it was (gvt_kya), outside rooms; ?kya=1 clears it; a room or a party always runs the new rules (one sim on every seat). GVT.kya() is the rigs' door (GVT.kya({ on:0|1, part:{ tags, posts,
+//   king, pigs }, zero:1 })). THE BOSS LAB: eleven RULES rows under THE ICE CASTLE. No banner, card, word, css, save key, server or sw byte. No new drawing (two rings of light), so no sheet tile.
+// UNDO = kit/applyKYA.py --undo (byte for byte the page before).
+const KYA_ON=(function(){ try{ const q=/[?&]kya=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_kya','0'); else localStorage.removeItem('gvt_kya'); } return localStorage.getItem('gvt_kya')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const KYA_TAG_CUT={ e:5, m:5, h:5, g:5, u:5 };            // 1: dog tags off every fallen foe's tag ("5 less dog tags for each unit you kill"); 0 = as minted
+const KYA_POST_PASS={ e:1, m:1, h:1, g:1 };               // 2: 1 = a taken post keeps nobody, a man who reaches a post that is ours marches on; 0 = CARD-RZB's garrison
+const KYA_PASS={ at:0.9, life:14 };                       //    reached = inside this share of the ring · a pass lets him go after this many s with the post ours
+const KYA_CD_RED={ e:8, m:8, h:8, g:8 };                  // 3: s between two RED SEIZES (TK_CD.red, the Saber Sarge's)
+const KYA_CD_BLUE={ e:10, m:10, h:10, g:10 };             //    BLUE WAVE (TK_CD.blue)
+const KYA_CD_GREEN={ e:14, m:14, h:14, g:14 };            //    GREEN VANISH (TK_CD.green)
+const KYA_CD_ORANGE={ e:12, m:12, h:12, g:12 };           //    ORANGE CHANNEL (TK_CD.orange)
+const KYA_CD_TEAL={ e:15, m:15, h:15, g:15 };             //    TEAL OVERDRIVE (TK_CD.teal)
+const KYA_CD_SILVER={ e:12, m:12, h:12, g:12 };           //    SILVER SURGE (TK_CD.silver)
+const KYA_CD={ red:KYA_CD_RED, blue:KYA_CD_BLUE, green:KYA_CD_GREEN, orange:KYA_CD_ORANGE, teal:KYA_CD_TEAL, silver:KYA_CD_SILVER };   // a cell of 0 = he never casts that crystal
+const KYA_KING_GAP={ e:1.5, m:1.5, h:1.5, g:1.5 };        //    s between two of his powers at the least; 0 = CARD-KYS's one shared clock
+const KYA_ORANGE_WALK={ e:1, m:1, h:1, g:1 };             //    1 = he mends on the move; 0 = the channel plants him (CARD-KYS)
+const KYA_PIG_RIGHT={ e:1, m:1, h:1, g:1, u:1 };          // 4: 1 = the piggy flood rises at the right edge of the map; 0 = beside him
+const KYA_PIG={ in:70, band:140 };                        //    the nearest a pig rises to the east rim, px · the band's width, px
+const KYA={ on:KYA_ON, part:{ tags:1, posts:1, king:1, pigs:1 }, n:{ tagCut:0, tagOff:0, tagZero:0, garOff:0, stamped:0, passed:0, taker:0, retake:0, let:0, kCast:0, kWait:0, kWalk:0, red:0, blue:0, green:0, orange:0, teal:0, silver:0, floods:0, pigs:0 },
+  pay:[], pow:[], pigs:[], wrapped:{}, rows:0, err:0, e:'' };
+function kyaErr(w,e){ KYA.err++; if(KYA.e.length<400) KYA.e+=w+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function kyaParty(){ try{ return !!(S.coop || coopLaunching); }catch(e){ return false; } }
+function kyaRaid(){ try{ const R=S.raid; return (R && R.k==='ice' && R.cfg===S.cfg && !S.bf && S.mode==='play')? R : null; }catch(e){ return null; } }   // THE ICE CASTLE, this battle (safe before the sec runs)
+function kyaLive(){ return !!((KYA.on===1 || kyaParty()) && kyaRaid()); }   // the device's switch, outside rooms; a room or a party always runs the new rules
+function kyaT(C){ const R=kyaRaid(); if(!R) return 0; const v=+C[R.t]; return isFinite(v)? v : 0; }   // this tier's cell (a tier the row lacks: 0 = not this card's)
+// 1 · THE DOG TAGS
+function kyaTagCut(f,n0,cut){ const B=S.blobs; for(let i=n0;i<B.length;i++){ const b=B[i]; if(!b || b.kya || typeof b.v!=='number') continue;   // the tag this fall minted (one a foe)
+    const v0=b.v, v=Math.max(0, Math.round(v0-cut)); b.kya=1; b.kyaWas=v0; b.v=v; KYA.n.tagCut++; KYA.n.tagOff+=v0-v; if(KYA.pay.length<400) KYA.pay.push([f && f.type, v0, v]);
+    if(v<=0){ B.splice(i,1); KYA.n.tagZero++; } return; } }
+{ const f0=foeFell; foeFell=function(f,u){ let n0=-1, cut=0; try{ if(KYA.part.tags && kyaLive()){ cut=kyaT(KYA_TAG_CUT); if(cut>0 && S.blobs) n0=S.blobs.length; } }catch(e){ kyaErr('tag0',e); }
+    const r=f0.apply(this, arguments); if(n0>=0){ try{ kyaTagCut(f,n0,cut); }catch(e){ kyaErr('tag',e); } } return r; }; KYA.wrapped.fell=1; }
+// 2 · THE TURRETS
+function kyaPostOn(){ try{ return !!(KYA.part.posts && kyaLive() && kyaT(KYA_POST_PASS)>0 && rzbIn('ice')); }catch(e){ return false; } }
+function kyaSeen(u,i){ (u.kyaSeen||(u.kyaSeen={}))[i]=1; }
+function kyaPassTick(dt){ const rd=S.raid, R=RAID_CAP_R*KYA_PASS.at;
+  for(const u of S.units){ if(u.rzbPost!=null){ u.rzbPost=null; KYA.n.garOff++; }   // the garrison's stamp is not read here
+    if(u.kyaP==null) continue; const P=rd.posts[u.kyaP]; if(u.dead || !P){ u.kyaP=null; continue; }
+    if(P.o===1){ if(Math.hypot(u.x-P.x,u.y-P.y)<=R){ kyaSeen(u,u.kyaP); if(u.kyaLost) KYA.n.retake++; u.kyaP=null; u.kyaLost=0; KYA.n.passed++; continue; }   // he reached it and it is ours: he marches on
+      u.kyaPT-=dt; if(u.kyaPT<=0){ kyaSeen(u,u.kyaP); u.kyaP=null; u.kyaLost=0; KYA.n.let++; } }   // a pass he cannot finish lets him go
+    else u.kyaLost=1; }   // lost while he walked: he takes it back (raidHalfPost hands it to him below), then marches on
+  rd.kyaGT=(rd.kyaGT||0)-dt; if(rd.kyaGT>0) return; rd.kyaGT=0.5;
+  rd.posts.forEach((P,i)=>{ if(P.o!==1 || P.kyfHome) return;
+    for(const u of S.units){ if(u.dead || u.coopBy || u.kyaP!=null || !RZB_GAR_V[u.type] || u.down || u.dropT>0 || u.falling || (S.drag && S.drag.unit===u) || (u.kyaSeen && u.kyaSeen[i])) continue;
+      const d=Math.hypot(u.x-P.x,u.y-P.y); if(d>RAID_CAP_R+RZB_GAR_R) continue;
+      if(d<=R){ kyaSeen(u,i); KYA.n.taker++; continue; }   // already in the ring of a post that is ours (the man who took it): he marches on
+      u.kyaP=i; u.kyaPT=KYA_PASS.life; u.kyaLost=0; KYA.n.stamped++; } }); }
+{ const h0=raidHalfPost; raidHalfPost=function(u){ if(!kyaPostOn()) return h0.apply(this, arguments);
+    const k=u.rzbPost; u.rzbPost=null; let r=null; try{ r=h0.apply(this, arguments); } finally{ u.rzbPost=k; }   // the shipped order alone: the open post of his half, his placed retake
+    if(r) return r; if(u.kyaP!=null){ const P=S.raid.posts[u.kyaP]; if(P) return P; } return null; }; KYA.wrapped.half=1; }
+{ const t0=raidTick; raidTick=function(dt){ t0.apply(this, arguments); try{ if(kyaPostOn()) kyaPassTick(dt); }catch(e){ kyaErr('pass',e); } }; KYA.wrapped.tick=1; }
+// 3 · KING YETI'S CRYSTALS
+function kyaKingOn(f){ try{ return !!(KYA.part.king && kyaLive() && kysKingOn(f) && kyaT(KYA_KING_GAP)>0); }catch(e){ return false; } }
+function kyaBusy(f){ return !!(f.kkWind>0 || f.kkFl || f.kyTk || f.kyWave || f.kySwing>0 || f.cloakT>0 || f.kysLg); }   // the short acts alone hold the next cast and the hop
+function kyaOk(f,c,m,w){ if(!(kyaT(KYA_CD[c])>0) || !kysCrysOk(f,c,m,w)) return false;
+  if(c==='orange') return !(f.kysChanTo!=null && S.t<f.kysChanTo); if(c==='teal') return !(f.kysOverTo!=null && S.t<f.kysOverTo); if(c==='silver') return !(f.kysSurgeTo>S.t); return true; }   // never over its own running cast
+function kyaKingPost(f,dt){ const list=(KYS.part.crys && kysT(KYS_KING_CRYS))? KYS_CRYS : ['red','blue'], gap=kyaT(KYA_KING_GAP);
+  if(f.kyaCd==null){ f.kyaCd={}; const t0=3.2*(f.kyx||1); KYS_CRYS.forEach((c,i)=>{ f.kyaCd[c]=t0+i*gap; }); f.kyaGapT=0; }   // the first casts in the hero's order, from the shipped wheel's first step
+  kysCrysTick(f,dt);
+  if(f.plWind>0 || f.plT>0) return;   // a leaping king casts nothing
+  for(const c of KYS_CRYS) f.kyaCd[c]-=dt; f.kyaGapT-=dt;   // every cooldown runs on its own
+  if(f.kyaGapT>0 || kyaBusy(f)) return;
+  if(KYS.part.khop && kysT(KYS_KING_HOP)>0 && f.kkT!=null && f.kkT<1.2) return;   // a hop due within 1.2 s goes first (CARD-KYS round 4's law)
+  const m=kysRedMan(f), w=kysBlueMan(f); let pick=null, pv=1e9;
+  for(const c of list){ const cd=f.kyaCd[c]; if(cd>0 || !kyaOk(f,c,m,w)) continue; if(cd<pv){ pv=cd; pick=c; } }   // ready and with a reason: the one that has waited longest
+  if(!pick){ if(!f.kyaWait){ f.kyaWait=1; KYA.n.kWait++; } return; }
+  kysCast(f,pick,m,w); f.kyaCd[pick]=kyaT(KYA_CD[pick]); f.kyaGapT=gap; f.kyaWait=0; KYA.n.kCast++; KYA.n[pick]++;
+  if(KYA.pow.length<400) KYA.pow.push({ t:+(S.t-((S.raid && S.raid.t0)||0)).toFixed(2), tier:(S.raid && S.raid.t)||'', kind:pick, late:+(-pv).toFixed(2) }); }
+{ const p0=kysKingPost; kysKingPost=function(f,dt){ if(!kyaKingOn(f)) return p0.apply(this, arguments); return kyaKingPost(f,dt); }; KYA.wrapped.post=1; }
+{ const b0=kysBusy; kysBusy=function(f){ if(!kyaKingOn(f)) return b0.apply(this, arguments); return kyaBusy(f); }; KYA.wrapped.busy=1; }
+{ const am0=airMv; airMv=function(f,dt){ if(f && f.type==='kingyeti' && f.kysChanTo!=null && S.t<f.kysChanTo){ let on=false; try{ on=kyaKingOn(f) && kyaT(KYA_ORANGE_WALK)>0; }catch(e){ kyaErr('walk',e); }
+      if(on){ const c=f.kysChanTo; f.kysChanTo=null; KYA.n.kWalk++; try{ return am0.apply(this, arguments); } finally{ f.kysChanTo=c; } } }   // the channel does not plant him (the tell, the flight, a dash still do: CARD-KYS's own line)
+    return am0.apply(this, arguments); }; KYA.wrapped.air=1; }
+// 4 · THE BLUE PIGS
+function kyaPigsOn(t){ try{ return !!(t==='bluepig' && KYA.part.pigs && kyaLive() && kyaT(KYA_PIG_RIGHT)>0); }catch(e){ return false; } }
+{ const s0=kySummon; kySummon=function(f,t,n){ if(!kyaPigsOn(t) || !f) return s0.apply(this, arguments);
+    let rz=false, back=0; try{ rz=rzbIn('ice'); if(rz) back=+rzbT(RZB_SUM_BACK)||0; }catch(e){ rz=false; }
+    const at={ id:f.id, x:rz? W-KYA_PIG.in-back-KYA_PIG.band+1 : W-KYA_PIG.in-55, y:(FOE_TOP+FOE_BOT)/2 };   // where the shipped placement reads "him": the east rim (CARD-RZB rises x+back .. +139; the shipped kit x-55 .. +54)
+    const n0=S.foes.length, r=s0.call(this, at, t, n);
+    try{ let k=0; for(let i=n0;i<S.foes.length;i++){ const g=S.foes[i]; if(g && g.type==='bluepig' && g.kySum){ k++; if(KYA.pigs.length<400) KYA.pigs.push([Math.round(g.x), Math.round(g.y), Math.round(f.x)]); } }
+      if(k){ KYA.n.floods++; KYA.n.pigs+=k; S.fx.push({k:'ring',x:f.x,y:f.y-40,r:10,R:70,t:0,dur:0.4,col:'#6FA8DC'}); bfSfx(SFX.blip, f.x, f.y); } }catch(e){ kyaErr('pig',e); }   // the call reads on the king: a ring in the pigs' blue
+    return r; }; KYA.wrapped.sum=1; }
+// THE BOSS LAB (Raziya): eleven rows under THE ICE CASTLE
+function kyaRows(){ if(typeof BLB_RULES==='undefined' || !Array.isArray(BLB_RULES) || typeof blbShip!=='function' || typeof BLB!=='object' || !BLB) return 0; let n=0;
+  const R=[ ['KYA_TAG_CUT', ()=>KYA_TAG_CUT, 'EVERY FALLEN FOE PAYS THIS MANY DOG TAGS LESS (KYA; Wyatt 11/13: 5)', 'ice'], ['KYA_POST_PASS', ()=>KYA_POST_PASS, 'A TAKEN POST KEEPS NOBODY, A MAN WHO REACHES IT MARCHES ON: 1 YES, 0 THE GARRISON (KYA; Wyatt 11/13)', 'ice'],
+    ['KYA_CD_RED', ()=>KYA_CD_RED, "KING YETI: HIS RED SEIZE'S OWN COOLDOWN, S (KYA; the Saber Sarge's)", 'ice'], ['KYA_CD_BLUE', ()=>KYA_CD_BLUE, "KING YETI: HIS BLUE WAVE'S OWN COOLDOWN, S (KYA)", 'ice'],
+    ['KYA_CD_GREEN', ()=>KYA_CD_GREEN, "KING YETI: HIS GREEN VANISH'S OWN COOLDOWN, S (KYA)", 'ice'], ['KYA_CD_ORANGE', ()=>KYA_CD_ORANGE, "KING YETI: HIS ORANGE CHANNEL'S OWN COOLDOWN, S (KYA)", 'ice'],
+    ['KYA_CD_TEAL', ()=>KYA_CD_TEAL, "KING YETI: HIS TEAL OVERDRIVE'S OWN COOLDOWN, S (KYA)", 'ice'], ['KYA_CD_SILVER', ()=>KYA_CD_SILVER, "KING YETI: HIS SILVER SURGE'S OWN COOLDOWN, S (KYA)", 'ice'],
+    ['KYA_KING_GAP', ()=>KYA_KING_GAP, 'KING YETI: S BETWEEN TWO POWERS AT THE LEAST, 0 = ONE SHARED CLOCK AS BEFORE (KYA)', 'ice'], ['KYA_ORANGE_WALK', ()=>KYA_ORANGE_WALK, 'KING YETI: HE WALKS THROUGH HIS ORANGE CHANNEL, 1 YES 0 PLANTED (KYA)', 'ice'],
+    ['KYA_PIG_RIGHT', ()=>KYA_PIG_RIGHT, 'HIS BLUE PIGS RISE AT THE RIGHT EDGE OF THE MAP, 1 YES 0 BESIDE HIM (KYA; Wyatt 11/13)', 'ice'] ];
+  for(const r of R){ if(!BLB_RULES.some(x=>x[0]===r[0])) BLB_RULES.push(r); n++; }
+  blbShip();   // the shipped cells of the eleven rows read once
+  if(typeof blbCellSet==='function' && BLB.booted && BLB.over){ for(const r of R){ const o=BLB.over[r[0]]; if(o) for(const t of Object.keys(o)) blbCellSet(r[0], t, o[t]); } }   // the device's own cells back into the live tables when the lab booted before this sec
+  KYA.rows=n; return n; }
+try{ kyaRows(); }catch(e){ kyaErr('lab',e); }
+function kyaRead(o){ o=o||{}; if(o.on===0 || o.on===1) KYA.on=o.on; if(o.part){ for(const k in o.part){ if(k in KYA.part) KYA.part[k]=o.part[k]? 1 : 0; } }
+  if(o.set){ const T={ KYA_TAG_CUT:KYA_TAG_CUT, KYA_POST_PASS:KYA_POST_PASS, KYA_CD_RED:KYA_CD_RED, KYA_CD_BLUE:KYA_CD_BLUE, KYA_CD_GREEN:KYA_CD_GREEN, KYA_CD_ORANGE:KYA_CD_ORANGE, KYA_CD_TEAL:KYA_CD_TEAL, KYA_CD_SILVER:KYA_CD_SILVER, KYA_KING_GAP:KYA_KING_GAP, KYA_ORANGE_WALK:KYA_ORANGE_WALK, KYA_PIG_RIGHT:KYA_PIG_RIGHT };
+    for(const id in o.set){ if(T[id]) for(const k in o.set[id]) T[id][k]=+o.set[id][k]; } }   // a rig turns a cell (never saved)
+  if(o.zero){ for(const k in KYA.n) KYA.n[k]=0; KYA.pay.length=0; KYA.pow.length=0; KYA.pigs.length=0; KYA.err=0; KYA.e=''; }
+  const R=kyaRaid();
+  return { cv:GVT_CV, on:KYA.on, live:kyaLive()? 1 : 0, party:kyaParty()? 1 : 0, tier:R? R.t : null, part:Object.assign({},KYA.part), n:Object.assign({},KYA.n), err:KYA.err, e:KYA.e, wrapped:Object.assign({},KYA.wrapped), rows:KYA.rows|0,
+    cut:Object.assign({},KYA_TAG_CUT), pass:Object.assign({},KYA_POST_PASS), cd:{ red:Object.assign({},KYA_CD_RED), blue:Object.assign({},KYA_CD_BLUE), green:Object.assign({},KYA_CD_GREEN), orange:Object.assign({},KYA_CD_ORANGE), teal:Object.assign({},KYA_CD_TEAL), silver:Object.assign({},KYA_CD_SILVER) },
+    gap:Object.assign({},KYA_KING_GAP), walk:Object.assign({},KYA_ORANGE_WALK), right:Object.assign({},KYA_PIG_RIGHT), pay:KYA.pay.slice(), pow:KYA.pow.slice(), pigs:KYA.pigs.slice(),
+    men:R? S.units.filter(function(u){ return !u.dead; }).map(function(u){ return { t:u.type, x:Math.round(u.x), y:Math.round(u.y), p:(u.kyaP==null? null : u.kyaP), seen:u.kyaSeen? Object.keys(u.kyaSeen).join('') : '', gar:(u.rzbPost==null? null : u.rzbPost), mv:u.marching? 1 : 0 }; }) : null,
+    posts:(R && R.posts)? R.posts.map(function(P){ return { x:P.x, y:P.y, o:P.o, home:P.kyfHome|0 }; }) : null,
+    lab:(typeof BLB_RULES!=='undefined')? BLB_RULES.filter(function(q){ return /^KYA_/.test(q[0]); }).map(function(q){ return q[0]; }) : null }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.kya) GVT.kya=kyaRead; }catch(e){} },0);   // the rigs' door (GVT is built below)
+// ═══ END CARD-KYA ═══
 // ═══ CARD-KRX2 · THE KING REX FIGHT PATCH: VOLCANIC DIRT, THE LEAP TO THE FAR END, THE TRICERATOPS HITS HARDER, THE LITTLE FIRE DINOS' FIRE AT THEIR SIZE, MEGA PHASE 2's HEALTH (sec:CARD-KRX2; design/king-rex-patch-1113/00-CARD-KRX2.md; jumpr 3349, built on Maker 1 as M3349) ═══
 // FROM WYATT 11/13/2026, typed on the Big Mac, verbatim: "Add the following patch for the King Rex fight. Here are notes." King Rex Changes: "- Change BG color to be more like volcanic dirt" "- During phase 2 transition King rex should
 // Leap in the air and jump to the far end of the screen. Currently he Teleports" "- Triceratops need to hit harder" "- Fire too big from little fire Dinos, needs to look good" "- Mega Phase 2 Rex needs x2 HP on all Hatch Eggs & all hatched
