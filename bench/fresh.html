@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.30","md5":"54ae560b199af0bafc67df09896948c9","sha":"74a4e563a3","at":"2026-11-14T04:52:26Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.31","md5":"f686d89ceb4fba9666b2febb6d9fcdac","sha":"f89d7232db","at":"2026-11-14T05:20:50Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -93993,7 +93993,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.30';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -234021,6 +234021,33 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.krx2) GVT.krx2=function(){ con
     lair:!!(R && R.k==='bone'), tier:R? R.t : null, megaP2:krx2MegaP2(), line:krx2Line(), dials:{ crouch:KRX2.crouch, fly:KRX2.fly, endX:KRX2.endX, line:KRX2.line, wob:KRX2.wob, shove:KRX2.shove, fireSp:KRX2.fireSp, eggX:KRX2.eggX, hatchX:KRX2.hatchX, rexX:KRX2.rexX },
     out:S.foes? S.foes.filter(f=>f.krx2Out).map(f=>({ st:f.krx2Out.st, x:Math.round(f.x), y:Math.round(f.y), z:+(+f.hopZ||0).toFixed(1) })) : [], n:Object.assign({}, KRX2.n), last:KRX2.last, lastT:KRX2.lastT||null, err:KRX2.err, e:KRX2.e }; }; }catch(e){} }, 0);   // the rigs' read (no game path calls it)
 // ═══ END CARD-KRX2 ═══
+// ═══ CARD-KRX2R2 · THE LITTLE FIRE DINOS' FIRE, ROUND 2: EVEN SMALLER, AND AT THE MEN'S BODIES (sec:CARD-KRX2R2; design/king-rex-patch-1113/land-3349m/r2/; jumpr 3349m round 2, board J80-3349m-r2) ═══
+// FROM WYATT 11/13/2026 21:28 EST by phone on Discord (1570988771875225741, a reply to the little fire dino's fire picture after CARD-KRX2 went live in v32.16), verbatim: "Fire Needs to be even smaller and slightly higher up"
+// 1 SMALLER: the dilophosaurus' jet (CARD-KRX2 part 4: Laura's kings' breath G 042 drawn at KRX2.fireSp of the king's spread) narrower again, KRX2.fireSp 0.5 -> KRX2R2.sp, and SHORTER: his reach x KRX2R2.rk (250 -> 190). The
+//   picture's length IS the burn's (Wyatt's hitbox law, 8/20) and the reach IS his aim's range (frng: the pick, the jet's length), so frng is wrapped for a dilo on the rug: he breathes only at a man his fire reaches, and his fire
+//   reaches no further than it is drawn.
+// 2 HIGHER: the jet was aimed at the man's FEET (breathFire: the jaw -> the man's ground point), so the drawn fire ran along the floor under his body. It is aimed at his BODY now, KRX2R2.up px above his feet (14: where the tan
+//   flamethrower's own lick meets a man, ty u.y-14), and its burn tests every man at that same height (breathHitsU at (u.x, u.y-up)): the picture is the burn. The root stays at his open jaws (the shipped breathMo; a root lifted
+//   6 px put the fire on top of his snout).
+// Every dilo on the rug (the lair, the parks, the campaign), on round 1's own seat (krx2FireOn: ?krx2f=0 = the whole fire change off, both rounds); the battleground's hatched dilo keeps its own (nemBreathFire); King Rex's jet,
+// the pets' and every other breath untouched.
+// OFF: ?krx2r=0 on a device (key gvt_krx2r) = round 1 as it went live in v32.16 (KRX2.fireSp 0.5, the reach 250, aimed at the feet); ?krx2r=1 clears. GVT.krx2r() = the rigs' read. No save field, no wire key, no server byte.
+const KRX2R2=(function(){ let on=1; try{ const q=/[?&]krx2r=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_krx2r','0'); else localStorage.removeItem('gvt_krx2r'); }
+    on=localStorage.getItem('gvt_krx2r')==='0'? 0 : 1; }catch(e){ on=1; }
+  return { on:on, sp:0.35, rk:0.76, up:14, sp0:(typeof KRX2==='object' && KRX2)? KRX2.fireSp : null, cur:null, n:{ aim:0, mark:0, rng:0 }, err:0, e:'' }; })();
+function krx2r2Err(w,e){ KRX2R2.err++; if(KRX2R2.e.length<300) KRX2R2.e+=w+':'+String(e && e.message || e).slice(0,80)+' '; }
+function krx2r2On(f){ return !!(KRX2R2.on && typeof krx2FireOn==='function' && krx2FireOn(f)); }   // a dilo on the rug, round 1's fire switch on, this round's on
+if(KRX2R2.on && typeof KRX2==='object' && KRX2) KRX2.fireSp=KRX2R2.sp;   // 1 THE WIDTH: round 1's own dial (her picture's width and the burn wedge together)
+{ const r0=frng; frng=function(f){ const r=r0.apply(this, arguments); try{ if(f && f.type==='dilo' && krx2r2On(f)) return r*KRX2R2.rk; }catch(e){ krx2r2Err('rng',e); } return r; }; }   // 1 THE REACH: his pick's range and his jet's length together
+{ const b0=breathFire; breathFire=function(f,aimM){ if(!(aimM && krx2r2On(f))) return b0.apply(this, arguments);   // 2 THE HEIGHT: the jet aimed at the man's body, its region marked so every beat's test reads the body
+  let r; try{ KRX2R2.cur=f; r=b0.call(this, f, { x:aimM.x, y:aimM.y-KRX2R2.up }); } finally{ KRX2R2.cur=null; }
+  try{ const B=S.breaths||[]; for(let i=B.length-1;i>=0;i--){ if(B[i] && B[i].src===f){ B[i].krx2Up=KRX2R2.up; KRX2R2.n.mark++; break; } } KRX2R2.n.aim++; }catch(e){ krx2r2Err('mark',e); }
+  return r; }; }
+{ const h0=breathHitsU; breathHitsU=function(b,u){ try{ const up=(b && b.krx2Up)? b.krx2Up : ((b && KRX2R2.cur && b.src===KRX2R2.cur)? KRX2R2.up : 0);   // the fire frame's burn runs inside breathFire, before the mark: cur stands for it
+    if(up && u) return h0.call(this, b, { x:u.x, y:u.y-up }); }catch(e){ krx2r2Err('hit',e); } return h0.apply(this, arguments); }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.krx2r) GVT.krx2r=function(){ let key=null; try{ key=localStorage.getItem('gvt_krx2r'); }catch(e){}
+  return { cv:GVT_CV, on:KRX2R2.on, sp:KRX2R2.sp, rk:KRX2R2.rk, up:KRX2R2.up, fireSp:(typeof KRX2==='object' && KRX2)? KRX2.fireSp : null, sp0:KRX2R2.sp0, key:key, n:Object.assign({}, KRX2R2.n), err:KRX2R2.err, e:KRX2R2.e }; }; }catch(e){} }, 0);   // the rigs' read (no game path calls it)
+// ═══ END CARD-KRX2R2 ═══
 // ═══ CARD-PFP · THE PICTURES' FIRST PAINT: A PICTURE THAT IS ABOUT TO GET ITS BITMAP IS NOT PAINTED SOFT FIRST, A DRAWING IS LET GO THE MOMENT ITS BITMAP IS MADE, AND A BITMAP IS KEPT THE MOMENT IT IS MADE (sec:CARD-PFP; design/pictures-first-paint-1113/00-CARD-PFP.md; jumpr 3340, cut by CARD-HVM).
 //   FROM WYATT'S PHONE (jumpr remote 3316, dictated), 11/12/2026 21:20 EST, verbatim: "Please audit. Buffalo Bill's fight ended when, during his horse phase, he still had about 80% health left, but it said we beat him, and it abruptly ended.
 //   Then the app restarted. I was in the bedroom, and then I clicked on the fort, and nothing was happening. Eventually, it teleported me to Promoting My Characters, and then I was back. Please audit and figure out why this
