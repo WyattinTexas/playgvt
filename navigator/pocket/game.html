@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.45","md5":"3a46a5281956aeaf75ac23e3b689a4ba","sha":"ea967f6ae3","at":"2026-11-14T18:14:40Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"32.46","md5":"bc0988322d4bbbfa18dfefbae8a3c462","sha":"65645321e6","at":"2026-11-14T19:26:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94178,7 +94178,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.45';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.46';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -206747,6 +206747,144 @@ function cfoRead(){ const has=function(s){ return (typeof s==='string')? CFO_FAC
 try{ cfoInstall(); }catch(e){ CFO.err++; CFO.miss.push('install!'); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.cfo) GVT.cfo=cfoRead; }catch(e){} }, 0);   // the rig door
 // ═══ END CARD-CFO ═══
+// ═══ CARD-MFN · THE MOLDS A FIGHT NEEDS: A BATTLE MOLD IS HANDED ITS DRAWING WHEN THE GAME FIRST NEEDS IT, NOT ALL FOUR HUNDRED AT THE START (sec:CARD-MFN; design/molds-a-fight-needs-1114/00-CARD-MFN.md; jumpr 3389, cut by CARD-SKP, jumpr 3363).
+//   FROM WYATT'S PHONE (jumpr 3316), 11/12/2026 21:20 EST, verbatim: "Please audit. Buffalo Bill's fight ended when, during his horse phase, he still had about 80% health left, but it said we beat him, and it abruptly ended.
+//   Then the app restarted. I was in the bedroom, and then I clicked on the fort, and nothing was happening. Eventually, it teleported me to Promoting My Characters, and then I was back. Please audit and figure out why this
+//   issue happened, and let's fix it for next time." · his rule of the same day (16:39 EST, typed on Maker 1): "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game"
+// WHY (the record's section 2; the Mac's system WebKit at his glass, the rig's veteran save, client v32.38): buildSprites hands every battle mold its svg drawing at the start, about 400 of them, and the engine keeps each
+//   as a whole document. A veteran's evening (the title, the room, the castle, a campaign fight, Bill's Showdown, a park, the battlefield) READS 42 of them and DRAWS 34; no mold is drawn outside a fight; each fight reads
+//   9 to 23. On a first start (CARD-AWG's shelf cold: every new install, a shelf emptied, a drawing changed) the room 4 s after PRESS START stood at 996 .. 1,105 MB with the molds and 828 .. 931 without them.
+// WHAT:
+//   1 THE START HANDS DRAWINGS ONLY TO THE KEEP: the player's own army (ownedUnits(): the tray, the game's one reader of it; the pet petSel() and every frame of it, MFN.pet; the Emperor's five when he is yours), the toy box, and
+//     what this phone read outside a fight before (learned, gvt_mfnk). buildSprites (the boot's call) walks only those: every other mold is hidden from its walk for that call (CARD-RSQ's way: its SPRITES_SRC key
+//     not enumerable while the call runs) and its IMG key becomes A DOOR.
+//   2 A DOOR HANDS ITS MOLD ITS DRAWING AT THE FIRST READ: the read answers nothing (undefined, as before any mold decoded) and asks; the asks of one moment go together through buildSprites ITSELF (every other
+//     key hidden), so every wrap of it does for the late molds what it does at the boot (CARD-ODE/ODL: her look's door; CARD-BMU: the Emperor's resolution; CARD-HLR-STRAP: the medic's strap; CARD-PCF). One call
+//     flies at a time (buildSprites keeps one count, assetsLeft); a full re-mint asked for meanwhile (the ink flip) runs right after. A write to a door (another card's own mint) is the mold, kept.
+//   3 A FIGHT'S DOOR WARMS ITS ROSTER: startBattle, startMomRaid, startTraining, texStart, startBattlefield, startParkBattle, startRaidBattle, WRAPPED BY NAME: right after each one the molds of the fight's
+//     roster are asked (the army, the pet, every type in S.cfg's waves and its officers, every man and foe already on the field, and what this phone's fights of that kind read before: gvt_mfnr). The first foes
+//     walk on about 10 s after the door: their molds stand by then. spawnFoe and placeUnit ask a type that comes outside the roster (the backstop); a lobby (a raid's, a park's map, the War Table) warms its kind's SEED and what its fights read before.
+//   4 WHAT THE PHONE LEARNS: a read that found nothing outside a fight joins the keep (MFN_CAP.k, newest kept); one inside a fight joins that kind's roster (MFN_CAP.r, MFN_CAP.kinds). Never a drawing, only names.
+// WHERE: WebKit (his iPhone, the App Store app, every browser on an iPhone, a Mac's Safari), the engine that keeps the drawings. On Chrome, Android and the desktops buildSprites runs as shipped.
+// HOW: buildSprites, bmuLate, drawSprite (a blank draw counted), the seven fight doors, spawnFoe, placeUnit, openRaidScene, openParkScene and openWarTable WRAPPED BY NAME, seated right before the boot's own call of buildSprites (a wrap after it
+//   would come too late: the boot hands the drawings while the script runs). No shipped line changes. Zero words, css, server or sw bytes; two device keys (names only). Every mold is the drawing it was: no tile.
+// Switches: ?mfn=0 = the whole section off on this device (gvt_mfn '0'): buildSprites hands every mold its drawing at the start as before · ?mfn=1 = on, on any engine (the rigs' second engine) · ?mfn=auto = the rule
+//   again · ?mfnl=0 = nothing learned or read back (gvt_mfnl '0'), =1 again. GVT.mfn() = the rigs' read ({ ask:[keys] } asks · { warm:1 } warms the fight's roster · { all:1 } asks every mold left).
+// FOR LATER CARDS: a card that adds a mold BEFORE this seat gets a door like the rest (its first read hands it its drawing); a card that READS IMG[k] at the boot to make something of it (CARD-BMU's look-back, CARD-HLR-
+//   STRAP's strap) is served late through buildSprites' own done-hooks, so it runs again for every late mold: a NEW done-hook on buildSprites is called after every late call, so it must take a call that minted only a
+//   few molds (CARD-ODE's odeMintAll, CARD-BMU's bmuLate and CARD-HLR-STRAP's hlrsImgs already do). A NEW fight door wraps its door's end with mfnWarm('door'). A NEW PET's frames are found by MFN.pet
+//   off PET_MOLD_OF (frame -> pet, the game's own map) and PET_BOX: a pet frame named in neither is asked only when first read. A rig that must see every mold at the start: ?mfn=0.
+var MFN={ on:(function(){ try{ var q=/[?&]mfn=(0|1|auto)(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='auto') localStorage.removeItem('gvt_mfn'); else localStorage.setItem('gvt_mfn', q[1]); } var v=localStorage.getItem('gvt_mfn'); if(v==='0') return 0; if(v==='1') return 1; }catch(e){} try{ return /Apple/.test(navigator.vendor||'')? 1 : 0; }catch(e){ return 0; } })(),
+  l:(function(){ try{ var q=/[?&]mfnl=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_mfnl','0'); else localStorage.removeItem('gvt_mfnl'); } return localStorage.getItem('gvt_mfnl')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  armed:0, keep:null, def:{}, got:{}, q:{}, tries:{}, at:{}, lat:[], fly:0, tq:0, batch:null, later:[], kind:null, lq:null, lt:0, tick:0, f:{},   // the keep · the doors · the molds landed · the asks waiting · the batches a mold flew in · when it was asked · ask-to-land ms · the call in flight · its timer · the late call's keys · full calls waiting · the fight's kind · what is to be learned · its timer · the owner's look · the wrapped doors
+  n:{ keep:0, def:0, foreign:0, asks:0, batches:0, jobs:0, land:0, miss:0, play:0, blank:0, warm:0, spawn:0, lobby:0, empty:0, later:0, gave:0, own:0, learnK:0, learnR:0, saves:0 },
+  miss:{}, playMiss:{}, blanks:{}, err:0, e:'' };
+const MFN_CAP={ k:64, r:48, kinds:24, tries:3 };   // the learned keep's names (newest kept) · a fight kind's roster · the kinds remembered · the late calls a mold is given before it is left as the boot would have left it
+// THE SEED: per fight kind, the molds its fights draw beyond its waves (the creatures a door places at once, a raid's specials, the battlefield's other armies): read off the build itself playing every
+//   fight kind once on the build's probe page, each fight under its own mark (rig/flow-doors.js, rig/probeIMG.js; kit/mkseed2.py writes this line: a kind's seed = every mold behind a door its fights read;
+//   the campaign's = what it reads in the first 3 s after its door). A raid's, a park's and the battlefield's are asked when its LOBBY opens (the wait before the fight), every
+//   kind's at its door. A kind not here (a new fight) is learned on this phone at its first play (gvt_mfnr) and served from its second.
+const MFN_SEED=/*SEED*/{"bf":["aagun","bazooka","bfjeep","bftank","cksnake","commando","dogfighter","fairyally","flame","frogpally","gknightally","grenadier","jane","jeep2","jeep3","kbcannon","kbcavalry","kbguard","kingbear","kingcroak","kingcroaklil","kingrex","kingyeti","medic","merlin","mgunner","minesweeper","mortar","pfrogally","princess","radioman","rifleman","sarge","slush","spy","tank2","tank3","wlady"],"camp":["dummy","larson18","tancommanderb","tanradio","tanrifle","tansarge","tanspy"],"mom":["mom","momA","momAs","momB","momBs"],"park:dino":["bdino","dilo","eggling","kingrex","ptero","sdino","trike"],"park:moon":["fairy","gknight","gnome","gnomebrace","gnomecharge","gsage","gslinger","hornet","wasp","waspclimb","waspdive","waspfall","waspsting","waspwing","wnest","wnestrelease"],"park:nut":["tanflame","tanmg","tanmortar","tanrifle","tansarge","tanshotgun","tansniper"],"park:teddy":["tchargerlevel","tchargerrear","tcub","tcublead","tduke","tdukeup","tguard","tguardsalute","tguardtat","tprince","tsnugg","tsnuggslip"],"park:turkey":["bigtom","bigtomfly","blunder","hen","henfly","jake","pilgrim","turkey","turkeyfly"],"park:western":["wbandit","wmouse","wrider","wsnake","wsniper","wteddy"],"park:yeti":["bluepig","byeti","kingyeti","kingyetihurl","kingyetihurt","kingyetistompa","kingyetistompb","kingyetiswinga","kingyetiswingb","kingyetiwave","snowfig","syeti"],"raid:bbs":["bbill","stampb","tancommando","wmouse","wrider","wsnake"],"raid:bone":["bdino","dilo","eggling","kingrex","ptero","sdino","spitter","stego","trike"],"raid:caves":["cyeti","dyeti","fyeti","hyeti","lyeti","snapper","tancommanderb"],"raid:croak":["jane","janezip","stamph","wbandit","wlady","wsnake","wsniper"],"raid:fields":["bearnaparte","bearnaparteup","tcannon","tcavalry","tchargerlevel","tcub","tcublead","tguard","tguardbear","tguardbearsalute","tguardbeartat","tpara","troyal","troyalcharge","troyoff","troyoffcall","tsnugg","tsnuggslip"],"raid:gmy":["mummedic","mumrifle","pumpsarge","witchpet","witchpetfrog"],"raid:ice":["bluepig","byeti","fyeti","kingyeti","sgtcold","sgtsnow","snowfig","syeti","tancommanderb"],"raid:palace":["fairy","fbubble","gknight","gnome","gnomebrace","gnomecharge","gsage","gslinger","hornet","pfrog","wasp"],"raid:sky":["skyfighter","skyfort","skyfortbay","skyship","skyshipdoor","tanrifle","tansniper"],"raid:sweets":["tanflame","tanmg","tanmortar","tansarge","tanshotgun"],"raid:xmasbox":["snowfig","syeti"],"train":["dummy"]}/*END SEED*/;
+function mfnOops(w, x){ MFN.err++; if(MFN.e.length<240) MFN.e+=w+':'+String((x && x.message) || x).slice(0, 60)+' '; }
+function mfnLS(k){ if(!MFN.l) return null; try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
+function mfnKind(){ try{ return S.bf? 'bf' : S.raid? 'raid:'+S.raid.k : S.park? 'park:'+S.park.id : S.momRaid? 'mom' : S.rival? 'rival' : S.training? 'train' : (S.cfg && S.cfg.tex)? 'tex' : 'camp'; }catch(e){ return 'camp'; } }
+function mfnPlay(){ try{ return S.mode==='play'; }catch(e){ return false; } }
+// ───── 1 · THE KEEP, AND THE DOORS (the boot's call of buildSprites)
+function mfnOwn(K){   // the player's own army: the tray (ownedUnits), the pet and every frame of it (MFN.pet), the Emperor's family when he is yours
+  try{ const L=ownedUnits(); for(let i=0;i<L.length;i++) K[L[i]]=1; }catch(e){ MFN.n.own++; mfnOops('own', e); try{ for(const k of TRAY_ORDER) K[k]=1; for(const k of (META.unlocked||[])) K[k]=1; for(const k of HEROES) K[k]=1; for(const k of ['medic','grenadier','spy','dogfighter']) K[k]=1; }catch(x){} }   // the tray could not be read: every kind it could hold
+  try{ const p=petSel(); if(p) MFN.pet(p, K); }catch(e){ mfnOops('pet', e); }
+  try{ if(K.kingbear) for(const k in BMU_KEYS) K[k]=1; }catch(e){}
+  return K; }
+MFN.pet=function(p, K){   // a pet and EVERY frame its painter reads (petImg: IMG[k + pose]): PET_BOX's keys that start with its name, and PET_MOLD_OF's own map of frame -> pet (Francis's six, Merlin's raise,
+  // the coyote's run, Patch's stitch). Found 11/14 13:44 by this card's Chrome battery: a battleground commander dealt Francis read francisblock, francis2 and francisdown before they stood (PET_BOX has none of his)
+  if(typeof p!=='string' || !p) return K; K[p]=1;
+  try{ for(const k in PET_BOX) if(k.lastIndexOf(p, 0)===0) K[k]=1; }catch(e){}
+  try{ for(const k in PET_MOLD_OF) if(PET_MOLD_OF[k]===p) K[k]=1; }catch(e){}
+  return K; };
+function mfnKeepSet(){ const K=mfnOwn({ toybox:1, fyeti:1 });   // the toy box (every fight's first frame) and fyeti (CARD-FYM's drawSprite wrap looks at it on every draw)
+  const L=mfnLS('gvt_mfnk'); if(Array.isArray(L)) for(let i=0;i<L.length;i++) if(typeof L[i]==='string') K[L[i]]=1; return K; }
+function mfnDoor(k){ try{ Object.defineProperty(IMG, k, { configurable:true, enumerable:false,   // not enumerable: Object.keys(IMG) and for-in see no mold before its drawing, as before
+    get:function(){ mfnMiss(k); mfnAsk(k); return undefined; },
+    set:function(v){ mfnLand(k, v); } }); return true; }catch(e){ mfnOops('door', e); return false; } }
+function mfnArm(){ MFN.armed=1; const K=MFN.keep=mfnKeepSet();
+  for(const k in SPRITES_SRC){ if(typeof SPRITES_SRC[k]!=='string') continue;
+    if(K[k]){ MFN.n.keep++; continue; }
+    if(Object.getOwnPropertyDescriptor(IMG, k)){ MFN.n.foreign++; continue; }   // a picture already there, or another card's door (CARD-RSQ, CARD-KCL, CARD-CSF): as before
+    const pd=Object.getOwnPropertyDescriptor(SPRITES_SRC, k); if(!pd || !pd.enumerable || !pd.configurable || !('value' in pd)){ MFN.n.foreign++; continue; }
+    if(mfnDoor(k)){ MFN.def[k]=1; MFN.n.def++; } }
+  if(!MFN.tick) MFN.tick=setInterval(function(){ try{ if(mfnPlay()) return; const K2=mfnLearned('rival', mfnLearned('camp', mfnOwn({}))); for(const k in K2) mfnAsk(k); }catch(e){} }, 4000); }   // a soldier bought, a pet picked: his mold before the next fight; and what a campaign fight or a rival's sortie draws at its door (they have no lobby: the room is their wait)
+function mfnLand(k, v){ try{ delete IMG[k]; IMG[k]=v; }catch(e){ mfnOops('land', e); }   // the door gone: a plain key, as every mold the boot hands
+  if(!MFN.got[k]){ MFN.got[k]=1; MFN.n.land++; if(MFN.at[k]){ MFN.lat.push(Date.now()-MFN.at[k]); if(MFN.lat.length>256) MFN.lat.shift(); } } delete MFN.q[k]; }
+// ───── 2 · A DOOR HANDS ITS MOLD ITS DRAWING: the asks of one moment fly together through buildSprites itself
+function mfnMiss(k){ MFN.n.miss++; MFN.miss[k]=(MFN.miss[k]|0)+1; if(mfnPlay()){ MFN.n.play++; MFN.playMiss[k]=(MFN.playMiss[k]|0)+1; mfnLearn('r', k); } else mfnLearn('k', k);
+  try{ const p=PET_MOLD_OF[k]; if(typeof p==='string'){ const K=MFN.pet(p, {}); for(const j in K) if(j!==k && MFN.def[j] && !MFN.got[j] && !MFN.q[j]){ mfnAsk(j); MFN.n.sib=(MFN.n.sib|0)+1; } } }catch(e){} }   // a pet's frame read before it stood: its other frames are asked with it
+function mfnAsk(k){ if(!MFN.def[k] || MFN.got[k] || MFN.q[k] || (MFN.tries[k]|0)>=MFN_CAP.tries) return; MFN.q[k]=1; MFN.n.asks++; if(!MFN.at[k]) MFN.at[k]=Date.now(); mfnSoon(); }
+function mfnSoon(){ if(!MFN.tq) MFN.tq=setTimeout(mfnRun, 0); }
+function mfnRun(){ MFN.tq=0; if(MFN.fly>0) return;   // the call in flight ends in mfnSoon
+  if(MFN.later.length){ const c=MFN.later.shift(); MFN.n.later++; try{ buildSprites.apply(c[0], c[1]); }catch(e){ mfnOops('later', e); } return; }
+  const B={}; let n=0; for(const k in MFN.q){ if(MFN.def[k] && !MFN.got[k]){ B[k]=1; n++; MFN.tries[k]=(MFN.tries[k]|0)+1; if(MFN.tries[k]>=MFN_CAP.tries) MFN.n.gave++; } } MFN.q={}; if(!n) return;
+  MFN.batch=B; MFN.n.batches++; try{ buildSprites(function(){}); }catch(e){ mfnOops('run', e); } finally { MFN.batch=null; } }
+try{ if(typeof buildSprites==='function' && !MFN.f.buildSprites){ const b0=MFN.f.buildSprites=buildSprites;
+  buildSprites=function(done){ if(!MFN.on) return b0.apply(this, arguments);
+    const B=MFN.batch;
+    if(!B){ if(MFN.fly>0){ MFN.later.push([this, arguments]); return; } if(!MFN.armed){ try{ mfnArm(); }catch(e){ mfnOops('arm', e); } } }
+    const hid=[]; let jobs=0, fin=0; const I0=window.Image;
+    for(const k in SPRITES_SRC){ if(B? B[k] : !(MFN.def[k] && !MFN.got[k])) continue; const pd=Object.getOwnPropertyDescriptor(SPRITES_SRC, k); if(pd && pd.enumerable && pd.configurable && ('value' in pd)){ Object.defineProperty(SPRITES_SRC, k, { enumerable:false }); hid.push(k); } }
+    MFN.fly++; const d2=function(){ if(fin) return; fin=1; MFN.fly--; try{ return (typeof done==='function')? done.apply(this, arguments) : undefined; } finally { mfnSoon(); } };
+    try{ const I1=function(w, h){ jobs++; return arguments.length>1? new I0(w, h) : arguments.length? new I0(w) : new I0(); }; I1.prototype=I0.prototype; window.Image=I1; }catch(e){ mfnOops('img', e); }   // the walk's own pictures counted (CARD-SRP's way): a call that hands nothing would never call done
+    try{ return b0.call(this, d2); }
+    finally { try{ window.Image=I0; }catch(e){ mfnOops('img0', e); } for(let i=0;i<hid.length;i++){ try{ Object.defineProperty(SPRITES_SRC, hid[i], { enumerable:true }); }catch(e){ mfnOops('unhide', e); } } MFN.n.jobs+=jobs; if(!jobs){ MFN.n.empty++; setTimeout(d2, 0); } } }; } }catch(e){ mfnOops('wrap', e); }
+try{ if(typeof bmuLate==='function' && !MFN.f.bmuLate){ const m0=MFN.f.bmuLate=bmuLate;   // CARD-BMU's look-back reads the Emperor's five: a door it would read is left for his own late call (its done-hook looks back again)
+  bmuLate=function(){ if(!MFN.on) return m0.apply(this, arguments); const hid=[]; for(const k in BMU_KEYS){ if(MFN.def[k] && !MFN.got[k]){ try{ Object.defineProperty(BMU_KEYS, k, { enumerable:false }); hid.push(k); }catch(e){} } }
+    try{ return m0.apply(this, arguments); } finally { for(let i=0;i<hid.length;i++){ try{ Object.defineProperty(BMU_KEYS, hid[i], { enumerable:true }); }catch(e){} } } }; } }catch(e){ mfnOops('bmu', e); }
+try{ if(typeof drawSprite==='function' && !MFN.f.drawSprite){ const s0=MFN.f.drawSprite=drawSprite;   // a blank draw counted (the card's law: never seen by a player); the draw itself as shipped
+  drawSprite=function(k, x, y, w, rot, wob, img){ if(MFN.on && !img && MFN.def[k] && !MFN.got[k]){ MFN.n.blank++; MFN.blanks[k]=(MFN.blanks[k]|0)+1; } return s0.apply(this, arguments); }; } }catch(e){ mfnOops('ds', e); }
+// ───── 3 · A FIGHT'S DOOR WARMS ITS ROSTER
+function mfnRoster(K){ mfnOwn(K);
+  try{ const W=(S.cfg && S.cfg.waves) || []; for(let i=0;i<W.length;i++){ const G=(W[i] && W[i].groups) || []; for(let j=0;j<G.length;j++){ const g=G[j]; if(!g) continue; if(typeof g.t==='string') K[g.t]=1; if(g.officer) K.officer=1; } } }catch(e){ mfnOops('cfg', e); }
+  try{ for(let i=0;i<S.units.length;i++){ const u=S.units[i]; if(u && typeof u.type==='string') K[u.type]=1; } for(let i=0;i<S.foes.length;i++){ const f=S.foes[i]; if(f && typeof f.type==='string') K[f.type]=1; } }catch(e){}
+  try{ for(let i=0;i<S.units.length;i++){ const u=S.units[i]; if(u && petSarge(u)) MFN.pet(petOfU(u), K); } }catch(e){}   // the pet at the heel of every Sarge on the field (mine, a relayed ally's, a battleground commander's: petOfU, the pets' own reader)
+  return K; }
+function mfnPools(kind, K){   // a roll the census cannot sample, read off the game's own tables: an egg hatches one of EGG_POOL; a computer commander on the battlefield brings one of HPP_PET_POOL (and every frame of it: MFN.pet)
+  try{ let egg=!!K.eggling; if(!egg) for(let i=0;i<EGG_POOL.length;i++) if(K[EGG_POOL[i]]){ egg=true; break; } if(egg) for(let i=0;i<EGG_POOL.length;i++) K[EGG_POOL[i]]=1; }catch(e){}
+  try{ if(kind==='bf') for(let i=0;i<HPP_PET_POOL.length;i++) MFN.pet(HPP_PET_POOL[i][0], K); }catch(e){}
+  return K; }
+function mfnLearned(kind, K){ const s=MFN_SEED[kind]; if(Array.isArray(s)) for(let i=0;i<s.length;i++) K[s[i]]=1; const R=mfnLS('gvt_mfnr'), L=R && R[kind]; if(Array.isArray(L)) for(let i=0;i<L.length;i++) if(typeof L[i]==='string') K[L[i]]=1; return mfnPools(kind, K); }   // the seed, then what this phone learned, then the pools
+function mfnWarmKind(kind){ if(!MFN.on || !MFN.armed || !kind) return 0; const K=mfnLearned(kind, {}); let n=0; for(const k in K){ if(MFN.def[k] && !MFN.got[k] && !MFN.q[k]){ mfnAsk(k); n++; } } MFN.n.lobby+=n; return n; }   // a lobby: the wait before its fight
+function mfnWarm(why){ if(!MFN.on || !MFN.armed) return 0; MFN.kind=mfnKind(); const K=mfnLearned(MFN.kind, mfnRoster({})); let n=0; for(const k in K){ if(MFN.def[k] && !MFN.got[k] && !MFN.q[k]){ mfnAsk(k); n++; } } MFN.n.warm+=n; return n; }
+function mfnWrapDoor(name, f0){ return function(){ const r=f0.apply(this, arguments); try{ mfnWarm('door'); }catch(e){ mfnOops('warm', e); } return r; }; }
+try{ if(typeof startBattle==='function' && !MFN.f.startBattle){ MFN.f.startBattle=startBattle; startBattle=mfnWrapDoor('startBattle', MFN.f.startBattle); } }catch(e){ mfnOops('d1', e); }
+try{ if(typeof startMomRaid==='function' && !MFN.f.startMomRaid){ MFN.f.startMomRaid=startMomRaid; startMomRaid=mfnWrapDoor('startMomRaid', MFN.f.startMomRaid); } }catch(e){ mfnOops('d2', e); }
+try{ if(typeof startTraining==='function' && !MFN.f.startTraining){ MFN.f.startTraining=startTraining; startTraining=mfnWrapDoor('startTraining', MFN.f.startTraining); } }catch(e){ mfnOops('d3', e); }
+try{ if(typeof texStart==='function' && !MFN.f.texStart){ MFN.f.texStart=texStart; texStart=mfnWrapDoor('texStart', MFN.f.texStart); } }catch(e){ mfnOops('d4', e); }
+try{ if(typeof startBattlefield==='function' && !MFN.f.startBattlefield){ MFN.f.startBattlefield=startBattlefield; startBattlefield=mfnWrapDoor('startBattlefield', MFN.f.startBattlefield); } }catch(e){ mfnOops('d5', e); }
+try{ if(typeof startParkBattle==='function' && !MFN.f.startParkBattle){ MFN.f.startParkBattle=startParkBattle; startParkBattle=mfnWrapDoor('startParkBattle', MFN.f.startParkBattle); } }catch(e){ mfnOops('d6', e); }
+try{ if(typeof startRaidBattle==='function' && !MFN.f.startRaidBattle){ MFN.f.startRaidBattle=startRaidBattle; startRaidBattle=mfnWrapDoor('startRaidBattle', MFN.f.startRaidBattle); } }catch(e){ mfnOops('d7', e); }
+try{ if(typeof spawnFoe==='function' && !MFN.f.spawnFoe){ const f0=MFN.f.spawnFoe=spawnFoe; spawnFoe=function(type){ try{ if(MFN.on && MFN.def[type] && !MFN.got[type]){ if(!MFN.q[type]){ MFN.n.spawn++; mfnAsk(type); } mfnLearn('r', type); } }catch(e){} return f0.apply(this, arguments); }; } }catch(e){ mfnOops('sf', e); }
+try{ if(typeof placeUnit==='function' && !MFN.f.placeUnit){ const p0=MFN.f.placeUnit=placeUnit; placeUnit=function(type){ try{ if(MFN.on && MFN.def[type] && !MFN.got[type]){ if(!MFN.q[type]){ MFN.n.spawn++; mfnAsk(type); } if(mfnPlay()) mfnLearn('r', type); } }catch(e){} return p0.apply(this, arguments); }; } }catch(e){ mfnOops('pu', e); }
+try{ if(typeof openRaidScene==='function' && !MFN.f.openRaidScene){ const o0=MFN.f.openRaidScene=openRaidScene;   // a raid's lobby: the wait before its fight; what its fights read before is asked now
+  openRaidScene=function(id){ const r=o0.apply(this, arguments); try{ let I=null, k0=id; try{ I=raidInfo(id); k0=I.k; }catch(e){} mfnWarmKind('raid:'+k0); mfnWarmKind('park:'+k0);
+      if(MFN.on && MFN.armed && I){ const L=[I.king, I.show]; if(L.indexOf('kingbear')>=0) for(const k in BMU_KEYS) L.push(k);   // the Emperor rides with his family (CARD-BMU's five)
+        L.forEach(function(k){ if(typeof k==='string' && MFN.def[k] && !MFN.got[k] && !MFN.q[k]){ mfnAsk(k); MFN.n.lobby++; } }); } }catch(e){ mfnOops('lobby', e); } return r; }; } }catch(e){ mfnOops('ors', e); }   // a raid's lobby (and a park fought from a raid's scene: the TURKEY HUNT); its king and its boss (RAID_INFO's own names: he comes at the fight's end)   // a raid's lobby (and a park fought from a raid's scene: the TURKEY HUNT)
+try{ if(typeof openParkScene==='function' && !MFN.f.openParkScene){ const o0=MFN.f.openParkScene=openParkScene; openParkScene=function(id){ const r=o0.apply(this, arguments); try{ mfnWarmKind('park:'+((typeof PARK_CUR==='string' && PARK_CUR)? PARK_CUR : id)); }catch(e){ mfnOops('lobbyp', e); } return r; }; } }catch(e){ mfnOops('ops', e); }   // a park's map
+try{ if(typeof openWarTable==='function' && !MFN.f.openWarTable){ const o0=MFN.f.openWarTable=openWarTable; openWarTable=function(){ const r=o0.apply(this, arguments); try{ mfnWarmKind('bf'); }catch(e){ mfnOops('lobbyb', e); } return r; }; } }catch(e){ mfnOops('owt', e); }   // the War Table
+// ───── 4 · WHAT THE PHONE LEARNS (names only; a list kept short, the newest last)
+function mfnLearn(t, k){ if(!MFN.l) return; const Q=MFN.lq || (MFN.lq={ k:{}, r:{} }); if(t==='k') Q.k[k]=1; else Q.r[k]=mfnKind(); if(!MFN.lt) MFN.lt=setTimeout(mfnSave, 1500); }   // in a fight S names its kind afresh (a door that spawns inside itself, before its own warm: the training range's dummy)
+function mfnSave(){ MFN.lt=0; const Q=MFN.lq; MFN.lq=null; if(!Q || !MFN.l) return;
+  const up=function(L, ks, cap){ if(!Array.isArray(L)) L=[]; for(let i=0;i<ks.length;i++){ const j=L.indexOf(ks[i]); if(j>=0) L.splice(j, 1); L.push(ks[i]); } return L.length>cap? L.slice(L.length-cap) : L; };
+  try{ const ks=Object.keys(Q.k); if(ks.length){ localStorage.setItem('gvt_mfnk', JSON.stringify(up(mfnLS('gvt_mfnk'), ks, MFN_CAP.k))); MFN.n.learnK+=ks.length; }
+    const rs=Object.keys(Q.r); if(rs.length){ let R=mfnLS('gvt_mfnr'); if(!R || typeof R!=='object' || Array.isArray(R)) R={}; const by={}; for(let i=0;i<rs.length;i++){ const kd=Q.r[rs[i]]; (by[kd]=by[kd]||[]).push(rs[i]); }
+      for(const kd in by){ const L=up(R[kd], by[kd], MFN_CAP.r); delete R[kd]; R[kd]=L; } const kinds=Object.keys(R); while(kinds.length>MFN_CAP.kinds) delete R[kinds.shift()];
+      localStorage.setItem('gvt_mfnr', JSON.stringify(R)); MFN.n.learnR+=rs.length; }
+    MFN.n.saves++; }catch(e){ mfnOops('save', e); } }
+function mfnRead(o){ o=o||{}; try{ if(o.ask) [].concat(o.ask).forEach(mfnAsk); if(o.warm) mfnWarm('rig'); if(o.all) for(const k in MFN.def) mfnAsk(k); }catch(e){ mfnOops('rig', e); }
+  const lat=MFN.lat.slice().sort(function(a, b){ return a-b; }), left=[]; for(const k in MFN.def) if(!MFN.got[k]) left.push(k);
+  let lk=null, lr=null; try{ lk=mfnLS('gvt_mfnk'); lr=mfnLS('gvt_mfnr'); }catch(e){}
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:MFN.on, l:MFN.l, armed:MFN.armed, wraps:Object.keys(MFN.f), keep:MFN.keep? Object.keys(MFN.keep) : null, def:MFN.n.def, got:Object.keys(MFN.got), left:left.length, leftKeys:left, fly:MFN.fly, q:Object.keys(MFN.q).length, later:MFN.later.length,
+    n:Object.assign({}, MFN.n), miss:Object.assign({}, MFN.miss), playMiss:Object.assign({}, MFN.playMiss), blanks:Object.assign({}, MFN.blanks), lat:{ n:lat.length, med:lat.length? lat[lat.length>>1] : 0, p90:lat.length? lat[Math.floor(lat.length*0.9)] : 0, max:lat.length? lat[lat.length-1] : 0 },
+    kind:MFN.kind, learnK:Array.isArray(lk)? lk.length : 0, learnR:(lr && typeof lr==='object')? Object.keys(lr).reduce(function(a, k){ return a+((lr[k] && lr[k].length)|0); }, 0) : 0, err:MFN.err, e:MFN.e }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.mfn) GVT.mfn=mfnRead; }catch(e){} }, 0);   // the rig door, seated once window.GVT stands (the house's way)
+// ═══ END CARD-MFN ═══
 buildSprites(()=>{ ready=true;
   // v3.23 (card 03): the review range answers only to its own key — without
   // ?tkdemo=1 this line is a dead regex test and the boot is behavior-
