@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.71","md5":"fe88f002e8cd4c7646dee86679487254","sha":"dc00c62b41","at":"2026-11-15T15:39:41Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.72","md5":"ab7893bfa6133c7002e7b787d34b69ae","sha":"45ecf70e02","at":"2026-11-15T16:18:13Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16600,12 +16600,23 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
     Object.defineProperty(img, 'cloneNode', { configurable:true, writable:true, value:function(){ var c = clone0.apply(this, arguments); A.n.clone++; try{ if(H.get(this) === o) d.set.call(c, o.v); }catch(e){} return c; } }); }
   function drop(img, o){ H.delete(img); var t = o.t, i = t.els.indexOf(img); if(i >= 0) t.els.splice(i, 1); i = t.pend.indexOf(img); if(i >= 0) t.pend.splice(i, 1);
     if(o.sh){ for(var j = 0; j < PROPS.length; j++){ try{ delete img[PROPS[j]]; }catch(e){} } o.sh = 0; } o.st = 'gone'; }
+  // ═══ CARD-IPF · A LISTED PICTURE WHOSE DRAWING WAS TAKEN AWAY LEAVES THIS LIST (design/pictures-per-fight-1114/00-CARD-IPF.md, jumpr 3435; cut by CARD-ORS on Wyatt's word of 11/13/2026 about 16:30 EST, verbatim: "audit our existing code architecture to detect what else we can do to keep this number as low as we can while not hurting gameplay") ═══
+  //   THE FAULT (named 11/14 on v32.55 and on CARD-ORS's build: Showdowns in one page, two forced collections before each reading, Playwright's WebKit and the system WebKit): a live picture stands in its drawing's list (t.els).
+  //     This script hears a picture let go only through the src PROPERTY or a handle's own removeAttribute. A maker that takes the drawing off a LIVE picture with the engine's removeAttribute('src') is not heard: CARD-SRP's
+  //     scope does it to every baker's Image a task after its load (CARD-BFX, CARD-AFX, CARD-AFXN, CARD-BYP), CARD-CFZ to its sized copy after every zoom paint (cfzLetGo). The picture stays listed, its row finds no drawing to
+  //     paint from (srcOf), leaves the sweep, and nothing looks at that list again: about 87 dead Images listed by the first fight's end and one more for every zoom paint, for the page's life.
+  //   THE CURE: before a picture joins a drawing's list (real) and at every visit of the sweep, the listed pictures that carry no src attribute any more leave the list and are forgotten by this script (worn). It is srcOf's
+  //     own test: a picture this script could never read again is no longer held by it. Nothing of the picture itself is touched: it is its maker's. The cost is one hasAttribute a listed picture.
+  //     ?ipf=0 = off on this device (remembered: gvt_ipf '0'; ?ipf=1 brings it back). __AWG.ipf() = the rigs' read.
+  var IPF = 1, IPFN = 0; try{ var iq = /[?&]ipf=([01])(?![\w])/.exec(location.search || ''); if(iq){ if(iq[1] === '0') localStorage.setItem('gvt_ipf', '0'); else localStorage.removeItem('gvt_ipf'); } if(localStorage.getItem('gvt_ipf') === '0') IPF = 0; }catch(e){}
+  function worn(t){ var E = t.els, j = 0; for(var i = 0; i < E.length; i++){ var e = E[i], o = H.get(e), mine = !!o && o.st === 'real' && o.t === t; if(mine && hasAttr.call(e, 'src')){ E[j++] = e; continue; } if(mine){ H.delete(e); o.st = 'gone'; } IPFN++; } E.length = j; }
+  A.ipf = function(){ var n = 0, m = 0; for(var k in T){ var L = T[k].els.length; n += L; if(L > m) m = L; } return { on:IPF, out:IPFN, liveEls:n, longest:m }; };
   function fire(img, o){ setTimeout(function(){ if(H.get(img) !== o || o.st !== 'thin' || o.fired) return; o.fired = 1; try{ img.dispatchEvent(new Event('load')); }catch(e){ oops('ld', e); } }, 0); }
   function thin(img, t, v, o){ if(!o){ o = { st:'thin', v:v, t:t, fired:0, sh:0 }; H.set(img, o); } else o.st = 'thin'; if(!o.sh){ shadow(img, o); o.sh = 1; } A.n.thin++; fire(img, o); }
   function pend(img, t, v){ var o = { st:'pend', v:v, t:t, fired:0, sh:0, at:Date.now() }; H.set(img, o); shadow(img, o); o.sh = 1; t.pend.push(img); A.n.pend++;
     setTimeout(function(){ if(H.get(img) === o && o.st === 'pend'){ A.n.late++; settle(t); } }, PEND_MS); }
   function real(img, t, v, keep){ var o = { st:'real', v:v, t:t, loaded:0, keep:keep ? 1 : 0, sh:0 }; H.set(img, o); A.n.real++;
-    if(!t.bad && (A.live || A.shelf)){ t.els.push(img);
+    if(!t.bad && (A.live || A.shelf)){ if(IPF) worn(t); t.els.push(img);
       img.addEventListener('load', function(){ if(H.get(img) === o) seen(img, o); });
       img.addEventListener('error', function(){ if(H.get(img) === o){ t.bad = 1; A.n.bad++; t.els.length = 0; } }); }
     d.set.call(img, v); }
@@ -16696,6 +16707,7 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   // the sweep: a drawing whose finished pictures all stand, and that has been quiet, is taken from the engine; its pictures go on the shelf
   function sweep(){ sweepT = 0; var now = Date.now(), more = 0;
     for(var i = C.length - 1; i >= 0; i--){ var t = C[i]; if(t.bad){ C.splice(i, 1); t.cq = 0; t.src = null; continue; }
+      if(IPF) worn(t);   // CARD-IPF: a listed picture whose drawing was taken away past this script (the engine's removeAttribute) leaves the list here
       if(t.jobs > 0 || now - t.last < QUIET){ more = 1; continue; }
       var drawn = 0, k; for(k in t.draws){ drawn = 1; if(!t.r[k]){ job(t, +k.split('x')[0], +k.split('x')[1], 0); } }
       if((!drawn || t.nn) && !t.sb && srcOf(t)){ if(!drawn && now - t.last < IDLE){ more = 1; continue; }
@@ -94206,7 +94218,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.71';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.72';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
