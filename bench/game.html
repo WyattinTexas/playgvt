@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.77","md5":"0d01a35ac78e9187c93eb06a3f7dea75","sha":"bb8b8d8e35","at":"2026-11-15T21:55:19Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.78","md5":"0fe54069be2994e49e40a325ae6f46df","sha":"8226dcfe95","at":"2026-11-15T22:18:47Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16687,20 +16687,82 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
         for(i = v.indexOf('%3Cfe'); i >= 0; i = v.indexOf('%3Cfe', i + 5)) n++; for(i = v.indexOf('%3cfe'); i >= 0; i = v.indexOf('%3cfe', i + 5)) n++; for(i = v.indexOf('<fe'); i >= 0; i = v.indexOf('<fe', i + 3)) n++; t.fe = n; }catch(x){ oops('hf', x); } }   // its filter steps, counted once in its own address (a drawing that cannot be read counts none: today's road)
     return (t.fe * px >= HV_COST) ? 1 : 0; }
   function job(t, w, h, low){ var k = w + 'x' + h; if(t.q && t.q[k]) return; (t.q || (t.q = {}))[k] = 1; t.jobs++; A.n.jobs++; (low ? QL : Q).push([t, w, h]); kick(); }
+  // ---- CARD-AWS (jumpr 3451, 11/15/2026; cut by CARD-NBS's landing; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
+  // THE FAULT: pump() makes each finished picture in ONE task (the drawing drawn into a canvas, then read back) and the page waits for the painter all the while. THE CALM RULE picks WHEN; nothing looked at WHAT a
+  //   job costs. On an empty shelf (a first start after an install, a changed drawing, every rig page) the pump made its dear pictures (a dragon's mold, a felt mold: 20 to 60 ms each on an M5 Pro, three to seven
+  //   times that on a busy Mac) one after another in the first calm seconds of a screen, while the player looked at it. Measured in the app's own engine on his save (design/atlas-cold-shelf-1115/00-CARD-AWS.md,
+  //   section 1): the room's first minute 18 to 22 frames over 34 ms with the pump and NONE with ?awg=0; Nutcracker's Ball 42 to 47 against 19 to 29; in one Showdown fight 364 jobs, 99 of them over 16 ms.
+  // THE CURE: the pump is TOLD what a job costs before it makes it: the time this drawing's last job held the page (t.ms, scaled by the dots when the next picture is more than twice as large), and before any
+  //   job of it is made, its address: DEAR_FE filter steps or more (CARD-HMS's own count: such a drawing stays dear whatever one quick job said), or DEAR_LEN letters or more, or a picture of DEAR_PX dots or
+  //   more. A job told over DEAR_MS (more than one frame at sixty a second) steps out of the two lines
+  //   into the SLOW LINE (QD) and is made (1) AT A DOOR: the page's tree takes in DOOR_N new elements or more in one go (a screen opening: the room 2,600, a raid's lobby 3,400, a park 10,000): there the jobs
+  //   are made at once, BEFORE the door's own first paint, while the painter is still free: as many as the door's size carries (its new elements over twenty, in ms: DOOR_MS at least, four times that at most;
+  //   always one), never a picture CARD-HMS's count calls heavy (its buffers do not belong on the page's highest moment) nor a job told longer than the largest door carries; or (2) ON A GLASS NOBODY HAS TOUCHED for IDLE_MS (a finger down or moving, a key, a wheel; IDLE_LONG for a job told over
+  //   LONG_MS, or heavy): one at a time, SLOW_GAP apart (closer when the line is long: the whole line in about a minute); or (3) once its row has WAITED AGE_MS in the line: one every SLOW_GAP, wherever the
+  //   player stands, so a player who never rests still fills the shelf (never a job told over LONG_MS, nor a heavy one). (2) and (3) under THE CALM RULE as ever. A plain job keeps today's road whole.
+  //   Whichever road takes a job, A ROW BEGUN IS FINISHED BEFORE ANOTHER IS BEGUN: a drawing leaves the engine, and its row reaches the shelf, only when all its pictures stand. And A FILTERED DRAWING THE
+  //   PAINTER STILL HOLDS IS NOT DEAR: for HOT_MS after the atlas made one picture of it, its other pictures are plain jobs and are made at once (the engine keeps a drawing's filters' results for some
+  //   seconds; a drawing without filters, a dragon's patterns, costs its price again at every size).
+  //   So a player who is playing meets a dear job only where a screen opens, or one every second and a half after its long wait; a page left alone finishes its shelf as before, a little later.
+  //   No drawing redrawn, restyled or replaced; the same pictures on the shelf. ?awgd=0 = the pump as before on this device (gvt_awgd '0'; ?awgd=1 clears it). __AWG.aws() = the rigs' read (the slow line, the
+  //   doors seen, the dear jobs made at a door, on an idle glass, after their wait and while their drawing was still held, what the jobs held the page in all, the longest, those over 34 and 100 ms, those over 100 ms made anywhere but at a
+  //   door); __AWG.awd = the switch as read; __AWG.door() = a door told by hand (a later card that opens a screen without bringing new elements in: a fight's start, a verdict; the rigs).
+  var AWD = 1, DEAR_MS = 16, DEAR_LEN = 150000, DEAR_FE = 100, DEAR_PX = 1000000, EST0 = 30, LONG_MS = 100, DOOR_N = 1500, DOOR_MS = 120, DOOR_GAP = 1000, IDLE_MS = 10000, IDLE_LONG = 60000, AGE_MS = 90000, SLOW_GAP = 1500, HOT_MS = 3000;
+  var QD = [], lastTouch = 0, lastDear = 0, doorAt = 0;
+  A.n.dear = 0; A.n.doors = 0; A.n.doorj = 0; A.n.idlej = 0; A.n.agej = 0; A.n.warmj = 0; A.n.jms = 0; A.n.j34 = 0; A.n.j100 = 0; A.n.mid100 = 0; A.jmax = 0;
+  try{ var wq = /[?&]awgd=([01])(?![\w])/.exec(location.search || ''); if(wq){ if(wq[1] === '0') localStorage.setItem('gvt_awgd', '0'); else localStorage.removeItem('gvt_awgd'); } if(localStorage.getItem('gvt_awgd') === '0') AWD = 0; }catch(e){ oops('wd', e); }
+  A.awd = AWD;
+  function awFes(t){ if(t.fe == null){ var e = srcOf(t); if(!e) return 0; t.fe = 0; try{ var o = H.get(e), v = o ? o.v : d.get.call(e), c = v.indexOf(','), n = 0, i; if(c > 0 && v.slice(0, c).indexOf(';base64') >= 0) v = atob(v.slice(c + 1));
+        for(i = v.indexOf('%3Cfe'); i >= 0; i = v.indexOf('%3Cfe', i + 5)) n++; for(i = v.indexOf('%3cfe'); i >= 0; i = v.indexOf('%3cfe', i + 5)) n++; for(i = v.indexOf('<fe'); i >= 0; i = v.indexOf('<fe', i + 3)) n++; t.fe = n; }catch(x){ oops('wf', x); } } return t.fe; }   // CARD-HMS's count, for a picture of any size (a drawing already let go counts none and is asked again)
+  function awTold(j){ var t = j[0], m = t.ms, px = j[1] * j[2];
+    if(t.pd == null){ if(!srcOf(t)) return m != null ? m : 0; t.pd = awFes(t) >= DEAR_FE ? 2 : ((parseInt(t.h.slice(t.h.lastIndexOf('.') + 1), 36) || 0) >= DEAR_LEN ? 1 : 0); }   // the address's length is the last part of the row's own key
+    if(t.pd === 2 && t.at && Date.now() - t.at < HOT_MS) return 1;   // a FILTERED drawing the painter has only just painted for the atlas: the engine still holds its filters' results, and its next picture, at any size, costs next to nothing (2 to 6 ms within seconds, the whole price again half a minute on)
+    if(m == null) return (t.pd || px >= DEAR_PX) ? EST0 : 0; if(t.mpx && px > 2 * t.mpx) m = m * px / t.mpx / 2;
+    return (t.pd === 2 && m < EST0) ? EST0 : m; }   // otherwise a filtered drawing stays dear whatever one quick job said: that job rode on the results the engine had kept
+  function awHvy(j){ var t = j[0]; return awFes(t) * t.iw * t.ih >= HV_COST; }   // CARD-HMS's own line, by the drawing's OWN dots: such a drawing costs its whole price at any size it is made at
+  function awStep(j, now){ var t = j[0]; if(!t.wd || t.ok) t.wd = now; QD.push(j); A.n.dear++; }   // into the slow line; its ROW's wait is counted from its first job that stepped in (a finished row that is asked for one more picture waits anew)
+  function awBest(ok){ var b = -1, bn = 0, bw = 0; for(var i = 0; i < QD.length; i++){ var j = QD[i], t = j[0]; if(!ok(j)) continue; var n = t.nr > 0 ? 1 : 0; if(b < 0 || n > bn || (n === bn && t.wd < bw)){ b = i; bn = n; bw = t.wd; } } return b; }   // A ROW BEGUN IS FINISHED BEFORE ANOTHER IS BEGUN (a row reaches the shelf, and its drawing leaves the engine, only when all its pictures stand), then the row that has waited longest
+  function awRipe(now){ var idle = now - lastTouch, gap = idle >= IDLE_MS ? Math.max(250, Math.min(SLOW_GAP, 60000 / QD.length)) : SLOW_GAP; if(now - lastDear < gap) return -1;
+    var i = awBest(function(j){ return (awTold(j) > LONG_MS || awHvy(j)) ? idle >= IDLE_LONG : (idle >= IDLE_MS || now - j[0].wd >= AGE_MS); }); if(i >= 0) QD[i][3] = (idle >= IDLE_MS) ? 2 : 3; return i; }
+  function awTurn(now){ var j, i; if(!AWD) return Q.shift() || QL.shift();
+    for(i = 0; i < QD.length; i++){ j = QD[i]; if(j[0].pd === 2 && j[0].at && now - j[0].at < HOT_MS){ QD.splice(i, 1); j[3] = 4; return j; } }   // a waiting picture of a filtered drawing the painter still holds: at once, at a plain job's price
+    if(QD.length && (i = awRipe(now)) >= 0){ j = QD.splice(i, 1)[0]; lastDear = now; return j; }   // nobody has touched the glass, or this job's row has waited AGE_MS: the slow line's turn
+    while((j = Q.shift() || QL.shift())){ if(awTold(j) > DEAR_MS){ awStep(j, now); continue; } return j; }   // a dear job at the head steps into the slow line; this turn makes the first plain one
+    return null; }
+  function awPart(L, now){ for(var i = 0, k = 0; i < L.length && k < 48; k++){ if(awTold(L[i]) > DEAR_MS) awStep(L.splice(i, 1)[0], now); else i++; } }   // a door sorts the head of a line only (48 jobs: more than it can carry); the pump sorts the rest as it comes to them
+  function awDoor(now, n0){ if(!AWD || now - doorAt < DOOR_GAP || now - A.t0 < START) return; doorAt = now; A.n.doors++; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid) return;
+    awPart(Q, now); awPart(QL, now); if(!QD.length) return;
+    for(var ci = 0, held = 0; ci < C.length; ci++){ if(C[ci].nr && !C[ci].jobs && !C[ci].ok && !C[ci].bad && ++held > 6) return; }   // THE CALM RULE's second half holds at a door too
+    var all = Math.max(DOOR_MS, Math.min(4 * DOOR_MS, n0 / 20)), left = all, n = 0, i, j;   // a door carries what its own size says (a screen of 2,600 new elements 130 ms, of 10,000 the most: four times DOOR_MS)
+    var fits = function(j){ var e = Math.max(awTold(j), 1); return !awHvy(j) && e <= 4 * DOOR_MS && (!n || e <= left); };   // not a heavy picture, not a job told longer than the largest door carries, not more than what is left of this door
+    while(left > 0 && Date.now() - now < all && (i = awBest(fits)) >= 0){ j = QD.splice(i, 1)[0]; j[3] = 1; awMake(j); left -= Math.max(lastJobMs, 1); n++; }
+    if(n){ lastDear = Date.now(); if(!pumpT && (Q.length || QL.length || QD.length)) kick(); } }
+  if(AWD){ try{ var touch = function(){ lastTouch = Date.now(); }; ['pointerdown', 'pointermove', 'touchstart', 'touchmove', 'keydown', 'wheel'].forEach(function(ev){ window.addEventListener(ev, touch, { capture:true, passive:true }); });   // a finger down, a finger that moves (a long drag), a key, a wheel
+      new MutationObserver(function(ms){ try{ if(!QD.length && !Q.length && !QL.length) return; var n = 0, i, j, a, e;
+        for(i = 0; i < ms.length; i++){ a = ms[i].addedNodes; for(j = 0; j < a.length; j++){ e = a[j]; if(e.nodeType === 1) n += 1 + (e.firstElementChild ? e.getElementsByTagName('*').length : 0); } }
+        if(n < DOOR_N) return;
+        // the first count is an upper line (a piece laid inside another new piece is counted twice, a piece moved counts as new): counted again, each new piece once, a moved one not at all
+        var S = new Set(), R = new Set(); for(i = 0; i < ms.length; i++){ a = ms[i].addedNodes; for(j = 0; j < a.length; j++){ if(a[j].nodeType === 1) S.add(a[j]); } a = ms[i].removedNodes; for(j = 0; j < a.length; j++){ if(a[j].nodeType === 1) R.add(a[j]); } }
+        n = 0; S.forEach(function(e){ if(!e.isConnected || R.has(e)) return; for(var p = e.parentNode; p; p = p.parentNode){ if(S.has(p)) return; } n += 1 + (e.firstElementChild ? e.getElementsByTagName('*').length : 0); });
+        if(n >= DOOR_N) awDoor(Date.now(), n); }catch(x){ oops('wn', x); } }).observe(document, { childList:true, subtree:true }); }catch(e){ oops('wo', e); } }   // nothing thrown here may reach the page's own error line
+  A.door = function(){ try{ awDoor(Date.now(), 0); }catch(e){ oops('wh', e); } };
+  A.aws = function(){ return { on:AWD, qd:QD.length, dear:A.n.dear, doors:A.n.doors, door:A.n.doorj, idle:A.n.idlej, aged:A.n.agej, warm:A.n.warmj, ms:A.n.jms, max:A.jmax, j34:A.n.j34, j100:A.n.j100, mid100:A.n.mid100, touch:lastTouch ? Date.now() - lastTouch : -1 }; };
   function kick(){ if(!pumpT) pumpT = setTimeout(pump, Math.max(60, lastJobMs * 8, START - (Date.now() - A.t0))); if(!sweepT) sweepT = setTimeout(sweep, 1000); }
   function pump(){ pumpT = 0; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid){ pumpT = setTimeout(pump, 1000); return; }
-    if(!Q.length && !QL.length) return;
+    if(!Q.length && !QL.length && !QD.length) return;
     // THE CALM RULE: a finished picture is made only while the game is making no new picture (a start, a fight's first seconds, a screen opening are the page's heaviest moments: this work never lands on them),
     // and only while the drawings already painted for it have been taken from the engine (never more than a handful waiting: each paint holds buffers until its drawing is let go)
     var nowP = Date.now(), wait = 0; if(nowP - lastMint < CALM) wait = 1; else { for(var ci = 0, held = 0; ci < C.length; ci++){ if(C[ci].nr && !C[ci].jobs && !C[ci].ok && !C[ci].bad && ++held > 6){ wait = 1; break; } } }
     if(wait){ pumpT = setTimeout(pump, 400); if(!sweepT) sweepT = setTimeout(sweep, 1000); return; }
-    var j = Q.shift() || QL.shift(); var t = j[0], w = j[1], h = j[2], k = w + 'x' + h, t1 = Date.now();
+    var j = null; try{ j = awTurn(nowP); }catch(e){ oops('wt', e); j = Q.shift() || QL.shift(); } if(!j){ pumpT = setTimeout(pump, 500); if(!sweepT) sweepT = setTimeout(sweep, 1000); return; }   // CARD-AWS: only dear jobs wait, and their hour has not come (a door, an idle glass, their long wait); a fault of the turn = the plain take, as before
+    awMake(j); if(Q.length || QL.length || QD.length) kick(); }
+  function awMake(j){ var t = j[0], w = j[1], h = j[2], k = w + 'x' + h, t1 = Date.now();   // CARD-AWS: the making of ONE job, in the pump's turn or at a door (the four lines below are the pump's own, unchanged)
     var fail = function(why, x){ t.bad = 1; A.n.bad++; t.jobs--; t.els.length = 0; oops(why, x); };
     var from = t.bad ? null : srcOf(t);
     if(!from){ t.jobs--; delete t.q[k]; if(!t.bad){ delete t.draws[k]; t.lost = (t.lost | 0) + 1; } }   // the game let this drawing go before its turn came: left to its maker, as today
     else { try{ var c = document.createElement('canvas'); c.width = w; c.height = h; DI.call(c.getContext('2d'), from, 0, 0, w, h); var u = c.toDataURL('image/png'); c.width = c.height = 0;
         var b = new Image(); b.onload = function(){ t.r[k] = b; t.nr++; t.jobs--; delete t.q[k]; t.dirty = 1; A.n.rend++; }; b.onerror = function(){ fail('png', 'load'); }; d.set.call(b, u); }catch(e){ fail('job', e); } }
-    lastJobMs = Date.now() - t1; if(Q.length || QL.length) kick(); }
+    lastJobMs = Date.now() - t1; if(from){ t.ms = lastJobMs; t.mpx = w * h; t.at = Date.now(); A.n.jms += lastJobMs; if(lastJobMs > A.jmax) A.jmax = lastJobMs; if(lastJobMs > 34) A.n.j34++; if(lastJobMs > 100){ A.n.j100++; if(j[3] !== 1) A.n.mid100++; } if(j[3] === 1) A.n.doorj++; else if(j[3] === 2) A.n.idlej++; else if(j[3] === 3) A.n.agej++; else if(j[3] === 4) A.n.warmj++; } }   // CARD-AWS: what this drawing costs is known now (its next job is told by it); the book the rigs read (a dear job counts where it was made: at a door, on an idle glass, after its long wait)
   function heal(t, v){ if(t.healing || t.bad) return; t.healing = 1; A.n.heal++; var p = new Image();
     p.onload = function(){ t.src = p; for(var k in t.want){ if(!t.r[k]){ var s = k.split('x'); job(t, +s[0], +s[1], 0); } } if(!t.cq){ t.cq = 1; C.push(t); } kick(); }; p.onerror = function(){ t.healing = 0; }; d.set.call(p, v); }
   function forget(v){ try{ var k = new Image(); k.loading = 'lazy'; k.crossOrigin = 'anonymous'; d.set.call(k, v); rmAttr.call(k, 'src'); A.n.forgot++; }catch(e){ oops('fg', e); } }   // CARD-PFP's way: the engine's kept copy of a data: drawing is replaced by a load that is cancelled at once
@@ -94218,7 +94280,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.77';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.78';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
