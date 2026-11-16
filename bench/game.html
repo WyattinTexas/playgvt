@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.95","md5":"71ba0d42976b471ae0dc19bad57d9cd7","sha":"9a7196bfc4","at":"2026-11-16T16:30:10Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"32.96","md5":"765b58e669edf8a77fb59a701cd52762","sha":"51aeb0f05f","at":"2026-11-16T17:13:01Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94280,7 +94280,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.95';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.96';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -139898,7 +139898,7 @@ cv.addEventListener('pointerup', e=>{
   if(!canPlace(p.x,dy,d.type) && (d.unit || !sqAtCap())){ const np=nearestSpot(p.x,dy,d.type); if(np){ p.x=np.x; dy=np.y; S.fx.push({ k:'ring', x:np.x, y:np.y-6, r:56, R:15, t:0, dur:0.55, col:'rgba(191,227,154,0.95)' }); SFX.blip(); } }   // CARD-NP THE NEAREST SPOT (Wyatt 9/25: "if you drag one of your troops too close to another and it doesn't place, we'll find the nearest available area and we'll put them there"): a refused DRAG — a new man or a lifted one — lands at the nearest legal spot inside the zoomed reach; none inside it → the clack + the lesson below as they were (the water, the far side of the line still teach)   // CARD-NPR THE LANDING RING (⚑ NP-Q1, Wyatt 9/26: "4)yes" — "when a dropped unit is moved to the nearest open spot, should the green ring show where it landed?"): the rings found his spot away from the finger — the tap's own landing ring (CARD-TP ⚑ TP-Q3: the ring, the colour, the size, the life, the blip) closes on the spot where he lands, seated as the tap seats it, so the eye finds a man the finger never placed; a drop that lands under the finger never enters if(np) — nothing new; none inside the reach → the clack below as it was
   if(canPlace(p.x,dy,d.type) && (d.unit || !sqAtCap())){
     S.sideFlash=0; S.sideHand=null;   // 0871 THE WRONG SIDE OF THE LINE: the lesson lands — a legal drop clears the flash and the hand the same frame (the battle's count stands, so the next miss re-lights at once)
-    if(d.unit){ d.unit.x=p.x; d.unit.y=dy; d.unit.sprue=0.2; d.unit.laneY=dy; d.unit.wp=null; d.unit.wade=null; raidRetakeStamp(d.unit);   // he marches on in the lane you set him · 0744: a re-drop re-stamps his post order (the relayed mv stamps the same on every other sim)
+    if(d.unit){ if(typeof detMoveDoor==='function' && detMoveDoor(d.unit, p.x, dy)) return; /* CARD-ENG2-B2b: ?det=1 = the re-drop is a MOVE word (sec:CARD-ENG2-B) */ d.unit.x=p.x; d.unit.y=dy; d.unit.sprue=0.2; d.unit.laneY=dy; d.unit.wp=null; d.unit.wade=null; raidRetakeStamp(d.unit);   // he marches on in the lane you set him · 0744: a re-drop re-stamps his post order (the relayed mv stamps the same on every other sim)
       if(d.unit.type==='sarge'){ d.unit.home={x:p.x,y:dy}; d.unit.saberState='idle'; sgDashEnd(d.unit); cmdDashEnd(d.unit); } SFX.thock();
       if(S.coop && d.unit.cid) coopSend({k:'mv', id:d.unit.cid, x:p.x|0, y:dy|0}); }
     else dropNew(d.type,p.x,dy);   // CARD-TP: the new man's landing law lives in dropNew now (the block moved verbatim — the purse, the loan, the engine, the relay, the crown, the premiere card), one seat for the finger and the tap
@@ -240159,450 +240159,6 @@ function crpkRead(o){ if(o && typeof o==='object'){ if('on' in o) CRPK.on=(o.on 
 try{ if(window.GVT && !GVT.crpk) GVT.crpk=crpkRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.crpk) GVT.crpk=crpkRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-CRPK ═══
-// ═══ CARD-ENG2-B THE SAME FIGHT ON EVERY PHONE, THE FIRST SLICE (sec:CARD-ENG2-B; design/eng2-same-fight-1114/00-CARD-ENG2-B.md; the design: design/native-engine-1114/00-DESIGN-ENG2.md §3.6 + §5 card B; from Maker 1).
-// FROM WYATT 11/14/2026 ~19:40 EST, typed on Maker 1, his GO on ENG2-Q1, verbatim: "proceed with it; use ultracode and best practices."
-// THE SWITCH: ?det=1 in the address, this launch only (never remembered: a test switch). WITHOUT IT NOTHING HERE RUNS: no name is wrapped, no clock or die is touched, frame()'s two hunks read detGate() === -1
-// and run the shipped body once with the shipped gap and dt. WITH IT, a SOLO fight (never a party: S.coop; never an event's hold) is stepped the same way on every screen:
-//   THE CLOCK   frame() feeds an accumulator with the frame's gap; every 0.05 s owed is ONE TICK, and a tick is frame()'s own shipped body run with gap = dt = 0.05 exactly (the game as a perfect 20-a-second phone
-//               runs it: hitStop, the flag, the coach, update(0.05 x the dial x the beats), the glides). The picture is drawn once a frame as ever (it moves 20 times a second in this slice: the in-between
-//               drawing is a later card). No wall clock inside a tick: performance.now() and Date.now() answer the MATCH clock there (the match's start + 50 ms a tick), and a setTimeout made inside a tick is
-//               held on the tick clock (it fires at the head of the tick ceil(ms/50) later; when the fight ends, what is left goes back to the browser's own timers).
-//   THE DICE    one MATCH SEED (?detseed=N, or the rig's GVT.det({seed}), or drawn fresh at the door). Inside a tick Math.random IS a seeded stream (sfc32, whole numbers only), re-seeded at every tick from
-//               (seed, tick): the dice of tick T depend on nothing but the seed, T and the order of the draws inside T. The battle door's own setup (reset() to the end of the door's call) and a hand placement
-//               draw from streams of their own (seed, door) and (seed, input number). THE PRESENTATION'S DICE STAY ON Math.random: everything outside a tick (draw(), the menus, the rooms) never sees the
-//               stream, and the sound doors (DET.outs: tone, noise, bfSfx) step OUT of it while they run, because they roll only when this phone's sound is on or the spot is on this phone's screen.
-//   THE MATHS   inside a tick Math.sin, cos, tan, atan, atan2, asin, acos, exp, log, hypot and pow are this section's own (DETM): the same bits in every engine (the browsers' own differ in the last bit).
-//               (B3) and cbrt, log2, log10, expm1 and tanh too: CARD-ENG2-M1's strict five (design/eng2-maths-1115/kit/hunkM1.mjs, laid in this file whole), so no Math function of the browser's own is reached in a tick.
-//   THE HASH    every 20 ticks (one second of the match clock) detHash() folds the fight: the globals, the wave's queue, every man, every foe, every shot (rows in the lists' order; EVERY plain field a row
-//               really holds, by its raw 64 bits, but the picture's own clocks kept on the sim's rows: DET_PIC), the other sim lists, and the count of dice drawn. 64 bits as 16 hex digits, with one
-//               32-bit word a column so a mismatch names its column. Equal hashes = the same floats, not floats that round the same.
-//   THE MATCH   every battle door wipes first (reset()): there the match is born, and S.t and the id counter start again (the game's own wipe keeps both from the page's last fight, and the fight keys
-//               its maths on ids and on S.t), so a fight is a function of (seed, words) alone, whatever the page did before.
-//   THE WORDS   (CARD-ENG2-B2, the second slice) EVERY FINGER IS A TICK-STAMPED WORD. A word = a tick, a seat, a kind and opaque bytes (the args in a tagged grammar: design/eng2-same-fight-1114/b2/WORDS.md, with
-//               test vectors). Every way a player changes a solo fight goes through ONE INPUT DOOR: the door's own function (dropNew = a placement and its purse; the veteran pill; the hero's one-tap
-//               buttons by name, DET_HERO; spawnWave from the button; the speed dial; hqOpen / hqClose = the HQ sheet's hold and the pause glyph; commAdvance = a briefing's tap; tckHide / tckBack = a
-//               put-away phone; UI.hqRetreat) called from OUTSIDE the sim's own run (between ticks, or inside a presentation door) becomes a word for the NEXT tick, and the next tick's head applies the
-//               words in a fixed order (seat, then arrival), inside the tick's dice and clock. The finger's own feedback (the sheet, the drag, the clack) stays at once; what changes the fight waits for its
-//               tick. A rig's plan (GVT.det({plan})) is a word too (kind 100). Nothing acts on the fight between ticks on the wall clock: a sentinel hashes the fight across every tap, click and key and
-//               counts any change made outside a tick (DET.leak).
-//   THE LOG     seed + version + the words = the whole fight: GVT.det({log:1}).log is the fight as bytes (hex): a header (GVTW, the format, the client's version, the seed, the match's own clock, the
-//               door) and every word as it landed. GVT.det({replay:hex, go:1}) plays a fight from its log alone (no finger is heard; the log's clock and seed).
-//   THE DIAL    the speed dial is the PACE of the ticks, never their size: inside a tick S.speed reads 1, and x2 runs two 0.05 s ticks where x1 runs one (a x2 fight is the x1 fight, twice as fast).
-//   THE POCKET  a put-away phone owes its span as WHOLE TICKS, fixed in its word (AWAY) when the phone comes back, paid muted at the tick's own pace; a frozen pocket owes none and comes back the same.
-//               The heartbeat's and the sound graph's own clocks (btyWake, btyAudioAsk) and the tap's flight (tapFlyTick) are presentation doors: they read the wall clock and the browser's dice.
-//   THE DOORS   (CARD-ENG2-B3, the third slice) EVERY SOLO DOOR: the campaign, the raids, the parks, the battleground against computers, Mom, the training range, the Toy Express, the classic carpet. The
-//               outermost battle door a fight came through names it in the log's head with what it reads (a raid's door reads RAID_CUR), and a replay opens it the same way (DET_DOOR, detDoorOpen). A
-//               field act that is not a hero's button (the Toy Express's tap on the roof ahead, the range's shelf) is a word too (ACT, DET_ACT). The picture's and the wire's own timers made inside a tick
-//               (WebKit's mold-on-demand: a sprite build on a zero-delay timer and a save of names on a 1.5 s one; the telemetry's queue and its 20 s flush) run on the browser's own timers: presentation doors.
-// NOT HERE (the next cards of ENG2-B): the hold gestures' aims (the jet pack's hold, the cavalry's lane, the fire trail, the energy shot's hold; on the classic carpet a placed man carried between waves),
-// whole-number maths, party fights and the relay, the device words, the daily report's desync count, the in-between drawing.
-// GVT.det(o) = the rig's door (read; o.seed / o.plan / o.deep / o.every / o.warp / o.maths / o.log / o.replay / o.go for a rig). Zero server, wire or word bytes; the one save write is the veteran pill's own stat line. ═══
-var DET={ on:(function(){ try{ const q=/[?&]det=([01])/.exec(location.search||''); return (q && q[1]==='1')? 1 : 0; }catch(e){ return 0; } })(),
-  seed0:(function(){ try{ const q=/[?&]detseed=(\d{1,10})/.exec(location.search||''); return q? (+q[1])>>>0 : null; }catch(e){ return null; } })(),
-  hz:20, catchS:0.25, warp:0, maths:1,   // ticks a hash · the most wall time one frame may feed the accumulator (so 5 ticks at most a frame; what a longer frame had over it is DROPPED and counted in lagS / lagN) · the rig's fast forward (ticks a frame, whatever the gap) · maths 0 = the browser's own Math inside a tick (the rig's bisect lever: it brings the two-engine split back)
-  outs:['tone','noise','bfSfx','btyWake','btyAudioAsk','tapFlyTick','mfnAsk','mfnSoon','mfnLearn','tel','telArm'],   // THE PRESENTATION'S DOORS inside a tick: they run on the browser's own Math.random, clock and timers (B2: + the heartbeat's and the sound graph's own stamps, and the tap's flight; B3: + WebKit's mold-on-demand (its asks, the sprite build's zero-delay timer, the learned names' save) and the telemetry's queue and flush: the picture's and the wire's work, never the fight's)
-  seed:0, match:0, tick:0, acc:0, lagS:0, lagN:0, fr:0, gmax:0, open:0, out:0, kind:'', door:0, a:0, b:0, c:0, d:0, draws:0, dsec:0, dall:0, clockN:0, T0:0, D0:0, inN:0,
-  plan:[], pi:0, did:[], log:[], sec:[], tk:[], deep:0, every:0, tq:[], tseq:0, tmap:{}, tN:0, tErr:0, tFlush:0, spy:null, held:0, wrapped:[], gNever:null, cov:null, skip:null,
-  nat:{ rnd:null, st:null, dnow:null, pOwn:null, m:{}, mOn:0 },
-  inq:[], wseq:0, wl:[], app:0, tin:0, rp:null, rpDone:null, drop:0, lh:null, doorNow:null, doors:[], hold:0, hqUI:false, spd:1, owe:0, paid:0, payN:60, tcost:0, tw0:0, mute:0, so:null, leak:0, leaks:[], lastEv:null, footH:null, camF:null, camN:0, skipGap:0 };   // B2: the words waiting (inq) and landed (wl), a word applying (app), a tick running (tin), the replay (rp), the hold, the dial, the pocket's debt (owe) and its pace (payN), the sentinel
-var DET_TID0=1099511627776;   // a tick-clock timer's id starts past 2^40: never a browser's own
-function detOn(){ return !!(DET && DET.on); }
-function detRuns(){ return !!(DET.on && DET.match>0 && S.mode==='play' && !S.coop && !S.evHold); }   // this slice: a solo fight alone
-// ---- THE DICE: sfc32 on 32-bit whole numbers (the same bits in every engine), seeded through a murmur-style mixer
-function detMix(a){ a=(a+0x9E3779B9)|0; let t=a^(a>>>16); t=Math.imul(t,0x21F0AAAD); t=t^(t>>>15); t=Math.imul(t,0x735A2D97); return (t^(t>>>15))>>>0; }
-function detNext(){ const a=DET.a, b=DET.b; let c=DET.c; const d=DET.d, t=(((a+b)|0)+d)|0; DET.d=(d+1)|0; DET.a=b^(b>>>9); DET.b=(c+(c<<3))|0; c=(c<<21)|(c>>>11); DET.c=(c+t)|0; return (t>>>0)/4294967296; }
-function detSeedAt(salt, n){ let h=detMix((DET.seed^Math.imul(salt|0,0x85EBCA6B))|0); h=detMix((h^Math.imul((n|0)+1,0xC2B2AE35))|0); DET.a=h|0; DET.b=detMix(h+1)|0; DET.c=detMix(h+2)|0; DET.d=1; for(let i=0;i<8;i++) detNext(); }
-function detRnd(){ DET.draws++; if(DET.spy) DET.spy('r'); return detNext(); }
-// ---- THE MATCH CLOCK inside a tick (a read moves it 1/64 ms, so a loop that waits on the clock still ends, the same on every screen)
-function detPNow(){ if(DET.spy) DET.spy('p'); return DET.T0+DET.tick*50+(++DET.clockN)*0.015625; }
-function detDNow(){ if(DET.spy) DET.spy('d'); return DET.D0+DET.tick*50; }
-function detSetT(fn, ms){ if(typeof fn!=='function') return DET.nat.st.apply(window, arguments);
-  const id=DET_TID0+(++DET.tseq); DET.tq.push({ id:id, at:DET.tick+Math.max(1, Math.ceil((+ms||0)/50-1e-9)), fn:fn, a:arguments.length>2? Array.prototype.slice.call(arguments,2) : null }); DET.tN++; return id; }
-function detTimersRun(){ const Q=DET.tq; if(!Q.length) return; const n=DET.tick; let due=null; for(let i=0;i<Q.length;i++) if(Q[i].at<=n) (due||(due=[])).push(Q[i]); if(!due) return;
-  DET.tq=Q.filter(function(x){ return x.at>n; });
-  for(let i=0;i<due.length;i++){ try{ due[i].fn.apply(window, due[i].a||[]); }catch(e){ DET.tErr++; try{ console.error(e); }catch(e2){} } } }
-function detFlush(){ const Q=DET.tq; DET.tq=[]; for(let i=0;i<Q.length;i++){ const x=Q[i]; try{ DET.tmap[x.id]=window.setTimeout(function(){ delete DET.tmap[x.id]; x.fn.apply(window, x.a||[]); }, Math.max(0,(x.at-DET.tick)*50)); DET.tFlush++; }catch(e){} } }   // the fight ended (or left this slice's road): what the tick clock still held goes back to the browser's own timers
-// ---- THE MATHS inside a tick. Measured on this Mac (rig/floatProbe.mjs): Chrome's and WebKit's Math.sin, cos, tan, atan, atan2, asin, acos, exp, log and hypot differ in the last bit (sin in 219 of 5,000
-// inputs, hypot in 1,909), and one bit moved a foe on the 259th tick of the first two-engine fight. So inside a tick those ten (and pow) are these: built from + - * / and Math.sqrt alone (the five every
-// engine must round the same way), the textbook kernels (fdlibm's constants), read off the number's own bits where a logarithm needs them. Not whole-number maths (a later card): the same floats everywhere.
-var DETM=(function(){
-  const f64=new Float64Array(1), u32=new Uint32Array(f64.buffer);   // u32[1] = the high word (every phone and computer the game runs on is little-endian)
-  const P2=new Float64Array(2100); { let v=1; for(let k=0;k<=1023;k++){ P2[1075+k]=v; v*=2; } v=1; for(let k=0;k>=-1074;k--){ P2[1075+k]=v; v/=2; } }   // 2^k, exact, by doubling
-  const PI=3.1415926535897931160e+00, PI_LO=1.2246467991473531772e-16, PIO2=1.5707963267948966, PIO4=0.7853981633974483, PIO2_1=1.57079632673412561417e+00, PIO2_1T=6.07710050650619224932e-11, INVPIO2=6.36619772367581382433e-01;
-  const S1=-1.66666666666666324348e-01, S2=8.33333333332248946124e-03, S3=-1.98412698298579493134e-04, S4=2.75573137070700676789e-06, S5=-2.50507602534068634195e-08, S6=1.58969099521155010221e-10;
-  const C1=4.16666666666666019037e-02, C2=-1.38888888888741095749e-03, C3=2.48015872894767294178e-05, C4=-2.75573143513906633035e-07, C5=2.08757232129817482790e-09, C6=-1.13596475577881948265e-11;
-  const AT=[3.33333333333329318027e-01,-1.99999999998764832476e-01,1.42857142725034663711e-01,-1.11111104054623557880e-01,9.09088713343650656196e-02,-7.69187620504482999495e-02,6.66107313738753120669e-02,-5.83357013379057348645e-02,4.97687799461593236017e-02,-3.65315727442169155270e-02,1.62858201153657823623e-02];
-  const AHI=[4.63647609000806093515e-01,7.85398163397448278999e-01,9.82793723247329054082e-01,1.57079632679489655800e+00], ALO=[2.26987774529616870924e-17,3.06161699786838301793e-17,1.39033110312309984516e-17,6.12323399573676603587e-17];
-  const LN2HI=6.93147180369123816490e-01, LN2LO=1.90821492927058770002e-10, INVLN2=1.44269504088896338700e+00;
-  const P1=1.66666666666666019037e-01, Pb=-2.77777777770155933842e-03, P3=6.61375632143793436117e-05, P4=-1.65339022054652515390e-06, P5=4.13813679705723846039e-08;
-  const Lg1=6.666666666666735130e-01, Lg2=3.999999999940941908e-01, Lg3=2.857142874366239149e-01, Lg4=2.222219843214978396e-01, Lg5=1.818357216161805012e-01, Lg6=1.531383769920937332e-01, Lg7=1.479819860511658591e-01;
-  const sqrt=Math.sqrt, abs=Math.abs, round=Math.round;
-  let RR=0;
-  function ksin(x){ const z=x*x, v=z*x, r=S2+z*(S3+z*(S4+z*(S5+z*S6))); return x+v*(S1+z*r); }
-  function kcos(x){ const z=x*x, r=z*(C1+z*(C2+z*(C3+z*(C4+z*(C5+z*C6))))); return 1-(0.5*z-z*r); }
-  function red(x){ const n=round(x*INVPIO2); RR=(x-n*PIO2_1)-n*PIO2_1T; return n; }   // x = n * pi/2 + RR (two-part pi/2: exact enough for every angle a fight holds)
-  function sin(x){ x=+x; if(x!==x || x===Infinity || x===-Infinity) return NaN; if(x===0) return x; if(abs(x)<PIO4) return ksin(x); const n=red(x)&3; return n===0? ksin(RR) : n===1? kcos(RR) : n===2? -ksin(RR) : -kcos(RR); }
-  function cos(x){ x=+x; if(x!==x || x===Infinity || x===-Infinity) return NaN; if(abs(x)<PIO4) return kcos(x); const n=red(x)&3; return n===0? kcos(RR) : n===1? -ksin(RR) : n===2? -kcos(RR) : ksin(RR); }
-  function tan(x){ return sin(x)/cos(x); }
-  function atan(x){ x=+x; if(x!==x) return NaN; const neg=x<0 || (x===0 && 1/x<0); let a=abs(x), id; if(a>=73786976294838206464) return neg? -PIO2 : PIO2;
-    if(a<0.4375){ if(a<7.450580596923828e-9) return x; id=-1; } else if(a<1.1875){ if(a<0.6875){ id=0; a=(2*a-1)/(2+a); } else { id=1; a=(a-1)/(a+1); } } else if(a<2.4375){ id=2; a=(a-1.5)/(1+1.5*a); } else { id=3; a=-1/a; }
-    const z=a*a, w=z*z, s1=z*(AT[0]+w*(AT[2]+w*(AT[4]+w*(AT[6]+w*(AT[8]+w*AT[10]))))), s2=w*(AT[1]+w*(AT[3]+w*(AT[5]+w*(AT[7]+w*AT[9]))));
-    const r=(id<0)? a-a*(s1+s2) : AHI[id]-((a*(s1+s2)-ALO[id])-a); return neg? -r : r; }
-  function atan2(y, x){ y=+y; x=+x; if(x!==x || y!==y) return NaN; const sy=y<0 || (y===0 && 1/y<0), sx=x<0 || (x===0 && 1/x<0);
-    if(y===0) return sx? (sy? -PI : PI) : y; if(x===0) return sy? -PIO2 : PIO2;
-    const ix=(x===Infinity || x===-Infinity), iy=(y===Infinity || y===-Infinity);
-    if(ix){ if(iy) return sx? (sy? -3*PIO4 : 3*PIO4) : (sy? -PIO4 : PIO4); return sx? (sy? -PI : PI) : (sy? -0 : 0); } if(iy) return sy? -PIO2 : PIO2;
-    const z=atan(abs(y)/abs(x)); if(!sx) return sy? -z : z; return sy? (z-PI_LO)-PI : PI-(z-PI_LO); }
-  function asin(x){ x=+x; if(x!==x || x>1 || x<-1) return NaN; return atan2(x, sqrt((1-x)*(1+x))); }
-  function acos(x){ x=+x; if(x!==x || x>1 || x<-1) return NaN; return atan2(sqrt((1-x)*(1+x)), x); }
-  function exp(x){ x=+x; if(x!==x) return NaN; if(x>709.782712893384) return Infinity; if(x<-745.1332191019411) return 0;
-    const k=round(x*INVLN2), hi=x-k*LN2HI, lo=k*LN2LO, r=hi-lo, t=r*r, c=r-t*(P1+t*(Pb+t*(P3+t*(P4+t*P5)))), y=1-((lo-(r*c)/(2-c))-hi);
-    return k>1023? y*P2[2098]*P2[1075+k-1023] : (k<-1022? y*P2[1075+k+1000]*P2[75] : y*P2[1075+k]); }
-  function log(x){ x=+x; if(x!==x || x<0) return NaN; if(x===0) return -Infinity; if(x===Infinity) return Infinity;
-    let k=0; f64[0]=x; let hx=u32[1]; if(hx<0x00100000){ x*=18014398509481984; k=-54; f64[0]=x; hx=u32[1]; }
-    k+=(hx>>>20)-1023; hx&=0x000fffff; const i=(hx+0x95f64)&0x100000; u32[1]=hx|(i^0x3ff00000); k+=(i>>>20);
-    const f=f64[0]-1, s=f/(2+f), z=s*s, w=z*z, t1=w*(Lg2+w*(Lg4+w*Lg6)), t2=z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7))), R=t2+t1, hf=0.5*f*f;
-    return k*LN2HI-((hf-(s*(hf+R)+k*LN2LO))-f); }
-  function hypot(x, y){ const n=arguments.length; if(n===2){ x=+x; y=+y; return sqrt(x*x+y*y); } let s=0; for(let i=0;i<n;i++){ const v=+arguments[i]; s+=v*v; } return sqrt(s); }
-  function pow(x, y){ x=+x; y=+y; if(y===0) return 1; if(x!==x || y!==y) return NaN; if(y===1) return x; if(y===2) return x*x; if(y===0.5 && x>=0 && x!==Infinity) return sqrt(x);
-    if(y===round(y) && abs(y)<=1024){ let n=abs(y), b=x, r=1; while(n>0){ if(n%2===1) r*=b; n=(n-n%2)/2; if(n>0) b*=b; } return y<0? 1/r : r; }   // a whole power: by squaring
-    if(x<0) return (y===round(y))? ((abs(y)%2===1)? -exp(y*log(-x)) : exp(y*log(-x))) : NaN;
-    if(x===0) return y>0? 0 : Infinity; if(x===Infinity) return y>0? Infinity : 0; if(y===Infinity) return x>1? Infinity : (x===1? NaN : 0); if(y===-Infinity) return x>1? 0 : (x===1? NaN : Infinity);
-    return exp(y*log(x)); }
-  // ---- CARD-ENG2-M1 THE REST OF THE BROWSER'S OWN (design/eng2-maths-1115/00-CARD-ENG2-M1.md; a READY HUNK for card B3: kit/hunkM1.mjs lays these lines inside DETM's closure, in front of its `return`).
-  // cbrt, log2, log10, expm1 and tanh from + - * / and the number's own bits alone (FreeBSD msun's kernels, the family the kit's own eleven come from): the same bits in every engine and in the engine's Rust (engine/crates/sprue-detm).
-  const CB_B1=715094163, CB_B2=696219795, CB_P0=1.87595182427177009643e+00, CB_P1=-1.88497979543377169875e+00, CB_P2=1.621429720105354466140e+00, CB_P3=-7.58397934778766047437e-01, CB_P4=1.45996192886612446982e-01;
-  const IVLN2HI=1.44269504072144627571e+00, IVLN2LO=1.67517131648865118353e-10, IVLN10HI=4.34294481878168880939e-01, IVLN10LO=2.50829467116452752298e-11, LG10_2HI=3.01029995663611771306e-01, LG10_2LO=3.69423907715893078616e-13;
-  const EM_Q1=-3.33333333333331316428e-02, EM_Q2=1.58730158725481460165e-03, EM_Q3=-7.93650757867487942473e-05, EM_Q4=4.00821782732936239552e-06, EM_Q5=-2.01099218183624371326e-07, EM_OVER=7.09782712893383973096e+02;
-  let LK=0;
-  function cbrt(x){ x=+x; if(x!==x) return NaN; if(x===0 || x===Infinity || x===-Infinity) return x;
-    f64[0]=x; let hx=u32[1]; const sign=hx&0x80000000; hx^=sign;
-    if(hx<0x00100000){ f64[0]=18014398509481984*x; const high=u32[1]&0x7fffffff; u32[1]=sign|(((high/3)|0)+CB_B2); u32[0]=0; } else { u32[1]=sign|(((hx/3)|0)+CB_B1); u32[0]=0; }   // a rough root to 5 bits, off the exponent
-    let t=f64[0], r=(t*t)*(t/x); t=t*((CB_P0+r*(CB_P1+r*CB_P2))+((r*r)*r)*(CB_P3+r*CB_P4));   // to 23 bits
-    f64[0]=t; { const lo=u32[0]; if(lo>=0x80000000) u32[1]=u32[1]+1; u32[0]=(lo+0x80000000)&0xc0000000; } t=f64[0];   // rounded away from zero to 23 bits, so t*t is exact
-    const s=t*t, w=t+t; r=x/s; r=(r-t)/(w+r); return t+t*r; }   // one Newton step to 53 bits
-  function lred(x){ let k=0; f64[0]=x; let hx=u32[1]; if(hx<0x00100000){ x*=18014398509481984; k=-54; f64[0]=x; hx=u32[1]; } k+=(hx>>>20)-1023; hx&=0x000fffff; const i=(hx+0x95f64)&0x100000; u32[1]=hx|(i^0x3ff00000); k+=(i>>>20); LK=k; return f64[0]-1; }   // x = 2^LK * (1+f), sqrt(2)/2 < 1+f < sqrt(2): log()'s own first step
-  function log2(x){ x=+x; if(x!==x || x<0) return NaN; if(x===0) return -Infinity; if(x===Infinity) return Infinity; if(x===1) return 0;
-    const f=lred(x), y=LK, hf=0.5*f*f, s=f/(2+f), z=s*s, w=z*z, t1=w*(Lg2+w*(Lg4+w*Lg6)), t2=z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7))), r=s*(hf+(t2+t1));
-    f64[0]=f-hf; u32[0]=0; const hi=f64[0], lo=(f-hi)-hf+r, vh=hi*IVLN2HI, wv=y+vh; return ((lo+hi)*IVLN2LO+lo*IVLN2HI+((y-wv)+vh))+wv; }   // a whole power of two gives its whole number
-  function log10(x){ x=+x; if(x!==x || x<0) return NaN; if(x===0) return -Infinity; if(x===Infinity) return Infinity; if(x===1) return 0;
-    const f=lred(x), y=LK, hf=0.5*f*f, s=f/(2+f), z=s*s, w=z*z, t1=w*(Lg2+w*(Lg4+w*Lg6)), t2=z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7))), r=s*(hf+(t2+t1));
-    f64[0]=f-hf; u32[0]=0; const hi=f64[0], lo=(f-hi)-hf+r, vh=hi*IVLN10HI, y2=y*LG10_2HI, wv=y2+vh; return (y*LG10_2LO+(lo+hi)*IVLN10LO+lo*IVLN10HI+((y2-wv)+vh))+wv; }
-  function expm1(x){ x=+x; if(x!==x) return NaN; if(x===Infinity) return x; if(x===-Infinity) return -1;
-    f64[0]=x; let hx=u32[1]; const neg=(hx&0x80000000)!==0; hx&=0x7fffffff;
-    if(hx>=0x4043687A){ if(hx>=0x40862E42 && x>EM_OVER) return Infinity; if(neg) return -1; }   // past 56 ln2: the top, or -1
-    let k=0, c=0, hi, lo, t;
-    if(hx>0x3fd62e42){   // |x| > 0.5 ln2: take k ln2 away
-      if(hx<0x3FF0A2B2){ if(!neg){ hi=x-LN2HI; lo=LN2LO; k=1; } else { hi=x+LN2HI; lo=-LN2LO; k=-1; } }
-      else { k=(INVLN2*x+(neg? -0.5 : 0.5))|0; t=k; hi=x-t*LN2HI; lo=t*LN2LO; }
-      x=hi-lo; c=(hi-x)-lo; }
-    else if(hx<0x3c900000) return x;   // under 2^-54
-    const hfx=0.5*x, hxs=x*hfx, r1=1+hxs*(EM_Q1+hxs*(EM_Q2+hxs*(EM_Q3+hxs*(EM_Q4+hxs*EM_Q5)))); t=3-r1*hfx; let e=hxs*((r1-t)/(6-x*t));
-    if(k===0) return x-(x*e-hxs);
-    e=(x*(e-c)-c); e-=hxs;
-    if(k===-1) return 0.5*(x-e)-0.5;
-    if(k===1) return (x<-0.25)? -2*(e-(x+0.5)) : 1+2*(x-e);
-    const twopk=P2[1075+k]; let y;
-    if(k<=-2 || k>56){ y=1-(e-x); y=(k===1024)? y*2*P2[2098] : y*twopk; return y-1; }
-    if(k<20){ y=(1-P2[1075-k])-(e-x); return y*twopk; }
-    y=x-(e+P2[1075-k]); y+=1; return y*twopk; }
-  function tanh(x){ x=+x; if(x!==x) return NaN; if(x===Infinity) return 1; if(x===-Infinity) return -1;
-    const a=abs(x); let z;
-    if(a<22){ if(a<3.725290298461914e-9) return x; if(a>=1){ const t=expm1(2*a); z=1-2/(t+2); } else { const t=expm1(-2*a); z=-t/(t+2); } } else z=1;
-    return x<0? -z : z; }
-  // ---- END CARD-ENG2-M1
-  return { sin:sin, cos:cos, tan:tan, atan:atan, atan2:atan2, asin:asin, acos:acos, exp:exp, log:log, hypot:hypot, pow:pow, cbrt:cbrt, log2:log2, log10:log10, expm1:expm1, tanh:tanh };
-})();
-var DETM_K=['sin','cos','tan','atan','atan2','asin','acos','exp','log','hypot','pow','cbrt','log2','log10','expm1','tanh'];
-// ---- END THE MATHS
-// ---- IN AND OUT OF THE SEEDED WORLD (a depth, so a door inside a tick is still one world)
-function detSwap(on){ const N=DET.nat;
-  if(on){ N.rnd=Math.random; N.st=window.setTimeout; N.dnow=Date.now; N.pOwn=Object.prototype.hasOwnProperty.call(performance,'now')? performance.now : null;
-    Math.random=detRnd; Date.now=detDNow; try{ performance.now=detPNow; }catch(e){} if(DET.kind==='t') window.setTimeout=detSetT;
-    N.mOn=DET.maths? 1 : 0; if(N.mOn) for(let i=0;i<DETM_K.length;i++){ const k=DETM_K[i]; N.m[k]=Math[k]; Math[k]=DETM[k]; } }
-  else { Math.random=N.rnd; Date.now=N.dnow; try{ if(N.pOwn) performance.now=N.pOwn; else delete performance.now; }catch(e){} if(DET.kind==='t') window.setTimeout=N.st;
-    if(N.mOn){ N.mOn=0; for(let i=0;i<DETM_K.length;i++){ const k=DETM_K[i]; Math[k]=N.m[k]; } } } }
-function detOpen(kind){ if(DET.open++>0) return; DET.kind=kind; DET.out=0; detSwap(1); }
-function detShut(){ if(DET.open<=0){ DET.open=0; return; } if(--DET.open>0) return; if(DET.out<=0) detSwap(0); DET.out=0; DET.kind=''; }
-function detOutWrap(n){ const f=window[n]; if(typeof f!=='function' || f.detOut) return 0;
-  const g=function(){ if(!DET.open) return f.apply(this, arguments); if(DET.out++===0) detSwap(0); try{ return f.apply(this, arguments); } finally{ if(--DET.out===0 && DET.open>0) detSwap(1); } };
-  g.detOut=1; window[n]=g; return 1; }
-// ---- THE MATCH: every battle door wipes first (reset()), so the wipe is where a match is born
-function detNatNow(){ try{ return DET.open? (DET.T0+DET.tick*50) : performance.now(); }catch(e){ return 0; } }
-function detMatch(){ if(DET.tq.length) detFlush();
-  S.t=0; idc=1;   // THE MATCH STARTS FROM ZERO: reset() keeps the battle clock and the next id from the page's last fight, and the fight reads both (a foe's side by its id's parity, every S.t stamp), so a second fight on a page was another fight (the cold read, 11/14)
-  const r=(DET.open && DET.out<=0)? DET.nat.rnd : Math.random, t0=detNatNow(), d0=(DET.open && DET.out<=0)? DET.nat.dnow() : Date.now();
-  DET.match++; DET.seed=(DET.seed0!=null)? (DET.seed0>>>0) : ((r()*4294967296)>>>0);
-  DET.tick=0; DET.acc=0; DET.lagS=0; DET.lagN=0; DET.fr=0; DET.gmax=0; DET.gNever=null; DET.cov=null; DET.skip=null; DET.sec=[]; DET.tk=[]; DET.did=[]; DET.log=[]; DET.pi=0; DET.inN=0; DET.draws=0; DET.dsec=0; DET.dall=0; DET.clockN=0; DET.held=0; DET.T0=t0; DET.D0=d0;
-  DET.inq=[]; DET.wseq=0; DET.wl=[]; DET.hold=0; DET.owe=0; DET.paid=0; DET.leak=0; DET.leaks=[]; DET.lastEv=null; DET.footH=null; DET.camF=null; DET.camN=0; DET.drop=0; detUnmute();   // B2: a match starts with no word waiting, no hold, no debt, no foot to compare
-  if(DET.rp && DET.rp.used){ DET.rpDone=DET.rp; DET.rp=null; }   // a replay plays ONE match: a second door on the page is the page's own
-  if(DET.rp){ DET.rp.used=1; DET.seed=DET.rp.h.seed>>>0; DET.T0=+DET.rp.h.T0||0; DET.D0=+DET.rp.h.D0||0; }   // B2 THE MATCH'S OWN CLOCK: a replay reads the clock and the seed the log was played on
-  DET.lh={ D0:DET.D0, T0:DET.T0, door:DET.doorNow? DET.doorNow.d : '', dargs:DET.doorNow? DET.doorNow.a : [], sdig:detSaveDig() };   // the log's head
-  if(!DET.open){ detOpen('d'); DET.door=1; try{ Promise.resolve().then(detDoorShut); }catch(e){ setTimeout(detDoorShut,0); } }   // the door's own setup (the rest of this call) rolls on the door's stream; it closes when the call that opened the battle returns
-  if(DET.kind==='d') detSeedAt(3,0); }
-function detDoorShut(){ if(DET.door){ DET.door=0; detShut(); } }
-// ---- THE TICK (frame()'s two hunks call these three)
-function detGate(gap){ if(!DET.on) return -1;   // -1 = the shipped frame, untouched · 0 = no tick owed this frame · n = n ticks
-  if(!detRuns()){ if(DET.tq.length) detFlush(); DET.acc=0; if(DET.mute) detUnmute(); return -1; }
-  let g=+gap||0; if(DET.skipGap){ DET.skipGap=0; g=0; }   // B2: the first frame back from a pocket feeds no wall (the span is paid by its AWAY word alone, whole ticks)
-  DET.fr++; if(g>DET.gmax) DET.gmax=g;   // the frames this fight really drew, and its longest gap
-  const pay=(DET.owe>0)? Math.min(DET.owe, DET.payN) : 0;   // B2 THE POCKET: a debt of whole ticks (an AWAY word) is paid beside the wall's own, payN a frame (as many as fit TCK.ms at this phone's cost of a tick)
-  if(DET.warp>0) return DET.warp+pay;
-  if(g>DET.catchS){ DET.lagS+=g-DET.catchS; DET.lagN++; }   // THE DROP ROAD: a frame longer than catchS feeds catchS and no more; what it had over is dropped HERE and counted HERE (the fight slows, it never changes)
-  DET.acc+=Math.min(DET.catchS, g)*DET.spd; const n=Math.floor(DET.acc/SIM_STEP_S+1e-9); if(n<=0) return pay;   // B2 THE DIAL: the wall is fed at the dial's pace (x2 = twice the ticks, each a whole 0.05 s); acc < one tick + catchS x the dial
-  DET.acc-=n*SIM_STEP_S; return n+pay; }
-function detTickOpen(){ if(DET.door) detDoorShut(); DET.tin=1; DET.tw0=detWall(); detOpen('t'); detSeedAt(1, DET.tick); DET.clockN=0;
-  if(DET.owe>0){ DET.owe--; DET.paid++; if(!DET.mute){ DET.mute=1; DET.so=soundOn; soundOn=false; } } else if(DET.mute) detUnmute();   // B2: a tick of the pocket's debt is paid muted (TCK's grammar); the first tick after it gives the sound back
-  DET.hqUI=HQS.on; HQS.on=!!DET.hold;   // B2 THE HOLD: inside a tick the HQ sheet stands as its words left it (the finger's sheet opens at once; the fight holds from the next tick's head)
-  if(DET.footH){ const h=detFootHash(); if(h!==DET.footH){ DET.leak++; if(DET.leaks.length<20) DET.leaks.push([DET.tick, 'off-tick', DET.lastEv? DET.lastEv.join(' ') : '']); } }   // B2 THE SENTINEL
-  detCamHead();   // B2 THE FINGER'S CAMERA
-  DET.draws=0;   // (after the sentinel's head hash: it folds the last tick's dice count, as its foot did)
-  try{ detTimersRun(); detPlanRun(); detWordsRun(); }catch(e){ DET.tErr++; } if(COMM && COMM.brief) DET.held++; }
-function detTickShut(){ DET.dsec+=DET.draws; DET.dall+=DET.draws; DET.tick++;
-  if(HQS.on!==!!DET.hold){ DET.hold=HQS.on? 1 : 0; DET.hqUI=HQS.on; } HQS.on=DET.hqUI;   // the sim closed (or opened) the sheet inside the tick (the verdict closes it): that stands for both
-  detShut();
-  try{ if(DET.every) DET.tk.push(detHash(0).h); if(DET.tick%DET.hz===0) detSecond(); DET.footH=detHash(0).h; DET.camF=detCamKey(); }catch(e){ DET.tErr++; }
-  DET.tin=0; const c=detWall()-DET.tw0; if(c>=0 && c<1000){ DET.tcost=DET.tcost? DET.tcost*0.9+c*0.1 : c; DET.payN=Math.max(1, Math.min((TCK && TCK.steps)||60, Math.floor(((TCK && TCK.ms)||24)/Math.max(0.05, DET.tcost)))); } }
-// ---- THE WORDS: tick-stamped orders (a rig's plan today; every finger tomorrow)
-function detWord(w){
-  if(w.k==='cash'){ S.plastic=+w.n||0; return S.plastic; }
-  if(w.k==='place'){ if(w.chk!==0 && !canPlace(w.x, w.y, w.u)) return 0; const u=placeUnit(w.u, w.x, w.y); return u? (u.id|0) : 0; }
-  if(w.k==='wave'){ spawnWave(); return 1; }
-  if(w.k==='speed'){ S.speed=+w.n||1; return S.speed; }
-  return -1; }
-function detPlanRun(){ const P=DET.plan, n=DET.tick; while(DET.pi<P.length && P[DET.pi].t<=n){ const w=P[DET.pi++]; let r; try{ r=detWord(w); }catch(e){ r='ERR '+String(e&&e.message||e).slice(0,120); } DET.did.push([n, w.k, r]);
-  const b=detEncArgs([String(w.k||''), String(w.u||''), +w.x||0, +w.y||0, +w.n||0, (w.chk===0)? 0 : 1]); if(b) DET.wl.push([n, 0, DET_K.PLAN, b, r]); } }   // B2: the rig's plan is a word of the log (kind 100), so a planned fight replays from its log too
-// ---- B2 THE INPUT DOOR: every finger is a tick-stamped word (design/eng2-same-fight-1114/b2/00-CARD-ENG2-B2.md; the format: b2/WORDS.md)
-var DET_K={ PLACE:1, VET:2, SELL:3, HERO:4, WAVE:5, SPEED:6, HOLD:7, BRIEF:8, AWAY:9, QUIT:10, CAM:11, ACT:12, PLAN:100 };   // the word's kind (one byte). SELL is kept for a sell door: no fight has one today (campRefund is the fallen man's refund, paid by the sim). B3: ACT 12, a field act by its door's name (DET_ACT)
-var DET_ACT=['texTapAt','trainPlace'];   // B3: the field's acts that are not a hero's button, each a word by its name (the Toy Express's tap on the roof ahead: walk, hop the coupling; the range's shelf: the man it puts on the floor)
-var DET_HERO=['emgActivate','dgnPress','tkActivate','tkActivate2','csPress','skdActivate','snpActivate','stkActivate','prpActivate','fsActivate','laActivate','gsActivate','rpActivate','scActivate','gtActivate','smkActivate','ultActivate','popActivate','bmbCall','jetLaunch','trkTap','inqSet','fsqtSet'];   // the hero's one-tap buttons (and the jet pack's landing, the trench kit's badge, the spy's INTELLIGENCE switch, the jeep's order pill): each a word by its name
-var DET_QUIET={ dgnPress:1, jetLaunch:1, inqSet:1, fsqtSet:1 };   // the doors that clack for themselves (or never): every other hero door's refusal clacks when its word lands (the no-dead-buttons law, one tick late)
-var DET_FLIP={ inqSet:function(a){ a[1]=!(a[0] && a[0].inOn); return a; }, fsqtSet:function(a){ a[1]=!(typeof fsqtAtk==='function' && fsqtAtk(a[0])); return a; } };   // a pill that FLIPS a man's own switch lands as the flip of his state at the landing tick (two taps in one tick flip twice, as today's pill does; the word's own 'on' is what the pill showed)
-var DET_PANGHOST={ ghost:1 };   // a replay's stand-in for the finger's pan (the escort camera's own step asks only whether a finger holds the rug)
-var DET_GONE={ gone:1 }, DET_W64=new Float64Array(1), DET_W32=new Uint32Array(DET_W64.buffer);   // a unit named by a word that is no longer on the field · the byte views (little-endian: every phone and computer the game runs on)
-function detFinger(){ return !!(DET.on && DET.match>0 && !DET.app && (!DET.open || DET.out>0) && detRuns()); }   // a door called from OUTSIDE the sim's own run (between ticks, or inside a presentation door) while a solo fight runs: it becomes a word
-function detUtf8(s){ s=String(s); const o=[]; for(let i=0;i<s.length;i++){ let c=s.charCodeAt(i); if(c>=0xD800 && c<0xDC00 && i+1<s.length){ const d=s.charCodeAt(i+1); if(d>=0xDC00 && d<0xE000){ c=0x10000+((c-0xD800)<<10)+(d-0xDC00); i++; } }
-  if(c<0x80) o.push(c); else if(c<0x800) o.push(0xC0|(c>>6), 0x80|(c&63)); else if(c<0x10000) o.push(0xE0|(c>>12), 0x80|((c>>6)&63), 0x80|(c&63)); else o.push(0xF0|(c>>18), 0x80|((c>>12)&63), 0x80|((c>>6)&63), 0x80|(c&63)); } return o; }
-function detUtf8d(b){ let s=''; for(let i=0;i<b.length;){ const c=b[i++]; let u;
-  if(c<0x80) u=c; else if(c<0xE0) u=((c&31)<<6)|(b[i++]&63); else if(c<0xF0){ u=((c&15)<<12)|((b[i]&63)<<6)|(b[i+1]&63); i+=2; } else { u=((c&7)<<18)|((b[i]&63)<<12)|((b[i+1]&63)<<6)|(b[i+2]&63); i+=3; }
-  if(u>=0x10000){ u-=0x10000; s+=String.fromCharCode(0xD800+(u>>10), 0xDC00+(u&1023)); } else s+=String.fromCharCode(u); } return s; }
-function detBW(){ const a=[]; return { a:a, u8:function(v){ a.push(v&255); }, u16:function(v){ a.push(v&255, (v>>>8)&255); }, u32:function(v){ v=v>>>0; a.push(v&255, (v>>>8)&255, (v>>>16)&255, (v>>>24)&255); },
-  f64:function(v){ DET_W64[0]=v; this.u32(DET_W32[0]); this.u32(DET_W32[1]); }, str:function(v){ const b=detUtf8(v); if(b.length>255) throw new Error('a word string over 255 bytes'); a.push(b.length); for(let i=0;i<b.length;i++) a.push(b[i]); },
-  raw:function(b){ for(let i=0;i<b.length;i++) a.push(b[i]&255); } }; }
-function detBR(b){ let i=0; const n=function(){ if(i>=b.length) throw new Error('short'); return b[i++]; }; return { n:n, at:function(){ return i; }, u16:function(){ return n()|(n()<<8); }, u32:function(){ return (n()|(n()<<8)|(n()<<16)|(n()<<24))>>>0; },
-  f64:function(){ DET_W32[0]=this.u32(); DET_W32[1]=this.u32(); return DET_W64[0]; }, str:function(){ const k=n(); if(i+k>b.length) throw new Error('short'); const s=detUtf8d(b.slice(i, i+k)); i+=k; return s; }, take:function(k){ if(i+k>b.length) throw new Error('short'); const s=b.slice(i, i+k); i+=k; return s; } }; }
-// THE ARGS: argc:u8 then each arg as tag:u8 + payload. 1 a number (f64, all 64 bits) · 2 a string (u8 length + UTF-8) · 3 true · 4 false · 5 null · 6 undefined · 7 a man by his id (u32) · 8 a foe by his id (u32) · 9 a point (f64 x, f64 y)
-function detEncArgs(a){ try{ const w=detBW(); w.u8(a.length); for(let i=0;i<a.length;i++){ const v=a[i], t=typeof v;
-    if(t==='number'){ w.u8(1); w.f64(v); } else if(t==='string'){ w.u8(2); w.str(v); } else if(v===true) w.u8(3); else if(v===false) w.u8(4); else if(v===null) w.u8(5); else if(v===undefined) w.u8(6);
-    else if(t==='object' && typeof Event!=='undefined' && v instanceof Event) return null;   // an event is never an arg (its screen x, y would pass as a point)
-    else if(t==='object' && typeof v.id==='number' && S.units.indexOf(v)>=0){ w.u8(7); w.u32(v.id); }
-    else if(t==='object' && typeof v.id==='number' && S.foes.indexOf(v)>=0){ w.u8(8); w.u32(v.id); }
-    else if(t==='object' && v.id===undefined && typeof v.x==='number' && typeof v.y==='number'){ w.u8(9); w.f64(v.x); w.f64(v.y); }
-    else return null; }   // an arg a word cannot carry: the door acts as shipped and the sentinel's count says so
-  return w.a; }catch(e){ return null; } }
-function detReadArgs(r, live){ const n=r.n(), a=[]; for(let i=0;i<n;i++){ const t=r.n();
-    if(t===1) a.push(r.f64()); else if(t===2) a.push(r.str()); else if(t===3) a.push(true); else if(t===4) a.push(false); else if(t===5) a.push(null); else if(t===6) a.push(undefined);
-    else if(t===7 || t===8){ const id=r.u32(); if(!live){ a.push({ ref:(t===7)? 'man' : 'foe', id:id }); continue; } const L=(t===7)? S.units : S.foes; let o=DET_GONE; for(let j=0;j<L.length;j++) if(L[j] && L[j].id===id){ o=L[j]; break; } a.push(o); }
-    else if(t===9) a.push({ x:r.f64(), y:r.f64() }); else throw new Error('tag '+t); }
-  return a; }
-function detDecArgs(b, live){ try{ const r=detBR(b), a=detReadArgs(r, live); return (r.at()===b.length)? a : null; }catch(e){ return null; } }
-function detWordBytes(t, s, k, b){ const w=detBW(); w.u32(t); w.u8(s); w.u8(k); w.u16(b.length); w.raw(b); return w.a; }   // A WORD: tick u32 · seat u8 · kind u8 · length u16 · the bytes (opaque to the relay)
-function detIn(k, a){ const b=detEncArgs(a); if(b===null) return -1; const t=DET.tick+(DET.open? 1 : 0);   // stamped for the NEXT tick (inside a presentation door the running tick's head has passed)
-  DET.inq.push({ t:t, s:0, k:k, b:b, q:++DET.wseq }); return t; }
-function detApply(k, b){ const a=detDecArgs(b, 1); if(!a) return 'BAD';
-  if(a.indexOf(DET_GONE)>=0){ if(k===DET_K.HERO && !DET_QUIET[a[0]]) SFX.clack(); return 0; }   // the man the word names left the field before it landed: refused, the same on every screen
-  DET.app++; try{
-    if(k===DET_K.PLACE) return detPlaceApply(a[0], a[1], a[2]);
-    if(k===DET_K.VET) return detVetApply(a[0], a[1]);
-    if(k===DET_K.HERO){ const f=window[a[0]]; if(typeof f!=='function' || DET_HERO.indexOf(a[0])<0) return -1; let b9=a.slice(1); if(DET_FLIP[a[0]]) b9=DET_FLIP[a[0]](b9); const r=f.apply(window, b9); if(!r && !DET_QUIET[a[0]]) SFX.clack(); return r? 1 : 0; }
-    if(k===DET_K.WAVE){ spawnWave(); return 1; }
-    if(k===DET_K.SPEED){ S.spdI=a[1]|0; S.speed=+a[0]||1; return DET.spd; }   // the dial's pace (inside the tick S.speed still reads 1)
-    if(k===DET_K.HOLD){ DET.hold=a[0]? 1 : 0; HQS.on=!!a[0]; return DET.hold; }
-    if(k===DET_K.BRIEF){ return commAdvance(null)? 1 : 0; }
-    if(k===DET_K.AWAY){ if(!a[0]) DET.owe+=Math.max(0, a[1]|0); return DET.owe; }
-    if(k===DET_K.QUIT){ if(a[0]==='trainExit') UI.trainExit(); else UI.hqRetreat(); return 1; }   // B3: the range's EXIT chip is a QUIT that names its exit (B2's QUIT carries nothing: RETREAT TO HQ)
-    if(k===DET_K.CAM) return detCamApply(a);
-    if(k===DET_K.ACT){ const f=window[a[0]]; if(typeof f!=='function' || DET_ACT.indexOf(a[0])<0) return -1; const r=f.apply(window, a.slice(1)); return (r===undefined || r)? 1 : 0; }   // B3: the act's own function, its args as the finger's call gave them
-    if(k===DET_K.PLAN) return detWord({ k:a[0], u:a[1], x:a[2], y:a[3], n:a[4], chk:a[5] });
-    return -1; } finally{ DET.app--; } }
-function detPlaceApply(t, x, y){ if(!S.bf && t!=='dogfighter' && (!(S.plastic>=capCost(t)) || !canPlace(x, y, t))){ SFX.clack(); return 0; }   // the purse and the ground are read when the word LANDS: two words in one tick never overdraw or stack
-  const n0=S.units.length; dropNew(t, x, y); return S.units.length-n0; }
-function detVetApply(u, cost){ if(!u || u.vet || S.units.indexOf(u)<0 || u.type==='sarge' || (u.def && u.def.vehicle) || !(S.plastic>=cost)) return 0;   // the pill's own law (drawHUD's eligibility, the purse) read when the word lands
-  u.vet=true; META.stats.vets++; S.plastic-=cost; SFX.blip(); S.floats.push({x:u.x,y:u.y-70,txt:'VETERAN!',t:0,col:'#fff'}); return 1; }   // the canvas pointerdown's own pill line (kit/applyDET.py holds its text to this)
-function detVetDoor(u, cost){ if(!detFinger()) return false; if(DET.rp){ DET.drop++; return true; } if(!u || typeof u.id!=='number') return false; return detIn(DET_K.VET, [u, +cost||0])>=0; }   // hunk D, in the canvas pointerdown's pill branch: true = the word carries the press
-function detWordsRun(){ const n=DET.tick; let L=null;
-  if(DET.rp){ const R=DET.rp.w; while(DET.rp.i<R.length && R[DET.rp.i].t<=n) (L||(L=[])).push(R[DET.rp.i++]); }
-  else if(DET.inq.length){ const keep=[]; for(let i=0;i<DET.inq.length;i++){ const w=DET.inq[i]; if(w.t<=n) (L||(L=[])).push(w); else keep.push(w); } if(L){ DET.inq=keep; L.sort(function(p, q){ return (p.s-q.s) || (p.q-q.q); }); } }
-  if(!L) return;
-  for(let i=0;i<L.length;i++){ const w=L[i]; let r; try{ r=detApply(w.k, w.b); }catch(e){ r='ERR '+String(e&&e.message||e).slice(0,120); DET.tErr++; } DET.wl.push([n, w.s, w.k, w.b, r]); } }
-function detDoorWrap(o, name, k, fin, argf){   // a door: called from outside the sim's own run it becomes a word (kind k) and returns at once; fin = the finger's own step (the event's default, the answer the caller reads); argf = what of the call the word carries (default: every arg)
-  const f=o[name]; if(typeof f!=='function' || f.detDoor) return 0;
-  const g=function(){ if(!detFinger()) return f.apply(this, arguments); if(DET.rp){ DET.drop++; return fin? fin.apply(this, arguments) : true; }
-    const a=argf? argf.apply(this, arguments) : Array.prototype.slice.call(arguments); if(detIn(k, (k===DET_K.HERO || k===DET_K.ACT)? [name].concat(a) : a)<0){ DET.leak++; if(DET.leaks.length<20) DET.leaks.push([DET.tick, 'arg', name]); return f.apply(this, arguments); }
-    return fin? fin.apply(this, arguments) : true; };
-  g.detDoor=f; o[name]=g; DET.doors.push(name); return 1; }
-// ---- B3 EVERY SOLO DOOR (design/eng2-same-fight-1114/b3/00-CARD-ENG2-B3.md): THE DOOR IN THE LOG. The OUTERMOST battle door a fight came through (startRaid calls startRaidBattle; GVT.startLevel calls
-// startCampaign) names the fight in the log's head with what it reads, and a replay opens it the same way: the face-off's gate passed as GVT.startLevel passes it (the log starts at the fight; the
-// face-off's taps were the room's, before the match). n = the args the log carries (a number, a string, null or undefined each) · cur = the raid's door reads RAID_CUR, carried first · bag = the door
-// takes one bag the finger hands empty (texStart({})) · tail = args past n that must be absent for a solo fight the log can carry (a battleground's seat plan) · riv = the arg that names the army fought
-// (an ARMIES row, carried by its id, last; a rival sortie's, a queue's), and today = when it is absent the door reads todaysRival(), which reads the WALL DATE (new Date(): not the match's clock), so the
-// log carries the army it read · gate = the face-off passed. A door the log cannot carry names no door ('' in the head): its replay is refused, never guessed.
-var DET_DOOR={ startCampaign:{ n:1, gate:1 }, raid:{ fn:'startRaid', n:1, cur:1, gate:1 }, startPark:{ n:2 }, startMomRaid:{ n:0 }, startTraining:{ n:1 }, texStart:{ n:0, bag:1 }, startBattlefield:{ n:3, tail:1, riv:4, today:1 }, startBattle:{ n:1, riv:1 } };
-function detDoorArgs(D, a){ const L=[]; if(D.cur) L.push(String(RAID_CUR));
-  for(let i=0;i<D.n;i++){ const v=a[i], t=typeof v; if(v===undefined || v===null || t==='number' || t==='string') L.push(v); else return null; }
-  for(let i=D.n;i<D.n+(D.tail|0);i++) if(a[i]!=null) return null;
-  if(D.riv!=null){ const r=a[D.riv]; if(r==null) L.push(D.today? String(todaysRival().id) : null); else if(ARMIES.indexOf(r)>=0) L.push(String(r.id)); else return null; }
-  if(D.bag && a[0]!=null && !(typeof a[0]==='object' && Object.getPrototypeOf(a[0])===Object.prototype && !Object.keys(a[0]).length)) return null;
-  return L; }
-function detDoorOpen(L){ const D=DET_DOOR[L.door]; if(!D || !DET.on) return false; const f=window[D.fn||L.door]; if(typeof f!=='function') return false; const a=(L.dargs||[]).slice();   // a replay's door, the switch on alone
-  if(D.cur) RAID_CUR=String(a.shift());   // the raid's door reads the scene it was pressed in
-  if(D.riv!=null){ const id=a.pop(); let arm=(id==null)? null : (ARMIES.find(function(x){ return x.id===id; })||null); if(id!=null && !arm) return false;
-    if(D.today && arm && todaysRival()===arm) arm=undefined;   // the army the door reads itself today: the door's own call, byte for byte
-    while(a.length<D.riv) a.push(undefined); a.push(arm); }
-  if(D.bag) a.push({});
-  if(D.gate) FO_PASS=1; try{ f.apply(window, a); } finally{ if(D.gate) FO_PASS=0; } return true; }
-// ---- B2 THE FINGER'S CAMERA (the cold read, 11/15): a pan, a flick, a pinch move the camera on the wall clock, and on a grand or zoomed rug the sim reads it (bfVis gates fire; the escort camera's own
-// step reads S.pan, S.camOwn, S.camHold). So the camera is sampled at every tick's head against the last tick's foot: moved between ticks = a CAM word for this tick (live: what already stands; a replay sets it).
-function detCamKey(){ const c=S.bf? S.bf.cam : S.cCam; if(!c) return null; return [+c.x||0, +c.y||0, +c.vx||0, +c.vy||0, +S.camHold||0, S.camOwn? 1 : 0, S.pan? 1 : 0, +S.zoom||0, (S.bf && S.bf.panned)? 1 : 0]; }   // B3: + the battleground's own 'a hand moved the camera' (S.bf.panned: every pan and pinch raises it; the opener's pan lesson reads it in a tick)
-function detCamSame(a, b){ if(!a || !b) return a===b; for(let i=0;i<a.length;i++) if(!Object.is(a[i], b[i])) return false; return true; }
-function detCamApply(a){ if(!DET.rp) return 1;   // live: the camera already stands where the finger left it (the word records it); a replay sets it. Both answer 1: the log's words are the same
-  const c=S.bf? S.bf.cam : S.cCam; if(!c) return -1; c.x=a[0]; c.y=a[1]; c.vx=a[2]; c.vy=a[3]; S.camHold=a[4]; S.camOwn=!!a[5]; S.pan=a[6]? (S.pan || DET_PANGHOST) : null; S.zoom=a[7]; if(S.bf) S.bf.panned=!!a[8]; return 1; }
-function detCamHead(){ const k=detCamKey(), f=DET.camF; if(!f || !k) return;   // at the tick's head, before its words: the camera moved between ticks?
-  if(detCamSame(k, f)) return;
-  if(!DET.rp){ DET.inq.push({ t:DET.tick, s:0, k:DET_K.CAM, b:detEncArgs(k), q:0 }); DET.camN++; }   // live: the finger moved it: a word that lands first in this tick
-  else { const R=DET.rp.w; let has=false; for(let i=DET.rp.i;i<R.length && R[i].t<=DET.tick;i++) if(R[i].k===DET_K.CAM){ has=true; break; } if(!has) detCamApply(f); } }   // a replay: no word = nothing moved it in the fight that was played (the presentation's own drift is undone)
-// ---- B2 THE SENTINEL (the cold read, 11/15: the old one hashed around each tap on a timer a frame could beat, and never saw a move): the fight's hash at every tick's FOOT and again at the next tick's
-// HEAD, before its words: any change between them was made off the tick (a finger, a timer, the picture), whoever made it. The last input event is kept beside it to name the finger.
-function detFootHash(){ DET.tin++; try{ return detHash(0).h; } finally{ DET.tin--; } }
-function detLeakNote(e){ if(DET.match>0 && !DET.open) DET.lastEv=[DET.tick, e.type, String((e.target && (e.target.id || e.target.tagName)) || '')]; }
-function detUnmute(){ if(!DET.mute) return; DET.mute=0; if(DET.so!=null) soundOn=DET.so; DET.so=null; }
-function detWall(){ try{ return (DET.open && DET.nat.pOwn)? DET.nat.pOwn.call(performance) : Performance.prototype.now.call(performance); }catch(e){ return 0; } }   // the wall clock even inside the seeded world (a tick's cost, the pocket's pace)
-function detSaveDig(){ try{ const M=META, e=M.enh||{}, rc={}; ['ice','bone','croak','fields','palace','sky','caves','wreck','gmy','party','music','chess'].forEach(function(k){ const c=M[k]; if(c && typeof c==='object') rc[k]=[c.e|0, c.m|0, c.h|0, c.g|0, c.u|0]; });   // a raid's cell as a fight reads it: the tiers beaten (they hand the heroes); its bookkeeping (seen, rs) the boot fills in
-  const t=JSON.stringify([M.up||null, M.campaign|0, M.sargeUp||null, String(M.sargeWeapon||''), M.comms||null, e.on||null, M.gearUnlocked||null, M.platoon||null, (M.outfit||{}).wear||null, M.unlocked||null,
-    M.levelStars||null, M.lossRun||null, M.form||null, M.lossN|0, M.lossRung|0, rc, M.parks||null, M.emg|0,
-    (function(H){ if(!H || typeof H!=='object') return null; const o={}; Object.keys(H).sort().forEach(function(k){ const r=H[k]||{}; o[k]=[r.n|0, r.hp|0, Array.isArray(r.pk)? r.pk : []]; }); return o; })(M.heroMile), M.vehUp||null, M.sargeUnlocked||null, M.jetLvl||null, M.jetEng||null, M.jetV2||null, M.jetV3||null, (M.pet && typeof M.pet==='object')? [M.pet.sel||null, M.pet.own||null] : null]);
-  let h=0x811C9DC5; for(let i=0;i<t.length;i++) h=detFold(h, t.charCodeAt(i)); return detHex(detFold(h, t.length)); }catch(e){ return ''; } }   // B3: the WHOLE string folded (B2's fold went through detStr, which reads 64 characters: every row past them never moved the digest)   // B3 (M1's spy: a fight late on a page): + the rows a DOOR reads: the last rung's stars and the loss runs (biteDue: THE PROVEN PLAYER's bite at the next door), the 80% dial's book and the loss mercy, the raids' cells (the heroes they hand), the parks' rungs, the emergency package; after the cold read: the heroes' milestone ledgers (heroMile, as the fight reads it: each hero's count, banked HP and picks, the boot's empty defaults read alike), the vehicles' plates (vehUp), Sarge's irons owned (sargeUnlocked), the jet pack's rungs, the pet at Sarge's heel   // the save's fight-shaping rows (the army's ranks, the campaign, Sarge's ranks and iron, the briefings read, the lab's parts on, the gear, the platoon, what Sarge wears, the men unlocked; B3: and what a door reads): a log names the save it was played on, and a replay says whether it is on the same one
-// ---- B2 THE LOG: 'GVTW' · format u8 (1) · the client's version (str) · the seed u32 · the match's clock (D0 f64, T0 f64) · the door (str + args) · the save (str) · the words (u32 count, then each word)
-function detLogBytes(){ const h=DET.lh||{}, w=detBW(); w.raw([71, 86, 84, 87]); w.u8(1); w.str(String(GVT_CV)); w.u32(DET.seed); w.f64(+h.D0||0); w.f64(+h.T0||0); w.str(h.door||''); w.raw(detEncArgs(h.dargs||[])||[0]); w.str(h.sdig||'');
-  w.u32(DET.wl.length); for(let i=0;i<DET.wl.length;i++){ const x=DET.wl[i]; w.raw(detWordBytes(x[0], x[1], x[2], x[3])); } return w.a; }
-function detHexOf(a){ let s=''; for(let i=0;i<a.length;i++) s+=(a[i]<16? '0' : '')+(a[i]&255).toString(16); return s; }
-function detBytesOf(h){ h=String(h||''); if(h.length%2 || /[^0-9a-f]/i.test(h)) return null; const a=[]; for(let i=0;i<h.length;i+=2) a.push(parseInt(h.substr(i, 2), 16)); return a; }
-function detLogDec(hex){ try{ const b=(typeof hex==='string')? detBytesOf(hex) : hex; if(!b) return null; const r=detBR(b); if(r.n()!==71 || r.n()!==86 || r.n()!==84 || r.n()!==87) return null;
-  const L={ fmt:r.n() }; if(L.fmt!==1) return null; L.cv=r.str(); L.seed=r.u32(); L.D0=r.f64(); L.T0=r.f64(); L.door=r.str();
-  L.dargs=detReadArgs(r, 0); L.sdig=r.str(); const n=r.u32(); L.w=[];
-  for(let i=0;i<n;i++){ const t=r.u32(), s=r.n(), k=r.n(), len=r.u16(); L.w.push({ t:t, s:s, k:k, b:r.take(len), q:i+1 }); }
-  return (r.at()===b.length)? L : null; }catch(e){ return null; } }
-// ---- THE HASH
-// A row's fields are read as they stand (every own number, boolean and string; a nested {id} as its id; a nested plain bag's numbers, booleans and strings one deep, but DET_NOBAG), each by its raw 64 bits, summed over the row whatever order the
-// fields were made in (the picture adds its own to a sim row at a frame's pace), then folded row by row in the list's order. NOT read: DET_PIC, the picture's own clocks (and B3: the burrow trail's bag) kept on the sim's rows.
-var DET_PIC={ units:{ flA:1, flAt:1, wobH:1, wobPh:1, wobT:1, dg:1, jT:1, jA_lF:1, jA_lN:1, jA_aF:1, jA_aN:1, jA_tor:1, jA_hd:1, jTip:1, jUp:1, jBob:1, jSqx:1, jSqy:1, jBack:1, jShock:1, jPhi:1, jLfF:1, jLfN:1, jX:1, jVx:1, jWk0:1, kcfSx:1, kcfSy:1, kcfGx:1, kcfGy:1, kcfGt:1, kcfZ:1 }, foes:{ flA:1, flAt:1, dg:1, sky:{ dfgT:1 }, ptr2D:1, rxdRoar:1, mw:1 }, shots:{ rbN:1, rbT:1 }, dfs:{ eng:1 } };   // B3: + dg, CARD-DIG's burrow trail (the dirt's own bag on a burrowed foe or the ally snake, written by drawFoe / drawCkSnake: presentation only, by the card's own law) · + sky.dfgT, CARD-DFG's picture clock that skyDrawPlane's wrap writes INSIDE a plane foe's sim bag while it draws (a key of a bag: an object here names the bag's own picture keys) · + ptr2D, CARD-PTR2's drawFoe wrap caching an enlarged drawing's def on the man under a chute · + rxdRoar, King Rex's roar bubble (rxdDrawKing clears it; only the drawing reads it: kraKind, kraStep, rxmDrawOver) · dfs + eng, a dogfighter plane's ENGINE SOUND graph kept on its row (dfEngine: WebAudio nodes and last = performance.now()) · units + Jane's JOINT STATE, the 20 fields drawJane writes on her row every frame (0537 JANE'S MOTION REWORK: "NOTHING IN THE SIM READS THEM"; found by the cold read on the croak raid's hard tier)
-var DET_NOBAG={ def:1 };   // a row's def is its kind's own table (UDEF / the foe's sheet): the same for every row of a type, and the type is folded
-var DET_P={ x:1, y:1, vx:1, vy:1, tx:1, ty:1, vx2:1, lx9:1, ly9:1, vx9:1, vy9:1, laneY:1, jx:1 }, DET_H={ hp:1, hpMax:1, hits:1, kills:1, dmg:1, splash:1 }, DET_I={ id:1, foN:1 };   // the columns: places · health and harm · ids, words and flags · every other number (the clocks and counts)
-var DET_G=['t','wave','lives','plastic','waveActive','waveT','interT','speed','slowmo','hitStop','cleared','levelN','placedAny','bossKilled'], DET_GB={ tanBase:['x','y','hp','hpMax'], sq:['p','t','nextT','bite','fbite'], cfg:['n','hpMul','cntMul','bossF','rateMul'] };
-var DET_F64=new Float64Array(1), DET_U32=new Uint32Array(DET_F64.buffer), DET_KH={}, DET_ACC=[0,0,0,0];
-function detFold(h, v){ return Math.imul((h^(v|0))>>>0, 16777619)>>>0; }   // FNV-1a over 32-bit words
-function detQ(x, k){ return (typeof x==='number')? ((x===x)? Math.round(x*k) : -5) : (x===true? 1 : (x===false? 0 : (x==null? -7 : -9))); }
-function detStr(h, s){ s=String(s); const n=Math.min(64, s.length); for(let i=0;i<n;i++) h=detFold(h, s.charCodeAt(i)); return detFold(h, 0x5C); }
-function detHex(v){ return ('0000000'+(v>>>0).toString(16)).slice(-8); }
-function detKH(k){ let h=DET_KH[k]; if(h===undefined) h=DET_KH[k]=detStr(0x811C9DC5, k); return h; }
-function detVal(kh, v){   // one field as one 32-bit word: the key and the value's raw bits (a number's 64; every NaN is one NaN; -0 is not 0)
-  const t=typeof v; let lo, hi;
-  if(t==='number'){ if(v!==v){ lo=5; hi=0x7FF8B005; } else { DET_F64[0]=v; lo=DET_U32[0]; hi=DET_U32[1]; } }
-  else if(t==='boolean'){ lo=v? 1 : 2; hi=0x7FF8B001; } else if(t==='string'){ lo=detStr(0x811C9DC5, v); hi=0x7FF8B002; } else { lo=7; hi=0x7FF8B007; }
-  return detMix((kh^Math.imul(lo|0, 0x85EBCA6B)^Math.imul(hi|0, 0xC2B2AE35))|0); }
-function detRow(e, pic, cov){   // DET_ACC[0..3] = this row's I, P, H, T words
-  const A=DET_ACC; A[0]=A[1]=A[2]=A[3]=0;
-  for(const k in e){ if(pic && pic[k]===1) continue; const v=e[k], t=typeof v; let c;
-    if(t==='number') c=DET_I[k]===1? 0 : (DET_P[k]===1? 1 : (DET_H[k]===1? 2 : 3)); else if(t==='boolean' || t==='string') c=0;
-    else if(v && t==='object'){
-      if(typeof v.id==='number'){ A[0]=(A[0]+detVal(detKH(k+'>id'), v.id))>>>0; if(cov) cov[0][k+'>id']=1; }   // another row (a target, a shot's owner): by its id
-      else if(DET_NOBAG[k]!==1 && Object.getPrototypeOf(v)===Object.prototype){ const pb=pic && pic[k]; for(const j in v){ if(pb && pb[j]===1) continue; const w=v[j], tw=typeof w; if(tw==='number' || tw==='boolean' || tw==='string'){ const cj=(tw==='number')? ((j==='x' || j==='y' || DET_P[j]===1)? 1 : 3) : 0; A[cj]=(A[cj]+detVal(detKH(k+'.'+j), w))>>>0; if(cov) cov[cj][k+'.'+j]=1; } } }   // a plain bag on the row (a wander point, an anchor): one deep
-      else if(cov) cov[4][k]=1;
-      continue; }
-    else continue;
-    A[c]=(A[c]+detVal(detKH(k), v))>>>0; if(cov) cov[c][k]=1; } }
-function detList(L, pic, cols, cov){   // cols = [I, P, H, T] running words; a list's length first
-  for(let c=0;c<4;c++) cols[c]=detFold(cols[c], L.length);
-  for(let i=0;i<L.length;i++){ const e=L[i]; if(!e || typeof e!=='object'){ cols[0]=detFold(cols[0], -9); continue; } detRow(e, pic, cov); for(let c=0;c<4;c++) cols[c]=detFold(cols[c], DET_ACC[c]); } }
-function detHash(deep){
-  const I=0x811C9DC5, F=detFold; const C={}; const cv=deep? (DET.cov||(DET.cov={})) : null, gn=DET.gNever||(DET.gNever={});
-  const covOf=function(n){ return cv? (cv[n]||(cv[n]=[{},{},{},{},{}])) : null; };
-  let g=detStr(I, S.mode);
-  for(let i=0;i<DET_G.length;i++){ const k=DET_G[i], v=S[k]; g=F(g, detVal(detKH(k), v)); if(v===undefined){ if(gn[k]===undefined) gn[k]=1; } else gn[k]=0; }
-  for(const bk in DET_GB){ const bag=S[bk], L=DET_GB[bk]; g=F(g, bag? 1 : 0); for(let i=0;i<L.length;i++){ const k=bk+'.'+L[i], v=bag? bag[L[i]] : undefined; g=F(g, detVal(detKH(k), v)); if(bag){ if(v===undefined){ if(gn[k]===undefined) gn[k]=1; } else gn[k]=0; } } }
-  g=F(g, idc|0); g=F(g, (COMM && COMM.brief)? 1 : 0); C.g=g;
-  const q=[I,I,I,I]; detList(S.queue||[], null, q, covOf('queue')); C.q=F(F(F(q[0],q[1]),q[2]),q[3]);
-  const u=[I,I,I,I]; detList(S.units||[], DET_PIC.units, u, covOf('units')); C.uI=u[0]; C.uP=u[1]; C.uH=u[2]; C.uT=u[3];
-  const f=[I,I,I,I]; detList(S.foes||[], DET_PIC.foes, f, covOf('foes')); C.fI=f[0]; C.fP=f[1]; C.fH=f[2]; C.fT=f[3];
-  const s=[I,I,I,I]; detList(S.shots||[], DET_PIC.shots, s, covOf('shots')); C.sI=s[0]; C.sP=s[1]; C.sT=F(s[3], s[2]);
-  let o=I; const OL=['mines','gboul','fires','planes','forms','dfs','wrecks','breaths','crashes'];
-  for(let k=0;k<OL.length;k++){ const L=S[OL[k]]; if(!L || !Array.isArray(L)){ o=F(o, -1); continue; } const w=[I,I,I,I]; detList(L, DET_PIC[OL[k]]||null, w, covOf(OL[k])); o=F(F(F(F(o,w[0]),w[1]),w[2]),w[3]); }   // B3: an o list may name its picture's own keys too (DET_PIC.dfs)
-  C.o=o; C.dc=F(F(I, DET.dsec|0), DET.draws|0);
-  let x=I; const XL=['fx','floats','blobs','corpses'];   // the picture's own lists: reported beside the hash, NOT folded into it
-  for(let k=0;k<XL.length;k++){ const L=S[XL[k]]; x=F(x, L? L.length : -1); if(L) for(let i=0;i<L.length;i++){ const e=L[i]; if(e && typeof e==='object'){ x=F(x,detQ(e.x,16)); x=F(x,detQ(e.y,16)); x=F(x,detQ(e.t,1000)); } } }
-  const K=['g','q','uI','uP','uH','uT','fI','fP','fH','fT','sI','sP','sT','o','dc']; let a=I, b=0x9E3779B9;
-  for(let i=0;i<K.length;i++){ const v=C[K[i]]; a=F(a,v); b=(Math.imul((b<<5)|(b>>>27), 0x85EBCA6B)^v)>>>0; b=Math.imul(b^(b>>>13), 0xC2B2AE35)>>>0; }
-  const R={ h:detHex(a)+detHex(b), c:{}, x:detHex(x), n:[(S.units||[]).length, (S.foes||[]).length, (S.shots||[]).length] }; for(let i=0;i<K.length;i++) R.c[K[i]]=detHex(C[K[i]]);
-  if(deep) R.deep=detDeep();
-  return R; }
-function detDeep(){   // the rig's bisect table: one word for every plain field of the fight's state by its raw bits (S's own, S's plain bags one deep, every row of every list, a row's plain bags one deep and its {id}s), so two screens that differ name the field
-  const D={}, F=detFold, own=Object.prototype.hasOwnProperty;
-  const add=function(k, v){ let h=D[k]; if(h===undefined) h=0x811C9DC5; D[k]=F(h, detVal(0, v)); };
-  const obj=function(p, o, rows){ for(const k in o){ if(!own.call(o,k)) continue; const v=o[k], t=typeof v; if(t==='number' || t==='boolean' || t==='string') add(p+k, v);
-    else if(rows && v && t==='object'){ if(typeof v.id==='number') add(p+k+'>id', v.id); else if(DET_NOBAG[k]!==1 && Object.getPrototypeOf(v)===Object.prototype){ for(const j in v){ const tw=typeof v[j]; if(tw==='number' || tw==='boolean' || tw==='string') add(p+k+'.'+j, v[j]); } } } } };
-  obj('S.', S, 0);
-  for(const k in S){ if(!own.call(S,k)) continue; const v=S[k];
-    if(Array.isArray(v)){ add(k+'#', v.length); for(let i=0;i<v.length;i++){ const e=v[i]; if(e && typeof e==='object' && !Array.isArray(e)) obj(k+'.', e, 1); } }
-    else if(v && typeof v==='object' && Object.getPrototypeOf(v)===Object.prototype) obj('S.'+k+'.', v, 0); }
-  const R={}; for(const k in D) R[k]=detHex(D[k]); return R; }
-function detSecond(){ const r=detHash(DET.deep); r.s=(DET.tick/DET.hz)|0; r.t=DET.tick; r.dr=DET.dsec; DET.dsec=0; DET.sec.push(r); if(DET.sec.length>3600) DET.sec.shift(); }
-function detCov(){ const C=DET.cov, R={}; if(!C) return null; const N=['I','P','H','T','skipped']; for(const l in C){ R[l]={}; for(let c=0;c<5;c++) R[l][N[c]]=Object.keys(C[l][c]).sort(); } return R; }   // the rig's read: which fields each column really folded in this fight (and the object fields it passed over)
-// ---- THE RIG'S DOOR
-function detRig(o){ o=o||{};
-  if(o.seed!=null) DET.seed0=(+o.seed)>>>0; if(o.deep!=null) DET.deep=o.deep? 1 : 0; if(o.every!=null) DET.every=o.every? 1 : 0; if(o.warp!=null) DET.warp=Math.max(0, Math.min(40, o.warp|0)); if(o.maths!=null && !DET.open) DET.maths=o.maths? 1 : 0;
-  if(o.plan){ DET.plan=o.plan.slice().sort(function(p, q){ return (p.t|0)-(q.t|0); }); let i=0; if(DET.match>0 && detRuns()) while(i<DET.plan.length && DET.plan[i].t<DET.tick) i++; DET.pi=i; }
-  if(o.replay){ const L=detLogDec(o.replay); if(!L) return { err:'the log does not read' }; const sd=detSaveDig(); DET.rp={ h:L, w:L.w, i:0, used:0, sdig:sd, saveSame:(L.sdig===sd) }; DET.rpDone=null; DET.seed0=L.seed>>>0; DET.plan=[]; DET.pi=0;   // B2 THE REPLAY: the fight from its log alone (it says whether this page holds the save the log names)
-    if(o.go && !detDoorOpen(L)) return { err:'the log names no door this page can open: '+(L.door || '(a door the log could not carry)') }; }   // B3: every solo door, opened the way it was (DET_DOOR)
-  return { cv:GVT_CV, on:DET.on, runs:detRuns(), seed:DET.seed, seed0:DET.seed0, match:DET.match, tick:DET.tick, lagS:Math.round(DET.lagS*1000)/1000, lagN:DET.lagN, frames:DET.fr, gapMax:Math.round(DET.gmax*1000)/1000, warp:DET.warp, maths:DET.maths, open:DET.open, kind:DET.kind, mode:S.mode, held:DET.held,
-    draws:DET.dall, timers:{ made:DET.tN, waiting:DET.tq.length, flushed:DET.tFlush, err:DET.tErr }, wrapped:DET.wrapped.slice(), plan:DET.plan.length, pi:DET.pi, did:DET.did.slice(), log:DET.log.slice(-200),
-    gNever:DET.gNever? Object.keys(DET.gNever).filter(function(k){ return DET.gNever[k]===1; }) : [], cov:o.cov? detCov() : null, pic:DET_PIC,
-    sec:(o.sec===0)? null : DET.sec.slice(o.from|0), tk:o.tk? DET.tk.slice() : null, now:o.now? detHash(o.now>1) : null,
-    words:{ waiting:DET.inq.length, landed:DET.wl.length, drop:DET.drop, list:(o.words? DET.wl : DET.wl.slice(-40)).map(function(x){ return [x[0], x[1], x[2], detHexOf(x[3]), x[4]]; }) }, log:o.log? detHexOf(detLogBytes()) : null, head:DET.lh,
-    rp:DET.rp? { i:DET.rp.i, n:DET.rp.w.length, used:DET.rp.used, saveSame:DET.rp.saveSame } : (DET.rpDone? { i:DET.rpDone.i, n:DET.rpDone.w.length, used:1, done:1, saveSame:DET.rpDone.saveSame } : null), cams:DET.camN,
-    dial:DET.spd, hold:DET.hold, owe:DET.owe, paid:DET.paid, payN:DET.payN, tcost:Math.round(DET.tcost*1000)/1000, leak:DET.leak, leaks:DET.leaks.slice(), doors:DET.doors.slice() }; }
-// ---- THE WRAPS: only with the switch on (off: not one name is touched)
-if(DET.on){ try{
-  DET.nat.dnow=Date.now; DET.nat.rnd=Math.random; DET.nat.st=window.setTimeout;
-  const reset0=reset; reset=function(){ detMatch(); return reset0.apply(this, arguments); }; DET.wrapped.push('reset');
-  const place0=placeUnit; placeUnit=function(type, x, y, side, seat){ if(DET.open || !detRuns()) return place0.apply(this, arguments);   // a hand placement between two ticks: its own dice (seed, input number), written in the log with its tick
-    detOpen('i'); detSeedAt(2, DET.inN++); try{ if(DET.log.length<4000) DET.log.push([DET.tick, 'place', String(type), Math.round(x*16)/16, Math.round(y*16)/16]); return place0.apply(this, arguments); } finally{ detShut(); } }; DET.wrapped.push('placeUnit');
-  for(let i=0;i<DET.outs.length;i++) if(detOutWrap(DET.outs[i])) DET.wrapped.push(DET.outs[i]);
-  // B2 THE DOORS: each wrapped here alone (the switch off: not one of them is touched)
-  detDoorWrap(window, 'dropNew', DET_K.PLACE);   // a placement and its purse (the finger's drop, the tap's flight, the nearest spot: one seat)
-  for(let i=0;i<DET_HERO.length;i++) detDoorWrap(window, DET_HERO[i], DET_K.HERO);   // the hero's buttons
-  detDoorWrap(window, 'spawnWave', DET_K.WAVE);   // the wave button (the sim's own calls come from inside a tick and pass)
-  detDoorWrap(window, 'commAdvance', DET_K.BRIEF, function(e){ if(e){ try{ e.preventDefault(); e.stopPropagation(); }catch(x){} } return true; }, function(){ return []; });   // a briefing's tap (the finger's event is still taken at once; the word carries nothing of it)
-  if(typeof UI==='object' && UI){ detDoorWrap(UI, 'hqRetreat', DET_K.QUIT); detDoorWrap(UI, 'trainExit', DET_K.QUIT, null, function(){ return ['trainExit']; }); }   // RETREAT TO HQ · B3: the range's EXIT (the range has no verdict: the exit ends its fight)
-  { const ho0=hqOpen, hc0=hqClose;   // THE HQ SHEET'S HOLD (and the campaign's pause glyph, the same door): the sheet opens and closes at once; the fight's hold is a word
-    hqOpen=function(){ const was=HQS.on, f=detFinger(); const r=ho0.apply(this, arguments); if(f && !was && HQS.on && !DET.rp) detIn(DET_K.HOLD, [1]); return r; };
-    hqClose=function(){ const was=HQS.on, f=detFinger(); const r=hc0.apply(this, arguments); if(f && was && !HQS.on && !DET.rp) detIn(DET_K.HOLD, [0]); return r; }; DET.doors.push('hqOpen', 'hqClose'); }
-  { const th0=tckHide, tb0=tckBack;   // A PUT-AWAY PHONE: the hide is a word (a record); the way back is a word carrying the span owed as WHOLE TICKS (TCK's own reckoning: the wall across the pocket, less what the loop stepped in it, capped at TCK.max)
-    tckHide=function(){ const f=detFinger(); const r=th0.apply(this, arguments); if(f && !DET.rp) detIn(DET_K.AWAY, [1, 0]); return r; };
-    tckBack=function(){ const f=detFinger(); const r=tb0.apply(this, arguments); if(f){ const n=Math.max(0, Math.min(Math.round(TCK.max*DET.spd/SIM_STEP_S), Math.round((+TCK.back||0)*DET.spd/SIM_STEP_S))); TCK.back=0; DET.skipGap=1; if(!DET.rp) detIn(DET_K.AWAY, [0, n]); } return r; }; DET.doors.push('tckHide', 'tckBack'); }
-  for(const nm in DET_DOOR){ const D=DET_DOOR[nm], fn=D.fn||nm, f0=window[fn]; if(typeof f0!=='function' || f0.detDoorN) continue;   // B3 THE DOOR IN THE LOG: every solo battle door (the outermost names the fight; B2 named startCampaign alone)
-    const g=function(){ if(DET.doorNow) return f0.apply(this, arguments); const a=detDoorArgs(D, arguments); DET.doorNow={ d:a? nm : '', a:a||[] }; try{ return f0.apply(this, arguments); } finally{ DET.doorNow=null; } };
-    g.detDoorN=nm; window[fn]=g; DET.wrapped.push(fn); }
-  for(let i=0;i<DET_ACT.length;i++) detDoorWrap(window, DET_ACT[i], DET_K.ACT);   // B3: the field's acts (the Toy Express's tap, the range's shelf)
-  { const gb0=window.gmyBag; if(typeof gb0==='function'){ gmyBag=function(){ if((!DET.open || DET.out>0) && detRuns()){ const rd=S.raid; if(rd && rd.k==='gmy' && rd.cfg===S.cfg && !rd.gmy) return null; } return gb0.apply(this, arguments); }; DET.wrapped.push('gmyBag'); } }   // B3 THE LAZY BAG: the Giant Mummy's bag is built by its FIRST caller, with dice (the first spider, the first bat); the drawing (outside a tick: the browser's own dice) must never be that caller, so the first tick builds it on the seeded stream
-  { DET.spd=+S.speed||1; Object.defineProperty(S, 'speed', { configurable:true, enumerable:true, get:function(){ return DET.tin? 1 : DET.spd; },   // THE DIAL AS TICKS: inside a tick the dial reads x1 (the fight is the x1 fight); outside it is the dial
-    set:function(v){ v=+v; if(!(v>0)) v=1; const f=detFinger() && v!==DET.spd; DET.spd=v; if(f && !DET.rp) detIn(DET_K.SPEED, [v, S.spdI|0]); } }); DET.wrapped.push('S.speed'); }   // a finger's turn of the dial is a word too (the log keeps the pace)
-  { const L=['pointerdown','pointermove','pointerup','click','keydown','wheel','touchstart','touchmove','gesturechange']; for(let i=0;i<L.length;i++) window.addEventListener(L[i], detLeakNote, { capture:true, passive:true }); }   // THE SENTINEL's names (the last input, beside a change seen off the tick)
-  { const pf0=premFrozen; premFrozen=function(){ if(DET.rp && detRuns()) return false; return pf0.apply(this, arguments); }; DET.wrapped.push('premFrozen'); }   // a REPLAY never waits on the first-drop card (it freezes the tick clock and holds no fight byte; a log has no finger to take it)
-  const ct0=window.clearTimeout; window.clearTimeout=function(id){ if(typeof id==='number' && id>DET_TID0){ const Q=DET.tq; for(let i=0;i<Q.length;i++) if(Q[i].id===id){ Q.splice(i,1); return; } if(DET.tmap[id]!=null){ const n=DET.tmap[id]; delete DET.tmap[id]; return ct0.call(window, n); } return; } return ct0.apply(window, arguments); };
-}catch(e){ DET.on=0; try{ console.error('CARD-ENG2-B', e); }catch(e2){} } }
-try{ if(window.GVT && !GVT.det) GVT.det=detRig; }catch(e){}
-setTimeout(function(){ try{ if(window.GVT && !GVT.det) GVT.det=detRig; }catch(e){} }, 0);   // the rig door (the house's way)
-// ═══ END CARD-ENG2-B ═══
 // ═══ CARD-WDF · ONE PICTURE, ONE ADDRESS: THE STILL ROOM WRITES ITS PICTURES WITHOUT CARD-WFL'S EMPTY HOLDER (sec:CARD-WDF; design/wfl-defs-one-address-1115/00-CARD-WDF.md; jumpr 3483, built
 //   on the QuarterPounder as M3483; found by CARD-AWS's landing 3451m, its flag L-F4). His rule, 11/12/2026 16:39 EST (jumpr 3284), verbatim: "Yes fix- and dont ask in these situations. Its clearly
 //   implied that we do not want a laggy screen in the game"
@@ -241035,6 +240591,586 @@ function bfkRead(o){ if(o && typeof o==='object'){ if('on' in o){ BFK.on=o.on? 1
 try{ if(window.GVT && !GVT.bfk) GVT.bfk=bfkRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.bfk) GVT.bfk=bfkRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-BFK ═══
+// ═══ CARD-ENG2-B THE SAME FIGHT ON EVERY PHONE, THE FIRST SLICE (sec:CARD-ENG2-B; design/eng2-same-fight-1114/00-CARD-ENG2-B.md; the design: design/native-engine-1114/00-DESIGN-ENG2.md §3.6 + §5 card B; from Maker 1).
+// FROM WYATT 11/14/2026 ~19:40 EST, typed on Maker 1, his GO on ENG2-Q1, verbatim: "proceed with it; use ultracode and best practices."
+// THE SWITCH: ?det=1 in the address, this launch only (never remembered: a test switch). WITHOUT IT NOTHING HERE RUNS: no name is wrapped, no clock or die is touched, frame()'s two hunks read detGate() === -1
+// and run the shipped body once with the shipped gap and dt. WITH IT, a SOLO fight (never a party: S.coop; never an event's hold) is stepped the same way on every screen:
+//   THE CLOCK   frame() feeds an accumulator with the frame's gap; every 0.05 s owed is ONE TICK, and a tick is frame()'s own shipped body run with gap = dt = 0.05 exactly (the game as a perfect 20-a-second phone
+//               runs it: hitStop, the flag, the coach, update(0.05 x the dial x the beats), the glides). The picture is drawn once a frame as ever (it moves 20 times a second in this slice: the in-between
+//               drawing is a later card). No wall clock inside a tick: performance.now() and Date.now() answer the MATCH clock there (the match's start + 50 ms a tick), and a setTimeout made inside a tick is
+//               held on the tick clock (it fires at the head of the tick ceil(ms/50) later; when the fight ends, what is left goes back to the browser's own timers).
+//   THE DICE    one MATCH SEED (?detseed=N, or the rig's GVT.det({seed}), or drawn fresh at the door). Inside a tick Math.random IS a seeded stream (sfc32, whole numbers only), re-seeded at every tick from
+//               (seed, tick): the dice of tick T depend on nothing but the seed, T and the order of the draws inside T. The battle door's own setup (reset() to the end of the door's call) and a hand placement
+//               draw from streams of their own (seed, door) and (seed, input number). THE PRESENTATION'S DICE STAY ON Math.random: everything outside a tick (draw(), the menus, the rooms) never sees the
+//               stream, and the sound doors (DET.outs: tone, noise, bfSfx) step OUT of it while they run, because they roll only when this phone's sound is on or the spot is on this phone's screen.
+//   THE MATHS   inside a tick Math.sin, cos, tan, atan, atan2, asin, acos, exp, log, hypot and pow are this section's own (DETM): the same bits in every engine (the browsers' own differ in the last bit).
+//               (B3) and cbrt, log2, log10, expm1 and tanh too: CARD-ENG2-M1's strict five (design/eng2-maths-1115/kit/hunkM1.mjs, laid in this file whole), so no Math function of the browser's own is reached in a tick.
+//   THE HASH    every 20 ticks (one second of the match clock) detHash() folds the fight: the globals, the wave's queue, every man, every foe, every shot (rows in the lists' order; EVERY plain field a row
+//               really holds, by its raw 64 bits, but the picture's own clocks kept on the sim's rows: DET_PIC), the other sim lists, and the count of dice drawn. 64 bits as 16 hex digits, with one
+//               32-bit word a column so a mismatch names its column. Equal hashes = the same floats, not floats that round the same.
+//   THE MATCH   every battle door wipes first (reset()): there the match is born, and S.t and the id counter start again (the game's own wipe keeps both from the page's last fight, and the fight keys
+//               its maths on ids and on S.t), so a fight is a function of (seed, words) alone, whatever the page did before.
+//   THE WORDS   (CARD-ENG2-B2, the second slice) EVERY FINGER IS A TICK-STAMPED WORD. A word = a tick, a seat, a kind and opaque bytes (the args in a tagged grammar: design/eng2-same-fight-1114/b2/WORDS.md, with
+//               test vectors). Every way a player changes a solo fight goes through ONE INPUT DOOR: the door's own function (dropNew = a placement and its purse; the veteran pill; the hero's one-tap
+//               buttons by name, DET_HERO; spawnWave from the button; the speed dial; hqOpen / hqClose = the HQ sheet's hold and the pause glyph; commAdvance = a briefing's tap; tckHide / tckBack = a
+//               put-away phone; UI.hqRetreat) called from OUTSIDE the sim's own run (between ticks, or inside a presentation door) becomes a word for the NEXT tick, and the next tick's head applies the
+//               words in a fixed order (seat, then arrival), inside the tick's dice and clock. The finger's own feedback (the sheet, the drag, the clack) stays at once; what changes the fight waits for its
+//               tick. A rig's plan (GVT.det({plan})) is a word too (kind 100). Nothing acts on the fight between ticks on the wall clock: a sentinel hashes the fight across every tap, click and key and
+//               counts any change made outside a tick (DET.leak).
+//   THE LOG     seed + version + the words = the whole fight: GVT.det({log:1}).log is the fight as bytes (hex): a header (GVTW, the format, the client's version, the seed, the match's own clock, the
+//               door) and every word as it landed. GVT.det({replay:hex, go:1}) plays a fight from its log alone (no finger is heard; the log's clock and seed).
+//   THE DIAL    the speed dial is the PACE of the ticks, never their size: inside a tick S.speed reads 1, and x2 runs two 0.05 s ticks where x1 runs one (a x2 fight is the x1 fight, twice as fast).
+//   THE POCKET  a put-away phone owes its span as WHOLE TICKS, fixed in its word (AWAY) when the phone comes back, paid muted at the tick's own pace; a frozen pocket owes none and comes back the same.
+//               The heartbeat's and the sound graph's own clocks (btyWake, btyAudioAsk) and the tap's flight (tapFlyTick) are presentation doors: they read the wall clock and the browser's dice.
+//   THE DOORS   (CARD-ENG2-B3, the third slice) EVERY SOLO DOOR: the campaign, the raids, the parks, the battleground against computers, Mom, the training range, the Toy Express, the classic carpet. The
+//               outermost battle door a fight came through names it in the log's head with what it reads (a raid's door reads RAID_CUR), and a replay opens it the same way (DET_DOOR, detDoorOpen). A
+//               field act that is not a hero's button (the Toy Express's tap on the roof ahead, the range's shelf) is a word too (ACT, DET_ACT). The picture's and the wire's own timers made inside a tick
+//               (WebKit's mold-on-demand: a sprite build on a zero-delay timer and a save of names on a 1.5 s one; the telemetry's queue and its 20 s flush) run on the browser's own timers: presentation doors.
+//   THE HOLDS   (CARD-ENG2-B2b, the fourth slice) A GESTURE THAT STARTS AT A PRESS AND ACTS AT A LIFT IS THREE WORDS: the press (GRIP), the aim (AIM) and the lift (LIFT). The jet pack's V2 hold, the cavalry's
+//               call and lane, the fire trail (its hold, its armed pen, its second tap) and the energy shot's hold each keep TWO copies of their state on S: the FIGHT's (made and moved only by words, inside
+//               a tick: the game's own press, move and lift functions run there) and the FINGER's (a ghost of it under the finger's own aim: the reticle, the nib, the lane's dots stay with the finger at
+//               once). The aim is sampled at each tick's head while the finger is down (one word a tick it moved) and once more in front of a lift. What a button's press decides between (the fire trail's
+//               hold or the crystal's plain cast; the energy shot's cast and then its hold) is decided where the word lands. What the finger holds as the fight reads it (a figure from the tray, a lifted
+//               man, a flying man, the V1 jet's aim) is a word too (HAND, sampled as the camera is), and the classic carpet's re-drop of a lifted man is one (MOVE, hunk E).
+// NOT HERE (the next cards of ENG2-B): whole-number maths, party fights and the relay, the device words, the daily report's desync count, the in-between drawing.
+// GVT.det(o) = the rig's door (read; o.seed / o.plan / o.deep / o.every / o.warp / o.maths / o.log / o.replay / o.go for a rig). Zero server, wire or word bytes; the one save write is the veteran pill's own stat line. ═══
+var DET={ on:(function(){ try{ const q=/[?&]det=([01])/.exec(location.search||''); return (q && q[1]==='1')? 1 : 0; }catch(e){ return 0; } })(),
+  seed0:(function(){ try{ const q=/[?&]detseed=(\d{1,10})/.exec(location.search||''); return q? (+q[1])>>>0 : null; }catch(e){ return null; } })(),
+  hz:20, catchS:0.25, warp:0, maths:1,   // ticks a hash · the most wall time one frame may feed the accumulator (so 5 ticks at most a frame; what a longer frame had over it is DROPPED and counted in lagS / lagN) · the rig's fast forward (ticks a frame, whatever the gap) · maths 0 = the browser's own Math inside a tick (the rig's bisect lever: it brings the two-engine split back)
+  outs:['tone','noise','bfSfx','btyWake','btyAudioAsk','tapFlyTick','mfnAsk','mfnSoon','mfnLearn','tel','telArm'],   // THE PRESENTATION'S DOORS inside a tick: they run on the browser's own Math.random, clock and timers (B2: + the heartbeat's and the sound graph's own stamps, and the tap's flight; B3: + WebKit's mold-on-demand (its asks, the sprite build's zero-delay timer, the learned names' save) and the telemetry's queue and flush: the picture's and the wire's work, never the fight's)
+  seed:0, match:0, tick:0, acc:0, lagS:0, lagN:0, fr:0, gmax:0, open:0, out:0, kind:'', door:0, a:0, b:0, c:0, d:0, draws:0, dsec:0, dall:0, clockN:0, T0:0, D0:0, inN:0,
+  plan:[], pi:0, did:[], log:[], sec:[], tk:[], deep:0, every:0, tq:[], tseq:0, tmap:{}, tN:0, tErr:0, tFlush:0, spy:null, held:0, wrapped:[], gNever:null, cov:null, skip:null,
+  nat:{ rnd:null, st:null, dnow:null, pOwn:null, m:{}, mOn:0 },
+  inq:[], wseq:0, wl:[], app:0, tin:0, rp:null, rpDone:null, drop:0, lh:null, doorNow:null, doors:[], hold:0, hqUI:false, spd:1, owe:0, paid:0, payN:60, tcost:0, tw0:0, mute:0, so:null, leak:0, leaks:[], lastEv:null, footH:null, camF:null, camN:0, skipGap:0,
+  hd:{}, gn:0, wNow:null, aimBtn:null, handF:null, handO:null, handN:0, hw:0, penHid:0 };   // B2b: the holds (a hold's two copies: the fight's and the finger's), the grips counted, the word landing, an AIM word's own 'still on the button', the hand at the last foot (its key, its two objects), HAND words made, a hold's state written from the finger's side   // B2: the words waiting (inq) and landed (wl), a word applying (app), a tick running (tin), the replay (rp), the hold, the dial, the pocket's debt (owe) and its pace (payN), the sentinel
+var DET_TID0=1099511627776;   // a tick-clock timer's id starts past 2^40: never a browser's own
+function detOn(){ return !!(DET && DET.on); }
+function detRuns(){ return !!(DET.on && DET.match>0 && S.mode==='play' && !S.coop && !S.evHold); }   // this slice: a solo fight alone
+// ---- THE DICE: sfc32 on 32-bit whole numbers (the same bits in every engine), seeded through a murmur-style mixer
+function detMix(a){ a=(a+0x9E3779B9)|0; let t=a^(a>>>16); t=Math.imul(t,0x21F0AAAD); t=t^(t>>>15); t=Math.imul(t,0x735A2D97); return (t^(t>>>15))>>>0; }
+function detNext(){ const a=DET.a, b=DET.b; let c=DET.c; const d=DET.d, t=(((a+b)|0)+d)|0; DET.d=(d+1)|0; DET.a=b^(b>>>9); DET.b=(c+(c<<3))|0; c=(c<<21)|(c>>>11); DET.c=(c+t)|0; return (t>>>0)/4294967296; }
+function detSeedAt(salt, n){ let h=detMix((DET.seed^Math.imul(salt|0,0x85EBCA6B))|0); h=detMix((h^Math.imul((n|0)+1,0xC2B2AE35))|0); DET.a=h|0; DET.b=detMix(h+1)|0; DET.c=detMix(h+2)|0; DET.d=1; for(let i=0;i<8;i++) detNext(); }
+function detRnd(){ DET.draws++; if(DET.spy) DET.spy('r'); return detNext(); }
+// ---- THE MATCH CLOCK inside a tick (a read moves it 1/64 ms, so a loop that waits on the clock still ends, the same on every screen)
+function detPNow(){ if(DET.spy) DET.spy('p'); return DET.T0+DET.tick*50+(++DET.clockN)*0.015625; }
+function detDNow(){ if(DET.spy) DET.spy('d'); return DET.D0+DET.tick*50; }
+function detSetT(fn, ms){ if(typeof fn!=='function') return DET.nat.st.apply(window, arguments);
+  const id=DET_TID0+(++DET.tseq); DET.tq.push({ id:id, at:DET.tick+Math.max(1, Math.ceil((+ms||0)/50-1e-9)), fn:fn, a:arguments.length>2? Array.prototype.slice.call(arguments,2) : null }); DET.tN++; return id; }
+function detTimersRun(){ const Q=DET.tq; if(!Q.length) return; const n=DET.tick; let due=null; for(let i=0;i<Q.length;i++) if(Q[i].at<=n) (due||(due=[])).push(Q[i]); if(!due) return;
+  DET.tq=Q.filter(function(x){ return x.at>n; });
+  for(let i=0;i<due.length;i++){ try{ due[i].fn.apply(window, due[i].a||[]); }catch(e){ DET.tErr++; try{ console.error(e); }catch(e2){} } } }
+function detFlush(){ const Q=DET.tq; DET.tq=[]; for(let i=0;i<Q.length;i++){ const x=Q[i]; try{ DET.tmap[x.id]=window.setTimeout(function(){ delete DET.tmap[x.id]; x.fn.apply(window, x.a||[]); }, Math.max(0,(x.at-DET.tick)*50)); DET.tFlush++; }catch(e){} } }   // the fight ended (or left this slice's road): what the tick clock still held goes back to the browser's own timers
+// ---- THE MATHS inside a tick. Measured on this Mac (rig/floatProbe.mjs): Chrome's and WebKit's Math.sin, cos, tan, atan, atan2, asin, acos, exp, log and hypot differ in the last bit (sin in 219 of 5,000
+// inputs, hypot in 1,909), and one bit moved a foe on the 259th tick of the first two-engine fight. So inside a tick those ten (and pow) are these: built from + - * / and Math.sqrt alone (the five every
+// engine must round the same way), the textbook kernels (fdlibm's constants), read off the number's own bits where a logarithm needs them. Not whole-number maths (a later card): the same floats everywhere.
+var DETM=(function(){
+  const f64=new Float64Array(1), u32=new Uint32Array(f64.buffer);   // u32[1] = the high word (every phone and computer the game runs on is little-endian)
+  const P2=new Float64Array(2100); { let v=1; for(let k=0;k<=1023;k++){ P2[1075+k]=v; v*=2; } v=1; for(let k=0;k>=-1074;k--){ P2[1075+k]=v; v/=2; } }   // 2^k, exact, by doubling
+  const PI=3.1415926535897931160e+00, PI_LO=1.2246467991473531772e-16, PIO2=1.5707963267948966, PIO4=0.7853981633974483, PIO2_1=1.57079632673412561417e+00, PIO2_1T=6.07710050650619224932e-11, INVPIO2=6.36619772367581382433e-01;
+  const S1=-1.66666666666666324348e-01, S2=8.33333333332248946124e-03, S3=-1.98412698298579493134e-04, S4=2.75573137070700676789e-06, S5=-2.50507602534068634195e-08, S6=1.58969099521155010221e-10;
+  const C1=4.16666666666666019037e-02, C2=-1.38888888888741095749e-03, C3=2.48015872894767294178e-05, C4=-2.75573143513906633035e-07, C5=2.08757232129817482790e-09, C6=-1.13596475577881948265e-11;
+  const AT=[3.33333333333329318027e-01,-1.99999999998764832476e-01,1.42857142725034663711e-01,-1.11111104054623557880e-01,9.09088713343650656196e-02,-7.69187620504482999495e-02,6.66107313738753120669e-02,-5.83357013379057348645e-02,4.97687799461593236017e-02,-3.65315727442169155270e-02,1.62858201153657823623e-02];
+  const AHI=[4.63647609000806093515e-01,7.85398163397448278999e-01,9.82793723247329054082e-01,1.57079632679489655800e+00], ALO=[2.26987774529616870924e-17,3.06161699786838301793e-17,1.39033110312309984516e-17,6.12323399573676603587e-17];
+  const LN2HI=6.93147180369123816490e-01, LN2LO=1.90821492927058770002e-10, INVLN2=1.44269504088896338700e+00;
+  const P1=1.66666666666666019037e-01, Pb=-2.77777777770155933842e-03, P3=6.61375632143793436117e-05, P4=-1.65339022054652515390e-06, P5=4.13813679705723846039e-08;
+  const Lg1=6.666666666666735130e-01, Lg2=3.999999999940941908e-01, Lg3=2.857142874366239149e-01, Lg4=2.222219843214978396e-01, Lg5=1.818357216161805012e-01, Lg6=1.531383769920937332e-01, Lg7=1.479819860511658591e-01;
+  const sqrt=Math.sqrt, abs=Math.abs, round=Math.round;
+  let RR=0;
+  function ksin(x){ const z=x*x, v=z*x, r=S2+z*(S3+z*(S4+z*(S5+z*S6))); return x+v*(S1+z*r); }
+  function kcos(x){ const z=x*x, r=z*(C1+z*(C2+z*(C3+z*(C4+z*(C5+z*C6))))); return 1-(0.5*z-z*r); }
+  function red(x){ const n=round(x*INVPIO2); RR=(x-n*PIO2_1)-n*PIO2_1T; return n; }   // x = n * pi/2 + RR (two-part pi/2: exact enough for every angle a fight holds)
+  function sin(x){ x=+x; if(x!==x || x===Infinity || x===-Infinity) return NaN; if(x===0) return x; if(abs(x)<PIO4) return ksin(x); const n=red(x)&3; return n===0? ksin(RR) : n===1? kcos(RR) : n===2? -ksin(RR) : -kcos(RR); }
+  function cos(x){ x=+x; if(x!==x || x===Infinity || x===-Infinity) return NaN; if(abs(x)<PIO4) return kcos(x); const n=red(x)&3; return n===0? kcos(RR) : n===1? -ksin(RR) : n===2? -kcos(RR) : ksin(RR); }
+  function tan(x){ return sin(x)/cos(x); }
+  function atan(x){ x=+x; if(x!==x) return NaN; const neg=x<0 || (x===0 && 1/x<0); let a=abs(x), id; if(a>=73786976294838206464) return neg? -PIO2 : PIO2;
+    if(a<0.4375){ if(a<7.450580596923828e-9) return x; id=-1; } else if(a<1.1875){ if(a<0.6875){ id=0; a=(2*a-1)/(2+a); } else { id=1; a=(a-1)/(a+1); } } else if(a<2.4375){ id=2; a=(a-1.5)/(1+1.5*a); } else { id=3; a=-1/a; }
+    const z=a*a, w=z*z, s1=z*(AT[0]+w*(AT[2]+w*(AT[4]+w*(AT[6]+w*(AT[8]+w*AT[10]))))), s2=w*(AT[1]+w*(AT[3]+w*(AT[5]+w*(AT[7]+w*AT[9]))));
+    const r=(id<0)? a-a*(s1+s2) : AHI[id]-((a*(s1+s2)-ALO[id])-a); return neg? -r : r; }
+  function atan2(y, x){ y=+y; x=+x; if(x!==x || y!==y) return NaN; const sy=y<0 || (y===0 && 1/y<0), sx=x<0 || (x===0 && 1/x<0);
+    if(y===0) return sx? (sy? -PI : PI) : y; if(x===0) return sy? -PIO2 : PIO2;
+    const ix=(x===Infinity || x===-Infinity), iy=(y===Infinity || y===-Infinity);
+    if(ix){ if(iy) return sx? (sy? -3*PIO4 : 3*PIO4) : (sy? -PIO4 : PIO4); return sx? (sy? -PI : PI) : (sy? -0 : 0); } if(iy) return sy? -PIO2 : PIO2;
+    const z=atan(abs(y)/abs(x)); if(!sx) return sy? -z : z; return sy? (z-PI_LO)-PI : PI-(z-PI_LO); }
+  function asin(x){ x=+x; if(x!==x || x>1 || x<-1) return NaN; return atan2(x, sqrt((1-x)*(1+x))); }
+  function acos(x){ x=+x; if(x!==x || x>1 || x<-1) return NaN; return atan2(sqrt((1-x)*(1+x)), x); }
+  function exp(x){ x=+x; if(x!==x) return NaN; if(x>709.782712893384) return Infinity; if(x<-745.1332191019411) return 0;
+    const k=round(x*INVLN2), hi=x-k*LN2HI, lo=k*LN2LO, r=hi-lo, t=r*r, c=r-t*(P1+t*(Pb+t*(P3+t*(P4+t*P5)))), y=1-((lo-(r*c)/(2-c))-hi);
+    return k>1023? y*P2[2098]*P2[1075+k-1023] : (k<-1022? y*P2[1075+k+1000]*P2[75] : y*P2[1075+k]); }
+  function log(x){ x=+x; if(x!==x || x<0) return NaN; if(x===0) return -Infinity; if(x===Infinity) return Infinity;
+    let k=0; f64[0]=x; let hx=u32[1]; if(hx<0x00100000){ x*=18014398509481984; k=-54; f64[0]=x; hx=u32[1]; }
+    k+=(hx>>>20)-1023; hx&=0x000fffff; const i=(hx+0x95f64)&0x100000; u32[1]=hx|(i^0x3ff00000); k+=(i>>>20);
+    const f=f64[0]-1, s=f/(2+f), z=s*s, w=z*z, t1=w*(Lg2+w*(Lg4+w*Lg6)), t2=z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7))), R=t2+t1, hf=0.5*f*f;
+    return k*LN2HI-((hf-(s*(hf+R)+k*LN2LO))-f); }
+  function hypot(x, y){ const n=arguments.length; if(n===2){ x=+x; y=+y; return sqrt(x*x+y*y); } let s=0; for(let i=0;i<n;i++){ const v=+arguments[i]; s+=v*v; } return sqrt(s); }
+  function pow(x, y){ x=+x; y=+y; if(y===0) return 1; if(x!==x || y!==y) return NaN; if(y===1) return x; if(y===2) return x*x; if(y===0.5 && x>=0 && x!==Infinity) return sqrt(x);
+    if(y===round(y) && abs(y)<=1024){ let n=abs(y), b=x, r=1; while(n>0){ if(n%2===1) r*=b; n=(n-n%2)/2; if(n>0) b*=b; } return y<0? 1/r : r; }   // a whole power: by squaring
+    if(x<0) return (y===round(y))? ((abs(y)%2===1)? -exp(y*log(-x)) : exp(y*log(-x))) : NaN;
+    if(x===0) return y>0? 0 : Infinity; if(x===Infinity) return y>0? Infinity : 0; if(y===Infinity) return x>1? Infinity : (x===1? NaN : 0); if(y===-Infinity) return x>1? 0 : (x===1? NaN : Infinity);
+    return exp(y*log(x)); }
+  // ---- CARD-ENG2-M1 THE REST OF THE BROWSER'S OWN (design/eng2-maths-1115/00-CARD-ENG2-M1.md; a READY HUNK for card B3: kit/hunkM1.mjs lays these lines inside DETM's closure, in front of its `return`).
+  // cbrt, log2, log10, expm1 and tanh from + - * / and the number's own bits alone (FreeBSD msun's kernels, the family the kit's own eleven come from): the same bits in every engine and in the engine's Rust (engine/crates/sprue-detm).
+  const CB_B1=715094163, CB_B2=696219795, CB_P0=1.87595182427177009643e+00, CB_P1=-1.88497979543377169875e+00, CB_P2=1.621429720105354466140e+00, CB_P3=-7.58397934778766047437e-01, CB_P4=1.45996192886612446982e-01;
+  const IVLN2HI=1.44269504072144627571e+00, IVLN2LO=1.67517131648865118353e-10, IVLN10HI=4.34294481878168880939e-01, IVLN10LO=2.50829467116452752298e-11, LG10_2HI=3.01029995663611771306e-01, LG10_2LO=3.69423907715893078616e-13;
+  const EM_Q1=-3.33333333333331316428e-02, EM_Q2=1.58730158725481460165e-03, EM_Q3=-7.93650757867487942473e-05, EM_Q4=4.00821782732936239552e-06, EM_Q5=-2.01099218183624371326e-07, EM_OVER=7.09782712893383973096e+02;
+  let LK=0;
+  function cbrt(x){ x=+x; if(x!==x) return NaN; if(x===0 || x===Infinity || x===-Infinity) return x;
+    f64[0]=x; let hx=u32[1]; const sign=hx&0x80000000; hx^=sign;
+    if(hx<0x00100000){ f64[0]=18014398509481984*x; const high=u32[1]&0x7fffffff; u32[1]=sign|(((high/3)|0)+CB_B2); u32[0]=0; } else { u32[1]=sign|(((hx/3)|0)+CB_B1); u32[0]=0; }   // a rough root to 5 bits, off the exponent
+    let t=f64[0], r=(t*t)*(t/x); t=t*((CB_P0+r*(CB_P1+r*CB_P2))+((r*r)*r)*(CB_P3+r*CB_P4));   // to 23 bits
+    f64[0]=t; { const lo=u32[0]; if(lo>=0x80000000) u32[1]=u32[1]+1; u32[0]=(lo+0x80000000)&0xc0000000; } t=f64[0];   // rounded away from zero to 23 bits, so t*t is exact
+    const s=t*t, w=t+t; r=x/s; r=(r-t)/(w+r); return t+t*r; }   // one Newton step to 53 bits
+  function lred(x){ let k=0; f64[0]=x; let hx=u32[1]; if(hx<0x00100000){ x*=18014398509481984; k=-54; f64[0]=x; hx=u32[1]; } k+=(hx>>>20)-1023; hx&=0x000fffff; const i=(hx+0x95f64)&0x100000; u32[1]=hx|(i^0x3ff00000); k+=(i>>>20); LK=k; return f64[0]-1; }   // x = 2^LK * (1+f), sqrt(2)/2 < 1+f < sqrt(2): log()'s own first step
+  function log2(x){ x=+x; if(x!==x || x<0) return NaN; if(x===0) return -Infinity; if(x===Infinity) return Infinity; if(x===1) return 0;
+    const f=lred(x), y=LK, hf=0.5*f*f, s=f/(2+f), z=s*s, w=z*z, t1=w*(Lg2+w*(Lg4+w*Lg6)), t2=z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7))), r=s*(hf+(t2+t1));
+    f64[0]=f-hf; u32[0]=0; const hi=f64[0], lo=(f-hi)-hf+r, vh=hi*IVLN2HI, wv=y+vh; return ((lo+hi)*IVLN2LO+lo*IVLN2HI+((y-wv)+vh))+wv; }   // a whole power of two gives its whole number
+  function log10(x){ x=+x; if(x!==x || x<0) return NaN; if(x===0) return -Infinity; if(x===Infinity) return Infinity; if(x===1) return 0;
+    const f=lred(x), y=LK, hf=0.5*f*f, s=f/(2+f), z=s*s, w=z*z, t1=w*(Lg2+w*(Lg4+w*Lg6)), t2=z*(Lg1+w*(Lg3+w*(Lg5+w*Lg7))), r=s*(hf+(t2+t1));
+    f64[0]=f-hf; u32[0]=0; const hi=f64[0], lo=(f-hi)-hf+r, vh=hi*IVLN10HI, y2=y*LG10_2HI, wv=y2+vh; return (y*LG10_2LO+(lo+hi)*IVLN10LO+lo*IVLN10HI+((y2-wv)+vh))+wv; }
+  function expm1(x){ x=+x; if(x!==x) return NaN; if(x===Infinity) return x; if(x===-Infinity) return -1;
+    f64[0]=x; let hx=u32[1]; const neg=(hx&0x80000000)!==0; hx&=0x7fffffff;
+    if(hx>=0x4043687A){ if(hx>=0x40862E42 && x>EM_OVER) return Infinity; if(neg) return -1; }   // past 56 ln2: the top, or -1
+    let k=0, c=0, hi, lo, t;
+    if(hx>0x3fd62e42){   // |x| > 0.5 ln2: take k ln2 away
+      if(hx<0x3FF0A2B2){ if(!neg){ hi=x-LN2HI; lo=LN2LO; k=1; } else { hi=x+LN2HI; lo=-LN2LO; k=-1; } }
+      else { k=(INVLN2*x+(neg? -0.5 : 0.5))|0; t=k; hi=x-t*LN2HI; lo=t*LN2LO; }
+      x=hi-lo; c=(hi-x)-lo; }
+    else if(hx<0x3c900000) return x;   // under 2^-54
+    const hfx=0.5*x, hxs=x*hfx, r1=1+hxs*(EM_Q1+hxs*(EM_Q2+hxs*(EM_Q3+hxs*(EM_Q4+hxs*EM_Q5)))); t=3-r1*hfx; let e=hxs*((r1-t)/(6-x*t));
+    if(k===0) return x-(x*e-hxs);
+    e=(x*(e-c)-c); e-=hxs;
+    if(k===-1) return 0.5*(x-e)-0.5;
+    if(k===1) return (x<-0.25)? -2*(e-(x+0.5)) : 1+2*(x-e);
+    const twopk=P2[1075+k]; let y;
+    if(k<=-2 || k>56){ y=1-(e-x); y=(k===1024)? y*2*P2[2098] : y*twopk; return y-1; }
+    if(k<20){ y=(1-P2[1075-k])-(e-x); return y*twopk; }
+    y=x-(e+P2[1075-k]); y+=1; return y*twopk; }
+  function tanh(x){ x=+x; if(x!==x) return NaN; if(x===Infinity) return 1; if(x===-Infinity) return -1;
+    const a=abs(x); let z;
+    if(a<22){ if(a<3.725290298461914e-9) return x; if(a>=1){ const t=expm1(2*a); z=1-2/(t+2); } else { const t=expm1(-2*a); z=-t/(t+2); } } else z=1;
+    return x<0? -z : z; }
+  // ---- END CARD-ENG2-M1
+  return { sin:sin, cos:cos, tan:tan, atan:atan, atan2:atan2, asin:asin, acos:acos, exp:exp, log:log, hypot:hypot, pow:pow, cbrt:cbrt, log2:log2, log10:log10, expm1:expm1, tanh:tanh };
+})();
+var DETM_K=['sin','cos','tan','atan','atan2','asin','acos','exp','log','hypot','pow','cbrt','log2','log10','expm1','tanh'];
+// ---- END THE MATHS
+// ---- IN AND OUT OF THE SEEDED WORLD (a depth, so a door inside a tick is still one world)
+function detSwap(on){ const N=DET.nat;
+  if(on){ N.rnd=Math.random; N.st=window.setTimeout; N.dnow=Date.now; N.pOwn=Object.prototype.hasOwnProperty.call(performance,'now')? performance.now : null;
+    Math.random=detRnd; Date.now=detDNow; try{ performance.now=detPNow; }catch(e){} if(DET.kind==='t') window.setTimeout=detSetT;
+    N.mOn=DET.maths? 1 : 0; if(N.mOn) for(let i=0;i<DETM_K.length;i++){ const k=DETM_K[i]; N.m[k]=Math[k]; Math[k]=DETM[k]; } }
+  else { Math.random=N.rnd; Date.now=N.dnow; try{ if(N.pOwn) performance.now=N.pOwn; else delete performance.now; }catch(e){} if(DET.kind==='t') window.setTimeout=N.st;
+    if(N.mOn){ N.mOn=0; for(let i=0;i<DETM_K.length;i++){ const k=DETM_K[i]; Math[k]=N.m[k]; } } } }
+function detOpen(kind){ if(DET.open++>0) return; DET.kind=kind; DET.out=0; detSwap(1); }
+function detShut(){ if(DET.open<=0){ DET.open=0; return; } if(--DET.open>0) return; if(DET.out<=0) detSwap(0); DET.out=0; DET.kind=''; }
+function detOutWrap(n){ const f=window[n]; if(typeof f!=='function' || f.detOut) return 0;
+  const g=function(){ if(!DET.open) return f.apply(this, arguments); if(DET.out++===0) detSwap(0); try{ return f.apply(this, arguments); } finally{ if(--DET.out===0 && DET.open>0) detSwap(1); } };
+  g.detOut=1; window[n]=g; return 1; }
+// ---- THE MATCH: every battle door wipes first (reset()), so the wipe is where a match is born
+function detNatNow(){ try{ return DET.open? (DET.T0+DET.tick*50) : performance.now(); }catch(e){ return 0; } }
+function detMatch(){ if(DET.tq.length) detFlush();
+  S.t=0; idc=1;   // THE MATCH STARTS FROM ZERO: reset() keeps the battle clock and the next id from the page's last fight, and the fight reads both (a foe's side by its id's parity, every S.t stamp), so a second fight on a page was another fight (the cold read, 11/14)
+  const r=(DET.open && DET.out<=0)? DET.nat.rnd : Math.random, t0=detNatNow(), d0=(DET.open && DET.out<=0)? DET.nat.dnow() : Date.now();
+  DET.match++; DET.seed=(DET.seed0!=null)? (DET.seed0>>>0) : ((r()*4294967296)>>>0);
+  DET.tick=0; DET.acc=0; DET.lagS=0; DET.lagN=0; DET.fr=0; DET.gmax=0; DET.gNever=null; DET.cov=null; DET.skip=null; DET.sec=[]; DET.tk=[]; DET.did=[]; DET.log=[]; DET.pi=0; DET.inN=0; DET.draws=0; DET.dsec=0; DET.dall=0; DET.clockN=0; DET.held=0; DET.T0=t0; DET.D0=d0;
+  DET.inq=[]; DET.wseq=0; DET.wl=[]; DET.hold=0; DET.owe=0; DET.paid=0; DET.leak=0; DET.leaks=[]; DET.lastEv=null; DET.footH=null; DET.camF=null; DET.camN=0; DET.drop=0; detUnmute();   // B2: a match starts with no word waiting, no hold, no debt, no foot to compare
+  for(const k in DET.hd){ const T=DET.hd[k]; T.sim=null; T.n=0; T.fin=null; T.q=null; T.goneN=-1; T.await=null; T.kb=null; T.kg=null; } DET.penHid=0; DET.gn=0; DET.wNow=null; DET.aimBtn=null; DET.handF=[null, null, false, false]; DET.handO=null; DET.handN=0; DET.hw=0;   // B2b: a match starts with no gesture in hand, the fight's copy or the finger's (reset() wipes two of the four itself; the hand's first head is read against an empty hand)
+  if(DET.rp && DET.rp.used){ DET.rpDone=DET.rp; DET.rp=null; }   // a replay plays ONE match: a second door on the page is the page's own
+  if(DET.rp){ DET.rp.used=1; DET.seed=DET.rp.h.seed>>>0; DET.T0=+DET.rp.h.T0||0; DET.D0=+DET.rp.h.D0||0; }   // B2 THE MATCH'S OWN CLOCK: a replay reads the clock and the seed the log was played on
+  DET.lh={ D0:DET.D0, T0:DET.T0, door:DET.doorNow? DET.doorNow.d : '', dargs:DET.doorNow? DET.doorNow.a : [], sdig:detSaveDig() };   // the log's head
+  if(!DET.open){ detOpen('d'); DET.door=1; try{ Promise.resolve().then(detDoorShut); }catch(e){ setTimeout(detDoorShut,0); } }   // the door's own setup (the rest of this call) rolls on the door's stream; it closes when the call that opened the battle returns
+  if(DET.kind==='d') detSeedAt(3,0); }
+function detDoorShut(){ if(DET.door){ DET.door=0; detShut(); } }
+// ---- THE TICK (frame()'s two hunks call these three)
+function detGate(gap){ if(!DET.on) return -1;   // -1 = the shipped frame, untouched · 0 = no tick owed this frame · n = n ticks
+  if(!detRuns()){ if(DET.tq.length) detFlush(); DET.acc=0; if(DET.mute) detUnmute(); return -1; }
+  let g=+gap||0; if(DET.skipGap){ DET.skipGap=0; g=0; }   // B2: the first frame back from a pocket feeds no wall (the span is paid by its AWAY word alone, whole ticks)
+  DET.fr++; if(g>DET.gmax) DET.gmax=g;   // the frames this fight really drew, and its longest gap
+  const pay=(DET.owe>0)? Math.min(DET.owe, DET.payN) : 0;   // B2 THE POCKET: a debt of whole ticks (an AWAY word) is paid beside the wall's own, payN a frame (as many as fit TCK.ms at this phone's cost of a tick)
+  if(DET.warp>0) return DET.warp+pay;
+  if(g>DET.catchS){ DET.lagS+=g-DET.catchS; DET.lagN++; }   // THE DROP ROAD: a frame longer than catchS feeds catchS and no more; what it had over is dropped HERE and counted HERE (the fight slows, it never changes)
+  DET.acc+=Math.min(DET.catchS, g)*DET.spd; const n=Math.floor(DET.acc/SIM_STEP_S+1e-9); if(n<=0) return pay;   // B2 THE DIAL: the wall is fed at the dial's pace (x2 = twice the ticks, each a whole 0.05 s); acc < one tick + catchS x the dial
+  DET.acc-=n*SIM_STEP_S; return n+pay; }
+function detTickOpen(){ if(DET.door) detDoorShut(); DET.tin=1; DET.tw0=detWall(); detOpen('t'); detSeedAt(1, DET.tick); DET.clockN=0;
+  if(DET.owe>0){ DET.owe--; DET.paid++; if(!DET.mute){ DET.mute=1; DET.so=soundOn; soundOn=false; } } else if(DET.mute) detUnmute();   // B2: a tick of the pocket's debt is paid muted (TCK's grammar); the first tick after it gives the sound back
+  DET.hqUI=HQS.on; HQS.on=!!DET.hold;   // B2 THE HOLD: inside a tick the HQ sheet stands as its words left it (the finger's sheet opens at once; the fight holds from the next tick's head)
+  if(DET.footH){ const h=detFootHash(); if(h!==DET.footH){ DET.leak++; if(DET.leaks.length<20) DET.leaks.push([DET.tick, 'off-tick', DET.lastEv? DET.lastEv.join(' ') : '']); } }   // B2 THE SENTINEL
+  detCamHead();   // B2 THE FINGER'S CAMERA
+  detHandHead(); detHoldHead();   // B2b THE HAND (what the finger holds as the fight reads it) and THE AIM (each hold's finger, sampled here: one word a tick it moved)
+  DET.draws=0;   // (after the sentinel's head hash: it folds the last tick's dice count, as its foot did)
+  try{ detTimersRun(); detPlanRun(); detWordsRun(); }catch(e){ DET.tErr++; } if(COMM && COMM.brief) DET.held++; }
+function detTickShut(){ detCineFoot(); DET.dsec+=DET.draws; DET.dall+=DET.draws; DET.tick++;
+  if(HQS.on!==!!DET.hold){ DET.hold=HQS.on? 1 : 0; DET.hqUI=HQS.on; } HQS.on=DET.hqUI;   // the sim closed (or opened) the sheet inside the tick (the verdict closes it): that stands for both
+  detShut();
+  try{ if(DET.every) DET.tk.push(detHash(0).h); if(DET.tick%DET.hz===0) detSecond(); DET.footH=detHash(0).h; DET.camF=detCamKey(); DET.handF=detHandKey(); DET.handO=[S.drag, S.jetAim]; }catch(e){ DET.tErr++; }
+  DET.tin=0; const c=detWall()-DET.tw0; if(c>=0 && c<1000){ DET.tcost=DET.tcost? DET.tcost*0.9+c*0.1 : c; DET.payN=Math.max(1, Math.min((TCK && TCK.steps)||60, Math.floor(((TCK && TCK.ms)||24)/Math.max(0.05, DET.tcost)))); } }
+// B2b THE CINEMA'S WATCH AT THE TICK'S FOOT (the census of every crystal): CARD-CCN-B5's ccnB5Watch, called by draw() (ccnB5Under) every drawn frame, STARTS A SLOW-DOWN at the top of the purple leap's arc on a crystal's first
+// cast (ccnSlow: S.slowmo, a hashed global): the frame that noticed the top decided the tick. Here the same watch runs once at every tick's foot, inside the tick, for every stamped man (ccnB5Under's own loop), so the top, the
+// fall's whistle and the slow-down are the tick's; draw()'s own call then finds them done. Its speed lines are not drawn here (its RM flag); its 'where he stood at my last call' (lx, ly) and its trail of points (tr: one point a
+// call, so a second caller would shorten the drawn trail) are the drawing's: the watch runs on a copy of the trail and both are put back.
+function detCineFoot(){ try{ const U=S.units; for(let i=0;i<U.length;i++){ const u=U[i], P=u && u.ccnP5; if(!P || u.dead) continue; const lx=P.lx, ly=P.ly, tr=P.tr; if(tr) P.tr=tr.slice(); try{ ccnB5Watch(u, true); }catch(e){ DET.tErr++; } finally { P.tr=tr; P.lx=lx; P.ly=ly; } } }catch(e){ DET.tErr++; } }
+// ---- THE WORDS: tick-stamped orders (a rig's plan today; every finger tomorrow)
+function detWord(w){
+  if(w.k==='cash'){ S.plastic=+w.n||0; return S.plastic; }
+  if(w.k==='place'){ if(w.chk!==0 && !canPlace(w.x, w.y, w.u)) return 0; const u=placeUnit(w.u, w.x, w.y); return u? (u.id|0) : 0; }
+  if(w.k==='wave'){ spawnWave(); return 1; }
+  if(w.k==='speed'){ S.speed=+w.n||1; return S.speed; }
+  return -1; }
+function detPlanRun(){ const P=DET.plan, n=DET.tick; while(DET.pi<P.length && P[DET.pi].t<=n){ const w=P[DET.pi++]; let r; try{ r=detWord(w); }catch(e){ r='ERR '+String(e&&e.message||e).slice(0,120); } DET.did.push([n, w.k, r]);
+  const b=detEncArgs([String(w.k||''), String(w.u||''), +w.x||0, +w.y||0, +w.n||0, (w.chk===0)? 0 : 1]); if(b) DET.wl.push([n, 0, DET_K.PLAN, b, r]); } }   // B2: the rig's plan is a word of the log (kind 100), so a planned fight replays from its log too
+// ---- B2 THE INPUT DOOR: every finger is a tick-stamped word (design/eng2-same-fight-1114/b2/00-CARD-ENG2-B2.md; the format: b2/WORDS.md)
+var DET_K={ PLACE:1, VET:2, SELL:3, HERO:4, WAVE:5, SPEED:6, HOLD:7, BRIEF:8, AWAY:9, QUIT:10, CAM:11, ACT:12, GRIP:13, AIM:14, LIFT:15, HAND:16, MOVE:17, PLAN:100 };   // B2b: GRIP 13 a hold's press · AIM 14 its aim · LIFT 15 its lift · HAND 16 what the finger holds as the fight reads it · MOVE 17 the classic carpet's re-drop of a lifted man   // the word's kind (one byte). SELL is kept for a sell door: no fight has one today (campRefund is the fallen man's refund, paid by the sim). B3: ACT 12, a field act by its door's name (DET_ACT)
+var DET_ACT=['texTapAt','trainPlace'];   // B3: the field's acts that are not a hero's button, each a word by its name (the Toy Express's tap on the roof ahead: walk, hop the coupling; the range's shelf: the man it puts on the floor)
+var DET_HERO=['emgActivate','dgnPress','tkActivate','tkActivate2','csPress','skdActivate','snpActivate','stkActivate','prpActivate','fsActivate','laActivate','gsActivate','rpActivate','scActivate','gtActivate','smkActivate','ultActivate','popActivate','bmbCall','jetLaunch','trkTap','inqSet','fsqtSet'];   // the hero's one-tap buttons (and the jet pack's landing, the trench kit's badge, the spy's INTELLIGENCE switch, the jeep's order pill): each a word by its name
+var DET_QUIET={ dgnPress:1, jetLaunch:1, inqSet:1, fsqtSet:1 };   // the doors that clack for themselves (or never): every other hero door's refusal clacks when its word lands (the no-dead-buttons law, one tick late)
+var DET_FLIP={ inqSet:function(a){ a[1]=!(a[0] && a[0].inOn); return a; }, fsqtSet:function(a){ a[1]=!(typeof fsqtAtk==='function' && fsqtAtk(a[0])); return a; } };   // a pill that FLIPS a man's own switch lands as the flip of his state at the landing tick (two taps in one tick flip twice, as today's pill does; the word's own 'on' is what the pill showed)
+var DET_PANGHOST={ ghost:1 };   // a replay's stand-in for the finger's pan (the escort camera's own step asks only whether a finger holds the rug)
+var DET_GONE={ gone:1 }, DET_W64=new Float64Array(1), DET_W32=new Uint32Array(DET_W64.buffer);   // a unit named by a word that is no longer on the field · the byte views (little-endian: every phone and computer the game runs on)
+function detFinger(){ return !!(DET.on && DET.match>0 && !DET.app && (!DET.open || DET.out>0) && detRuns()); }   // a door called from OUTSIDE the sim's own run (between ticks, or inside a presentation door) while a solo fight runs: it becomes a word
+function detUtf8(s){ s=String(s); const o=[]; for(let i=0;i<s.length;i++){ let c=s.charCodeAt(i); if(c>=0xD800 && c<0xDC00 && i+1<s.length){ const d=s.charCodeAt(i+1); if(d>=0xDC00 && d<0xE000){ c=0x10000+((c-0xD800)<<10)+(d-0xDC00); i++; } }
+  if(c<0x80) o.push(c); else if(c<0x800) o.push(0xC0|(c>>6), 0x80|(c&63)); else if(c<0x10000) o.push(0xE0|(c>>12), 0x80|((c>>6)&63), 0x80|(c&63)); else o.push(0xF0|(c>>18), 0x80|((c>>12)&63), 0x80|((c>>6)&63), 0x80|(c&63)); } return o; }
+function detUtf8d(b){ let s=''; for(let i=0;i<b.length;){ const c=b[i++]; let u;
+  if(c<0x80) u=c; else if(c<0xE0) u=((c&31)<<6)|(b[i++]&63); else if(c<0xF0){ u=((c&15)<<12)|((b[i]&63)<<6)|(b[i+1]&63); i+=2; } else { u=((c&7)<<18)|((b[i]&63)<<12)|((b[i+1]&63)<<6)|(b[i+2]&63); i+=3; }
+  if(u>=0x10000){ u-=0x10000; s+=String.fromCharCode(0xD800+(u>>10), 0xDC00+(u&1023)); } else s+=String.fromCharCode(u); } return s; }
+function detBW(){ const a=[]; return { a:a, u8:function(v){ a.push(v&255); }, u16:function(v){ a.push(v&255, (v>>>8)&255); }, u32:function(v){ v=v>>>0; a.push(v&255, (v>>>8)&255, (v>>>16)&255, (v>>>24)&255); },
+  f64:function(v){ DET_W64[0]=v; this.u32(DET_W32[0]); this.u32(DET_W32[1]); }, str:function(v){ const b=detUtf8(v); if(b.length>255) throw new Error('a word string over 255 bytes'); a.push(b.length); for(let i=0;i<b.length;i++) a.push(b[i]); },
+  raw:function(b){ for(let i=0;i<b.length;i++) a.push(b[i]&255); } }; }
+function detBR(b){ let i=0; const n=function(){ if(i>=b.length) throw new Error('short'); return b[i++]; }; return { n:n, at:function(){ return i; }, u16:function(){ return n()|(n()<<8); }, u32:function(){ return (n()|(n()<<8)|(n()<<16)|(n()<<24))>>>0; },
+  f64:function(){ DET_W32[0]=this.u32(); DET_W32[1]=this.u32(); return DET_W64[0]; }, str:function(){ const k=n(); if(i+k>b.length) throw new Error('short'); const s=detUtf8d(b.slice(i, i+k)); i+=k; return s; }, take:function(k){ if(i+k>b.length) throw new Error('short'); const s=b.slice(i, i+k); i+=k; return s; } }; }
+// THE ARGS: argc:u8 then each arg as tag:u8 + payload. 1 a number (f64, all 64 bits) · 2 a string (u8 length + UTF-8) · 3 true · 4 false · 5 null · 6 undefined · 7 a man by his id (u32) · 8 a foe by his id (u32) · 9 a point (f64 x, f64 y)
+function detEncArgs(a){ try{ const w=detBW(); w.u8(a.length); for(let i=0;i<a.length;i++){ const v=a[i], t=typeof v;
+    if(t==='number'){ w.u8(1); w.f64(v); } else if(t==='string'){ w.u8(2); w.str(v); } else if(v===true) w.u8(3); else if(v===false) w.u8(4); else if(v===null) w.u8(5); else if(v===undefined) w.u8(6);
+    else if(t==='object' && typeof Event!=='undefined' && v instanceof Event) return null;   // an event is never an arg (its screen x, y would pass as a point)
+    else if(t==='object' && typeof v.id==='number' && S.units.indexOf(v)>=0){ w.u8(7); w.u32(v.id); }
+    else if(t==='object' && typeof v.id==='number' && S.foes.indexOf(v)>=0){ w.u8(8); w.u32(v.id); }
+    else if(t==='object' && v.id===undefined && typeof v.x==='number' && typeof v.y==='number'){ w.u8(9); w.f64(v.x); w.f64(v.y); }
+    else return null; }   // an arg a word cannot carry: the door acts as shipped and the sentinel's count says so
+  return w.a; }catch(e){ return null; } }
+function detReadArgs(r, live){ const n=r.n(), a=[]; for(let i=0;i<n;i++){ const t=r.n();
+    if(t===1) a.push(r.f64()); else if(t===2) a.push(r.str()); else if(t===3) a.push(true); else if(t===4) a.push(false); else if(t===5) a.push(null); else if(t===6) a.push(undefined);
+    else if(t===7 || t===8){ const id=r.u32(); if(!live){ a.push({ ref:(t===7)? 'man' : 'foe', id:id }); continue; } const L=(t===7)? S.units : S.foes; let o=DET_GONE; for(let j=0;j<L.length;j++) if(L[j] && L[j].id===id){ o=L[j]; break; } a.push(o); }
+    else if(t===9) a.push({ x:r.f64(), y:r.f64() }); else throw new Error('tag '+t); }
+  return a; }
+function detDecArgs(b, live){ try{ const r=detBR(b), a=detReadArgs(r, live); return (r.at()===b.length)? a : null; }catch(e){ return null; } }
+function detWordBytes(t, s, k, b){ const w=detBW(); w.u32(t); w.u8(s); w.u8(k); w.u16(b.length); w.raw(b); return w.a; }   // A WORD: tick u32 · seat u8 · kind u8 · length u16 · the bytes (opaque to the relay)
+function detIn(k, a){ const b=detEncArgs(a); if(b===null) return -1; const t=DET.tick+(DET.open? 1 : 0);   // stamped for the NEXT tick (inside a presentation door the running tick's head has passed)
+  DET.inq.push({ t:t, s:0, k:k, b:b, q:++DET.wseq }); return t; }
+function detApply(k, b){ const a=detDecArgs(b, 1); if(!a) return 'BAD';
+  if(k===DET_K.HAND && a[1]===DET_GONE) a[1]=null;   // B2b: a hand whose lifted man left the field holds nobody the fight can meet
+  if(a.indexOf(DET_GONE)>=0){ if((k===DET_K.HERO && !DET_QUIET[a[0]]) || k===DET_K.GRIP || k===DET_K.MOVE) SFX.clack(); return 0; }   // the man the word names left the field before it landed: refused, the same on every screen
+  DET.app++; try{
+    if(k===DET_K.PLACE) return detPlaceApply(a[0], a[1], a[2]);
+    if(k===DET_K.VET) return detVetApply(a[0], a[1]);
+    if(k===DET_K.HERO){ const f=window[a[0]]; if(typeof f!=='function' || DET_HERO.indexOf(a[0])<0) return -1; let b9=a.slice(1); if(DET_FLIP[a[0]]) b9=DET_FLIP[a[0]](b9); const r=f.apply(window, b9); if(!r && !DET_QUIET[a[0]]) SFX.clack(); return r? 1 : 0; }
+    if(k===DET_K.WAVE){ spawnWave(); return 1; }
+    if(k===DET_K.SPEED){ S.spdI=a[1]|0; S.speed=+a[0]||1; return DET.spd; }   // the dial's pace (inside the tick S.speed still reads 1)
+    if(k===DET_K.HOLD){ DET.hold=a[0]? 1 : 0; HQS.on=!!a[0]; return DET.hold; }
+    if(k===DET_K.BRIEF){ return commAdvance(null)? 1 : 0; }
+    if(k===DET_K.AWAY){ if(!a[0]) DET.owe+=Math.max(0, a[1]|0); return DET.owe; }
+    if(k===DET_K.QUIT){ if(a[0]==='trainExit') UI.trainExit(); else UI.hqRetreat(); return 1; }   // B3: the range's EXIT chip is a QUIT that names its exit (B2's QUIT carries nothing: RETREAT TO HQ)
+    if(k===DET_K.CAM) return detCamApply(a);
+    if(k===DET_K.ACT){ const f=window[a[0]]; if(typeof f!=='function' || DET_ACT.indexOf(a[0])<0) return -1; const r=f.apply(window, a.slice(1)); return (r===undefined || r)? 1 : 0; }   // B3: the act's own function, its args as the finger's call gave them
+    if(k===DET_K.GRIP) return detGripApply(a);   // B2b THE HOLDS: the press · the aim · the lift, each the game's own function inside the tick
+    if(k===DET_K.AIM) return detAimApply(a);
+    if(k===DET_K.LIFT) return detLiftApply(a);
+    if(k===DET_K.HAND) return detHandApply(a);
+    if(k===DET_K.MOVE) return detMoveApply(a[0], a[1], a[2]);
+    if(k===DET_K.PLAN) return detWord({ k:a[0], u:a[1], x:a[2], y:a[3], n:a[4], chk:a[5] });
+    return -1; } finally{ DET.app--; } }
+function detPlaceApply(t, x, y){ if(!S.bf && t!=='dogfighter' && (!(S.plastic>=capCost(t)) || !canPlace(x, y, t))){ SFX.clack(); return 0; }   // the purse and the ground are read when the word LANDS: two words in one tick never overdraw or stack
+  const n0=S.units.length; dropNew(t, x, y); return S.units.length-n0; }
+function detVetApply(u, cost){ if(!u || u.vet || S.units.indexOf(u)<0 || u.type==='sarge' || (u.def && u.def.vehicle) || !(S.plastic>=cost)) return 0;   // the pill's own law (drawHUD's eligibility, the purse) read when the word lands
+  u.vet=true; META.stats.vets++; S.plastic-=cost; SFX.blip(); S.floats.push({x:u.x,y:u.y-70,txt:'VETERAN!',t:0,col:'#fff'}); return 1; }   // the canvas pointerdown's own pill line (kit/applyDET.py holds its text to this)
+function detVetDoor(u, cost){ if(!detFinger()) return false; if(DET.rp){ DET.drop++; return true; } if(!u || typeof u.id!=='number') return false; return detIn(DET_K.VET, [u, +cost||0])>=0; }   // hunk D, in the canvas pointerdown's pill branch: true = the word carries the press
+function detWordsRun(){ const n=DET.tick; let L=null;
+  if(DET.rp){ const R=DET.rp.w; while(DET.rp.i<R.length && R[DET.rp.i].t<=n) (L||(L=[])).push(R[DET.rp.i++]); }
+  else if(DET.inq.length){ const keep=[]; for(let i=0;i<DET.inq.length;i++){ const w=DET.inq[i]; if(w.t<=n) (L||(L=[])).push(w); else keep.push(w); } if(L){ DET.inq=keep; L.sort(function(p, q){ return (p.s-q.s) || (p.q-q.q); }); } }
+  if(!L) return;
+  for(let i=0;i<L.length;i++){ const w=L[i]; let r; DET.wNow=w; try{ r=detApply(w.k, w.b); }catch(e){ r='ERR '+String(e&&e.message||e).slice(0,120); DET.tErr++; } DET.wNow=null; if(w.k===DET_K.GRIP && w.hk) detGripAfter(w); else if(w.k===DET_K.LIFT && w.hk) detLiftAfter(w); DET.wl.push([n, w.s, w.k, w.b, r]); } }   // B2b: a press that did not take ends the finger's own hold (detGripAfter); a pen's lift that has landed hands the finger's side back to the fight's copy (detLiftAfter)
+function detDoorWrap(o, name, k, fin, argf){   // a door: called from outside the sim's own run it becomes a word (kind k) and returns at once; fin = the finger's own step (the event's default, the answer the caller reads); argf = what of the call the word carries (default: every arg)
+  const f=o[name]; if(typeof f!=='function' || f.detDoor) return 0;
+  const g=function(){ if(!detFinger()) return f.apply(this, arguments); if(DET.rp){ DET.drop++; return fin? fin.apply(this, arguments) : true; }
+    const a=argf? argf.apply(this, arguments) : Array.prototype.slice.call(arguments); if(detIn(k, (k===DET_K.HERO || k===DET_K.ACT)? [name].concat(a) : a)<0){ DET.leak++; if(DET.leaks.length<20) DET.leaks.push([DET.tick, 'arg', name]); return f.apply(this, arguments); }
+    return fin? fin.apply(this, arguments) : true; };
+  g.detDoor=f; o[name]=g; DET.doors.push(name); return 1; }
+// ---- B3 EVERY SOLO DOOR (design/eng2-same-fight-1114/b3/00-CARD-ENG2-B3.md): THE DOOR IN THE LOG. The OUTERMOST battle door a fight came through (startRaid calls startRaidBattle; GVT.startLevel calls
+// startCampaign) names the fight in the log's head with what it reads, and a replay opens it the same way: the face-off's gate passed as GVT.startLevel passes it (the log starts at the fight; the
+// face-off's taps were the room's, before the match). n = the args the log carries (a number, a string, null or undefined each) · cur = the raid's door reads RAID_CUR, carried first · bag = the door
+// takes one bag the finger hands empty (texStart({})) · tail = args past n that must be absent for a solo fight the log can carry (a battleground's seat plan) · riv = the arg that names the army fought
+// (an ARMIES row, carried by its id, last; a rival sortie's, a queue's), and today = when it is absent the door reads todaysRival(), which reads the WALL DATE (new Date(): not the match's clock), so the
+// log carries the army it read · gate = the face-off passed. A door the log cannot carry names no door ('' in the head): its replay is refused, never guessed.
+var DET_DOOR={ startCampaign:{ n:1, gate:1 }, raid:{ fn:'startRaid', n:1, cur:1, gate:1 }, startPark:{ n:2 }, startMomRaid:{ n:0 }, startTraining:{ n:1 }, texStart:{ n:0, bag:1 }, startBattlefield:{ n:3, tail:1, riv:4, today:1 }, startBattle:{ n:1, riv:1 } };
+function detDoorArgs(D, a){ const L=[]; if(D.cur) L.push(String(RAID_CUR));
+  for(let i=0;i<D.n;i++){ const v=a[i], t=typeof v; if(v===undefined || v===null || t==='number' || t==='string') L.push(v); else return null; }
+  for(let i=D.n;i<D.n+(D.tail|0);i++) if(a[i]!=null) return null;
+  if(D.riv!=null){ const r=a[D.riv]; if(r==null) L.push(D.today? String(todaysRival().id) : null); else if(ARMIES.indexOf(r)>=0) L.push(String(r.id)); else return null; }
+  if(D.bag && a[0]!=null && !(typeof a[0]==='object' && Object.getPrototypeOf(a[0])===Object.prototype && !Object.keys(a[0]).length)) return null;
+  return L; }
+function detDoorOpen(L){ const D=Object.prototype.hasOwnProperty.call(DET_DOOR, String(L.door))? DET_DOOR[L.door] : null; if(!D || !DET.on) return false; const f=window[D.fn||L.door]; if(typeof f!=='function') return false; const a=(L.dargs||[]).slice();   // a replay's door, the switch on alone
+  if(D.cur) RAID_CUR=String(a.shift());   // the raid's door reads the scene it was pressed in
+  if(D.riv!=null){ const id=a.pop(); let arm=(id==null)? null : (ARMIES.find(function(x){ return x.id===id; })||null); if(id!=null && !arm) return false;
+    if(D.today && arm && todaysRival()===arm) arm=undefined;   // the army the door reads itself today: the door's own call, byte for byte
+    while(a.length<D.riv) a.push(undefined); a.push(arm); }
+  if(D.bag) a.push({});
+  if(D.gate) FO_PASS=1; try{ f.apply(window, a); } finally{ if(D.gate) FO_PASS=0; } return true; }
+// ---- B2 THE FINGER'S CAMERA (the cold read, 11/15): a pan, a flick, a pinch move the camera on the wall clock, and on a grand or zoomed rug the sim reads it (bfVis gates fire; the escort camera's own
+// step reads S.pan, S.camOwn, S.camHold). So the camera is sampled at every tick's head against the last tick's foot: moved between ticks = a CAM word for this tick (live: what already stands; a replay sets it).
+function detCamKey(){ const c=S.bf? S.bf.cam : S.cCam; if(!c) return null; return [+c.x||0, +c.y||0, +c.vx||0, +c.vy||0, +S.camHold||0, S.camOwn? 1 : 0, S.pan? 1 : 0, +S.zoom||0, (S.bf && S.bf.panned)? 1 : 0]; }   // B3: + the battleground's own 'a hand moved the camera' (S.bf.panned: every pan and pinch raises it; the opener's pan lesson reads it in a tick)
+function detCamSame(a, b){ if(!a || !b) return a===b; for(let i=0;i<a.length;i++) if(!Object.is(a[i], b[i])) return false; return true; }
+function detCamApply(a){ if(!DET.rp) return 1;   // live: the camera already stands where the finger left it (the word records it); a replay sets it. Both answer 1: the log's words are the same
+  const c=S.bf? S.bf.cam : S.cCam; if(!c) return -1; c.x=a[0]; c.y=a[1]; c.vx=a[2]; c.vy=a[3]; S.camHold=a[4]; S.camOwn=!!a[5]; S.pan=a[6]? (S.pan || DET_PANGHOST) : null; S.zoom=a[7]; if(S.bf) S.bf.panned=!!a[8]; return 1; }
+function detCamHead(){ const k=detCamKey(), f=DET.camF; if(!f || !k) return;   // at the tick's head, before its words: the camera moved between ticks?
+  if(detCamSame(k, f)) return;
+  if(!DET.rp){ DET.inq.push({ t:DET.tick, s:0, k:DET_K.CAM, b:detEncArgs(k), q:0 }); DET.camN++; }   // live: the finger moved it: a word that lands first in this tick
+  else { const R=DET.rp.w; let has=false; for(let i=DET.rp.i;i<R.length && R[i].t<=DET.tick;i++) if(R[i].k===DET_K.CAM){ has=true; break; } if(!has) detCamApply(f); } }   // a replay: no word = nothing moved it in the fight that was played (the presentation's own drift is undone)
+// ---- B2b THE HOLDS (design/eng2-same-fight-1114/b2b/00-CARD-ENG2-B2b.md; the format: b2/WORDS.md). A gesture that starts at a press and acts at a lift keeps its state on S (S.jv2Hold, S.dcvAim, S.ftAim,
+// S.eshAim), and the game's own press, move and lift functions both move that state and act on the fight. With the switch on each of the four is TWO copies behind its one name: THE FIGHT'S (T.sim: made
+// and moved only where a word lands; everything the sim runs reads it) and THE FINGER'S (T.fin: a finger is on the glass in this gesture; what the handlers and the picture read is a ghost of the fight's
+// copy wearing the finger's own aim, so the reticle, the nib and the lane's dots stay with the finger at once). A finger's press, move and lift are doors (detGripWrap): GRIP, AIM and LIFT words, the
+// game's own functions run where they land. A REPLAY reads the fight's copy everywhere (it has no finger), and so does a page with no det fight running (the names are plain fields again).
+var DET_HOLD={ jv2:{ key:'jv2Hold' }, dcv:{ key:'dcvAim' }, esh:{ key:'eshAim' }, ft:{ key:'ftAim', pen:1 } };   // pen: the fire trail's armed pen stands with no finger down (the handlers must still see it), and its aim is a nib (fx, fy)
+var DET_GRIP={ jv2Begin:'jv2', dcvPress:'dcv', eshPress:'esh', ftPress:'ft', ftzDown:'ft' };   // the presses (ftzDown: the armed pen takes the next finger)
+var DET_AIM={ jv2Move:'jv2', dcvAimMove:'dcv', eshMove:'esh', ftMove:'ft' };   // the moves
+var DET_LIFT={ jv2Up:'jv2', jv2Cancel:'jv2', dcvAimUp:'dcv', eshUp:'esh', eshCancel:'esh', ftUp:'ft', ftCancel:'ft', ftGo:'ft', ftzVoid:'ft' };   // the lifts (and the pen's two other ends: the second tap on the crystal, the put-away)
+var DET_FLYG={ ghost:1, t:0, dur:1e9, x0:-9999, x1:-9999, y0:-9999, y1:-9999 };   // a replay's stand-in for the tap's flight (the fight asks only whether a figure is in the hand; the flight itself is the finger's and its landing a PLACE word)
+function detInSim(){ return (DET.open>0 || DET.tin>0) && DET.out<=0; }   // inside the fight's own run: a tick (its seeded world, its head and foot hashes), a door's setup, a hand placement
+function detSimSide(){ return !!DET.rp || detInSim(); }
+function detOwn(M, n){ return (typeof n==='string' && Object.prototype.hasOwnProperty.call(M, n))? M[n] : null; }   // a name is a table's only by the table's OWN names (the cold read: 'constructor' and 'toString' are every object's)
+function detPt(p){ return !!p && typeof p==='object' && typeof p.x==='number' && typeof p.y==='number' && isFinite(p.x) && isFinite(p.y); }   // a word's point: two finite numbers (the cold read: a NaN spot passed for ground)   // the fight's own side: a tick (its seeded world, its head and foot hashes), a door's setup, a hand placement; and a replay throughout
+function detHoldThr(k){ return (k==='ft')? RFT.tap : (k==='esh')? ESH_TAP : 10; }   // the tap test each move's own line reads (ftMove: RFT.tap · eshMove: ESH_TAP · jv2Move, dcvAimMove: 10; kit/staticDET.py holds those lines' text to this)
+function detHoldGhost(T, F){   // what the finger's side reads: the fight's own hold (once THIS finger's press has landed there) under the finger's own aim; before it lands, the aim alone
+  if(!F){ if(T.kb!==T.sim || !T.kg){ T.kb=T.sim; T.kg=Object.create(T.sim); } return T.kg; }   // the armed pen with no finger down: the fight's copy to read (a write stays on the ghost)
+  const base=(T.sim && T.n===F.n)? T.sim : null; if(F.gb!==base || !F.g){ F.gb=base; F.g=base? Object.create(base) : { slot2:F.slot2 }; }
+  const g=F.g; g.sx=F.sx; g.sy=F.sy; g.moved=!!(F.moved || (base && base.moved)); if(F.pen){ if(F.nib){ g.fx=F.x; g.fy=F.y; } if(F.arm){ g.arm=1; g.on=0; g.ap=0; g.dn=0; } else if(F.parm){ g.arm=1; g.on=0; } } else { g.x=F.x; g.y=F.y; } return g; }   // (F.arm: the pen a clean click WILL arm, shown to the handlers at once: the cold read's finding 1)
+function detPenStands(T){ return !!((T.fin && !T.fin.down) || (T.sim && T.goneN!==T.n && !T.await && !DET.penHid)); }   // the finger's side sees a pen with no finger down (the click's own, or the fight's armed pen)
+function detPenWaits(w){ if(typeof ftsOn!=='function' || !ftsOn()) return false; const u=jetSarge(); return !(u && !u.dead && typeof ftsNear==='function' && (ftsNear(u, w) || ftsNear(u, { x:+w.x, y:+w.y-DRAG_OFF })));  }   // CARD-FTS's ftzDown: a finger that comes down ON him (ftsTry: the finger or its nib within FTS.reach of his body) starts the line at once; anywhere else the pen waits, armed, its finger down (dn): only then does that finger's lift re-arm it (the second reader's find; the nib here is DRAG_OFF above the finger, before the play box's clamp, which counts and tells: never called from the finger's side)
+function detPenRearms(T, F){ if(typeof ftsOn!=='function' || !ftsOn()) return false; if(F.parm) return true; const s=(T.sim && T.n===F.n)? T.sim : null; return !!(s && !s.on && (s.ap || s.dn)); }   // A LIFT SHORT OF HIM RE-ARMS THE PEN: CARD-FTS's own ftUp and ftCancel, `if(ftsOn() && a && !a.on && (a.ap || a.dn)){ ftsRearm(a, ...); return true; }`, read off the fight's copy of THIS finger's pen (a finger the armed pen took whose press has not landed yet: its press puts the pen's finger down, dn). An aim still owed can start the line where it lands; then the lift casts, and the armed pen shown for that tick is gone when the lift lands
+function detHoldMake(k){ const H=DET_HOLD[k], T=DET.hd[k]={ sim:S[H.key]||null, n:0, fin:null, q:null, goneN:-1, await:null, kb:null, kg:null };   // sim: the fight's copy · n: the grip that made it · fin: the finger's hold · q: its aim owed · goneN: a pen the finger already put away · await: the pen's lift the fight has not answered yet
+  Object.defineProperty(S, H.key, { configurable:true, enumerable:true,
+    get:function(){ if(detSimSide()) return T.sim; if(!detRuns()){ if(T.fin) T.fin=null; return T.sim; } const F=T.fin; if(F) return detHoldGhost(T, F); return (H.pen && T.sim && T.goneN!==T.n && !T.await && !DET.penHid)? detHoldGhost(T, null) : null; },   // (the armed pen with no finger down is NOT shown while its last lift has not landed yet, T.await, nor to a pointer that went down without seeing it, DET.penHid: a pen that appeared in the middle of another gesture took that gesture's moves and its lift)
+    set:function(v){ v=v||null; if(detSimSide() || !detRuns()){ if(!v && T.fin && (T.fin.n===T.n || !detRuns())) T.fin=null; T.sim=v; return; }   // the fight's own write (or no det fight: a plain field). The fight ending a hold ends the finger's hold of it
+      DET.hw++; if(v){ T.sim=v; DET.leak++; if(DET.leaks.length<20) DET.leaks.push([DET.tick, 'hold-write', H.key]); } else T.fin=null; } }); }   // a write from the finger's side (no door of the game's makes one today): a null lets the finger go; a hold MADE there is a change off the tick, counted and named
+function detPush(k, a, now){ const b=detEncArgs(a); if(b===null) return null; const w={ t:DET.tick+((DET.open && !now)? 1 : 0), s:0, k:k, b:b, q:++DET.wseq }; DET.inq.push(w); return w; }   // a word waiting, by arrival (now: made at this tick's own head, for this tick)
+function detGripWrap(nm, how, quiet){   // a hold's door: a finger's call becomes its word (how) and answers at once; a replay hears no finger; the sim's own calls and a word landing pass through to the game's function
+  const f=window[nm]; if(typeof f!=='function' || f.detDoor) return 0;
+  const g=function(){ if(!detFinger()) return f.apply(this, arguments); if(DET.rp){ DET.drop++; return quiet; } return how.apply(this, arguments); };
+  g.detDoor=f; window[nm]=g; DET.doors.push(nm); return 1; }
+function detGripIn(k, nm, p, w, extra, moved, slot2){ const T=DET.hd[k]; detAimFlush(k);   // THE PRESS (a finger): its word, and the finger's own hold from this instant (an aim still owed lands in front of it: arrival order)
+  const n=(nm==='ftzDown')? (T.fin? T.fin.n : (T.sim? T.n : ++DET.gn)) : ++DET.gn, x=detPush(DET_K.GRIP, [nm, { x:+p.x, y:+p.y }, { x:+w.x, y:+w.y }].concat(extra||[]));   // (the armed pen's next finger rides the pen's own grip, landed or not yet)
+  if(!x){ DET.leak++; if(DET.leaks.length<20) DET.leaks.push([DET.tick, 'arg', nm]); return false; }
+  x.g=n; x.hk=k; T.fin={ n:n, down:1, press:(nm==='ftPress')? 1 : 0, parm:(nm==='ftzDown' && detPenWaits(w))? 1 : 0, gw:x, sx:+p.x, sy:+p.y, x:+w.x, y:+w.y-DRAG_OFF, moved:!!moved, nib:moved? 1 : 0, pen:DET_HOLD[k].pen? 1 : 0, slot2:!!slot2, gb:undefined, g:null }; return true; }
+function detAimIn(k, nm, p, w){ const T=DET.hd[k], F=T.fin; if(!F || !F.down) return true;   // THE AIM (a finger's move): no finger of this gesture on the glass (a hover over an armed pen, a move after the lift) = nothing, as the game's own rule has it
+  let flip=false; if(!F.moved && Math.hypot(p.x-F.sx, p.y-F.sy)>detHoldThr(k)){ F.moved=true; flip=true; }
+  if(!F.pen || F.moved){ F.x=+w.x; F.y=+w.y-DRAG_OFF; F.nib=1; }   // the finger's own picture, at once: the spot DRAG_OFF above the finger (each move's own line; the pen's nib only once the finger has travelled)
+  const pt=[+p.x, +p.y, +w.x, +w.y, 0]; if(F.pen){ try{ pt[4]=fpnOnBtn(detHoldGhost(T, F), p)? 1 : 0; }catch(e){} }   // the pen: is the finger still on its own crystal button (this glass's rects: the word carries the answer, never the rect)
+  const Q=T.q||(T.q={ nm:nm, pts:[], flip:0 });
+  if(F.pen){ Q.pts.push(pt); if(Q.pts.length>80){ const L=Q.pts, o=[]; for(let i=0;i<L.length-1;i+=2) o.push(L[i]); o.push(L[L.length-1]); Q.pts=o; } }   // the pen: the finger's whole stroke since the last word (the ink is its own line); past 80 points it is thinned by half
+  else if(flip){ Q.pts=[pt]; Q.flip=1; } else if(Q.flip) Q.pts[1]=pt; else Q.pts[0]=pt;   // an aim: the finger's last spot, and in front of it the one spot that crossed the tap test (out and back inside one tick is still a hold)
+  return true; }
+function detAimFlush(k, now){ const T=DET.hd[k], Q=T.q; if(!Q) return 0; T.q=null; if(DET.rp || !Q.pts.length) return 0;   // the aim owed becomes ONE word: at the tick's head (now), or in front of a lift or a new press
+  const P=Q.pts, F=T.fin, pen=(Q.nm==='ftMove'); if(!pen && P.length===2 && F && Math.hypot(P[1][0]-F.sx, P[1][1]-F.sy)>detHoldThr(k)) P.shift();   // the last spot crosses the tap test by itself
+  const a=[Q.nm]; for(let i=0;i<P.length;i++){ a.push({ x:P[i][0], y:P[i][1] }, { x:P[i][2], y:P[i][3] }); if(pen) a.push(!!P[i][4]); }
+  return detPush(DET_K.AIM, a, now)? 1 : 0; }
+function detHoldHead(){ if(DET.rp) return; for(const k in DET.hd) if(DET.hd[k].q) detAimFlush(k, 1); }   // at the tick's head: each finger's aim, sampled (one word a tick it moved)
+function detLiftIn(nm, need, gone, extra){ const k=DET_LIFT[nm], T=DET.hd[k], F=T.fin; if(!((F && F.down) || (need && detPenStands(T)))) return false;   // THE LIFT (a finger): only a gesture a finger holds (or, for the pen's own ends, a pen that stands armed)
+  detAimFlush(k); const w=detPush(DET_K.LIFT, [nm].concat(extra||[])); if(!w) return false; w.hk=k; w.g=F? F.n : T.n;
+  if(!DET_HOLD[k].pen){ T.fin=null; return true; }   // the finger lets go at once (the fight's copy goes where the word lands)
+  if(gone){ T.goneN=w.g; T.fin=null; }   // the second tap, the put-away: the pen is gone for the finger at once
+  else if(nm==='ftUp' && F && F.down && F.press && !F.moved && ftzOn()){ F.down=0; F.arm=1; F.w=w; }   // A CLEAN CLICK arms the pen (CARD-FTZ's own rule): the finger's side shows the armed pen at once, so the very next press meets it as in the shipped game; the fight's copy speaks once this lift has landed (detLiftAfter)
+  else if((nm==='ftUp' || nm==='ftCancel') && F && F.down && detPenRearms(T, F)){ F.down=0; F.arm=1; F.w=w; F.g=null; }   // A LIFT SHORT OF HIM re-arms the pen (CARD-FTS's rule, detPenRearms): the finger's side keeps the armed pen at once, as the shipped game does; the fight's copy speaks once this lift has landed (detLiftAfter)
+  else { T.fin=null; T.await=w; }   // any other lift (the pen up and its cast, the Z, ?fts=0's lift): the fight decides where it lands, and until then the finger's side reads no pen
+  return true; }
+function detLiftAfter(w){ const T=DET.hd[w.hk]; if(!T) return; if(T.await===w) T.await=null; if(T.fin && T.fin.w===w) T.fin=null; }   // a pen's lift has landed: the fight's own copy is what the finger's side reads now
+function detGripApply(a){ const nm=a[0], k=detOwn(DET_GRIP, nm), p=a[1], w=a[2]; if(!k || !detPt(p) || !detPt(w)) return -1; const T=DET.hd[k], s0=T.sim; let r=0;   // a press LANDS: the canvas handler's own line for that button, inside the tick
+  if(nm==='jv2Begin'){ r=(a[3] && typeof a[3]==='object' && S.units.indexOf(a[3])>=0 && jv2Begin(a[3], p, w))? 1 : 0; if(!r) SFX.clack(); }   // the jet pack's V2 hold: a press the pack refuses clacks
+  else if(nm==='dcvPress') r=dcvPress(p, w)? 1 : 0;   // the cavalry's call (it clacks for itself; its die is the tick's now)
+  else if(nm==='ftPress'){ r=ftPress(p, w, !!a[3])? 1 : 0; if(!r){ if(a[3]? tkActivate2() : tkActivate()) r=2; else SFX.clack(); } }   // the crystal's button: the fire trail's hold, else the crystal's plain cast, else the clack
+  else if(nm==='eshPress'){ if(!a[3]) r=eshPress(p, w)? 1 : 0; else if(laActivate()) r=eshPress(p, w)? 1 : 2; else SFX.clack(); }   // the energy shot: the cast, and ONLY THEN its hold (B2's cold read, finding 7: a cast its word refuses starts no hold)
+  else if(nm==='ftzDown'){ const s=S.ftAim; if(s && s.arm && !s.on){ ftzDown(s, { detW:{ x:w.x, y:w.y } }); r=1; } }   // the armed pen takes the finger (the listener's own gate, read again where the word lands; evPosW answers the word's own point)
+  if(T.sim && T.sim!==s0) T.n=(DET.wNow && DET.wNow.g)|0;   // the fight's copy THIS press made
+  return r; }
+function detGripAfter(w){ const T=DET.hd[w.hk]; if(T && T.fin && T.fin.n===w.g && !(T.sim && T.n===w.g)) T.fin=null; else if(T && T.fin && T.fin.gw===w && T.fin.parm){ T.fin.parm=0; T.fin.g=null; } }   // a press that did not take (refused, or its man gone): the finger's hold of it ends
+function detAimApply(a){ const nm=a[0], k=detOwn(DET_AIM, nm), f=k? window[nm] : null; if(!k || typeof f!=='function') return -1; const pen=(nm==='ftMove'), st=pen? 3 : 2; let n=0;   // an aim LANDS: the game's own move, once a spot, in the finger's order
+  if(a.length<1+st || (a.length-1)%st) return -1; for(let i=1;i<a.length;i+=st) if(!detPt(a[i]) || !detPt(a[i+1]) || (pen && typeof a[i+2]!=='boolean')) return -1;   // every spot is read before any is run: a word is whole or it is nothing
+  for(let i=1;i<a.length;i+=st){ if(pen) DET.aimBtn=a[i+2]? 1 : 0; try{ f.call(window, a[i], a[i+1]); } finally{ DET.aimBtn=null; } n++; }
+  return n; }
+function detLiftApply(a){ const nm=a[0], k=detOwn(DET_LIFT, nm); if(!k || typeof window[nm]!=='function') return -1;   // a lift LANDS: the game's own lift (the tap or the boost; the lane's lock; the cast, the armed pen or the pen up; the aim's lock)
+  if(nm==='ftzVoid'){ const s=S.ftAim; if(!s) return 0; ftzVoid(s, String(a[1]||'')); return 1; }
+  return ((nm==='ftGo')? ftGo(String(a[1]||'lift')) : window[nm]())? 1 : 0; }
+// ---- B2b THE HAND: what the finger holds, as the fight reads it (a figure from the tray or a lifted man: S.drag's type, its man, its flight; the V1 jet's aim: S.jetAim). The camera's own step stands
+// still under a held figure, and a lifted man is passed over by every loop that asks S.drag.unit. Sampled as the camera is: the hand at every tick's foot against the next head; changed between them = a
+// HAND word that lands first in that tick. Live it records what the finger's own objects already say (the handlers made them); a replay sets stand-ins, and undoes a hand of its own where the log has none.
+function detHandKey(){ const d=S.drag, j=S.jetAim; return [d? String(d.type||'') : null, (d && d.unit) || null, !!(d && d.fly), !!j]; }
+function detHandSame(a, b){ return !!a && !!b && a[0]===b[0] && a[1]===b[1] && a[2]===b[2] && a[3]===b[3]; }
+function detHandHead(){ const k=detHandKey(), f=DET.handF; if(!f || detHandSame(k, f)) return;
+  if(!DET.rp){ const u=(k[1] && typeof k[1].id==='number' && S.units.indexOf(k[1])>=0)? k[1] : null, b=detEncArgs([k[0], u, k[2], k[3]]); if(b){ DET.inq.push({ t:DET.tick, s:0, k:DET_K.HAND, b:b, q:0.5 }); DET.handN++; } }   // live: a word that lands first in this tick (after the camera's)
+  else { const R=DET.rp.w; let has=false; for(let i=DET.rp.i;i<R.length && R[i].t<=DET.tick;i++) if(R[i].k===DET_K.HAND){ has=true; break; } if(!has && DET.handO){ S.drag=DET.handO[0]; S.jetAim=DET.handO[1]; } } }   // a replay: no word = no hand in the fight that was played
+function detHandApply(a){ if(!DET.rp) return 1;   // live: the finger's own objects stand (the word records them); a replay sets the stand-ins. Both answer 1: the log's words are the same
+  if(a.length!==4 || !(a[0]===null || (typeof a[0]==='string' && Object.prototype.hasOwnProperty.call(UDEF, a[0]))) || !(a[1]===null || (typeof a[1]==='object' && S.units.indexOf(a[1])>=0)) || typeof a[2]!=='boolean' || typeof a[3]!=='boolean') return -1;   // (the cold read's finding 4) a hand the game could not hold is no hand: a type that names no figure made draw() throw every frame
+  S.drag=(a[0]===null)? null : { det:1, type:a[0], unit:a[1], fly:a[2]? DET_FLYG : undefined, x:-9999, y:-9999 }; S.jetAim=a[3]? { det:1, sx:0, sy:0, x:-9999, y:-9999, moved:false } : null; return 1; }
+// ---- B2b THE RE-DROP (hunk E, in the canvas pointerup's lifted-man branch): on the classic carpet a placed man is lifted between waves (Sarge any time) and set down again. The lift is the hand's
+// (HAND); the set-down is a MOVE word: the ground is read again where it lands, then the handler's own block, line for line (kit/applyDET.py and kit/staticDET.py hold its text to this).
+function detMoveDoor(u, x, y){ if(!detFinger()) return false; if(DET.rp){ DET.drop++; return true; } if(!u || typeof u.id!=='number') return false; return !!detPush(DET_K.MOVE, [u, +x, +y]); }   // true = the word carries the re-drop
+function detMoveApply(u, x, y){ if(typeof x!=='number' || typeof y!=='number' || !isFinite(x) || !isFinite(y) || !u || typeof u!=='object') return -1;   // (the cold read's finding 3) a spot that is no two finite numbers is no word (canPlace answers true to NaN)
+  if(S.sq || S.bf) return 0;   // (finding 6) a marching campaign carpet and the battleground never lift a placed man: no finger can have made this word there
+  if(u.dead || S.units.indexOf(u)<0 || !canPlace(x, y, u.type)){ SFX.clack(); return 0; }   // (the hand is empty in the fight by now: its HAND word landed first)
+  u.x=x; u.y=y; u.sprue=0.2; u.laneY=y; u.wp=null; u.wade=null; raidRetakeStamp(u); if(u.type==='sarge'){ u.home={x:x,y:y}; u.saberState='idle'; sgDashEnd(u); cmdDashEnd(u); } SFX.thock(); return 1; }
+// ---- B2 THE SENTINEL (the cold read, 11/15: the old one hashed around each tap on a timer a frame could beat, and never saw a move): the fight's hash at every tick's FOOT and again at the next tick's
+// HEAD, before its words: any change between them was made off the tick (a finger, a timer, the picture), whoever made it. The last input event is kept beside it to name the finger.
+function detFootHash(){ DET.tin++; try{ return detHash(0).h; } finally{ DET.tin--; } }
+function detLeakNote(e){ if(DET.match>0 && !DET.open) DET.lastEv=[DET.tick, e.type, String((e.target && (e.target.id || e.target.tagName)) || '')]; }
+function detUnmute(){ if(!DET.mute) return; DET.mute=0; if(DET.so!=null) soundOn=DET.so; DET.so=null; }
+function detWall(){ try{ return (DET.open && DET.nat.pOwn)? DET.nat.pOwn.call(performance) : Performance.prototype.now.call(performance); }catch(e){ return 0; } }   // the wall clock even inside the seeded world (a tick's cost, the pocket's pace)
+function detSaveDig(){ try{ const M=META, e=M.enh||{}, rc={}; ['ice','bone','croak','fields','palace','sky','caves','wreck','gmy','party','music','chess'].forEach(function(k){ const c=M[k]; if(c && typeof c==='object') rc[k]=[c.e|0, c.m|0, c.h|0, c.g|0, c.u|0]; });   // a raid's cell as a fight reads it: the tiers beaten (they hand the heroes); its bookkeeping (seen, rs) the boot fills in
+  const t=JSON.stringify([M.up||null, M.campaign|0, M.sargeUp||null, String(M.sargeWeapon||''), M.comms||null, e.on||null, M.gearUnlocked||null, M.platoon||null, (M.outfit||{}).wear||null, M.unlocked||null,
+    M.levelStars||null, M.lossRun||null, M.form||null, M.lossN|0, M.lossRung|0, rc, M.parks||null, M.emg|0,
+    (function(H){ if(!H || typeof H!=='object') return null; const o={}; Object.keys(H).sort().forEach(function(k){ const r=H[k]||{}; o[k]=[r.n|0, r.hp|0, Array.isArray(r.pk)? r.pk : []]; }); return o; })(M.heroMile), M.vehUp||null, M.sargeUnlocked||null, M.jetLvl||null, M.jetEng||null, M.jetV2||null, M.jetV3||null, (M.pet && typeof M.pet==='object')? [M.pet.sel||null, M.pet.own||null] : null]);
+  let h=0x811C9DC5; for(let i=0;i<t.length;i++) h=detFold(h, t.charCodeAt(i)); return detHex(detFold(h, t.length)); }catch(e){ return ''; } }   // B3: the WHOLE string folded (B2's fold went through detStr, which reads 64 characters: every row past them never moved the digest)   // B3 (M1's spy: a fight late on a page): + the rows a DOOR reads: the last rung's stars and the loss runs (biteDue: THE PROVEN PLAYER's bite at the next door), the 80% dial's book and the loss mercy, the raids' cells (the heroes they hand), the parks' rungs, the emergency package; after the cold read: the heroes' milestone ledgers (heroMile, as the fight reads it: each hero's count, banked HP and picks, the boot's empty defaults read alike), the vehicles' plates (vehUp), Sarge's irons owned (sargeUnlocked), the jet pack's rungs, the pet at Sarge's heel   // the save's fight-shaping rows (the army's ranks, the campaign, Sarge's ranks and iron, the briefings read, the lab's parts on, the gear, the platoon, what Sarge wears, the men unlocked; B3: and what a door reads): a log names the save it was played on, and a replay says whether it is on the same one
+// ---- B2 THE LOG: 'GVTW' · format u8 (1) · the client's version (str) · the seed u32 · the match's clock (D0 f64, T0 f64) · the door (str + args) · the save (str) · the words (u32 count, then each word)
+function detLogBytes(){ const h=DET.lh||{}, w=detBW(); w.raw([71, 86, 84, 87]); w.u8(1); w.str(String(GVT_CV)); w.u32(DET.seed); w.f64(+h.D0||0); w.f64(+h.T0||0); w.str(h.door||''); w.raw(detEncArgs(h.dargs||[])||[0]); w.str(h.sdig||'');
+  w.u32(DET.wl.length); for(let i=0;i<DET.wl.length;i++){ const x=DET.wl[i]; w.raw(detWordBytes(x[0], x[1], x[2], x[3])); } return w.a; }
+function detHexOf(a){ let s=''; for(let i=0;i<a.length;i++) s+=(a[i]<16? '0' : '')+(a[i]&255).toString(16); return s; }
+function detBytesOf(h){ h=String(h||''); if(h.length%2 || /[^0-9a-f]/i.test(h)) return null; const a=[]; for(let i=0;i<h.length;i+=2) a.push(parseInt(h.substr(i, 2), 16)); return a; }
+function detLogDec(hex){ try{ const b=(typeof hex==='string')? detBytesOf(hex) : hex; if(!b) return null; const r=detBR(b); if(r.n()!==71 || r.n()!==86 || r.n()!==84 || r.n()!==87) return null;
+  const L={ fmt:r.n() }; if(L.fmt!==1) return null; L.cv=r.str(); L.seed=r.u32(); L.D0=r.f64(); L.T0=r.f64(); L.door=r.str();
+  L.dargs=detReadArgs(r, 0); L.sdig=r.str(); const n=r.u32(); L.w=[];
+  for(let i=0;i<n;i++){ const t=r.u32(), s=r.n(), k=r.n(), len=r.u16(); L.w.push({ t:t, s:s, k:k, b:r.take(len), q:i+1 }); }
+  return (r.at()===b.length)? L : null; }catch(e){ return null; } }
+// ---- THE HASH
+// A row's fields are read as they stand (every own number, boolean and string; a nested {id} as its id; a nested plain bag's numbers, booleans and strings one deep, but DET_NOBAG), each by its raw 64 bits, summed over the row whatever order the
+// fields were made in (the picture adds its own to a sim row at a frame's pace), then folded row by row in the list's order. NOT read: DET_PIC, the picture's own clocks (and B3: the burrow trail's bag) kept on the sim's rows.
+var DET_PIC={ units:{ flA:1, flAt:1, wobH:1, wobPh:1, wobT:1, dg:1, jT:1, jA_lF:1, jA_lN:1, jA_aF:1, jA_aN:1, jA_tor:1, jA_hd:1, jTip:1, jUp:1, jBob:1, jSqx:1, jSqy:1, jBack:1, jShock:1, jPhi:1, jLfF:1, jLfN:1, jX:1, jVx:1, jWk0:1, kcfSx:1, kcfSy:1, kcfGx:1, kcfGy:1, kcfGt:1, kcfZ:1, ccnFl:1, ccnSt:1, trlReel:1,
+  ccnOv:1, ccnLg:1, ccnFrom:1, ccnInhale:1, ccnFly:1, ccnQ:1, ccnGh:1, ccnGd:1, ccnRip:1, ccnS7p:1, ccnP5St:1, ccnStar:1, ccnG4:{ hid:1, tr:1, hb:1 }, ccnP5:{ lx:1, ly:1, spd:1, warn:1 }, ccnS7:{ armed:1, flash:1, cam:1 },
+  ccnO6:{ emb:1, end:1, endT:1, nat:1, lastT:1, fpN:1, fpSide:1, lx:1, ly:1, thr:1, glow:1, drum:1, hum:1, rim:1 } },
+  foes:{ flA:1, flAt:1, dg:1, sky:{ dfgT:1 }, ptr2D:1, rxdRoar:1, mw:1, trlReel:1, ccnFly:1, ccnQ:1, ccnP5St:1, ccnStar:1 }, shots:{ rbN:1, rbT:1, ccnG:1 }, dfs:{ eng:1 } };   // B2b THE CRYSTAL CINEMA'S STAMPS (the cold read's finding 8, then the census of every crystal: b2b/logs/census): CARD-CCN keeps its pictures' state ON the rows, and its draw passes write there on the frame's clock. Named key by key, each read at its writers and readers (kit/staticDET.py S42 holds the lists to the page): the whole stamp where the DRAWING makes it or clears it (teal's ccnOv, ccnLg, ccnFrom · blue's ccnInhale and the flying men's ccnFly · green's ccnQ, ccnGh, ccnGd, ccnRip, the cut's stars ccnStar · purple's meteor stars ccnP5St · silver's plate ccnS7p), and inside a stamp the SIM reads only the keys a drawing writes (green's ccnG4: hid, tr, hb · purple's ccnP5: lx, ly, spd, warn · silver's ccnS7: armed, flash, and cam (the second reader: ccnB7Cast writes it inside a tick from ccnCam's answer, which reads the finger's pan and pinch and the device's Reduce Motion; only the probe reads it) · orange's ccnO6: fourteen). shots.ccnG: green's outline tag, laid in a tick but by ccnB4Fz, which reads ccnG4.hid and tr   // B2b (the fire trail's fight, the sentinel's census): + ccnFl, CARD-CCN's HILT FLARE (a caster's press stamps it; ccnBlade, the saber's drawing, clears it when the flare is over, on the wall clock) · + ccnSt, the EARNED MOMENT's ledger (ccnCast stamps it; ccnEarnTick, called by draw()'s ccnCam9, clears it and starts a CAMERA moment; the only sim readers ask it in the very tick that stamped it: ccnB2Mine .. ccnB7Mine) · + trlReel, the wire's reel-back (trlEnd leaves it; the drawing runs it and clears it)   // B3: + dg, CARD-DIG's burrow trail (the dirt's own bag on a burrowed foe or the ally snake, written by drawFoe / drawCkSnake: presentation only, by the card's own law) · + sky.dfgT, CARD-DFG's picture clock that skyDrawPlane's wrap writes INSIDE a plane foe's sim bag while it draws (a key of a bag: an object here names the bag's own picture keys) · + ptr2D, CARD-PTR2's drawFoe wrap caching an enlarged drawing's def on the man under a chute · + rxdRoar, King Rex's roar bubble (rxdDrawKing clears it; only the drawing reads it: kraKind, kraStep, rxmDrawOver) · dfs + eng, a dogfighter plane's ENGINE SOUND graph kept on its row (dfEngine: WebAudio nodes and last = performance.now()) · units + Jane's JOINT STATE, the 20 fields drawJane writes on her row every frame (0537 JANE'S MOTION REWORK: "NOTHING IN THE SIM READS THEM"; found by the cold read on the croak raid's hard tier)
+var DET_NOBAG={ def:1 };   // a row's def is its kind's own table (UDEF / the foe's sheet): the same for every row of a type, and the type is folded
+var DET_P={ x:1, y:1, vx:1, vy:1, tx:1, ty:1, vx2:1, lx9:1, ly9:1, vx9:1, vy9:1, laneY:1, jx:1 }, DET_H={ hp:1, hpMax:1, hits:1, kills:1, dmg:1, splash:1 }, DET_I={ id:1, foN:1 };   // the columns: places · health and harm · ids, words and flags · every other number (the clocks and counts)
+var DET_G=['t','wave','lives','plastic','waveActive','waveT','interT','speed','slowmo','hitStop','cleared','levelN','placedAny','bossKilled'], DET_GB={ tanBase:['x','y','hp','hpMax'], sq:['p','t','nextT','bite','fbite'], cfg:['n','hpMul','cntMul','bossF','rateMul'] };
+var DET_F64=new Float64Array(1), DET_U32=new Uint32Array(DET_F64.buffer), DET_KH={}, DET_ACC=[0,0,0,0];
+function detFold(h, v){ return Math.imul((h^(v|0))>>>0, 16777619)>>>0; }   // FNV-1a over 32-bit words
+function detQ(x, k){ return (typeof x==='number')? ((x===x)? Math.round(x*k) : -5) : (x===true? 1 : (x===false? 0 : (x==null? -7 : -9))); }
+function detStr(h, s){ s=String(s); const n=Math.min(64, s.length); for(let i=0;i<n;i++) h=detFold(h, s.charCodeAt(i)); return detFold(h, 0x5C); }
+function detHex(v){ return ('0000000'+(v>>>0).toString(16)).slice(-8); }
+function detKH(k){ let h=DET_KH[k]; if(h===undefined) h=DET_KH[k]=detStr(0x811C9DC5, k); return h; }
+function detVal(kh, v){   // one field as one 32-bit word: the key and the value's raw bits (a number's 64; every NaN is one NaN; -0 is not 0)
+  const t=typeof v; let lo, hi;
+  if(t==='number'){ if(v!==v){ lo=5; hi=0x7FF8B005; } else { DET_F64[0]=v; lo=DET_U32[0]; hi=DET_U32[1]; } }
+  else if(t==='boolean'){ lo=v? 1 : 2; hi=0x7FF8B001; } else if(t==='string'){ lo=detStr(0x811C9DC5, v); hi=0x7FF8B002; } else { lo=7; hi=0x7FF8B007; }
+  return detMix((kh^Math.imul(lo|0, 0x85EBCA6B)^Math.imul(hi|0, 0xC2B2AE35))|0); }
+function detRow(e, pic, cov){   // DET_ACC[0..3] = this row's I, P, H, T words
+  const A=DET_ACC; A[0]=A[1]=A[2]=A[3]=0;
+  for(const k in e){ if(pic && pic[k]===1) continue; const v=e[k], t=typeof v; let c;
+    if(t==='number') c=DET_I[k]===1? 0 : (DET_P[k]===1? 1 : (DET_H[k]===1? 2 : 3)); else if(t==='boolean' || t==='string') c=0;
+    else if(v && t==='object'){
+      if(typeof v.id==='number'){ A[0]=(A[0]+detVal(detKH(k+'>id'), v.id))>>>0; if(cov) cov[0][k+'>id']=1; }   // another row (a target, a shot's owner): by its id
+      else if(DET_NOBAG[k]!==1 && Object.getPrototypeOf(v)===Object.prototype){ const pb=pic && pic[k]; for(const j in v){ if(pb && pb[j]===1) continue; const w=v[j], tw=typeof w; if(tw==='number' || tw==='boolean' || tw==='string'){ const cj=(tw==='number')? ((j==='x' || j==='y' || DET_P[j]===1)? 1 : 3) : 0; A[cj]=(A[cj]+detVal(detKH(k+'.'+j), w))>>>0; if(cov) cov[cj][k+'.'+j]=1; } } }   // a plain bag on the row (a wander point, an anchor): one deep
+      else if(cov) cov[4][k]=1;
+      continue; }
+    else continue;
+    A[c]=(A[c]+detVal(detKH(k), v))>>>0; if(cov) cov[c][k]=1; } }
+function detList(L, pic, cols, cov){   // cols = [I, P, H, T] running words; a list's length first
+  for(let c=0;c<4;c++) cols[c]=detFold(cols[c], L.length);
+  for(let i=0;i<L.length;i++){ const e=L[i]; if(!e || typeof e!=='object'){ cols[0]=detFold(cols[0], -9); continue; } detRow(e, pic, cov); for(let c=0;c<4;c++) cols[c]=detFold(cols[c], DET_ACC[c]); } }
+function detHash(deep){
+  const I=0x811C9DC5, F=detFold; const C={}; const cv=deep? (DET.cov||(DET.cov={})) : null, gn=DET.gNever||(DET.gNever={});
+  const covOf=function(n){ return cv? (cv[n]||(cv[n]=[{},{},{},{},{}])) : null; };
+  let g=detStr(I, S.mode);
+  for(let i=0;i<DET_G.length;i++){ const k=DET_G[i], v=S[k]; g=F(g, detVal(detKH(k), v)); if(v===undefined){ if(gn[k]===undefined) gn[k]=1; } else gn[k]=0; }
+  for(const bk in DET_GB){ const bag=S[bk], L=DET_GB[bk]; g=F(g, bag? 1 : 0); for(let i=0;i<L.length;i++){ const k=bk+'.'+L[i], v=bag? bag[L[i]] : undefined; g=F(g, detVal(detKH(k), v)); if(bag){ if(v===undefined){ if(gn[k]===undefined) gn[k]=1; } else gn[k]=0; } } }
+  g=F(g, idc|0); g=F(g, (COMM && COMM.brief)? 1 : 0); C.g=g;
+  const q=[I,I,I,I]; detList(S.queue||[], null, q, covOf('queue')); C.q=F(F(F(q[0],q[1]),q[2]),q[3]);
+  const u=[I,I,I,I]; detList(S.units||[], DET_PIC.units, u, covOf('units')); C.uI=u[0]; C.uP=u[1]; C.uH=u[2]; C.uT=u[3];
+  const f=[I,I,I,I]; detList(S.foes||[], DET_PIC.foes, f, covOf('foes')); C.fI=f[0]; C.fP=f[1]; C.fH=f[2]; C.fT=f[3];
+  const s=[I,I,I,I]; detList(S.shots||[], DET_PIC.shots, s, covOf('shots')); C.sI=s[0]; C.sP=s[1]; C.sT=F(s[3], s[2]);
+  let o=I; const OL=['mines','gboul','fires','planes','forms','dfs','wrecks','breaths','crashes'];
+  for(let k=0;k<OL.length;k++){ const L=S[OL[k]]; if(!L || !Array.isArray(L)){ o=F(o, -1); continue; } const w=[I,I,I,I]; detList(L, DET_PIC[OL[k]]||null, w, covOf(OL[k])); o=F(F(F(F(o,w[0]),w[1]),w[2]),w[3]); }   // B3: an o list may name its picture's own keys too (DET_PIC.dfs)
+  C.o=o; C.dc=F(F(I, DET.dsec|0), DET.draws|0);
+  let x=I; const XL=['fx','floats','blobs','corpses'];   // the picture's own lists: reported beside the hash, NOT folded into it
+  for(let k=0;k<XL.length;k++){ const L=S[XL[k]]; x=F(x, L? L.length : -1); if(L) for(let i=0;i<L.length;i++){ const e=L[i]; if(e && typeof e==='object'){ x=F(x,detQ(e.x,16)); x=F(x,detQ(e.y,16)); x=F(x,detQ(e.t,1000)); } } }
+  const K=['g','q','uI','uP','uH','uT','fI','fP','fH','fT','sI','sP','sT','o','dc']; let a=I, b=0x9E3779B9;
+  for(let i=0;i<K.length;i++){ const v=C[K[i]]; a=F(a,v); b=(Math.imul((b<<5)|(b>>>27), 0x85EBCA6B)^v)>>>0; b=Math.imul(b^(b>>>13), 0xC2B2AE35)>>>0; }
+  const R={ h:detHex(a)+detHex(b), c:{}, x:detHex(x), n:[(S.units||[]).length, (S.foes||[]).length, (S.shots||[]).length] }; for(let i=0;i<K.length;i++) R.c[K[i]]=detHex(C[K[i]]);
+  if(deep) R.deep=detDeep();
+  return R; }
+function detDeep(){   // the rig's bisect table: one word for every plain field of the fight's state by its raw bits (S's own, S's plain bags one deep, every row of every list, a row's plain bags one deep and its {id}s), so two screens that differ name the field
+  const D={}, F=detFold, own=Object.prototype.hasOwnProperty;
+  const add=function(k, v){ let h=D[k]; if(h===undefined) h=0x811C9DC5; D[k]=F(h, detVal(0, v)); };
+  const obj=function(p, o, rows){ for(const k in o){ if(!own.call(o,k)) continue; const v=o[k], t=typeof v; if(t==='number' || t==='boolean' || t==='string') add(p+k, v);
+    else if(rows && v && t==='object'){ if(typeof v.id==='number') add(p+k+'>id', v.id); else if(DET_NOBAG[k]!==1 && Object.getPrototypeOf(v)===Object.prototype){ for(const j in v){ const tw=typeof v[j]; if(tw==='number' || tw==='boolean' || tw==='string') add(p+k+'.'+j, v[j]); } } } } };
+  obj('S.', S, 0);
+  for(const k in S){ if(!own.call(S,k)) continue; const v=S[k];
+    if(Array.isArray(v)){ add(k+'#', v.length); for(let i=0;i<v.length;i++){ const e=v[i]; if(e && typeof e==='object' && !Array.isArray(e)) obj(k+'.', e, 1); } }
+    else if(v && typeof v==='object' && Object.getPrototypeOf(v)===Object.prototype) obj('S.'+k+'.', v, 0); }
+  const R={}; for(const k in D) R[k]=detHex(D[k]); return R; }
+function detSecond(){ const r=detHash(DET.deep); r.s=(DET.tick/DET.hz)|0; r.t=DET.tick; r.dr=DET.dsec; DET.dsec=0; DET.sec.push(r); if(DET.sec.length>3600) DET.sec.shift(); }
+function detCov(){ const C=DET.cov, R={}; if(!C) return null; const N=['I','P','H','T','skipped']; for(const l in C){ R[l]={}; for(let c=0;c<5;c++) R[l][N[c]]=Object.keys(C[l][c]).sort(); } return R; }   // the rig's read: which fields each column really folded in this fight (and the object fields it passed over)
+// ---- THE RIG'S DOOR
+function detRig(o){ o=o||{};
+  if(o.seed!=null) DET.seed0=(+o.seed)>>>0; if(o.deep!=null) DET.deep=o.deep? 1 : 0; if(o.every!=null) DET.every=o.every? 1 : 0; if(o.warp!=null) DET.warp=Math.max(0, Math.min(40, o.warp|0)); if(o.maths!=null && !DET.open) DET.maths=o.maths? 1 : 0;
+  if(o.plan){ DET.plan=o.plan.slice().sort(function(p, q){ return (p.t|0)-(q.t|0); }); let i=0; if(DET.match>0 && detRuns()) while(i<DET.plan.length && DET.plan[i].t<DET.tick) i++; DET.pi=i; }
+  if(o.replay){ const L=detLogDec(o.replay); if(!L) return { err:'the log does not read' }; const sd=detSaveDig(); DET.rp={ h:L, w:L.w, i:0, used:0, sdig:sd, saveSame:(L.sdig===sd) }; DET.rpDone=null; DET.seed0=L.seed>>>0; DET.plan=[]; DET.pi=0;   // B2 THE REPLAY: the fight from its log alone (it says whether this page holds the save the log names)
+    if(o.go && !detDoorOpen(L)) return { err:'the log names no door this page can open: '+(L.door || '(a door the log could not carry)') }; }   // B3: every solo door, opened the way it was (DET_DOOR)
+  return { cv:GVT_CV, on:DET.on, runs:detRuns(), seed:DET.seed, seed0:DET.seed0, match:DET.match, tick:DET.tick, lagS:Math.round(DET.lagS*1000)/1000, lagN:DET.lagN, frames:DET.fr, gapMax:Math.round(DET.gmax*1000)/1000, warp:DET.warp, maths:DET.maths, open:DET.open, kind:DET.kind, mode:S.mode, held:DET.held,
+    draws:DET.dall, timers:{ made:DET.tN, waiting:DET.tq.length, flushed:DET.tFlush, err:DET.tErr }, wrapped:DET.wrapped.slice(), plan:DET.plan.length, pi:DET.pi, did:DET.did.slice(), log:DET.log.slice(-200),
+    gNever:DET.gNever? Object.keys(DET.gNever).filter(function(k){ return DET.gNever[k]===1; }) : [], cov:o.cov? detCov() : null, pic:DET_PIC,
+    sec:(o.sec===0)? null : DET.sec.slice(o.from|0), tk:o.tk? DET.tk.slice() : null, now:o.now? detHash(o.now>1) : null,
+    words:{ waiting:DET.inq.length, landed:DET.wl.length, drop:DET.drop, list:(o.words? DET.wl : DET.wl.slice(-40)).map(function(x){ return [x[0], x[1], x[2], detHexOf(x[3]), x[4]]; }) }, log:o.log? detHexOf(detLogBytes()) : null, head:DET.lh,
+    rp:DET.rp? { i:DET.rp.i, n:DET.rp.w.length, used:DET.rp.used, saveSame:DET.rp.saveSame } : (DET.rpDone? { i:DET.rpDone.i, n:DET.rpDone.w.length, used:1, done:1, saveSame:DET.rpDone.saveSame } : null), cams:DET.camN,
+    dial:DET.spd, hold:DET.hold, owe:DET.owe, paid:DET.paid, payN:DET.payN, tcost:Math.round(DET.tcost*1000)/1000, leak:DET.leak, leaks:DET.leaks.slice(), doors:DET.doors.slice(),
+    holds:(function(){ const o={}; for(const k in DET.hd){ const T=DET.hd[k]; o[k]=[T.sim? 1 : 0, T.fin? 1 : 0, T.n, T.q? T.q.pts.length : 0]; } return o; })(), grips:DET.gn, hands:DET.handN, hw:DET.hw }; }   // B2b: each hold's two copies (the fight's, the finger's), the grip that made the fight's, the aim owed · the presses · HAND words · writes from the finger's side
+// ---- THE WRAPS: only with the switch on (off: not one name is touched)
+if(DET.on){ try{
+  DET.nat.dnow=Date.now; DET.nat.rnd=Math.random; DET.nat.st=window.setTimeout;
+  const reset0=reset; reset=function(){ detMatch(); return reset0.apply(this, arguments); }; DET.wrapped.push('reset');
+  const place0=placeUnit; placeUnit=function(type, x, y, side, seat){ if(DET.open || !detRuns()) return place0.apply(this, arguments);   // a hand placement between two ticks: its own dice (seed, input number), written in the log with its tick
+    detOpen('i'); detSeedAt(2, DET.inN++); try{ if(DET.log.length<4000) DET.log.push([DET.tick, 'place', String(type), Math.round(x*16)/16, Math.round(y*16)/16]); return place0.apply(this, arguments); } finally{ detShut(); } }; DET.wrapped.push('placeUnit');
+  for(let i=0;i<DET.outs.length;i++) if(detOutWrap(DET.outs[i])) DET.wrapped.push(DET.outs[i]);
+  // B2 THE DOORS: each wrapped here alone (the switch off: not one of them is touched)
+  detDoorWrap(window, 'dropNew', DET_K.PLACE);   // a placement and its purse (the finger's drop, the tap's flight, the nearest spot: one seat)
+  for(let i=0;i<DET_HERO.length;i++) detDoorWrap(window, DET_HERO[i], DET_K.HERO);   // the hero's buttons
+  detDoorWrap(window, 'spawnWave', DET_K.WAVE);   // the wave button (the sim's own calls come from inside a tick and pass)
+  detDoorWrap(window, 'commAdvance', DET_K.BRIEF, function(e){ if(e){ try{ e.preventDefault(); e.stopPropagation(); }catch(x){} } return true; }, function(){ return []; });   // a briefing's tap (the finger's event is still taken at once; the word carries nothing of it)
+  if(typeof UI==='object' && UI){ detDoorWrap(UI, 'hqRetreat', DET_K.QUIT); detDoorWrap(UI, 'trainExit', DET_K.QUIT, null, function(){ return ['trainExit']; }); }   // RETREAT TO HQ · B3: the range's EXIT (the range has no verdict: the exit ends its fight)
+  { const ho0=hqOpen, hc0=hqClose;   // THE HQ SHEET'S HOLD (and the campaign's pause glyph, the same door): the sheet opens and closes at once; the fight's hold is a word
+    hqOpen=function(){ const was=HQS.on, f=detFinger(); const r=ho0.apply(this, arguments); if(f && !was && HQS.on && !DET.rp) detIn(DET_K.HOLD, [1]); return r; };
+    hqClose=function(){ const was=HQS.on, f=detFinger(); const r=hc0.apply(this, arguments); if(f && was && !HQS.on && !DET.rp) detIn(DET_K.HOLD, [0]); return r; }; DET.doors.push('hqOpen', 'hqClose'); }
+  { const th0=tckHide, tb0=tckBack;   // A PUT-AWAY PHONE: the hide is a word (a record); the way back is a word carrying the span owed as WHOLE TICKS (TCK's own reckoning: the wall across the pocket, less what the loop stepped in it, capped at TCK.max)
+    tckHide=function(){ const f=detFinger(); const r=th0.apply(this, arguments); if(f && !DET.rp) detIn(DET_K.AWAY, [1, 0]); return r; };
+    tckBack=function(){ const f=detFinger(); const r=tb0.apply(this, arguments); if(f){ const n=Math.max(0, Math.min(Math.round(TCK.max*DET.spd/SIM_STEP_S), Math.round((+TCK.back||0)*DET.spd/SIM_STEP_S))); TCK.back=0; DET.skipGap=1; if(!DET.rp) detIn(DET_K.AWAY, [0, n]); } return r; }; DET.doors.push('tckHide', 'tckBack'); }
+  for(const nm in DET_DOOR){ const D=DET_DOOR[nm], fn=D.fn||nm, f0=window[fn]; if(typeof f0!=='function' || f0.detDoorN) continue;   // B3 THE DOOR IN THE LOG: every solo battle door (the outermost names the fight; B2 named startCampaign alone)
+    const g=function(){ if(DET.doorNow) return f0.apply(this, arguments); const a=detDoorArgs(D, arguments); DET.doorNow={ d:a? nm : '', a:a||[] }; try{ return f0.apply(this, arguments); } finally{ DET.doorNow=null; } };
+    g.detDoorN=nm; window[fn]=g; DET.wrapped.push(fn); }
+  for(let i=0;i<DET_ACT.length;i++) detDoorWrap(window, DET_ACT[i], DET_K.ACT);   // B3: the field's acts (the Toy Express's tap, the range's shelf)
+  { const gb0=window.gmyBag; if(typeof gb0==='function'){ gmyBag=function(){ if((!DET.open || DET.out>0) && detRuns()){ const rd=S.raid; if(rd && rd.k==='gmy' && rd.cfg===S.cfg && !rd.gmy) return null; } return gb0.apply(this, arguments); }; DET.wrapped.push('gmyBag'); } }   // B3 THE LAZY BAG: the Giant Mummy's bag is built by its FIRST caller, with dice (the first spider, the first bat); the drawing (outside a tick: the browser's own dice) must never be that caller, so the first tick builds it on the seeded stream
+  // B2b THE HOLDS: the four gestures' state in two copies, and their finger doors (the switch off: not one of them is touched)
+  for(const k in DET_HOLD) detHoldMake(k);
+  detGripWrap('jv2Begin', function(u, p, w){ return detGripIn('jv2', 'jv2Begin', p, w, [u]); }, true);   // the jet pack's V2 hold: the press (no clack now: a refusal clacks where the word lands)
+  detGripWrap('dcvPress', function(p, w){ return detGripIn('dcv', 'dcvPress', p, w, []); }, true);   // the cavalry's call (a key's tap of it is this press and its lift in one tick)
+  detGripWrap('ftPress', function(p, w, slot2){ if(!ftArmed(!!slot2) || !ftCan(jetSarge(), !!slot2)) return false; return detGripIn('ft', 'ftPress', p, w, [!!slot2], 0, !!slot2); }, false);   // the crystal's button with red A in that socket, and a Sarge who can cast (ftPress's own two gates, read at the press as the shipped press reads them; both are read again where the word lands); any other crystal, or a press the gates refuse, goes on to the plain cast, a HERO word as before
+  detGripWrap('eshPress', function(p, w){ const L=DET.inq, x=L.length? L[L.length-1] : null; let cast=false;   // the energy shot: `if(laActivate()) eshPress(...)` is ONE press: this press's own laActivate word (the newest waiting, nothing can come between the two calls) is taken back, and the cast rides the press word
+    if(x && x.k===DET_K.HERO && x.q===DET.wseq){ const a=detDecArgs(x.b, 0); if(a && a[0]==='laActivate'){ L.pop(); cast=true; } }
+    return detGripIn('esh', 'eshPress', p, w, [cast]); }, true);
+  detGripWrap('ftzDown', function(a, e){ const T=DET.hd.ft; detGripIn('ft', 'ftzDown', evPos(e), evPosW(e), [], 1, !!(T.fin? T.fin.slot2 : (T.sim && T.sim.slot2))); }, undefined);   // the armed pen takes the next finger (CARD-FTZ's listener calls it with the event: the word carries the point)
+  for(const nm in DET_AIM) detGripWrap(nm, (function(n9, k9){ return function(p, w){ return detAimIn(k9, n9, p, w); }; })(nm, DET_AIM[nm]), true);   // the four moves
+  detGripWrap('jv2Up', function(){ detLiftIn('jv2Up'); return null; }, null); detGripWrap('jv2Cancel', function(){ detLiftIn('jv2Cancel'); return null; }, null);   // the lifts (a lost finger is one: the game's own cancel, where it lands)
+  detGripWrap('dcvAimUp', function(){ detLiftIn('dcvAimUp'); }, undefined);
+  detGripWrap('eshUp', function(){ detLiftIn('eshUp'); return null; }, null); detGripWrap('eshCancel', function(){ return detLiftIn('eshCancel'); }, false);
+  detGripWrap('ftUp', function(){ detLiftIn('ftUp', 1); return true; }, true); detGripWrap('ftCancel', function(){ return detLiftIn('ftCancel', 1); }, false);   // (a lost finger with the pen armed and no finger down is still the game's own cancel)
+  detGripWrap('ftGo', function(why){ return detLiftIn('ftGo', 1, 1, [String(why||'')]); }, false);   // the second tap on the crystal (CARD-FTZ's listener; the hold's own clocks call ftGo inside a tick and pass)
+  detGripWrap('ftzVoid', function(a, why){ detLiftIn('ftzVoid', 1, 1, [String(why||'')]); }, undefined);   // another button: the pen put away (the listener; that press goes on to its own door)
+  { window.addEventListener('pointerdown', function(e){ if(e.isPrimary===false) return; DET.penHid=0; if(detRuns() && !DET.rp){ let v=null; try{ v=S.ftAim; }catch(x){} DET.penHid=v? 0 : 1; } }, { capture:true, passive:true });   // (the cold read's finding 1) a pointer that goes down WITHOUT seeing an armed pen (CARD-FTZ's own listener, made before this one, has read S.ftAim by now) never meets one that arms while it is down: its own gesture keeps its moves and its lift
+    const up9=function(e){ if(e && e.isPrimary===false) return; DET.penHid=0; }; window.addEventListener('pointerup', up9, { passive:true }); window.addEventListener('pointercancel', up9, { passive:true }); }   // (the bubble pass: after the canvas's own handlers)
+  { const ob0=fpnOnBtn; fpnOnBtn=function(a, p){ if(DET.aimBtn!=null) return !!DET.aimBtn; return ob0.apply(this, arguments); }; DET.wrapped.push('fpnOnBtn'); }   // an AIM word landing answers 'still on the crystal button' from the word (the rect is this glass's own; the fight must not read it)
+  { const ew0=evPosW; evPosW=function(e){ if(e && e.detW) return { x:e.detW.x, y:e.detW.y }; return ew0.apply(this, arguments); }; DET.wrapped.push('evPosW'); }   // a word's own point (ftzDown's landing hands it in an event's seat)
+  { const sb0=ccnSlowBack; ccnSlowBack=function(why){ if(CCN_SL && CCN_SL.bat===S.units && detRuns() && !detInSim()) return; return sb0.apply(this, arguments); }; DET.wrapped.push('ccnSlowBack'); }   // B2b (the sentinel's find in the fire trail's fight): CARD-CCN hands a crystal's slow-down back from TWO watches: its own timer (made inside the tick that slowed the world: on the tick clock, the match's clock) and draw()'s ccnCam9, every drawn frame, on the WALL clock (the time, the HQ sheet as the finger sees it). The second one changed S.slowmo between two ticks. With the switch on, a slow-down of the running battle is handed back by the tick's own watch alone
+  { DET.spd=+S.speed||1; Object.defineProperty(S, 'speed', { configurable:true, enumerable:true, get:function(){ return DET.tin? 1 : DET.spd; },   // THE DIAL AS TICKS: inside a tick the dial reads x1 (the fight is the x1 fight); outside it is the dial
+    set:function(v){ v=+v; if(!(v>0)) v=1; const f=detFinger() && v!==DET.spd; DET.spd=v; if(f && !DET.rp) detIn(DET_K.SPEED, [v, S.spdI|0]); } }); DET.wrapped.push('S.speed'); }   // a finger's turn of the dial is a word too (the log keeps the pace)
+  { const L=['pointerdown','pointermove','pointerup','click','keydown','wheel','touchstart','touchmove','gesturechange']; for(let i=0;i<L.length;i++) window.addEventListener(L[i], detLeakNote, { capture:true, passive:true }); }   // THE SENTINEL's names (the last input, beside a change seen off the tick)
+  { const pf0=premFrozen; premFrozen=function(){ if(DET.rp && detRuns()) return false; return pf0.apply(this, arguments); }; DET.wrapped.push('premFrozen'); }   // a REPLAY never waits on the first-drop card (it freezes the tick clock and holds no fight byte; a log has no finger to take it)
+  const ct0=window.clearTimeout; window.clearTimeout=function(id){ if(typeof id==='number' && id>DET_TID0){ const Q=DET.tq; for(let i=0;i<Q.length;i++) if(Q[i].id===id){ Q.splice(i,1); return; } if(DET.tmap[id]!=null){ const n=DET.tmap[id]; delete DET.tmap[id]; return ct0.call(window, n); } return; } return ct0.apply(window, arguments); };
+}catch(e){ DET.on=0; try{ console.error('CARD-ENG2-B', e); }catch(e2){} } }
+try{ if(window.GVT && !GVT.det) GVT.det=detRig; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.det) GVT.det=detRig; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-ENG2-B ═══
 </script>
 <svg id="bcnDefs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;pointer-events:none"><defs><filter id="bcnS" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,210,74)" flood-opacity="0.7"/></filter><filter id="bcnCS" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.952" flood-color="rgb(255,210,74)" flood-opacity="0.7"/></filter><filter id="bcnT" x="-70%" y="-70%" width="240%" height="240%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,210,74)" flood-opacity="0.95"/><feDropShadow dx="0" dy="0" stdDeviation="24" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnH0" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnW0" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnC0" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="3.968" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnH1" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnW1" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnC1" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.299" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnH2" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnW2" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnC2" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.63" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnH3" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnW3" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnC3" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.96" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnH4" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnW4" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnC4" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.291" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnH5" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnW5" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnC5" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.622" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnH6" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnW6" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnC6" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.952" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnH7" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnW7" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnC7" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.283" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnH8" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnW8" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnC8" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.614" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnH9" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnW9" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnC9" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.944" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnH10" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnW10" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnC10" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.275" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnH11" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnW11" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnC11" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.606" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnH12" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnW12" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnC12" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.937" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnH13" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnW13" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnC13" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.267" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnH14" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnW14" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnC14" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.598" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnH15" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnW15" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnC15" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.929" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnH16" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnW16" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnC16" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.259" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnH17" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnW17" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnC17" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.59" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnH18" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnW18" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnC18" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.921" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnH19" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnW19" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnC19" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.251" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnH20" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnW20" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnC20" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.582" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnB0" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="rgb(255,210,74)" flood-opacity="0.4"/></filter><filter id="bcnB1" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="rgb(255,210,74)" flood-opacity="0.423"/></filter><filter id="bcnB2" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="rgb(255,210,74)" flood-opacity="0.446"/></filter><filter id="bcnB3" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.5" flood-color="rgb(255,210,74)" flood-opacity="0.469"/></filter><filter id="bcnB4" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,211,74)" flood-opacity="0.492"/></filter><filter id="bcnB5" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,211,74)" flood-opacity="0.515"/></filter><filter id="bcnB6" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,211,74)" flood-opacity="0.537"/></filter><filter id="bcnB7" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.56"/></filter><filter id="bcnB8" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.583"/></filter><filter id="bcnB9" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,212,74)" flood-opacity="0.606"/></filter><filter id="bcnB10" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,212,74)" flood-opacity="0.629"/></filter><filter id="bcnB11" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,212,74)" flood-opacity="0.652"/></filter><filter id="bcnB12" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.675"/></filter><filter id="bcnB13" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.698"/></filter><filter id="bcnB14" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.721"/></filter><filter id="bcnB15" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.744"/></filter><filter id="bcnB16" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,213,74)" flood-opacity="0.767"/></filter><filter id="bcnB17" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.79"/></filter><filter id="bcnB18" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.812"/></filter><filter id="bcnB19" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.835"/></filter><filter id="bcnB20" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.858"/></filter><filter id="bcnB21" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,214,74)" flood-opacity="0.881"/></filter><filter id="bcnB22" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.904"/></filter><filter id="bcnB23" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.927"/></filter><filter id="bcnB24" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter></defs></svg>
 <script>/* CARD-OLR round 34 BEGIN: html.olrmen while her look is on (the men's rule above) */try{ if(typeof olrOn==='function' && olrOn()) document.documentElement.classList.add('olrmen'); }catch(e){}/* CARD-OLR round 34 END */</script>
