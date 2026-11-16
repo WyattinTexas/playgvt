@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.85","md5":"4809371bc31c636770f3d745ed7463c9","sha":"bc9d481458","at":"2026-11-16T05:59:35Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.86","md5":"84c8f957bc9a855e0384c862d76f3313","sha":"54e0b52730","at":"2026-11-16T06:56:19Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94280,7 +94280,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -238544,12 +238544,27 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.sfb) GVT.sfb=sfbRead; }catch(e
 // FOR LATER CARDS: a card that reads the geometry INSIDE a Surplus card off the glass reads its last laid-out box (WebKit keeps it), and a scrollIntoView to it works (this section gives the card back first);
 // a card that wraps renderShop, shTagFit, afxSweep or afxnSweep stands after END CARD-SFO and calls through. A new heavy department joins by itself (a department's blocks of 300+ elements with three
 // or more pieces: each piece of 20+ elements, or holding an svg picture, is a card; a smaller block is one card).
+// CARD-SKR (jumpr 3468, board M3468, built on the QuarterPounder; cut by CARD-SBP, jumpr 3431, on Wyatt's rule of 11/12/2026 16:39 EST: "Yes fix- and dont ask in these situations. Its clearly
+// implied that we do not want a laggy screen in the game"; design/surplus-skipped-row-1115/00-CARD-SKR.md): A SKIPPED CARD KEEPS ITS HEIGHT IN CHROME TOO. THE FAULT, MEASURED (Chrome for Testing
+// 154 as the Android app's WebView and the web in Chrome; Playwright's WebKit as the iPhone and the iPad): a department is a flex column, and a whole card that stands in it as a flex item
+// (SUPPLY DROPS' crates row: three crates, 132 elements, one card) lost its height while it was skipped in Chrome: a skipped box's automatic minimum height is 0 there (its contents are skipped),
+// so the department's column shrank it to its padding (214.953 -> 6 px at the iPhone's glass, 241.594 -> 6 at an iPad's and on the web), the readback below raised its intrinsic height twice and
+// gave up, and every card under it moved up as much. Scroll anchoring hid the drop at that paint; giving the row back on the way up pushed the shelf under it 209 px down on the glass; a second
+// refresh mid-shelf landed the view as much off (CARD-SBP off: the whole paint put back the seat the collapse had left; CARD-SBP on: the row, read 0 high, was not skipped again and was given
+// back off the glass). WebKit kept the height. THE CURE: while a card is skipped it also wears its own measured height as its floor (min-block-size: the height, in the store's horizontal
+// writing; the border box under the store's border-box sizing, else the content box, corrected with the intrinsic size), taken off with the other two whenever the card is given back (sfoShow,
+// and so sfoAll). A card that wears a min-block-size of its own is never skipped. The other whole card in a department's column (the star packs' showcase, .sh-nawin) ships flex 0 0 auto and
+// kept its box before; the pieces of a cut block (a grid's toys: flex items of a ROW) kept theirs before; both keep them. The readback then has nothing left to correct (on HEAD it corrected
+// 30 to 37 boxes at every paint, in both engines).
+// ?sfh=0 = no floor (remembered on the device: gvt_sfh), ?sfh=1 back; GVT.sfo().sfh; GVT.sfo({ sfh:0|1 }) in this page (every card given back; the next paint skips with it or without it).
+// FOR LATER CARDS: a skipped card wears THREE inline properties (content-visibility, contain-intrinsic-size, min-block-size); CARD-SBP leaves all three (and overflow-anchor) out of its compare.
 function sfoSw(k){ try{ const q=new RegExp('[?&]'+k+'=([01])(?![\\w])').exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_'+k,'0'); else localStorage.removeItem('gvt_'+k); } return localStorage.getItem('gvt_'+k)==='0'? 0 : 1; }catch(e){ return 1; } }
 const SFO_MIN=20, SFO_ROW=300, SFO_CAP=6000, SFO_CALM=30, SFO_GAP=50, SFO_EDGE=24, SFO_NEAR='0px', SFO_AFTERX=1500;   // a card's least elements · a block whose pieces are the cards · the calm: 30 frames in a row under 50 ms (the painter through its bursts), at most 6 s · the glass's own edge at a paint · the observer's margin round a department's glass
 const SFO_CV=(function(){ try{ return !!(window.CSS && CSS.supports && CSS.supports('content-visibility', 'hidden') && CSS.supports('contain-intrinsic-size', '1px 1px')); }catch(e){ return false; } })();
 var SFO={ on:sfoSw('sfo'), v:0, c:0, near:SFO_NEAR, minT:0, list:[], hid:new WeakSet(), ios:[], depts:[], owns:new Map(), idsOf:new WeakMap(), gmo:null, until:0, calmN:0, watchT:0, watching:0, mo:null, old:{}, err:0, why:'', ms:0, max:0,
   n:{ paints:0, cards:0, kept:0, shared:0, hid:0, snap:0, back:0, guard:0, spot:0, fit:0, shut:0, calm:0, capped:0, held:0, heldN:0, all:0 } };
 SFO.v=SFO.on && sfoSw('sfv') && SFO_CV? 1 : 0; SFO.c=SFO.on && sfoSw('sfc')? 1 : 0;
+const SFO_FLOOR='min-block-size'; SFO.sfh=SFO.on && sfoSw('sfh')? 1 : 0; SFO.n.floor=0; SFO.n.ownFloor=0;   // CARD-SKR: a skipped card's floor (its own measured height) · ?sfh=0 = no floor · how many cards were given one · how many were left as shipped for a floor of their own
 function sfoOpen(){ try{ return shopIsOpen() && !SHOP.store; }catch(e){ return false; } }   // SARGE'S SURPLUS on the glass (a park store or the lab: not this section's)
 function sfoCards(ts){ const out=[];   // a department's pieces: a block of 300+ elements with 3+ pieces gives its pieces of 20+ elements; a smaller piece of 20+ is one card
   for(const d of ts.querySelectorAll('.sh-dept')) for(const c of d.children){ const n=c.getElementsByTagName('*').length;
@@ -238557,7 +238572,7 @@ function sfoCards(ts){ const out=[];   // a department's pieces: a block of 300+
   return out; }
 function sfoGlass(d){ const r=d.getBoundingClientRect(); return { l:Math.max(0, r.left), t:Math.max(0, r.top), r:Math.min(innerWidth, r.right), b:Math.min(innerHeight, r.bottom) }; }   // a department's own window on the glass
 function sfoIn(b, g, m){ return b.right>g.l-m && b.left<g.r+m && b.bottom>g.t-m && b.top<g.b+m && g.r>g.l && g.b>g.t; }
-function sfoShow(c){ if(!SFO.hid.has(c)) return; SFO.hid.delete(c); const I=SFO.idsOf.get(c); if(I){ for(const id of I) if(SFO.owns.get(id)===c) SFO.owns.delete(id); SFO.idsOf.delete(c); } try{ c.style.removeProperty('content-visibility'); c.style.removeProperty('contain-intrinsic-size'); if(!c.getAttribute('style')) c.removeAttribute('style'); }catch(e){ SFO.err++; }
+function sfoShow(c){ if(!SFO.hid.has(c)) return; SFO.hid.delete(c); const I=SFO.idsOf.get(c); if(I){ for(const id of I) if(SFO.owns.get(id)===c) SFO.owns.delete(id); SFO.idsOf.delete(c); } try{ c.style.removeProperty('content-visibility'); c.style.removeProperty('contain-intrinsic-size'); c.style.removeProperty(SFO_FLOOR); if(!c.getAttribute('style')) c.removeAttribute('style'); }catch(e){ SFO.err++; }
   for(const io of SFO.ios){ try{ io.unobserve(c); }catch(e){} } }   // the card as shipped
 function sfoAll(why){ let k=0; for(const c of SFO.list){ if(SFO.hid.has(c)){ sfoShow(c); k++; } } SFO.list=[]; for(const io of SFO.ios){ try{ io.disconnect(); }catch(e){} } SFO.ios=[]; sfoAnchor(); sfoUnguard(); if(k) SFO.n.all++; return k; }
 function sfoAnchor(){ for(const d of SFO.depts){ try{ d.style.removeProperty('overflow-anchor'); if(!d.getAttribute('style')) d.removeAttribute('style'); }catch(e){} } SFO.depts=[]; }   // the department's scroll anchoring as shipped
@@ -238590,7 +238605,9 @@ function sfoPaint(){ let shown=false; try{ shown=shopIsOpen(); }catch(e){} if(!s
     if(s.transform && s.transform!=='none'){ SFO.n.kept++; continue; }   // a card under a transform of its own: left as it ships (its box on the glass is not its layout box)
     let w=b.width, h=b.height;
     const px=v=>parseFloat(v)||0; w-=px(s.paddingLeft)+px(s.paddingRight)+px(s.borderLeftWidth)+px(s.borderRightWidth); h-=px(s.paddingTop)+px(s.paddingBottom)+px(s.borderTopWidth)+px(s.borderBottomWidth);
-    if(!(w>0 && h>0)){ SFO.n.kept++; continue; } W.push([c, d, w, h, b.width, b.height]); }
+    if(!(w>0 && h>0)){ SFO.n.kept++; continue; }
+    if(!SFO.hid.has(c) && c.style.getPropertyValue(SFO_FLOOR)){ SFO.n.kept++; SFO.n.ownFloor++; continue; }   // CARD-SKR: a card wearing a floor of its own is left as it ships (sfoShow takes the floor off)
+    W.push([c, d, w, h, b.width, b.height, s.boxSizing==='border-box'? 1 : 0]); }
   const cnt=new Map(); for(const e of document.querySelectorAll('[id]')) cnt.set(e.id, (cnt.get(e.id)|0)+1);
   const owns=new Map();
   for(let i=W.length-1; i>=0; i--){ const c=W[i][0]; let shared=false; const mine=[];
@@ -238599,11 +238616,11 @@ function sfoPaint(){ let shown=false; try{ shown=shopIsOpen(); }catch(e){} if(!s
     for(const id of mine) owns.set(id, c); SFO.idsOf.set(c, mine); }
   SFO.owns=owns;
   const byD=new Map();
-  for(const [c, d, w, h] of W){ c.style.setProperty('contain-intrinsic-size', w+'px '+h+'px'); c.style.setProperty('content-visibility', 'hidden'); SFO.hid.add(c); SFO.list.push(c); SFO.n.hid++; let a=byD.get(d); if(!a){ a=[]; byD.set(d, a); } a.push(c); }
+  for(const [c, d, w, h, bw, bh, bb] of W){ c.style.setProperty('contain-intrinsic-size', w+'px '+h+'px'); c.style.setProperty('content-visibility', 'hidden'); if(SFO.sfh){ c.style.setProperty(SFO_FLOOR, (bb? bh : h)+'px'); SFO.n.floor++; } SFO.hid.add(c); SFO.list.push(c); SFO.n.hid++; let a=byD.get(d); if(!a){ a=[]; byD.set(d, a); } a.push(c); }
   // EVERY BOX TO THE LAYOUT UNIT: a padding in % or clamp() reads back as a float the layout snaps otherwise (measured: a gear card 1/64 px short, 0.16 px down the grid, the shelf 1 px): read each skipped
   // box once (the contents skipped, so this layout is the shelf's alone) and give the cards that differ what they lack, at most twice
   for(let k=0; k<2 && W.length; k++){ const fix=[]; for(const R of W){ const b=R[0].getBoundingClientRect(), dw=R[4]-b.width, dh=R[5]-b.height; if(Math.abs(dw)>0.001 || Math.abs(dh)>0.001){ R[2]+=dw; R[3]+=dh; fix.push(R); } }
-    for(const R of fix) R[0].style.setProperty('contain-intrinsic-size', R[2]+'px '+R[3]+'px'); SFO.n.snap=(SFO.n.snap|0)+fix.length; if(!fix.length) break; }
+    for(const R of fix){ R[0].style.setProperty('contain-intrinsic-size', R[2]+'px '+R[3]+'px'); if(SFO.sfh && !R[6]) R[0].style.setProperty(SFO_FLOOR, R[3]+'px'); } SFO.n.snap=(SFO.n.snap|0)+fix.length; if(!fix.length) break; }
   SFO.n.cards+=C.length;
   // NO SCROLL ANCHORING ON A SHELF WITH SKIPPED CARDS (measured: WebKit's anchoring moved the shelf 39 to 54 px when a card was given back, as if its anchor stood inside a skipped box; the boxes
   // themselves never change size while the store is open, so the anchoring has nothing to keep there): overflow-anchor:none on the department, taken off with the cards
@@ -238617,9 +238634,9 @@ try{ const SIV=Element.prototype.scrollIntoView; if(typeof SIV==='function'){ SF
 try{ if(typeof afxSweep==='function'){ SFO.old.afxSweep=afxSweep; afxSweep=function(){ if(SFO.c && sfoBusy()){ SFO.n.held++; return; } return SFO.old.afxSweep.apply(this, arguments); }; } }catch(e){ SFO.err++; }   // CARD-AFX (with CARD-AFX-ELE's tint pass inside it): its clock sweeps again in a second
 try{ if(typeof afxnSweep==='function'){ SFO.old.afxnSweep=afxnSweep; afxnSweep=function(){ if(SFO.c && sfoBusy()){ SFO.n.heldN++; return; } return SFO.old.afxnSweep.apply(this, arguments); }; } }catch(e){ SFO.err++; }   // CARD-AFX-NEXT: the same
 (function(){ try{ const ts=document.getElementById('toyshop'); if(!ts) return; SFO.mo=new MutationObserver(function(){ try{ if(ts.classList.contains('hidden') && (SFO.list.length || SFO.ios.length)){ sfoAll('shut'); sfoDrop(); SFO.n.shut++; if(SFO.c) sfoWatch(SFO_AFTERX); } }catch(e){ SFO.err++; } }); SFO.mo.observe(ts, { attributes:true, attributeFilter:['class'] }); }catch(e){ SFO.err++; } })();   // the store shut: every card as shipped again (a hidden store: no layout, no paint), its observers let go, and the bakers wait for the room's own first paint to come calm and at least 1.5 s (the bakes the store deferred, CARD-AFX-NEXT's room pictures above all, ran in the half second after the X and their reads held CARD-DFC's let-go past its battery's 0.86 s mark)
-function sfoRead(o){ if(o && typeof o==='object'){ if(o.near!=null) SFO.near=String(o.near); if(o.show) sfoAll('rig'); if(o.v!=null){ SFO.v=(o.v && SFO.on && SFO_CV)? 1 : 0; if(!SFO.v) sfoAll('rig'); } if(o.c!=null){ SFO.c=(o.c && SFO.on)? 1 : 0; if(!SFO.c) SFO.until=0; } }
+function sfoRead(o){ if(o && typeof o==='object'){ if(o.near!=null) SFO.near=String(o.near); if(o.show) sfoAll('rig'); if(o.v!=null){ SFO.v=(o.v && SFO.on && SFO_CV)? 1 : 0; if(!SFO.v) sfoAll('rig'); } if(o.c!=null){ SFO.c=(o.c && SFO.on)? 1 : 0; if(!SFO.c) SFO.until=0; } if(o.sfh!=null){ SFO.sfh=(o.sfh && SFO.on)? 1 : 0; sfoAll('rig'); } }
   let hid=0; for(const c of SFO.list) if(SFO.hid.has(c) && c.isConnected) hid++;
-  return { cv:GVT_CV, on:SFO.on, v:SFO.v, c:SFO.c, engine:SFO_CV? 1 : 0, wrapped:{ renderShop:!!SFO.old.renderShop, shTagFit:!!SFO.old.shTagFit, afxSweep:!!SFO.old.afxSweep, afxnSweep:!!SFO.old.afxnSweep, siv:!!SFO.old.siv },
+  return { cv:GVT_CV, on:SFO.on, v:SFO.v, c:SFO.c, sfh:SFO.sfh, engine:SFO_CV? 1 : 0, wrapped:{ renderShop:!!SFO.old.renderShop, shTagFit:!!SFO.old.shTagFit, afxSweep:!!SFO.old.afxSweep, afxnSweep:!!SFO.old.afxnSweep, siv:!!SFO.old.siv },
     hidNow:hid, ios:SFO.ios.length, near:SFO.near, busy:sfoBusy(), settling:sfoSettling(), n:Object.assign({}, SFO.n), ms:+SFO.ms.toFixed(1), max:+SFO.max.toFixed(1), err:SFO.err, why:SFO.why }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.sfo) GVT.sfo=sfoRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-SFO ═══
@@ -239119,7 +239136,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.thd) GVT.thd=thdRead; }catch(e
 // Everything renderShop does after the write runs as shipped (shopCardArm, shopJump, the departments' scrolls kept, shopTryPlace, shopPoorSweep, shTagFit), and so do the wraps over it (CARD-DFC's gate,
 // CARD-SFO's paint). THE SAME STORE: what a fresh paint would make, but for three things no picture shows: a kept card keeps its drawing's earlier ids, its running loops run on (a fresh one starts them
 // again), its baked pictures stay baked (CARD-AFX / CARD-AWG put them back on a fresh card a beat later).
-// EXACT, BY THESE RULES: (1) a unit anything touched since the last paint (an attribute whose value is not what it was, a child, a text: a MutationObserver between paints; CARD-SFO's own three style
+// EXACT, BY THESE RULES: (1) a unit anything touched since the last paint (an attribute whose value is not what it was, a child, a text: a MutationObserver between paints; CARD-SFO's own four style
 // properties aside, which its paint sets again, CARD-ESL's esl-zz, which its tick sets again, and CARD-LGU's seats of a gear drawing in WebKit, data-lgz and her bitmap image.lgi, which its sweep sets again) is dealt again; (2) so is a unit that holds a field or a player (the codes' input: a fresh paint empties it), and the ask's card (#shConfirm) always;
 // (3) any other child of #toyshop goes, as the whole write takes it (the lens's fly); (4) a focused element in a kept unit lets go of its focus, as a replaced one does. THE WHOLE STORE AS SHIPPED when:
 // the switch is off; another store; the first paint after the store was shown again (every open); another tongue than the last paint's, or the words' audit; a tree that is not the one recorded; a unit
@@ -239141,7 +239158,7 @@ const SBP_DIVE={ div:1, section:1 };   // the only elements a cut goes inside (a
 const SBP_BIG=4000;   // a container is cut into its children only when its string is longer than this; a smaller one is one unit
 const SBP_FIELD=/<(?:input|textarea|select|video|audio|iframe|object)\b/i;   // a unit holding one of these is dealt again at every paint (its state is the paint's own)
 const SBP_FTAG={ input:1, textarea:1, select:1, video:1, audio:1, iframe:1, object:1 };   // the same, by an element's name (the outline's one pass)
-const SBP_SFO=/^(?:content-visibility|contain-intrinsic-size|overflow-anchor)\s*:/i;   // CARD-SFO's own inline properties (its paint sets them again on a kept card)
+const SBP_SFO=/^(?:content-visibility|contain-intrinsic-size|overflow-anchor|min-block-size)\s*:/i;   // CARD-SFO's own inline properties (its paint sets them again on a kept card; min-block-size: CARD-SKR's floor on a skipped card)
 const SBP_OWN={ 'data-lgz':1 };   // CARD-LGU's seat of a gear drawing in WebKit (far and flat, her bitmap coming, loaded, live): its sweep seats a kept drawing as it seats a fresh one
 var SBP={ on:sbpSw(), rec:null, mo:null, arm:0, depth:0, lay:null, setAside:null, gave:0, proto:null, err:0, why:'', ms:0, max:0, last:null,
   n:{ paints:0, whole:0, kept:0, first:0, shut:0, lang:0, store:0, tree:0, cut:0, error:0, units:0, same:0, ids:0, dealt:0, dealtEls:0, conf:0, extra:0, blur:0, sfoBack:0, sfoNear:0, anchor:0, forgot:0 } };
