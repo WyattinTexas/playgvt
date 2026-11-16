@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.90","md5":"22f04c3c185b2ade1bf53ff959810d73","sha":"58f407ed95","at":"2026-11-16T10:06:38Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.91","md5":"55393b264b2f01ab2d1da43cfca73c15","sha":"15c300e41b","at":"2026-11-16T12:00:49Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94280,7 +94280,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -240082,6 +240082,83 @@ function fmkRead(o){ if(o && typeof o==='object'){ if('on' in o) FMK.on=o.on? 1 
 try{ if(window.GVT && !GVT.fmk) GVT.fmk=fmkRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.fmk) GVT.fmk=fmkRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-FMK ═══
+// ═══ CARD-CRPK · THE CRISP CHARACTERS' KEPT BITMAPS AT A QUICK START: A PAINT ASKED BEFORE CARD-HVM'S SHELF HAS ANSWERED WAITS FOR IT, AND THE SHELF IS READ THE MOMENT ONE IS ASKED (sec:CARD-CRPK; design/crisp-bitmaps-kept-1116/00-CARD-CRPK.md; jumpr 3496, built on Maker 1 as M3496; cut by CARD-SFB2, jumpr 3455, on Wyatt's rule of 11/12/2026 16:39 EST, typed on Maker 1, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ═══
+// THE FAULT (the record's section 1; the Mac's system WebKit at his glass 874 x 402 at 3 dots, opened as the App Store app, the store kept on disk between starts, client v32.85): CARD-HVM's shelf (IndexedDB gvt_hvk,
+//   its family c) keeps every bitmap CARD-CRP paints, across starts, and hands them back to CARD-CRP's keep at a start; but it reads them on a clock, HVK.first = 1.2 s after its section has run, which is
+//   about 2 s into the page here (the open itself then answers in 1 to 7 ms). A player who taps PRESS START the moment the game answers is in the room before that read: the room's cards show their
+//   soldiers, CARD-CRP finds none kept yet and paints every one again, though the shelf holds each at that very size. Measured: CARD-SFB2's seeded bedroom, its third start, the card of the start before
+//   dealt again, the tap at once: 528 x 616 read back in 95 ms and 564 x 658 in 116 ms in the room's first second (and the room's head 132 x 154 in 12 ms), all three on the shelf; the shelf answered
+//   957 ms after the tap. The same start with the tap after the title's wait paints none of them (the shelf read first). His own save at a quick tap: the room's head, 132 x 154 in 12 to 14 ms, again.
+//   (CARD-SFB2's 540 x 630 and 564 x 658 at its rig's second start were a card that start dealt for the FIRST time: no shelf can hold a picture never painted; the record's section 1.3.)
+// THE CURE (nothing redrawn, restyled or replaced: every bitmap shown is one CARD-CRP painted, at this start or a start before; only WHETHER a kept one is worn before it is painted again changes):
+//   1 THE SHELF IS READ WHEN IT IS NEEDED: the first time CARD-CRP is about to load a picture for its paint while the shelf has not answered, CARD-HVM's own read (hvkLoad) is made at once instead of
+//     waiting for its clock; the clock's call later is that same read, made once a page (hvkLoad wrapped BY NAME).
+//   2 A PAINT ASKED BEFORE THE SHELF ANSWERS WAITS FOR THE ANSWER (crpLoad wrapped BY NAME, outermost): its picture's load is not begun; the job stays in CARD-CRP's own count of pictures loading, marked in
+//     flight as CARD-HVM marks a load (a re-measure of the same picture joins it, CARD-HVM's own rule), until the shelf has answered, or CRPK_WAIT ms at most (then as shipped, and no other paint of the
+//     page waits again). Then a bitmap the shelf handed CARD-CRP's keep that covers the job (CARD-CRP's own crpPick: the picture's shape, at least the size asked) is put on every img still waiting for that
+//     picture (CARD-CRP's own crpPut, with crpDone's own checks: the img on the page, its src unchanged, a box grown since asks again), and nothing is loaded or painted; the game's drawing is then let go as
+//     CARD-PFP lets it go after a paint (pfpForget, its part 3 and its switch). A picture the shelf does not hold
+//     goes on to its load and its paint as shipped, the moment the answer comes.
+//   3 A JOB WHOSE PICTURE CARD-CRP'S KEEP HOLDS BY THE TIME IT LEAVES THE QUEUE (the shelf answered while it stood in line) is served the same way, not loaded or painted again.
+// WHAT A PLAYER SEES: at a quick start the room's soldiers turn sharp as soon as the shelf answers (tens of ms after the first is asked, here) instead of after a paint each, and the room's first second
+//   holds no paint of a soldier the device had painted before. A picture the device never painted: as before (painted once, then kept), its load begun when the shelf has answered.
+// WHERE: only where CARD-CRP runs (WebKit at 2+ dots a point) and CARD-HVM's shelf is on (?hvk). Chrome, Android and the desktops: CARD-CRP is off there, so nothing here is wrapped or armed, not one byte reads differently.
+// Switch: ?crpk=0 = CARD-CRP's loads and CARD-HVM's read as shipped on this device (remembered as gvt_crpk '0'), ?crpk=1 = this again. GVT.crpk() = the rigs' read ({ on:0|1 } flips it for the page's life).
+// Zero words, css, save keys, server or sw bytes. No drawing: no tile. New names: CRPK, CRPK_WAIT, CRPK_TICK, crpk*, GVT.crpk, the device key gvt_crpk. UNDO = design/crisp-bitmaps-kept-1116/kit/applyCRPK.py --undo.
+// FOR LATER CARDS: a card that wraps crpLoad or hvkLoad stands after END CARD-CRPK and calls through. A job this section holds counts in CRP.loading and stands in HVM.fly; one served from the keep
+//   ends with j.fin set and is never handed to crpDone (nothing was painted: no crpKeep, no shelf put). The shelf's family c is keyed by the picture's fingerprint and its dots only (CARD-HVM's key):
+//   a new engine or a changed paint recipe in CARD-CRP wears the rows already kept (the record's flag CRPK-F2).
+var CRPK={ on:0, why:'', n:{ held:0, kick:0, served:0, late:0, passed:0, capped:0, dead:0, again:0, gone:0, forgot:0 }, held:[], wt:0, done:0, loaded:0, kickAt:0, firstAt:0, ms:0, maxMs:0, log:[], load0:null, hload0:null, err:0, e:'' };
+const CRPK_WAIT=2500, CRPK_TICK=16;   // the longest a paint waits for the shelf's answer, ms · the watch's beat while one waits, ms
+function crpkErr(w, e){ CRPK.err++; if(CRPK.e.length<200) CRPK.e+=w+':'+String((e && e.message) || e).slice(0, 60)+' '; }
+function crpkShelf(){ try{ return (typeof HVK==='object' && HVK && HVK.k && !HVK.dead)? (HVK.ready? 2 : 1) : 0; }catch(e){ return 0; } }   // 0 no shelf (off, dead, none) · 1 on, not answered yet · 2 answered
+function crpkKept(j){ try{ const L=CRP.bmp.get(j.k); return L? crpPick(L, j.W, j.H, 0) : null; }catch(e){ crpkErr('pick', e); return null; } }   // CARD-CRP's own pick: a kept bitmap of the picture's shape, at least the size asked
+function crpkLog(j, ms, how){ if(CRPK.log.length>=40) CRPK.log.shift(); CRPK.log.push([j.W, j.H, ms, how]); }
+function crpkServe(j, e){   // the job served from CARD-CRP's keep: nothing loaded, nothing painted; every img still waiting for this picture wears the kept bitmap (crpDone's own checks)
+  j.fin=1; const s=j.s; j.s=null; CRP.loading--;   // the job's books first (it leaves CARD-CRP's count of loads, as a load that ends does)
+  try{ if(typeof HVM==='object' && HVM && HVM.fly && HVM.fly.get(j.k)===j) HVM.fly.delete(j.k); }catch(x){}
+  let worn=0; if(typeof s!=='string') return; j.imgs.forEach(function(img){ if(!img.isConnected || img.getAttribute('src')!==s){ return; } const n=img.__crpN;
+    if(n && (Math.abs(n[0]/n[1]-e.W/e.H)>0.02*(e.W/e.H) || e.W<n[0]*0.97)){ CRPK.n.again++; crpAsk(s, j.k, n[0], n[1], img); return; }   // its box grew since: it asks for its own size, as crpDone does
+    crpPut(img, e); worn++; });
+  if(!worn){ CRPK.n.gone++; return; }
+  try{ if(typeof PFP==='object' && PFP && PFP.g && typeof pfpForget==='function' && typeof pfpFx==='function' && pfpFx(s)){ pfpForget(s); CRPK.n.forgot++; } }catch(x){ crpkErr('forget', x); } }   // the game's drawing let go once its imgs wear the bitmap, as CARD-PFP does after a paint (its part 3, its switch)
+function crpkKick(){ if(CRPK.loaded) return; CRPK.n.kick++; CRPK.kickAt=Date.now(); try{ hvkLoad(); }catch(e){ crpkErr('kick', e); } }   // CARD-HVM's read, now (its clock's call later finds it made)
+function crpkWatch(){ CRPK.wt=0; if(!CRPK.held.length) return; let why='';
+  try{ const sh=crpkShelf(); if(sh===0) why='dead'; else if(sh===2) why='shelf'; else if(Date.now()-CRPK.firstAt>=CRPK_WAIT) why='cap'; }catch(e){ why='err'; }
+  if(!why){ CRPK.wt=setTimeout(crpkWatch, CRPK_TICK); return; }
+  crpkRelease(why); }
+function crpkRelease(why){ const H=CRPK.held; CRPK.held=[]; CRPK.firstAt=0;
+  if(why!=='shelf'){ CRPK.done=1; if(why==='cap') CRPK.n.capped++; else CRPK.n.dead++; }   // a shelf that did not answer in time (or cannot): no paint of this page waits for it again
+  for(let i=0;i<H.length;i++){ const j=H[i], ms=Date.now()-j.crpkT; CRPK.ms+=ms; if(ms>CRPK.maxMs) CRPK.maxMs=ms; if(j.fin) continue;
+    const e=crpkKept(j);
+    if(e){ CRPK.n.served++; crpkLog(j, ms, 'shelf'); try{ crpkServe(j, e); }catch(x){ crpkErr('serve', x); } continue; }
+    CRPK.n.passed++; crpkLog(j, ms, why==='shelf'? 'paint' : why);
+    try{ CRPK.load0.call(null, j); }catch(x){ crpkErr('pass', x); } }   // not on the shelf: its load and its paint as shipped (CARD-HVM's mark of a load, then CARD-CRP's own)
+  try{ crpPump(); }catch(x){ crpkErr('pump', x); } }
+function crpkRead(o){ if(o && typeof o==='object'){ if('on' in o) CRPK.on=(o.on && CRPK.load0)? 1 : 0; }
+  return { v:1, cv:(typeof GVT_CV==='string')? GVT_CV : null, on:CRPK.on, why:CRPK.why, key:(function(){ try{ return localStorage.getItem('gvt_crpk'); }catch(e){ return null; } })(),
+    wrapped:!!(CRPK.load0 && CRPK.hload0 && crpLoad!==CRPK.load0 && hvkLoad!==CRPK.hload0), n:Object.assign({}, CRPK.n), holding:CRPK.held.length, done:CRPK.done, loaded:CRPK.loaded,
+    shelf:crpkShelf(), kickAt:CRPK.kickAt, ms:CRPK.ms, maxMs:CRPK.maxMs, log:CRPK.log.slice(), err:CRPK.err, e:CRPK.e }; }
+(function(){ try{
+    let w=''; try{ const q=/[?&]crpk=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_crpk', '0'); else localStorage.removeItem('gvt_crpk'); } w=localStorage.getItem('gvt_crpk')||''; }catch(e){}
+    if(typeof CRP!=='object' || !CRP || typeof crpLoad!=='function' || typeof crpPick!=='function' || typeof crpPut!=='function' || typeof crpPump!=='function' || typeof crpAsk!=='function' || typeof hvkLoad!=='function' || typeof HVK!=='object'){ CRPK.why='CARD-CRP or CARD-HVM not on this page'; return; }
+    if(!CRP.on){ CRPK.why='CARD-CRP off here ('+String(CRP.why||'')+'): nothing wrapped'; return; }   // Chrome, Android, the desktops, a 1-dot glass: not one door touched, as CARD-CRP
+    CRPK.load0=crpLoad; CRPK.hload0=hvkLoad;
+    hvkLoad=function(){ if(CRPK.loaded) return; if(CRPK.on) CRPK.loaded=1; return CRPK.hload0.apply(this, arguments); };   // CARD-HVM's read, once a page (its clock's call, or ours first); off: every call as shipped (its clock's one)
+    crpLoad=function(j){   // CARD-CRP's load of a picture for its paint (called by crpPump alone, the job counted in CRP.loading)
+      if(!CRPK.on || !j || j.fin || !j.imgs) return CRPK.load0.apply(this, arguments);
+      const e=crpkKept(j);
+      if(e){ CRPK.n.late++; crpkLog(j, 0, 'late'); try{ crpkServe(j, e); }catch(x){ crpkErr('serve', x); } return; }   // the keep holds it by now (the shelf answered while it stood in line): served, nothing loaded
+      let wait=false; try{ wait=!CRPK.done && crpkShelf()===1; }catch(x){ wait=false; }
+      if(wait){ j.crpkT=Date.now(); if(!CRPK.firstAt) CRPK.firstAt=j.crpkT; CRPK.held.push(j); CRPK.n.held++;   // the shelf has not answered: the load waits for it
+        try{ if(typeof HVM==='object' && HVM && HVM.fly && j.k) HVM.fly.set(j.k, j); }catch(x){}   // in flight, as CARD-HVM marks a load: a re-measure of the same picture joins this job
+        crpkKick(); if(!CRPK.wt) CRPK.wt=setTimeout(crpkWatch, CRPK_TICK); return; }
+      return CRPK.load0.apply(this, arguments); };
+    CRPK.on=(w==='0')? 0 : 1; CRPK.why=(w==='0')? 'off on this device (gvt_crpk 0)' : 'on (CARD-CRP runs here)';
+  }catch(e){ CRPK.on=0; CRPK.why='failed to start: '+String(e && e.message || e).slice(0, 80); crpkErr('arm', e); } })();
+try{ if(window.GVT && !GVT.crpk) GVT.crpk=crpkRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.crpk) GVT.crpk=crpkRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-CRPK ═══
 // ═══ CARD-ENG2-B THE SAME FIGHT ON EVERY PHONE, THE FIRST SLICE (sec:CARD-ENG2-B; design/eng2-same-fight-1114/00-CARD-ENG2-B.md; the design: design/native-engine-1114/00-DESIGN-ENG2.md §3.6 + §5 card B; from Maker 1).
 // FROM WYATT 11/14/2026 ~19:40 EST, typed on Maker 1, his GO on ENG2-Q1, verbatim: "proceed with it; use ultracode and best practices."
 // THE SWITCH: ?det=1 in the address, this launch only (never remembered: a test switch). WITHOUT IT NOTHING HERE RUNS: no name is wrapped, no clock or die is touched, frame()'s two hunks read detGate() === -1
