@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.87","md5":"9325e0d6b37946b4227f69f5ddb8eee9","sha":"aad38e9087","at":"2026-11-16T07:28:27Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.88","md5":"a8e6402033a3cf125d66350760156b71","sha":"67af70e938","at":"2026-11-16T08:31:34Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94280,7 +94280,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.87';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.88';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -239946,6 +239946,142 @@ function osnRead(o){ if(o && typeof o==='object' && 'on' in o) OSN.on=(o.on && O
 try{ if(window.GVT && !GVT.osn) GVT.osn=osnRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.osn) GVT.osn=osnRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-OSN ═══
+// ═══ CARD-FMK · THE GAME'S OWN FELT MAKERS ON A COLD SHELF: EACH PAINTS ONE PIECE A FRAME, AFTER THE DOOR'S OWN PAINT, AND THE DEAREST ARE KEPT ACROSS STARTS (sec:CARD-FMK; design/felt-makers-cold-shelf-1115/00-CARD-FMK.md; jumpr 3481, built on Maker 1 as M3481; cut by CARD-APQ (jumpr 3452) as its APQ-F2, on Wyatt's rule of 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ═══
+// FROM WYATT'S PHONE, 11/13/2026 12:15 EST (jumpr 3348), verbatim: "Western Land's currently lagging pretty bad, but this is a reoccurring theme. What needs to happen is: run an audit on each of our
+//   different screens. [...] Instead of me manually pushing each of these lag fixes, we should find all of them and fix them together."
+// THE FAULT (CARD-APQ's census on a cold shelf, and this card's own read: the Mac's system WebKit at his glass 874 x 402 at 3 dots, his save, a quiet Mac, the record's section 1): at a screen's FIRST open
+//   the game's own felt makers each paint Laura's felt (feTurbulence, blurs, composites: 250 to 570 filter steps a figure) and read it back in ONE task, and the page stands still meanwhile:
+//   (W) CARD-WFL's wflAtlas paints a WHOLE BATCH of felt pieces into one CPU canvas in one task (Nutcracker's Ball: its five dancers in one 1050 x 838 read, 267 ms here, 776 to 797 ms on a busier Mac);
+//   (C) CARD-CRP's crpRender paints one felt figure into a canvas and reads it back while the door's own first paint is still queued at the painter (CARD-SFO's law: a read-back returns only when
+//       the painter has done everything queued before it): 127 ms at the ball, 165 ms at the Captain's Log here, 401 and 326 ms on a busier Mac, against 80 to 110 ms on a calm page;
+//   (P) Princess Croak's palace (CARD-PCF's pcfLayBake -> pcfBakeSvg) paints her body layer (491 x 478) the same way at the palace's door: 212 ms here, 237 to 266 ms there.
+//   And each keeps its pictures for the page's life only: a SECOND start of the app pays every one of them again.
+// THE CURE (nothing redrawn, restyled or replaced: every picture is the very picture the maker made before, painted by the same calls; only WHEN changes):
+//   THE GATE: a maker's paint waits for a frame that came ON TIME (within 34 ms of the one before: the painter has nothing of the door's first paint queued), ONE job a frame, at most 2.5 s (a page
+//     whose frames never come on time runs the job as shipped after that; a hidden page, which has no frames, the same). The felt atlas's batches wait for the NEXT frame only (they paint on the
+//     page's own CPU, never at the painter's queue).
+//   (W) wflNext wrapped BY NAME: the queue is handed to the shipped wflNext ONE COST'S WORTH at a time (each bitmap's dots x its filter steps, up to 60 million a batch: one of the ball's dancers alone,
+//       about seven of Western Land's small walkers), the next batch a frame later. The shipped wflAtlas paints, reads and writes each batch as ever (its CPU canvas, its PNGs).
+//   (C) crpRender wrapped BY NAME: each paint goes through THE GATE, then the shipped crpRender (its breath, its one paint, its read) as ever.
+//   (P) pcfBakeSvg wrapped BY NAME for her PALACE LAYERS only (a doc whose viewBox is not the molds' 0 0 120 140; the molds' boot bakes pass straight through): the layer's picture loads as ever,
+//       its paint waits for THE GATE, then the shipped lines (a canvas W x H, drawImage, toDataURL) run, one layer a frame.
+//   (K) KEPT ACROSS STARTS (CARD-SRP's road: its own shelf, IndexedDB gvt_fmk, so CARD-SRP's own 240 rows are never pushed out): every bitmap (W) makes and every palace layer (P) makes goes on the
+//       shelf (CARD-CRP's paintings are kept already: CARD-HVM's shelf, gvt_hvk, its family c), keyed by what it is made from (the drawing's own fingerprint with its size, the makers' own text, the engine's name: a changed drawing, recipe or engine is another key, its old row
+//       let go at the next start). A second start asks the shelf first and takes THE SAME PNG, byte for byte, with no paint. Caps: 300 rows, 40 million characters, a row 2 million; the rows used
+//       last are kept.
+// WebKit only by default (the App Store app, every iPhone browser, a Mac's Safari: navigator.vendor Apple), as CARD-SRP and CARD-CRP: Chrome (Android, Steam, the desktop) runs every maker as shipped.
+// Switches: ?fmk=0 = every maker as shipped on this device (remembered: gvt_fmk '0'); ?fmk=1 = this card on any engine (gvt_fmk '1'); ?fmk=auto = the rule again. Each part has its own: ?fmkw=0 (the
+//   atlas's batches), ?fmkc=0 (CARD-CRP's gate), ?fmkp=0 (the palace's layers), ?fmkk=0 (the shelf), remembered as gvt_fmkw .. gvt_fmkk; =1 brings it back. GVT.fmk(o) = the rigs' door and read.
+// Zero words, css, save keys, server or sw bytes. WRAPPED BY NAME (each shipped function called whole, or its own lines as they stand): wflNext, wflAtlas, crpRender, pcfBakeSvg.
+// New names: FMK, FMK_*, fmk*, GVT.fmk, the IndexedDB database gvt_fmk, the device keys gvt_fmk, gvt_fmkw, gvt_fmkc, gvt_fmkp, gvt_fmkk.
+// FOR LATER CARDS: a card that wraps wflNext, wflAtlas, crpRender or pcfBakeSvg stands after END CARD-FMK and calls through. A new maker that paints felt at a door joins THE GATE (fmkFree(job, 'time'));
+//   a new picture worth keeping joins THE SHELF (fmkGet / fmkPut, with its own family letter in FMK.rv).
+var FMK=(function(){ const o={ v:1, on:0, word:'', wk:0, fam:{ w:1, c:1, p:1, k:1 }, f:{}, rv:{}, ua:'', err:0, e:'',
+    n:{ gate:0, glate:0, gwait:0, gmax:0, wb:0, wfig:0, wmaxc:0, wwait:0, cg:0, pg:0, ppass:0 }, L:null, cw:0, ww:0,
+    db:null, dead:0, opening:0, dbq:[], keys:null, ready:0, t0:Date.now(), readyMs:0, read:0, hit:{ w:0, p:0 }, miss:{ w:0, p:0 }, back:0, slow:0, slowOpen:0, put:0, cut:0, q:{}, qn:0, qt:0, kpend:new Map() };
+  try{ const S=location.search||'', q=/[?&]fmk=(0|1|auto)(?![\w])/.exec(S); if(q){ if(q[1]==='auto') localStorage.removeItem('gvt_fmk'); else localStorage.setItem('gvt_fmk', q[1]); }
+    const w=localStorage.getItem('gvt_fmk'); o.word=(w==='0' || w==='1')? w : '';
+    ['w','c','p','k'].forEach(function(f){ const r=new RegExp('[?&]fmk'+f+'=([01])(?![\\w])').exec(S); if(r){ if(r[1]==='0') localStorage.setItem('gvt_fmk'+f, '0'); else localStorage.removeItem('gvt_fmk'+f); } if(localStorage.getItem('gvt_fmk'+f)==='0') o.fam[f]=0; }); }catch(e){ o.err++; }
+  try{ o.wk=/Apple/.test(navigator.vendor||'')? 1 : 0; }catch(e){}
+  o.on=(o.word==='1')? 1 : (o.word==='0')? 0 : o.wk; return o; })();
+const FMK_ON_TIME=34, FMK_WAIT=2500, FMK_NEXT_WAIT=1000, FMK_WCOST=60e6;   // a frame within 34 ms of the one before = the painter is free · the longest a paint waits for one · the longest a batch waits for the next frame (a hidden page) · a batch's felt: dots x filter steps
+const FMK_KCAP=300, FMK_KCH=40e6, FMK_KMAX=2e6, FMK_KOPEN=3000, FMK_KGET=6000, FMK_KGAP=1500;   // the shelf: rows · characters · a row's longest PNG · the open's patience · a read's · a write's breath
+function fmkErr(w, e){ FMK.err++; if(FMK.e.length<200) FMK.e+=w+':'+String((e && e.message) || e).slice(0, 60)+' '; }
+function fmkFam(f){ return FMK.on===1 && FMK.fam[f]===1; }
+function fmkFp(s){ let a=2166136261, b=5381; for(let i=0; i<s.length; i++){ const c=s.charCodeAt(i); a^=c; a=Math.imul(a, 16777619); b=(Math.imul(b, 33)^c)|0; } return (a>>>0).toString(36)+'.'+(b>>>0).toString(36)+'.'+s.length.toString(36); }   // CARD-SRP's srpFp grammar: a string read whole
+// ─── THE GATE: one maker's job a frame, in two lanes. 'time' (a paint at the painter: CARD-CRP's, the palace's) = after a frame that came on time (the door's own first paint done); 'next' (the
+//   felt atlas's batches, painted on the page's own CPU) = after the next frame, whatever its time. Two lanes, so a paint waiting for an on-time frame never holds the atlas back (while the felt is
+//   live the frames come late, and the atlas's bitmaps are what end that) ───
+function fmkLane(n){ return { n:n, q:[], r:0, t0:0, p:0, to:0 }; }
+FMK.L={ time:fmkLane('time'), next:fmkLane('next') };
+function fmkFree(job, need){ const L=FMK.L[need==='next'? 'next' : 'time']; L.q.push(job); if(!L.r) fmkGate(L); }
+function fmkGate(L){ if(L.r || !L.q.length) return; L.r=1; L.t0=performance.now(); L.p=0; const raf=window.requestAnimationFrame, nx=(L.n==='next');
+  const go=function(late){ if(!L.r) return; L.r=0; clearTimeout(L.to); L.to=0; const job=L.q.shift(); const w=performance.now()-L.t0;
+    if(nx) FMK.n.wwait+=w; else { FMK.n.gate++; if(late) FMK.n.glate++; FMK.n.gwait+=w; if(w>FMK.n.gmax) FMK.n.gmax=w; }
+    setTimeout(function(){ try{ job(); }catch(e){ fmkErr('job', e); } fmkGate(L); }, 0); };   // the job runs in the task after the frame (its paint already handed on); the next job waits for a frame of its own
+  L.to=setTimeout(function(){ go(1); }, nx? FMK_NEXT_WAIT : FMK_WAIT);   // a page whose frames never come on time, or a hidden page (no frames): the job runs as shipped after the wait
+  const tick=function(ts){ if(!L.r) return; if(nx || (L.p && ts-L.p<=FMK_ON_TIME)){ go(0); return; } L.p=ts; try{ raf(tick); }catch(e){ go(1); } };
+  try{ raf(tick); }catch(e){ go(1); } }
+// ─── THE SHELF (CARD-SRP's idiom, its own database): rows { key, u } in 'b', their size and last use { key, t, n } in 'm' (read whole at the start: no picture read until a maker asks for it) ───
+function fmkPre(f){ return f+'|'+FMK.ua+'|'+FMK.rv[f]+'|'; }
+function fmkDb(cb){ if(FMK.db){ cb(FMK.db); return; } if(FMK.dead || typeof indexedDB==='undefined'){ cb(null); return; }
+  FMK.dbq.push(cb); if(FMK.opening) return; FMK.opening=1;
+  const give=function(db){ const Q=FMK.dbq; FMK.dbq=[]; Q.forEach(function(f){ try{ f(db); }catch(e){ fmkErr('cb', e); } }); };
+  const t=setTimeout(function(){ FMK.slowOpen++; give(null); }, FMK_KOPEN);   // a slow open hands the waiting callers back (they paint as ever); the shelf answers once it opens (CARD-SRP's trap: never marked dead on a timeout)
+  const fin=function(db){ clearTimeout(t); FMK.opening=0; if(db){ FMK.db=db; db.onclose=function(){ if(FMK.db===db) FMK.db=null; }; db.onversionchange=function(){ try{ db.close(); }catch(e){} if(FMK.db===db) FMK.db=null; }; } else FMK.dead=1; give(db || null); };
+  let rq=null; try{ rq=indexedDB.open('gvt_fmk', 1); }catch(e){ fmkErr('open', e); fin(null); return; }
+  rq.onupgradeneeded=function(){ try{ const d=rq.result; d.createObjectStore('b', { keyPath:'key' }); d.createObjectStore('m', { keyPath:'key' }); }catch(e){ fmkErr('up', e); } };
+  rq.onsuccess=function(){ fin(rq.result); }; rq.onerror=function(){ fmkErr('open', rq.error); fin(null); }; }
+function fmkKeys(n){ fmkDb(function(db){ if(!db){ if(!FMK.dead && n<30) setTimeout(function(){ fmkKeys(n+1); }, 1000); else FMK.ready=1; return; } let rq=null;
+    try{ rq=db.transaction('m', 'readonly').objectStore('m').getAll(); }catch(e){ fmkErr('keys', e); FMK.ready=1; return; }
+    rq.onerror=function(){ fmkErr('keys', rq.error); FMK.ready=1; };
+    rq.onsuccess=function(){ const gone=[], L=[]; (rq.result||[]).forEach(function(r){ const k=r && r.key; if(typeof k!=='string') return; const f=k.charAt(0); if(FMK.rv[f] && k.lastIndexOf(fmkPre(f), 0)===0) L.push(r); else gone.push(k); });
+      L.sort(function(a, b){ return (b.t||0)-(a.t||0); }); let ch=0;   // the rows used last are kept: past the caps the oldest go
+      L.forEach(function(r, i){ ch+=(r.n||0); if(i>=FMK_KCAP || ch>FMK_KCH) gone.push(r.key); else FMK.keys.set(r.key, { t:r.t||0, n:r.n||0 }); });
+      FMK.read=FMK.keys.size; FMK.ready=1; FMK.readyMs=Date.now()-FMK.t0; if(gone.length) fmkDel(gone); }; }); }
+function fmkHas(k){ return !!(FMK.keys && FMK.keys.has(k)); }
+function fmkGet(k){ return new Promise(function(res){ let over=false; const fin=function(u){ if(over) return; over=true; clearTimeout(t); res(u); }, t=setTimeout(function(){ FMK.slow++; fin(null); }, FMK_KGET);
+  fmkDb(function(db){ if(!db){ fin(null); return; } try{ const tx=db.transaction(['b', 'm'], 'readwrite'), rq=tx.objectStore('b').get(k);
+    rq.onsuccess=function(){ const v=rq.result, u=(v && typeof v.u==='string' && v.u.length>32 && v.u.lastIndexOf('data:image/png', 0)===0)? v.u : null;
+      if(u){ const e=FMK.keys.get(k), r={ key:k, t:Date.now(), n:u.length }; try{ tx.objectStore('m').put(r); }catch(x){} if(e) e.t=r.t; } fin(u); };   // a row used is a row kept
+    rq.onerror=function(){ fmkErr('get', rq.error); fin(null); }; }catch(e){ fmkErr('get', e); fin(null); } }); }); }
+function fmkPut(k, u){ if(!fmkFam('k') || FMK.dead || typeof u!=='string' || u.length>FMK_KMAX || u.lastIndexOf('data:image/png', 0)!==0) return; if(!FMK.q[k]) FMK.qn++; FMK.q[k]=u; if(!FMK.qt) FMK.qt=setTimeout(fmkFlush, FMK_KGAP); }
+function fmkFlush(){ FMK.qt=0; const Q=FMK.q; FMK.q={}; FMK.qn=0; const L=Object.keys(Q); if(!L.length) return;
+  fmkDb(function(db){ if(!db){ if(!FMK.dead){ L.forEach(function(k){ if(!FMK.q[k]){ FMK.q[k]=Q[k]; FMK.qn++; } }); if(!FMK.qt) FMK.qt=setTimeout(fmkFlush, FMK_KGAP); } return; }
+    try{ const now=Date.now(), tx=db.transaction(['b', 'm'], 'readwrite'), B=tx.objectStore('b'), M=tx.objectStore('m'); L.forEach(function(k){ B.put({ key:k, u:Q[k] }); M.put({ key:k, t:now, n:Q[k].length }); });
+      tx.oncomplete=function(){ FMK.put+=L.length; if(FMK.keys) L.forEach(function(k){ FMK.keys.set(k, { t:now, n:Q[k].length }); }); fmkTrim(); }; tx.onerror=function(){ fmkErr('put', tx.error); }; tx.onabort=function(){ fmkErr('abort', tx.error); }; }catch(e){ fmkErr('put', e); } }); }
+function fmkTrim(){ if(!FMK.keys) return; const L=[...FMK.keys].sort(function(a, b){ return b[1].t-a[1].t; }); let ch=0; const gone=[]; L.forEach(function(r, i){ ch+=r[1].n; if(i>=FMK_KCAP || ch>FMK_KCH) gone.push(r[0]); }); if(gone.length){ gone.forEach(function(k){ FMK.keys.delete(k); }); fmkDel(gone); } }
+function fmkDel(L){ fmkDb(function(db){ if(!db) return; try{ const tx=db.transaction(['b', 'm'], 'readwrite'), B=tx.objectStore('b'), M=tx.objectStore('m'); L.forEach(function(k){ B.delete(k); M.delete(k); }); tx.oncomplete=function(){ FMK.cut+=L.length; }; }catch(e){ fmkErr('del', e); } }); }
+// ─── (W) CARD-WFL's felt atlas: one cost's worth a batch, a frame between, the shelf asked first ───
+function fmkCost(c){ if(c.__fmkC!=null) return c.__fmkC; let fe=0; const d=c.doc||''; for(let i=d.indexOf('<fe'); i>=0; i=d.indexOf('<fe', i+3)) fe++; return (c.__fmkC=(c.w*c.h)*Math.max(1, fe)); }
+function fmkWflKeys(){ const R=new Map(); try{ for(const [k, v] of WFLB.cache) if(v && !v.png && !v.err && !v.__fk) R.set(v, k); }catch(e){} return R; }   // the cache's own key of each waiting bitmap (wflKey of its whole document, its size inside it)
+function fmkWflNext(){ const f0=FMK.f.wflNext; if(!fmkFam('w') && !fmkFam('k')) return f0.apply(this, arguments);
+  if(WFLB.making || !WFLB.q.length || FMK.ww) return;
+  if(!fmkFam('w')){ fmkWflRun(); return; }   // the shelf alone: no frame waited
+  FMK.ww=1; fmkFree(function(){ FMK.ww=0; fmkWflRun(); }, 'next'); }
+function fmkWflRun(){ const f0=FMK.f.wflNext; if(WFLB.making || !WFLB.q.length) return;
+  const R=fmkWflKeys(); for(const c of WFLB.q){ if(!c.__fk){ const k=R.get(c); if(k) c.__fk=fmkPre('w')+k; } }
+  if(fmkFam('k') && FMK.keys && FMK.keys.size){ const keep=[]; for(const c of WFLB.q){ if(c.__fk && !c.__fmkAsked && fmkHas(c.__fk)){ c.__fmkAsked=1; fmkWflAsk(c); } else keep.push(c); } WFLB.q=keep; if(!WFLB.q.length) return; }   // the shelf's bitmaps leave the queue: no paint
+  if(!fmkFam('w')){ f0(); return; }
+  const all=WFLB.q; let n=0, cost=0; while(n<all.length){ const k=fmkCost(all[n]); if(n && cost+k>FMK_WCOST) break; cost+=k; n++; }
+  const rest=all.slice(n); WFLB.q=all.slice(0, n); FMK.n.wb++; FMK.n.wfig+=n; if(cost>FMK.n.wmaxc) FMK.n.wmaxc=cost;
+  try{ f0(); } finally{ WFLB.q=WFLB.q.concat(rest); } }   // the shipped wflNext takes this batch whole (its loads, then wflAtlas); what is left waits for its own frame (wflAtlas's end calls wflNext again)
+function fmkWflAsk(c){ FMK.kpend.set(c, Date.now()); fmkGet(c.__fk).then(function(u){ if(u){ const im=new Image(); im.onload=function(){ im.onload=im.onerror=null; FMK.kpend.delete(c); c.png=u; c.doc=''; c.im=null; FMK.hit.w++; try{ wflSoon(30); }catch(e){} }; im.onerror=function(){ im.onload=im.onerror=null; back(); }; im.src=u; return; } back(); });   // the PNG decoded first (wflAtlas's own end), then the sweep swaps it in (the room's at once, the screens' at CARD-ESL's next tick)
+  function back(){ FMK.kpend.delete(c); FMK.back++; FMK.miss.w++; c.__fmkAsked=2; WFLB.q.unshift(c); try{ wflNext(); }catch(e){} } }   // the shelf could not: painted as ever
+function fmkWflAtlas(B, t0){ const f0=FMK.f.wflAtlas; const r=f0.apply(this, arguments); if(fmkFam('k')){ let n=0; const look=function(){ let left=0; for(const c of B){ if(c.__fmkPut || !c.__fk) continue; if(c.png){ c.__fmkPut=1; FMK.miss.w++; fmkPut(c.__fk, c.png); } else if(!c.err) left++; } if(left && ++n<40) setTimeout(look, 250); }; setTimeout(look, 50); } return r; }   // its PNGs are written a moment after (CompressionStream): each goes on the shelf as it stands
+// ─── (C) CARD-CRP's one paint: through THE GATE ───
+function fmkCrpRender(){ const f0=FMK.f.crpRender; if(!fmkFam('c')) return f0.apply(this, arguments);
+  if(CRP.rendering || !CRP.ready.length || FMK.cw) return;
+  FMK.cw=1; FMK.n.cg++; fmkFree(function(){ FMK.cw=0; f0(); }, 'time'); }   // the shipped crpRender: its breath, its one paint, its read, and at its end crpRender (this wrap) for the next
+// ─── (P) Princess Croak's palace layers: the shelf, then THE GATE, then the shipped lines; the molds' boot bakes as shipped ───
+function fmkPcfBakeSvg(doc, W, H){ const f0=FMK.f.pcfBakeSvg; if((!fmkFam('p') && !fmkFam('k')) || typeof doc!=='string' || doc.lastIndexOf('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140"', 0)===0){ FMK.n.ppass++; return f0.apply(this, arguments); }
+  let sk=null; try{ sk=fmkPre('p')+fmkFp(doc)+'|'+W+'x'+H; }catch(e){ fmkErr('p', e); }
+  const paint=function(){ if(!fmkFam('p')) return f0(doc, W, H);
+    return new Promise(function(res){ const im=new Image(); im.onload=function(){ fmkFree(function(){ let u=null; try{ const cv=document.createElement('canvas'); cv.width=W; cv.height=H; cv.getContext('2d').drawImage(im,0,0,W,H); u=cv.toDataURL('image/png'); }catch(e){ PCF.err++; PCF.log.push(['bake',String(e).slice(0,80)]); } res(u); }, 'time'); FMK.n.pg++; };   // pcfBakeSvg's own lines, after THE GATE
+      im.onerror=function(){ PCF.err++; PCF.log.push(['load',W+'x'+H]); res(null); }; im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(doc); }); };
+  const fresh=function(){ const p=paint(); if(sk && fmkFam('k')) p.then(function(u){ if(u){ FMK.miss.p++; fmkPut(sk, u); } }); return p; };
+  if(!sk || !fmkFam('k') || !fmkHas(sk)) return fresh();
+  return fmkGet(sk).then(function(u){ if(u){ FMK.hit.p++; return u; } FMK.back++; return fresh(); }); }
+// ─── THE WRAPS (by name: each shipped function called whole; ?fmk=0 and each part's switch pass straight through) ───
+try{
+  try{ FMK.ua=fmkFp(String(navigator.userAgent||'')); }catch(e){ FMK.ua='-'; }
+  if(typeof wflNext==='function' && typeof wflAtlas==='function' && typeof WFLB==='object'){ FMK.f.wflNext=wflNext; FMK.f.wflAtlas=wflAtlas;
+    FMK.rv.w=fmkFp(String(wflNext)+'|'+String(wflAtlas)+'|'+String(wflPngRaw)+'|'+String(wflZlibStored)+'|'+String(wflPngFile)+'|'+String(wflZ)+'|'+String(wflB64)+'|'+String(wflDoc));
+    wflNext=fmkWflNext; wflAtlas=fmkWflAtlas; }
+  if(typeof crpRender==='function' && typeof CRP==='object'){ FMK.f.crpRender=crpRender; crpRender=fmkCrpRender; }
+  if(typeof pcfBakeSvg==='function' && typeof PCF==='object'){ FMK.f.pcfBakeSvg=pcfBakeSvg; FMK.rv.p=fmkFp(String(pcfBakeSvg)); pcfBakeSvg=fmkPcfBakeSvg; }
+  if(fmkFam('k')){ FMK.keys=new Map(); fmkKeys(0); }
+}catch(e){ fmkErr('arm', e); }
+function fmkRead(o){ if(o && typeof o==='object'){ if('on' in o) FMK.on=o.on? 1 : 0; ['w','c','p','k'].forEach(function(f){ if(f in o) FMK.fam[f]=o[f]? 1 : 0; }); if(fmkFam('k') && !FMK.keys){ FMK.keys=new Map(); fmkKeys(0); }
+    if(o.flush){ if(FMK.qt){ clearTimeout(FMK.qt); } fmkFlush(); }
+    if(o.drop) fmkDb(function(db){ if(!db) return; try{ const tx=db.transaction(['b', 'm'], 'readwrite'); tx.objectStore('b').clear(); tx.objectStore('m').clear(); if(FMK.keys) FMK.keys.clear(); }catch(e){ fmkErr('drop', e); } }); }
+  let ch=0; if(FMK.keys) FMK.keys.forEach(function(v){ ch+=v.n; });
+  return { v:FMK.v, cv:(typeof GVT_CV==='string')? GVT_CV : null, on:FMK.on, word:FMK.word, wk:FMK.wk, fam:Object.assign({}, FMK.fam), n:Object.assign({}, FMK.n, { gwait:Math.round(FMK.n.gwait), gmax:Math.round(FMK.n.gmax), wwait:Math.round(FMK.n.wwait) }), lanes:{ time:[FMK.L.time.q.length, FMK.L.time.r], next:[FMK.L.next.q.length, FMK.L.next.r] },
+    shelf:{ ready:FMK.ready, readyMs:FMK.readyMs, dead:FMK.dead, keys:FMK.keys? FMK.keys.size : null, chars:ch, read:FMK.read, hit:Object.assign({}, FMK.hit), miss:Object.assign({}, FMK.miss), back:FMK.back, slow:FMK.slow, slowOpen:FMK.slowOpen, put:FMK.put, waiting:FMK.qn, pend:FMK.kpend.size, cut:FMK.cut },
+    err:FMK.err, e:FMK.e, wrapped:{ w:!!FMK.f.wflNext && wflNext===fmkWflNext, a:!!FMK.f.wflAtlas && wflAtlas===fmkWflAtlas, c:!!FMK.f.crpRender && crpRender===fmkCrpRender, p:!!FMK.f.pcfBakeSvg && pcfBakeSvg===fmkPcfBakeSvg }, rv:Object.assign({}, FMK.rv) }; }
+try{ if(window.GVT && !GVT.fmk) GVT.fmk=fmkRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.fmk) GVT.fmk=fmkRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-FMK ═══
 // ═══ CARD-ENG2-B THE SAME FIGHT ON EVERY PHONE, THE FIRST SLICE (sec:CARD-ENG2-B; design/eng2-same-fight-1114/00-CARD-ENG2-B.md; the design: design/native-engine-1114/00-DESIGN-ENG2.md §3.6 + §5 card B; from Maker 1).
 // FROM WYATT 11/14/2026 ~19:40 EST, typed on Maker 1, his GO on ENG2-Q1, verbatim: "proceed with it; use ultracode and best practices."
 // THE SWITCH: ?det=1 in the address, this launch only (never remembered: a test switch). WITHOUT IT NOTHING HERE RUNS: no name is wrapped, no clock or die is touched, frame()'s two hunks read detGate() === -1
