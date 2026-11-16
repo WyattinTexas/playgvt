@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.82","md5":"a37c5a9fbcd98b8a48dbca6b3870c3bf","sha":"64de0214da","at":"2026-11-16T04:19:35Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"32.83","md5":"7fc7a2611c4ae9d982e79d804380733a","sha":"763c3c3530","at":"2026-11-16T05:10:25Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94280,7 +94280,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='32.82';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='32.83';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -237070,6 +237070,10 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.kbt) GVT.kbt=function(o){ retu
 //   loop of the stage that only fades or slides joins MSS_ROWS by one row after its look is proved (rig/batteryMSS.mjs); a piece whose loop is switched by a class (the leaves, the fly) or that
 //   moves inside itself (the frogs, the toucan, the macaws) is not a row: it stays in its drawing and repaints its own patch. (3) Another stage joins by its class in MSS.cls and its own rows.
 //   (4) A card that wraps msaStart or msaFit stands after END CARD-MSS and calls through.
+//   (5) CARD-MSQ (jumpr 3448, 11/15/2026; a fault CARD-MSN found on its way; Wyatt's rule of 11/12/2026 16:39 EST): EVERY EDGE OF A CUT BOX STANDS ON A DEVICE DOT of the stage's own space
+//   (mssQ: 1 / devicePixelRatio px). The engine starts a box, and a drawing's picture, on a whole dot. A box cut between two dots (an iPad's glass, most phones') stood a part of a dot beside
+//   where the drawing stood: 27 of 255 on an iPad's glass, the look's law 24. A card that cuts or moves a drawing inside the scaled stage starts it on a dot (a whole px always is one), rounds
+//   its far edge as an edge, never as a size, and sets a drawing that stands inside a box of the css on its own dot there (mssFit's put). ?mss=0 is the stage as it was.
 var MSS={ on:(function(){ try{ var q=/[?&]mss=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_mss','0'); else localStorage.removeItem('gvt_mss'); } return localStorage.getItem('gvt_mss')==='0'? 0 : 1; }catch(e){ return 1; } })(),
   wk:(function(){ try{ return /Apple/.test(navigator.vendor||'')? 1 : 0; }catch(e){ return 0; } })(),
   a:1, b:1, cls:'ms6-sa', pad:3, big:40000, edge:24, soft:1,   // the dials: the two halves · the stage's class · a small svg's margin round its piece, css px · a box over this many square px is cut at the glass · the margin of that cut, px · a big fade is kept at one dot a css px (0: at the glass's own dots)
@@ -237097,7 +237101,7 @@ const MSS_NS='http://www.w3.org/2000/svg', MSS_OFF={ defs:1, style:1, title:1, d
 function mssWhy(w){ if(MSS.why.length<24) MSS.why.push(String(w).slice(0, 70)); }
 function mssBody(){ const b=document.querySelector('#roomModal .msa-body'); return (b && b.classList.contains(MSS.cls))? b : null; }
 function mssArmed(){ return !!(MSS.on && MSS.wk && !(typeof reducedMotion==='function' && reducedMotion())); }
-function mssQ(v){ return Math.round(v*64)/64; }   // a length as the engine lays it out (1/64 px): the box and the viewBox are then the same numbers
+function mssQ(v){ const d=window.devicePixelRatio||1; return Math.round(Math.round(v*d)/d*64)/64; }   // CARD-MSQ: an edge of a cut box ON A DEVICE DOT of the stage's own space, then as a length the engine lays out (1/64 px): the box and the viewBox are the same numbers, and the picture starts where the uncut drawing's did (CARD-MSN's msnQ is this same rounding)
 function mssGlass(b){ const st=b.querySelector('.msa-stage'); if(!st) return null; const v=n=>parseFloat(st.style.getPropertyValue(n)); const g={ x:v('--gx0'), y:v('--gy0'), w:v('--gw'), h:v('--gh') }; return (isFinite(g.x) && isFinite(g.y) && g.w>0 && g.h>0)? g : null; }
 // ─── A · THE DRAWINGS CUT AT THE GLASS ───
 function mssKeep(e){ if(e.__mss0===undefined) e.__mss0={ st:e.getAttribute('style'), vb:e.getAttribute('viewBox') }; }
@@ -237105,9 +237109,9 @@ function mssBack(e){ const o=e.__mss0; if(!o) return; if(o.st==null) e.removeAtt
 function mssPut(sv, x, y, w, h, at){ sv.setAttribute('viewBox', x+' '+y+' '+w+' '+h); const s=sv.style; s.left=(at? at[0] : x)+'px'; s.top=(at? at[1] : y)+'px'; s.width=w+'px'; s.height=h+'px'; s.overflow='hidden'; }
 function mssFit(){ const b=mssBody(); if(!b || !b.__mss || !MSS.a) return false; const g=mssGlass(b); if(!g) return false; MSS.fits++; let n=0;
   for(const [sel, m, o] of MSS_CUT){ const sv=b.querySelector(sel); if(!sv) continue; mssKeep(sv);
-    let x=mssQ(g.x-m), y=mssQ(g.y-m), w=mssQ(g.w+2*m+(m? 0 : 1)), h=mssQ(g.h+2*m);   // the land: its .msa-bg's own box (16 px past the glass); the rest: the frame's cell (the glass, one px wider)
+    const u=m? 0 : 1; let x=mssQ(g.x-m-u), y=mssQ(g.y-m-u), w=mssQ(g.x+g.w+m+u)-x, h=mssQ(g.y+g.h+m+u)-y;   // the land: its .msa-bg's own box (16 px past the glass); the rest: the frame's cell and one px past it on every side (the cell cuts them there as before). CARD-MSQ: the far edges are rounded as EDGES (a size rounded apart from its start can end a dot short of the glass's foot)
     if(o.fit && b.__mssL){ let q=null; try{ q=sv.getBBox(); }catch(e){} if(q && q.width>0 && q.height>0){ const x0=Math.max(x, Math.floor(q.x-4)), y0=Math.max(y, Math.floor(q.y-4)), x1=Math.min(x+w, Math.ceil(q.x+q.width+4)), y1=Math.min(y+h, Math.ceil(q.y+q.height+4)); if(x1>x0 && y1>y0){ x=x0; y=y0; w=x1-x0; h=y1-y0; const hd=sv.parentNode; mssKeep(hd); hd.style.right='auto'; hd.style.bottom='auto'; hd.style.width='0'; hd.style.height='0'; } } }   // what is left in it after the lift (the back: the King's stone); its own div no longer asks for a layer the size of the scene
-    mssPut(sv, x, y, w, h, m? [0, 0] : null); n++; }
+    mssPut(sv, x, y, w, h, m? [Math.round((x-(g.x-m))*64)/64, Math.round((y-(g.y-m))*64)/64] : null); n++; }   // CARD-MSQ: the land's svg stands inside .msa-bg, which the css lays out at 1/64 px: it is set on its own dot there (at most half a dot from that box's corner)
   const wl=b.querySelector('.sa-pw > svg'); if(wl){ mssKeep(wl); wl.style.overflow='hidden'; n++; }   // the wall: its plaque's box cuts it at the same edges already
   MSS.clips=n; mssReclip(b, g); return true; }
 // ─── B · WHAT ONLY FADES OR SLIDES RIDES A LAYER OF ITS OWN ───
