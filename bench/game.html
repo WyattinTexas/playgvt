@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.04","md5":"3b6a328ddf612928f13b6cc262d26d98","sha":"30a7b63f65","at":"2026-11-17T04:25:30Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.05","md5":"5e1fc8116178574528aa0e36534dae4b","sha":"703473ecd6","at":"2026-11-17T04:55:07Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16550,6 +16550,8 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
      (2) A drawing the shelf holds is never handed to the engine at all: the game's Image answers as loaded (size, complete, onload, decode(), its own address read back) and every draw comes from the finished picture
          of that size. A size never seen comes from the largest finished picture (the engine's best smoothing) and the exact size is made in the background for the next time.
      (3) An Image put INTO THE PAGE gets its drawing back and loads as today. Any doubt (no shelf, an error, a picture too large, a drawing that cannot be read back) = today's game for that picture.
+     (4) A picture it holds that a maker gives ANOTHER address through the img's own setAttribute or setAttributeNS is let go (CARD-ASA, below the src property). Makers change an Image's address that way
+         or through the src property, never through an Attr node or Element.prototype's methods called on an img (unheard here).
    WebKit only by default (CARD-SRP's rule: every browser on an iPhone, the App Store app, a Mac's Safari). ?awg=0 = off on this device (remembered: gvt_awg '0'); ?awg=1 = on for any engine; ?awg=auto = the rule again.
      ?atls=0 = no shelf (every start learns again); ?atlc=0 = a drawing is never taken from a live picture (the shelf alone); =1 brings each back. window.__AWG.read() = the rigs' read (GVT.awg once GVT stands).
    Zero words, css, save keys, server or sw bytes. New names: __AWG, gvt_awg, gvt_awgs, gvt_awgc. Its own <script> BEFORE the game's (buildSprites runs inside the game's script). */
@@ -16636,6 +16638,22 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
           if(!t.bad && !t.tried && A.shelf && !A.dead && (A.keys === null || A.keys[t.h])){ pend(this, t, v); if(A.keys) ask(t); return; }
           real(this, t, v); return; } }
       d.set.call(this, v); } });
+  // ═══ CARD-ASA · A PICTURE THIS SCRIPT HOLDS THAT A MAKER GIVES ANOTHER ADDRESS BY ITS ATTRIBUTE IS LET GO, NEVER TAKEN OVER AS ITS FIRST DRAWING (design/atlas-readdressed-1115/00-CARD-ASA.md, jumpr 3479, built on Maker 1 as M3479; cut by CARD-IPF, its flag IPF-F4) ═══
+  //   THE FAULT (latent: no maker does it today): this script heard a new address only through the src PROPERTY (above). A picture it holds that a maker then gave ANOTHER address with
+  //     img.setAttribute('src', other) stayed, for this script, a picture of its FIRST drawing. A live one stayed in that drawing's list and could be read as its source (srcOf asks the attribute's
+  //     presence and the natural size only: the first drawing's finished pictures, and its row on the shelf, could be painted from the second), and once they stood it was handed over (its attribute
+  //     taken off: the Image answered as its first drawing again, a few seconds later). A handle, or a picture waiting on the shelf, went on answering as its first drawing at once.
+  //   THE CURE: the img's own setAttribute and setAttributeNS (on the img's prototype: no other element pays anything) hear a src change of a picture this script holds and, once the engine has
+  //     taken the new address, let the picture go (drop): it is its maker's, exactly as before this script. A picture this script does not hold (a new one, like CARD-SFB's; one found in the page,
+  //     like img.wt-flank) is never touched, and the new address is never taken over. No address is compared and nothing runs at any tick.
+  //   THE RULE FOR MAKERS: an Image's address changes through the src property or the img's own setAttribute / setAttributeNS / removeAttribute. An Attr node (attributes, getAttributeNode,
+  //     setAttributeNode, setNamedItem), toggleAttribute, or Element.prototype's own methods called on an img go past this script: never on the src of a picture the game made.
+  //   ?asa=0 = off on this device (remembered: gvt_asa '0'; ?asa=1 brings it back). __AWG.asa() = the rigs' read: { on, out } (out = the pictures let go here).
+  var ASA = 1, ASAN = 0; try{ var sq = /[?&]asa=([01])(?![\w])/.exec(location.search || ''); if(sq){ if(sq[1] === '0') localStorage.setItem('gvt_asa', '0'); else localStorage.removeItem('gvt_asa'); } if(localStorage.getItem('gvt_asa') === '0') ASA = 0; }catch(e){}
+  function asaDoor(m, src){ var f = Element.prototype[m]; if(typeof f !== 'function') return;   // the engine's own method, called through as it was: its arguments untouched, a throw is the caller's (and lets nothing go)
+    Object.defineProperty(HTMLImageElement.prototype, m, { configurable:true, enumerable:true, writable:true, value:function(){ var o = H.get(this), r = f.apply(this, arguments); if(o && H.get(this) === o && src(arguments)){ drop(this, o); ASAN++; } return r; } }); }
+  if(ASA){ try{ asaDoor('setAttribute', function(a){ return String(a[0]).toLowerCase() === 'src'; }); asaDoor('setAttributeNS', function(a){ return (a[0] == null || a[0] === '') && String(a[1]) === 'src'; }); }catch(e){ oops('as', e); } }
+  A.asa = function(){ return { on:ASA, out:ASAN }; };
 
   // ---- a draw: a live picture is noted, a handle is drawn from its finished picture ----
   function size(ctx, t, a){ var dw, dh; if(a.length >= 9){ dw = a[7] * t.iw / (a[3] || 1); dh = a[8] * t.ih / (a[4] || 1); } else if(a.length >= 5){ dw = a[3]; dh = a[4]; } else { dw = t.iw; dh = t.ih; }
@@ -94283,7 +94301,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.05';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
