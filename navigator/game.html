@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.07","md5":"d85f5cfbc9aed8aabd3d633c2d0fa9c0","sha":"fd93a3f003","at":"2026-11-17T06:36:19Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.08","md5":"889c3a67a880d742da96575132704e39","sha":"60ad2becdc","at":"2026-11-17T07:57:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16656,6 +16656,48 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   A.asa = function(){ return { on:ASA, out:ASAN }; };
 
   // ---- a draw: a live picture is noted, a handle is drawn from its finished picture ----
+  // ---- CARD-AWT (jumpr 3501, 11/15/2026; cut by CARD-AWS's landing, 3451m; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
+  // THE FAULT (read in the app's own engine, design/atlas-twins-webkit-1115/00-CARD-AWT.md): every mold of the game is a drawing with NO SIZE OF ITS OWN on its svg tag (a viewBox alone: sprURI, buildSprites).
+  //   Its Image answers a size all the same (the viewBox fitted into 300 x 150: Mom's legs, viewBox 0 0 160 530, answer 45 x 150), and until WebKit 22625 (macOS 27, iOS 27's generation) the engine laid such
+  //   a drawing in exactly that box when a draw did not name one. From 22625 on it lays it at THE VIEWBOX'S OWN SIZE (160 x 530): drawImage(img, x, y) paints it three and a half times too large, the
+  //   nine-argument form reads its source box in the viewBox's px, while naturalWidth and naturalHeight still answer 45 x 150. The game has such draws (the chess fight's ink, reflection and wear, the
+  //   king's split and his shards, a painting's tint, Floop's mirrored copy), and this script's own finished pictures answer in the Image's box: so on the newest system a player saw one picture from the
+  //   engine on a first start and another from the shelf after it.
+  // THE CURE: only the FIVE-argument form means the same in every engine (the box is named). A draw of a live picture this script holds that does NOT name its box reaches the engine with the box its
+  //   Image answers: three arguments = drawImage(img, x, y, its width, its height); nine arguments = the whole drawing laid so that the source box, counted in the Image's own px, lands on the box asked
+  //   for, cut to that box (a canvas shadow, or a blend that also clears what lies outside the picture, goes through a small canvas so it stays exact). It is what drawThin does from the shelf, so a
+  //   first start and a restart show the same picture. THE ENGINE IS ASKED FIRST, once, with a drawing of this script's own (a 2 x 1 viewBox, three draws into a canvas of 8 x 8, one dot read after each): where it still lays a size-less
+  //   drawing in the box its Image answers (every WebKit before 22625) NOTHING IS CHANGED and every draw goes to the engine as it came. Until it has answered, draws go as they came (A.n.awx counts them).
+  //   Not touched: a pattern or a bitmap made from such a picture (no line of the game does it), a picture this script does not hold, a canvas, a PNG. A fault thrown inside the cure is written in
+  //   this script's book (oops 'td') and the draw goes to the engine as it came.
+  //   ?awt=0 = every draw to the engine as it came, on this device (gvt_awt '0'; ?awt=1 clears it). __AWG.awt() = the rigs' read: the switch, the engine's word for the three- and the nine-argument
+  //   form (1 = it needs the box named, 0 = it does not, -1 = not answered yet), the draws given their box (n3, n9; n9s through the small canvas), those that came before the word (early).
+  var AWT = 1, AW3 = -1, AW9 = -1;
+  A.n.aw3 = 0; A.n.aw9 = 0; A.n.aw9s = 0; A.n.awx = 0;
+  try{ var tq = /[?&]awt=([01])(?![\w])/.exec(location.search || ''); if(tq){ if(tq[1] === '0') localStorage.setItem('gvt_awt', '0'); else localStorage.removeItem('gvt_awt'); } if(localStorage.getItem('gvt_awt') === '0') AWT = 0; }catch(e){ oops('ts', e); }
+  A.awt = function(){ return { on:AWT, w3:AW3, w9:AW9, n3:A.n.aw3, n9:A.n.aw9, n9s:A.n.aw9s, early:A.n.awx }; };
+  if(!AWT) AW3 = AW9 = 0;
+  else { try{ var awp = new Image();
+      awp.onload = function(){ var w3 = 0, w9 = 0; try{ var nw = awp.naturalWidth, nh = awp.naturalHeight, c = document.createElement('canvas'); c.width = c.height = 8; var g = c.getContext('2d', { willReadFrequently:true }), dot = function(){ return g.getImageData(6, 6, 1, 1).data[3] > 127 ? 1 : 0; };
+          if(nw > 7 && nh > 7 && g && DI){ DI.call(g, awp, 0, 0, 16, 8); if(dot()){   // the box named (16 x 8 over the 8 x 8 canvas): the dot at 6, 6 is painted in every engine (if it is not, nothing can be told: today's game)
+              g.clearRect(0, 0, 8, 8); DI.call(g, awp, 0, 0); w3 = dot() ? 0 : 1;   // no box named: painted = the engine laid the drawing in the box its Image answers (300 x 150); not painted = in the viewBox's own 2 x 1, or fitted into the canvas (8 x 4)
+              g.clearRect(0, 0, 8, 8); DI.call(g, awp, 0, 0, nw, nh, 0, 0, 16, 8); w9 = dot() ? 0 : 1; } }   // the whole of what the Image answers, as the source: painted = the engine counts the source in the Image's px
+          c.width = c.height = 0; }catch(e){ w3 = w9 = 0; oops('tp', e); }
+        AW3 = w3; AW9 = w9; awp.onload = awp.onerror = null; try{ rmAttr.call(awp, 'src'); }catch(e){} };
+      awp.onerror = function(){ AW3 = AW9 = 0; awp.onload = awp.onerror = null; };
+      d.set.call(awp, 'data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%202%201%22%3E%3Crect%20width%3D%222%22%20height%3D%221%22%2F%3E%3C%2Fsvg%3E'); }catch(e){ AW3 = AW9 = 0; oops('ta', e); } }
+  function awtNine(ctx, img, t, a, di){ var sx = +a[1], sy = +a[2], sw = +a[3], sh = +a[4], dx = +a[5], dy = +a[6], dw = +a[7], dh = +a[8], slow = 0;
+    if(!(sw * sh * dw * dh) || !isFinite(sx + sy + sw + sh + dx + dy + dw + dh)) return di.apply(ctx, a);   // an empty box, or a number that is none: the engine's own answer, as today
+    if(sw < 0){ sx += sw; sw = -sw; } if(sh < 0){ sy += sh; sh = -sh; } if(dw < 0){ dx += dw; dw = -dw; } if(dh < 0){ dy += dh; dh = -dh; }   // a box given backwards is the same box (the engine's own rule)
+    try{ var op = ctx.globalCompositeOperation; slow = (op === 'copy' || op === 'source-in' || op === 'source-out' || op === 'destination-in' || op === 'destination-atop' || ctx.shadowBlur > 0 || ctx.shadowOffsetX || ctx.shadowOffsetY) ? 1 : 0; }catch(e){}
+    if(!slow){ A.n.aw9++; ctx.save(); try{ var P = new Path2D(); P.rect(dx, dy, dw, dh); ctx.clip(P); return di.call(ctx, img, dx - sx * dw / sw, dy - sy * dh / sh, t.iw * dw / sw, t.ih * dh / sh); } finally { ctx.restore(); } }
+    A.n.aw9s++; var zx = 1, zy = 1; try{ var m = ctx.getTransform(); zx = Math.sqrt(m.a * m.a + m.b * m.b) || 1; zy = Math.sqrt(m.c * m.c + m.d * m.d) || 1; }catch(e){}   // the cut piece painted once at the size it lands on the glass, then drawn as a canvas: the caller's blend and shadow see only the piece
+    var W = Math.max(1, Math.min(4096, Math.ceil(dw * zx))), Hh = Math.max(1, Math.min(4096, Math.ceil(dh * zy))), c = document.createElement('canvas'); c.width = W; c.height = Hh;
+    di.call(c.getContext('2d'), img, -sx * W / sw, -sy * Hh / sh, t.iw * W / sw, t.ih * Hh / sh); return di.call(ctx, c, dx, dy, dw, dh); }
+  function awtDraw(ctx, img, t, a, di){ var n = a.length;
+    if(n === 3){ if(AW3 === 1 && t.iw > 0 && t.ih > 0){ A.n.aw3++; return di.call(ctx, img, a[1], a[2], t.iw, t.ih); } if(AW3 < 0) A.n.awx++; }
+    else if(n === 9){ if(AW9 === 1 && t.iw > 0 && t.ih > 0) return awtNine(ctx, img, t, a, di); if(AW9 < 0) A.n.awx++; }
+    return di.apply(ctx, a); }
   function size(ctx, t, a){ var dw, dh; if(a.length >= 9){ dw = a[7] * t.iw / (a[3] || 1); dh = a[8] * t.ih / (a[4] || 1); } else if(a.length >= 5){ dw = a[3]; dh = a[4]; } else { dw = t.iw; dh = t.ih; }
     var sx = 1, sy = 1; try{ var m = ctx.getTransform(); sx = Math.sqrt(m.a * m.a + m.b * m.b); sy = Math.sqrt(m.c * m.c + m.d * m.d); }catch(e){}
     var w = Math.round(Math.abs(dw) * sx), h = Math.round(Math.abs(dh) * sy); return [w < 1 ? 1 : w, h < 1 ? 1 : h]; }
@@ -16675,7 +16717,9 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   var DI = null;
   function wrap(P){ if(!P || !P.drawImage) return; var di = P.drawImage; if(!DI) DI = di;
     P.drawImage = function(img){ var o = (img && typeof img === 'object') ? H.get(img) : undefined; if(!o) return di.apply(this, arguments);
-      if(o.st === 'real'){ try{ if(!o.loaded && img.complete && img.naturalWidth > 0) seen(img, o); if(o.loaded && !o.out) note(this, o, arguments); }catch(e){ oops('n', e); } return di.apply(this, arguments); }
+      if(o.st === 'real'){ try{ if(!o.loaded && img.complete && img.naturalWidth > 0) seen(img, o); if(o.loaded && !o.out) note(this, o, arguments); }catch(e){ oops('n', e); }
+        if(AWT && o.loaded && arguments.length !== 5){ try{ return awtDraw(this, img, o.t, arguments, di); }catch(e){ oops('td', e); } }   // CARD-AWT: a draw that does not name its box reaches the engine with the box its Image answers; a fault of the cure = the draw as it came, below (nothing of it may reach the game's own error line)
+        return di.apply(this, arguments); }
       if(o.st === 'thin') return drawThin(this, o, arguments, di); };
     if(P.createPattern){ var cp = P.createPattern; P.createPattern = function(img){ var o = (img && typeof img === 'object') ? H.get(img) : undefined; if(!o || o.st !== 'thin') return cp.apply(this, arguments);
       A.n.pat++; var t = o.t, c = document.createElement('canvas'); c.width = t.iw; c.height = t.ih; drawThin(c.getContext('2d'), o, [img, 0, 0, t.iw, t.ih], di); var a = [].slice.call(arguments); a[0] = c; return cp.apply(this, a); }; } }
@@ -94301,7 +94345,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
