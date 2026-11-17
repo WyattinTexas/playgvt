@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.09","md5":"daee1221ff54bf23f055cc40768bd179","sha":"48804b29b8","at":"2026-11-17T13:36:58Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.10","md5":"02459cf7309c8bf0fcac82132511cc57","sha":"b955ee6662","at":"2026-11-17T14:38:02Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94345,7 +94345,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.09';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.10';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -243240,6 +243240,196 @@ function detSafRead(o){ const A=DET_SAF; o=o||{}; if(o.on!=null && A.laid){ A.on
 try{ if(window.GVT && !GVT.detsaf) GVT.detsaf=detSafRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.detsaf) GVT.detsaf=detSafRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-SAF ═══
+// ═══ CARD-ENG2-UPD · AN UPDATE NOTE INSIDE THE GAME (sec:CARD-ENG2-UPD; design/eng2-update-note-1116/00-CARD-ENG2-UPD.md; jumpr 3591, built on the QuarterPounder as M3591) ═══
+// WHY (Wyatt 11/12/2026 14:23 EST: "I need the app to just update for players. I can't count on them going to the App Store to update the app."; 11/16 ~11:50 EST: "Okay but once we have
+// players in; we are going to need them eventually to update the game"): the game updates by pack, but the engine is code inside the app, so it reaches a player only through a store
+// update. This section lets a player on an older app learn, without anything blocking play, that a newer one is in the store, with the link.
+// WHAT: (1) WHO IS BEHIND: the page's own app and build, read from what the shell already tells it (never a new bridge call): the iPhone's window.__GVTSHELL.build (every iPhone shell);
+// the Play and Fire shells tell no build to a page that calls no new door, so there the page knows only that a shell with no window.GVTMove object is older than the first build that has
+// it (Play vc9, the Fire's 1007); a Play or Fire shell that has it, the web and Steam: the page cannot tell and says nothing. The newest LIVE store build of each store comes from the row
+// the pack carries beside the page (store-builds.webmanifest, JSON: {v:1, ios|play|amazon:{store,build,min}}; its format is in the record §4). (2) THE SOFT NOTE: one quiet line in the
+// room's top band (the #mgrCard seat, z 26, under every modal, never over a fight: one already seen folds at a fight, one not yet shown waits for the room after it;
+// it waits for a quiet room: roomQuiet, no rite page, the room in front), at most once a day (localStorage gvt_upd_day = the day it was shown), dismissable (the cross), with
+// the store's own link as a plain tapped <a> with no target (the shells hand a tapped link to another host to the phone: the App Store, Google Play's market:, the Amazon Appstore's
+// amzn:); and one row at the top of SETTINGS while the app is behind. (3) THE HARD GATE, BUILT AND OFF: when the row names a min above the app's build, the title says PLEASE UPDATE TO
+// KEEP PLAYING with the link and its door stays shut (a window capture pointerdown filter for taps inside #title + showMenu refused while S.mode is 'title'); a row with no min = no gate.
+// A gate never stops play: decided after the title is gone, it does nothing.
+// THE SWITCH: ?upd=1 in the address, this launch only (never remembered: a test switch). WITHOUT IT NOTHING HERE RUNS: no node, no style, no stored key, no request, no timer, no listener,
+// no wrap, no word added. The switch-on for players is its own card (the engine road's orchestrator cuts it when the first store build carrying the engine is live).
+// RULE 15: SAME-GAME and dark. It names no new bridge, host, product id or permission (the App Store address is INVITE_IOS, already in the approved game; market: and amzn: are no hosts).
+// UNDO: python3 -I design/eng2-update-note-1116/kit/applyUPD.py index.html --undo (byte for byte).
+var UPD={ on:(function(){ try{ return /(?:^\?|&)upd=1(?=&|$)/.test(String(location.search||''))? 1 : 0; }catch(e){ return 0; } })(),
+  ROW:'store-builds.webmanifest', DAY:'gvt_upd_day', NOTE_MS:60000, TELLS:{ play:9, amazon:1007 },
+  RITES:['icerite','sabrite','soulrite','paintrite','pickrite','mstrite','seyrite','sqlrite','pbkrite','toothrite','rfrite'],
+  LINK:{ play:'market://details?id=com.corkscrewgames.gvt', amazon:'amzn://apps/android?p=com.corkscrewgames.gvt' },
+  LINE:{ ios:'A NEW VERSION IS IN THE APP STORE', play:'A NEW VERSION IS ON GOOGLE PLAY', amazon:'A NEW VERSION IS IN THE AMAZON APPSTORE' },
+  who:null, row:null, state:'', behind:0, gate:0, gateOn:0, gateWhy:'', note:0, noteT:0, lastT:0, shownMs:0, day:'', took:'', set:0, css:0, words:0, quietWhy:'', err:0, e:'',
+  n:{ asked:0, rows:0, notes:0, holds:0, gates:0, blocked:0, menus:0, sets:0 } };
+function updErr(w, e){ try{ UPD.err++; UPD.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function updWho(){   // what the page can tell about its own app: { store:'ios'|'play'|'amazon' (''= it cannot tell), build: the exact build or 0, below: an upper bound (build < below) or 0, why }
+  const o={ store:'', build:0, below:0, app:'', why:'web' };
+  try{
+    if(/GVTShell-Steam/.test(String(navigator.userAgent||''))){ o.why='steam'; return o; }   // Steam: no store build
+    let sh=null; try{ sh=window.__GVTSHELL; }catch(e){}
+    if(window.GVTBillingAmazon) o.store='amazon';          // the Fire shell (it also has GVTShellAndroid: read first, as odfShell and iapCounsel do)
+    else if(window.GVTBillingAndroid) o.store='play';      // the Play shell (no Fire build has it)
+    else if(window.GVTShellAndroid){ o.why='android-no-store'; return o; }   // an Android shell with no store's tell (the Fire's 1.0, vc1001): which store, the page cannot tell
+    else if(sh && typeof sh==='object'){
+      if(typeof sh.platform==='string' && sh.platform!=='ios'){ o.why='shell-'+sh.platform.slice(0,12); return o; }
+      const b=updInt(sh.build); if(!b){ o.why='ios-no-build'; return o; }   // a whole number as the shell writes it (Int(CFBundleVersion)); nothing else is coerced
+      o.store='ios'; o.build=b; o.app=(typeof sh.app==='string')? sh.app.slice(0,24) : ''; o.why='build'; return o;
+    } else return o;                                         // the web: no app, no store build
+    if(typeof window.GVTMove==='undefined'){ o.below=UPD.TELLS[o.store]; o.why='older-than-'+o.below; return o; }   // no GVTMove: older than the store's first build that has it
+    o.store=''; o.why=(window.GVTBillingAmazon? 'amazon' : 'play')+'-not-told'; return o;   // a newer Play or Fire shell: its build is not told to this page
+  }catch(e){ updErr('who', e); o.store=''; o.why='error'; return o; }
+}
+function updWords(){   // THE WORDS x7, added only when the switch is on; a key a table already holds is never overwritten
+  if(UPD.words) return; UPD.words=1;
+  try{
+    const K=['A NEW VERSION IS IN THE APP STORE', 'A NEW VERSION IS ON GOOGLE PLAY', 'A NEW VERSION IS IN THE AMAZON APPSTORE', 'PLEASE UPDATE TO KEEP PLAYING'];
+    const W={
+      ar:['نسخة جديدة في App Store', 'نسخة جديدة على Google Play', 'نسخة جديدة في متجر Amazon Appstore', 'حدّث اللعبة لتواصل اللعب'],
+      ja:['あたらしい バージョンが App Storeに あるよ', 'あたらしい バージョンが Google Playに あるよ', 'あたらしい バージョンが Amazonアプリストアに あるよ', 'あそびつづけるには アップデートしてね'],
+      ko:['App Store에 새 버전이 있어', 'Google Play에 새 버전이 있어', 'Amazon 앱스토어에 새 버전이 있어', '계속 플레이하려면 업데이트해 줘'],
+      'zh-Hans':['App Store 有新版本', 'Google Play 有新版本', '亚马逊应用商店有新版本', '请更新后继续游戏'],
+      de:['EINE NEUE VERSION IST IM APP STORE', 'EINE NEUE VERSION IST AUF GOOGLE PLAY', 'EINE NEUE VERSION IST IM AMAZON APPSTORE', 'BITTE AKTUALISIEREN, UM WEITERZUSPIELEN'],
+      ru:['В APP STORE ЕСТЬ НОВАЯ ВЕРСИЯ', 'В GOOGLE PLAY ЕСТЬ НОВАЯ ВЕРСИЯ', 'В AMAZON APPSTORE ЕСТЬ НОВАЯ ВЕРСИЯ', 'ОБНОВИ ИГРУ, ЧТОБЫ ИГРАТЬ ДАЛЬШЕ'],
+      es:['HAY UNA NUEVA VERSIÓN EN LA APP STORE', 'HAY UNA NUEVA VERSIÓN EN GOOGLE PLAY', 'HAY UNA NUEVA VERSIÓN EN LA AMAZON APPSTORE', 'ACTUALIZA PARA SEGUIR JUGANDO'] };
+    for(const L in W){ const tb=TR[L]||(TR[L]={}); for(let i=0;i<K.length;i++) if(tb[K[i]]===undefined) tb[K[i]]=W[L][i]; }
+  }catch(e){ updErr('words', e); }
+}
+function updDay(){ try{ return localStorage.getItem(UPD.DAY)||''; }catch(e){ return ''; } }
+function updMono(){ try{ return performance.now(); }catch(e){ return Date.now(); } }
+function updLink(){ const s=UPD.who && UPD.who.store; return s==='ios'? INVITE_IOS : (UPD.LINK[s]||''); }
+function updLine(){ return UPD.LINE[UPD.who && UPD.who.store]||''; }
+function updCss(){   // ONE style element, laid once in the head, only when a note, a gate or a row is about to show
+  if(UPD.css) return; UPD.css=1;
+  try{
+    const st=document.createElement('style'); st.id='updCss';
+    st.textContent='#updNote{position:fixed;left:50%;top:max(58px,calc(env(safe-area-inset-top,0px) + 50px));transform:translateX(-50%);z-index:26;display:flex;align-items:center;gap:10px;'
+      +'background:rgba(24,26,19,0.96);border:2px solid #D9A544;border-radius:14px;padding:6px 6px 6px 14px;color:#F4E9C8;font-family:var(--ui);font-weight:bold;font-size:clamp(11px,2.3vh,15px);'
+      +'letter-spacing:0.06em;box-shadow:0 6px 20px rgba(0,0,0,0.5);width:max-content;max-width:94vw;box-sizing:border-box;text-align:left}'
+      +'#updNote .upd-t{color:#FFD97A}#updNote .mbtn{flex:0 0 auto;font-size:clamp(10px,2vh,13px);padding:0.45rem 0.85rem;text-decoration:none;white-space:nowrap}'
+      +'#updNote .upd-x{flex:0 0 auto;background:none;border:0;color:#F4E9C8;font:inherit;font-size:1.15em;line-height:1;padding:8px 8px;cursor:pointer;opacity:0.8}'
+      +'#menu.hidden~#updNote,#title.hidden~#updGate{display:none!important}'   // the instant the room or the title is hidden (hideAllOverlays at every door into a fight), not at the next tick
+      +'#updGate{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:12;width:min(86vw,440px);box-sizing:border-box;background:#181A13;border:2px solid #D9A544;'
+      +'border-radius:16px;padding:16px 18px 18px;color:#F4E9C8;font-family:var(--ui);font-weight:bold;text-align:center;letter-spacing:0.06em;box-shadow:0 8px 28px rgba(0,0,0,0.6)}'
+      +'#updGate .upd-h{color:#FFD97A;font-size:clamp(15px,3.4vh,22px)}#updGate .upd-s{font-size:clamp(11px,2.3vh,15px);opacity:0.9;margin-top:6px}'
+      +'#updGate .mbtn{display:inline-block;margin-top:12px;text-decoration:none}'
+      +'#setUpd .set-w{white-space:normal;line-height:1.25}#setUpd .set-state{flex:0 0 auto}';   // the SETTINGS row's words may wrap (a house row cuts them with an ellipsis)
+    document.head.appendChild(st);
+  }catch(e){ updErr('css', e); }
+}
+function updBoot(){   // the switch is on: who is the page, then the row beside it
+  try{
+    UPD.who=updWho();
+    if(!UPD.who.store){ UPD.state='silent:'+UPD.who.why; return; }
+    if(typeof fetch!=='function'){ UPD.state='silent:no-fetch'; return; }
+    updWords(); UPD.state='asking'; UPD.n.asked++;
+    fetch(UPD.ROW, { cache:'no-store' }).then(function(r){ return (r && r.ok)? r.text() : null; })
+      .then(function(t){ updRow(t); }, function(e){ updErr('fetch', e); UPD.state='silent:no-row'; });
+  }catch(e){ updErr('boot', e); UPD.state='silent:error'; }
+}
+function updInt(x){ return (typeof x==='number' && x>=1 && Math.floor(x)===x && x<1e9)? x : 0; }
+function updRow(t){   // the row came (or not): behind = the app's build is below the store's newest; gate = below the row's min
+  try{
+    let j=null; try{ j=t? JSON.parse(t) : null; }catch(e){ j=null; }
+    if(!j || typeof j!=='object' || j.v!==1){ UPD.state='silent:no-row'; return; }
+    const r=j[UPD.who.store];
+    if(!r || typeof r!=='object' || !updInt(r.build)){ UPD.state='silent:no-store-row'; return; }
+    if(r.min!==undefined && r.min!==0 && !updInt(r.min)){ UPD.state='silent:bad-min'; return; }   // a min that is not a whole number: the row is not trusted at all
+    UPD.n.rows++;
+    UPD.row={ store:String(r.store||'').slice(0,16), build:r.build, min:updInt(r.min) };
+    const w=UPD.who, under=function(n){ return n? (w.build? (w.build<n? 1 : 0) : ((w.below && w.below<=n)? 1 : 0)) : 0; };
+    UPD.behind=under(UPD.row.build); UPD.gate=under(UPD.row.min);
+    UPD.state=UPD.gate? 'gate' : UPD.behind? 'behind' : 'newest';
+    if(UPD.gate) updGateArm();
+    if(UPD.behind){ updSetWrap(); if(!UPD.gateOn) updNoteArm(); }
+  }catch(e){ updErr('row', e); UPD.state='silent:error'; }
+}
+// ---- THE SOFT NOTE: the room's top band, once a day, on a quiet second; never over a fight ----
+function updQuiet(){   // the room's own test (roomQuiet) AND no rite page over the room (roomQuiet names 4 of the 11: THE GENERAL'S FAVOR, pickrite, is not one) AND the room in front at two points of the glass
+  try{
+    if(!roomQuiet()){ UPD.quietWhy='room'; return false; }
+    for(const id of UPD.RITES){ const el=document.getElementById(id); if(el && !el.classList.contains('hidden')){ UPD.quietWhy=id; return false; } }
+    if(typeof fortSceneOpen==='function' && fortSceneOpen()){ UPD.quietWhy='fort'; return false; }   // the fort hub stands inside #menu: the points below would call it the room
+    const mn=document.getElementById('menu'); if(!mn){ UPD.quietWhy='menu'; return false; }
+    for(const x of [0.12, 0.88]){ const e=document.elementFromPoint(innerWidth*x, innerHeight*0.62); if(e && !mn.contains(e)){ UPD.quietWhy='over:'+String(e.id || e.tagName).slice(0,24); return false; } }
+    UPD.quietWhy=''; return true;
+  }catch(e){ UPD.quietWhy='error'; return false; }
+}
+function updSeatTaken(){ try{ for(const id of ['evKnock','mgrCard']){ const el=document.getElementById(id); if(el && !el.classList.contains('hidden') && el.style.display!=='none') return true; } }catch(e){} return false; }
+function updNoteArm(){
+  if(UPD.noteT || UPD.note) return;
+  UPD.day=updDay();
+  if(UPD.day===todayStr()){ UPD.note=-1; UPD.took='today'; return; }   // shown today already: nothing until tomorrow
+  UPD.lastT=updMono(); UPD.noteT=setInterval(updNoteTick, 1000);
+}
+function updNoteTick(){
+  try{
+    const now=updMono(), dt=Math.max(0, Math.min(now-UPD.lastT, 1500)); UPD.lastT=now;   // shown time counts by the page's own ticks: a clock moved or a phone asleep never adds to it
+    const el=document.getElementById('updNote');
+    if(S.mode==='play' || S.mode==='win' || S.mode==='lose'){ if(UPD.note===1) updNoteFold('fight'); return; }   // never over the field: a line already seen folds for good at a fight; one not yet shown waits for the room after it
+    if(UPD.note===1 && UPD.day!==todayStr()){ updNoteFold('day'); return; }   // seen on another device day: it never comes back past midnight
+    if(!el){ if(S.mode==='menu' && document.readyState==='complete' && !updSeatTaken() && updQuiet()) updNoteShow(); return; }
+    if(S.mode!=='menu' || updSeatTaken() || !updQuiet()){ updNoteHold(); return; }
+    if(!document.hidden) UPD.shownMs+=dt;
+    if(UPD.shownMs>UPD.NOTE_MS) updNoteFold('time');
+  }catch(e){ updErr('tick', e); updNoteFold('error'); }
+}
+function updNoteShow(){
+  updCss();
+  const el=document.createElement('div'); el.id='updNote'; el.setAttribute('data-notr', '');
+  el.innerHTML='<span class="upd-t">'+escH(TXT(updLine()))+'</span><a class="mbtn upd-go" href="'+escH(updLink())+'">'+escH(TXT('UPDATE'))+'</a>'
+    +'<button type="button" class="upd-x" aria-label="'+escH(TXT('NOT NOW'))+'">✕</button>';
+  el.querySelector('.upd-go').addEventListener('click', function(){ UPD.took='go'; setTimeout(function(){ updNoteFold('go'); }, 0); });   // the tap goes on to the store (the shell hands it out); the line folds after
+  el.querySelector('.upd-x').addEventListener('click', function(){ try{ audio(); SFX.clack(); }catch(e){} UPD.took='x'; updNoteFold('x'); });
+  if(UPD.note!==1){ const d=todayStr(); try{ localStorage.setItem(UPD.DAY, d); }catch(e){ updNoteFold('no-day'); return; } UPD.day=d; UPD.n.notes++; }   // the day is spent BEFORE the line first shows: a phone that cannot keep it never sees it
+  document.body.appendChild(el);
+  UPD.note=1; UPD.lastT=updMono();
+}
+function updNoteHold(){ try{ const el=document.getElementById('updNote'); if(el){ el.remove(); UPD.n.holds++; } }catch(e){ updErr('hold', e); } }   // something over the room: the line steps aside and comes back
+function updNoteFold(why){ try{ const el=document.getElementById('updNote'); if(el) el.remove(); if(UPD.noteT){ clearInterval(UPD.noteT); UPD.noteT=0; } UPD.note=2; if(!UPD.took) UPD.took=why; }catch(e){ updErr('fold', e); } }
+// ---- SETTINGS: one row at the top while the app is behind ----
+function updSetRowHTML(){ return '<a class="set-row upd-set" id="setUpd" data-notr href="'+escH(updLink())+'">'+gly('link')+'<span class="set-w">'+escH(TXT(updLine()))+'</span><span class="set-state">'+escH(TXT('UPDATE'))+'</span></a>'; }
+function updSetWrap(){
+  if(UPD.set || typeof settingsHTML!=='function') return;
+  const s0=settingsHTML, G='<div class="setgrid">';
+  settingsHTML=function(){ let h=s0.apply(this, arguments);
+    try{ if(UPD.on && UPD.behind && typeof h==='string' && h.indexOf(G)>=0){ updCss(); h=h.replace(G, function(){ return G+updSetRowHTML(); }); UPD.n.sets++; } }catch(e){ updErr('set', e); }
+    return h; };
+  try{ settingsHTML.toString=function(){ return s0.toString(); }; }catch(e){}
+  UPD.set=1;
+}
+// ---- THE HARD GATE (built and off: only a row that names a min above this app's build arms it) ----
+function updGateDown(ev){ try{ if(!UPD.gateOn || S.mode!=='title') return; const t=document.getElementById('title'); if(t && ev.target && (ev.target===t || t.contains(ev.target))){ ev.stopImmediatePropagation(); ev.preventDefault(); UPD.n.blocked++; } }catch(e){ updErr('gatedown', e); } }
+function updGateArm(){
+  try{
+    const t=document.getElementById('title');
+    if(S.mode!=='title' || !t || t.classList.contains('hidden')){ UPD.gateWhy='late'; return; }   // the player is past the title: a gate never stops play
+    const href=updLink(), word=TXT('UPDATE'); if(!href){ UPD.gateWhy='no-link'; return; }   // the box and its words first: a name gone missing never shuts the title with no box or no link
+    updCss();
+    const g=document.createElement('div'); g.id='updGate'; g.setAttribute('data-notr', '');
+    g.innerHTML='<div class="upd-h">'+escH(TXT('PLEASE UPDATE TO KEEP PLAYING'))+'</div><div class="upd-s">'+escH(TXT(updLine()))+'</div>';
+    document.body.appendChild(g);
+    UPD.gateOn=1; UPD.n.gates++;
+    window.addEventListener('pointerdown', updGateDown, true);   // the window's capture pass runs before the document's and #title's own listeners
+    const sm0=showMenu;
+    showMenu=function(){ if(UPD.gateOn && S.mode==='title'){ UPD.n.menus++; return; } return sm0.apply(this, arguments); };   // the title's other ways out (CARD-MGR's own showMenu)
+    try{ showMenu.toString=function(){ return sm0.toString(); }; }catch(e){}
+    const go=function(){ try{ if(!document.getElementById('updGate') || g.querySelector('.upd-go')) return; const a=document.createElement('a'); a.className='mbtn upd-go'; a.href=href; a.textContent=word; g.appendChild(a); }catch(e){ updErr('gatego', e); } };
+    if(document.readyState==='complete') go(); else window.addEventListener('load', go, { once:true });   // the link only once the page has loaded (the iPhone shell's own load watch)
+  }catch(e){ updErr('gate', e); }
+}
+function updRead(o){   // the rigs' read door: reads only, changes nothing (no storage: the day is the one the section itself read or wrote)
+  const d=UPD.day;
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:UPD.on, state:UPD.state || (UPD.on? 'on' : 'off'), who:UPD.who? Object.assign({}, UPD.who) : null, row:UPD.row? Object.assign({}, UPD.row) : null,
+    behind:UPD.behind, gate:UPD.gate, gateOn:UPD.gateOn, gateWhy:UPD.gateWhy, note:UPD.note, took:UPD.took, day:d, set:UPD.set, css:UPD.css, words:UPD.words, timer:UPD.noteT? 1 : 0, quietWhy:UPD.quietWhy, err:UPD.err, e:UPD.e,
+    n:Object.assign({}, UPD.n), up:{ note:!!document.getElementById('updNote'), gate:!!document.getElementById('updGate'), style:!!document.getElementById('updCss') } };
+}
+if(UPD.on) updBoot();
+try{ if(window.GVT && !GVT.upd) GVT.upd=updRead; }catch(e){}   // the rigs' read door (the house's way)
+// ═══ END CARD-ENG2-UPD ═══
 </script>
 <svg id="bcnDefs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;pointer-events:none"><defs><filter id="bcnS" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,210,74)" flood-opacity="0.7"/></filter><filter id="bcnCS" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.952" flood-color="rgb(255,210,74)" flood-opacity="0.7"/></filter><filter id="bcnT" x="-70%" y="-70%" width="240%" height="240%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,210,74)" flood-opacity="0.95"/><feDropShadow dx="0" dy="0" stdDeviation="24" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnH0" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnW0" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnC0" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="3.968" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnH1" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnW1" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnC1" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.299" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnH2" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnW2" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnC2" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.63" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnH3" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnW3" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnC3" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.96" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnH4" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnW4" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnC4" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.291" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnH5" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnW5" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnC5" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.622" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnH6" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnW6" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnC6" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.952" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnH7" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnW7" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnC7" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.283" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnH8" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnW8" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnC8" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.614" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnH9" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnW9" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnC9" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.944" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnH10" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnW10" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnC10" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.275" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnH11" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnW11" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnC11" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.606" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnH12" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnW12" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnC12" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.937" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnH13" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnW13" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnC13" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.267" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnH14" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnW14" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnC14" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.598" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnH15" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnW15" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnC15" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.929" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnH16" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnW16" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnC16" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.259" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnH17" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnW17" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnC17" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.59" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnH18" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnW18" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnC18" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.921" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnH19" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnW19" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnC19" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.251" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnH20" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnW20" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnC20" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.582" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnB0" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="rgb(255,210,74)" flood-opacity="0.4"/></filter><filter id="bcnB1" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="rgb(255,210,74)" flood-opacity="0.423"/></filter><filter id="bcnB2" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="rgb(255,210,74)" flood-opacity="0.446"/></filter><filter id="bcnB3" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.5" flood-color="rgb(255,210,74)" flood-opacity="0.469"/></filter><filter id="bcnB4" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,211,74)" flood-opacity="0.492"/></filter><filter id="bcnB5" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,211,74)" flood-opacity="0.515"/></filter><filter id="bcnB6" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,211,74)" flood-opacity="0.537"/></filter><filter id="bcnB7" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.56"/></filter><filter id="bcnB8" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.583"/></filter><filter id="bcnB9" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,212,74)" flood-opacity="0.606"/></filter><filter id="bcnB10" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,212,74)" flood-opacity="0.629"/></filter><filter id="bcnB11" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,212,74)" flood-opacity="0.652"/></filter><filter id="bcnB12" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.675"/></filter><filter id="bcnB13" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.698"/></filter><filter id="bcnB14" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.721"/></filter><filter id="bcnB15" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.744"/></filter><filter id="bcnB16" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,213,74)" flood-opacity="0.767"/></filter><filter id="bcnB17" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.79"/></filter><filter id="bcnB18" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.812"/></filter><filter id="bcnB19" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.835"/></filter><filter id="bcnB20" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.858"/></filter><filter id="bcnB21" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,214,74)" flood-opacity="0.881"/></filter><filter id="bcnB22" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.904"/></filter><filter id="bcnB23" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.927"/></filter><filter id="bcnB24" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter></defs></svg>
 <script>/* CARD-OLR round 34 BEGIN: html.olrmen while her look is on (the men's rule above) */try{ if(typeof olrOn==='function' && olrOn()) document.documentElement.classList.add('olrmen'); }catch(e){}/* CARD-OLR round 34 END */</script>
