@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.15","md5":"afa0951188fddf0040a890e9043fd80e","sha":"510e19a49a","at":"2026-11-17T19:18:49Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.16","md5":"319e5c7df7e6fc09080a17426b969d01","sha":"360ae4b1da","at":"2026-11-17T19:39:25Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94345,7 +94345,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.15';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.16';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -217575,6 +217575,103 @@ function gsbFormStep(f,fo,tx,ty,dd,sp,amv){   // ONE STEP of a block's man towar
   GSB.wrapped=1; })();
 try{ if(window.GVT && !GVT.gsb) GVT.gsb=function(){ let own=null, msb=null; try{ own=lcsCensus(); }catch(e){} try{ msb=(typeof MSBQ!=='undefined' && MSBQ && MSBQ.on)? MSBQ.census() : null; }catch(e){} return { cv:GVT_CV, on:GSB.on, wrapped:GSB.wrapped, dials:{ near:GSB.near, patience:GSB.patience }, n:Object.assign({}, GSBN), census:own, msb:msb, forms:(typeof S==='object' && S && S.forms)? S.forms.length : 0 }; }; }catch(e){}   // the rigs' one read (read-only)
 // ═══ END CARD-GSB ═══
+// ═══ CARD-CPP · THE CAMPAIGN'S PATHING: THE BIG SHOT WALKS BY THEIR TOY BOX, AND NOBODY WALKS OVER A TOY BOX (sec:CARD-CPP; design/campaign-pathing-1115/00-CARD-CPP.md; jumpr 3517, built on the QuarterPounder as M3517) ═══
+// FROM WYATT 11/15/2026 ~22:40 EST (his ACCEPTED note on Fey's review of the first ten REGULAR CAMPAIGN levels, #balance-ops), verbatim: "The Big Shot should walk closer to the enemy toy box, but not on top of it.
+// Enemies coming in from off the map walk right over the box today. They need to respect the box and walk around it (Level 3)". Fey (clip 1, 4:29, level 3): "I also didn't need to engage with the big shot at all.
+// should he path a bit closer to the enemy TB? ...but not, like, directly on top. that kinda bugs me that some enemies from off the map will literally walk over it".
+// THE FINDING (rig/sweepCPP.mjs on HEAD v32.81, every frame of levels 1 to 10): nothing on the campaign steers round a toy box. Every wave walks on at W+60, behind THEIR crate (drawn at W-120 on its seat), and
+// marches west at OUR box: a block whose lane crosses the crate's waist walks straight through its drawn footprint (level 3: 9 Tan of THE REDCOATS, THE THIN TAN LINE and THE JEEP PARADE in one run, up to 37 px deep);
+// and THE BIG SHOT walks on along the low road (lane 430) straight for his bridge or our box: on level 3 he passed their crate 83 px off its footprint and crossed by the far bridge while her army razed the
+// crate from the north: she never met him.
+// THE BOXES (cppBoxes): each toy box as one circle on the ground, the drawn crate's footprint inside it: the sprite is 150 wide on its seat (box.y+52); its lid is 136 of the 160 viewBox units (128 px) and its
+// solid stands from the lid's top 87 px above the seat line to the body's foot 6 px above it, so the footprint in feet is 128 x 81 about (bx, box.y+5.5) and the circle of CPP_BOX.r 76 holds all of it.
+// THEIR crate at bx W-120 while it stands (drawTanBase's own x), OUR box at cfaBoxX() (draw()'s own x). On the campaign ladder alone (cppOn: a rung of S.levelN, their crate standing; never the battleground,
+// a park, a raid or Mom's raid: those rugs are byte what they were).
+// ONE · THE BOX IS A ROCK TO WALK ROUND. rockSteer, wrapped by name (the ICN3/PTP grammar), hands the boxes in as `xtra` obstacles: they steer exactly like a rock (the side nearer the goal, never into the
+// next rock, never off the carpet) and never shoulder inside the steer (the pit's law). A Tan's own steer (inside update()'s foe loop: FAU_IN, the game's own flag that the loop is walking) rounds THEIR crate:
+// the free walker, a block's anchor (ROCK_PAD_FORM), a block's man stepping to his slot (CARD-GSB's gsbFormStep), the crawler under the rug, the giant, the jeep, the robot. OUR box is never in a Tan's way:
+// it is where he is going (SIX), and a steer round it kept a walker whose legs do not aim at it (ROBO-SARGE 3000's zig) out of the breach (measured on rung 180: he walked past our box to the west wall).
+// Every other steer (a man of ours on his march) rounds BOTH boxes. A goal inside a circle is rockSteer's own "walk in" case, so a man of ours sieging THEIR crate still walks up to his reach. One rule more
+// for THEIR crate in a Tan's steer: no Tan's destination lies inside his own toy box, so a steer point that does is a look-ahead (the robot's legs read 120 px ahead): it is carried to the circle's far side,
+// and the box blocks it like a rock (measured on rung 180: without it the robot pressed into the crate's east rim for the rest of the fight).
+// TWO · A BLOCK'S SLOT. A block's man springs at his slot; a slot that falls inside THEIR crate's circle (the wing of a wide line crossing it) is folded out to the circle's rim on his own side (cppFold, in
+// gsbFormStep wrapped by name), so he waits by the box and catches his rank again when the slot clears it; never through it.
+// THREE · THE SHOULDER. A Tan whose feet still end a frame inside THEIR crate's circle (a crawler's straight dash, a block's man pressed by the spring, a man born there) is set back on its rim (cppShoulders:
+// one pass over the foes right after update()'s foe loop, at the head of CARD-STK's stkPass, wrapped by name: every mover has moved, and the stake's own seat still has the last word). Hard, not soft: a box is
+// not a rock to scrape past, so the squeeze never shrinks it. The rock shoulder's own exemptions stand (the bomber, a drone, a bird or the giant in the air, the cabled circle), a man still dropping in is left to
+// his drop, anyone in mid-bound is in the air (THE ABOMINABLE SNOWMAN of rungs 13, 16, 17 leaps where his dice say: over their box is his; LANDING on it is not, so a landing inside the circle is set on its rim),
+// and a machine that owns its seat keeps it (the chess set, the teddy machines, the OC machines, the cave yetis, Mom).
+// FOUR · THE SEAT. A reinforcement column that drops in at the crate's east shoulder (CARD-WFI's wfiSeat, wrapped by name) whose head would land inside the circle lands on its rim instead, the lane as dealt.
+// FIVE · THE BIG SHOT'S ROAD. On the campaign ladder a Big Shot who walks on from the rim walks to THEIR TOY BOX'S FRONT DOOR first (cppDoorPt: CPP_DOOR.dx in front of its west face, on its waist,
+// the side your army comes from) and then marches on as before (his bridge, our box). He still comes up the low road; the steer takes him round the crate's corner to the door, the nearest he can stand without
+// standing on it, so whichever side your men siege it from he walks into them. The door is his feet's goal alone (the walker's own steer call carries it, matched by his feet as CARD-ICN3 matches its man);
+// it is reached inside CPP_DOOR.reach, passed once he is west of it, or given up after CPP_DOOR.maxT s. His reach, his drum, his health, his leak and his lane stand.
+// FIVE-B · THE ROBOT'S LINE. ROBO-SARGE 3000 (rungs 90 and 180) has no road: his legs zig-zag west along the line he walked on, and he breaches OUR box because that line runs through it. His line runs
+// through THEIR crate too; rounding it shifted him about 100 px and he walked past our box to the west wall (rung 180, measured). So a robot whose line runs through their crate walks, while he advances, to
+// the point on its far side ON HIS OWN LINE (cppRobos: CPP_BOX.pass past the circle), the steer taking him round it; there his legs start again as they start at his walk-on (the first leg, its clock), so
+// his zig runs on his line as before (his hold, his strafe, his laser and mortar untouched).
+// SIX · OUR BOX. A Tan bound for OUR box breaks through the moment his feet reach its drawn footprint (kbtDoor, wrapped by name: the leak clause's last test, so every exemption before it stands): today a man
+// coming from the south-east stepped up to 4 px onto its lower east corner for a few frames before LEAK_R took him; now he breaks through at its edge. The leak itself (who, how many lives) is untouched.
+// ?cpp=0 on a device = HEAD by trace (localStorage gvt_cpp; ?cpp=1 clears it); GVT.cpp({ on: 0|1 }) flips it for a rig; GVT.cpp() = the rigs' read. Zero words, css, META fields, server or sw bytes; zero dice.
+var CPP={ on:(function(){ try{ const q=/[?&]cpp=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cpp','0'); else localStorage.removeItem('gvt_cpp'); } return localStorage.getItem('gvt_cpp')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  n:{ steer:0, ahead:0, fold:0, shoulder:0, seat:0, door:0, doorSteer:0, line:0, lineSteer:0, breach:0 }, err:0, old:{}, wrapped:0, L:[], Lk:null, Lb:null, gq:[], rq:[] };
+const CPP_BOX={ half:64, top:87, foot:6, r:76, sh:4, slot:18, pass:28 };   // the footprint (half its width, its top and its foot above the seat line) · the circle that holds it · the shoulder past the circle · a slot's fold past the steer's own man pad (ROCK_PAD_FOE 16 + 2) · FIVE-B: the robot's far-side point past the circle
+const CPP_DOOR={ dx:100, reach:24, maxT:30 };   // FIVE: the front door 100 px west of the box's middle (the circle 76 + a man's pad 16 + 8) · reached inside 24 px · given up after 30 s
+const CPP_SEATED={ chs:1, gmyB:1, o9:1, o10:1, o11:1, o12:1, cave:1, sy:1, hy:1, dy:1, fy:1 };   // the def keys of a machine that owns its own seat (the shoulder leaves its feet alone); ROBO-SARGE 3000 roams on his own legs and is shouldered like a walker (his look-ahead steer lets him into the box when the point 120 px ahead falls inside it)
+function cppOn(){ return !!(CPP.on && S && !S.bf && !S.park && !S.raid && !S.momRaid && (S.levelN|0)>=1 && S.tanBase && !S.tanBase.dead && S.mode==='play'); }   // the campaign ladder, their crate standing, in play
+function cppBoxes(){ const L=CPP.L; if(!cppOn()){ L.length=0; CPP.Lk=null; return L; } const b=S.tanBase; if(CPP.Lk===S.t && CPP.Lb===b && L.length===2) return L;   // built once a frame (the sim's clock and their crate are the key)
+  L.length=0; CPP.Lk=S.t; CPP.Lb=b;
+  L.push({ x:W-120, y:b.y+52-(CPP_BOX.top+CPP_BOX.foot)/2, r:CPP_BOX.r, cpp:'tan' });   // THEIR crate: drawTanBase's own x, the footprint's middle above its seat
+  L.push({ x:(typeof cfaBoxX==='function')? cfaBoxX() : T.x-10, y:T.y+52-(CPP_BOX.top+CPP_BOX.foot)/2, r:CPP_BOX.r, cpp:'you' });   // OUR box: draw()'s own x
+  return L; }
+function cppFoot(k){ const B=cppBoxes(); for(const o of B){ if(o.cpp===k) return { x0:o.x-CPP_BOX.half, x1:o.x+CPP_BOX.half, y0:o.y-(CPP_BOX.top-CPP_BOX.foot)/2, y1:o.y+(CPP_BOX.top-CPP_BOX.foot)/2 }; } return null; }   // the drawn footprint in feet (the rigs' rectangle)
+function cppAtOurs(f){ const R=cppFoot('you'); return !!(R && f.x>=R.x0 && f.x<=R.x1 && f.y>=R.y0 && f.y<=R.y1); }   // SIX: his feet on our box's drawn footprint (its edge included)
+function cppDoorPt(){ const o=cppBoxes()[0]; return (o && o.cpp==='tan')? { x:o.x-CPP_DOOR.dx, y:o.y } : null; }   // FIVE: their toy box's front door
+function cppDoors(dt){ const Q=CPP.gq; Q.length=0; const F=cppDoorPt(); if(!F) return;   // FIVE: who still walks to the door (a Big Shot first seen on the walk-on), latched per man
+  for(const f of S.foes){ if(!f || f.dead || f.type!=='giant' || !f.boss || f.tease) continue;
+    if(f.cppDoor==null) f.cppDoor=(f.x>=W-10)? 1 : 2;
+    if(f.cppDoor!==1) continue; f.cppDoorT=(f.cppDoorT||0)+(dt||0);
+    if(Math.hypot(f.x-F.x,f.y-F.y)<CPP_DOOR.reach || f.x<F.x-10 || f.cppDoorT>CPP_DOOR.maxT){ f.cppDoor=2; CPP.n.door++; } else Q.push(f); } }
+function cppFold(f,tx,ty){ const B=cppBoxes(); for(const o of B){ if(o.cpp!=='tan') continue; const R=o.r+CPP_BOX.slot, dx=tx-o.x, dy=ty-o.y, d=Math.hypot(dx,dy); if(d>=R) return null;   // TWO: a slot inside their crate's circle
+    let ux=dx, uy=dy, l=d; if(l<1){ ux=f.x-o.x; uy=f.y-o.y; l=Math.hypot(ux,uy); } if(l<1){ ux=0; uy=(ty<=o.y)? -1 : 1; l=1; }   // a slot at the very middle: the rim on the man's own side
+    return { x:o.x+ux/l*R, y:o.y+uy/l*R }; } return null; }
+function cppSeatOwns(f){ const d=f.def||{}; for(const k in CPP_SEATED){ if(d[k]) return true; } return !!(f.tdFeet || f.type==='mom' || (d.gad && typeof gadFeet==='function' && gadFeet(f))); }
+function cppShoulder(f){ try{ if(!cppOn() || !f || f.dead) return;   // THREE: their crate's hard shoulder, under the rocks' (the rock loop's exemptions first, then the machines that own a seat)
+    if((f.boss && f.def.fly) || (f.def.o9 && (f.def.bz || f.gjAir)) || f.tkhAir || f.gjSt==='circ' || f.def.fly || f.jetT>0 || f.skyDrop || f.falling || f.fellVoid || f.hopA || (f.hopZ||0)>2 || cppSeatOwns(f)) return;   // + mid-bound (the snowman's arc, any hop in the air)
+    const B=cppBoxes(); for(const o of B){ if(o.cpp!=='tan') continue; const R=o.r+CPP_BOX.sh, dx=f.x-o.x, dy=f.y-o.y, d=Math.hypot(dx,dy); if(d>=R) continue;
+      let ux=dx, uy=dy, l=d; if(l<0.5){ ux=(f.vx||-1); uy=(f.vy||0); l=Math.hypot(ux,uy)||1; }   // dead centre (never seen): out the way he was walking
+      f.x=o.x+ux/l*R; f.y=foeBandY(o.y+uy/l*R); CPP.n.shoulder++; } }catch(e){ CPP.err++; } }
+function cppRobos(){ const Q=CPP.rq; Q.length=0; const o=cppBoxes()[0]; if(!o || o.cpp!=='tan') return;   // FIVE-B: who still walks to the far side of their crate on his own line
+  for(const f of S.foes){ if(!f || f.dead || !f.def || !f.def.robo) continue;
+    if(f.cppLine==null) f.cppLine=(f.x>o.x && Math.abs(f.y-o.y)<o.r+ROCK_PAD_FOE)? f.y : false;   // first seen east of the crate with his line through it
+    if(f.cppLine===false || f.cppLineDone) continue;
+    if(f.x<=o.x-(o.r+CPP_BOX.pass)+6){ f.cppLineDone=1; CPP.n.line++; const P9=f.rbDials||f.def.robo; if(f.rb && P9){ f.rb.legS=1; f.rb.legT=P9.leg; f.rb.stG=false; } continue; }   // on his line again: his legs start as at the walk-on (updateFoeRobo's own first leg), so the zig runs on his line
+    if(!f.rb || f.rb.st!=='hold') Q.push(f); } }
+function cppShoulders(dt){ if(!cppOn()){ CPP.gq.length=0; CPP.rq.length=0; return; } for(const f of S.foes){ if(!f || f.dead || f.dropT>0) continue; cppShoulder(f); } cppDoors(dt); cppRobos(); }   // THREE: the pass (every foe, after the loop) · FIVE: the door's roll · FIVE-B: the robot's
+function cppRead(){ let foot=null; try{ foot={ tan:cppFoot('tan'), you:cppFoot('you') }; }catch(e){}
+  return { cv:GVT_CV, on:CPP.on, live:cppOn(), wrapped:CPP.wrapped, n:Object.assign({}, CPP.n), err:CPP.err, box:Object.assign({}, CPP_BOX), circles:cppBoxes().map(o=>({ k:o.cpp, x:+o.x.toFixed(1), y:+o.y.toFixed(1), r:o.r })), foot }; }
+try{   // THE WRAPS at load (the ICN3/PTP grammar: each once, the shipped function kept in CPP.old; every wrap asks cppOn() at the call, so the switch off reads the shipped function byte for byte)
+  CPP.old.rockSteer=rockSteer; rockSteer=function(x,y,gx,gy,pad,xtra,tan){ if(!cppOn()) return CPP.old.rockSteer.call(this,x,y,gx,gy,pad,xtra,tan);
+    let F=null; if(tan && CPP.gq.length){ for(const g of CPP.gq){ if(g.x===x && g.y===y){ F=cppDoorPt(); break; } } if(F){ gx=F.x; gy=F.y; CPP.n.doorSteer++; } }   // FIVE: the Big Shot's own walk goes to the door first
+    if(!F && FAU_IN && CPP.rq.length){ for(const g of CPP.rq){ if(g.x===x && g.y===y){ const o=cppBoxes()[0]; F={ x:o.x-(o.r+CPP_BOX.pass), y:g.cppLine }; gx=F.x; gy=F.y; CPP.n.lineSteer++; break; } } }   // FIVE-B: the robot's legs go to the far side on his own line
+    const B0=cppBoxes(), B=FAU_IN? B0.filter(o=>o.cpp==='tan') : B0; if(B.length){ xtra=(xtra && xtra.length)? xtra.concat(B) : B.slice(); CPP.n.steer++; }   // ONE: a Tan's steer rounds THEIR crate; every other steer rounds both boxes
+    if(FAU_IN && !F && B.length && B[0].cpp==='tan'){ const o=B[0], R=o.r+(pad||0), gd=Math.hypot(gx-o.x,gy-o.y), md=Math.hypot(x-o.x,y-o.y);   // ONE's look-ahead rule: a Tan's steer point inside THEIR crate's circle (and his feet outside the box's own circle: the rim the shoulder holds counts as outside) is carried to its far side
+      if(gd<R && md>=o.r){ const dx=gx-x, dy=gy-y, L=Math.hypot(dx,dy); if(L>0.5){ const ux=dx/L, uy=dy/L, a=(o.x-x)*ux+(o.y-y)*uy, h=Math.sqrt(Math.max(0,R*R-Math.pow((o.x-x)*uy-(o.y-y)*ux,2))); const far=a+h+8; gx=x+ux*far; gy=y+uy*far; CPP.n.ahead++; } } }
+    const st=CPP.old.rockSteer.call(this,x,y,gx,gy,pad,xtra,tan);
+    if(F && !st){ const d=Math.hypot(gx-x,gy-y); return d<1? null : { x:(gx-x)/d, y:(gy-y)/d }; }   // a clear line to the door: straight at it
+    return st; };
+  if(typeof gsbFormStep==='function'){ CPP.old.gsbFormStep=gsbFormStep; gsbFormStep=function(f,fo,tx,ty,dd,sp,amv){
+    if(cppOn()){ const q=cppFold(f,tx,ty); if(q){ CPP.n.fold++; const d2=Math.hypot(q.x-f.x,q.y-f.y); if(d2<=1) return true;   // TWO: at the rim, he waits there (a step taken)
+        if(CPP.old.gsbFormStep.call(this,f,fo,q.x,q.y,d2,sp,amv)) return true; const mv=Math.min(sp*amv,d2); f.x+=(q.x-f.x)/d2*mv; f.y+=(q.y-f.y)/d2*mv; return true; } }   // CARD-GSB off (?gsb=0): the spring's own step, to the rim
+    return CPP.old.gsbFormStep.apply(this,arguments); }; }
+  if(typeof wfiSeat==='function'){ CPP.old.wfiSeat=wfiSeat; wfiSeat=function(ep){ const r=CPP.old.wfiSeat.apply(this,arguments); try{ if(cppOn() && r){ const o=cppBoxes()[0], R=o.r+CPP_BOX.sh+1, dy=r.y-o.y;   // FOUR: the head on the rim, east of the box, the lane kept
+        if(Math.hypot(r.x-o.x,dy)<R && Math.abs(dy)<R){ r.x=o.x+Math.sqrt(R*R-dy*dy); CPP.n.seat++; } } }catch(e){ CPP.err++; } return r; }; }
+  if(typeof stkPass==='function'){ CPP.old.stkPass=stkPass; stkPass=function(dt){ try{ cppShoulders(dt); }catch(e){ CPP.err++; } return CPP.old.stkPass.apply(this,arguments); }; }   // THREE's seat: the head of the pass right after the foes' loop
+  if(typeof kbtDoor==='function'){ CPP.old.kbtDoor=kbtDoor; kbtDoor=function(f,inBox){ if(!inBox){ try{ if(cppOn() && f && cppAtOurs(f)){ inBox=true; CPP.n.breach++; } }catch(e){ CPP.err++; } } return CPP.old.kbtDoor.call(this,f,inBox); }; }   // SIX: the breach at our box's drawn edge
+  CPP.wrapped=1;
+}catch(e){ CPP.err++; }
+try{ if(window.GVT && !GVT.cpp) GVT.cpp=function(o){ if(o && o.on!=null){ CPP.on=o.on? 1 : 0; } return cppRead(); }; }catch(e){}   // the rigs' one door: a read, or the switch for a rig
+// ═══ END CARD-CPP ═══
 // ═══ CARD-GSB2 · THE LOCK SAYS SO (the second slice of CARD-GSB; the tester's solo case 11/1/2026: "not using Sarge was _not_ complete here" = the third star LOCKED behind a missed second star (LOW 0 dog tags), ISAAC's own 10/30 rule "Star 3 (Only available if Star 2 requirements achieved)", drawn since his 10/30 go "get rid of the lock over the third star" exactly like a missed star: the same outline, the same opacity, nothing under it; design/grenadier-stuck-sarge-star-1101/00-CARD-GSB.md §5; sec:CARD-GSB2) ═══
 // THE SHEET: a locked third row keeps its plain outline (Isaac's go: no padlock over the star) but says so: its star dims to the live card's own .45 and the small line under the words (the LOW 0 / 3 / 5 seat) reads LOCKED (the shipped word, x7: the NEW SARGE seats' own) wherever the words sit on one line; words on two lines keep LCS's two-line law and the dimmed star alone says it. lcsApply wrapped by name: the lay as shipped, then the lock row dressed, vdFit once more.
 // THE PAUSE SHEET: its stars row (tsgHqRow) already dims a locked row (.45); now the same small line reads LOCKED under it. tsgHqRow wrapped by name. The in-fight strip (a locked star at .22) and its drop-down card (the row dimmed) stand as they are. The rule itself (a third star never earned while the second is missed) stands: Isaac's; 🟨 GSB-Q2 is Wyatt's.
