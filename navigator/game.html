@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.10","md5":"02459cf7309c8bf0fcac82132511cc57","sha":"b955ee6662","at":"2026-11-17T14:38:07Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.11","md5":"1b98cbf69e428527b8ace8068074922e","sha":"9191099a38","at":"2026-11-17T15:54:44Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94345,7 +94345,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.10';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -240807,7 +240807,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.tgm) GVT.tgm=tgmRead; }catch(e
 //     ATL.Z, and beyond that the read goes back to today's road while the camera stays there.
 //   4 PAGES COME AND GO WITH THE FIGHT: a fight's door (mfnWarm, the one call every fight door makes) asks for the pages of its roster at the glass's bucket; a sheet on its way is answered "not decoded yet"
 //     (what every reader already meets) for ATL.hold ms, then today's road; the pages are let go when the fight's pictures have not been drawn for ATL.keep ms outside play, and the doors come off.
-//   5 CARD-MFN's warm does not hand a drawing to a mold the sheets hold (mfnAsk; a real read's ask, told by mfnMiss, goes through).
+//   5 CARD-MFN's warm does not hand a drawing to a mold the sheets hold (mfnAsk; a real read's ask, told by mfnMiss, goes through). CARD-AML (jumpr 3677; design/atlas-real-read-1117/00-CARD-AML.md): a real read is answered by the ask for THAT VERY KEY alone, and its key is named again once CARD-MFN's mfnMiss has returned. For a pet's frame mfnMiss first asks for that frame's other frames, each through the wrap of mfnAsk, and any ask cleared the mark: the frame's own ask was then kept and its mold never landed (measured in WebKit on the painter's own fall-backs to today's road: a sheet on its way past ATL.hold, a page that is not there). Nothing of it showed: her look's painter (CARD-OLR) draws a pet from its own mint after its first read, and with her look off the sheets do not hold that phone's drawings. ?aml=0 in the address = the mark as before this card (this launch only, never stored: the rigs' lever).
 //   6 A PICTURE THE GAME DID MAKE (a mold another card mints its own way: the medic's strap; a picture read before a door stood) is drawn from its cell all the same when its own address is on a sheet:
 //     its drawing stands in the engine, CARD-BDR never paints it.
 //   What is on no sheet stays on today's road, figure by figure, and is counted (GVT.atl().n): a wide companion, a moving svg, Laura's planes (their props turn over their own raster), a canvas mold, a pet's coat,
@@ -240853,8 +240853,8 @@ function atlArm(){ if(ATL.armed) return; ATL.armed=1;
   try{ const N=ATL.nat; ATL.f.proto=N; CanvasRenderingContext2D.prototype.drawImage=function(im){ const st=ATL_ST.get(im); if(st){ atlDraw(this, st, arguments); return; } return N.apply(this, arguments); }; }catch(e){ atlOops('proto', e); }   // a painter's own cache
   try{ if(typeof draw==='function'){ const p0=ATL.f.draw=draw; draw=function(){ ATL.paint++; try{ return p0.apply(this, arguments); } finally{ ATL.paint--; } }; } }catch(e){ atlOops('w0', e); }   // THE PAINTER: a stand-in is handed out only while a frame is being painted
   try{ if(typeof mfnWarm==='function'){ const w0=ATL.f.mfnWarm=mfnWarm; mfnWarm=function(){ try{ atlOpen('door'); }catch(e){ atlOops('open', e); } return w0.apply(this, arguments); }; } }catch(e){ atlOops('w1', e); }   // BEFORE its asks: a mold the sheets hold is not handed its drawing
-  try{ if(typeof mfnMiss==='function'){ const m0=ATL.f.mfnMiss=mfnMiss; mfnMiss=function(k){ ATL.miss=k; return m0.apply(this, arguments); }; } }catch(e){ atlOops('w2', e); }   // a real read found nothing: its ask goes through
-  try{ if(typeof mfnAsk==='function'){ const a0=ATL.f.mfnAsk=mfnAsk; mfnAsk=function(k){ const real=(ATL.miss===k); ATL.miss=null;
+  try{ ATL.aml=1; try{ if(/[?&]aml=0(?![\w])/.test(location.search||'')) ATL.aml=0; }catch(e){} if(typeof mfnMiss==='function'){ const m0=ATL.f.mfnMiss=mfnMiss; mfnMiss=function(k){ ATL.miss=k; if(!ATL.aml) return m0.apply(this, arguments); try{ const r=m0.apply(this, arguments); ATL.miss=k; return r; }catch(e){ ATL.miss=null; throw e; } }; } }catch(e){ atlOops('w2', e); }   // a real read found nothing: its ask goes through · CARD-AML: the key is named AGAIN once CARD-MFN's mfnMiss has returned (its asks for a pet frame's other frames run inside it); a miss that throws leaves no mark
+  try{ if(typeof mfnAsk==='function'){ const a0=ATL.f.mfnAsk=mfnAsk; mfnAsk=function(k){ const real=(ATL.miss===k); if(real || !ATL.aml) ATL.miss=null;   // CARD-AML: only the ask for that very key answers the read (another key's ask no longer clears the mark)
       try{ if(!real && !ATL.rig && ATL.M.img[k] && typeof MFN==='object' && MFN.def[k] && !MFN.got[k] && !MFN.q[k]){ const r=atlImg(k); if(r && atlOk(r) && atlSheet(r)){ ATL.n.kept++; return; } } }catch(e){ atlOops('ask', e); }
       return a0.apply(this, arguments); }; } }catch(e){ atlOops('w3', e); }
   try{ if(typeof ffmDoor==='function'){ const f0=ATL.f.ffmDoor=ffmDoor; ffmDoor=function(T, b0, hex, B, k){ const r=f0.apply(this, arguments);   // a dyed set's door as it is made (CARD-FFM's: its drawing not written yet)
