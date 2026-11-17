@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.11","md5":"1b98cbf69e428527b8ace8068074922e","sha":"9191099a38","at":"2026-11-17T15:54:40Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.12","md5":"c013652f1e75f831bbceaa36a9fffba5","sha":"d4a8a30064","at":"2026-11-17T16:43:10Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94345,7 +94345,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -99174,7 +99174,7 @@ function wfiFoeDrop(f,dt){   // the foe loop's head: bfUnitStep's drop lines, th
   if(f.dropT<=0){ f.dropT=0; bfSfx(SFX.thock, f.x, f.y);
     S.fx.push({k:'ring',x:f.x,y:f.y-4,r:6,R:30,t:0,dur:0.3,col:'rgba(255,255,255,0.85)'});
     S.fx.push({k:'puff',x:f.x,y:f.y-8,t:0,dur:0.3,R:18});
-    if(WFI.log.length<200) WFI.log.push({ t:+(S.t||0).toFixed(3), id:f.id, type:f.type, x:Math.round(f.x), y:Math.round(f.y) }); }   // the rig's landing log (product-inert)
+    if(WFI.log.length<200) WFI.log.push({ t:+(S.t||0).toFixed(3), id:f.id, type:f.type, x:Math.round(f.x), y:Math.round(f.y) }); cpbLand(f); }   // the rig's landing log (product-inert)
   f.vx=0; f.vy=0;
 }
 function wfiFormHolds(fo){ for(const m of fo.members){ if(m.dropT>0) return true; } return false; }   // a block whose men are still dropping holds its anchor (anchor + ranks on one clock)
@@ -111059,7 +111059,7 @@ function gritCap0(u){
   // precedent): 4+20 = 24 pips vs the blade's 8. Read LIVE off the bag
   // like the sword itself, so a relayed ally's empty hands are his own.
   const ua9=(wgrit==='lightsaber' && unarmedU(u,usw));
-  return ((u.rgL && !S.bf)? RG.hp : 1)*Math.max(1, (u.def.grit*(wgrit==='lightsaber'?(ua9?1:2):wgrit==='commander'?CMD.grit:wgrit==='shield'?DSH.C.GRIT /* CARD-SHD */:1)*veh + (u.vet?1:0) + jump + cmdoGB(u) + medGB(u) + rankGB(u) /* CARD-USH round 3 */ + heroGB(u) + heroMileHP(u) + reunHp(u) + ((usw&&usw.w==='pistol')? pistolMileHp(usw.r|0) : 0) + (usw? dhpSgRug(usw.w, usw.r|0) : 0) /* CARD-DHP: the shotgun's health as rug pips, OFF by DHP.rug (ONE HP NUMBER's pip scale does the rug's part) */ + (ua9?UNARMED_HP:0) + pickHp(u))
+  return ((u.rgL && !S.bf)? RG.hp : 1)*Math.max(1, (u.def.grit*(wgrit==='lightsaber'?(ua9?1:2):wgrit==='commander'?CMD.grit:wgrit==='shield'?DSH.C.GRIT /* CARD-SHD */:1)*veh + (u.vet?1:0) + jump + cmdoGB(u) + medGB(u) + rankGB(u) /* CARD-USH round 3 */ + cpbGrit(u) /* CARD-CPB (4): the Flamer's one more hit on the campaign rug, from rank 0 */ + heroGB(u) + heroMileHP(u) + reunHp(u) + ((usw&&usw.w==='pistol')? pistolMileHp(usw.r|0) : 0) + (usw? dhpSgRug(usw.w, usw.r|0) : 0) /* CARD-DHP: the shotgun's health as rug pips, OFF by DHP.rug (ONE HP NUMBER's pip scale does the rug's part) */ + (ua9?UNARMED_HP:0) + pickHp(u))
     * (soulHpU(u)?SOUL_MUL:1) + ((usw&&usw.ofHpX)||0) + ((!S.bf&&u.tkSAurT)?SILVER_AURA_HP:0))*((u.pcBig && !S.bf)? PCH_BIG_HP : 1) + ((u.rookieHp && u.coopBy==null)? u.rookieHp : 0) + bondWarHp(u) + hhpHp(u) + hlvHp(u) /* CARD-HLV: + HLV.hp every HLV.every of his ranks, flat */ + hhp2Hp(u) /* M2200 ROUND 2: KING REX +100 at his rank 100, flat */ + khpHp(u) /* CARD-KHP: THE KINGS' +120 from their own rank 30, flat (the M2200 line's twin) */ + sqlGrit(u) + pbkGrit(u) /* CARD-PBK THE PERFECT BOOK's gifts: +1 hit each on MY man's campaign rug */ + l100Grit(u) /* CARD-L100: one more hit, the level-100 gift (flat, last; the mat's pool took its own at placement) */ /* CARD-SQL L3 + L8: the tunic's +5 and the pants' +7 as carpet pips at the commando's mapping, beside a squadmate */;   /* CARD-HHP: + HHP.hp a rung (his ranks 60 / 80 / 100), flat after everything: his card's HP moves by exactly 20 a rung */   /* CARD-OCR-B6: +2 grit flat, the last word (mine by the stamp, an ally's by the token) */   // CARD-RS THE ROOKIE'S SARGE (Wyatt 9/25): +5 hits flat, the LAST word (outside the fairy's ×4 — exactly five), stamped at placement, MINE only (coopBy null — a relayed ally's / a computer's Sarge is his commander's) · 1027 CARD-ML-A3 THE BIG MAN: the fairy's ×4 on the campaign's grit (the mat's rides hp at the stamp)
 }
 // a lightsaber Sarge deflects some incoming fire — spark and shrug it off
@@ -121700,6 +121700,7 @@ function knock(u, srcx, srcy, rolled){
     return;
   }
   if(chSpare(u)){ u.hits=Math.max(0, gritCap(u)-1); u.hitT=0; return; }   // CARD-NP THE CHAMPION'S GRACE on the rug: the knock that would kill him is turned once a life — he stands one pip short of the cap
+  if(cpbSpare(u)) return;   /* CARD-CPB (3) THE BIG SHOT'S MARGIN: a dear man's first Big Shot leaves him one pip short of his cap (after every save above) */
   knockKill(u);
 }
 // the kill tail knock() lands on — split 8/8 so a FALL (pit, gap, eave) can
@@ -126657,7 +126658,7 @@ function update(dt){
               bfSfx(SFX.thock, f.x, f.y);
               f.hp -= UDEF.mortar.dmg; hitCheck(f, C0);
             } else if(YETI_SHOOTERS[f.type] && HERO_REFL[best.type]){ heroDeflFx(best,f.x,f.y);   // 0518 THE HEROES' HIDE: the big thrown ball bounces OFF the king, spent — the commando's catch above keeps precedence (and its live return); the tan giant's bullet rides this branch unreflected (the branch's own law); ⚑ the dino bosses' big shot rides YETI_SHOOTERS like the commando's catch does
-            } else knock(best,f.x,f.y);
+            } else cpbBsKnock(best,f);   /* CARD-CPB (3): THE BIG SHOT's knock as ever, the shooter latched for his margin (cpbSpare) */
           }
         }
       } else if(f.def.stompCd){
@@ -127171,7 +127172,7 @@ function update(dt){
     // with rank) — the v1.16 lesson applied to range: a reach written only in
     // sargeStats would read right in the rig and never move this trigger.
     const ssw=(u.type==='sarge')? unitSargeStats(u) : null;
-    const rate=(ssw? (ssw.rate||def.rate) : (def.rate||medrRate(u)))*(cougU(u,ssw)? COUGAR.rate : 1)*(scU(u,ssw)? SC_RATE : 1)*(bfpU(u,ssw)? BFP.rate : 1);   /* CARD-BBS-C6 BILL'S PISTOL: fires 18 % slower (x0.82 at the pistol's own rate seat, the Cougar's grammar) */   // 0724 THE SMUGGLER'S CODE: one gun is half the shots — SC_RATE at the same REAL seat (the pair's cadence as it stands, ⚑ Q2; the Cougar stacks ×0.1, ⚑ Q8; the bag's rate stays the display number)   // 0486 D22 THE COUGAR MAGNUM: the drum turns at a fifth — at the v1.16 rate local, the REAL cadence path (the bag's rate stays the display number); ownership per cougU (my bench / an ally's mo / every AI seat ×1)
+    const rate=(ssw? (ssw.rate||def.rate) : (def.rate||medrRate(u)))*(cougU(u,ssw)? COUGAR.rate : 1)*(scU(u,ssw)? SC_RATE : 1)*(bfpU(u,ssw)? BFP.rate : 1)*cpbRateX(u);   /* CARD-CPB (2): a campaign rifleman pulls half as often */   /* CARD-BBS-C6 BILL'S PISTOL: fires 18 % slower (x0.82 at the pistol's own rate seat, the Cougar's grammar) */   // 0724 THE SMUGGLER'S CODE: one gun is half the shots — SC_RATE at the same REAL seat (the pair's cadence as it stands, ⚑ Q2; the Cougar stacks ×0.1, ⚑ Q8; the bag's rate stays the display number)   // 0486 D22 THE COUGAR MAGNUM: the drum turns at a fifth — at the v1.16 rate local, the REAL cadence path (the bag's rate stays the display number); ownership per cougU (my bench / an ally's mo / every AI seat ×1)
     const rng =unitReach(u,def,ssw);   // 1122 THE HERO'S CARD: the trigger reach off THE ONE function the card reads too (the expression moved verbatim — unitReach)   // 0575 ⚑ CK_STORM_REACH (1): KING CROAK's BIGGER STORM picks grow his TRIGGER reach at the ONE seat the scan below reads (the son's ckStormMul is 1 — byte-what-he-was) · 0464 ⚑ RX_FIRE_REACH (0): the king's trigger reach stands while his tongue grows; 1 = the picks grow his reach too
     if(rate===0) continue;                  // radioman: all antenna, no rifle
     if(sgrHid(u)) continue;                 // CARD-SMK THE SMOKE GRENADE: a man standing in a smoke cloud holds his fire (the cloak's own law below: his clock freezes with him; the first shot can come the frame he steps out)
@@ -127251,11 +127252,11 @@ function update(dt){
     // 0538 THE BAKER −2: +0/+1/+2 per shot — bakDmg rolls once per compose, here
     // and nowhere else (was the flat +3 of v5.38-v6.10, D3 taken literally).
     // 0545 THE GENERAL'S FAVOR: +PICK_DMG on the base cell (the rapid three +PICK_DMG_RAPID) — the rank product rides on top as the Baker's roll does; the flame's licks and the MG's bursts read this dmg
-    const dmg = (def.dmg+tkdAdd(u) /* CARD-TKD THE TANK HITS HARDER: the tank's ladder (its version and its plates) on the base cell; 0 for every other unit */+bakDmg(u)+pickDmg(u)+toothDmg(u)+medrDmg(u)+reunDmg(u)+sqlDmg(u) /* CARD-SQL L3 THE SQUAD LEADER TUNIC: +6 beside a squadmate */) * (u.vet?1.5:1) * (tube?ENH_BAZ_DMG:1) * lzDmgMul(u) * sandDmgMul(u) *   // 0932 SANDWICHES' HOWL: the stamped man's plus rides the men's own product here (the riflemen never read vm — the Sarge arsenal branch's), ⚑ Q21
+    const dmg = cpbDmgX(u)*((def.dmg+tkdAdd(u) /* CARD-TKD THE TANK HITS HARDER: the tank's ladder (its version and its plates) on the base cell; 0 for every other unit */+bakDmg(u)+pickDmg(u)+toothDmg(u)+medrDmg(u)+reunDmg(u)+sqlDmg(u) /* CARD-SQL L3 THE SQUAD LEADER TUNIC: +6 beside a squadmate */) * (u.vet?1.5:1) * (tube?ENH_BAZ_DMG:1) * lzDmgMul(u) * sandDmgMul(u) *   // 0932 SANDWICHES' HOWL: the stamped man's plus rides the men's own product here (the riflemen never read vm — the Sarge arsenal branch's), ⚑ Q21
       ((ssw&&ssw.dgM)||1) *   // v2.36: the mustache rides the pistol's REAL path here (bag dmg is its display number, v1.16) — and the red beam rides every round, rocket and lob this line feeds
       (u.coopUM!=null? u.coopUM : ((S.bf&&!bfHumanU(u))? ((((S.bf.nem&&(S.bf.nem.park||S.bf.nem.bank))||S.bf.away||S.bf.hard)&&(u.side==='foe'||u.eltA)&&u.nrk!=null)? upMulR(u.type,u.nrk) : 1) : upMul(u.type))) *   // 0305 BF-03 (D10) + 0346: in an AMBUSH (park or bank), the AWAY battle and 0418's HARD carpet, the mirrored/promoted nrk reaches damage — every other battleground fights at stock (the ownership law holds)
       soulDmgMulU(u) * jhkMul(u) *   // CARD-PRP JANE'S HANDKERCHIEF: +JHK_MAX x her health gone, on every round she fires (x1 for everyone else) · 0093 THE SOUL: one reader answers for every figure — souled rig OR souled type off the owner's save/wire; every other seat reads ×1
-      sp.dmg + mstGiftDmg(u) + bondWarDmg(u) + l100Dmg(u) /* CARD-L100: + the level-100 gift, flat after every multiplier */ + cflDmg(u) /* CARD-CFL COIN FLIP: + her HEADS x3, flat after every multiplier (0 for everyone else) */;   /* CARD-OCR-B6: + the war gift's +2, flat after every multiplier (the design's §3: 0.9 → 2.9 at rank 0, 3.12 → 5.12 at 100) */   // CARD-MST: + the continents' gifts, flat after every multiplier (MST-Q2)   // 0511 MEN WITHOUT FEAR — the laid shell hits ×1.35: ONE seat, because this dmg is what the rocket push and the lob push both carry (y20MortarF rides the lob on top, untouched — a nerf stays a nerf)
+      sp.dmg + mstGiftDmg(u) + bondWarDmg(u) + l100Dmg(u) /* CARD-L100: + the level-100 gift, flat after every multiplier */ + cflDmg(u) /* CARD-CFL COIN FLIP: + her HEADS x3, flat after every multiplier (0 for everyone else) */);   /* CARD-CPB (2): the whole product x 2 for a campaign rifleman (cpbDmgX), the flat gifts inside it */   /* CARD-OCR-B6: + the war gift's +2, flat after every multiplier (the design's §3: 0.9 → 2.9 at rank 0, 3.12 → 5.12 at 100) */   // CARD-MST: + the continents' gifts, flat after every multiplier (MST-Q2)   // 0511 MEN WITHOUT FEAR — the laid shell hits ×1.35: ONE seat, because this dmg is what the rocket push and the lob push both carry (y20MortarF rides the lob on top, untouched — a nerf stays a nerf)
     if(tube && Math.random()<bazBackP(u)){ enhBackfire(u); continue; }   // 0927: at his rank   // no rocket leaves the tube
     const WX = S.bf? WORLD_W : W;
     if(u.type==='flame'){
@@ -225783,6 +225784,71 @@ function befRig(n){ try{ const R=k=>{ const c=levelCfg(k); return { n:k, befHpX:
     return { cv:GVT_CV, on:BEF.on, v:BEF.v, from:BEF.from, to:BEF.to, hpX:BEF.hpX, dmgX:BEF.dmgX, rung:(n!=null)? R(n|0) : null, live:{ n:(S.cfg && S.cfg.n)||null, befHpX:(S.cfg && S.cfg.befHpX)||1, befDmgX:befDmgX() }, err:BEF.err }; }catch(e){ BEF.err++; return { on:BEF.on, err:BEF.err, e:String(e&&e.message||e).slice(0,120) }; } }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.bef=befRig; }catch(e){ BEF.err++; } }, 0);
 // ═══ END CARD-BEF ═══
+// ═══ CARD-CPB · THE CAMPAIGN'S BALANCE, LEVELS 1 TO 10: THE TAN GET THEIR SHOT OFF, THE RIFLEMAN HITS HARDER AND SLOWER, A DEAR MAN TAKES ONE BIG SHOT, THE FLAMER ONE MORE HIT (sec:CARD-CPB;
+// design/campaign-balance-1115/00-CARD-CPB.md; jumpr 3516, built on the QuarterPounder as M3516, 11/15/2026).
+//   WYATT, typed on Maker 1 11/15/2026 ~22:40 EST ("here are our finished commits. Please queue them properly into the jumper queue."), his ACCEPTED notes off Fey's (Raziya's) review of the
+//   first ten regular campaign levels (#balance-ops, 11/15/2026 3:59 PM to 4:19 PM), verbatim:
+//   1. "Units fire at the box and at enemy units on separate timers. Enemies that paradrop in die the moment they can be hit. Let them get a shot off; the player should be reinforcing anyway. (Level 1)"
+//   2. "Riflemen should fire slower and hit harder, with the same damage over time. That sets them apart from MGunners, and fodder at least gets one big shot off before dying. (Level 1)"
+//   3. "The Tans hit too hard in the campaign. Big Shots one-shot every pricier unit: Flamer, Mortar, Medic. Those units should survive at least one more hit so their dog tags aren't wasted.
+//      Mass Riflemen shouldn't be the only answer. (Level 10)"
+//   4. "Flamers more hp at level 1"
+//   THE READ (HEAD 54de5fdc4): (1) TWO CLOCKS, her reading is right: a man at THEIR TOY BOX swings on his own clock (u.siegeT, CAMP_SIEGE_CD 2 s, campUnitStep) while his gun's clock (u.cd,
+//   the units' fire loop in update) stands spent and ready, so the Tan the sally drops in at the box's shoulder (CARD-WFI) is shot the tick he lands, long before his own drum (SHOT_SEED 2.4 of
+//   his 3.2 s, then the 0.55 s aim) lets him fire. (2) the rifleman is UDEF 1.15 pulls a second x 0.9 a round on every carpet. (3) THE BIG SHOT's round (the giant's branch in update) is a KNOCK:
+//   every man it finds falls whatever his grit (knock, then knockKill), so a 200-tag mortar dies like a 40-tag rifleman. (4) a Flamer's campaign hits are UDEF grit 3 at ranks 0 to 4 (CARD-USH
+//   round 3's rankGB adds one at ranks 5, 10, 22, 65 and 100).
+//   THE BUILD, on the CAMPAIGN alone (a fight through startBattle on a rung: S.levelN above 0, no rival); the raids, the parks, Mom, the range, the train and the battleground read every function
+//   below as the identity:
+//   (1) THE LANDING SHOT: a Tan the sally drops in fires once the tick his boots touch the rug (tanFire, his own round at the nearest man in his reach), before any green round can reach him;
+//       nobody in his reach = he lands as before.
+//   (2) THE RIFLEMAN'S BIG SHOT: his cadence / CPB.rk and his round x CPB.rk (2: half the pulls, twice the hit), on the loop's WHOLE damage product, so every gift, the double tap and the crit keep
+//       their share and his damage over time is the same to the digit.
+//   (3) THE BIG SHOT'S MARGIN: the first Big Shot round that finds one of CPB.men (the paid men dearer than the rifleman) leaves him one pip short of his cap (CARD-NP's own grace) after every save
+//       in knock() has had its say; the second Big Shot fells him. The rifleman (the fodder), Sarge, the heroes, the machines and the men nobody paid for keep their own laws.
+//   (4) THE FLAMER'S GRIT: + CPB.flame (1) hit inside gritCap's soul group beside rankGB, from rank 0.
+//   ?cpb=0 = all four off, the game as it was (sticky in localStorage gvt_cpb; ?cpb=1 clears it). GVT.cpb() = the rig's read; GVT.cpb({ land, rk, spare, flame, reset }) sets a dial on this page only.
+//   Zero words, css, save keys, wire, server or sw.js bytes. One dice draw: the landing shot's drum restart (the aimed path's own Math.random() x 0.6).
+var CPB={ on:(function(){ try{ const q=/[?&]cpb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_cpb','0'); else localStorage.removeItem('gvt_cpb'); } return localStorage.getItem('gvt_cpb')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  v:1, land:1, rk:2, spare:1, flame:1,
+  men:{ mgunner:1, bazooka:1, mortar:1, grenadier:1, minesweeper:1, flame:1, radioman:1, medic:1, commando:1, spy:1 },   // (3)'s men: every paid man of the roster dearer than the rifleman's 40 tags (COSTS), Sarge apart
+  bs:null, n:{ land:0, landShot:0, landNone:0, spare:0, fell:0 }, log:[], err:0 };
+function cpbOn(){ try{ return !!(typeof CPB==='object' && CPB && CPB.on && !S.bf && (S.levelN|0)>0 && !S.rival && !S.raid && !S.park); }catch(e){ return false; } }   // the campaign's rug: a rung's fight (hoisted: the four seats call it from the boot on)
+function cpbLog(k,a,b){ try{ if(CPB.log.length<400) CPB.log.push({ t:+(+(S.t||0)).toFixed(3), k:k, id:a? a.id : null, type:a? a.type : null, x:a? Math.round(a.x) : null, y:a? Math.round(a.y) : null, to:b? b.type : null, toId:b? b.id : null, hits:(a && a.hits!=null)? +(+a.hits).toFixed(3) : null }); }catch(e){} }
+function cpbRk(u){ if(!u || u.type!=='rifleman' || !cpbOn()) return 1; const k=+CPB.rk; return (k>0 && isFinite(k))? k : 1; }   // (2) the rifleman's factor on the campaign rug, 1 everywhere else
+function cpbRateX(u){ return 1/cpbRk(u); }   // (2) the fire loop's cadence seat: x 1/2 (the pulls)
+function cpbDmgX(u){ return cpbRk(u); }   // (2) the fire loop's damage seat: x 2 (the round, the whole product)
+function cpbGrit(u){ if(!u || u.type!=='flame' || !cpbOn()) return 0; const g=+CPB.flame; return (g>0 && isFinite(g))? g : 0; }   // (4) gritCap's soul group: + 1 hit for a Flamer on the campaign rug
+function cpbBsKnock(u,f){   // (3) the giant's branch: his round's knock as ever, the shooter latched while it lands (THE BIG SHOT and the flying giant alone; the park bosses who share the branch are not latched)
+  const o=(typeof CPB==='object' && CPB && f && (f.type==='giant' || f.type==='fgiant'))? CPB : null;
+  if(o) o.bs=f;
+  try{ knock(u,f.x,f.y); } finally{ if(o) o.bs=null; } }
+function cpbSpare(u){   // (3) knock()'s tail, after every save (the jet, the plates, the blocks, the blade, the dodges, CARD-NP's grace): true = the round is spent and he stands one pip short of his cap
+  try{
+    if(!CPB.bs || !CPB.spare || !u || u.dead || !cpbOn() || !CPB.men[u.type]) return false;
+    if((u.def && u.def.vehicle) || u.para || u.zomb || u.floop || u.loan || u.emgV || u.ckGift) return false;   // a machine keeps its dent law; a man nobody paid for keeps the knock
+    if(u.cpbBS){ CPB.n.fell++; cpbLog('fell',u,CPB.bs); return false; }   // his margin is spent: the second Big Shot fells him
+    u.cpbBS=1; u.hits=Math.max(+u.hits||0, gritCap(u)-1, 0); u.hitT=0;   // one pip short of his cap (never a pip given back)
+    S.fx.push({k:'ring',x:u.x,y:u.y-20,r:5,R:26,t:0,dur:0.25,col:'#FFE39A'});
+    bfSfx(SFX.thock, u.x, u.y);
+    CPB.n.spare++; cpbLog('spare',u,CPB.bs); return true;
+  }catch(e){ try{ CPB.err++; }catch(e2){} return false; } }
+function cpbLand(f){   // (1) CARD-WFI's landing tick: the Tan fires once as his boots touch the rug (his own trigger, at the nearest man in his reach), then his drum restarts as after any aimed pull
+  try{
+    if(!CPB.land || !f || f.dead || !cpbOn()) return;
+    CPB.n.land++;
+    if(!f.def || !f.def.fireCd || f.boss || f.def.boulder || f.def.cotton || f.burrow){ CPB.n.landNone++; cpbLog('land-nogun',f); return; }
+    const m=tanPick(f);
+    if(!m){ CPB.n.landNone++; cpbLog('land-none',f); return; }
+    if(tanFire(f)){ CPB.n.landShot++; f.cpbLS=+(+(S.t||0)).toFixed(3); if(f.def.burst){ f.burst=f.def.burst; f.burstT=0.12; } f.aimT=0; f.shot=Math.random()*0.6; cpbLog('land-shot',f,m); }
+    else { CPB.n.landNone++; cpbLog('land-held',f,m); }
+  }catch(e){ try{ CPB.err++; }catch(e2){} } }
+function cpbRead(o){ try{
+    if(o && typeof o==='object'){ for(const k of ['land','rk','spare','flame']) if(o[k]!=null && isFinite(+o[k])) CPB[k]=+o[k]; if(o.on!=null) CPB.on=o.on? 1 : 0; if(o.reset){ CPB.n={ land:0, landShot:0, landNone:0, spare:0, fell:0 }; CPB.log=[]; } }
+    return { cv:GVT_CV, v:CPB.v, on:CPB.on, live:cpbOn(), land:CPB.land, rk:CPB.rk, spare:CPB.spare, flame:CPB.flame, men:Object.keys(CPB.men), n:Object.assign({}, CPB.n), log:CPB.log.slice(), err:CPB.err };
+  }catch(e){ try{ CPB.err++; }catch(e2){} return { on:(typeof CPB==='object' && CPB)? CPB.on : null, e:String(e && e.message || e).slice(0,120) }; } }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.cpb=cpbRead; }catch(e){ CPB.err++; } }, 0);
+// ═══ END CARD-CPB ═══
 // ═══ CARD-KCX · KING CROAK'S EXACT FILES: THE TWO PLUSH TREASURES TAKE THE SAME NUMBERS (sec:CARD-KCX; design/king-croak-exact-1105/00-CARD-KCX.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026),
 // the jumpr guest link 11/5/2026 18:39 UTC (jumpr 3073, built on Maker 1 as M3073), verbatim: "NEW: EXACT FILES -- replace the ones from card 3024 (that export rounded every number to one decimal; these are the
 // originals, numbers untouched). Same names, same keys, same instructions as card 3024; put them wherever those went (game + sheet)." + her standing rule of 11/5/2026 (jumpr 3047): "Twins: when two sheet entries are
