@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.31","md5":"5b2ba8b886ee6324b3b845e236516915","sha":"5815da3367","at":"2026-11-18T12:55:08Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.32","md5":"6559fad9360f82b82ddb78ed2ec8c084","sha":"a8c1bec220","at":"2026-11-18T14:15:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94345,7 +94345,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.31';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -240586,6 +240586,80 @@ function fmkRead(o){ if(o && typeof o==='object'){ if('on' in o) FMK.on=o.on? 1 
 try{ if(window.GVT && !GVT.fmk) GVT.fmk=fmkRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.fmk) GVT.fmk=fmkRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-FMK ═══
+// ═══ CARD-DOP · THE DOORS' OWN FIRST PAINT: THE YARD'S FLOOR SORT READS EVERY PIECE'S FOOT BEFORE IT MOVES ONE (sec:CARD-DOP; design/doors-own-first-paint-1116/00-CARD-DOP.md; jumpr 3546, built on the QuarterPounder as M3546; found by CARD-FMK, jumpr 3481, its flag FMK-F1). FROM WYATT'S PHONE,
+//   11/13/2026 12:15 EST (jumpr 3348), verbatim: "Western Land's currently lagging pretty bad, but this is a reoccurring theme. What needs to happen is: run an audit on each of our different screens. We need to see which screens you detect lagging happening on. When they are happening on those screens, let's look into why, and then let's fix them and give me a report at the end. [...] Instead of me manually pushing each of these lag fixes, we should find all of them and fix them together."
+//   · his rule, 11/12/2026 16:39 EST (jumpr 3284), verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game"
+// WHY (the record's sections 2 and 4; his save, a cold shelf, the castle opened the player's way, his glass 874 x 402 at 3 dots): the castle's first open stands still in one stop, and in Chrome (Android,
+//   Steam, the desktop) 208 to 239 ms of it is CARD-FLY's FIRST FLOOR SORT of the yard just laid (flyFloor, the first line of the yard's director, FD.start): its pass over the yard's pieces reads a piece's
+//   painted box (getBoundingClientRect of its leaves, getScreenCTM) and then MOVES that piece (insertBefore) inside the same loop, so every next read finds the yard's layout dirty and lays the whole yard
+//   out again: a forced layout read in a loop. The same sort runs at every lay of a new yard (the castle's door, CARD-HVM's yard behind a card, every card dealt inside the castle). The Mac's WebKit lays
+//   out only what moved: 35 to 40 ms there.
+// WHAT (no drawing redrawn, restyled or replaced; the same tree): flyFloor wrapped BY NAME. A FIRST sort (the yard holds no marks yet: the shipped function's own test) runs the shipped steps with
+//   that pass split in two: every piece's key read first (the same reads, in the same order), then the same writes and moves (data-fly-fig, data-fly-y, insertBefore before the far mark) in the same
+//   order. A piece moved among its own siblings keeps its box, so every key is the one the shipped loop reads, and the tree is the shipped tree (the twins: the castle's first frame hashed, today
+//   against this card). A re-sort of a yard already sorted (the marks there), or no yard: the shipped function itself.
+// THE GUARD: the copy below stands only while the shipped flyFloor is the function it was written from: its code (comments and spaces aside) has the fingerprint DOP_FLY_FP, read once at load. A card that
+//   changes flyFloor makes this section stand aside by itself (GVT.dop().fly 0) until its copy is made again.
+// Switches: ?dop=0 = the floor sort as the game shipped it on this device (remembered: gvt_dop '0'), ?dop=1 = this card again. GVT.dop() = the rigs' read; GVT.dop({ on }) flips it for the page's life.
+//   Zero words, css, save keys, wire, server or sw bytes. UNDO = design/doors-own-first-paint-1116/kit/applyDOP.py --undo.
+// FOR LATER CARDS: a card that changes flyFloor's text makes its own copy here again (kit/applyDOP.py --fp prints the new fingerprint) or lets this section stand aside; a card that wraps flyFloor
+//   wraps over this section and stands after END CARD-DOP.
+const DOP_FLY_FP='31b.11ioyo2.1wuw5ok';   // the fingerprint of the flyFloor this copy was made from (client v32.88, 771d2a0af: dopNorm then dopFp; kit/applyDOP.py --fp reads a page's)
+var DOP={ on:(function(){ try{ var q=/[?&]dop=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_dop','0'); else localStorage.removeItem('gvt_dop'); } return localStorage.getItem('gvt_dop')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  fly0:null, fly:0, fp:'', n:{ first:0, again:0, off:0, moved:0 }, ms:0, max:0, err:0 };   // the switch · the shipped flyFloor · the copy stands (the guard) · the fingerprint read · the counts (the rigs' read)
+function dopNorm(src){ let o='', i=0, q=null; const n=src.length;   // the code alone: comments out, every space out, quoted text kept as it is
+  while(i<n){ const c=src[i], d=src[i+1];
+    if(q){ o+=c; if(c==='\\' && i+1<n){ o+=d; i+=2; continue; } if(c===q) q=null; i++; continue; }
+    if(c==="'" || c==='"' || c==='`'){ q=c; o+=c; i++; continue; }
+    if(c==='/' && d==='/'){ while(i<n && src[i]!=='\n') i++; continue; }
+    if(c==='/' && d==='*'){ const j=src.indexOf('*/', i+2); i=(j<0)? n : j+2; continue; }
+    if(c===' ' || c==='\n' || c==='\t' || c==='\r'){ i++; continue; }
+    o+=c; i++; }
+  return o; }
+function dopFp(s){ let a=2166136261, b=5381; for(let i=0;i<s.length;i++){ const c=s.charCodeAt(i); a^=c; a=Math.imul(a,16777619); b=(Math.imul(b,33)^c)|0; } return s.length.toString(36)+'.'+(a>>>0).toString(36)+'.'+(b>>>0).toString(36); }
+function dopFirstSort(sv){   // flyFloor's first sort, the shipped steps, its floor pass in two (the read pass, then the write pass)
+  FLY.on=false; FLY.a=FLY.b=null; clearInterval(FLY.tid); FLY.tid=0;
+  const NS='http://www.w3.org/2000/svg', mk=(at)=>{ const e=document.createElementNS(NS,'g'); for(const k in at) e.setAttribute(k,at[k]); return e; };
+  const over=[...sv.children].find(e=>e.matches('[data-fa="wash"],[data-fa="vignette"]') || (e.tagName==='rect' && e.getAttribute('width')==='1600' && e.getAttribute('height')==='650')) || null;
+  const a=mk({ 'data-fly':'a' }), b=mk({ 'data-fly':'b' }); sv.insertBefore(a,over); sv.insertBefore(b,over); FLY.a=a; FLY.b=b;
+  const rg=sv.querySelector(':scope > [data-afq="range"]');
+  if(rg){ const d=rg.getAttribute('data-afq-d')||'0 0', tf=rg.getAttribute('transform')||'';
+    [...rg.children].forEach(c=>{ const fx=c.matches('[data-fd="fx"]'), man=c.matches('.fd-man'), prop=c.matches('[data-fh="target"],[data-fh="sandbag"],[data-fh="dummy"]') || !!c.querySelector('[data-fh="target"],[data-fh="sandbag"],[data-fh="dummy"]'); if(!fx && !man && !prop) return;
+      const g=mk({ 'data-afq':'range', 'data-afq-d':d, 'data-fly-p':'range' }); if(tf) g.setAttribute('transform',tf); if(fx) g.setAttribute('data-fly-st',c.getAttribute('data-station')||''); if(man) g.setAttribute('data-fly-fig','1'); sv.insertBefore(g,b); g.appendChild(c); }); }
+  const wf=sv.querySelector(':scope > [data-fa="west-foot"]');
+  if(wf){ const tf=wf.getAttribute('transform')||''; [['bags','rect[data-fa="bag"]'],['crates','image[data-fa="crate"]']].forEach(([k,sel])=>{ const els=[...wf.querySelectorAll(':scope > '+sel)]; if(!els.length) return; const g=mk({ 'data-fly-p':k }); if(tf) g.setAttribute('transform',tf); sv.insertBefore(g,b); els.forEach(e=>g.appendChild(e)); }); }
+  const pd=sv.querySelector(':scope > [data-afq="pendummy"]');
+  if(pd){ const tf=pd.getAttribute('transform')||'', m0=sv.getScreenCTM(), inv=m0? m0.inverse() : null, P=[];
+    const bx=e=>{ const r=e.getBoundingClientRect(), p=new DOMPoint(r.left,r.top).matrixTransform(inv), q=new DOMPoint(r.right,r.bottom).matrixTransform(inv); return [p.x,p.y,q.x,q.y]; };
+    const shade=e=>e.tagName==='ellipse' && (e.getAttribute('fill')==='#000' || e.getAttribute('data-fa')==='shadow');
+    const add=e=>{ if(shade(e) || !inv) return; const q=bx(e); if(q[2]-q[0]<=0 && q[3]-q[1]<=0) return; const h=P.find(o=>q[0]<o.b[2]+2 && o.b[0]<q[2]+2 && q[1]<o.b[3]+2 && o.b[1]<q[3]+2); if(h){ h.els.push(e); h.b=[Math.min(h.b[0],q[0]),Math.min(h.b[1],q[1]),Math.max(h.b[2],q[2]),Math.max(h.b[3],q[3])]; } else P.push({ els:[e], b:q }); };
+    [...pd.children].forEach(c=>{ if(c.matches('[data-fa="pen-dressing"]')) [...c.children].forEach(add); else add(c); });
+    P.forEach(o=>{ if(o.b[3]-o.b[1]<9) return; const g=mk({ 'data-afq':'pendummy', 'data-fly-p':'pen' }); if(tf) g.setAttribute('transform',tf); sv.insertBefore(g,b); o.els.forEach(e=>g.appendChild(e)); }); }
+  const back=(typeof FR_PEN_WALLS!=='undefined')? FR_PEN_WALLS.find(r=>r[4]==='penback') : null, fences=[...sv.querySelectorAll(':scope > [data-fh="fence"]')];
+  const W=[];   // THE READ PASS: the shipped loop's own tests and reads, piece by piece in its order, nothing written
+  [...sv.children].forEach(e=>{ if(e===a || e===b || e===over) return; if(e.parentNode!==sv) return; const pre=!!(e.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING); if(!pre && !e.hasAttribute('data-fly-p')) return;
+    if(!(e.tagName==='g' || e.tagName==='image') || e.matches(FLY_GROUND)) return;
+    const y=flyBox(sv,e); if(y==null || y<=240) return;
+    const r=e.getBoundingClientRect(), m=sv.getScreenCTM(); if(m && r.width/m.a>1000) return;
+    const fig=e.matches('.fh-king,.fh-pet,.fd-man') || e.hasAttribute('data-fly-fig'); let k=y;
+    if(fig){ }
+    else if(e.matches('[data-fh="bench"],[data-fh="bagseat"]')) k=flyBox(sv,e,true);
+    else if(e.matches('[data-fh="fence"]') && fences.length>1 && e===fences[0] && back) k=back[3];
+    W.push([e, fig, k]); });
+  W.forEach(function(w){ const e=w[0], k=w[2]; if(w[1]) e.setAttribute('data-fly-fig','1'); if(k==null) return; flySet(e,k); sv.insertBefore(e,b); DOP.n.moved++; });   // THE WRITE PASS: the shipped writes, in the shipped order
+  FLY.on=true; const n=flySortAll(); if(!reducedMotion()) FLY.tid=setInterval(flyTick,FLY.MS); return n; }
+try{ if(typeof flyFloor==='function' && typeof flySortAll==='function' && typeof flyBox==='function' && typeof flySet==='function' && typeof flyTick==='function' && typeof FLY==='object' && FLY){
+  DOP.fly0=flyFloor; DOP.fp=dopFp(dopNorm(String(flyFloor))); DOP.fly=(DOP.fp===DOP_FLY_FP)? 1 : 0;   // the guard, once
+  flyFloor=function(){
+    if(!DOP.on || !DOP.fly){ DOP.n.off++; return DOP.fly0.apply(this, arguments); }
+    let sv=null; try{ sv=document.querySelector('#fortBg svg.fhero'); }catch(e){ sv=null; }
+    if(!sv || (sv.querySelector(':scope > [data-fly="a"]') && sv.querySelector(':scope > [data-fly="b"]'))){ DOP.n.again++; return DOP.fly0.apply(this, arguments); }   // no yard, or a yard already sorted: the shipped function
+    DOP.n.first++; const t=performance.now(); try{ return dopFirstSort(sv); }catch(e){ DOP.err++; throw e; }finally{ const d=performance.now()-t; DOP.ms=Math.round(d); if(d>DOP.max) DOP.max=Math.round(d); } }; } }catch(e){ DOP.err++; }
+function dopRead(o){ if(o && typeof o==='object' && 'on' in o) DOP.on=o.on? 1 : 0;
+  return { on:DOP.on, fly:DOP.fly, fp:DOP.fp, want:DOP_FLY_FP, wrapped:!!DOP.fly0, ms:DOP.ms, max:DOP.max, n:Object.assign({}, DOP.n), err:DOP.err }; }
+try{ if(window.GVT && !GVT.dop) GVT.dop=dopRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.dop) GVT.dop=dopRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-DOP ═══
 // ═══ CARD-CRPK · THE CRISP CHARACTERS' KEPT BITMAPS AT A QUICK START: A PAINT ASKED BEFORE CARD-HVM'S SHELF HAS ANSWERED WAITS FOR IT, AND THE SHELF IS READ THE MOMENT ONE IS ASKED (sec:CARD-CRPK; design/crisp-bitmaps-kept-1116/00-CARD-CRPK.md; jumpr 3496, built on Maker 1 as M3496; cut by CARD-SFB2, jumpr 3455, on Wyatt's rule of 11/12/2026 16:39 EST, typed on Maker 1, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ═══
 // THE FAULT (the record's section 1; the Mac's system WebKit at his glass 874 x 402 at 3 dots, opened as the App Store app, the store kept on disk between starts, client v32.85): CARD-HVM's shelf (IndexedDB gvt_hvk,
 //   its family c) keeps every bitmap CARD-CRP paints, across starts, and hands them back to CARD-CRP's keep at a start; but it reads them on a clock, HVK.first = 1.2 s after its section has run, which is
