@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"33.39","md5":"62370703e852a066c1ac689914442bb4","sha":"20769a687d","at":"2026-11-18T18:31:06Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"33.40","md5":"b38d3aacfa22a5dc89e51012a3bc6a0f","sha":"36b0d3a345","at":"2026-11-18T19:24:48Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16701,7 +16701,7 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   function size(ctx, t, a){ var dw, dh; if(a.length >= 9){ dw = a[7] * t.iw / (a[3] || 1); dh = a[8] * t.ih / (a[4] || 1); } else if(a.length >= 5){ dw = a[3]; dh = a[4]; } else { dw = t.iw; dh = t.ih; }
     var sx = 1, sy = 1; try{ var m = ctx.getTransform(); sx = Math.sqrt(m.a * m.a + m.b * m.b); sy = Math.sqrt(m.c * m.c + m.d * m.d); }catch(e){}
     var w = Math.round(Math.abs(dw) * sx), h = Math.round(Math.abs(dh) * sy); return [w < 1 ? 1 : w, h < 1 ? 1 : h]; }
-  function note(ctx, o, a){ var t = o.t; if(t.bad || !t.iw) return; var s = size(ctx, t, a), k = s[0] + 'x' + s[1]; t.last = Date.now(); A.n.noted++;
+  function note(ctx, o, a){ var t = o.t; if(t.bad || !t.iw) return; var s = size(ctx, t, a), k = s[0] + 'x' + s[1]; t.last = Date.now(); A.n.noted++; if(AFL && !t.bm && aflFight(t.last)){ t.bm = 1; A.n.aflBm++; }   // CARD-AFL (1): drawn while a fight stands = a battle mold
     if(s[0] !== t.iw || s[1] !== t.ih) t.nn = 1; if(t.draws[k]){ t.draws[k]++; return; } t.draws[k] = 1;
     if(s[0] * s[1] > MAXPX){ t.bad = 1; A.n.big++; t.els.length = 0; return; } if(!t.r[k]) job(t, s[0], s[1], 0);
     if(t.hv && !t.cq){ t.cq = 1; C.push(t); kick(); } }   // CARD-HMS: a picture left live as heavy is drawn through a canvas after all: back on the sweep's list
@@ -16749,7 +16749,7 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
     if(t.fe == null){ t.fe = 0; try{ var e = srcOf(t), o = e ? H.get(e) : null, v = o ? o.v : (e ? d.get.call(e) : ''), c = v.indexOf(','), n = 0, i; if(c > 0 && v.slice(0, c).indexOf(';base64') >= 0) v = atob(v.slice(c + 1));
         for(i = v.indexOf('%3Cfe'); i >= 0; i = v.indexOf('%3Cfe', i + 5)) n++; for(i = v.indexOf('%3cfe'); i >= 0; i = v.indexOf('%3cfe', i + 5)) n++; for(i = v.indexOf('<fe'); i >= 0; i = v.indexOf('<fe', i + 3)) n++; t.fe = n; }catch(x){ oops('hf', x); } }   // its filter steps, counted once in its own address (a drawing that cannot be read counts none: today's road)
     return (t.fe * px >= HV_COST) ? 1 : 0; }
-  function job(t, w, h, low){ var k = w + 'x' + h; if(t.q && t.q[k]) return; (t.q || (t.q = {}))[k] = 1; t.jobs++; A.n.jobs++; (low ? QL : Q).push([t, w, h]); kick(); }
+  function job(t, w, h, low){ if(low && AFL && t.bm){ A.n.aflSb++; return; } var k = w + 'x' + h; if(t.q && t.q[k]) return; (t.q || (t.q = {}))[k] = 1; t.jobs++; A.n.jobs++; (low ? QL : Q).push([t, w, h]); kick(); }
   // ---- CARD-AWS (jumpr 3451, 11/15/2026; cut by CARD-NBS's landing; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
   // THE FAULT: pump() makes each finished picture in ONE task (the drawing drawn into a canvas, then read back) and the page waits for the painter all the while. THE CALM RULE picks WHEN; nothing looked at WHAT a
   //   job costs. On an empty shelf (a first start after an install, a changed drawing, every rig page) the pump made its dear pictures (a dragon's mold, a felt mold: 20 to 60 ms each on an M5 Pro, three to seven
@@ -16785,7 +16785,7 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   function awHvy(j){ var t = j[0]; return awFes(t) * t.iw * t.ih >= HV_COST; }   // CARD-HMS's own line, by the drawing's OWN dots: such a drawing costs its whole price at any size it is made at
   function awStep(j, now){ var t = j[0]; if(!t.wd || t.ok) t.wd = now; QD.push(j); A.n.dear++; }   // into the slow line; its ROW's wait is counted from its first job that stepped in (a finished row that is asked for one more picture waits anew)
   function awBest(ok){ var b = -1, bn = 0, bw = 0; for(var i = 0; i < QD.length; i++){ var j = QD[i], t = j[0]; if(!ok(j)) continue; var n = t.nr > 0 ? 1 : 0; if(b < 0 || n > bn || (n === bn && t.wd < bw)){ b = i; bn = n; bw = t.wd; } } return b; }   // A ROW BEGUN IS FINISHED BEFORE ANOTHER IS BEGUN (a row reaches the shelf, and its drawing leaves the engine, only when all its pictures stand), then the row that has waited longest
-  function awRipe(now){ var idle = now - lastTouch, gap = idle >= IDLE_MS ? Math.max(250, Math.min(SLOW_GAP, 60000 / QD.length)) : SLOW_GAP; if(now - lastDear < gap) return -1;
+  function awRipe(now){ if(AFL && aflFight(now)){ A.n.aflHeld++; return -1; } var idle = AFL ? aflIdle(now, now - lastTouch) : now - lastTouch, gap = idle >= IDLE_MS ? Math.max(250, Math.min(SLOW_GAP, 60000 / QD.length)) : SLOW_GAP; if(now - lastDear < gap) return -1;
     var i = awBest(function(j){ return (awTold(j) > LONG_MS || awHvy(j)) ? idle >= IDLE_LONG : (idle >= IDLE_MS || now - j[0].wd >= AGE_MS); }); if(i >= 0) QD[i][3] = (idle >= IDLE_MS) ? 2 : 3; return i; }
   function awTurn(now){ var j, i; if(!AWD) return Q.shift() || QL.shift();
     for(i = 0; i < QD.length; i++){ j = QD[i]; if(j[0].pd === 2 && j[0].at && now - j[0].at < HOT_MS){ QD.splice(i, 1); j[3] = 4; return j; } }   // a waiting picture of a filtered drawing the painter still holds: at once, at a plain job's price
@@ -16811,6 +16811,30 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
         if(n >= DOOR_N) awDoor(Date.now(), n); }catch(x){ oops('wn', x); } }).observe(document, { childList:true, subtree:true }); }catch(e){ oops('wo', e); } }   // nothing thrown here may reach the page's own error line
   A.door = function(){ try{ awDoor(Date.now(), 0); }catch(e){ oops('wh', e); } };
   A.aws = function(){ return { on:AWD, qd:QD.length, dear:A.n.dear, doors:A.n.doors, door:A.n.doorj, idle:A.n.idlej, aged:A.n.agej, warm:A.n.warmj, ms:A.n.jms, max:A.jmax, j34:A.n.j34, j100:A.n.j100, mid100:A.n.mid100, touch:lastTouch ? Date.now() - lastTouch : -1 }; };
+  // ---- CARD-AFL (jumpr 3575, 11/16/2026; cut by CARD-AFD, jumpr 3500; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
+  // THE FAULT (design/atlas-first-line-1116/00-CARD-AFL.md, section 1: his save, an empty shelf, the app's own engine, the glass touched every two seconds): a first Showdown leaves over a hundred dear
+  //   jobs in the slow line at its verdict, and after their ninety seconds they come out one every second and a half wherever the player stands: the room, the castle, inside the NEXT fight. SEVEN IN TEN
+  //   OF THEM ARE STAND-BY COPIES (a drawing's own size and twice it): a few of molds the field drew at sizes of its own, most of pictures no canvas has drawn at all; in the five minutes after the
+  //   verdict (the room, the castle, a second Showdown, Nutcracker's Ball) not one draw was served from a stand-by copy. The rest are sizes the field drew. No door can carry them (CARD-AFD: 2 to 10 a door).
+  // THE CURE, four rules (the game's own state S.mode, read when asked: 'play' while a fight stands, 'win' or 'lose' at its verdict; a page without it reads no fight and no verdict):
+  //   (1) A BATTLE MOLD GETS NO STAND-BY COPY: a drawing a canvas drew while a fight stood is finished at the sizes drawn (its row reaches the shelf and its drawing leaves the engine, as before).
+  //   (2) A PICTURE NO CANVAS HAS DRAWN IS FINISHED ON A RESTING GLASS: its stand-by copy is asked only once nobody has touched the glass for IDLE_MS (a page nobody has touched: from its start, as before).
+  //   (3) WHILE A FIGHT STANDS THE SLOW LINE WAITS: neither the idle road nor the long-wait road makes a dear job then; a door (a fight's start, its verdict: CARD-AFD) and a drawing the painter
+  //       still holds keep theirs. So a first fight's pictures never come out inside the next one.
+  //   (4) A VERDICT THAT STANDS STILL IS A REST: from its AFL_VS-th ms (its count and its pour are over) to its end, the idle road runs however the glass is touched (never a job told over LONG_MS,
+  //       nor a heavy one: those keep their minute).
+  //   No drawing redrawn, restyled or replaced; a finished picture is the same picture. ?afl=0 = the atlas as before on this device (gvt_afl '0'; ?afl=1 clears it); with ?awgd=0 there is no slow line
+  //   and the four rules stand down with it. __AWG.afl() = the rigs' read (the battle molds seen, the stand-by copies not asked, the pictures that waited for a resting glass, the turns a fight held, the
+  //   turns a still verdict was a rest).
+  var AFL = AWD, AFL_VS = 4000, aflM = '', aflV = 0;
+  A.n.aflBm = 0; A.n.aflSb = 0; A.n.aflGate = 0; A.n.aflHeld = 0; A.n.aflRest = 0;
+  try{ var lq = /[?&]afl=([01])(?![\w])/.exec(location.search || ''); if(lq){ if(lq[1] === '0') localStorage.setItem('gvt_afl', '0'); else localStorage.removeItem('gvt_afl'); } if(localStorage.getItem('gvt_afl') === '0') AFL = 0; }catch(e){ oops('fl', e); }
+  A.aflOn = AFL;
+  function aflMode(now){ var m = ''; try{ m = String(S.mode); }catch(e){} if(m !== aflM){ if(m === 'win' || m === 'lose') aflV = now; aflM = m; } return m; }   // the game's script stands after this one: its state is read when asked; aflV = the first instant this section saw a verdict
+  function aflFight(now){ return aflMode(now) === 'play'; }
+  function aflRested(now){ return now - lastTouch >= IDLE_MS; }   // a page nobody has touched counts as untouched from its start (lastTouch 0), as CARD-AWS's idle road does
+  function aflIdle(now, idle){ var m = aflMode(now); if(idle < IDLE_MS && (m === 'win' || m === 'lose') && now - aflV >= AFL_VS){ A.n.aflRest++; return IDLE_MS; } return idle; }
+  A.afl = function(){ return { on:AFL, vs:AFL_VS, mode:aflM, verdict:aflV ? Date.now() - aflV : -1, bm:A.n.aflBm, sbNo:A.n.aflSb, gate:A.n.aflGate, held:A.n.aflHeld, rest:A.n.aflRest }; };
   function kick(){ if(!pumpT) pumpT = setTimeout(pump, Math.max(60, lastJobMs * 8, START - (Date.now() - A.t0))); if(!sweepT) sweepT = setTimeout(sweep, 1000); }
   function pump(){ pumpT = 0; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid){ pumpT = setTimeout(pump, 1000); return; }
     if(!Q.length && !QL.length && !QD.length) return;
@@ -16837,7 +16861,7 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
       if(IPF) worn(t);   // CARD-IPF: a listed picture whose drawing was taken away past this script (the engine's removeAttribute) leaves the list here
       if(t.jobs > 0 || now - t.last < QUIET){ more = 1; continue; }
       var drawn = 0, k; for(k in t.draws){ drawn = 1; if(!t.r[k]){ job(t, +k.split('x')[0], +k.split('x')[1], 0); } }
-      if((!drawn || t.nn) && !t.sb && srcOf(t)){ if(!drawn && now - t.last < IDLE){ more = 1; continue; }
+      if((!drawn || t.nn) && !t.sb && srcOf(t)){ if(!drawn && now - t.last < IDLE){ more = 1; continue; } if(!drawn && AFL && !aflRested(now)){ if(!t.gw){ t.gw = 1; A.n.aflGate++; } more = 1; continue; }   // CARD-AFL (2): drawn by nobody: its stand-by copy waits for a resting glass
         if(!drawn && heavy(t)){ if(!t.hv){ t.hv = 1; A.n.heavy++; } if(!t.nr){ C.splice(i, 1); t.cq = 0; } continue; }   // CARD-HMS: dear to paint and drawn by nobody: no stand-by copy; it stays a live picture and leaves this list (note() brings it back at its first draw)
         var f = (t.iw * t.ih <= SB_PX) ? SB_F : 1, w = Math.round(t.iw * f), h = Math.round(t.ih * f); t.sb = 1;
         if(!t.r[t.iw + 'x' + t.ih]) job(t, t.iw, t.ih, 1); if(f > 1.15 && !t.r[w + 'x' + h]) job(t, w, h, 1); }   // the stand-by copies: its own size (the likeliest first draw), and a large one for a draw above it
@@ -94388,7 +94412,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.40';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
