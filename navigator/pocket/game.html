@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"33.38","md5":"009c3e5da2531a045efef50da49e9ed1","sha":"4d04d746f2","at":"2026-11-18T18:14:24Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"33.39","md5":"62370703e852a066c1ac689914442bb4","sha":"20769a687d","at":"2026-11-18T18:31:06Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94388,7 +94388,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.38';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -232516,6 +232516,54 @@ GVT.kns=function(o){ if(o && typeof o==='object'){ for(const k of ['reach','soak
     own:g(function(){ return enhOwns(KNS.id); }), fit:g(function(){ return enhOn(KNS.id); }), shows:g(function(){ return labShows(KNS.id); }), sold:g(function(){ return labSold(KNS.id); }), rivals:KNS_RIVALS.knightset.slice(), keys:KNS_KEYS.slice(), img:Object.keys(KNS.im).filter(function(k){ return k.slice(0,2)==='i:' && KNS.im[k].complete && KNS.im[k].naturalWidth>0; }).length, px:KNS.px.length,
     men:g(function(){ return S.units.filter(function(u){ return u.knsI; }).map(function(u){ return { id:u.id, L:u.knsL|0, B:u.knsB|0, rng:u.def.rng, air:!!u.def.air, key:(u.knsL===1? knsKey(u) : null), x:Math.round(u.x), y:Math.round(u.y), dead:!!u.dead }; }); }) }; };
 // ═══ end sec:CARD-KNB ═══
+// ═══ CARD-SFA · THE SHIELD FOLLOWS THE ARMY: EVERY KNIGHT CARRIES THE CREST OF THE ARMY COLOUR HE WEARS, ON EVERY CHAIR (sec:CARD-SFA; design/shield-follows-army-1116/00-CARD-SFA.md; jumpr 3608, built on the QuarterPounder as M3608; an add-on to CARD-KNF, jumpr 3512) ═══
+// FROM LAURA (one of Wyatt's designers; her art goes in on her own word, Wyatt 11/5/2026), by her jumpr guest link 11/16/2026 1:29 PM EST, verbatim: "push the shields so your color should determine what your shield looks like if the shield is equiped".
+//   Her rule with it: whenever a shield is equipped, the shield art is picked by the army colour of whoever carries it, not one fixed shield; the plume and the belt buckle match the crest (as on card 3512): green Oak, blue Pigeon,
+//   red Lion, tan Lunch Pail on sand, yellow Eagle, black Dino Skull, white Munchkin Yeti, purple Shooting Star, dark green Rattler, orange Wheel, teal Seahorse; a changed army colour swaps the crest; unequipped = no shield.
+// WHAT CARD-KNF ALREADY DOES: its painter picks HER palette and HER crest by the paint a knight is dressed in (knsHex: his seat's paint, his side's, an ally's, mine): in my own fights, the lab's picture, the tray and after a dye change
+//   that paint IS my army's colour, so every knight there already carries my army's crest. An army's own colour keeps exactly that answer here. Sarge's shield is CARD-SSC's (jumpr 3609).
+// WHAT THIS SECTION MENDS: the paints a knight can wear that are none of her eleven. (1) THE SHADES: on the battleground a chair whose colour clashes with another on the screen is dressed in the game's family shade of its own plastic
+//   (clashShade: rivCapHex, CARD-TVG, CARD-TVG2's roomSeatShade): an away commander in my colour, two undyed players, tan against gold. Its knights carried CARD-KNB's red shield and star; a shade of an army's colour now carries
+//   THAT army's crest (clashShade read backwards over the game's colours: no two colours share a shade, no shade is an army's colour). (2) THE CANVAS'S GREEN #4A6B35 (the undyed army's chair on the mat, an undyed ally's men) is the
+//   undyed green itself: her Oak knight, whole. (3) A colour no army wears (a spare off the seat walk): the chair's own word (S.bf.seats[seat].dye; no word = the undyed green). (4) A man turned by MIND CONTROL (mcTurn) wears the
+//   radio man's army colour everywhere (unitHex's first step) while a turned knight kept his own: he now wears the radio man's paint and crest, and a shield or a sword he drops wears what he wore (knsWatch keeps it).
+// THE MIX: such a knight is handed on as 'paint~army' and knfPal (wrapped by name) answers HER palette (or CARD-KNB's shades) of the paint he is dressed in, with THE CREST, THE PLUME, THE BUCKLE AND THE POMMEL OF THE ARMY: the plate
+//   keeps the chair's plastic, so two sides of one colour still read apart (v2.37 TRUE COLOURS). The camo jar has no crest yet: a camo knight keeps CARD-KNB's red shield and star until Laura picks one (CARD-KNF's KNF-F4).
+// ASLEEP without CARD-KNF (KNF, KNF_PAL, KNF_CREST by name) and under its ?knf=0. THE OFF SWITCH: ?sfa=0 (sticky gvt_sfa '0'; ?sfa=1 lifts it) = CARD-KNF's own answer, byte for byte. GVT.sfa() = the rig's door.
+var SFA={ on:(function(){ try{ const q=/[?&]sfa=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_sfa','0'); else localStorage.removeItem('gvt_sfa'); } return localStorage.getItem('gvt_sfa')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  pc:{}, sh:null, n:{ mix:0, green:0, turned:0, pal:0, kept:0 }, err:0, e:'' };   // the switch · the mixed palettes by 'paint~army' · the shades read backwards · the books (the rig reads them; nothing in the game does)
+function sfaErr(e){ SFA.err++; SFA.e=String(e && e.message || e).slice(0,200); }
+function sfaLive(){ try{ return SFA.on===1 && typeof KNF==='object' && !!KNF && KNF.on===1 && typeof KNF_PAL==='object' && !!KNF_PAL && typeof KNF_CREST==='object' && !!KNF_CREST; }catch(e){ return false; } }   // CARD-KNF stands in this page and her look is on
+function sfaUp(h){ h=String(h||'').toUpperCase(); return /^#[0-9A-F]{6}$/.test(h)? h : ''; }
+function sfaShadeOf(D){ if(!SFA.sh){ const t={}; try{ const L=Object.keys(KNF_PAL).concat(['#4A6B35'], (typeof ELITE_DYES!=='undefined')? ELITE_DYES.map(function(r){ return sfaUp(r.hex); }) : []);
+      for(const X of L){ const s=sfaUp(clashShade(X)); if(s && !t[s] && !KNF_PAL[s]) t[s]=(X==='#4A6B35')? '#7FA35C' : X; } }catch(e){ sfaErr(e); } SFA.sh=t; }
+  return SFA.sh[D]||''; }   // the colour a shade belongs to (the game's own clashShade over every colour an army can wear, read backwards once)
+function sfaSeat(u){ const bf=S.bf; if(!bf || !bf.seats || !u) return null; if(u.seat!=null) return bf.seats[u.seat]||null; if(u.side) return bf.seats[u.side==='you'? 0 : (bf.team|0)]||null; return null; }   // his chair (no seat: his side's captain, as S.bf.hex reads it)
+function sfaArmyOf(D,u){ if(KNF_PAL[D]) return D; if(D==='#4A6B35') return '#7FA35C';   // an army's own colour · the canvas's spelling of the undyed green
+  const X=sfaShadeOf(D); if(X) return X;   // THE SHADE of an army's colour: that army
+  const st=sfaSeat(u); if(!st) return '';   // a colour no army wears: the chair's own word (mine = my own army colour)
+  if(st.me) return sfaUp((typeof dyeHex==='function') && dyeHex()) || '#7FA35C';
+  if(!st.dye) return '#7FA35C'; const r=dyeRowOf(st.dye); return r? sfaUp(r.hex) : ''; }
+if(typeof knsHex==='function'){ const h0=knsHex; knsHex=function(u,dep){ const h=h0.apply(this,arguments); if(!u || !sfaLive()) return h;
+    try{ if(S.bf && u.mcBy!=null && (dep|0)<4){ const r9=S.units.find(function(q){ return q.id===u.mcBy; }); if(r9 && r9!==u){ SFA.n.turned++; const t=knsHex(r9,(dep|0)+1); if(u.sfaMc!==t){ u.sfaMc=t; if(typeof knsWarm==='function') knsWarm(t); } return t; } }   // a TURNED man: the radio man's paint and army (unitHex's own first step, CARD-PMC); his frames in it minted once, at the turn
+      const D=sfaUp(h); if(!D || KNF_PAL[D]) return h;   // an army's own colour: CARD-KNF's own answer, as it came
+      const A=sfaArmyOf(D,u); if(!A || A===D) return h;   // no army to read, or a colour that is its own army (the camo jar): as it came
+      if(D==='#4A6B35' && A==='#7FA35C'){ SFA.n.green++; return '#7FA35C'; }   // the undyed green: her Oak knight, whole
+      SFA.n.mix++; return D+'~'+A;   // a shade or a colour no army wears: her palette (or CARD-KNB's shades) of the paint, the crest of the army
+    }catch(e){ sfaErr(e); } return h; }; }
+if(typeof knfPal==='function'){ const p0=knfPal; knfPal=function(hex){ const s=String(hex||''), i=s.indexOf('~'); if(i<0) return p0.apply(this,arguments);   // only a mixed paint is this section's; every other paint goes on as it came
+    let q=SFA.pc[s]; if(q) return q;
+    try{ const D=s.slice(0,i), A=s.slice(i+1), arm=KNF_PAL[A]; q=Object.assign({}, p0.call(this,D));   // the plate, the trim, the shades: the paint he is dressed in
+      if(arm && arm.c && typeof KNF_CREST[arm.c]==='string'){ q.c=arm.c; q.A=arm.A; q.Ar=arm.Ar; q.Af=arm.Af; } else q.c='';   // HER CREST of the army, her plume, buckle and pommel in its colour; an army with no crest yet: CARD-KNB's shield
+      SFA.n.pal++; return (SFA.pc[s]=q); }catch(e){ sfaErr(e); return p0.call(this,s.slice(0,i)); } }; }
+if(typeof knsWatch==='function'){ const w0=knsWatch; knsWatch=function(){ try{ const M=KNS.men; if(M && M.length && sfaLive()){ for(const m of M){ const u=m.u; if(u && !u.dead && S.units.indexOf(u)>=0){ const h=knsHex(u); if(h!==m.hex){ m.hex=h; SFA.n.kept++; } } } } }catch(e){ sfaErr(e); }
+    return w0.apply(this,arguments); }; }   // what he drops when he falls wears what he wore in his last frame (CARD-KNB set it once, at his first step)
+GVT.sfa=function(o){ if(o && typeof o==='object' && 'on' in o) SFA.on=o.on? 1 : 0;   // the rig's door: the switch (rig only; a picture minted under one answer stays keyed by it), the read
+  const g=function(f){ try{ return f(); }catch(e){ return null; } };
+  return { on:SFA.on, live:sfaLive(), n:Object.assign({},SFA.n), err:SFA.err, e:SFA.e, mixes:Object.keys(SFA.pc), shades:g(function(){ sfaShadeOf(''); return Object.assign({},SFA.sh); }),
+    men:g(function(){ return S.units.filter(function(u){ return u.knsL===1 && !u.dead; }).map(function(u){ const h=knsHex(u), p=(typeof knfPal==='function')? knfPal(h) : null, st=sfaSeat(u);
+      return { id:u.id, side:u.side, seat:(u.seat==null? null : u.seat), dye:(st && st.dye) || null, seatHex:(st && st.hex) || null, mc:u.mcBy!=null, hex:h, crest:p? (p.c||'') : null, plate:p? p.P : null, plume:p? p.A : null }; }); }) }; };
+// ═══ end sec:CARD-SFA ═══
 // ═══ CARD-PTR2 · THE PARATROOPERS LAND AND FIGHT: NOTHING UNDER A CHUTE CAN BE SHOT, FOUR TIMES THE MEN PARACHUTE DOWN, PHASE 2 FLOODS THE ROOF (sec:CARD-PTR2; design/paratroopers-land-1112/00-CARD-PTR2.md; board J3, lane gvt-p3, jumpr 3286).
 // FROM WYATT, 11/12/2026 14:42:56 EST by phone on Discord (1570524317119287327, his reply on the Sky Fortress), dictated, verbatim: "We're currently not seeing any changes in the big bomber fight. The
 // parachuting enemies are just not even noticeable. I think maybe there was one that he got instantly destroyed, but even in phase two, we didn't get to see anything that we talked about in our last
