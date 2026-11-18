@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.35","md5":"3acf60efefee2b497aea0b5f6a41b2d2","sha":"faeda56f71","at":"2026-11-18T15:53:43Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.36","md5":"60d858b698afd3a4653d735bf77b0217","sha":"d5b312c1b7","at":"2026-11-18T16:29:12Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94388,7 +94388,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -226197,6 +226197,151 @@ function cpbRead(o){ try{
   }catch(e){ try{ CPB.err++; }catch(e2){} return { on:(typeof CPB==='object' && CPB)? CPB.on : null, e:String(e && e.message || e).slice(0,120) }; } }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.cpb=cpbRead; }catch(e){ CPB.err++; } }, 0);
 // ═══ END CARD-CPB ═══
+// ═══ CARD-TPB · THE TAN PUSH BACK: THE TIDE REACHES 101 TO 140 AND THE BEEF-UP IS SET AGAINST GENERAL MCTHUGGINS (sec:CARD-TPB; design/tan-push-back-1116/00-DESIGN-TPB.md; jumpr 3593 = Maker 1's M3593, the design pass + this kit, 11/16/2026).
+//   ISAAC by his guest link 11/16/2026 17:11 UTC (12:11 EST), verbatim: "Levels 101 - 133 (excluding level 130) are still too easy. The Tan army can never even get past their own toy box and I end up winning every
+//   battle in wave 5 or 6. Let's rebalance the fights so that Tan has more of a chance of at least pushing the player back on these levels (101-140 excluding 130). Add in tide logic and beef the tan soldiers up using
+//   General McThuggins as the reference player".
+//   THE READ (client v32.96, General Mcthuggins' own save of 11/16 played by the kit's test player who pays for every man: design/tan-push-back-1116/logs): today he wins 234 fights of 234 on 101-140, THEIR TOY BOX
+//   falls in wave 5 or 6 of 7 in three fights of four, and the median fight sees no Tan man further than 193 px west of his own box: his words, to the number. The +30 % of CARD-BEF (11/5, live on 101-129) did not
+//   change that, the tide (sec CARD-TDL) reads levels 1-25 only, and 131-140 carry neither. MEASURED BEFORE THE BUILD: +60 % health and damage with no tide leaves his fights where they are (the box on wave 5.9,
+//   10 men lost for 8): the Tan die at their own doorstep either way. The tide is what moves them (the build: the box on wave 6.7, the last wave reached in 75 fights of 100 for 23, 31 men lost for 8, 148 won of 148).
+//   THE BUILD, two parts, ONE switch, no line of the game changed (four wraps by name at load):
+//   (1) THE TIDE ON THE BAND (tdlRung, tdlTick, tdlSize wrapped): on a solo rung TPB.FROM..TPB.TO (101..140) that is not in TPB.SKIP (130, COMMANDER LARSON) the live tide of levels 1-25 reads the fight as it does
+//   there: every 0.5 s of battle time, my men's stickers on the field minus the Tan's (field + queue + pending) ABOVE TPB.LEAD dog tags with the tide armed = TWO CLUSTERS drop in silently by their box, the second
+//   TPB.LAG s after the first, each round(TPB.CL x the level's count dial) men (TPB.CLMIN..TPB.CLMAX) of the newest wave's own foot rows at the level's own health, phased in on CARD-TPI's 4 s ghost; re-armed when
+//   the lead falls to the mark or the last pair is gone, TPB.GAP s between pairs, TPB.MAX pairs a battle, never past TPB.PLATEAU Tan men, from the march of wave TPB.FIRST (1: an opening line is no lead over
+//   anybody yet; levels 1-25 keep their own read from the first second) while wave TPB.WAVES (6; 5 on 1-25: here the box falls in wave 5 or 6) or an earlier one is the newest: never the finale,
+//   never a boss / set-piece / tease / premiere wave, never under QUIET MERCY, never in co-op (sec CARD-TDL's own gates, read through its own functions with the band's dials in its cells for the tick). Hidden:
+//   no word, no banner, no horn (Isaac 10/21 "a hidden mechanic"; Wyatt 10/22 no alert over the play).
+//   (2) THE BEEF AGAINST THE REFERENCE PLAYER (befStamp wrapped): the seat for the band's own factors. A row of TPB.BEEF ([from, to, health x, damage x], the first row that holds the rung) is the last word on
+//   the two cells CARD-BEF stamps at levelCfg's foot (cfg.befHpX read by spawnFoe's hpm, cfg.befDmgX read by befDmgX() at the four pip seats). THE TABLE SHIPS EMPTY: measured against General Mcthuggins' army,
+//   more beef buys nothing (+50 % in place of +30 % on 101-119 under a tide: 10.4 men lost a fight for 9.5), and on 131-140 the +30 % is what breaks a weaker army (a plain rank-30 line: 17 wins of 20 with the
+//   tide alone, 10 with the +30 % on top) while the tide alone already takes HIS fights there to the last wave (95 of 100). So CARD-BEF's 1.3 / 1.3 on 101-129 stands as he set it and 131-140 carry the tide
+//   only; one row turns the beef on wherever he asks. THE KING'S PRICE, the probes, the parks, the raids, the battleground, level 130 and every rung outside the band stay byte-value-still.
+//   Co-op: the beef rides levelCfg (every sim computes it alike, as CARD-BEF does); the tide stays solo. No dice, no wire byte, no save key, no new words, nothing on the server, no art.
+//   ?tpb=0 = off (sticky in localStorage gvt_tpb; ?tpb=1 clears it): no wrap is installed and the game is today's. GVT.tpb(n) = the rig's read.
+var TPB={ on:(function(){ try{ const q=/[?&]tpb=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tpb','0'); else localStorage.removeItem('gvt_tpb'); } return localStorage.getItem('gvt_tpb')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  v:1, FROM:101, TO:140, SKIP:[130],   // the band: Isaac's "101-140 excluding 130"
+  tide:1, FIRST:1, LEAD:200, WAVES:6, CL:3, CLMIN:4, CLMAX:8, GAP:8, LAG:4, MAX:12, PLATEAU:50,   // ⚑ TPB-Q: THE TIDE's dials on the band, one cell each (FIRST = the wave that must have marched · LEAD = the lead in dog tags the tide answers, above it · WAVES = the last wave it reads · CL = men a cluster at count dial 1, CLMIN..CLMAX · GAP = seconds between pairs · LAG = cluster B after A · MAX = pairs a battle · PLATEAU = the most Tan men)
+  beef:1, BEEF:[],   // ⚑ TPB-Q: THE BEEF's rows [from, to, health x, damage x]; NONE = CARD-BEF's own cells stand (101-129 x1.3 / x1.3, live since 11/5); a row here is the last word on its levels ("beef 131 to 140 too" = [131,140,1.3,1.3])
+  n:{ stamp:0, tick:0 }, old:{}, err:0 };
+function tpbOn(){ return TPB.on===1; }
+function tpbBand(n){ n=n|0; return n>=TPB.FROM && n<=TPB.TO && TPB.SKIP.indexOf(n)<0; }   // a rung of the band
+function tpbBeefRow(n){ n=n|0; if(!tpbBand(n)) return null; for(const r of TPB.BEEF){ if(r && n>=r[0] && n<=r[1]) return r; } return null; }
+function tpbTideRung(){ const n=S.levelN|0; return tpbOn() && TPB.tide===1 && tpbBand(n) && !(n>=TDL.FROM && n<=TDL.TO); }   // a band rung the tide's own range does not already hold
+function tpbRig(n){ try{ const R=k=>{ const c=levelCfg(k), b=tpbBeefRow(k); return { n:k, band:tpbBand(k), befHpX:c.befHpX||1, befDmgX:c.befDmgX||1, row:b? b.slice() : null, hpMul:+(+c.hpMul).toFixed(4), cntMul:+(+c.cntMul).toFixed(4), hpX:c.hpX||1, waves:c.waves.length }; };
+    const T=(S.sq && S.sq.tdl)||null;
+    return { cv:GVT_CV, on:TPB.on, v:TPB.v, FROM:TPB.FROM, TO:TPB.TO, SKIP:TPB.SKIP.slice(), tide:TPB.tide, FIRST:TPB.FIRST, LEAD:TPB.LEAD, WAVES:TPB.WAVES, CL:TPB.CL, CLMIN:TPB.CLMIN, CLMAX:TPB.CLMAX, GAP:TPB.GAP, LAG:TPB.LAG, MAX:TPB.MAX, PLATEAU:TPB.PLATEAU, beef:TPB.beef, BEEF:TPB.BEEF.map(r=>r.slice()),
+      rung:(n!=null)? R(n|0) : null, live:{ n:S.levelN|0, tideRung:(typeof S==='object' && S && S.sq)? tpbTideRung() : false, tdlRung:(S.sq && typeof tdlRung==='function')? !!tdlRung() : false, size:(S.sq && S.cfg && typeof tdlSize==='function')? tdlSize() : null, befHpX:(S.cfg && S.cfg.befHpX)||1, befDmgX:(typeof befDmgX==='function')? befDmgX() : 1,
+        tdl:T? { k:T.k, c:T.c, men:T.men, armed:T.armed, lead:T.lead, mine:T.mine, theirs:T.theirs, pend:T.pend.length } : null }, n:Object.assign({}, TPB.n), wraps:Object.keys(TPB.old), err:TPB.err }; }catch(e){ TPB.err++; return { on:TPB.on, err:TPB.err, e:String(e&&e.message||e).slice(0,120) }; } }
+if(tpbOn()) try{
+  if(typeof befStamp==='function'){ TPB.old.befStamp=befStamp;   // (2) THE BEEF: CARD-BEF's two cells take the band's own factors (the last word at levelCfg's foot)
+    befStamp=function(cfg,n){ const r=TPB.old.befStamp.apply(this, arguments);
+      try{ if(tpbOn() && TPB.beef===1 && cfg){ const b=tpbBeefRow(n); if(b){ cfg.befHpX=+b[2]>0? +b[2] : 1; cfg.befDmgX=+b[3]>0? +b[3] : 1; TPB.n.stamp++; } } }catch(e){ TPB.err++; }
+      return r; }; }
+  if(typeof tdlRung==='function' && typeof tdlTick==='function' && typeof tdlSize==='function' && typeof TDL==='object' && TDL){
+    TPB.old.tdlRung=tdlRung;   // (1) THE TIDE: a band rung is a tide rung by sec CARD-TDL's OWN gates (the same function, asked with the band in its range cells)
+    tdlRung=function(){ if(TPB.old.tdlRung.apply(this, arguments)) return true; if(!tpbOn() || TPB.tide!==1 || !tpbBand(S.levelN)) return false;
+      const f=TDL.FROM, t=TDL.TO; TDL.FROM=TPB.FROM; TDL.TO=TPB.TO; try{ return !!TPB.old.tdlRung.apply(this, arguments); }catch(e){ TPB.err++; return false; } finally{ TDL.FROM=f; TDL.TO=t; } };
+    TPB.old.tdlTick=tdlTick;   // the tick on a band rung runs sec CARD-TDL's own read, drop and pace with the band's dials in its cells, put back after
+    tdlTick=function(dt){ if(!tpbTideRung()) return TPB.old.tdlTick.apply(this, arguments);
+      if((S.wave|0)<(TPB.FIRST|0)) return;   // the band's tide waits for wave TPB.FIRST to march: an opening line is not a lead over anybody yet
+      const K=['LEAD','WAVES','CL','GAP','LAG','MAX','PLATEAU'], keep={}; for(const k of K){ keep[k]=TDL[k]; TDL[k]=TPB[k]; } TPB.n.tick++;
+      try{ return TPB.old.tdlTick.apply(this, arguments); } finally{ for(const k of K) TDL[k]=keep[k]; } };
+    TPB.old.tdlSize=tdlSize;   // a cluster's men on the band: the same scale, the band's own floor and cap
+    tdlSize=function(){ if(!tpbTideRung()) return TPB.old.tdlSize.apply(this, arguments); return Math.max(TPB.CLMIN|0, Math.min(TPB.CLMAX|0, Math.round(TPB.CL*((S.cfg && S.cfg.cntMul)||1)))); }; }
+}catch(e){ TPB.err++; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT && !GVT.tpb) GVT.tpb=tpbRig; }catch(e){ TPB.err++; } }, 0);
+// ═══ END CARD-TPB ═══
+// ═══ CARD-TPB2 · THE TAN PUSH BACK, ROUND 2: A STRONG PUSH AT WAVE 4 ON EVERY OTHER LEVEL, 30 % MORE MEN IN THE WAVES, THE BAND 101 TO 170 (sec:CARD-TPB2; design/tan-push-back-1116/r2/00-ROUND2-TPB.md; jumpr 3846 = the QuarterPounder's M3846, round 2 of the design pass + this kit, 11/18/2026).
+//   ISAAC by WhatsApp 11/18/2026 07:56 EST, answering round 1's page (sec CARD-TPB above), verbatim: "I don't think that simply biting off the enemies is going to be enough. I think on every other level, we need to move,
+//   or we need to add kind of a wave 7 level push where it has tanks and maybe mortars and other, just one of those strong final waves. But we need to add one earlier, to wave 4, and it needs to be toned down a little
+//   bit, like 75% of what wave 7 is, but it needs to be enough to push the player back. Right now, the player just owns the toy box until wave 7, and then maybe they get a little pushed back, but by then it's too late.
+//   Let's beef up, and honestly, the enemy strength doesn't need to be doubled. We just need to add more troops to the waves because sometimes wave 1 will have like 5 people, and then Sarge just stomps them. Let's
+//   increase the number of troops by 30%, and then add that extra wave 4 to every other level. And this is actually for levels 101 through 170, excluding level 130."
+//   THE READ (client v33.31, every rung 101-170 dealt by levelCfg: r2/logs/dump-base-v3331.json): every rung but 130 fields SEVEN waves; wave 1 is 3 to 10 men; wave 4 is a plain foot shape of 6 to 18 men;
+//   wave 7 is THE BIG PUSH on 43 rungs (three V2 tanks, their escorts, the crawlers: 16 to 28 men), THE IRON COLUMN on the 13 rungs after a boss (three jeeps), a boss and his guard on the 13 boss rungs.
+//   THE BUILD, three asks, each a dial of its own, ONE switch (round 1's ?tpb=0), no line of the game changed (three wraps by name at load, two of them over round 1's own wraps):
+//   (3) THE BAND (TPB2.band): FROM..TO (101..170) never SKIP (130, COMMANDER LARSON). Round 1's tide reads the same band: its three range cells (TPB.FROM, TPB.TO, TPB.SKIP) are set from these at load. band 0 = round
+//   1's band (TO1, 140) for everything here. TPB2.tide 0 = no tide at all (round 1's own cell TPB.tide, set from here: he was told the tide stays under round 2 unless he says drop it).
+//   (2) THIRTY PER CENT MORE MEN (TPB2.more, befStamp wrapped = the last word at levelCfg's foot): on a band rung every wave's MEN are counted (a foot group's n, an armor group's escort) and the wave takes
+//   round(men x MORE) between its groups by their own shares (5 become 7, 3 become 4, 10 become 13; RND 'floor' = 5 become 6). A jeep, a tank, a boss, a guest boss and a man who rides a flag (the officer, the
+//   radioman, the ace) are never multiplied. A boss's guard and a vanguard's screen are men like any others (PLAINONLY 1 = a boss, set-piece, tease or premiere wave keeps its counts as dealt). The tide's own
+//   clusters keep round 1's size (TIDEMORE 1 = they grow by MORE too, tdlSize wrapped).
+//   (1) THE PUSH AT WAVE 4 (TPB2.push): on every other rung of the band (RUNGS 'odd' = 101, 103 ... 169: every boss with a vanguard and COMMANDER LARSON stand on even rungs; 'even' = 102 ... 170; PUSHSKIP = rungs
+//   that take none) wave WAVE (4) ALSO brings a strong final wave cut to SHARE (0.75): THE BIG PUSH as this rung's own count dial fields it (waveFromKey's own shape, the elite law's V2 hulls), its armor
+//   round(3 x SHARE) = two V2 tanks of the three (HULLS says another count outright), its men round(men x SHARE x MORE) between the two escorts and the crawlers, and a mortar crew of MORTARS (2) tubes behind them; they roll on LAG (5) s behind the
+//   wave's own men. FORM 'finale' = a rung whose own last wave is not a boss's copies THAT wave instead (THE IRON COLUMN's jeeps on the 13 rungs after a boss). The rung still fields SEVEN waves (Wyatt 8/5,
+//   the seven-wave law): OWN 1 = the push stands as a wave of its own before wave WAVE (eight waves; ⚑ his law). Never on a boss, set-piece, tease or premiere wave, never on the last wave. Unannounced, as
+//   every ordinary wave is (v1.32): no word, no card, no horn (Wyatt 10/22: no alert over the play).
+//   THE PUSH STANDS DOWN ON A RUNG JUST LOST (TPB2.YIELD, sqPushWave wrapped): MEASURED (r2/logs: 980 fights), two V2 tanks at wave 4 wall an army with no machines (a plain rank-60 line wins 35 fights of 70 on the
+//   push rungs for 66 today, a plain rank-30 line 17 for 52). So on a SOLO rung the player has lost YIELD (1) times running (the game's own lossRun, QUIET MERCY's key: a win clears it) wave WAVE is dealt
+//   WITHOUT the push: its groups are taken off the queue as the wave is pushed. The men and the tide stay (QUIET MERCY itself takes the tide after two). YIELD 0 = the push always comes. A co-op lobby never yields
+//   (every sim must field the same list).
+//   Every sim computes the same levelCfg(n) (the beef's own road, CARD-BEF): a co-op lobby on a band rung fights the same list, scaled by sqScaleCfg as ever. The tide stays solo (sec CARD-TDL's gate).
+//   No dice, no wire byte, no save key, no new words, nothing on the server, no art. ?tpb=0 = off, both rounds (no wrap is installed, no cell is written, the game is today's). GVT.tpb2(n) = the rig's read.
+var TPB2={ v:2, FROM:101, TO:170, TO1:140, SKIP:[130], band:1, tide:1,   // ⚑ TPB2-Q: THE BAND, Isaac's "101 through 170, excluding level 130" (band 0 = round 1's 101..TO1) · tide 0 = round 1's tide dropped ("drop the tide")
+  more:1, MORE:1.3, RND:'round', PLAINONLY:0, TIDEMORE:0,   // ⚑ TPB2-Q: MORE MEN, one cell each (MORE = the factor on every wave's men · RND = 'round' a half goes up, 5 become 7 | 'floor' 5 become 6 | 'ceil' · PLAINONLY 1 = boss, set-piece, tease and premiere waves keep their counts · TIDEMORE 1 = the tide's clusters grow too)
+  push:1, RUNGS:'odd', PUSHSKIP:[], WAVE:4, SHARE:0.75, HULLS:null, FORM:'push', MORTARS:2, LAG:5, OWN:0, YIELD:1,   // ⚑ TPB2-Q: THE PUSH, one cell each (RUNGS = 'odd' | 'even' | 'all' · PUSHSKIP = rungs that take none · WAVE = the wave it joins · SHARE = of the last wave's men, and of its armor while HULLS is null · HULLS = the hulls it brings, said outright (1 = one tank, 0 = none) · FORM = 'push' THE BIG PUSH on every push rung | 'finale' a bossless rung's own last wave · MORTARS = tubes behind it, 0 = none · LAG = seconds behind the wave's own men · OWN 1 = a wave of its own, eight waves · YIELD = straight losses on the rung after which the push stands down, 0 = never)
+  n:{ stamp:0, more:0, push:0, skip:0, yield:0 }, old:{}, err:0 };
+function tpb2On(){ return (typeof tpbOn==='function') && tpbOn(); }   // ONE switch: round 1's
+function tpb2Band(n){ n=n|0; return n>=TPB2.FROM && n<=(TPB2.band===1? TPB2.TO : TPB2.TO1) && TPB2.SKIP.indexOf(n)<0; }   // a rung of the band
+function tpb2Sync(){ if(typeof TPB!=='object' || !TPB) return 0; TPB.FROM=TPB2.FROM; TPB.TO=(TPB2.band===1? TPB2.TO : TPB2.TO1); TPB.SKIP=TPB2.SKIP.slice(); TPB.tide=(TPB2.tide===1)? 1 : 0; return 1; }   // round 1's tide reads round 2's band and its on/off (round 1's own four cells; no line of its section changes)
+function tpb2PushRung(n){ n=n|0; if(TPB2.push!==1 || !tpb2Band(n) || TPB2.PUSHSKIP.indexOf(n)>=0) return false; return TPB2.RUNGS==='all'? true : TPB2.RUNGS==='even'? (n%2===0) : (n%2===1); }   // every other rung
+function tpb2Yield(){ const k=TPB2.YIELD|0, n=S.levelN|0; return !!(k>0 && S.sq && !S.bf && !S.park && !S.raid && !S.momRaid && !S.coop && !S.rival && !S.train && (((META.lossRun||{})['l'+n])|0)>=k); }   // a solo rung lost YIELD times running: the push stands down (the tide's own solo gates; a lobby never yields)
+function tpb2Parts(groups){ const P=[]; for(const g of groups){ if(!g || g.tease) continue; const d=FDEF[g.t]||{};   // THE MEN of a wave: a foot group's n, an armor group's escort (never a jeep, a tank, a boss, a guest, a vanguard's monster)
+    if(g.f!=='boss' && !d.vehicle && !d.boss && (g.n|0)>0) P.push({ g, k:'n', v:g.n|0 }); if((g.escort|0)>0) P.push({ g, k:'escort', v:g.escort|0 }); } return P; }
+function tpb2Rnd(v){ v=Math.round(v*1000)/1000; return TPB2.RND==='floor'? Math.floor(v) : TPB2.RND==='ceil'? Math.ceil(v) : Math.round(v); }
+function tpb2Scale(P, want){ let tot=0; for(const p of P) tot+=p.v; if(!tot || !P.length) return 0; want=Math.max(P.length, want|0);   // the parts take `want` men between them by their own shares: the whole men first, the leftovers to the largest fractions (a tie: the bigger group, then the first); a group that stands keeps a man
+  const x=want/tot; let sum=0, q=0; for(const p of P){ p.e=p.v*x; p.a=Math.max(1, Math.floor(p.e+1e-9)); sum+=p.a; }
+  while(sum<want && q++<999){ let b=null; for(const p of P){ const d=(p.e-p.a)-(b? (b.e-b.a) : 0); if(!b || d>1e-9 || (Math.abs(d)<=1e-9 && p.v>b.v)) b=p; } b.a++; sum++; }
+  while(sum>want && q++<999){ let b=null; for(const p of P){ if(p.a<=1) continue; if(!b || (p.e-p.a)<(b.e-b.a)-1e-9) b=p; } if(!b) break; b.a--; sum--; }
+  for(const p of P) p.g[p.k]=p.a; return sum-tot; }
+function tpb2PushGroups(cfg, n){ const W=cfg.waves, fin=W[W.length-1]; let src=null;   // (1) THE PUSH's own groups, cut from the rung BEFORE its men grow (fresh objects; no table is touched)
+  if(TPB2.FORM==='finale' && fin && !fin.boss && !fin.piece && fin.groups && fin.groups.length) src=fin.groups.map(g=>Object.assign({}, g));   // a bossless rung's own last wave, as dealt
+  if(!src){ src=waveFromKey('push', cfg.cntMul, function(){ return 0.5; }, n).groups.map(g=>Object.assign({}, g)); if(n>100) for(const g of src){ if(g.t==='tank') g.t='tankv2'; } }   // THE BIG PUSH at this rung's count dial (the shape draws no dice); the elite law: every tank is the V2
+  let men0=0; for(const p of tpb2Parts(src)) men0+=p.v;
+  let arm0=0; for(const g of src){ const d=FDEF[g.t]||{}; if(d.vehicle && g.f!=='boss') arm0+=(g.n|0); }
+  let left=(TPB2.HULLS!=null && TPB2.HULLS>=0)? Math.min(arm0, TPB2.HULLS|0) : (arm0? Math.max(1, Math.round(arm0*TPB2.SHARE)) : 0); const arm=left, out=[];
+  for(const g of src){ const d=FDEF[g.t]||{}; if(g.f==='boss' || g.tease) continue;   // a guest is never copied
+    if(d.vehicle){ if(left<=0){ if(arm>0 || !(g.escort|0)) continue; out.push({ f:'column', t:'tanrifle', n:g.escort|0, e:g.e, at:g.at }); continue; } if((g.n|0)>left) g.n=left; left-=(g.n|0); }   // the armor: the first round(SHARE x armor) hulls (or HULLS of them); a hull that stays home keeps its escort home, and with no hull at all the escorts march as columns
+    out.push(g); }
+  const P=tpb2Parts(out), want=Math.max(P.length, tpb2Rnd(men0*TPB2.SHARE*((TPB2.more===1 && TPB2.MORE>0)? TPB2.MORE : 1))); if(P.length) tpb2Scale(P, want);
+  const lag=(TPB2.OWN===1)? 0 : (+TPB2.LAG||0); for(const g of out){ g.at=+((+g.at||0)+lag).toFixed(2); g.p2=1; }   // p2 = an inert mark (the rig's read)
+  if((TPB2.MORTARS|0)>0 && FDEF.tanmortar) out.push({ f:'line', t:'tanmortar', n:TPB2.MORTARS|0, e:'right', at:+(lag+3).toFixed(2), p2:1 });   // the tubes ride a LINE (the batterie law), authored RAW like the armor: MORTARS is the crew
+  let men=0; for(const p of tpb2Parts(out)) men+=p.v;
+  return { groups:out, men, arm, men0, arm0 }; }
+function tpb2Stamp(cfg, n){ if(!cfg || !cfg.waves || cfg.tpb2 || !tpb2Band(n)) return; const W=cfg.waves, L={ n, more:null, push:null }; TPB2.n.stamp++;
+  const pu=tpb2PushRung(n)? tpb2PushGroups(cfg, n) : null;
+  if(TPB2.more===1 && TPB2.MORE>0 && TPB2.MORE!==1){ const add=[];   // (2) THIRTY PER CENT MORE MEN, wave by wave
+    for(let i=0;i<W.length;i++){ let w=W[i]; if(!w || !w.groups || (TPB2.PLAINONLY===1 && (w.boss || w.piece || w.tease || w.premiere))){ add.push(0); continue; }
+      w=W[i]=Object.assign({}, w, { groups:w.groups.map(g=>Object.assign({}, g)) }); const P=tpb2Parts(w.groups); let tot=0; for(const p of P) tot+=p.v;
+      add.push(tot? tpb2Scale(P, Math.max(tot, tpb2Rnd(tot*TPB2.MORE))) : 0); }
+    L.more=add; TPB2.n.more++; }
+  if(pu && pu.groups.length){ const at=(TPB2.WAVE|0)-1, w=W[at];   // (1) THE PUSH joins wave WAVE (never the last wave, never a boss / set-piece / tease / premiere wave)
+    if(at<1 || at>=W.length-1 || !w || !w.groups || w.boss || w.piece || w.tease || w.premiere) TPB2.n.skip++;
+    else { if(TPB2.OWN===1) W.splice(at, 0, { name:'THE BIG PUSH', groups:pu.groups, p2:1 }); else W[at]=Object.assign({}, w, { groups:w.groups.map(g=>Object.assign({}, g)).concat(pu.groups), p2:1 });
+      L.push={ wave:TPB2.WAVE|0, own:TPB2.OWN===1? 1 : 0, men:pu.men, arm:pu.arm, tubes:(TPB2.MORTARS|0)>0? TPB2.MORTARS|0 : 0, men0:pu.men0, arm0:pu.arm0 }; TPB2.n.push++; } }
+  cfg.tpb2=L; }   // the rung's own ledger (rebuilt with every cfg; never saved, never relayed)
+function tpb2Rig(n, set){ try{ if(set && typeof set==='object'){ const K=Object.keys(set); for(const k of K){ if(k.indexOf('TPB.')!==0) TPB2[k]=set[k]; } if(tpb2On()) tpb2Sync(); for(const k of K){ if(k.indexOf('TPB.')===0 && typeof TPB==='object' && TPB) TPB[k.slice(4)]=set[k]; } }   // the rig's door: cells by name, this page only ('TPB.tide' = a cell of round 1's, set last: the tide's band follows round 2's unless the rig names it)
+    const men=w=>{ let m=0; for(const p of tpb2Parts((w && w.groups)||[])) m+=p.v; return m; };
+    const R=k=>{ const c=levelCfg(k); return { n:k, band:tpb2Band(k), pushRung:tpb2PushRung(k), waves:c.waves.length, men:c.waves.map(men), led:c.tpb2||null, cntMul:+(+c.cntMul).toFixed(4) }; };
+    return { cv:GVT_CV, on:tpb2On()? 1 : 0, v:TPB2.v, FROM:TPB2.FROM, TO:TPB2.TO, TO1:TPB2.TO1, SKIP:TPB2.SKIP.slice(), band:TPB2.band, tideOn:TPB2.tide, more:TPB2.more, MORE:TPB2.MORE, RND:TPB2.RND, PLAINONLY:TPB2.PLAINONLY, TIDEMORE:TPB2.TIDEMORE,
+      push:TPB2.push, RUNGS:TPB2.RUNGS, PUSHSKIP:TPB2.PUSHSKIP.slice(), WAVE:TPB2.WAVE, SHARE:TPB2.SHARE, HULLS:TPB2.HULLS, FORM:TPB2.FORM, MORTARS:TPB2.MORTARS, LAG:TPB2.LAG, OWN:TPB2.OWN, YIELD:TPB2.YIELD,
+      tide:(typeof TPB==='object' && TPB)? { tide:TPB.tide, FROM:TPB.FROM, TO:TPB.TO, SKIP:TPB.SKIP.slice() } : null, rung:(n!=null)? R(n|0) : null, live:(S.cfg && S.cfg.tpb2)||null, n:Object.assign({}, TPB2.n), wraps:Object.keys(TPB2.old), err:TPB2.err }; }catch(e){ TPB2.err++; return { on:tpb2On()? 1 : 0, err:TPB2.err, e:String(e&&e.message||e).slice(0,120) }; } }
+if(tpb2On()) try{
+  tpb2Sync();   // (3) THE BAND: round 1's tide reads 101..170 (and stands or falls by TPB2.tide)
+  if(typeof befStamp==='function'){ TPB2.old.befStamp=befStamp;   // (2) + (1): the rung's waves take their men and their push at levelCfg's foot, after round 1's seat and CARD-BEF's cells
+    befStamp=function(cfg,n){ const r=TPB2.old.befStamp.apply(this, arguments); try{ if(tpb2On()) tpb2Stamp(cfg, n|0); }catch(e){ TPB2.err++; } return r; }; }
+  if(typeof tdlSize==='function'){ TPB2.old.tdlSize=tdlSize;   // the tide's clusters grow by MORE only when TIDEMORE says so (round 1's floor and cap stand)
+    tdlSize=function(){ const k=TPB2.old.tdlSize.apply(this, arguments); try{ if(TPB2.TIDEMORE===1 && TPB2.more===1 && typeof tpbTideRung==='function' && tpbTideRung()) return Math.max(TPB.CLMIN|0, Math.min(TPB.CLMAX|0, Math.round(TPB.CL*((S.cfg && S.cfg.cntMul)||1)*TPB2.MORE))); }catch(e){ TPB2.err++; } return k; }; }
+  if(typeof sqPushWave==='function'){ TPB2.old.sqPushWave=sqPushWave;   // THE PUSH STANDS DOWN on a solo rung just lost: its groups leave the queue as the wave is pushed (the wave's own men march as dealt)
+    sqPushWave=function(n,remote){ const w0=S.wave|0, r=TPB2.old.sqPushWave.apply(this, arguments);
+      try{ if(tpb2On() && (S.wave|0)>w0 && S.cfg && S.cfg.tpb2 && S.cfg.tpb2.push && tpb2Yield()){ let k=0; for(let i=S.queue.length-1;i>=0;i--){ if(S.queue[i] && S.queue[i].p2){ S.queue.splice(i,1); k++; } } if(k){ TPB2.n.yield++; S.cfg.tpb2.yielded=1; } } }catch(e){ TPB2.err++; }
+      return r; }; }
+}catch(e){ TPB2.err++; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT && !GVT.tpb2) GVT.tpb2=tpb2Rig; }catch(e){ TPB2.err++; } }, 0);
+// ═══ END CARD-TPB2 ═══
 // ═══ CARD-KCX · KING CROAK'S EXACT FILES: THE TWO PLUSH TREASURES TAKE THE SAME NUMBERS (sec:CARD-KCX; design/king-croak-exact-1105/00-CARD-KCX.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026),
 // the jumpr guest link 11/5/2026 18:39 UTC (jumpr 3073, built on Maker 1 as M3073), verbatim: "NEW: EXACT FILES -- replace the ones from card 3024 (that export rounded every number to one decimal; these are the
 // originals, numbers untouched). Same names, same keys, same instructions as card 3024; put them wherever those went (game + sheet)." + her standing rule of 11/5/2026 (jumpr 3047): "Twins: when two sheet entries are
