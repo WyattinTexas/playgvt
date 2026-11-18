@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.22","md5":"7f93fd2354d9b32c553ca8c35ccd7c4a","sha":"f4f6461e1e","at":"2026-11-18T05:16:34Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.24","md5":"16943f05b36ec6b2780c1080fad9d4b4","sha":"65cd667927","at":"2026-11-18T06:00:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94345,7 +94345,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.24';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -155865,12 +155865,14 @@ function tmapFitRibbons(el){   // a tongue longer than its arc is squeezed onto 
     const n=tp.textContent.length, G=R-(n-1)*(+(m.getAttribute('letter-spacing'))||0), fs=+(m.getAttribute('font-size'))||13.5; for(let k=0;k<3 && !whole(tp,p);k++) tx.setAttribute('font-size',(fs*(A-6)/G*Math.pow(0.96,k)).toFixed(2)); }catch(e){} });   // 1190 CARD-MR (MR-A6): then the size, by the glyphs' own ratio (a wide face on a long tongue — THE WINTER FIELD's sixteen), three steps at most, each proved
   el.querySelectorAll('.tm-stamp text[textLength="0"]').forEach(tx=>{ try{ tx.removeAttribute('textLength'); tx.removeAttribute('lengthAdjust'); const L=tx.getComputedTextLength(); if(L>124){ tx.setAttribute('textLength','124'); tx.setAttribute('lengthAdjust','spacingAndGlyphs'); } }catch(e){} });
 }
+const VRB_ON=(function(){ try{ const q=/[?&]vrb=([01])(?:&|$)/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_vrb','0'); else localStorage.removeItem('gvt_vrb'); } return localStorage.getItem('gvt_vrb')!=='0'; }catch(e){ return true; } })();   // CARD-VRB (jumpr 3542, design/veiled-ribbon-dim-1116/00-CARD-VRB.md; found by CARD-KWF as its KWF-F4): 0904z THE DARK LAND's statement in travelMapMount that dims every veiled land's ribbon (.dark, opacity .62) stood inside CARD-AM's // comment since 9/23 and never ran: a held land not yet lit opened veiled with its ribbon at full brightness, and nothing brightened at THE REVEAL. It stands on its own line again, before the mount's first layout (born dim, no fade-in). ?vrb=0 = the line as shipped (remembered on the device: gvt_vrb), ?vrb=1 back
 function travelMapMount(kind){   // built + laid out (unpainted, .pre) — the pointer doors bound; the cost measured (TMAP.ms)
   const el=document.getElementById('travelMap'); if(!el) return null;
   TMAP.kind=kind; TMAP.dest=null; TMAP.pick=0; TMAP.pd=null; TMAP.pdLast=null; TMAP.eat=0; TMAP.up=0; TMAP.t0=Date.now(); TMAP.reveal=[];   // t0: the tap that OPENED the map can never pick (its own trailing click lands on the map under reduced motion, where no glass covers it — measured) — TMAP_DEAD ms of dead time
   const t0=performance.now();
   el.className='pre'; setHTML(el, travelMapHTML(kind));
-  TMAP.reveal=(kind==='adventure')? [] : [...el.querySelectorAll('.tm-veil[data-reveal]')].map(v=>v.getAttribute('data-room'));   // CARD-AM 1223 (⚑ AM-Q8): the adventure map never plays the reveal and never writes landLit — a held-but-unlit land stands veiled with its pins dimmed till a ride reveals it el.querySelectorAll('.tm-veil').forEach(v=>{ const g=el.querySelector('.tm-rib[data-room="'+v.getAttribute('data-room')+'"]'); if(g) g.classList.add('dark'); });   /* 0904z THE DARK LAND: the reveal owed = the held lands painted veiled (landVeils15's data-reveal); every veiled land's ribbon wears .dark (dim, legible) — BEFORE the first layout below, so the ribbon is born dim (no fade-in) */
+  TMAP.reveal=(kind==='adventure')? [] : [...el.querySelectorAll('.tm-veil[data-reveal]')].map(v=>v.getAttribute('data-room'));   // CARD-AM 1223 (⚑ AM-Q8): the adventure map never plays the reveal and never writes landLit — a held-but-unlit land stands veiled with its pins dimmed till a ride reveals it
+  if(VRB_ON) el.querySelectorAll('.tm-veil').forEach(v=>{ const g=el.querySelector('.tm-rib[data-room="'+v.getAttribute('data-room')+'"]'); if(g) g.classList.add('dark'); });   /* 0904z THE DARK LAND: the reveal owed = the held lands painted veiled (landVeils15's data-reveal); every veiled land's ribbon wears .dark (dim, legible) — BEFORE the first layout below, so the ribbon is born dim (no fade-in) */
   tmapFitRibbons(el); void el.offsetHeight; mapDogsMount(el); tmapMoversPause(el,1); if(kind==='adventure'){ advFitLabels(el); lgFit(); lgSwipeArm(el); }   // CARD-AM 1223: the pins' name bands measured on the paid layout (one read pass, one write pass)   // the layout paid here; the movers wait under .pre (0853z) · 1040: the map's dogs seated on the paid layout (their homes read off THE PAPER)
   TMAP.ms=Math.round(performance.now()-t0);
   el.onpointerdown=e=>{ if(e.isPrimary===false) return; TMAP.pd={ x:e.clientX, y:e.clientY, id:e.pointerId, bk:(TMAP.kind==='adventure' && lgSwipeDown(e)) }; TMAP.pdLast=TMAP.pd; };   // CARD-LG2 THE SWIPE: bk = the pointer began on the book (lgSwipeDown captures it on the element under the finger)
@@ -230991,6 +230993,32 @@ if(window.GVT && !GVT.lzp) GVT.lzp=function(o){ o=o||{};   // the rig's read and
     chips:Array.from(document.querySelectorAll('#lzpRail .lzp-chip')).map(c=>c.getAttribute('data-id')), chipOn:Array.from(document.querySelectorAll('#lzpRail .lzp-chip.on')).map(c=>c.getAttribute('data-id')),
     track:(LZP.last? LZP.last.map(g=>({ id:g.id, s0:g.s0, s1:(g.s1==null? null : g.s1), live:!!g.live, a:+(g.a||0).toFixed(3), lit:lzpLit(g.id) })) : null), log:LZP.log.slice() }; };
 // ═══ END CARD-LZP ═══
+// ═══ CARD-POF · THE PROMOTIONS ARE OFF: THE SUPPLY DROP'S CALL AND THE LASER PROMOTION DEAL NO MORE (sec:CARD-POF; design/promotions-off-1116/00-CARD-POF.md; jumpr 3592, built on Maker 1 as M3592) ═══
+// FROM WYATT, by phone (jumpr remote, dictated) 11/16/2026 17:08:02 UTC = 12:08 EST, verbatim: "Turn off the Supply drop promotion and Lasers promotion."
+// THE READ: the two whole-glass promotions the room deals by itself at a landing, the ceremony chain's last seat (saleSweep):
+// (1) THE SUPPLY DROP: sec 0821's drop, owed every fifth launch (META.saleDue): CARD-SDI's SUPPLY DROP INBOUND sky (and its first call, META.sdiFirst), or, where every crate is emptied or under
+//     ?sdi=0, the same seat's older face, sec 0821's star sale (starPop('sale'), "FIRE SALE!" on its face since CARD-SDR). OFF = sec 0821's own dial SALE_EVERY at 0 ("0 = never"): every road that
+//     deals it at a launch ends at saleSweep (the landing's line, saleLate, saleReturn), whose two faces' gates read the dial first (sec 0821's own line, CARD-SDI's wrap); the count's tick reads it, and
+//     CARD-LZP's lzpDropOwed reads it too (no owed drop ever holds a promotion back).
+// (2) THE LASER PROMOTION: CARD-LZP's #lzpStage at a quiet landing. OFF = LZP.on 0: lzpWhy() answers 'off' at every landing, lzpSweep deals nothing. Its wraps, laid at load, stay and pass straight
+//     through (no stage ever stands for them to see).
+// WHAT STAYS (the player's own doors, never a promotion): the SUPPLY DROPS aisle at Sarge's Surplus, its three crates and CARD-SDR's fall; the short card and its BUY NOW (the FIRE SALE once for a call
+// already dealt); the piggy's star pop-up and the NO ADS chip; Floop's Lab's LASER ROOM and its buys; the night's PRIME TIME card (CARD-OAD's one a day: the drop no longer takes its day).
+// The count keeps counting (META.launches; the boot tick sits above this line, so a fifth launch's boot still stamps META.saleDue): an owed drop never deals while this section stands, and the switch
+// back deals it at the next quiet landing, as shipped. ⚑ POF.drop / POF.lasers: 1 = that promotion is off (one token each). ?pof=0 (device key gvt_pof) = as shipped, both deal; ?pof=1 clears it.
+// Zero strings, zero CSS, zero save keys, zero server or sw.js bytes, zero edits to shipped functions. The rigs' door: GVT.pof().
+const POF=(function(){
+  const on=(function(){ try{ const q=/[?&]pof=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_pof','0'); else localStorage.removeItem('gvt_pof'); } return localStorage.getItem('gvt_pof')==='0'? 0 : 1; }catch(e){ return 1; } })();
+  return { on, drop:1, lasers:1, every:SALE_EVERY, lzp:(typeof LZP==='object' && LZP)? LZP.on : null };   // ⚑ the dials · every / lzp = what the page held before this section (the rigs' read)
+})();
+window.GVT_POF=POF;
+if(POF.on){
+  if(POF.drop) SALE_EVERY=0;   // THE SUPPLY DROP: sec 0821's own dial, 0 = never
+  if(POF.lasers){ try{ if(typeof LZP==='object' && LZP) LZP.on=0; }catch(e){} }   // THE LASER PROMOTION: its own switch, read by lzpWhy at every landing
+}
+if(window.GVT && !GVT.pof) GVT.pof=function(){ let why=null; try{ why=(typeof lzpWhy==='function')? lzpWhy() : null; }catch(e){}   // the rig's read
+  return { on:POF.on, drop:POF.drop, lasers:POF.lasers, every:SALE_EVERY, everyWas:POF.every, lzp:(typeof LZP==='object' && LZP)? LZP.on : null, lzpWas:POF.lzp, why, saleDue:META.saleDue|0, launches:META.launches|0 }; };
+// ═══ END CARD-POF ═══
 // ═══ CARD-TKF · THE V1 TAN TANK FIRES: ITS GUN WAITS FOR A MAN IN REACH, AND ITS SHOT LEAVES THE BARREL (sec:CARD-TKF; design/tan-tank-fire-1111/00-CARD-TKF.md; FROM WYATT by phone (jumpr remote) 11/11/2026, verbatim: "In the campaign, the v1 tan tanks aren't currently firing. This is a bug report. Please fix.") ═══
 // THE FAULT (measured on v31.47 over every campaign rung 1-100 that fields a V1 tank, with a green line that holds): the cannon's drum (8 s; the V2's 6.15 s) ran from the tank's birth and spent its
 // round whether or not a green stood in its reach, so it fired BLANK every 8 s from the rim on and reached the line with a random drum: its first shell came 0 to 8 s after a green stepped inside
