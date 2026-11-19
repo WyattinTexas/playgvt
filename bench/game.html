@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.65","md5":"8852ea58d6f36954e8692c053d7d9d19","sha":"c02b956a9d","at":"2026-11-19T20:33:27Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.66","md5":"9d7578a6c6fdcbaddeafa4a80bde3bb1","sha":"76a80cf96e","at":"2026-11-19T22:05:36Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94459,7 +94459,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.65';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.66';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -242559,6 +242559,41 @@ function tufRead(o){ o=o||{}; if(o.reset){ TUF.n={ hand:0, live:0, way:0, aside:
 try{ if(window.GVT && !GVT.tuf) GVT.tuf=tufRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.tuf) GVT.tuf=tufRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-TUF ═══
+// ═══ CARD-ENG2-D2RA · PARTY FIGHTS THROUGH THE RELAY, ROAD A, THE SLEEPING WORLD: ITS ON SWITCH AND ITS TWO GATES, READ BEFORE CARD B LAYS ITS WORLD (sec:CARD-ENG2-D2RA, the early half; its foot half stands right before sec:CARD-ENG2-D2SW; design/eng2-program-1115/d2on3/00-CARD-ENG2-D2ON3.md; CARD-ENG2-D2ON3, board J521; the design: design/eng2-program-1115/d2on2/01-DESIGN-SWITCH.md §4 and §6) ═══
+// FROM WYATT 11/16/2026 ~11:25 EST, typed on the Big Mac, verbatim: "The report read we wont be finished by January. Our deadline is much sooner than that."
+// FROM WYATT 11/15/2026 ~10:55 EST, typed on the Big Mac, verbatim: "None of these are "still mine". Orchestrate the building of the engine."
+// WHAT ROAD A IS: a page loaded WITHOUT ?net=1 can play a party fight through the relay. Card B's world (its tick clock, seeded dice, maths, words and hash), card D2's radio, D2HEAL's heal,
+//   D2BATTLE's road and D2ZERO's zero are LAID at load, by the same installs in the same order as on a tester's ?net=1 page, and they lie ASLEEP: card B never steps a solo fight here
+//   (detRuns answers false) and no battle door opens a seeded match but a relay party fight's (detMatch does nothing at any other door), so every solo fight, and every party fight on today's
+//   road, runs the page's own road. A battle wakes the world only when HQ put this party on the relay (D2BATTLE's word, rl 1) and this phone said it can play it (sec:CARD-ENG2-D2SW, rl p1).
+// THE ON SWITCH: RLA_ON (shipped 0) or ?netsw=1 (the rigs' word). It is read HERE because every install reads its own switch at load and card B's comes first: D2SW's RLS_ON stands after
+//   card B's install and cannot steer it (RLS_ON keeps its line and switches nothing now; D2SW's word follows road A, so a page says rl p1 only where it can truly play the fight).
+// THE OFF SWITCHES: ?net=0 (this launch: nothing laid, nothing said) · the server's word off (HQ sends every new battle down today's road at once, and this phone keeps a mark, gvt_rlaoff, so at
+//   its NEXT boot nothing of road A is laid: read off /gvt/health's pn and off the battle replies' rlw by the foot half; the word test or on takes the mark away) · ?det= or ?net=1 (a tester's
+//   page keeps its own road; road A lays nothing there).
+// NAMES: RLA_ON, RLA_KEEP, RLA, rlaGates; re-bound by name, only where road A is laid and BEFORE card B's install: detRuns (false: card B's solo road never runs on such a page; card D2's own wrap of it,
+//   laid on top, answers the relay's fight) and detMatch (a seeded match for the relay's launch alone, its door or a heal's; at any other door a relay fight still standing ends: rlaReset).
+//   Zero css, words, sw or pack bytes; one device key (gvt_rlaoff: '1' = the server's word was off).
+var RLA_ON=0;
+var RLA_KEEP=['gvt_ftc', 'gvt_snc_trip'];   // the two of hunk F's device keys the game writes in ordinary play that no fight reads (CARD-FTC's film seen; CARD-SNC's store count tripped): never counted as a remembered switch
+var RLA=(function(){ const o={ on:0, ok:0, why:'', err:0, e:'', off:0, gates:0, mark:0, quiet:'', boot:'', okFor:'', acc:0, st:{ noword:0, ends:0, marks:0, health:0, heard:'', quiet:0, said:0 } };
+  try{ const q=String(location.search||'');
+    if(/[?&]net=0(?:&|#|$)/.test(q)) o.why='?net=0';
+    else if(/[?&]det=([01])/.test(q) || /[?&]net=1(?:&|#|$)/.test(q)) o.why='a tester\'s page';
+    else if(!RLA_ON && !/[?&]netsw=1(?:&|#|$)/.test(q)) o.why='off';
+    else { let m=null; try{ m=localStorage.getItem('gvt_rlaoff'); }catch(e){ m=null; }
+      if(m==='1'){ o.off=1; o.mark=1; o.why='the server\'s word was off'; } else o.on=1;
+      if(o.on){ try{ const el=document.getElementById('gllib'), t=el? String(el.textContent||'') : '', d=/,D='([^']*)'/.exec(t), L=window.localStorage;   // THE BOOT'S SNAPSHOT: a card switch this phone remembered when the page loaded (what the page read at load stands all launch, removed later or not)
+          if(!d) o.boot='hunk F\'s list was not read'; else { const K=','+d[1]+','; for(let i=0;i<L.length && !o.boot;i++){ const k=L.key(i); if(k && K.indexOf(','+k+',')>=0 && RLA_KEEP.indexOf(k)<0) o.boot='the phone remembered '+k+' at load'; } } }
+        catch(e){ o.boot='the store was not read at load'; } } } }
+  catch(e){ o.err++; o.on=0; o.why='wrap'; o.e=String((e && e.message) || e).slice(0, 120); }
+  return o; })();
+function rlaGates(){ try{   // called once, by card B's DET line, before card B lays its world: both gates, or neither and nothing laid
+    const r0=detRuns, m0=detMatch; if(typeof r0!=='function' || typeof m0!=='function') return false;
+    detRuns=function(){ if(DET.ra) return false; return r0.apply(this, arguments); };
+    detMatch=function(){ if(DET.ra && !(typeof RLY==='object' && RLY && RLY.launching)){ if(typeof rlaReset==='function') rlaReset(); return; } return m0.apply(this, arguments); };
+    RLA.gates=1; return true; }catch(e){ RLA.err++; RLA.e='gates: '+String((e && e.message) || e).slice(0, 120); return false; } }
+// ═══ END CARD-ENG2-D2RA (early) ═══
 // ═══ CARD-ENG2-B THE SAME FIGHT ON EVERY PHONE, THE FIRST SLICE (sec:CARD-ENG2-B; design/eng2-same-fight-1114/00-CARD-ENG2-B.md; the design: design/native-engine-1114/00-DESIGN-ENG2.md §3.6 + §5 card B; from Maker 1).
 // FROM WYATT 11/14/2026 ~19:40 EST, typed on Maker 1, his GO on ENG2-Q1, verbatim: "proceed with it; use ultracode and best practices."
 // THE SWITCH: ?det=1 in the address, this launch only (never remembered: a test switch). WITHOUT IT NOTHING HERE RUNS: no name is wrapped, no clock or die is touched, frame()'s two hunks read detGate() === -1
@@ -242620,6 +242655,7 @@ var DET={ on:(function(){ try{ const q=/[?&]det=([01])/.exec(location.search||''
   nat:{ rnd:null, st:null, dnow:null, pOwn:null, m:{}, mOn:0 },
   inq:[], wseq:0, wl:[], app:0, tin:0, rp:null, rpDone:null, drop:0, lh:null, doorNow:null, doors:[], hold:0, hqUI:false, spd:1, owe:0, paid:0, payN:60, tcost:0, tw0:0, mute:0, so:null, leak:0, leaks:[], lastEv:null, footH:null, camF:null, camN:0, skipGap:0,
   hd:{}, gn:0, wNow:null, aimBtn:null, handF:null, handO:null, handN:0, hw:0, penHid:0, pmx:0 };   // B2b: the holds (a hold's two copies: the fight's and the finger's), the grips counted, the word landing, an AIM word's own 'still on the button', the hand at the last foot (its key, its two objects), HAND words made, a hold's state written from the finger's side   // B2: the words waiting (inq) and landed (wl), a word applying (app), a tick running (tin), the replay (rp), the hold, the dial, the pocket's debt (owe) and its pace (payN), the sentinel
+if(typeof RLA==='object' && RLA && RLA.on && !DET.on && rlaGates()){ DET.on=1; DET.ra=1; }   // CARD-ENG2-D2RA (sec:CARD-ENG2-D2RA): ROAD A lays card B's world on a plain page, ASLEEP, its two gates laid first: card B never steps a solo fight here, and a seeded match opens for a relay party fight alone
 var DET_TID0=1099511627776;   // a tick-clock timer's id starts past 2^40: never a browser's own
 function detOn(){ return !!(DET && DET.on); }
 function detRuns(){ return !!(DET.on && DET.match>0 && S.mode==='play' && !S.coop && !S.evHold); }   // this slice: a solo fight alone
@@ -243275,7 +243311,7 @@ function detDateSwap(on){ try{ if(on){ const N=window.Date; if(N===detDate) retu
   else if(window.Date===detDate && DET_B4.D0) window.Date=DET_B4.D0; }catch(e){} }
 function detSwf(){ const F=window.DET_SWF; return F? { ok:F.ok|0, dev:F.dev|0, addr:F.addr|0, a:(F.a||[]).length, words:(F.a||[]).slice(0, 40), n:F.n|0, A:F.A|0, D:F.D|0, err:F.err||null } : null; }   // hunk F's report: the switch words it took from the address, the device-key reads it answered as never set
 function detB4Wraps(){   // made once, inside the switch's block (off: not one name is touched)
-  try{ const F=window.DET_SWF; if(!F || !F.ok) console.error('CARD-ENG2-B4B9: the card switches are NOT their shipped defaults on this ?det=1 page (hunk F ' + (F? 'failed: ' + (F.err || 'part') : 'is not on this page') + '): its fight may differ from another phone\'s'); }catch(e){}
+  try{ const F=window.DET_SWF; if(!DET.ra && (!F || !F.ok)) console.error('CARD-ENG2-B4B9: the card switches are NOT their shipped defaults on this ?det=1 page (hunk F ' + (F? 'failed: ' + (F.err || 'part') : 'is not on this page') + '): its fight may differ from another phone\'s'); }catch(e){}
   for(const n in DET_DEV) if(detDevWrap(n)) DET.wrapped.push(n);
   for(let i=0;i<DET_OUT4.length;i++) if(detOutWrap(DET_OUT4[i])) DET.wrapped.push(DET_OUT4[i]);
   if(detVwWrap(DET_VW[0])) DET.wrapped.push(DET_VW[0]); if(detVwWrap(DET_VW[1])) DET.wrapped.push(DET_VW[1]);
@@ -243944,6 +243980,7 @@ var RLY={ on:(function(){ try{ return /[?&]net=1(?:&|#|$)/.test(location.search|
   radio:null, run:0, wait:0, launching:0, books:0, deaf:0, capture:null, landing:0, why:'', fam:'', room:'', try:0, pseat:'', key:null, my:null, sets:null, info:null, go:null, late:0, bat:0, t0w:0, goT:0,
   cur:null, behind:0, last:null, noSeat:0, seatAs:null, gen:0, tok:null, said:{}, cid:1, match:0, coop:null, hostReal:false, flags:null, pend:[], ev:[], seen:{}, faults:[], hidden:0, left:0, endWhy:'', log:[],
   st:{ opens:0, starts:0, launched:0, refusedRoom:0, stale:0, ticks:0, words:0, sent:0, swallowed:0, unsent:0, noTick:0, skew:0, catchup:0, muted:0, hushed:0, deafened:0, beacons:0, aways:0, desyncs:0, namedOdd:0, err:0, recipeBig:0, built:0, ownPlace:0, leaks:0, gos:0, canon:0, stray:0, said:0, quits:0, crit:0, paraNo:0, d0:0, seatLand:0 } };
+if(typeof DET==='object' && DET && DET.ra && !RLY.on){ RLY.on=1; RLY.ra=1; }   // CARD-ENG2-D2RA (sec:CARD-ENG2-D2RA): road A lays the radio's part too, asleep: it acts only for a battle HQ put on the relay (the relay's address is set where sec:CARD-ENG2-D2SW reads it)
 var RLY_K={ SPLACE:18 };   // A SEAT'S PLACEMENT, the party's own kind (B2's PLACE is this phone's own): the man's type and spot and his owner's recipe (today's party wire, coopPlaceCmd's own fields), as JSON bytes
 var RLY_OWN=['plastic'];
 var RLY_PIC={ units:['fmcIn', 'trkDr', 'cfaIn', 'rookieHp', 'wobT', 'wobPh', 'wobH'] };   // + rookieHp (the cold read C1-S1): placeUnit stamps it on ANY campaign Sarge from THIS phone's account level; the grit never reads it for a seat's man (coopBy), only the hash did; + the hit wobble (unitWob: drawSprite's own latch, eased toward the man's hits at THIS phone's frame pace: found by step 15's two saves, a veteran's plated men)   // THE PICTURE'S LATCHES on the fight's rows (drawUnit's own: Floop's mega copy, the trench kit, the chess fight's knock): a phone that does not draw that man (another camera, a hidden page) would hash another row; out of B's hash (DET_PIC) while the relay's fight runs   // what each phone keeps of its own and not of the fight: out of B's hash (DET_G) while a relay fight runs. A seat's purse is its own phone's (read and paid at the press, never at another phone's landing)
@@ -247125,23 +247162,115 @@ function cviRead(o){ o=o||{}; if(o.on!=null){ CVI.on=o.on? 1 : 0; try{ if(S.mode
 try{ if(window.GVT && !GVT.cvi) GVT.cvi=cviRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.cvi) GVT.cvi=cviRead; }catch(e){} }, 0);
 // ═══ END CARD-CVI ═══
+// ═══ CARD-ENG2-D2RA · ROAD A, THE SLEEPING WORLD: THE RELAY'S ROAD ON A PLAIN PAGE, THE REMEMBERED SWITCHES, THE SERVER'S OFF MARK (sec:CARD-ENG2-D2RA, the foot half; its early half stands right before sec:CARD-ENG2-B; CARD-ENG2-D2ON3, board J521) ═══
+// Only where road A is laid (DET.ra: the early half's switch, its two gates laid, card B's DET line): NOT ONE NAME BELOW IS TOUCHED on any other page.
+// THE ROAD   HQ alone puts a party on the relay. A road-A page whose party HQ said nothing about (no battle word: a page that did not say rl p1, a server before v173) plays today's road, as every
+//            party fight does today (rlyAsk below: card D2's own road, the address deciding, is a tester's alone); HQ's rl 0 is today's road too (D2BATTLE's own answer).
+// THE WORD   D2BATTLE's rl t1 is a tester's word: never said here (rlbCan below). sec:CARD-ENG2-D2SW says rl p1 instead, and only when this phone can truly play the fight (S2): its address names
+//            no card switch, the relay answers it, AND IT REMEMBERS NO CARD SWITCH (rlaQuiet: hunk F does not run on a plain page, so a phone that stored one of hunk F's device keys would
+//            fight another fight; such a phone says nothing and HQ sends its whole party down today's road). RLA_KEEP: the two of hunk F's keys the game writes in ordinary play that no
+//            fight reads (gvt_ftc, CARD-FTC's film seen; gvt_snc_trip, CARD-SNC's store count tripped): never counted as a switch.
+// THE ACCESSORS ASIDE  card B lays its dial (S.speed) and its four holds on S, and its say window on COMM, as getters and setters at load. While road A sleeps they stand aside as plain fields with
+//            the same values (rlaAccOff): in WebKit, the iPhone's engine, an object that carries an accessor reads EVERY one of its fields slower (measured 11/19: 64 against 70 ms for 20,000,000
+//            reads; the fight reads S everywhere, about 0.06 ms a frame on this Mac). Card B's own accessors are laid back the moment a relay fight launches (rlaAccOn, before its door) and set
+//            aside again when it ends (rlyEnd). Swapped 60 times, both engines read as fast as a plain object (rig/probe/cycBench.mjs).
+// THE MARK   the server's word off reaches this phone two ways: /gvt/health's pn, read once, RLA_HEALTH_MS after load, on any page whose switch is on (laid, or held back by the mark itself),
+//            and a battle reply's rlw. off = gvt_rlaoff '1': at the next boot the early half lays nothing. test or on = the mark taken away. Written only when it changes.
+// THE CHAIN  this half reads that every piece a relay fight needs was laid (card B, card D2's radio, D2BATTLE, D2HEAL, D2ZERO, the radio's kit): RLA.ok. Without it D2SW says nothing, the relay's
+//            address is never set, and card D2's road cannot open a radio: the page plays today's road whatever HQ says.
+// NAMES: RLA_HEALTH_MS, RLA_DEV, RLA_ACC, rlaErr, rlaChain, rlaLate, rlaReset, rlaMark, rlaKeys, rlaQuiet, rlaAccOff, rlaAccOn, rlaHealth, rlaRig, GVT.netra; re-bound by name (only where road A is laid):
+//   rlbCan, rlyAsk, rlbRead, rlyLaunch (card B's accessors laid back first), rlyEnd (set aside after).
+var RLA_HEALTH_MS=20000, RLA_DEV=null, RLA_ACC=null;
+function rlaErr(w, e){ RLA.err++; RLA.e=String(w)+': '+String((e && e.message) || e).slice(0, 120); }
+function rlaChain(){
+  if(!(RLA.gates===1 && typeof DET==='object' && DET && DET.on===1 && DET.ra===1)) return 'card B\'s world is not laid';
+  if(!(typeof RLY==='object' && RLY && RLY.on===1 && RLY.ra===1 && Array.isArray(DET.wrapped) && ['detRuns', 'detGate', 'detIn', 'detMatch', 'coopStartBattle', 'roomStartBattle', 'coopSend', 'coopApply', 'coopOnPoll'].every(function(n){ return DET.wrapped.indexOf(n)>=0; }))) return 'the radio\'s part is not laid';
+  if(!(typeof RLB==='object' && RLB && RLB.on && RLB.laid)) return 'the battle\'s road is not laid ('+((typeof RLB==='object' && RLB)? RLB.why : 'none')+')';
+  if(!(typeof RLH==='object' && RLH && RLH.on && RLH.laid)) return 'the heal is not laid ('+((typeof RLH==='object' && RLH)? RLH.why : 'none')+')';
+  if(!(typeof DZE==='object' && DZE && DZE.on)) return 'the zero is not laid ('+((typeof DZE==='object' && DZE)? DZE.why : 'none')+')';
+  // the cures card B's world lays for a relay fight, laid (the cold read 11/19: their own off words are not on hunk F's address list). CARD-SAF is not one: under card D2's radio it is never laid (D2's own wrap of commSay
+  // drops the out-step SAF looks for: 'no radio door', on a tester's page as here), so its off word changes no relay fight
+  if(!(typeof AFCX==='object' && AFCX && AFCX.on)) return 'the atlas door\'s cure is not laid ('+((typeof AFCX==='object' && AFCX)? AFCX.why : 'none')+')';
+  if(!(typeof AAOX==='object' && AAOX && (AAOX.on || AAOX.why==='no atlas'))) return 'the atlas ask\'s cure is not laid ('+((typeof AAOX==='object' && AAOX)? AAOX.why : 'none')+')';   // (with the atlas off there is nothing to step out)
+  if(!(typeof SprueRadio==='object' && SprueRadio && typeof WebSocket==='function')) return 'no radio kit';
+  if(!(RLA.wr===5)) return 'the road\'s five names are not re-bound';
+  if(!(RLA.acc===1)) return 'card B\'s accessors are not set aside';
+  return ''; }
+function rlaLate(){ if(RLA.lateDue || RLA.lateDone) return; RLA.lateDone=1; if(!RLA.ok) return;   // THE CHAIN'S LATE HALF, once the main script has run: CARD-FFC and CARD-LBD stand after D2SW, so they are read here (a zero timer laid at load; the word's, the road's and the rig's doors ask it too)
+  let why=''; if(!(typeof DET_LBD==='object' && DET_LBD && DET_LBD.on && DET_LBD.laid)) why='the banner\'s cure is not laid ('+((typeof DET_LBD==='object' && DET_LBD)? DET_LBD.why : 'none')+')';
+  else if(!(typeof FFCX==='object' && FFCX && FFCX.on)) why='the dyed picture\'s cure is not laid ('+((typeof FFCX==='object' && FFCX)? FFCX.why : 'none')+')';
+  if(why){ RLA.ok=0; RLA.why='laid, but '+why; try{ if(typeof RLS==='object' && RLS){ RLS.on=0; RLS.why=RLA.why; } }catch(e){} try{ RLY.url=''; }catch(e){} } }   // quiet: D2SW says nothing, no relay address, today's road
+function rlaReset(){ try{ if(typeof RLY==='object' && RLY && RLY.run && !RLY.launching){ RLA.st.ends++; rlyEnd('another battle door opened'); } }catch(e){ rlaErr('reset', e); } }   // (the early half's detMatch gate: a door that is not the relay's launch while a relay fight still stands)
+function rlaMark(off){ off=off? 1 : 0; if(RLA.mark===off) return; RLA.mark=off; RLA.st.marks++;
+  try{ if(off) localStorage.setItem('gvt_rlaoff', '1'); else localStorage.removeItem('gvt_rlaoff'); }catch(e){ rlaErr('mark', e); } }
+function rlaKeys(){ if(RLA_DEV) return RLA_DEV; const K=Object.create(null); let n=0;   // hunk F's device keys, read off the page's first script (the lists it carries), less RLA_KEEP
+  try{ const el=document.getElementById('gllib'), s=el? String(el.textContent||'') : '', d=/,D='([^']*)'/.exec(s);
+    if(d){ const L=d[1].split(','); for(let i=0;i<L.length;i++){ const k=L[i]; if(k && RLA_KEEP.indexOf(k)<0 && K[k]!==1){ K[k]=1; n++; } } } }catch(e){ rlaErr('keys', e); }
+  RLA_DEV={ k:K, n:n }; return RLA_DEV; }
+function rlaQuiet(){ rlaLate(); if(!RLA.ok) return true; let why='';   // true = this phone remembers a card switch, at load or now (or the list or the store cannot be read): it says nothing
+  const code=(typeof COOP==='object' && COOP && COOP.code)? String(COOP.code) : '';
+  if(!RLA.boot && code && RLA.okFor===code){ RLA.quiet=''; return false; }   // once not quiet for this party, not quiet for it (HQ's flip read this phone's word: its answer must reach it; the cold read's find 4)
+  try{ if(RLA.boot) why=RLA.boot;   // what the page read at load stands all launch
+    else { const K=rlaKeys(); if(!K.n) why='hunk F\'s list was not read';
+      else { const L=window.localStorage; for(let i=0;i<L.length && !why;i++){ const k=L.key(i); if(k && K.k[k]===1) why='the phone remembers '+k; } } } }
+  catch(e){ rlaErr('quiet', e); why='the store was not read'; }
+  RLA.quiet=why; if(why) RLA.st.quiet++; else if(code) RLA.okFor=code; return !!why; }
+function rlaAccOff(){ try{ const A=RLA_ACC||(RLA_ACC={ s:{}, c:null, co:null });   // card B's accessors set aside: plain fields, the same values (the dial's own number, each hold's fight copy)
+    const d=Object.getOwnPropertyDescriptor(S, 'speed'); if(d && d.get){ A.s.speed=d; Object.defineProperty(S, 'speed', { configurable:true, enumerable:true, writable:true, value:+DET.spd||1 }); }
+    for(const k in DET_HOLD){ const key=DET_HOLD[k].key, e=Object.getOwnPropertyDescriptor(S, key); if(e && e.get){ A.s[key]=e; const T=DET.hd[k]; Object.defineProperty(S, key, { configurable:true, enumerable:true, writable:true, value:(T && T.sim) || null }); if(T) T.fin=null; } }
+    if(typeof COMM==='object' && COMM){ const c=Object.getOwnPropertyDescriptor(COMM, 'say'); if(c && c.get){ const v=COMM.say; A.c=c; A.co=COMM; Object.defineProperty(COMM, 'say', { configurable:true, enumerable:true, writable:true, value:v }); } }
+    RLA.acc=1; }catch(e){ rlaErr('accessors aside', e); } }
+function rlaAccOn(){ const A=RLA_ACC; if(!A || RLA.acc!==1) return; try{   // card B's own accessors laid back (a relay fight launches): synced to the plain fields first
+    if(A.s.speed){ DET.spd=+S.speed||1; Object.defineProperty(S, 'speed', A.s.speed); }
+    for(const k in DET_HOLD){ const key=DET_HOLD[k].key; if(!A.s[key]) continue; const T=DET.hd[k], v=S[key]; if(T){ T.sim=v||null; T.fin=null; } Object.defineProperty(S, key, A.s[key]); }
+    if(A.c && A.co && COMM===A.co){ const v=COMM.say; Object.defineProperty(COMM, 'say', A.c); COMM.say=v; }
+    RLA.acc=2; RLA.st.accOn=(RLA.st.accOn|0)+1; }catch(e){ rlaErr('accessors back', e); } }
+function rlaHealth(){ RLA.st.health++;
+  try{ netFetch(NET+'/health', { cache:'no-store' }).then(function(r){ return (r && typeof r.json==='function')? r.json() : null; }).then(function(j){ const w=(j && typeof j.pn==='string')? j.pn : '';
+      RLA.st.heard=w; if(w==='off') rlaMark(1); else if(w==='test' || w==='on') rlaMark(0); }, function(){}); }catch(e){ rlaErr('health', e); } }
+function rlaRig(o){ o=o||{}; rlaLate();   // GVT.netra(o): the rigs' read · o.party + o.bm: a rig's party on a road-A page with HQ's word for its battle (rl 1 unless o.rl is 0), then card D2's rig party
+  if(o.party && DET.ra && typeof RLB==='object' && RLB && typeof rlyRigParty==='function'){ const p=o.party;
+    if(o.bm!=null) RLB.word={ code:String(p.code), bm:Math.floor(+o.bm), rl:(o.rl===0)? 0 : 1, rlw:String(o.rlw||''), fam:(p.fam==='r')? 'r' : 's' };
+    rlyRigParty(p); }
+  const g=function(f){ try{ return f(); }catch(e){ return 'ERR '+String((e && e.message) || e).slice(0, 60); } };
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:RLA.on, ok:RLA.ok, why:RLA.why, off:RLA.off, mark:RLA.mark, gates:RLA.gates, err:RLA.err, e:RLA.e, shipped:RLA_ON,
+    laid:g(function(){ return { det:DET.on, ra:DET.ra|0, rly:RLY.on, rlyRa:RLY.ra|0, rlb:RLB.laid|0, rlh:RLH.laid|0, dze:DZE.on|0, runs:detRuns()? 1 : 0, match:DET.match }; }),
+    url:g(function(){ return RLY.url; }), rls:g(function(){ return { on:RLS.on, why:RLS.why, probe:RLS.probe, mem:RLS.mem }; }), quiet:o.quiet? g(function(){ return rlaQuiet()? RLA.quiet : ''; }) : RLA.quiet,
+    keys:g(function(){ return rlaKeys().n; }), keep:RLA_KEEP.slice(), boot:RLA.boot, okFor:RLA.okFor, acc:RLA.acc, st:Object.assign({}, RLA.st) }; }
+if(typeof DET==='object' && DET && DET.ra){ try{ RLA.wr=0;
+    { const c0=rlbCan; rlbCan=function(){ if(RLY.ra) return false; return c0.apply(this, arguments); }; RLA.wr++; }   // D2BATTLE's tester's word (rl t1) is never this page's
+    { const a0=rlyAsk; rlyAsk=function(fam, go){ rlaLate(); if(RLY.ra && !RLY.launching && !(RLA.ok && rlbWord())){   // no battle word from HQ: today's road, the whole party with it
+          if(RLY.run && rlyRuns()){ RLY.st.again=(RLY.st.again|0)+1; return; }   // a running relay fight's door called again: not a new battle (card D2's own answer), no radio
+          RLA.st.noword++; if(RLY.run || RLY.wait) rlyEnd('HQ said no road'); RLY.why='HQ said no road: today\'s road'; return go(); }   // (a fight over but not yet ended is ended first: never a radio HQ did not ask for, the cold read's find C3)
+        return a0.apply(this, arguments); }; RLA.wr++; }
+    { const l0=rlyLaunch; rlyLaunch=function(){ rlaAccOn(); return l0.apply(this, arguments); }; RLA.wr++; }   // card B's accessors laid back before the relay fight's door
+    { const e0=rlyEnd; rlyEnd=function(){ const r=e0.apply(this, arguments); if(!RLY.run && !RLY.launching && RLA.acc===2) rlaAccOff(); return r; }; RLA.wr++; }   // ...and set aside when it ends
+    { const rr0=rlbRead; rlbRead=function(r){ try{ if(r && r.state==='battle' && typeof r.rl==='number') rlaMark(r.rl? 0 : (String(r.rlw||'')==='off'? 1 : 0)); }catch(e){ rlaErr('read', e); } return rr0.apply(this, arguments); }; RLA.wr++; }   // the server's word off on a battle reply: the mark
+    rlaAccOff();   // card B's accessors aside while road A sleeps
+    const why=rlaChain(); RLA.ok=why? 0 : 1; if(why){ RLA.why='laid, but '+why; }
+    RLA.lateDue=1; setTimeout(function(){ RLA.lateDue=0; rlaLate(); }, 0); }
+  catch(e){ RLA.ok=0; RLA.why='laid, but the foot half stopped'; rlaErr('install', e); } }
+if(RLA.on || RLA.off){ try{ setTimeout(rlaHealth, RLA_HEALTH_MS); }catch(e){ rlaErr('health timer', e); } }   // the switch is on here: hear the server's word once this launch (to keep the mark true either way)
+try{ if(window.GVT && !GVT.netra) GVT.netra=rlaRig; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.netra) GVT.netra=rlaRig; }catch(e){} }, 0);   // the rigs' read (the house's way)
+// ═══ END CARD-ENG2-D2RA ═══
 // ═══ CARD-ENG2-D2SW · THE PAGE'S HALF OF THE SWITCH: A PLAIN PAGE THAT CAN TRULY PLAY A PARTY FIGHT THROUGH THE RELAY SAYS SO TO HQ; SHIPPED OFF (sec:CARD-ENG2-D2SW; design/eng2-program-1115/d2on2/01-DESIGN-SWITCH.md S1 to S4 and S6; CARD-ENG2-D2ON2, board J387) ═══
 // THE WORD (S1)   a plain page says rl 'p'+RLY_V on its party posts and its put-away beacon, as a tester's page (?net=1) says 't'+RLY_V (D2BATTLE's wraps). HQ's flip (server v173, _pnet_road) reads every seat's word: under the server's word off or test a page that says p changes nothing for anyone.
-// CAN THIS PHONE PLAY IT (S2)   the radio's kit is on the page; no card switch is named on this launch's address (hunk F's address list, the page's first script: such a launch would fight another fight; a switch only REMEMBERED on the phone is the road's to answer: a page loaded for the relay has hunk F hide it); the relay answers from this phone (one line opened and closed at the party's door, the answer kept for this launch, so a network that blocks the relay never strands a party). Any no = this phone says nothing, and HQ sends its whole party down today's road.
+// CAN THIS PHONE PLAY IT (S2)   the radio's kit is on the page; no card switch is named on this launch's address (hunk F's address list, the page's first script: such a launch would fight another fight; a switch only REMEMBERED on the phone is the road's to answer: a page loaded for the relay has hunk F hide it, and on a road-A page, where hunk F does not run, it silences the phone: sec:CARD-ENG2-D2RA's rlaQuiet); the relay answers from this phone (one line opened and closed at the party's door, the answer kept for this launch, so a network that blocks the relay never strands a party). Any no = this phone says nothing, and HQ sends its whole party down today's road.
 // THE ADDRESS (S3)   RLS_URL; a rig's ?netrelay= names another.   THE OFF SWITCHES (S4)   ?net=0 on the address (this launch only, never stored) and the server's word (read by HQ at the flip: no new client).
-// THE ON SWITCH (S6)   RLS_ON, shipped 0: with it 0 and no ?netsw=1 (the rigs' word) nothing below is laid and no line is opened. Zero css, words, save keys, sw or pack bytes; nothing is stored. A page loaded with ?net=1 keeps D2BATTLE's own word and lays nothing here.
-// THE VOID (S5, server v174)   a tester's page (?net=1): HQ's chair says void:1 on the end it posts for a battle it never fought (rlbEndHQ); a server before v174 answers it as it always did. A watcher told a void battle's end is told no winner and goes home.
+// THE ON SWITCH (S6)   road A's (sec:CARD-ENG2-D2RA: RLA_ON, shipped 0; ?netsw=1 the rigs' word): this section's word and its probe are laid only on a page road A laid whole (RLA.ok), so a page says rl p1 only where it can truly play the fight. RLS_ON keeps its line and switches nothing. Zero css, words, save keys, sw or pack bytes; nothing is stored. A page loaded with ?net=1 keeps D2BATTLE's own word and lays nothing here.
+// THE VOID (S5, server v174)   a tester's page (?net=1) or a road-A page: HQ's chair says void:1 on the end it posts for a battle it never fought (rlbEndHQ); a server before v174 answers it as it always did. A watcher told a void battle's end is told no winner and goes home.
 // NAMES: RLS_ON, RLS_URL, RLS_PROBE_MS, RLS, rlsErr, rlsMemory, rlsProbe, rlsCan, rlsRig, GVT.netsw; re-bound by name: coopPost and coopAwayBeat (only while on), coopPost and rlbEndHQ (only on a tester's page), spcVerdict (answers as before for every word but void).
 var RLS_ON=0, RLS_URL='wss://nationgame.live/relay/radio', RLS_PROBE_MS=4000;
 var RLS=(function(){ const o={ on:0, why:'', err:0, e:'', url:'', probe:0, mem:-1, memWhy:'', st:{ posts:0, said:0, quiet:0, beacon:0, lines:0, answered:0, refused:0 } };
   try{ const q=String(location.search||'');
     if(/[?&]net=0(?:&|#|$)/.test(q)) o.why='?net=0';
     else if(typeof RLY!=='object' || !RLY) o.why='no radio part';
-    else if(RLY.on) o.why='a tester\'s page';
-    else if(!RLS_ON && !/[?&]netsw=1(?:&|#|$)/.test(q)) o.why='off';
+    else if(RLY.on && !RLY.ra) o.why='a tester\'s page';
+    else if(!RLY.ra || typeof RLA!=='object' || !RLA || !RLA.ok) o.why=(typeof RLA==='object' && RLA && RLA.why)? RLA.why : 'off';
     else if(typeof SprueRadio!=='object' || !SprueRadio || typeof RLY_V!=='number' || typeof WebSocket!=='function') o.why='no radio kit';
     else if(typeof coopPost!=='function' || typeof coopAwayBeat!=='function' || typeof coopFam!=='function') o.why='no party door';
-    else { o.on=1; o.url=String(RLY.url||RLS_URL); } }catch(e){ o.err++; o.why='wrap'; o.e=String((e && e.message) || e).slice(0, 120); }
+    else { o.on=1; o.url=String(RLY.url||RLS_URL); if(!RLY.url) RLY.url=o.url; } }catch(e){ o.err++; o.why='wrap'; o.e=String((e && e.message) || e).slice(0, 120); }
   return o; })();
 function rlsErr(w, e){ RLS.err++; RLS.e=String(w)+': '+String((e && e.message) || e).slice(0, 120); }
 // a card switch this launch's address names: read once a launch; a list that cannot be read counts as named (the phone then says nothing)
@@ -247156,7 +247285,7 @@ function rlsProbe(){ if(RLS.probe) return; RLS.probe=2; RLS.st.lines++; let ws=n
   const end=function(v){ if(RLS.probe!==2) return; RLS.probe=v; if(v>0) RLS.st.answered++; else RLS.st.refused++; try{ clearTimeout(T); }catch(e){} try{ if(ws){ ws.onopen=null; ws.onerror=null; ws.onclose=null; ws.close(); } }catch(e){} };
   try{ ws=new WebSocket(RLS.url); ws.onopen=function(){ end(1); }; ws.onerror=function(){ end(-1); }; ws.onclose=function(){ end(-1); }; T=setTimeout(function(){ end(-1); }, RLS_PROBE_MS); }
   catch(e){ rlsErr('line', e); end(-1); } }
-function rlsCan(){ if(!RLS.on || rlsMemory()) return false; if(!RLS.probe) rlsProbe(); return RLS.probe===1; }
+function rlsCan(){ if(!RLS.on || rlsMemory() || (RLY.ra && rlaQuiet())) return false; if(!RLS.probe) rlsProbe(); return RLS.probe===1; }
 function rlsRig(){ return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:RLS.on, why:RLS.why, err:RLS.err, e:RLS.e, url:RLS.url, probe:RLS.probe, mem:RLS.mem, memWhy:RLS.memWhy, laid:RLS.laid|0, shipped:RLS_ON, st:Object.assign({}, RLS.st) }; }
 if(RLS.on){ try{
     { const p0=coopPost; coopPost=function(ep, body, fam){ try{ const f=fam || coopFam(); if(f==='/lobby/' || f==='/room/'){ RLS.st.posts++; if(rlsCan()){ RLS.st.said++; body=Object.assign({}, body||{}, { rl:'p'+RLY_V }); } else RLS.st.quiet++; } }catch(e){ rlsErr('post', e); } return p0.call(this, ep, body, fam); }; }
