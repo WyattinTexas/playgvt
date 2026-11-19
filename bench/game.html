@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.49","md5":"da3ba4b33fec1b81ddb47b6add70385a","sha":"a6754f9225","at":"2026-11-19T04:18:43Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"33.50","md5":"7462cd281646ccf022afafe34e86c330","sha":"201e68fee5","at":"2026-11-19T04:36:22Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94419,7 +94419,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.49';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.50';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -160621,6 +160621,7 @@ window.tlfProbe=function(){ return { on:TLT.on, leg:TLT.leg, arm:TLT.arm, at:TLT
 function showMenu(){
   LAND_N++;   // CARD-TP THE TOUR'S PACING: a landing (the tour's beats come one a landing — tourEndDue · labBeatDue read it)
   awayForfeit();   // 0393: an unresolved away battle folded at the door = the L on the record (the day burned at the serve; ⚑ forfeit rule)
+  try{ gcfDoor(); }catch(e){}   // CARD-GCF THE DOOR: an unresolved computer torch fight folded back to the room = THE WALK-OUT (/ga/cpu won:0 how:walk — HQ's row is held again at once, the line dealt its turn)
   if(S.mode==='play'||S.mode==='win'||S.mode==='lose') themeHome();   // CARD-BMR2 THE BEDROOM'S THEME COMES BACK AFTER A FIGHT (design/bedroom-music-1001/01-BUILD-BMR2.md; WYATT 10/1/2026 18:03, his word on ⚑ BMR-Q1: "Bring the theme back after fights too? Mine: yes, so the bedroom always plays its song when you arrive." = "Yes, and go with recommended for each"): A FIGHT'S WAY HOME IS A LANDING TOO. The mode this door finds before it writes 'menu' below names the road (play = a retreat mid-fight · win / lose = a verdict; title = the boot and menu = the room never knock): the ✕'s own knock, one tick later (themeHome → themeRevive, every guard whole), so the bedroom's floor, or glass over it, plays the theme from its first note, ONE 74 s pass, no loop (⚑ BMR-Q4: no loop), and a landing that opens a park, a lobby or a land in the same breath asks the decoder for nothing
   S.tex=null;   // CARD-TRN-B3: the set never survives the door home (the verdict's Continue, HEADQUARTERS, a rig's showMenu)
   S.mode='menu'; PGFLOW=0; BF_AGAIN=0; rugRoom(false); /* 0998 THE CAMPAIGN RUG I: the room comes off at the hub — every exit path lands here */   // 0625 THE CONTINUOUS CAMPAIGN: any room landing ends the flow (HEADQUARTERS, a party's door, a rig's showMenu) · 0629 BATTLEGROUNDS: PLAY AGAIN — and the lane
@@ -161139,6 +161140,7 @@ function gaBag(r){   // the `ga` bag off /gvt/event/state (the 30 s menu beat ev
   if(g && typeof g.tv==='number' && (g.tv|0)>(META.tv|0)){ META.tv=g.tv|0; champHeal(); saveMeta(); }
   if(g && g.mine && !GA.hold) gaHold(1);
   else if(gaFaceKey(g)!==gaFaceKey(was)) gaRepaint();
+  gcfBag(g, 1);   // CARD-GCF: cf on the bag = my computer fight stands at HQ (its held verdict sent again, or the beat without a game from the browser that fought it)
 }
 function gaSyncBag(r){   // any /gvt/ga/* reply carries the freshest truth
   if(!r || !r.ok) return; if(!EV.ga) EV.ga={ st:'open', name:null, since:0, ends:0, tv:0, mine:0 }; const g=EV.ga, was=gaFaceKey(g);
@@ -161152,6 +161154,7 @@ function gaSyncBag(r){   // any /gvt/ga/* reply carries the freshest truth
   if(typeof r.q==='number') g.q=r.q|0; if(typeof r.htv==='number') g.htv=r.htv|0; if(typeof r.hw==='number') g.hw=r.hw|0; if(typeof r.qpos==='number') g.qpos=r.qpos|0; else if(typeof r.q==='number') delete g.qpos;   // 0898 THE TILE'S NUMBERS ride every /ga/* reply
   if('ld' in r){ g.ld=Array.isArray(r.ld)? r.ld.slice(0,2).map(x=>({ n:String((x&&x.n)||''), w:(x&&x.w)|0, me:(x&&x.me)? 1 : 0 })) : null; gaRacePaint(); } else if(!r.mine) delete g.ld;   // 0940 THE RACE: ld (the day's top two by wins while holding) rides the holder's own replies — the MINE reply, the off beat; a non-holder reply drops a stale one; the standing hold card re-paints
   if(gaFaceKey(g)!==was) gaRepaint();
+  gcfBag(r);   // CARD-GCF: HQ's knock law (gk) on the holder's beat
 }
 function gaRepaint(){ if(S.mode!=='menu') return; if(wartableOpen()){ if(!BFQ && !(GA.q && gaFront())) renderWarTable(); } }   // 0939: the waiting screen (the pill in the foreground) is never repainted under the kid; the table opened by the tile road while in line repaints its WAIT face
 function gaHold(v){ v=v?1:0; if(GA.hold===v){ if(v) gaTick(); return; } GA.hold=v; if(v) gaTick(); else { clearTimeout(GA.t); GA.t=0; GA.pend=null; GA.fol=null; hidArm(false); } if(S.mode==='menu'){ renderMenu(); gaRepaint(); } }
@@ -161330,6 +161333,7 @@ function gaFightCPU(cpu, asChal){   // the knock (asChal false: the holder defen
   startBattlefield(map, 'hard', 1, null, riv);   // the map by NAME (never 'random'): startBattlefield's write-back guard leaves META.bfMap as it was
   if(!S.bf) return false;
   S.bf.ga={ name:name, hex:hex, seed:cpu.seed|0, map:map, chal:asChal? 1 : 0, dl:(riv.dl? riv.dl.w : 0) };   // CARD-DLY: + the deadly iron (0 = a plain challenger)
+  gcfArm(cpu);   // CARD-GCF: a challenger's computer fight beats /ga/poll {cf, game, n} while it runs (cpu.n = HQ's number of the fight, named at the challenge; a knock arms nothing)
   S.ann=asChal? gaBannerChal(name) : gaBanner(name); SFX.horn();
   return true;
 }
@@ -161337,7 +161341,7 @@ function startGauntletCPU(cpu){ return gaFightCPU(cpu, false); }   // the knock'
 function gaBannerChal(name){ return { txt:'THE GAUNTLET', sub:tf('CHALLENGING %1 FOR THE TORCH', String(name||'').toUpperCase()), t:3.2, warn:true, torch:true }; }   // 0904: the ONE new key
 function gaVerdict(bf, won, reason){   // endBattlefield's seat: the CPU fight books its verdict with HQ; a torch room banks the card for the landing · 0896: + the reason (a walk names the walker on the landing's card)
   try{
-    if(bf.ga){ GA.after={ cpu:1, won:!!won, name:bf.ga.name, chal:bf.ga.chal|0 }; gaPost('cpu',{ won:won?1:0 }).then(r=>{ if(r&&r.ok){ gaSyncBag(r); if(r.mine && !GA.hold) gaHold(1); else if(!r.mine) gaHold(0); } }).catch(()=>{}); if(won){ META.tv=(META.tv|0)+1; champHeal(); } }   // 0904: + chal (a challenger's win over a computer holder = the torch is mine → the beat); the reply's mine is the truth either way
+    if(bf.ga){ GA.after={ cpu:1, won:!!won, name:bf.ga.name, chal:bf.ga.chal|0 }; (gcfVerdict(bf, won)||gaPost('cpu',{ won:won?1:0 })).then(r=>{ if(r&&r.ok){ gaSyncBag(r); if(r.mine && !GA.hold) gaHold(1); else if(!r.mine) gaHold(0); } }).catch(()=>{}); if(won){ META.tv=(META.tv|0)+1; champHeal(); } }   // 0904: + chal (a challenger's win over a computer holder = the torch is mine → the beat); the reply's mine is the truth either way
     else if(bf.room && COOP && COOP.ga){ GA.after={ room:1, won:!!won, name:COOP.ga.name, code:COOP.code, held:GA.hold|0, walk:(reason==='walk'||reason==='walkLoss')? 1 : 0 }; if(won){ META.tv=(META.tv|0)+1; champHeal(); } }   // CARD-NP: every write of META.tv heals the TORCH lane
   }catch(e){}
 }
@@ -161355,6 +161359,111 @@ function gaLanding(){   // showMenuTail's seat (before the chain): the room left
     else if(!a.won){ gaHold(0); GA.owed={ kind:'lost', name:a.name||null }; } else { gaHold(1); GA.owed={ kind:'hold', name:null }; if(EV.ga) delete EV.ga.ld; } }   // 0940 ⚑ R5: a knock beaten lands on the hold card (the race paints from the first beat) · 0904 THE COMPUTER TAKES THE TORCH: the knock's loss names the computer on the card — %1 HOLDS IT NOW (a real person's line, ⚑ Q9)
   if(GA.pend && !BFQ && !S.coop && !document.hidden) gaFollow(GA.pend);
 }
+// ═══ CARD-GCF THE GAUNTLET FREEZES WHEN A CHALLENGER WALKS OUT ON A COMPUTER HOLDER (design/gauntlet-cpu-freeze-1117/00-CARD-GCF.md; jumpr 3778 / M3778, a side finding of
+// CARD-LRJ, Maker 1, 11/17/2026). THE BUG: a challenge to a COMPUTER holder (0904) is a solo sim on the challenger's own screen; HQ's row stood `battle` until this client's
+// verdict (endBattlefield → gaVerdict → /ga/cpu) or GA_CPU_FIGHT_S 900 s — RETREAT TO HQ, a closed tab or a crash posted nothing, and for up to 15 minutes every other
+// challenge queued with no turn dealt. THE CLIENT'S HALF (HQ's GCF section is the other): (1) THE DOOR — showMenu's first word beside awayForfeit: an unresolved computer
+// torch fight folded back to the room is THE WALK-OUT (Wyatt 9/8, the room's law: a walking challenger loses at once) → /ga/cpu {won:0, how:'walk'}; (2) THE WEB'S
+// FAREWELL — a browser unloading the page mid-fight sends the same by sendBeacon (the 0292 transport law); a shell's pagehide or a bfcache trip is a PUT AWAY (bdAwayOnHide's
+// split): BACKGROUNDING IS NOT LEAVING (Wyatt 9/8 ~22:50, CARD-GAW 10/29) — nothing is sent on a hide; (3) THE FIGHT'S BEAT — while I fight a computer holder, /ga/poll
+// {cf:1, game:s} every GA_POLL_MS (HQ hears the fight lives; its reply names the fight, cfn); (4) THE FIGHT'S MARK — this browser keeps {t0, hb, n, hid?, v?, walk?} in
+// localStorage (never the save) while the fight runs and until HQ has READ its verdict or walk: only the browser that fought may say it left, and only for the fight its mark
+// NAMES (n = HQ's fight number: a mark left behind by an earlier fight never speaks for a later one, on any phone); (5) THE BEAT WITHOUT A GAME — HQ's bag says my computer
+// fight n stands (cf + cfn) while no page of this browser runs it (in a browser: the mark's heartbeat older than GCF_STALE_MS and not put away; in the app's shell, one page:
+// a new page means the old one is gone): /ga/poll {cf:1, n} — HQ ends it once the fight has been quiet GA_CPU_WALK_S; (6) THE HELD ROAD — a verdict or walk HQ has not READ
+// (a miss, or a gate's answer: the rate wall, a bad request — HQ's own route answers carry `v`, the gates' do not) is sent again ONLY when HQ's bag names its fight (cf + cfn),
+// never blind, never a walk in a verdict's place; every challenger post says ch:1 + n so HQ refuses a late copy (409 over) instead of reading it as a holder's knock verdict or
+// another fight's; (7) THE KNOCK (⚑ GCF-Q1, Wyatt's word): a holder's walk out of the computer's knock is posted only while HQ's beat says gk 1 (its GCF_KNOCK) — today gk is 0
+// and the knock's RETREAT keeps the torch as before. No word key, no css, no save byte (one localStorage key of its own). ?gcf=0 = as shipped. GVT.gcf() = the rig's read. ═══
+var GCF_ON=!/[?&]gcf=0(&|$)/.test(location.search);   // var, never let: showMenu reads the section, and a var is never in the dead zone whatever runs first at boot
+var GCF={ t:0, lt:0, t0:0, n:0, nx:0, busy:false, pend:null, gk:0, beats:0, lefts:0, walks:0, sent:0, log:[] };   // t = the fight's beat · lt = the beat-without-a-game's next try · n = HQ's number of the fight I run · pend = my verdict / walk HQ has not read · gk = HQ's knock law · the counters + log = the rig's
+var GCF_KEY='gvt_gcf', GCF_STALE_MS=60000, GCF_NET_MS=900000;   // THE FIGHT'S MARK's key · a mark whose heartbeat is older than this = no page of this browser runs that fight (a pressed beat is ≤ 12 s) · HQ's net (GA_CPU_FIGHT_S): a mark that never learned its number is moot past it
+function gcfLog(s){ GCF.log.push({ s:String(s), t:Date.now() }); if(GCF.log.length>24) GCF.log.shift(); }
+function gcfMarkGet(){ try{ const m=JSON.parse(localStorage.getItem(GCF_KEY)||'null'); return (m && typeof m==='object')? m : null; }catch(e){ return null; } }
+function gcfMark(o){ try{ if(o===null) localStorage.removeItem(GCF_KEY); else localStorage.setItem(GCF_KEY, JSON.stringify(Object.assign(gcfMarkGet()||{}, o))); }catch(e){} }   // null = the mark gone; an object = merged in
+function gcfMine(){ const bf=S.bf; return !!(GCF_ON && bf && bf.ga && bf.ga.chal && !bf.resolved); }   // I am fighting a computer holder as its challenger, the fight not yet resolved
+function gcfArm(cpu){ if(!gcfMine()) return; GCF.t0=Date.now(); GCF.n=(cpu && (cpu.n|0)>0)? (cpu.n|0) : 0; GCF.pend=null; clearTimeout(GCF.lt); GCF.lt=0; gcfMark(null); gcfMark(Object.assign({ t0:GCF.t0, hb:GCF.t0, hid:document.hidden? 1 : 0 }, GCF.n? { n:GCF.n } : {})); clearTimeout(GCF.t); GCF.t=setTimeout(gcfTick, 0); gcfLog('arm n'+GCF.n); }   // gaFightCPU's seat: the fight's beat and its mark start with the fight, NAMED by HQ at the challenge (cpu.n; an older HQ names it on the first beat) — a knock arms nothing: the holder's own beat carries his game
+function gcfTick(){ clearTimeout(GCF.t); GCF.t=0; if(!gcfMine()) return;   // THE FIGHT'S BEAT: the 0898 wire's `game` = this fight's seconds (HQ stamps the fight alive) + the mark's heartbeat (this page still runs it)
+  GCF.t=setTimeout(gcfTick, nxBeat(GA_POLL_MS, GCF.nx|0, GA_POLL_MS));
+  gcfMark({ hb:Date.now() });
+  if(GCF.busy) return; GCF.busy=true; GCF.beats++;
+  gaPost('poll',Object.assign({ cf:1, game:Math.max(0, ((Date.now()-GCF.t0)/1000)|0) }, GCF.n? { n:GCF.n } : {})).then(r=>{ GCF.busy=false; if(!r || !r.ok) return; if(typeof r.nx==='number') GCF.nx=r.nx|0;
+    if(!('cf' in r)){ clearTimeout(GCF.t); GCF.t=0; gaSyncBag(r); gcfLog('beat: an older HQ (no cf): adopted once, the beat stops'); return; }   // an older HQ answers the stranger's bag, which deals a word once (the rating step): adopted here, never spent unread, and no second beat
+    if(typeof r.cfn==='number' && r.cfn>0 && !GCF.n && gcfMine()){ GCF.n=r.cfn; gcfMark({ n:r.cfn }); }   // a fight HQ did not name at the challenge (an older HQ there): named by the first beat, never renamed
+    if(r.cf===0){ clearTimeout(GCF.t); GCF.t=0; gcfLog('beat: HQ holds no fight of mine'); } }).catch(()=>{ GCF.busy=false; });
+}
+document.addEventListener('visibilitychange', ()=>{ try{ if(gcfMine()) gcfMark({ hid:document.hidden? 1 : 0, hb:Date.now() }); }catch(e){} });   // a fight put away says so in its mark: another tab of this browser never ends it (backgrounding is not leaving)
+function gcfHeard(r){ return !!(r && (r.ok || (r.err && r.v))); }   // HQ's own route answered (its replies carry v; the gates' — the rate wall, a bad request, the rig guard — do not): the post was READ
+function gcfSend(p){   // THE HELD ROAD: my verdict or my walk, posted and held (here and in the mark) until HQ has READ it; sent again only by gcfBag, when HQ's bag names its fight
+  if(p) GCF.pend=Object.assign({ n:0, fly:0, fn:0 }, p);
+  const q=GCF.pend; if(!q || q.fly) return null;
+  q.fly=1; q.n++; GCF.sent++;
+  const body=q.walk? { won:0, how:'walk' } : { won:q.won? 1 : 0 }; if(!q.knock){ body.ch=1; if(q.fn>0) body.n=q.fn; }   // ch = a challenger's post, n = the fight it is for: HQ refuses a late copy or another fight's (409 over)
+  return gaPost('cpu', body).then(r=>{ q.fly=0; const heard=gcfHeard(r);
+    if(heard){ if(GCF.pend===q) GCF.pend=null; if(!q.knock){ const m=gcfMarkGet(); if(!m || !m.n || !q.fn || m.n===q.fn) gcfMark(null); } }
+    gcfLog((q.walk? 'walk' : 'verdict')+' #'+q.n+' '+(r && r.ok? 'ok' : String((r && r.err) || '?'))+(heard? '' : ' (unread)'));
+    if(q.walk) gcfLanded(q, r);
+    else if((q.n>1 || q.again) && r && r.ok){ gaSyncBag(r); if(r.mine && !GA.hold) gaHold(1); else if(!r.mine) gaHold(0); }   // a verdict sent again (or after a relaunch, from the mark) lands as gaVerdict's own reply would have
+    return r;
+  }, e=>{ q.fly=0; gcfLog((q.walk? 'walk' : 'verdict')+' #'+q.n+' miss'); throw e; });
+}
+function gcfLanded(q, r){   // the walk's answer: the bag adopted (the tile reads who holds it now); THE KNOCK's walk that cost the torch ends the hold, and THE TORCH IS LOST names the computer
+  if(!r || !r.ok) return; gaSyncBag(r);
+  if(q.knock && !r.mine && GA.hold){ gaHold(0); gaOwe('lost', r.name || q.name || null); }
+}
+function gcfFn(){ const m=gcfMarkGet(); return GCF.n || (m && +m.n) || 0; }   // the number of the fight I ran (HQ named it on the beat), 0 = never learned
+function gcfVerdict(bf, won){ if(!GCF_ON || !bf || !bf.ga || !bf.ga.chal) return null; clearTimeout(GCF.t); GCF.t=0; gcfMark({ v:won? 1 : 0 }); return gcfSend({ won:won? 1 : 0, fn:gcfFn() }); }   // gaVerdict's seat: the challenger's fought verdict rides the held road (null = gaPost as shipped: the knock, ?gcf=0)
+function gcfDoor(){   // showMenu's first word (beside awayForfeit): an unresolved computer torch fight folded back to the room = THE WALK-OUT, posted once (any door: RETREAT TO HQ, the range's QUIT, a landing that never saw a verdict)
+  if(!GCF_ON) return false; const bf=S.bf; if(!bf || !bf.ga || bf.resolved) return false;
+  if(!bf.ga.chal && !GCF.gk) return false;   // THE KNOCK: today's law (the torch kept, nothing posted) unless HQ's beat says the walk-out costs it (⚑ GCF-Q1)
+  bf.resolved=true; clearTimeout(GCF.t); GCF.t=0; GCF.walks++; gcfLog('door '+(bf.ga.chal? 'chal' : 'knock'));
+  if(bf.ga.chal) gcfMark({ walk:1 });
+  const pr=gcfSend({ won:0, walk:1, knock:bf.ga.chal? 0 : 1, name:bf.ga.name, fn:bf.ga.chal? gcfFn() : 0 }); if(pr) pr.catch(()=>{});
+  return true;
+}
+function gcfFarewell(ev){   // THE WEB'S FAREWELL: a browser unloading the page mid computer fight = the walk-out (a bare JSON string by sendBeacon); a shell's pagehide or a bfcache trip is a PUT AWAY — never a loss
+  if(!GCF_ON || !META.deviceId) return false; const bf=S.bf; if(!bf || !bf.ga || bf.resolved) return false;
+  if(bdInShell() || (ev && ev.persisted)) return false;
+  if(!bf.ga.chal && !GCF.gk) return false;
+  const fn=bf.ga.chal? gcfFn() : 0;
+  const body=JSON.stringify(Object.assign({ device:META.deviceId, cv:GVT_CV, won:0, how:'walk' }, bf.ga.chal? Object.assign({ ch:1 }, fn>0? { n:fn } : {}) : {}));
+  let sent=false; try{ if(navigator.sendBeacon) sent=!!navigator.sendBeacon(NET+'/ga/cpu', body); }catch(e){}
+  if(!sent){ try{ netFetch(NET+'/ga/cpu',{ method:'POST', headers:{'Content-Type':'text/plain'}, body, keepalive:true }).catch(()=>{}); }catch(e){} }
+  if(bf.ga.chal) gcfMark({ walk:1 });   // a beacon is never answered: the mark keeps the walk until HQ's bag says its fight is gone (or sends it again if the bag still names it)
+  bf.resolved=true; clearTimeout(GCF.t); GCF.t=0; GCF.walks++; gcfLog('farewell '+(sent? 'beacon' : 'fetch'));
+  return true;
+}
+window.addEventListener('pagehide', (ev)=>{ try{ gcfFarewell(ev); }catch(e){} });
+function gcfBag(g, bag){   // gaBag's seat (bag 1: /gvt/event/state — the one reply that always says cf + cfn while HQ holds my computer fight) + gaSyncBag's (every /ga/* reply: HQ's knock law gk on the holder's beat)
+  if(!GCF_ON || !g) return;
+  if(typeof g.gk==='number') GCF.gk=g.gk|0;
+  if(gcfMine()) return;   // fighting it: the fight's beat speaks
+  let m=gcfMarkGet();
+  if(!g.cf){ if(bag && m && !GCF.pend) gcfMark(null); return; }   // the bag says HQ holds no computer fight of mine: a mark left behind is moot (HQ read the walk, or the net ended it)
+  const cfn=(typeof g.cfn==='number')? g.cfn|0 : 0; if(!cfn) return;   // an HQ that does not name the fight: no word of mine can be matched to it
+  if(m && (m.n? (+m.n!==cfn) : (Date.now()-(+m.t0||0) > GCF_NET_MS))){ gcfMark(null); m=null; }   // a mark for ANOTHER fight (or one that never learned its number, older than the net): it never speaks for this one
+  if(GCF.pend && GCF.pend.fn!==cfn) GCF.pend=null;   // a held post for another fight (or one whose fight was never named): never sent into this one
+  if(!GCF.pend && m && m.n && (m.walk || m.v===0 || m.v===1)) GCF.pend={ n:0, fly:0, again:1, fn:cfn, walk:m.walk? 1 : 0, won:m.v===1? 1 : 0 };   // a relaunch: the verdict (or walk) HQ never read comes back from the mark that names this fight
+  if(GCF.pend){ if(!GCF.pend.fly && GCF.pend.n<8){ const pr=gcfSend(null); if(pr) pr.catch(()=>{}); } return; }   // HQ's bag names its fight: it never read it — sent again, never a walk in its place
+  if(!m || !m.n) return;   // no mark naming this fight in this browser: another phone of mine fights it (or a page from before this card) — never my word to end it
+  gcfLeft(cfn);
+}
+function gcfLeft(cfn){   // THE BEAT WITHOUT A GAME: this browser fought fight cfn, no page of it runs it any more, HQ still holds it — HQ ends it once quiet GA_CPU_WALK_S (cf_in = when to say it again)
+  clearTimeout(GCF.lt); GCF.lt=0;
+  if(!GCF_ON || gcfMine() || GCF.busy || GCF.pend) return;
+  const m=gcfMarkGet(); if(!m || !m.n || +m.n!==cfn) return;
+  if(!bdInShell()){   // a browser may run another tab of the game: the fight is left only when its page has gone quiet and was not merely put away (the app's shell runs one page: a new page means the old one is gone)
+    if(m.hid) return;   // put away when last heard of: backgrounding is not leaving (the 900 s net is HQ's for a tab that never comes back)
+    const age=Date.now()-(+m.hb || +m.t0 || 0); if(age<GCF_STALE_MS){ GCF.lt=setTimeout(()=>gcfLeft(cfn), GCF_STALE_MS-age+500); return; }
+  }
+  GCF.busy=true; GCF.lefts++;
+  gaPost('poll',{ cf:1, n:cfn }).then(r=>{ GCF.busy=false; if(!r || !r.ok) return;
+    if(r.cf===1){ if(typeof r.cf_in==='number') GCF.lt=setTimeout(()=>gcfLeft(cfn), (Math.max(0, r.cf_in|0)+1)*1000); return; }   // inside HQ's grace: once more when it ends
+    gcfMark(null);   // HQ holds no fight of mine now (ended on this beat, or before), or its fight is not my mark's
+    if(r.walked || r.void){ gcfLog(r.walked? 'left: the walk-out booked' : 'left: the fight void'); gaSyncBag(r); } }).catch(()=>{ GCF.busy=false; });
+}
+setTimeout(()=>{ try{ if(window.GVT && !GVT.gcf) GVT.gcf=function(){ const bf=S.bf; return { cv:GVT_CV, on:GCF_ON, mine:gcfMine(), n:GCF.n|0, gk:GCF.gk|0, beats:GCF.beats|0, lefts:GCF.lefts|0, walks:GCF.walks|0, sent:GCF.sent|0, beating:!!GCF.t,
+  pend:GCF.pend? { won:GCF.pend.won|0, walk:GCF.pend.walk|0, n:GCF.pend.n|0, fly:GCF.pend.fly|0, fn:GCF.pend.fn|0 } : null, mark:gcfMarkGet(), ga:(bf&&bf.ga)? { chal:bf.ga.chal|0, name:String(bf.ga.name||''), resolved:!!bf.resolved } : null, log:GCF.log.slice() }; }; }catch(e){} }, 0);   // the rig's read (a getter: nothing written)
 // ── THE CARDS (#milePop's .mb-card grammar): THE TORCH IS YOURS · THE TORCH IS LOST · YOU HELD THE GAUNTLET · the Gauntlet's own card off the quiet faces ──
 // ═══ 0940 THE RACE ON THE HOLD CARD + TIES PAY BOTH (design/gauntlet-0907/00-DESIGN.md §11; Wyatt 9/10/2026 ~20:25 ET: "when it tells you you're holding the torch, it should also tell
 // you who is winning, who's ahead of you, and how many wins you need to be the leader. Those are the only ones that really matter. You should just know the current leader's amount and
