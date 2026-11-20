@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.86","md5":"de5197025e84b7b6c0fed9d03f291a92","sha":"104fe78a6e","at":"2026-11-20T17:41:41Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"33.87","md5":"9d091f5965c8d7051ba51b54a8379a1a","sha":"a2b4dc0e7d","at":"2026-11-20T19:14:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -58483,7 +58483,7 @@ function spsSargeCut(){ try{ const own=SPS.old.spbOwned();   // the line after t
 //   NOT IN THIS SLICE (the next cards): RETURN TO SENDER, CALL THE CAVALRY, THE GONG, THE WHOLE CAVALRY, and the owner's word for the cracks in a party (each game counts its own copy today, as the Claymore's three blocks do).
 var DSH={ on:(function(){ try{ const m=/[?&]dsh=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_dsh','0'); else localStorage.removeItem('gvt_dsh'); } return localStorage.getItem('gvt_dsh')==='0'? 0 : 1; }catch(e){ return 1; } })(),
   wk:'shield',
-  C:{ LVL:30,                                   // DSH-Q3 A (HIS WORD 11/10): the door = COMMANDER LEVEL 30
+  C:{ LVL:30, TV:50,                            // DSH-Q3 A (HIS WORD 11/10): the door = COMMANDER LEVEL 30 · CARD-SHG (11/20/2026): TV 50 IS THE DOOR NOW, fifty Gauntlet victories (META.tv; sec:CARD-SHG); LVL stays, read by no door while the switch is on
       PACE:0.7, GRIT:2,                          // the walk (the pass's own dial: 40 x 0.7 = 28 px/s on the rug) · behind the shield he is a plain Sarge on the saber's own health row (twice the rug's hits)
       BASH_R:36, BASH_CD:1.4, BASH_T:0.34, BASH_AT:0.12, BASH_DMG0:4, BASH_DMG_PER:1.2, BASH_PUSH:84, BASH_FLAT:1.2, BASH_BOWL:18,   // THE BASH: reach · one every 1.4 s · the drawn clock · the hurt lands here · 4 + 1.2 a rank unit · thrown 3 m · flat this long · the man he lands on, inside this
       COUNT:1, CRACKS:3, MEND:6,                 // DSH-Q2: COUNT 1 = B (REC: big hits crack it, three cracks, one mends 6 s after the last big hit) · 0 = A (no count: every big hit at the shield stops) · 2 = C (big hits land as today)
@@ -58634,13 +58634,36 @@ function dshPaintShield(u, d, k){
   cx.restore(); }
 // ---- THE SWITCH'S CUT (the line after CARD-SPS's, past SARGE_ORDER's TDZ and the soul's normaliser): off = the key leaves every surface that walks the list and the hand holds the pistol; on again = the hand it left
 DSH.old.wkOwned=wkOwned; wkOwned=function(wk){ if(wk===DSH.wk && !dshOn()) return false; return DSH.old.wkOwned(wk); };
-function dshSargeCut(){ try{ if(!dshOn()){ const i=SARGE_ORDER.indexOf(DSH.wk); if(i>=0){ DSH.seat=i; SARGE_ORDER.splice(i,1); }
+function dshSargeCut(){ try{ if(!dshOn()){ const i=SARGE_ORDER.indexOf(DSH.wk); if(i>=0 && !shgShow() /* CARD-SHG: CARD-SLK's lock leaves it ON the list, a locked iron with the Gauntlet's door; the device's own ?dsh=0 still cuts it */){ DSH.seat=i; SARGE_ORDER.splice(i,1); }
       if(META.sargeWeapon===DSH.wk){ META.sargeWeapon='pistol'; META.dshHand='pistol'; DSH.hand='pistol'; } }
     else { if(META.dshHand && META.sargeWeapon===META.dshHand && DSH.old.wkOwned(DSH.wk)){ META.sargeWeapon=DSH.wk; DSH.hand=DSH.wk; } if(META.dshHand!==undefined) delete META.dshHand; } }catch(e){ DSH.err++; } }
 function dshRig(){ const g=f=>{ try{ return f(); }catch(e){ return null; } };   // the rig door (GVT.dsh): the read, no writes
   return { on:DSH.on, C:DSH.C, n:DSH.n, err:DSH.err, order:g(()=>SARGE_ORDER.slice()), own:g(()=>wkOwned(DSH.wk)), hand:g(()=>META.sargeWeapon), rank:g(()=>(META.sargeUp||{})[DSH.wk]||0), lvl:g(()=>META.lvl|0),
     men:g(()=>S.units.filter(u=>u.dsh && !u.dead).map(u=>({ id:u.id, x:Math.round(u.x), y:Math.round(u.y), hits:u.hits||0, hp:u.hp, cr:u.dsh.cr, scar:u.dsh.scar, n:u.dsh.n, fs:u.dsh.fs }))), stalled:DSH.st.length }; }
 // ═══ end sec:CARD-SHD ═══
+// ═══ sec:CARD-SHG · THE SHIELD'S DOOR MOVES: FIFTY GAUNTLET VICTORIES, NOT COMMANDER LEVEL 30 (jumpr 4222, board J626; design/shield-gauntlet-door-1120/00-CARD-SHG.md) ═══
+// FROM THE USER on Maker 1 (account K's seat), 11/20/2026, typed, verbatim: "Have the Shield Weapon unlock for players who have achieved 50 Guantlet victories. high priority."
+//   Asked two questions, the answers: "Replace; keep owners" (fifty Gauntlet victories replace commander level 30 as the way in; an army that already has the Shield keeps it) and: build it on the Big Mac.
+// THE DOOR: META.tv (the Gauntlet's lifetime victories, booked by HQ, +1 on a local win; every write of it is followed by champHeal) at DSH.C.TV. THE SHIELD's row carries tv:DSH.C.TV and sargeDue
+//   (the ONE predicate) reads it: due at fifty victories, whatever the level; every other row by its level, as before. DSH.C.LVL stays in the code, read by no door while the switch is on.
+// THE LOCK (CARD-SLK: the code SHIELD, the kept Escort): an army at the door is not locked (slkGate). Below it, with no code and no keep, the lock holds in all but the cut: THE SHIELD stays on
+//   SARGE_ORDER as a locked iron (the academy's lock chip shows the count, 12/50; its sheet says the door and the count), never owned, never in hand (the pistol: META.dshHand), its lab parts, trophy and rungs out.
+//   The code SHIELD (CARD-SLK's row, and Laura's Knight Set test word: CARD-KTC) stands as it is.
+// THE CROSSING (the second block, below END CARD-SLK): champHeal is wrapped after the load line, so the count reaching the door lifts the lock in this page (CARD-SLK's own lift, no code key written)
+//   and runs the one grant walk at once; the moment is the weapon's own card, through riteList at the landing (between play, never over a fight), its band the rung that paid it (50 TORCH VICTORIES!).
+// THE SWITCH: ?shg=0 (kept on the device in gvt_shg until ?shg=1) = HEAD by trace: the level row, the lock with its cut, the words as they were. GVT.shg() = the rig's door (a read).
+var SHG={ on:(function(){ try{ const m=/[?&]shg=([01])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_shg','0'); else localStorage.removeItem('gvt_shg'); } return localStorage.getItem('gvt_shg')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  n:{ cross:0, lift:0, grant:0 }, err:0, e:'' };   // the switch · the counts (the rig reads them; nothing in the game does) · the last error
+function shgOn(){ return typeof SHG==='object' && !!SHG && SHG.on===1; }   // safe before its own line has run (a hoisted var reads undefined there)
+function shgTv(){ try{ return Math.max(0, (META && META.tv)|0); }catch(e){ return 0; } }   // this army's Gauntlet victories
+function shgEarned(){ return shgOn() && shgTv()>=DSH.C.TV; }   // the count stands at the door
+function shgShow(){ return shgOn() && !!DSH.on && !!DSH.slk; }   // CARD-SLK's lock holds this army on a device whose own switch is on: THE SHIELD stands on the lists as a locked iron with the Gauntlet's door
+function shgRow(wd){ return shgOn() && !!wd && (wd.tv|0)>0; }   // a row whose door is the Gauntlet (THE SHIELD's)
+function shgLock(wd){ return shgRow(wd)? Math.min(shgTv(), wd.tv)+'/'+wd.tv : ''; }   // the academy's lock chip (eqIronHTML, data-notr): the count alone, 12/50 (the words overflow its card in five tongues of seven; the sheet says them; no space: one number run in an Arabic line)
+function shgSheet(wd){ if(!shgRow(wd)) return ''; const n=shgTv();   // the locked sheet (UI.wepInfo): the door as a text node (the write hook finds its {0} key) and the count in its own data-notr span
+  return gly('lock')+' WIN '+wd.tv+' GAUNTLET MATCHES'+(n>0? '<span data-notr> · '+escH(tf('%1 OF %2 WON', Math.min(n, wd.tv), wd.tv))+'</span>' : ''); }
+function shgBand(wk){ const wd=SARGE_WEAPONS[wk]; return (shgRow(wd) && shgTv()>=wd.tv)? tf('%1 TORCH VICTORIES!', wd.tv) : ''; }   // the rite card's band: the rung that paid it, in the Champions set's own words (outfitSweep's band, the key x7); an army the code opened keeps the level's
+// ═══ end sec:CARD-SHG (its second block stands below END CARD-SLK) ═══
 // ═══ CARD-DUT ONE OF YOUR OWN MEN THE GAME DRAWS THROUGH A SECOND CALL IS DRAWN ONCE (jumpr 3335, board J58-3335; design/units-drawn-twice-1113/00-CARD-DUT.md; the brief: design/drawn-twice-1112/cards/CARD-DUT-units-drawn-twice.md, a fault CARD-DFT found on the way: its twin, on drawUnit) ═══
 // The game's own drawUnit (far down this script) calls drawUnit AGAIN by its global name for three kinds of man of yours, each under its own latch: a man a chess piece has knocked (cfaFlyDraw, u.cfaIn),
 // Floop's mega copy (fmcDraw, u.fmcIn) and a man of the trench kit going under, climbing out or standing in his own trench (trkDraw, u.trkDr). The global name is the outermost of the cards' wraps of
@@ -77573,7 +77596,7 @@ const SARGE_WEAPONS = {
   // (v1.6.1) kept truthful with rows ×6 (the v1.73 law).
   commander: { name:'THE CLAYMORE',  unlock:0,  desc:'A steel saber and a wall of muscle — he walks in slow, blocks the first few hits, and swings back hard.' },
   spellbook: { name:'THE SPELLBOOK', unlock:75, /* CARD-SPB-BUILD R2 (Isaac 10/16/2026 13:43 EDT: "Change the progression to lock at normal level 75 and then align the progression more like the saber."): the saber's door, COMMANDER LEVEL 75 (SPB_LVL) */ desc:'An old book of spells and a little wand. He throws magic orbs that burst on a whole cluster, quicker than a bazooka and a little softer.' },   // CARD-SPB THE SPELLBOOK (design/spellbook-1016 + design/spellbook-build-1016; FROM ISAAC 10/16/2026, his go 13:04 EDT: "push the spellbook to live. Make it the next item acquired after the Claymore and then apply the same rules to it as the other Sarge weapons"): unlock:0 = the Claymore's law (out of the level grant walk; owned by the co-op record through wkOwned -> spbOwned)
-  shield:    { name:'THE SHIELD',    unlock:DSH.C.LVL, /* CARD-SHD (jumpr 3189; WYATT 11/10/2026 10:47 EST, verbatim: "we want it to be at level 30 that the player gets it"): the door = COMMANDER LEVEL 30 (the dial DSH.C.LVL, DSH-Q3 A; sargeDue / sargeLvlGrant hand it over like the shotgun's 3, the sniper's 10, the saber's 20) */ desc:'A knight\'s shield and a slow, steady walk. Every shot and every flame stops at it. Only a blast gets through. His one attack is the shield itself.' }   // CARD-SHD THE SHIELD, Sarge's sixth weapon, in the shelved book's seat (sec:CARD-SHD)
+  shield:    { name:'THE SHIELD',    unlock:DSH.C.LVL, tv:DSH.C.TV, /* CARD-SHG (11/20/2026): THE DOOR IS FIFTY GAUNTLET VICTORIES (META.tv): sargeDue reads tv while the switch is on; unlock is left to the boss testing tool's level pick (?shg=0: the level row, as before) */ /* CARD-SHD (jumpr 3189; WYATT 11/10/2026 10:47 EST, verbatim: "we want it to be at level 30 that the player gets it"): the door = COMMANDER LEVEL 30 (the dial DSH.C.LVL, DSH-Q3 A; sargeDue / sargeLvlGrant hand it over like the shotgun's 3, the sniper's 10, the saber's 20) */ desc:'A knight\'s shield and a slow, steady walk. Every shot and every flame stops at it. Only a blast gets through. His one attack is the shield itself.' }   // CARD-SHD THE SHIELD, Sarge's sixth weapon, in the shelved book's seat (sec:CARD-SHD)
 };
 // 'commander' rides LAST so every shipped surface's order is untouched and the
 // new card renders after the saber everywhere it is dealt (once it exists at all).
@@ -78405,7 +78428,7 @@ function wkOwned(wk){ return wk==='pistol' || (wk==='commander'? cmdOwned()
 // award (the crossing verdict's own ticket) and riteList's first line (the picker's rite, the room chain's seat — THE RESCUE for a save
 // already past a gate: every veteran, at its next landing, once). The card = riteWepOpen, byte-what-it-was but its band (the live level).
 // Every surface that names the number reads THIS ladder: the academy card's lock line, the locked card's sheet, the pop-up, the ticket. ═══
-function sargeDue(wd){ return wd.unlock>0 && (META.lvl|0)>=wd.unlock; }
+function sargeDue(wd){ return (wd.tv>0 && shgOn())? (META.tv|0)>=wd.tv : (wd.unlock>0 && (META.lvl|0)>=wd.unlock); }   // CARD-SHG: a row with a Gauntlet door (THE SHIELD's tv) is due at that many Gauntlet victories, never by its level; ?shg=0 = the level alone, as before
 function sargeLvlGrant(){ const out=[]; for(const wk of SARGE_ORDER){ const wd=SARGE_WEAPONS[wk]; if(sargeDue(wd) && META.sargeUnlocked.indexOf(wk)<0){ META.sargeUnlocked.push(wk); out.push(wk); } } if(out.length) saveMeta(); return out; }
 // ===== 0621 THE CODES COUNTER (FM-GVT-CODES-01 — design/codes-counter-0829/00-DESIGN.md; Wyatt 8/29 11:56 by phone:
 // "Add in the last tab of Sarge's Surplus a tab that says Codes. When you go there, there's just an input field. You
@@ -94459,7 +94482,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.87';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -187276,7 +187299,7 @@ function eqIronHTML(wk){ const eq=META.sargeWeapon||'pistol', own=wkOwned(wk), s
   return '<button type="button" class="eq-iron'+(own? (wk===eq? ' eq' : '') : ' lk')+(sab? ' sab' : '')+'" id="fhwep-'+wk+'" data-wep="'+wk+'"'+(own? '' : ' data-own="0"')+(sab? ' style="--sab:'+saberHex()+'"' : '')+' onclick="UI.'+(own? 'fortWep' : 'fortIron')+'(\''+wk+'\')">'
     +((own && wk===eq)? '<span class="fh-pflag">IN HAND</span>' : '')
     +'<span class="eq-ipic"><img src="'+wepAloneURI(sargeArtW(wk))+'" alt=""></span><span class="eq-in">'+wd.name+'</span>'
-    +(own? '<span class="eq-il">'+acRankHTML('w',wk,r)+'</span>' : '<span class="eq-il" data-notr>'+gly('lock')+' '+escH(tf('LEVEL %1', wd.unlock))+'</span>')+'</button>'; }   // an owned iron: its rank row (acRankHTML, the caption's own line) · a locked one: the lock and the level that opens it, in the player's tongue by tf (the key LEVEL %1 stands x7; a glyph beside a text node is not a key the write hook finds, so the line is written translated and marked data-notr)
+    +(own? '<span class="eq-il">'+acRankHTML('w',wk,r)+'</span>' : '<span class="eq-il" data-notr>'+gly('lock')+' '+escH(shgLock(wd) /* CARD-SHG: THE SHIELD's chip is the Gauntlet's count, 12/50 */ || tf('LEVEL %1', wd.unlock))+'</span>')+'</button>'; }   // an owned iron: its rank row (acRankHTML, the caption's own line) · a locked one: the lock and the level that opens it, in the player's tongue by tf (the key LEVEL %1 stands x7; a glyph beside a text node is not a key the write hook finds, so the line is written translated and marked data-notr)
 function eqIronsHTML(){ const L9=SARGE_ORDER.filter(wk=>wk!=='commander' || cmdOwned());   // an unowned Commander is absent (0092)
   return '<div class="eq-irons" data-n="'+L9.length+'" style="--eq-n:'+L9.length+'">'+L9.map(eqIronHTML).join('')+'</div>'; }
 function eqCapHTML(wk){ const wd=SARGE_WEAPONS[wk]||SARGE_WEAPONS.pistol;   // under him, one line: the iron in hand named, its ⓘ, the blade's own button (the flag and the rank ride the iron's card)
@@ -189533,7 +189556,7 @@ function riteWepOpen(wk){
   if(WPM.open(wk)) return;   // CARD-WPM-B1 THE NEW WEAPON MOMENTS: a weapon with a row in the stage's table (WPM.M) deals its moment on the stage in place of this card (the stage plays its own fanfare at the title); every other key keeps the card below
   const p=document.getElementById('milePop'); if(!p) return;
   p.innerHTML='<div class="mb-card'+nmCls('wep',wk)+'">'
-    +'<span class="mb-band">'+('LEVEL '+(META.lvl|0)+'!')+'</span>'   // 0903 NEW COMMANDER FIXES (FIX 5): the band is a RECEIPT — the commander level the kid stands at when the card deals (equal to the gate at the crossing; the level he is at when a rescue deals it late)
+    +'<span class="mb-band">'+(shgBand(wk) /* CARD-SHG: THE SHIELD the Gauntlet paid for: 50 TORCH VICTORIES! */ || ('LEVEL '+(META.lvl|0)+'!'))+'</span>'   // 0903 NEW COMMANDER FIXES (FIX 5): the band is a RECEIPT — the commander level the kid stands at when the card deals (equal to the gate at the crossing; the level he is at when a rescue deals it late)
     +utBrow('weapon')+'<h2 class="mb-h">'+SARGE_WEAPONS[wk].name+'</h2>'
     +'<span class="mb-win">'+MB_RAYS+'<img src="'+sargeWepURI(sargeArtW(wk), dyeHex()||undefined)+'" alt=""></span>'
     +'<span class="mb-line">'+RITE_LINE[wk]+'</span>'
@@ -193122,7 +193145,7 @@ window.UI = {
     SFX.blip();
     const own=wkOwned(wk), r=own? Math.min(RANK_MAX, (wk==='pistol'? pistolRank() : (META.sargeUp[wk]||0))) : 0;
     roomModal('<div style="display:flex;gap:14px;align-items:center"><canvas class="mnport" width="'+(MN_W*MN_DPR)+'" height="'+(MN_H*MN_DPR)+'" style="width:'+MN_W+'px;height:'+MN_H+'px"></canvas>'   // 0597 THE WEAPON MANUALS MOVE: THE LIVING PORTRAIT in the art's seat — Sarge working this iron (MN_WEP, mnPortrait's own machine)
-      +'<div><h3 style="margin:0">'+wd.name+'</h3><small style="opacity:0.6">'+(own? ('UPGRADE RANK '+r+' / '+RANK_MAX) : (gly('lock')+' REACH COMMANDER LEVEL '+wd.unlock))+'</small>'   // 0903 NEW COMMANDER FIXES: the same ladder, the same number as the academy card
+      +'<div><h3 style="margin:0">'+wd.name+'</h3><small style="opacity:0.6">'+(own? ('UPGRADE RANK '+r+' / '+RANK_MAX) : (shgSheet(wd) /* CARD-SHG: THE SHIELD's door is the Gauntlet's, with the count */ || (gly('lock')+' REACH COMMANDER LEVEL '+wd.unlock)))+'</small>'   // 0903 NEW COMMANDER FIXES: the same ladder, the same number as the academy card
       +mnWepStoryHTML(wk,r,own)+'</div></div>'   // 0597: THE UPGRADE STORY — every rung of the iron, owned or not, the reached ones lit (mnMileHTML's own row grammar)
       +'<div class="mnrow"><b style="color:#7FA35C">GOOD AT:</b> <p>'+wi.good+'</p>'+(wi.good2? ' <p>'+wi.good2+'</p>' : '')+'</div>'   // 0907: an optional second sentence (the shotgun's point-blank line) in its own inline <p> — its own key; every other iron's row byte-what-it-was
       +'<div class="mnrow"><b style="color:#D96A55">BAD AT:</b> <p>'+wi.bad+'</p></div>'
@@ -214728,7 +214751,7 @@ function blbStockOn(){ return !!(BLB.blp && BLB.stock && BLB.stock.on); }
 function blbStockDef(rk, tier){ const r=BLB_STOCK_LV[rk]||[20,20], T=blbTiers(rk), i=Math.max(0,T.indexOf(tier)), n=T.length; return Math.max(1,Math.min(RANK_MAX,Math.round(r[0]+(r[1]-r[0])*(n>1? i/(n-1) : 0)))); }
 function blbStockLv(rk, tier, sk){ const v=blbEd(rk, tier, 'lv', sk); return (v!=null && isFinite(+v) && +v>=1)? Math.min(RANK_MAX,Math.round(+v)) : blbStockDef(rk, tier); }
 function blbStockMen(L){ const men=['rifleman','mgunner','bazooka','mortar']; for(const r of RSC_ROAD){ if(L>=r.n && men.indexOf(r.t)<0) men.push(r.t); } return men; }   // the rescue road's own rungs
-function blbStockIrons(L){ return SARGE_ORDER.filter(w=>w==='pistol' || w==='commander' || (SARGE_WEAPONS[w] && SARGE_WEAPONS[w].unlock>0)); }   // CARD-BLP4: every iron at every level, the Claymore included; the level picks the default (sargeDue's own rule, in blbStockPlan)
+function blbStockIrons(L){ return SARGE_ORDER.filter(w=>!(w===DSH.wk && shgShow()) /* CARD-SHG: a locked Shield on the list is not the tool's (HEAD's list: the lock cut it) */ && (w==='pistol' || w==='commander' || (SARGE_WEAPONS[w] && SARGE_WEAPONS[w].unlock>0))); }   // CARD-BLP4: every iron at every level, the Claymore included; the level picks the default (sargeDue's own rule, in blbStockPlan)
 function blbWName(w){ const d=SARGE_WEAPONS[w]; return (d && d.name) || String(w||'').toUpperCase(); }
 function blbStockPlan(rk, tier, sk){ const L=blbStockLv(rk, tier, sk), key=rk+':'+tier, men=blbStockMen(RANK_MAX), irons=blbStockIrons(L), extra=['commando','spy'], rides=BLB_RIDES.slice();   // CARD-BLP4: the whole roster at every level
   const nat=irons.filter(x=>x==='pistol' || (x!=='commander' && SARGE_WEAPONS[x].unlock<=L)), pick=blbEd(rk, tier, 'w', sk), w0=(nat.indexOf('lightsaber')>=0? 'lightsaber' : nat[nat.length-1]), w=(pick && irons.indexOf(pick)>=0)? pick : w0;
@@ -231991,7 +232014,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.slp) GVT.slp=function(o){ retu
 //   THE SHIELD as if it had typed the code. Nobody can buy the Escort now without the shield (it leaves the lab with it), so the keep reaches no one new. One line to take out when he says.
 function slkKept(){ try{ const o=META.enh && META.enh.own; return Array.isArray(o) && o.indexOf('emperorsescort')>=0; }catch(e){ return false; } }
 function slkCoded(){ try{ return !!(META && (META.slkKey || (Array.isArray(META.codes) && META.codes.indexOf('SHIELD')>=0) || slkKept())); }catch(e){ return false; } }
-function slkGate(){ try{ DSH.slkDev=DSH.on? 1 : 0; DSH.slk=0; if(DSH.on && !slkCoded()){ DSH.slk=1; /* CARD-SHA: the lock is its own flag; DSH.on (the engine) stays on for the other players' shields */ } }catch(e){ try{ DSH.err++; }catch(e2){} } }   // on the load line, before dshSargeCut()
+function slkGate(){ try{ DSH.slkDev=DSH.on? 1 : 0; DSH.slk=0; if(DSH.on && !slkCoded() && !shgEarned() /* CARD-SHG: fifty Gauntlet victories open it too */){ DSH.slk=1; /* CARD-SHA: the lock is its own flag; DSH.on (the engine) stays on for the other players' shields */ } }catch(e){ try{ DSH.err++; }catch(e2){} } }   // on the load line, before dshSargeCut()
 var SLK={ n:0, err:0 };
 function slkOpen(){ META.slkKey=1; if(!Array.isArray(META.sargeUnlocked)) META.sargeUnlocked=[]; if(META.sargeUnlocked.indexOf(DSH.wk)<0) META.sargeUnlocked.push(DSH.wk);
   try{ if(DSH.slk && DSH.slkDev){ DSH.on=1; DSH.slk=0;
@@ -232006,6 +232029,34 @@ try{ GVT.slk=function(){ const g=f=>{ try{ return f(); }catch(e){ return null; }
   return { on:dshOn()? 1 : 0, eng:DSH.on, /* CARD-SHA: on = my army's shield (the doors), eng = the engine */ dev:DSH.slkDev, locked:DSH.slk, coded:slkCoded(), kept:slkKept(), key:!!META.slkKey, n:SLK.n, err:SLK.err + (DSH.err|0), order:g(()=>SARGE_ORDER.slice()), own:g(()=>wkOwned(DSH.wk)),
     hand:g(()=>META.sargeWeapon), unlocked:g(()=>(META.sargeUnlocked||[]).indexOf(DSH.wk)>=0), rank:g(()=>(META.sargeUp||{})[DSH.wk]||0), lvl:g(()=>META.lvl|0), codes:g(()=>(META.codes||[]).slice()), trc:g(()=>TRC_WPN.slice()) }; }; }catch(e){}
 // ═══ END CARD-SLK ═══
+// ═══ sec:CARD-SHG, ITS SECOND BLOCK · THE CROSSING, THE CODE'S ANSWER, THE WORDS, THE RIG'S DOOR (below END CARD-SLK: past the load line, so the boot's own champHeal is the game's) ═══
+// THE CROSSING: the count stands at the door (a win, a reply from HQ, the rig's tvSet: each write of META.tv is followed by champHeal). A locked army is let in, in this page, by CARD-SLK's own lift
+//   (the switch, the Shield's seat on the list), and the one grant walk runs; no code key is written, and the hand is left as it stands (the next start hands back the hand the lock took:
+//   dshSargeCut's own branch), so nothing moves under a fight. Its card waits for riteList at the landing.
+function shgCross(){ if(!shgOn() || !DSH.on || !shgEarned()) return 0; let got=0; SHG.n.cross++;   // n.cross: the calls with the count at or past the door
+  try{ if(DSH.slk && DSH.slkDev){ DSH.slk=0; SHG.n.lift++;
+      if(SARGE_ORDER.indexOf(DSH.wk)<0){ const at=(DSH.seat>=0)? Math.min(DSH.seat, SARGE_ORDER.length) : SARGE_ORDER.length; SARGE_ORDER.splice(at, 0, DSH.wk); } }
+    if(dshOn() && (META.sargeUnlocked||[]).indexOf(DSH.wk)<0){ const out=sargeLvlGrant(); if(out.indexOf(DSH.wk)>=0){ got=1; SHG.n.grant++; } } }   // the one grant walk (sargeDue reads the Gauntlet's door), one save
+  catch(e){ SHG.err++; SHG.e=String(e && e.message || e).slice(0,200); }
+  return got; }
+{ const h0=champHeal; champHeal=function(){ const n=h0.apply(this, arguments); try{ shgCross(); }catch(e){ SHG.err++; } return n; }; }   // after every write of META.tv (gaVerdict x2, gaSyncBag x2, gaTvAdopt, GVT.tvSet)
+// THE CODE'S ANSWER: an army the Gauntlet let in that types SHIELD is told it is already his (the till's own held line), and CARD-KTC's word goes straight to the Knight Set (its till owes nothing)
+try{ const c9=SECRET_CODES.SHIELD; if(c9 && typeof c9.has==='function'){ const h9=c9.has; c9.has=function(){ return h9.apply(this, arguments) || (shgEarned() && dshOn()); }; } }catch(e){ SHG.err++; }
+for(const L9 of [   // THE WORDS x7: the door (the English master = the key; the digits ride the {0} hole). The count rides "%1 OF %2 WON" and the band "%1 TORCH VICTORIES!", both x7 already
+  ['ja',{"WIN {0} GAUNTLET MATCHES":"しれんのみちで {0}かい かとう"}],
+  ['ko',{"WIN {0} GAUNTLET MATCHES":"시련의 길 경기 {0}회 승리하기"}],
+  ['zh-Hans',{"WIN {0} GAUNTLET MATCHES":"赢得 {0} 场严酷考验比赛"}],
+  ['de',{"WIN {0} GAUNTLET MATCHES":"GEWINNE {0} SPIESSRUTENLAUF-MATCHES"}],
+  ['ru',{"WIN {0} GAUNTLET MATCHES":"ВЫИГРАЙ {0} МАТЧЕЙ СКВОЗЬ СТРОЙ"}],
+  ['es',{"WIN {0} GAUNTLET MATCHES":"GANA {0} PARTIDAS DE PRUEBA DE FUEGO"}],
+  ['ar',{"WIN {0} GAUNTLET MATCHES":"اربح {0} مباراة في ممر الخطر"}]
+]) Object.assign(TR[L9[0]]||(TR[L9[0]]={}), L9[1]);
+try{ GVT.shg=function(){ const g=f=>{ try{ return f(); }catch(e){ return null; } };   // the rig's door: the read, no writes
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:SHG.on, tv:g(shgTv), door:DSH.C.TV, lvl:g(()=>META.lvl|0), earned:g(shgEarned), show:g(shgShow), locked:DSH.slk|0, dsh:g(()=>dshOn()? 1 : 0), eng:DSH.on,
+    own:g(()=>wkOwned(DSH.wk)), unlocked:g(()=>(META.sargeUnlocked||[]).indexOf(DSH.wk)>=0), listed:g(()=>SARGE_ORDER.indexOf(DSH.wk)>=0), hand:g(()=>META.sargeWeapon), dshHand:g(()=>(META.dshHand===undefined)? null : META.dshHand),
+    due:g(()=>sargeDue(SARGE_WEAPONS[DSH.wk])), chip:g(()=>shgLock(SARGE_WEAPONS[DSH.wk])), band:g(()=>shgBand(DSH.wk)), seen:g(()=>(META.riteSeen||[]).indexOf('w:'+DSH.wk)>=0),
+    n:Object.assign({}, SHG.n), err:SHG.err, e:SHG.e }; }; }catch(e){}
+// ═══ end sec:CARD-SHG, its second block ═══
 // ═══ CARD-DFG · THE DOGFIGHTER FLIES GRACEFULLY (sec:CARD-DFG; design/dogfighter-flight-1111/build-dfg/00-BUILD-DFG.md; the pass ../00-DESIGN-DFG.md, jumpr 3274, built on Maker 1 as M3274,
 // landed by card 3274m; FROM WYATT by phone 11/12/2026 01:15 UTC: "Run a design pass for the dogfighter. We need him flying well and gracefully. Our new model for the dogfighter is nice, but we
 // need to adjust its movement patterns to really nail it down and make it feel fulfilling."; his go on Discord 11/12/2026 14:13 EST, 1570516829351190613, verbatim: "Set live" = every call its REC).
