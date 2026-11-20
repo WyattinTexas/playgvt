@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.67","md5":"d0f521551929caca72598b45acd346bb","sha":"c050526601","at":"2026-11-19T23:35:52Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.68","md5":"65eabae0ce68e86416405bada5f3fefc","sha":"24855efbd4","at":"2026-11-20T02:42:22Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94459,7 +94459,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -108639,6 +108639,65 @@ function bfGround(u){
   u.wet=wet; u.onIce=onIce;
   return m;
 }
+// AIR unit-spacing (Fey's feedback, Wyatt 11/19/2026: "lets see how this looks with .15 meters of distance"):
+// the deploy zone already refuses a drop within 34 px of a man of your side (canPlace); on the field men could
+// stack on one spot, so a mortar's or a grenade's splash took the whole deathball. Here every pair of men of ONE
+// side standing closer than SEP.px (centre to centre) is eased apart, each by half the overlap, softly (the
+// rocks' shoulder kernel: ×min(1,dt·8)). Feet on the ground only: no ghost, no jet, no faller, no passenger, no
+// man in the finger. Vehicles keep their own lanes. ?sep=<metres> tries another gap (kept), ?sep=0 turns it off.
+// Wyatt 11/19: "raise the deploy rule as well": canPlace's own-side gap reads SEP.dep (34 px = 1.21 m as shipped,
+// SEP.px when wider), so a drop lands as far apart as the field keeps them; ?sep=0 puts back 34 px with the pass.
+// A nudge never puts a man into a hole (voidAt: pit, roof gap, bomb hole), a rock or a pond: that pair simply waits.
+const SEP=(function(){ let m=1.42;   // Wyatt 11/19: "its a bit drastic. set both to 1.42m" (after 1.65 m; looked at 0.15 · 0.5 · 1 · 1.25 · 1.5 · 1.75 · 2)
+  try{ const q=/[?&]sep=([0-9.]+)(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='1.42') localStorage.removeItem('gvt_sep'); else localStorage.setItem('gvt_sep',q[1]); }
+    const k=localStorage.getItem('gvt_sep'); if(k!==null && isFinite(+k)) m=+k; }catch(e){}
+  const px=m*TK_M; return { m, px, dep:(m>0? Math.max(34,px) : 34), n:0 }; })();
+function bfSepOk(x,y){ const T=S.cfg.terrain; if(voidAt(x,y)) return false;
+  for(const rk of (T.rocks||[])){ if(Math.hypot(rk.x-x,rk.y-y)<rk.r) return false; }
+  for(const p of (T.ponds||[])){ const nx=(x-p.x)/p.rx, ny=(y-p.y)/p.ry; if(nx*nx+ny*ny<1) return false; }
+  return true; }
+function bfSepFree(u){ return !(u.dead||u.dropT>0||u.jetT>0||u.falling||u.shv||u.jhs||u.hlbAir||u.side==='nem'||!u.side||(u.def&&u.def.vehicle)||(S.drag&&S.drag.unit===u)); }
+// CARD-USP-C THE CAMPAIGN (Wyatt 11/19: "it needs to apply for the campaign levels as well"): the same pass on the
+// campaign's lists. Your men (S.units, no side on the rug) part among themselves; the Tan (S.foes, on the rug and in
+// every raid, park or battleground that fields them) part among themselves; the two armies never push each other.
+// A Tan joins only as FOOT infantry: no boss, flyer, vehicle, giant (w > 64 or size > 1.2), burrower, drop or faller.
+// The campaign's drop rule was already 40 px (1.43 m) apart: no change there.
+function campSepFree(u){ return !(u.dead||u.down||u.jetT>0||u.falling||u.shv||u.jhs||u.burrow||u.dropT>0||u.hlbAir||(u.def&&u.def.vehicle)||(S.drag&&S.drag.unit===u)); }
+function foeSepFree(f){ const d=f.def||{}; return !(f.dead||!(f.hp>0)||f.falling||f.fellVoid||f.shv||f.burrow||f.skyDrop||f.swoop||f.dropT>0||f.flatT>0||f.held||d.boss||d.fly||d.vehicle||d.giant||(d.w||50)>64||(d.size||1)>1.2); }
+// CARD-USP's landing review (11/19): a man the game has PLANTED is never moved by the pass; his neighbour still gives his own half.
+// Planted = halted or held, staked, mind-turned, burrowing or lunging, a Sarge rooted by a channel, wall or call, a dug-in stock mortar
+// (Wyatt 8/8: "not move and be in a fixed state"). A Tan who did not move himself since the last frame (a post, a tower, a firing line)
+// is planted the same way: a scripted post is never nudged; a marching wave still parts.
+function sepPlanted(u){ try{ return !!(u.haltT>0||u.stkT>0||u.mcBy!=null||u.kyHeldT>0||u.burrow||u.trk||u.tkLg||u.tkChanT>0||(u.ultChT||0)>0||u.cmdWallT>0||u.cmdInspT>0||u.cmdSignT>0||laRooted(u)||rpRooted(u)||(u.type==='mortar'&&!enhU(u,'cannon'))); }catch(e){ return false; } }
+function sepPass(dt){
+  if(!(SEP.px>0) || !S.cfg || !S.cfg.terrain) return;
+  const lo=S.bf? 74 : 70, hi=S.bf? WORLD_H-96 : WORLD_H-92;
+  const L=[];
+  if(S.bf){ for(const u of S.units) if(bfSepFree(u)){ u.sepPl=sepPlanted(u); L.push(u); } }
+  else { for(const u of S.units) if(campSepFree(u)){ u.sepPl=sepPlanted(u); L.push(u); } }
+  if(L.length>1) sepList(L,dt,lo,hi,!S.bf);
+  const F=[]; for(const f of (S.foes||[])) if(foeSepFree(f)){ f.sepPl=!(f.sepX!==undefined && (Math.abs(f.x-f.sepX)>0.05||Math.abs(f.y-f.sepY)>0.05)) || f.haltT>0 || f.stkT>0 || f.kyHeldT>0; F.push(f); }
+  if(F.length>1) sepList(F,dt,lo,hi,true);
+  for(const f of F){ f.sepX=f.x; f.sepY=f.y; }
+}
+function bfSepPass(dt){ sepPass(dt); }   // the first build's name (kept for a rig that calls it)
+function sepList(L,dt,lo,hi,oneSide){
+  const R=SEP.px, k=Math.min(1,dt*8);
+  const cq=S.cfg.terrain.cq;
+  for(let i=0;i<L.length;i++){ const a=L[i];
+    for(let j=i+1;j<L.length;j++){ const b=L[j];
+      if(!oneSide && a.side!==b.side) continue;
+      let dx=b.x-a.x, dy=b.y-a.y; if(Math.abs(dx)>=R||Math.abs(dy)>=R) continue;
+      let d=Math.hypot(dx,dy); if(d>=R) continue;
+      if(d<0.01){ const t=((a.id*7+b.id*13)%360)*Math.PI/180; dx=Math.cos(t); dy=Math.sin(t); d=1; } else { dx/=d; dy/=d; }   // two on one spot: a fixed way out off their ids (never dice: co-op screens agree)
+      const pa=a.sepPl, pb=b.sepPl; if(pa&&pb) continue;   // both planted: nobody moves
+      const p=(R-Math.min(d,R))*0.5*k;
+      const ax=pa? a.x : a.x-dx*p, ay=pa? a.y : a.y-dy*p, bx=pb? b.x : b.x+dx*p, by=pb? b.y : b.y+dy*p;
+      if(cq && !(cqFloor(ax,ay,false)&&cqFloor(bx,by,false))) continue;   // the starship: never eased through a wall
+      if((!bfSepOk(ax,ay) && bfSepOk(a.x,a.y)) || (!bfSepOk(bx,by) && bfSepOk(b.x,b.y))) continue;   // never INTO a hole, a rock or a pond (a man already in one may be eased out)
+      if(!pa){ a.x=ax; a.y=Math.max(lo,Math.min(hi,ay)); } if(!pb){ b.x=bx; b.y=Math.max(lo,Math.min(hi,by)); } SEP.n++;
+    } }
+}
 function bfMarch(u,dt,goal){
   if(u.dsh && dshFireHalt(u)){ u.marching=false; return; }   /* CARD-SHD: a Shield Sarge halts at the edge of a burning patch until it is out */
   let gx=goal.x, gy=goal.y; const bx0=u.x, by0=u.y;   // CARD-SF2-B: the step's start (the brink's fallback)
@@ -121697,7 +121756,7 @@ function canPlace(x,y,type,side){
       if(!(cqFloor(x,y,false)&&cqFloor(x-CQ_PAD,y,false)&&cqFloor(x+CQ_PAD,y,false)
          &&cqFloor(x,y-CQ_PAD,false)&&cqFloor(x,y+CQ_PAD,false))) return false;
     }
-    for(const u of S.units){ if(!u.dead && u.side===s && Math.hypot(u.x-x,u.y-y)<34) return false; }
+    for(const u of S.units){ if(!u.dead && u.side===s && Math.hypot(u.x-x,u.y-y)<SEP.dep) return false; }   // AIR unit-spacing: SEP.dep = 34 px as shipped, the field's gap when wider (1.42 m = 39.8 px)
     return true;
   }
   if(tkhOn()){ const r8=tkhCanPlace(x,y,type); if(r8!=null) return r8; }   // CARD-TKH TURKEY HUNT (Isaac 10/15): no deploy line, no crate; the dishes and the toy box's zone alone refuse
@@ -126900,6 +126959,7 @@ function update(dt){
   petPoisonPass(dt); petEmberPass(dt);   // 0927 PUFF'S FIRE: THE LINGER's pass beside it   // 0899 TIPTOE — THE DESERT MOUSE: the burn pass — every poisoned figure's drum, beside the pet pass, never inside a man's step (the rug, the parks, the raids, the battleground)
   tkChanPass(dt);  // 0462c THE ORANGE CHANNEL — the medic pass's twin walk: the plant's clock, the break law, the fractional heal and the +2 window (u.tkOrIn) for every man a standing channel reaches this frame
   dshFrame(dt);   /* CARD-SHD: the owed bash on a stopped jeep, the stall, the thrown bodies */
+  sepPass(dt);   // AIR unit-spacing (Fey's feedback 11/19): men of one side nudge each other apart, the deploy zone's spacing on the field: the battleground (by side) AND the campaign (Wyatt 11/19: "it needs to apply for the campaign levels as well": your men, and the Tan among themselves)
   for(const u of S.units){
     ccnB4Tag(u);   // CARD-CCN-B4 (§3.8): the last man's turn ends here: the tracers + shots a frenzied man fired wear the green outline
     if(u.dead) continue;             // a casualty is out of the fight the frame he falls (swept below)
