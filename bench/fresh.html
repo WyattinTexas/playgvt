@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.85","md5":"30d6f355e27a79fb883ab68ab6527c3c","sha":"dcf58493d4","at":"2026-11-20T15:33:46Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"33.86","md5":"de5197025e84b7b6c0fed9d03f291a92","sha":"104fe78a6e","at":"2026-11-20T17:41:27Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94459,7 +94459,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='33.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='33.86';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -245010,12 +245010,13 @@ function lcdSlots(){   // sixteen lanes across the glass (x in frame units, 217 
     out.push({ i, x:X[i], d, kind, k:LCD_MEN[(i*3+1)%LCD_MEN.length], hex:(i%4===0)? mine : hx[(i*5+2)%hx.length], w:[6.4,9,12][d], fall:[19000,14500,11000][d]*(1+((i*37)%11)/55), ph:((i*0.381966)%1), sw:[1.1,1.7,2.4][d], sp:0.9+((i*13)%7)/10 }); }
   return out; }
 function lcdChute(ctx, x, y, w, hex, man){   // the battle's own canopy (drawChute, line for line: four risers into the shoulders, the dome in the army's colour, the shaded underside, the rim and its seam); x, y = his boots
-  const s=w/54, R=25.6*s, cy=y-72*s;
+  // CARD-LCN (jumpr 4091, built on Maker 1 as M4091; design/countdown-chute-fade-1120/00-CARD-LCN.md): every part wears the slot's fade, a0 = the alpha the slot handed in (a far man 0.86, a man over the board fading out with his canopy); its own three alphas are scaled by it. Before, they threw it away: only the risers wore it
+  const s=w/54, R=25.6*s, cy=y-72*s, a0=ctx.globalAlpha;
   ctx.strokeStyle='rgba(38,40,31,0.55)'; ctx.lineWidth=Math.max(0.7, 1.3*s); ctx.lineCap='round';
   for(const q of [-1,-0.4,0.4,1]){ ctx.beginPath(); ctx.moveTo(x+q*R*0.94, cy+0.2*R*Math.sqrt(Math.max(0,1-q*0.94*q*0.94))); ctx.lineTo(x+q*5.3*s, y-22*s); ctx.stroke(); }
-  ctx.fillStyle=hex; ctx.globalAlpha=0.95; ctx.beginPath(); ctx.ellipse(x,cy,R,R*0.66,0,Math.PI,0); ctx.fill();
-  ctx.globalAlpha=0.30; ctx.fillStyle='#000'; ctx.beginPath(); ctx.ellipse(x,cy,R,R*0.20,0,0,Math.PI); ctx.fill();
-  ctx.globalAlpha=1; ctx.strokeStyle='rgba(38,40,31,0.45)'; ctx.lineWidth=Math.max(0.8, 1.6*s);
+  ctx.fillStyle=hex; ctx.globalAlpha=0.95*a0; ctx.beginPath(); ctx.ellipse(x,cy,R,R*0.66,0,Math.PI,0); ctx.fill();
+  ctx.globalAlpha=0.30*a0; ctx.fillStyle='#000'; ctx.beginPath(); ctx.ellipse(x,cy,R,R*0.20,0,0,Math.PI); ctx.fill();
+  ctx.globalAlpha=a0; ctx.strokeStyle='rgba(38,40,31,0.45)'; ctx.lineWidth=Math.max(0.8, 1.6*s);
   ctx.beginPath(); ctx.ellipse(x,cy,R,R*0.66,0,Math.PI,0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,cy-R*0.66); ctx.lineTo(x,cy); ctx.stroke();
   if(man) ctx.drawImage(man, x-w/2, y-w*7/6, w, w*7/6); }
 // Sarge's lap: one closed curve through twelve marks (frame units), over the title in the open sky and round the two side columns (the dragon's, the pad's); never over a word
