@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.02","md5":"e49572681541f3cb22b22e7e26c79c2f","sha":"b1727e7235","at":"2026-11-21T09:40:07Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.03","md5":"def03a8df11908c1203401b82f4e69c1","sha":"43a717f853","at":"2026-11-21T10:03:43Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16816,9 +16816,45 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
     while((j = Q.shift() || QL.shift())){ if(awTold(j) > DEAR_MS){ awStep(j, now); continue; } return j; }   // a dear job at the head steps into the slow line; this turn makes the first plain one
     return null; }
   function awPart(L, now){ for(var i = 0, k = 0; i < L.length && k < 48; k++){ if(awTold(L[i]) > DEAR_MS) awStep(L.splice(i, 1)[0], now); else i++; } }   // a door sorts the head of a line only (48 jobs: more than it can carry); the pump sorts the rest as it comes to them
-  function awDoor(now, n0){ if(!AWD || now - doorAt < DOOR_GAP || now - A.t0 < START) return; doorAt = now; A.n.doors++; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid) return;
+  // ---- CARD-ADP (jumpr 3865, 11/18/2026; built on Maker 1 as M3865; cut by CARD-DOP, jumpr 3546, its flag DOP-F1; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
+  // THE FAULT (design/doors-own-first-paint-1116/00-CARD-DOP.md, section 1; design/atlas-door-after-paint-1118/00-CARD-ADP.md): a door the page's tree brings (the observer below hears DOOR_N new
+  //   elements in one go) made its dear jobs at once, inside the observer's own notice, right after the task that laid the screen: so the screen's FIRST PAINT waited for them. On a cold shelf, his save,
+  //   the app's own engine, the castle's first stop held 97 to 125 ms of them on the QuarterPounder's WebKit 22625 (383 ms with ?awgd=0 against 501 to 552), 54 of 531 on the Big Mac's 21624.
+  // THE CURE: such a door is NOTED where it is seen, as before (its count, its one-a-second gap, the start's quiet, a hidden page, the calm the game asked for), and its jobs are made ONE FRAME AFTER
+  //   THE FRAME ITS NEW ELEMENTS FIRST PAINT IN (requestAnimationFrame inside requestAnimationFrame), by the door itself, with the same budget (the door's own size), the same calm rules and the same
+  //   jobs. Another lay of DOOR_N new elements in those frames (a card dealt, then the yard behind it) is let paint its first frame too: the jobs wait two frames more (ADP_WAIT times at most). A door
+  //   that closed meanwhile (fewer than DOOR_N of its new elements still stand in the page), a page hidden or shown again, a calm asked meanwhile, or a tree that never rests: its jobs wait for the
+  //   next door, an idle glass or their long wait, as today. A door told by hand (__AWG.door(): CARD-AFD's fight start and verdict, which bring no new elements and keep their jobs out of the fight)
+  //   makes its jobs at once, as before. No drawing, picture or job changes: only WHEN a door's jobs are made.
+  //   ?adp=0 = the jobs inside the door's own notice again, on this device (gvt_adp '0'; ?adp=1 clears it). __AWG.adpOn = the switch as read; __AWG.adp() = the rigs' read (the doors put off, those
+  //   whose jobs were made after their first paint, those let go because they closed or hid, those a busy tree outlasted, the frames waited again, and the last one: its size, the ms from its
+  //   notice to its jobs, why it ended, the jobs made and what they held the page).
+  var ADP = 1, ADP_WAIT = 3, ADP_NEG = 0, adpRaf = null, adpBig = 0, adpPend = 0, adpKeep = null, adpVis = 0, adpLast = null;
+  A.n.adpLate = 0; A.n.adpRun = 0; A.n.adpGone = 0; A.n.adpBusy = 0; A.n.adpWait = 0;
+  try{ var pq = /[?&]adp=([01])(?![\w])/.exec(location.search || ''); if(pq){ if(pq[1] === '0') localStorage.setItem('gvt_adp', '0'); else localStorage.removeItem('gvt_adp'); } if(localStorage.getItem('gvt_adp') === '0') ADP = 0; }catch(e){ oops('pd', e); }
+  try{ adpRaf = window.requestAnimationFrame; if(typeof adpRaf !== 'function') ADP = 0; }catch(e){ ADP = 0; }   // taken at the atlas's own load (before the game's script)
+  if(AWD && ADP){ try{ document.addEventListener('visibilitychange', function(){ adpVis++; }, { passive:true }); }catch(e){ oops('pv', e); } }
+  A.adpOn = ADP;
+  function adpSaw(K){ adpBig++; if(adpPend) adpKeep = K; }   // every lay of DOOR_N new elements or more (a door, or one inside a door's one-a-second gap): a door whose jobs wait lets its first frame paint too
+  function adpStands(K){ for(var i = 0, n = 0; K && i < K.length; i += 2){ if(K[i].isConnected && (n += K[i + 1]) >= DOOR_N) return 1; } return 0; }   // DOOR_N of the door's new elements still stand in the page
+  function adpLater(n0, K){ var seq = adpBig, vis = adpVis, t0 = aosNow(), waits = 0, me = adpLast = { n:n0, ran:-1, why:'', waits:0, jobs:0, ms:0 }; A.n.adpLate++; adpPend++;
+    var end = function(why){ me.why = why; K = null; if(--adpPend <= 0){ adpPend = 0; adpKeep = null; } };
+    var run = function(){ try{
+        if(adpBig !== seq){ if(waits >= ADP_WAIT){ A.n.adpBusy++; return end('busy'); } waits++; A.n.adpWait++; me.waits = waits; seq = adpBig; if(adpKeep) K = adpKeep; return go(); }   // another lay came in these frames: its first frame paints first
+        var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){}
+        if(hid || adpVis !== vis || !adpStands(K)){ A.n.adpGone++; return end('gone'); }   // the door closed, or the page went away, within its frames: its jobs wait, as today
+        if(aosNow() < calmTo){ A.n.calmedDoor = (A.n.calmedDoor || 0) + 1; return end('calm'); }   // a calm the game asked for meanwhile (CARD-SFO2-F5)
+        var j0 = A.n.doorj, m0 = A.n.jms, t1 = aosNow(); A.n.adpRun++; me.ran = t1 - t0; end('ran'); awDoor(t1, n0, null, 1); me.jobs = A.n.doorj - j0; me.ms = A.n.jms - m0;
+      }catch(x){ end('err'); oops('pr', x); } };
+    var go = function(){ if(ADP_NEG) return run(); try{ adpRaf.call(window, function adpFrame1(){ try{ adpRaf.call(window, function adpFrame2(){ run(); }); }catch(x){ end('err'); oops('p2', x); } }); }catch(x){ end('err'); oops('p1', x); } };
+    go(); }
+  A.adp = function(){ var L = adpLast; return { on:ADP, late:A.n.adpLate, ran:A.n.adpRun, gone:A.n.adpGone, busy:A.n.adpBusy, waits:A.n.adpWait, pend:adpPend, last:L ? { n:L.n, ran:L.ran, why:L.why, waits:L.waits, jobs:L.jobs, ms:L.ms } : null }; };
+  // ---- END CARD-ADP's own lines (two more: awDoor's head and its notice's end, below; and the observer's last two lines) ----
+  function awDoor(now, n0, keep, after){ if(after) return awJobs(now, n0); if(!AWD || now - doorAt < DOOR_GAP || now - A.t0 < START) return; doorAt = now; A.n.doors++; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid) return;
     if(aosNow() < calmTo){ A.n.calmedDoor = (A.n.calmedDoor || 0) + 1; return; }   // CARD-SFO2-F5 (laid by CARD-SFO2's landing, jumpr 3454m, on the builder's flag SFO2-F5): a door inside the calm the game asked for (__AWG.calm: the Surplus's paint and its X) makes no dear job; they wait in the slow line for an idle glass or their age
     awPart(Q, now); awPart(QL, now); if(!QD.length) return;
+    if(keep && ADP){ adpLater(n0, keep); return; } awJobs(now, n0); }   // CARD-ADP: a door the tree brought makes its jobs one frame after its own first paint (adpLater, above); a door told by hand makes them at once, as before
+  function awJobs(now, n0){ if(!QD.length) return;   // CARD-ADP: a door's jobs (CARD-AWS's lines below, unchanged): inside its notice (a door told by hand, ?adp=0), or one frame after its first paint (awDoor called again with after = 1)
     for(var ci = 0, held = 0; ci < C.length; ci++){ if(C[ci].nr && !C[ci].jobs && !C[ci].ok && !C[ci].bad && ++held > 6) return; }   // THE CALM RULE's second half holds at a door too
     var all = Math.max(DOOR_MS, Math.min(4 * DOOR_MS, n0 / 20)), left = all, n = 0, i, j;   // a door carries what its own size says (a screen of 2,600 new elements 130 ms, of 10,000 the most: four times DOOR_MS)
     var fits = function(j){ var e = Math.max(awTold(j), 1); return !awHvy(j) && e <= 4 * DOOR_MS && (!n || e <= left); };   // not a heavy picture, not a job told longer than the largest door carries, not more than what is left of this door
@@ -16830,8 +16866,8 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
         if(n < DOOR_N) return;
         // the first count is an upper line (a piece laid inside another new piece is counted twice, a piece moved counts as new): counted again, each new piece once, a moved one not at all
         var S = new Set(), R = new Set(); for(i = 0; i < ms.length; i++){ a = ms[i].addedNodes; for(j = 0; j < a.length; j++){ if(a[j].nodeType === 1) S.add(a[j]); } a = ms[i].removedNodes; for(j = 0; j < a.length; j++){ if(a[j].nodeType === 1) R.add(a[j]); } }
-        n = 0; S.forEach(function(e){ if(!e.isConnected || R.has(e)) return; for(var p = e.parentNode; p; p = p.parentNode){ if(S.has(p)) return; } n += 1 + (e.firstElementChild ? e.getElementsByTagName('*').length : 0); });
-        if(n >= DOOR_N) awDoor(aosNow(), n); }catch(x){ oops('wn', x); } }).observe(document, { childList:true, subtree:true }); }catch(e){ oops('wo', e); } }   // nothing thrown here may reach the page's own error line
+        n = 0; var K = ADP ? [] : null; S.forEach(function(e){ if(!e.isConnected || R.has(e)) return; for(var p = e.parentNode; p; p = p.parentNode){ if(S.has(p)) return; } var c = 1 + (e.firstElementChild ? e.getElementsByTagName('*').length : 0); n += c; if(K) K.push(e, c); });   // CARD-ADP: the door's new pieces kept with their counts, so its later frame knows it still stands
+        if(n >= DOOR_N){ if(K) adpSaw(K); awDoor(aosNow(), n, K); } }catch(x){ oops('wn', x); } }).observe(document, { childList:true, subtree:true }); }catch(e){ oops('wo', e); } }   // nothing thrown here may reach the page's own error line
   A.door = function(){ try{ awDoor(aosNow(), 0); }catch(e){ oops('wh', e); } };
   A.aws = function(){ return { on:AWD, qd:QD.length, dear:A.n.dear, doors:A.n.doors, door:A.n.doorj, idle:A.n.idlej, aged:A.n.agej, warm:A.n.warmj, ms:A.n.jms, max:A.jmax, j34:A.n.j34, j100:A.n.j100, mid100:A.n.mid100, touch:lastTouch ? aosNow() - lastTouch : -1 }; };
   // ---- CARD-AFL (jumpr 3575, 11/16/2026; cut by CARD-AFD, jumpr 3500; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
@@ -94508,7 +94544,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
