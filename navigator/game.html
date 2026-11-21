@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.05","md5":"25409f6e1e263a78226155ed52178dcd","sha":"86db64a91b","at":"2026-11-21T12:49:31Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.06","md5":"43dc21e07b543ca82dd05cb3f3c204db","sha":"5508cf7004","at":"2026-11-21T14:25:45Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94590,7 +94590,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.05';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -250334,13 +250334,15 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
 // Wraps by name, nothing edited in place: openWarTable (the lobby laid on the opened table), renderWarTable (held while the lobby stands; the unranked table's ✕ goes back to the lobby),
 // closeWarTable (the lobby goes with the table), hqClose (the lobby's pause leaves no z of its own behind), closeWorldRank + wrList + renderWorldRank + UI.wrAct + UI.wtRank (THE LEADERBOARD's five boards).
 (function () {
-  const ON = (function () { try { const q = /[?&]blv=([01])(?:&|$)/.exec(location.search || ''); if (q) localStorage.setItem('gvt_blv', q[1]); return localStorage.getItem('gvt_blv') !== '0'; } catch (e) { return true; } })();
+  // CARD-BBC (Wyatt 11/21/2026: "revert battlefields to before isaacs new revamp. We should only be able to see isaac's new battlefields when you type "battle" in the code room"):
+  // the lobby is OFF unless this device typed the code BATTLE at the codes counter (gvt_blv '1', and the deed META.battleCode on the save); ?blv=1 / ?blv=0 on a device still force it.
+  const ON = (function () { try { const q = /[?&]blv=([01])(?:&|$)/.exec(location.search || ''); if (q) localStorage.setItem('gvt_blv', q[1]); const v = localStorage.getItem('gvt_blv'); if (v === '0') return false; if (v === '1') return true; try { return !!(META && META.battleCode); } catch (e) { return false; } } catch (e) { return false; } })();
   const BLV = window.BLV = { on: ON, mode: 'lobby', board: 0, tabs0: null, tab0: null, err: '' };
   // THE LEADERBOARD FROM THE LOBBY (Isaac 11/20: "only show the top 500 commanders from 1v1, 2v2, and 3v3, and then show the top squads on the globe-wise, and then show the top
   // gauntlet winners. That's all that the leaderboards should have"): five boards, HQ's own lists (bf1, bf2 and, when HQ serves it, bf3: the top 500 each; sqland: most countries
   // held on THE GLOBE; the torch list: most Gauntlet victories)
   const TABS = [{ id: 'bf1', lab: '1v1' }, { id: 'bf2', lab: '2v2' }, { id: 'bf3', lab: '3v3' }, { id: 'squad', lab: 'SQUAD' }, { id: 'torch', lab: 'THE GAUNTLET' }];
-  if (!ON) return;
+  BLV.install = function () { if (BLV.inst) return; BLV.inst = 1; BLV.on = true;   // CARD-BBC: the wraps are laid at load only behind the code, or the moment the code is typed (once)
   const need = ['openWarTable', 'renderWarTable', 'closeWarTable', 'openWorldRank', 'closeWorldRank', 'wrList', 'renderWorldRank', 'hqClose', 'gaTileHTML', 'roomSVG', 'sprURI', 'sargeWepURI', 'partyLive'];
   const miss = need.filter(n => typeof window[n] !== 'function');
   if (miss.length || typeof UI !== 'object' || !UI || typeof WR_TABS === 'undefined' || !window.BLV_UI || !window.BL7) { BLV.on = false; BLV.err = 'missing: ' + miss.join(',') || 'UI/WR_TABS/BLV_UI/BL7'; return; }
@@ -250351,7 +250353,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
   function unX() { if (BLV.mode !== 'un') return; const x = document.querySelector('#wartable .wt-x'); if (x) { x.setAttribute('onclick', 'UI.blvLobby()'); x.classList.add('blv-back'); } }   // the unranked table's ✕: back to the lobby
   function table() { BLV.mode = 'un'; BLV_UI.hide(); renderWarTable(); }   // today's war table, whole, one step in (UNRANKED; a ranked queue's own glass)
   function failSafe(e) { BLV.err = String(e && e.message || e).slice(0, 200); try { BLV_UI.hide(); } catch (x) {} BLV.mode = 'lobby'; try { oRender(); } catch (x) {} }   // a fault in the lobby never leaves the door dark: today's table
-  window.openWarTable = function () { try { BLV_UI.hide(); } catch (e) {} BLV.mode = 'lobby'; const r = oOpen.apply(this, arguments); try { BLV_UI.show(); } catch (e) { failSafe(e); } return r; };
+  window.openWarTable = function () { if (!BLV.on) return oOpen.apply(this, arguments);   /* CARD-BBC: the code typed again = the table as before */ try { BLV_UI.hide(); } catch (e) {} BLV.mode = 'lobby'; const r = oOpen.apply(this, arguments); try { BLV_UI.show(); } catch (e) { failSafe(e); } return r; };
   window.renderWarTable = function () { if (BLV_UI.isOpen() && document.getElementById('bflobby3')) { try { BLV_UI.refresh(); } catch (e) {} return; } const r = oRender.apply(this, arguments); try { unX(); } catch (e) {} return r; };
   window.closeWarTable = function () { try { BLV_UI.hide(); } catch (e) {} BLV.mode = 'lobby'; return oClose.apply(this, arguments); };
   if (typeof window.fsiArea === 'function') { const oFsi = window.fsiArea; window.fsiArea = function () { const a = oFsi.apply(this, arguments); return (a && a[0] === 'battlefield' && BLV_UI.isOpen()) ? null : a; }; }   // Sarge's first word for the table ("Tap PLAY and find a fight") waits for the table itself: the lobby has no PLAY (UNRANKED's table says it)
@@ -250361,7 +250363,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
   window.renderWorldRank = function () { try { if (BLV.board && !TABS.some(t => t.id === WR.tab)) { const keep = WR.tab; tabsBack(); WR.tab = keep; } } catch (e) {} return oRWR.apply(this, arguments); };   // a challenge's own road (RATING) opening over the lobby's board gets the whole board back
   window.wrList = function (tab) { if (tab === 'bf3') { const d = WR.data; return ((d && d.bf3) || []).map((r, i) => ({ uid: r.uid, name: r.name, val: (r.w || 0) + 'W', color: r.color, you: !!r.you, rank: r.rank || i + 1, tier: tierName(r.stars || 0), stars: r.stars || 0, w: r.w || 0, l: r.l || 0 })); } return oList.apply(this, arguments); };
   UI.wrAct = function () { if (BLV.board && WR.tab === 'bf3') { audio(); SFX.blip(); closeWorldRank(); table(); UI.wtPlay(3); return; } return oAct.apply(this, arguments); };
-  UI.wtRank = function () { if (typeof oRank !== 'function') return; UI.blvBoard(); };   // the unranked table's LEADERBOARD: the Battlefields' five boards too
+  UI.wtRank = function () { if (typeof oRank !== 'function') return; if (!BLV.on) return oRank.apply(this, arguments);   /* CARD-BBC */ UI.blvBoard(); };   // the unranked table's LEADERBOARD: the Battlefields' five boards too
   Object.assign(UI, {
     blvBoard() { try { audio(); SFX.blip(); } catch (e) {}
       if (!BLV.board) { BLV.tabs0 = WR_TABS.slice(); BLV.tab0 = WR.tab; WR_TABS.length = 0; TABS.forEach(t => WR_TABS.push(t)); BLV.board = 1; }
@@ -250381,6 +250383,17 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
     blvLobby() { try { SFX.clack(); } catch (e) {} BLV.mode = 'lobby'; try { BLV_UI.show(); } catch (e) { failSafe(e); } },
     blvInvite() { try { grpTap(); } catch (e) {} },
   });
+  };   // end BLV.install (CARD-BBC)
+  if (ON) BLV.install();   // CARD-BBC: the lobby stands only behind the code BATTLE
+  // ═══ CARD-BBC · THE CODE "BATTLE" (or "CODE BATTLE") at the codes counter (codeRedeem wrapped by name, CARD-LBW-B's grammar; it answers first, so the six letters are never read as a
+  // friend code): THE NEW BATTLEFIELDS open on this device and stay (gvt_blv '1', META.battleCode); the same word again = the war table as before. Never spent. ═══
+  if (typeof codeRedeem === 'function') { const c0 = codeRedeem; codeRedeem = function () { try { const inp = document.getElementById('shCodeIn'); const word = inp ? codeNorm(inp.value) : '';
+      if (word === 'BATTLE' || word === 'CODEBATTLE') { inp.value = ''; try { inp.blur(); } catch (e) {}
+        const was = !!BLV.on; let msg;
+        if (was) { try { localStorage.setItem('gvt_blv', '0'); } catch (e) {} try { META.battleCode = 0; saveMeta(); } catch (e) {} try { BLV_UI.hide(); } catch (e) {} BLV.mode = 'lobby'; BLV.on = false; msg = 'THE BATTLEFIELDS ARE AS BEFORE'; }
+        else { try { localStorage.setItem('gvt_blv', '1'); } catch (e) {} try { META.battleCode = 1; saveMeta(); } catch (e) {} BLV.install(); BLV.on = String(BLV.err || '').indexOf('missing') !== 0; msg = 'THE NEW BATTLEFIELDS ARE OPEN. GO TO THE BATTLEFIELDS DOOR.'; }
+        codeSay(t(msg), 'yes'); try { SFX.fanfare(); } catch (e) {} codeShut(1); try { if (S.mode === 'menu') renderMenu(); } catch (e) {} try { evToast(t(msg)); } catch (e) {} return; } } catch (e) {}
+    return c0.apply(this, arguments); }; }
 })();
 // ═══ end sec:CARD-BLV ═══
 // ═══ CARD-PES · PIRATE PARK'S ENEMY SNIPERS FIRE THE ENERGY SHOT: ON THE COVE'S FIGHTS EVERY PIRATE SNIPER'S 1ST, 3RD, 5TH ... AIMED SHOT IS THE TRIO OF LIGHT (sec:CARD-PES; design/pirate-snipers-energy-1118/00-CARD-PES.md; jumpr 3804, built on the QuarterPounder as M3804; cut by CARD-BJ5, jumpr 3695). FROM WYATT'S PHONE (the Bug button) 11/16/2026 10:56 PM EST, dictated, verbatim: "Remove the digging from the pirate units and have the pirate enemy snipers use energy shot against using the pirate levels" (the digging is sec:CARD-BJ5-PDG; this section is the second half) ═══
