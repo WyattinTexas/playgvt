@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.04","md5":"26d21bbd2ef3a0d096e44cdb388c78e2","sha":"a66916b0b6","at":"2026-11-21T11:06:59Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.05","md5":"25409f6e1e263a78226155ed52178dcd","sha":"86db64a91b","at":"2026-11-21T12:49:26Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94590,7 +94590,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.05';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -244395,6 +244395,7 @@ function rlySendPlace(t, x, y, paid){ const R=RLY.radio; if(!R || R.phase!=='run
   const by=rlyUtf8(JSON.stringify(cm)); if(by.length>((R.info && R.info.maxWord) || 1024)){ RLY.st.recipeBig++; rlyFault('recipe too big', t, by.length); return -1; }
   const c=R.send(RLY_K.SPLACE, by); if(c<0){ RLY.st.unsent++; return -1; } RLY.st.sent++; return c; }
 function rlyPlaceIn(a){ const t=a && a[0], x=a? +a[1] : NaN, y=a? +a[2] : NaN;
+  if(t==='blackdragon'){ const L9=window.GVT_LDH; if(!(L9 && L9.went)){ RLY.st.dragon=(RLY.st.dragon|0)+1; RLY.st.swallowed++; try{ SFX.clack(); }catch(e){} return DET.tick; } }   // CARD-ENG2-D2DRAGON (11/21/2026, road A): until LDH's launch (11/25/2026 14:00 UTC, every page joins him at its room) the Black Dragon's tables stand only on a page whose save joined him (the code), and a page without them answers his place word 'BAD': the room would part at once and a heal cannot mend it. So under the relay his press is refused here with the clack, never sent, until LDH.went (both seats alike); a solo fight never comes here
   if(typeof t!=='string' || !UDEF[t] || !isFinite(x) || !isFinite(y)){ RLY.st.swallowed++; return DET.tick; }
   if(S.bf) return rlyRoomPlaceIn(t, x, y);
   if(t==='dogfighter'){ RLY.st.swallowed++; try{ SFX.clack(); }catch(e){} return DET.tick; }   // (the dogfighter's launch: its own word, not in this slice)
