@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.00","md5":"1ea9e9a62296d597337f3155b3d458e7","sha":"dbcb62dcaf","at":"2026-11-21T08:42:53Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.01","md5":"918bd5e2212077177b1822173c8cf120","sha":"0c9aab6377","at":"2026-11-21T09:21:33Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94508,7 +94508,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -215198,6 +215198,36 @@ function blbRig(o){ o=o||{}; const g=f=>{ try{ return f(); }catch(e){ return 'ER
     fightNow:(S.raid && S.raid.blb)? { rk:S.raid.k, t:S.raid.t, party:S.raid.blb.party, void:S.raid.void?1:0, mode:S.mode, wave:S.wave, waves:S.cfg? S.cfg.waves.length : 0, sec:+blbClock().toFixed(2), lives:S.lives, tags:S.plastic, sq:S.sq? { p:S.sq.p, bp:S.sq.bp } : null, boss:b? { t:b.type, hp:Math.round(b.hp), max:Math.round(b.hpMax) } : null, foes:S.foes.filter(f=>!f.dead).length, hpMul:S.cfg? S.cfg.hpMul : null } : null,
     meta:{ bossLab:META.bossLab|0, ice:Object.assign({},META.ice||{}), bbs:Object.assign({},META.bbs||{}), sky:Object.assign({},META.sky||{}), starBank:META.starBank|0 }, dev:{ blb:blbLS('gvt_blb'), log:blbLS('gvt_blb_log') } }; }
 GVT.blb=function(o){ return blbRig(o); };   // CARD-BLB THE BOSS LAB: the rig's door (the reads + the levers: flag · open · close · tab · sel · tier · fight · set · reset · grp · launch · abort · skip · tags · speed · sheet · export · clearLog)
+// ═══ CARD-BLB-SEED · THE BOSS LAB NEVER REACHES A FIGHT THAT EVERY PHONE MUST PLAY ALIKE: blbOn() ANSWERS FALSE WHILE DET_SWF.dev IS 1, AND ROAD A HOLDS A PHONE WHOSE LIVE TABLES CARRY THE LAB'S CELLS (sec:CARD-BLB-SEED; design/blb-seed-1120/00-CARD-BLB-SEED.md; jumpr 4259, built on the QuarterPounder as M4259) ═══
+// FOUND by CARD-DSW's landing (jumpr 3832o, client v33.89, its DSW-Q1 REC); CARD-ENG2-HFG reproduced it on a relay page (raid hp 9 against 2.2). Wyatt's standing rule, 11/12/2026 16:39 EST, verbatim:
+// "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game"
+// THE FAULT: a phone whose save carries the lab's mark (META.bossLab) writes the designer's numbers into the live tier tables at boot (blbApplyOver, and every later card's re-applier of BLB.over:
+// RAID_HP_MUL, ICE_KING_HPADD, DMG_DAMP ...), so it plays another boss fight than the other phones of a fight that every phone must compute alike. Two roads lead there:
+//   THE SEEDED PAGE (?det=1, or ?net=1: DET_SWF.dev is 1): hunk F answers every remembered card switch as its shipped default but keeps the lab's sheet (gvt_blb) and its intended sets (gvt_blb_int)
+//     readable on purpose (hidden, an open and close of the lab there would write an empty sheet over the designer's own: CARD-DSW §7 call 3).
+//   ROAD A (CARD-ENG2-D2RA, a party fight through the relay on the player's own PLAIN page, where hunk F does not run): rlaQuiet keeps a phone that remembers one of hunk F's device keys off the
+//     relay, and the lab's keys are not on that list (the cold read of this card, its F1).
+// THE CURE, ROAD BY ROAD:
+//   THE SEEDED PAGE: blbOn() answers false, so the lab boots as for a save without the mark: no number of the sheet in a table (BLB.booted 0 and BLB.over empty, so no re-applier writes one either), no
+//     intended set read, no LAB pill, no page, no lab fight; every gate that asks the lab (the ceremony hold, the room's quiet, the sheet's level) answers as for any player. The rig door reads and
+//     refuses its levers (a lever would write the lab's empty memory over the designer's sheet, or a cell into a seeded fight's table). The mark, the sheet, the sets, the ledger stay on the device.
+//     ONE STEP STILL RUNS, AS ON EVERY BOOT OF A MARKED SAVE: a stock army left worn when the page last closed goes back to the account (blbStockDoff('boot'): the account's own save, no lab number),
+//     so a seeded fight never plays a borrowed army and HQ never hears one; the lab's memory is then put back as a save without the mark holds it (BLB.over empty: the engine's twin reads it, P16ab).
+//     If that doff throws, the loaded sheet and its keep stay in memory exactly as a plain boot leaves them (HQ held, a later doff writes the whole sheet back), and still no cell reaches a table.
+//   ROAD A: while BLB.over holds a cell (the live tables carry the lab's numbers), rlaQuiet answers as for a phone that remembered a switch at load: it says nothing for the rest of the launch and HQ
+//     sends its whole party down today's road (D2SW's own rule), unless it already said its word for this party (road A's own rule: the cold read's find 4).
+// A plain page has no DET_SWF (hunk F returns before it): the solo game and the lab are byte-still there; only road A's word changes, for a phone whose tables carry the lab's cells.
+function blbSeeded(){ try{ const F=window.DET_SWF; return !!(F && F.dev===1); }catch(e){ return false; } }
+function blbInTables(){ try{ return !!(BLB.over && Object.keys(BLB.over).length); }catch(e){ return false; } }   // BLB.over holds exactly the lab's cells that stand in the live tables (one set back to its shipped number is dropped)
+function blbSeedDoff(){ let o=null; try{ o=JSON.parse(blbLS('gvt_blb')||'null'); }catch(e){ o=null; } if(!(o && o.v===1 && o.keep && typeof o.keep==='object' && o.keep.m && typeof o.keep.m==='object')) return false;
+  const K9=['over','fight','waves','notes','sel','tier','tab','stock','keep','memo','log'], was={}; for(const k of K9){ const v=BLB[k]; was[k]=(v===undefined)? undefined : JSON.parse(JSON.stringify(v)); }   // the fields blbLoad lays (blbSave's, and the ledger)
+  let did=false, done=false; try{ blbLoad(); did=blbStockDoff('boot'); done=true; } finally{ if(done) for(const k of K9) BLB[k]=was[k]; } return did; }   // the doff writes the designer's own sheet back, its keep spent; then the memory is a plain save's
+if(typeof blbOn==='function'){ const on0=blbOn; blbOn=function(){ return blbSeeded()? false : on0.apply(this, arguments); }; }
+if(typeof blbBoot==='function'){ const bt0=blbBoot; blbBoot=function(){ const r=bt0.apply(this, arguments); try{ if(blbSeeded() && !BLB.booted && META && META.bossLab) blbSeedDoff(); }catch(e){} return r; }; }
+if(typeof blbRig==='function'){ const rg0=blbRig; blbRig=function(o){ if(!blbSeeded() || !o || typeof o!=='object') return rg0.apply(this, arguments); const r={}; if(o.sheet) r.sheet=o.sheet; if(o.export) r.export=o.export;
+  const out=rg0.call(this, r), lev=Object.keys(o).filter(k=>k!=='sheet' && k!=='export'); if(lev.length && out && typeof out==='object') out.did='refused: the lab is off on a seeded page ('+lev.join(',')+')'; return out; }; }   // the reads stand
+if(typeof rlaQuiet==='function'){ const rq0=rlaQuiet; rlaQuiet=function(){ try{ if(typeof RLA==='object' && RLA && !RLA.boot && blbInTables()){ const c=(typeof COOP==='object' && COOP && COOP.code)? String(COOP.code) : ''; if(!(c && RLA.okFor===c)) RLA.boot='the phone plays the Boss Lab\'s cells in its live tables'; } }catch(e){} return rq0.apply(this, arguments); }; }
+// ═══ /CARD-BLB-SEED
 try{ blbBoot(); }catch(e){ try{ console.warn('BLB boot: '+(e && e.message)); }catch(e2){} }
 // ═══ /CARD-BLB
 // ═══ CARD-QDC · QUICK DRAW CROAK (sec:CARD-QDC; design/quick-draw-croak-1110/00-CARD-QDC.md; FROM WYATT 11/10/2026 ~17:00 EST, typed on Maker 1, his Buffalo Bill patch notes, card 2 of 3: "-Rename King Croak to Quick Draw Croak. Including on all of the wanted signs & mentions inside of Floops lab.") ═══
