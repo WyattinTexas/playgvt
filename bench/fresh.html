@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.07","md5":"bb58cc6bdcec5608e5524f89c4cf4d4d","sha":"3c1d3c4ca8","at":"2026-11-21T15:53:40Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.08","md5":"5c469a5fd8509970734b996047e33b4c","sha":"2e4abfb3ea","at":"2026-11-21T20:23:10Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94590,7 +94590,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.08';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -242833,10 +242833,11 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.tuf) GVT.tuf=tufRead; }catch(e
 //   page keeps its own road; road A lays nothing there).
 // NAMES: RLA_ON, RLA_KEEP, RLA, rlaGates; re-bound by name, only where road A is laid and BEFORE card B's install: detRuns (false: card B's solo road never runs on such a page; card D2's own wrap of it,
 //   laid on top, answers the relay's fight) and detMatch (a seeded match for the relay's launch alone, its door or a heal's; at any other door a relay fight still standing ends: rlaReset).
+//   THE HOLD (CARD-ENG2-D2RAF, below): RLA_ACC, RLA_DP, RLA_DPW, rlaHoldKey, rlaHold, rlaHoldOff; Object.defineProperty re-bound from card B's DET line to the foot half, nowhere else.
 //   Zero css, words, sw or pack bytes; one device key (gvt_rlaoff: '1' = the server's word was off).
 var RLA_ON=1;
 var RLA_KEEP=['gvt_ftc', 'gvt_snc_trip'];   // the two of hunk F's device keys the game writes in ordinary play that no fight reads (CARD-FTC's film seen; CARD-SNC's store count tripped): never counted as a remembered switch
-var RLA=(function(){ const o={ on:0, ok:0, why:'', err:0, e:'', off:0, gates:0, mark:0, quiet:'', boot:'', okFor:'', acc:0, st:{ noword:0, ends:0, marks:0, health:0, heard:'', quiet:0, said:0 } };
+var RLA=(function(){ const o={ on:0, ok:0, why:'', err:0, e:'', off:0, gates:0, mark:0, quiet:'', boot:'', okFor:'', acc:0, dp:0, held:0, st:{ noword:0, ends:0, marks:0, health:0, heard:'', quiet:0, said:0 } };
   try{ const q=String(location.search||'');
     if(/[?&]net=0(?:&|#|$)/.test(q)) o.why='?net=0';
     else if(/[?&]det=([01])/.test(q) || /[?&]net=1(?:&|#|$)/.test(q)) o.why='a tester\'s page';
@@ -242852,7 +242853,26 @@ function rlaGates(){ try{   // called once, by card B's DET line, before card B 
     const r0=detRuns, m0=detMatch; if(typeof r0!=='function' || typeof m0!=='function') return false;
     detRuns=function(){ if(DET.ra) return false; return r0.apply(this, arguments); };
     detMatch=function(){ if(DET.ra && !(typeof RLY==='object' && RLY && RLY.launching)){ if(typeof rlaReset==='function') rlaReset(); return; } return m0.apply(this, arguments); };
-    RLA.gates=1; return true; }catch(e){ RLA.err++; RLA.e='gates: '+String((e && e.message) || e).slice(0, 120); return false; } }
+    RLA.gates=1; rlaHold(); return true; }catch(e){ RLA.err++; RLA.e='gates: '+String((e && e.message) || e).slice(0, 120); return false; } }   // (THE HOLD laid with the gates: below)
+// THE HOLD (CARD-ENG2-D2RAF, jumpr 4080, built on the QuarterPounder; its record design/eng2-program-1115/d2raf/00-CARD-ENG2-D2RAF.md). Card B lays six accessors at load, its dial (S.speed) and
+//   its four holds on S and its say window on COMM, each OVER a plain field. In V8 (Chrome, Android) an accessor laid over a plain field turns the WHOLE object into a slow table for good:
+//   setting the accessor aside later gives the field back, never the fast object, and the fight reads S everywhere (11/20, Chrome, the fight loop's instructions: road A asleep +3.1 to 3.7 %
+//   over a page without it; S and COMM alone made slow +3.4 %; card B's hottest function wraps set aside, no gain). So from card B's DET line (rlaGates) to the foot half (rlaHoldOff), the
+//   browser's Object.defineProperty is re-bound: those six definitions are KEPT ASIDE as descriptors (RLA_ACC, the store the foot half's rlaAccOff fills; a later definition of the same key
+//   replaces the one kept, as the browser's own would) and never laid while road A sleeps; every other definition passes to the browser's own at once. S and COMM stay fast objects (their
+//   plain fields as before; S gets the holds' three plain null fields, as before). A relay fight lays the six exactly as before (rlaAccOn, before its door) and sets them aside when it ends
+//   (rlaAccOff). A zero timer gives the browser's own back even if the foot half never runs; if the foot half's install stops, the six are laid back (as a page laid them before the hold).
+//   FOR LATER CARDS: on a road-A page card B's six are plain fields from load; a card that wraps one of them at load wraps the descriptor RLA_ACC holds (or rlaAccOn), never the field.
+var RLA_ACC=null, RLA_DP=null, RLA_DPW=null;   // the six held (s: S's by key, c: COMM's say, co: its COMM) · the browser's own Object.defineProperty · the hold's
+function rlaHoldKey(k){ try{ if(typeof DET_HOLD!=='object' || !DET_HOLD) return false; for(const h in DET_HOLD){ if(DET_HOLD[h] && DET_HOLD[h].key===k) return true; } }catch(e){} return false; }   // one of card B's four holds on S
+function rlaHold(){ try{ const dp=Object.defineProperty; if(typeof dp!=='function' || RLA_DPW) return; const A=RLA_ACC||(RLA_ACC={ s:{}, c:null, co:null });
+    const w=function(o, k, d){ if(RLA.dp===1 && d && typeof d==='object' && (typeof d.get==='function' || typeof d.set==='function')){
+        if(o===S && (k==='speed' || rlaHoldKey(k))){ if(!A.s[k]) RLA.held++; A.s[k]=d; return o; }   // card B's dial or one of its holds: kept aside, never laid while road A sleeps
+        if(typeof COMM==='object' && COMM && o===COMM && k==='say'){ if(!A.c) RLA.held++; A.c=d; A.co=COMM; return o; } }   // card B's say window: the same
+      return dp.apply(this, arguments); };
+    RLA_DP=dp; RLA_DPW=w; setTimeout(rlaHoldOff, 0); RLA.dp=1; Object.defineProperty=w; }   // the zero timer first: the browser's own comes back even if the foot half never runs
+  catch(e){ RLA.dp=0; try{ if(RLA_DPW && Object.defineProperty===RLA_DPW) Object.defineProperty=RLA_DP; }catch(e2){} RLA.err++; RLA.e='hold: '+String((e && e.message) || e).slice(0, 120); } }
+function rlaHoldOff(){ if(RLA.dp!==1) return; RLA.dp=2; try{ if(Object.defineProperty===RLA_DPW) Object.defineProperty=RLA_DP; }catch(e){ RLA.err++; RLA.e='hold off: '+String((e && e.message) || e).slice(0, 120); } }   // the browser's own again
 // ═══ END CARD-ENG2-D2RA (early) ═══
 // ═══ CARD-ENG2-B THE SAME FIGHT ON EVERY PHONE, THE FIRST SLICE (sec:CARD-ENG2-B; design/eng2-same-fight-1114/00-CARD-ENG2-B.md; the design: design/native-engine-1114/00-DESIGN-ENG2.md §3.6 + §5 card B; from Maker 1).
 // FROM WYATT 11/14/2026 ~19:40 EST, typed on Maker 1, his GO on ENG2-Q1, verbatim: "proceed with it; use ultracode and best practices."
@@ -247487,17 +247507,21 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.cvi) GVT.cvi=cviRead; }catch(e
 //            no card switch, the relay answers it, AND IT REMEMBERS NO CARD SWITCH (rlaQuiet: hunk F does not run on a plain page, so a phone that stored one of hunk F's device keys would
 //            fight another fight; such a phone says nothing and HQ sends its whole party down today's road). RLA_KEEP: the two of hunk F's keys the game writes in ordinary play that no
 //            fight reads (gvt_ftc, CARD-FTC's film seen; gvt_snc_trip, CARD-SNC's store count tripped): never counted as a switch.
-// THE ACCESSORS ASIDE  card B lays its dial (S.speed) and its four holds on S, and its say window on COMM, as getters and setters at load. While road A sleeps they stand aside as plain fields with
+// THE ACCESSORS ASIDE  card B lays its dial (S.speed) and its four holds on S, and its say window on COMM, as getters and setters at load (on a road-A page the early half's HOLD keeps them
+//            aside from load: below). While road A sleeps they stand aside as plain fields with
 //            the same values (rlaAccOff): in WebKit, the iPhone's engine, an object that carries an accessor reads EVERY one of its fields slower (measured 11/19: 64 against 70 ms for 20,000,000
 //            reads; the fight reads S everywhere, about 0.06 ms a frame on this Mac). Card B's own accessors are laid back the moment a relay fight launches (rlaAccOn, before its door) and set
 //            aside again when it ends (rlyEnd). Swapped 60 times, both engines read as fast as a plain object (rig/probe/cycBench.mjs).
+//            CARD-ENG2-D2RAF (11/20): laid at load and then set aside, they had already turned S and COMM into V8's slow tables for good (about 3 to 4 % of Chrome's fight frame), so the early half's
+//            HOLD now keeps all six aside from load: never laid while road A sleeps; rlaAccOff gives each hold its plain value (null, as before). After a relay fight S and COMM stay V8's slow
+//            tables until the page loads again (laying an accessor over a plain field is the relay fight's own law).
 // THE MARK   the server's word off reaches this phone two ways: /gvt/health's pn, read once, RLA_HEALTH_MS after load, on any page whose switch is on (laid, or held back by the mark itself),
 //            and a battle reply's rlw. off = gvt_rlaoff '1': at the next boot the early half lays nothing. test or on = the mark taken away. Written only when it changes.
 // THE CHAIN  this half reads that every piece a relay fight needs was laid (card B, card D2's radio, D2BATTLE, D2HEAL, D2ZERO, the radio's kit): RLA.ok. Without it D2SW says nothing, the relay's
 //            address is never set, and card D2's road cannot open a radio: the page plays today's road whatever HQ says.
-// NAMES: RLA_HEALTH_MS, RLA_DEV, RLA_ACC, rlaErr, rlaChain, rlaLate, rlaReset, rlaMark, rlaKeys, rlaQuiet, rlaAccOff, rlaAccOn, rlaHealth, rlaRig, GVT.netra; re-bound by name (only where road A is laid):
+// NAMES: RLA_HEALTH_MS, RLA_DEV, rlaErr, rlaChain, rlaLate, rlaReset, rlaMark, rlaKeys, rlaQuiet, rlaAccOff, rlaAccOn, rlaAccAll, rlaHealth, rlaRig, GVT.netra (RLA_ACC: the early half's HOLD); re-bound by name (only where road A is laid):
 //   rlbCan, rlyAsk, rlbRead, rlyLaunch (card B's accessors laid back first), rlyEnd (set aside after).
-var RLA_HEALTH_MS=20000, RLA_DEV=null, RLA_ACC=null;
+var RLA_HEALTH_MS=20000, RLA_DEV=null;   // (RLA_ACC stands in the early half: THE HOLD fills it at load; declared here again it would be wiped)
 function rlaErr(w, e){ RLA.err++; RLA.e=String(w)+': '+String((e && e.message) || e).slice(0, 120); }
 function rlaChain(){
   if(!(RLA.gates===1 && typeof DET==='object' && DET && DET.on===1 && DET.ra===1)) return 'card B\'s world is not laid';
@@ -247512,6 +247536,7 @@ function rlaChain(){
   if(!(typeof SprueRadio==='object' && SprueRadio && typeof WebSocket==='function')) return 'no radio kit';
   if(!(RLA.wr===5)) return 'the road\'s five names are not re-bound';
   if(!(RLA.acc===1)) return 'card B\'s accessors are not set aside';
+  if(!rlaAccAll()) return 'card B\'s six accessors are not all held to be laid for a relay fight (THE HOLD)';
   return ''; }
 function rlaLate(){ if(RLA.lateDue || RLA.lateDone) return; RLA.lateDone=1; if(!RLA.ok) return;   // THE CHAIN'S LATE HALF, once the main script has run: CARD-FFC and CARD-LBD stand after D2SW, so they are read here (a zero timer laid at load; the word's, the road's and the rig's doors ask it too)
   let why=''; if(!(typeof DET_LBD==='object' && DET_LBD && DET_LBD.on && DET_LBD.laid)) why='the banner\'s cure is not laid ('+((typeof DET_LBD==='object' && DET_LBD)? DET_LBD.why : 'none')+')';
@@ -247534,7 +247559,8 @@ function rlaQuiet(){ rlaLate(); if(!RLA.ok) return true; let why='';   // true =
   RLA.quiet=why; if(why) RLA.st.quiet++; else if(code) RLA.okFor=code; return !!why; }
 function rlaAccOff(){ try{ const A=RLA_ACC||(RLA_ACC={ s:{}, c:null, co:null });   // card B's accessors set aside: plain fields, the same values (the dial's own number, each hold's fight copy)
     const d=Object.getOwnPropertyDescriptor(S, 'speed'); if(d && d.get){ A.s.speed=d; Object.defineProperty(S, 'speed', { configurable:true, enumerable:true, writable:true, value:+DET.spd||1 }); }
-    for(const k in DET_HOLD){ const key=DET_HOLD[k].key, e=Object.getOwnPropertyDescriptor(S, key); if(e && e.get){ A.s[key]=e; const T=DET.hd[k]; Object.defineProperty(S, key, { configurable:true, enumerable:true, writable:true, value:(T && T.sim) || null }); if(T) T.fin=null; } }
+    for(const k in DET_HOLD){ const key=DET_HOLD[k].key, e=Object.getOwnPropertyDescriptor(S, key); if(e && e.get){ A.s[key]=e; const T=DET.hd[k]; Object.defineProperty(S, key, { configurable:true, enumerable:true, writable:true, value:(T && T.sim) || null }); if(T) T.fin=null; }
+      else if(A.s[key]){ const T=DET.hd[k], v=(T && T.sim) || null; if(S[key]!==v) S[key]=v; if(T) T.fin=null; } }   // held aside from load (THE HOLD): never laid; the plain field its value as before
     if(typeof COMM==='object' && COMM){ const c=Object.getOwnPropertyDescriptor(COMM, 'say'); if(c && c.get){ const v=COMM.say; A.c=c; A.co=COMM; Object.defineProperty(COMM, 'say', { configurable:true, enumerable:true, writable:true, value:v }); } }
     RLA.acc=1; }catch(e){ rlaErr('accessors aside', e); } }
 function rlaAccOn(){ const A=RLA_ACC; if(!A || RLA.acc!==1) return; try{   // card B's own accessors laid back (a relay fight launches): synced to the plain fields first
@@ -247542,6 +247568,7 @@ function rlaAccOn(){ const A=RLA_ACC; if(!A || RLA.acc!==1) return; try{   // ca
     for(const k in DET_HOLD){ const key=DET_HOLD[k].key; if(!A.s[key]) continue; const T=DET.hd[k], v=S[key]; if(T){ T.sim=v||null; T.fin=null; } Object.defineProperty(S, key, A.s[key]); }
     if(A.c && A.co && COMM===A.co){ const v=COMM.say; Object.defineProperty(COMM, 'say', A.c); COMM.say=v; }
     RLA.acc=2; RLA.st.accOn=(RLA.st.accOn|0)+1; }catch(e){ rlaErr('accessors back', e); } }
+function rlaAccAll(){ try{ const A=RLA_ACC; if(!A || !A.s || !A.s.speed) return false; for(const k in DET_HOLD){ if(!A.s[DET_HOLD[k].key]) return false; } return !(typeof COMM==='object' && COMM) || !!A.c; }catch(e){ return false; } }   // every accessor card B made is held, to be laid back for a relay fight
 function rlaHealth(){ RLA.st.health++;
   try{ netFetch(NET+'/health', { cache:'no-store' }).then(function(r){ return (r && typeof r.json==='function')? r.json() : null; }).then(function(j){ const w=(j && typeof j.pn==='string')? j.pn : '';
       RLA.st.heard=w; if(w==='off') rlaMark(1); else if(w==='test' || w==='on') rlaMark(0); }, function(){}); }catch(e){ rlaErr('health', e); } }
@@ -247553,7 +247580,8 @@ function rlaRig(o){ o=o||{}; rlaLate();   // GVT.netra(o): the rigs' read · o.p
   return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:RLA.on, ok:RLA.ok, why:RLA.why, off:RLA.off, mark:RLA.mark, gates:RLA.gates, err:RLA.err, e:RLA.e, shipped:RLA_ON,
     laid:g(function(){ return { det:DET.on, ra:DET.ra|0, rly:RLY.on, rlyRa:RLY.ra|0, rlb:RLB.laid|0, rlh:RLH.laid|0, dze:DZE.on|0, runs:detRuns()? 1 : 0, match:DET.match }; }),
     url:g(function(){ return RLY.url; }), rls:g(function(){ return { on:RLS.on, why:RLS.why, probe:RLS.probe, mem:RLS.mem }; }), quiet:o.quiet? g(function(){ return rlaQuiet()? RLA.quiet : ''; }) : RLA.quiet,
-    keys:g(function(){ return rlaKeys().n; }), keep:RLA_KEEP.slice(), boot:RLA.boot, okFor:RLA.okFor, acc:RLA.acc, st:Object.assign({}, RLA.st) }; }
+    keys:g(function(){ return rlaKeys().n; }), keep:RLA_KEEP.slice(), boot:RLA.boot, okFor:RLA.okFor, acc:RLA.acc, dp:RLA.dp, held:RLA.held, all:g(function(){ return rlaAccAll()? 1 : 0; }), st:Object.assign({}, RLA.st) }; }
+rlaHoldOff();   // THE HOLD ends here (CARD-ENG2-D2RAF): the browser's own Object.defineProperty again
 if(typeof DET==='object' && DET && DET.ra){ try{ RLA.wr=0;
     { const c0=rlbCan; rlbCan=function(){ if(RLY.ra) return false; return c0.apply(this, arguments); }; RLA.wr++; }   // D2BATTLE's tester's word (rl t1) is never this page's
     { const a0=rlyAsk; rlyAsk=function(fam, go){ rlaLate(); if(RLY.ra && !RLY.launching && !(RLA.ok && rlbWord())){   // no battle word from HQ: today's road, the whole party with it
@@ -247566,7 +247594,7 @@ if(typeof DET==='object' && DET && DET.ra){ try{ RLA.wr=0;
     rlaAccOff();   // card B's accessors aside while road A sleeps
     const why=rlaChain(); RLA.ok=why? 0 : 1; if(why){ RLA.why='laid, but '+why; }
     RLA.lateDue=1; setTimeout(function(){ RLA.lateDue=0; rlaLate(); }, 0); }
-  catch(e){ RLA.ok=0; RLA.why='laid, but the foot half stopped'; rlaErr('install', e); } }
+  catch(e){ RLA.ok=0; RLA.why='laid, but the foot half stopped'; rlaErr('install', e); try{ if(RLA.acc!==2 && RLA_ACC){ RLA.acc=1; rlaAccOn(); } }catch(e2){ rlaErr('install: accessors back', e2); } } }   // (THE HOLD: card B's six laid back, as a page laid them before it)
 if(RLA.on || RLA.off){ try{ setTimeout(rlaHealth, RLA_HEALTH_MS); }catch(e){ rlaErr('health timer', e); } }   // the switch is on here: hear the server's word once this launch (to keep the mark true either way)
 try{ if(window.GVT && !GVT.netra) GVT.netra=rlaRig; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.netra) GVT.netra=rlaRig; }catch(e){} }, 0);   // the rigs' read (the house's way)
