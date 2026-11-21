@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.06","md5":"43dc21e07b543ca82dd05cb3f3c204db","sha":"5508cf7004","at":"2026-11-21T14:25:38Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.07","md5":"bb58cc6bdcec5608e5524f89c4cf4d4d","sha":"3c1d3c4ca8","at":"2026-11-21T15:53:40Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94590,7 +94590,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -243072,7 +243072,7 @@ function detTickOpen(){ if(DET.door) detDoorShut(); DET.tin=1; DET.tw0=detWall()
   DET.draws=0;   // (after the sentinel's head hash: it folds the last tick's dice count, as its foot did)
   try{ detTimersRun(); detPlanRun(); detWordsRun(); }catch(e){ DET.tErr++; } if(COMM && COMM.brief) DET.held++;
   if(DET_SM.on){ try{ detSmHead(); }catch(e){ DET_SM.err++; } } }   // B5 THE DRAWN PLACE: where each row stands as the sim begins (after the words: a word's own move is never eased)
-function detTickShut(){ if(DET_SM.on){ try{ detSmFoot(); }catch(e){ DET_SM.err++; } } detCineFoot(); DET.dsec+=DET.draws; DET.dall+=DET.draws; DET.tick++;
+function detTickShut(){ if(DET_SM.on){ try{ detSmFoot(); }catch(e){ DET_SM.err++; } } detCineFoot(); detDrawFoot(); DET.dsec+=DET.draws; DET.dall+=DET.draws; DET.tick++;
   if(HQS.on!==!!DET.hold){ DET.hold=HQS.on? 1 : 0; DET.hqUI=HQS.on; } HQS.on=DET.hqUI;   // the sim closed (or opened) the sheet inside the tick (the verdict closes it): that stands for both
   detShut();
   try{ if(DET.every) DET.tk.push(detHash(0).h); if(DET.tick%DET.hz===0) detSecond(); DET.footH=detHash(0).h; DET.camF=detCamKey(); DET.handF=detHandKey(); DET.handO=[S.drag, S.jetAim]; }catch(e){ DET.tErr++; }
@@ -243082,6 +243082,11 @@ function detTickShut(){ if(DET_SM.on){ try{ detSmFoot(); }catch(e){ DET_SM.err++
 // fall's whistle and the slow-down are the tick's; draw()'s own call then finds them done. Its speed lines are not drawn here (its RM flag); its 'where he stood at my last call' (lx, ly) and its trail of points (tr: one point a
 // call, so a second caller would shorten the drawn trail) are the drawing's: the watch runs on a copy of the trail and both are put back.
 function detCineFoot(){ try{ const U=S.units; for(let i=0;i<U.length;i++){ const u=U[i], P=u && u.ccnP5; if(!P || u.dead) continue; const lx=P.lx, ly=P.ly, tr=P.tr; if(tr) P.tr=tr.slice(); try{ ccnB5Watch(u, true); }catch(e){ DET.tErr++; } finally { P.tr=tr; P.lx=lx; P.ly=ly; } } }catch(e){ DET.tErr++; } }
+// BPIC2 THE DRAWING'S FIGHT CODE, AT THE TICK'S FOOT (CARD-ENG2-BPIC2, jumpr 4317, design/eng2-same-fight-1114/bpic2/00-CARD-ENG2-BPIC2.md; found by BPIC's static sweep): two passes the game ran in a DRAWN frame when no tick ran them now run here, once a tick, inside the tick (B2b's seat: after the cinema's watch, before the tick's hashes), so every screen plays them alike (60 or 120 a second, a replay
+// at the fast forward, a phone that never draws): (1) THE BLACK DRAGON'S CLOCK, CARD-BDH's bdhFrame (the burn that stays: hurt() every half second, kills and bounty; the gulp's toss: the held man's lift, spin, fall and landing), run by a living man's head (isdTick) and else by the ground painter, so a fallen dragon's last burns and a toss that outlived him were the drawing's; its own dedupe on S.t makes this call nothing when a head ran it this tick, and the painter's call now does nothing while a det fight runs (the switch block) · (2) THE CHESS SET'S PIECES, chsDrawPiece's pin of a standing piece to its square
+// (the foes' FOE_TOP clamp and the men's band move a row-7 piece every tick; the drawing put it back every frame, so a screen that drew between two ticks played another fight): pinned here for every standing piece the drawing would pin (its own skips: either one taken, sliding, shaken or a toad; a man it never draws, dead, in Sharky's belly or gone; a foe it draws as something else, falling, in a hole or still dropping in off the battleground), and DET_MEMO keeps the drawing's own pin as found
+function detDrawFoot(){ if(typeof BDH==='object' && BDH && BDH.joined && typeof bdhFrame==='function'){ try{ bdhFrame(); }catch(e){ BDH.err++; } }
+  try{ if(typeof chsSqX==='function'){ const L2=[S.units, S.foes]; for(let l=0;l<2;l++){ const L=L2[l]; if(!L) continue; for(let i=0;i<L.length;i++){ const o=L[i], g=o && o.chs; if(!g || o.cfaGone || g.sl || o.chsSh || o.wxToadT>0) continue; if(l===0? (o.dead || o.shkIn || o.ggrGone>0) : (o.falling || o.caveIn || (o.dropT>0 && !S.bf))) continue; o.x=chsSqX(g.c); o.y=chsSqY(g.r); } } } }catch(e){ DET.tErr++; } }
 // ---- THE WORDS: tick-stamped orders (a rig's plan today; every finger tomorrow)
 function detWord(w){
   if(w.k==='cash'){ S.plastic=+w.n||0; return S.plastic; }
@@ -243483,9 +243488,9 @@ function detPicIv(n){ const f=window[n]; if(typeof f!=='function' || f.detPicIv)
   const g=function(){ if(!DET_SM.on || !detRuns()) return f.apply(this, arguments); const si=window.setInterval; window.setInterval=function(cb){ const a9=Array.prototype.slice.call(arguments); if(typeof cb==='function') a9[0]=function(){ if(!DET_SM.on || DET.open || !detRuns()) return cb.apply(this, arguments); return detPicRun(cb, this, arguments); }; return si.apply(window, a9); };
     try{ return f.apply(this, arguments); } finally{ window.setInterval=si; } };
   g.detPicIv=1; window[n]=g; return 1; }
-var DET_MEMO={ inTrench:['_trT','_tr'], cqZones:['_cqT','_cqZ'], lncSpan:['lncT','lncR','lncL'] };   // B5 (the critic's find): three of the fight's caches keyed on S.t (one geometry test a man a tick), filled from his place; draw() reaches them through the foes' aim tells and the Sarge's beam (tanAimTell, ultBeamTarget -> tanPick -> bfCanTarget) on the DRAWN places: a call from outside a tick leaves the cache as it found it (the drawing never fills the fight's cache; with the drawing eased or not)
+var DET_MEMO={ inTrench:['_trT','_tr'], cqZones:['_cqT','_cqZ'], lncSpan:['lncT','lncR','lncL'], hnLockOf:['hnJ'], chsDrawPiece:['x','y'] };   // B5 (the critic's find): three of the fight's caches keyed on S.t (one geometry test a man a tick), filled from his place; draw() reaches them through the foes' aim tells and the Sarge's beam (tanAimTell, ultBeamTarget -> tanPick -> bfCanTarget) on the DRAWN places: a call from outside a tick leaves the cache as it found it (the drawing never fills the fight's cache; with the drawing eased or not)   // BPIC2 (CARD-ENG2-BPIC2, jumpr 4317, design/eng2-same-fight-1114/bpic2/00-CARD-ENG2-BPIC2.md: found by BPIC's static sweep, each fielded by a door of its own): two fields of the FIGHT a drawn call wrote, kept as found the same way: + hnLockOf's hnJ, THE HONK HORN'S LOCK (drawFoe -> tanAimTell -> tanPick -> hnPick -> hnLockOf lifted an aiming foe's lock when its jeep was gone, up to his whole present-arms before the tick's own pick at his fire; the fight reads hnJ through hnLockOf alone, so the play is the same and the hash no longer depends on a drawn frame; a frame drawn inside a presentation door during a tick, the first-drop card's, keeps them as found too: detMemoWrap's test is BPIC's and B3's now) · + chsDrawPiece's x and y, THE CHESS SET'S PIECES (the drawing pinned a standing piece to its square every frame; the pin now runs at the tick's foot, detDrawFoot, and the drawing's own pin is put back for any row the foot did not reach)
 function detMemoWrap(n){ const f=window[n], K=DET_MEMO[n]; if(typeof f!=='function' || f.detMemo) return 0;
-  const g=function(){ if(DET.open || !detRuns()) return f.apply(this, arguments); const o=arguments[(n==='lncSpan')? 1 : 0]; if(!o || typeof o!=='object') return f.apply(this, arguments);
+  const g=function(){ if((DET.open && !(DET.out>0)) || !detRuns()) return f.apply(this, arguments); const o=arguments[(n==='lncSpan')? 1 : 0]; if(!o || typeof o!=='object') return f.apply(this, arguments);
     const had=[], v=[]; for(let i=0;i<K.length;i++){ had.push(Object.prototype.hasOwnProperty.call(o, K[i])); v.push(o[K[i]]); }
     try{ return f.apply(this, arguments); } finally{ for(let i=0;i<K.length;i++){ if(had[i] || o[K[i]]!==undefined) o[K[i]]=v[i]; } } };   // (a key the call made is set back to undefined, never deleted: a delete turns a row slow for good in V8; the hash and the deep table pass undefined by)
   g.detMemo=1; window[n]=g; return 1; }
@@ -243663,6 +243668,7 @@ if(DET.on){ try{
   { const cf0=cfcNow; cfcNow=function(){ if(CFC_CLK==null && DET_SM.on && !DET.open && detRuns()) return detPicNow(); return cf0.apply(this, arguments); }; DET.wrapped.push('cfcNow'); }   // B5: the chess fight's own camera clock too (its rig's clock first)
   for(let i=0;i<DET_PICW.length;i++) if(detPicWrap(DET_PICW[i])) DET.wrapped.push(DET_PICW[i]);   // B5 THE PICTURE'S DOORS
   for(const n9 in DET_MEMO) if(detMemoWrap(n9)) DET.wrapped.push(n9);   // B5 THE FIGHT'S CACHES the drawing reaches
+  { const bf0=window.bdhFrame; if(typeof bf0==='function'){ bdhFrame=function(){ if((!DET.open || DET.out>0) && detRuns()) return; return bf0.apply(this, arguments); }; DET.wrapped.push('bdhFrame'); } }   // BPIC2 THE DRAGON'S CLOCK: while a det fight runs, a call from outside the seeded world (the ground painter's rfDraw wrap: "the frame's clock for the tosses when no unit's head runs") does nothing; the tick's own callers run it (a living man's head, isdTick; the tick's foot, detDrawFoot), and the painter then only paints
   detB4Wraps();   // B4B9 THE PHONE AND THE WALL: the canonical phone's words, the rocket's and the drone's presentation doors, Mom's reference glass, the express's world tap, the caves' match seed, the match's Date   (LANDC: B5's step-8 wraps below stand outside it: texTapAt through the drawn camera first)
   { const di0=cx.drawImage; cx.drawImage=function(){ return DET_SM.pd? detWallRun(di0, this, arguments) : di0.apply(this, arguments); }; DET.wrapped.push('cx.drawImage'); }   // B5 THE DRAWING'S OWN BUDGETS keep the wall inside a picture door
   for(let i=0;i<DET_WALLW.length;i++){ const n9=DET_WALLW[i], w0=window[n9]; if(typeof w0==='function'){ window[n9]=function(){ return DET_SM.pd? detWallRun(w0, this, arguments) : w0.apply(this, arguments); }; DET.wrapped.push(n9); } }
