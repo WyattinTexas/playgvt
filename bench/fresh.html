@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.11","md5":"49d8515a6256e8bca48c77d4091bb0f6","sha":"82a0a9e0f6","at":"2026-11-22T02:14:39Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.12","md5":"e085b3b269cddd016559c892d7c76bd7","sha":"e2774fe4a6","at":"2026-11-22T04:26:12Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94623,7 +94623,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.11';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.12';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -235795,6 +235795,130 @@ function kyaRead(o){ o=o||{}; if(o.on===0 || o.on===1) KYA.on=o.on; if(o.part){ 
     lab:(typeof BLB_RULES!=='undefined')? BLB_RULES.filter(function(q){ return /^KYA_/.test(q[0]); }).map(function(q){ return q[0]; }) : null }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.kya) GVT.kya=kyaRead; }catch(e){} },0);   // the rigs' door (GVT is built below)
 // ═══ END CARD-KYA ═══
+// ═══ CARD-KYW · KING YETI'S FULL SWING (sec:CARD-KYW; design/king-yeti-full-swing-1118/00-CARD-KYW.md; FROM ISAAC by WhatsApp 11/16/2026 18:42:23 EST on CARD-DRA's AD 2, jumpr 3646, board J367) ═══
+// HIS WORDS, verbatim: "King yetis second video still doesn't show him swinging, he just kind of glitches. I need a full swing."
+// THE FAULT: kyPoseK answers the flinch first and hurt() stamps kyHitAt on every round, so under fire the two swing poses never show; three frames flicker through between hits. That flicker is the glitch.
+// THE CURE, DRAW TIME ONLY: every strike of his is painted as ONE WHOLE SWING over the flinch: THE WIND-UP (the sword raised back, read off his own sword clock kySwCd, so it comes BEFORE the blow), THE CUT (the arm and the blade thrown over his head,
+//   a crescent of ice light behind the edge, landing on the sim's own strike), THE FOLLOW-THROUGH (the blade driven low, his weight behind it) and the way home to his stand. The picture is a puppet of his OWN drawing: the finished picture of his stand and of his two
+//   swing poses is cut, once, into his body (no sword arm; one for each of the three), his sword arm and his sword (kywSplit), so every look the game gave them (Laura's lines and tones) comes with them; no new drawing, no new mold key.
+// WHAT DOES NOT MOVE: not one number or clock of his fight. KING_SW_CD, KING_SW_TRIG, KING_SW_REACH, KING_SW_CAP, KING_SW_FAN, the hero's KY_SWORD_*, kySwing's 0.3 s that plants him, the blow's frame, every die. This section writes NOTHING on a fighter
+//   (its notes live in a WeakMap beside them), pushes no fx, draws no die and plays no sound. kyPoseK itself is byte-still: its other readers (the battleground's pose, the cinematics) keep it.
+// WHO YIELDS: his seize's grip, his leap's crouch and the slam chop keep their pictures (they outrank the swing as shipped); the flinch is the one thing the swing now outranks. The wave and the snowball's hurl hold back only the WIND-UP.
+// BOTH SEATS: the boss in his fight, the hero on the carpet (drawKing) and on a battleground (kbSwingSprite, the factory picture only: a dyed or paper king keeps his). He turns to the man he strikes in the first moments of the wind-up and back at the end of the way home (the shipped molds always faced west).
+// THE PHONE: every piece goes through the battle's bitmap cache (CARD-BDR); the five pictures are let go a minute after he was last drawn (KYW_IDLE).
+// IF HIS DRAWING CANNOT BE CUT (a changed drawing): KYW.why says so and the two shipped swing poses play the same timeline, still over the flinch. Reduced motion: no crescent, no lean, no lunge.
+// THE SWITCH: ?kyw=0 on a device = his drawing as it was (gvt_kyw; nothing below is wrapped), ?kyw=1 clears it. GVT.kyw() = the rigs' read ({ zero:1, hero:0|1, bf:0|1, smear:0|1 }). UNDO = kit/applyKYW.py --undo (byte for byte the page before).
+const KYW_ON=(function(){ try{ const q=/[?&]kyw=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_kyw','0'); else localStorage.removeItem('gvt_kyw'); } return localStorage.getItem('gvt_kyw')==='0'? 0 : 1; }catch(e){ return 1; } })();
+const KYW={ on:KYW_ON, hero:1, bf:1, smear:1, st:new WeakMap(), art:null, mk:0, next:0, tries:0, used:0, why:'', n:{ frames:0, wind:0, cut:0, follow:0, home:0, relax:0, strikes:0, cold:0, bounce:0, overFlinch:0, plain:0, built:0, dropped:0 }, err:0, e:'' };
+const KYW_C=['#6CBDF2','#2E8FDB'], KYW_IDLE=60000;   // the crescent's fill and its leading edge (a deep ice blue: the castle's floor is nearly white, and a pale one vanished on it) · the pieces are let go a minute after he was last drawn
+const KYW_CP=new Float32Array(44);   // the crescent's samples: its outer and inner point at eleven moments
+const KYW_SIM=0.3;   // the sim's own swing clock: both seats set kySwing=0.3 on the strike's frame (applyKYW.py refuses a page where they do not)
+const KYW_T={ w0:-0.40, top:-0.12, c0:-0.10, c1:0.03, drop:0.16, set:0.30, home:0.60, cold:0.09, coldS:0.19, relax:0.14, late:0.20, turn:0.10, fresh:0.10 };   // s from the sim's strike: the wind-up starts, the sword is up, the cut starts, it lands, the blade is lowest, it settles, he stands · a strike nobody saw coming: the sword snatched up in .cold, everything after it .coldS later (the whole cut still plays) · an aborted wind-up lets go in .relax · a wind-up with less than .late left is not started · .turn = his turn to the side of his man, at the start, and back, at the end · a pose drawn less than .fresh ago is the one to go on from
+const KYW_P={ top:[-38,84], end:[-195,49], low:[-208,40], set:[-200,48] };   // [the arm, the wrist] in degrees from his stand (+ = clockwise in the mold): sword up and back · the cut's end · the lowest · where it settles
+const KYW_G={ P:[88,53], F:[106,27], Y0:128.68, BL:-49, R0:30, R1:94, BODY:[-20,-14,150,152], ARM:[72,12,56,60], SWORD:[84,-56,96,108] };   // in the mold: the shoulder · the fist of his stand · the feet line of drawSprite's seat · the blade's angle at his stand · the crescent's inner and outer reach from the fist · the pieces' own boxes
+const KYW_Q={ a:0, w:0, b:0, bs:0, lean:0, lunge:0, sq:0, tn:0, fc:1, ph:0 }, KYW_R0={ a:0, w:0, b:0, bs:0, lean:0, lunge:0, sq:0, tn:0, fc:1, ph:0 };   // the pose read this frame + one for the crescent (no per-frame allocation)
+function kywNow(){ return (typeof performance!=='undefined' && performance.now)? performance.now() : 0; }
+function kywIdle(){ if(KYW.art && kywNow()-KYW.used>KYW_IDLE){ KYW.art=null; KYW.tries=0; KYW.next=0; KYW.n.dropped++; } }   // no King Yeti on the glass for a minute: his five pictures go, the way her pictures do (CARD-ODL); his next fight cuts them again
+function kywCl(v){ return v<0? 0 : (v>1? 1 : v); }
+function kywSm(p){ return p*p*(3-2*p); }
+function kywMx(a,b,p){ return a+(b-a)*p; }
+function kywOops(w,x){ KYW.err++; if(KYW.e.length<240) KYW.e+=w+':'+String((x && x.message) || x).slice(0,70)+' '; }
+// THE TIMELINE: tau = seconds from the sim's strike. ph 1 the wind-up · 2 the cut · 3 the follow-through · 4 the way home · 5 a wind-up let go · 0 over. ws = where this wind-up began (a late one is shorter). bs = how much of his STAND's body shows (1 at both ends, so he leaves his stand and comes back to it without a jump). tn = how far he has turned from the way the shipped picture faces to the side of his man. f = the pose this stretch started from (his last drawn pose: a new swing picks up where the last one stands)
+function kywBody(Q,u,bs0,b0){ if(u<0.5){ Q.b=b0; Q.bs=kywMx(bs0,1,u*2); } else { Q.b=0; Q.bs=2-u*2; } }   // whatever body he shows goes back to his stand's, then the swing's comes in over it: two swing bodies are never mixed
+function kywPose(tau,cold,a0,w0,ws,Q,f){ const T=KYW_T, P=KYW_P, bs0=f? f.bs0 : 1, b0=f? f.b0 : 0, l0=f? f.l0 : 0, u0=f? f.u0 : 0, q0=f? f.q0 : 0, t0=f? f.tn0 : 0; Q.a=0; Q.w=0; Q.b=0; Q.bs=0; Q.lean=0; Q.lunge=0; Q.sq=0; Q.tn=1; Q.ph=0;
+  if(cold){ if(tau<T.cold){ const u=kywSm(kywCl(tau/T.cold)); Q.a=kywMx(a0,P.top[0],u); Q.w=kywMx(w0,P.top[1],u); Q.lean=kywMx(l0,0.07,u); Q.lunge=kywMx(u0,-4,u); Q.sq=kywMx(q0,1,u); kywBody(Q,u,bs0,b0); Q.tn=kywMx(t0,1,u); Q.ph=1; return Q; } tau-=T.coldS; }
+  if(tau<T.c0){ const u=kywCl((tau-ws)/(T.top-ws)), e=kywSm(u), e2=(ws>-0.3)? e : kywSm(kywCl((u-0.12)/0.88)); Q.a=kywMx(a0,P.top[0],e); Q.w=kywMx(w0,P.top[1],e2); Q.lean=kywMx(l0,0.07,e); Q.lunge=kywMx(u0,-4,e); Q.sq=kywMx(q0,1,e); kywBody(Q,e,bs0,b0); Q.tn=kywMx(t0,1,kywSm(kywCl((tau-ws)/T.turn))); Q.ph=1; return Q; }
+  if(tau<T.c1){ const u=kywCl((tau-T.c0)/(T.c1-T.c0)), e=kywMx(u*u*(3-2*u),u*u*u,0.35); Q.a=kywMx(P.top[0],P.end[0],e); Q.w=kywMx(P.top[1],P.end[1],1-Math.pow(1-u,3)); Q.b=(u<0.3)? 0 : 1; Q.lean=kywMx(0.07,-0.12,e); Q.lunge=kywMx(-4,12,e); Q.sq=1-e; Q.ph=2; return Q; }
+  Q.b=1;
+  if(tau<T.drop){ const e=1-Math.pow(1-kywCl((tau-T.c1)/(T.drop-T.c1)),3); Q.a=kywMx(P.end[0],P.low[0],e); Q.w=kywMx(P.end[1],P.low[1],e); Q.lean=-0.12; Q.lunge=12; Q.ph=3; return Q; }
+  if(tau<T.set){ const e=kywSm(kywCl((tau-T.drop)/(T.set-T.drop))); Q.a=kywMx(P.low[0],P.set[0],e); Q.w=kywMx(P.low[1],P.set[1],e); Q.lean=kywMx(-0.12,-0.09,e); Q.lunge=kywMx(12,10,e); Q.ph=3; return Q; }
+  if(tau<T.home){ const e=kywSm(kywCl((tau-T.set)/(T.home-T.set))); Q.a=kywMx(P.set[0],0,e); Q.w=kywMx(P.set[1],0,e); Q.lean=kywMx(-0.09,0,e); Q.lunge=kywMx(10,0,e); Q.bs=e; Q.tn=kywSm(kywCl((T.home-tau)/T.turn)); Q.ph=4; return Q; }
+  return Q; }
+// WHAT THE SIM'S OWN CLOCKS SAY (reads only)
+function kywS(e){ let s=KYW.st.get(e); if(!s){ s={ T:-1e9, cold:0, dir:0, nx:0, wu:-1e9, ws:KYW_T.w0, a0:0, w0:0, l0:0, u0:0, q0:0, bs0:1, b0:0, tn0:0, la:0, lw:0, lbs:1, ll:0, lu:0, lq:0, lb:0, ltn:0, lfc:1, nw:0, lt:-1e9, lph:0, ra:0, rw:0, rbs:1, rl:0, ru:0, rq:0, rb:0, rtn:0, rt:-1e9, ks:0, cd:0, cdT:-1e9, cdR:0 }; KYW.st.set(e,s); } return s; }
+function kywFrom(s){ const f=(S.t-s.lt<KYW_T.fresh); s.a0=f? s.la : 0; s.w0=f? s.lw : 0; s.l0=f? s.ll : 0; s.u0=f? s.lu : 0; s.q0=f? s.lq : 0; s.bs0=f? s.lbs : 1; s.b0=f? s.lb : 0; s.tn0=f? s.ltn : 0; }   // the next stretch starts from the pose he was last drawn in, or from his stand
+function kywClk(e,s){ if(S.t>s.cdT){ const v=e.kySwCd; s.cdR=(v<s.cd-1e-9)? 1 : 0; s.cd=v; s.cdT=S.t; } }   // is his sword clock really running? (his plant, his cloak, a fall or a shove stop it, and then no blow is coming)
+function kywArcDir(e){ const L=S.fx; if(!L) return 0; for(let i=L.length-1, g=0; i>=0 && g<24; i--, g++){ const o=L[i]; if(o && o.k==='arc' && o.R===52 && o.t<0.2 && Math.abs(o.x-e.x)<8 && Math.abs(o.y-(e.y-26))<8) return Math.cos((o.a0+o.a1)/2)>=0? 1 : -1; } return 0; }   // the strike's own silver arc says which way it went
+function kywStruck(e,s,T,d){ s.T=T; s.nw=0; s.cold=((s.lph===1 || s.lph===2) && S.t-s.lt<KYW_T.fresh)? 0 : 1; kywFrom(s); if(d) s.dir=d;   /* cold = the sword was not on its way up on the frame before the blow */ KYW.n.strikes++; if(s.cold) KYW.n.cold++; }
+function kywSee(e,s){ const v=e.kySwing>0? e.kySwing : 0; if(v>0 && (s.ks<=0 || v>s.ks+1e-3)){ const T=S.t-(KYW_SIM-v); if(Math.abs(T-s.T)>0.15) kywStruck(e,s,T,kywArcDir(e)); } s.ks=v; }   // the rising edge of the sim's clock, however many sim steps a draw skipped (a clock that stands still is no new strike)
+function kywNote(f,u){ const s=kywS(f); kywStruck(f,s,S.t,(u && u.x>=f.x)? 1 : -1); KYW.n.bounce++; }   // kysKingStrike: the bounce's blow carries no kySwing
+function kywYield(e){ return !!(e.dead || e.kyTk || e.kyLpW>0 || (e.kySlmAt!=null && S.t-e.kySlmAt<0.28)); }   // the pictures that outrank a swing as shipped (the flinch no longer does)
+function kywComing(e,s,seatFoe){ const W=-KYW_T.w0; s.nx=0;   // seconds until his next blow, 0 = none coming: the same tests his sim makes when the clock runs out, and the clock must be running. nx = the side his man stands on
+  if(e.kyWave || (e.kyThAt!=null && S.t-e.kyThAt<0.30) || e.plWind>0 || e.plT>0) return 0;
+  if(seatFoe && e.kkFl){ const F=e.kkFl, r=F.dur-F.t; if(F.chain && F.u && !F.u.dead && r>0 && r<=W){ s.nx=(F.u.x>=e.x)? 1 : -1; return r; } return 0; }   // the bounce: the sword comes up on the way down onto his man
+  if(e.kkWind>0 || e.kySwing>0 || !(e.kySwCd>0) || e.kySwCd>W || !s.cdR) return 0;
+  const m=seatFoe? kyNearMan(e,KING_SW_TRIG) : tkNearFoe(e,KY_SWORD_R); if(!m) return 0;
+  s.nx=(m.x>=e.x)? 1 : -1; return e.kySwCd; }
+// HIS DRAWING, CUT ONCE: the finished picture's own string -> the body, the sword arm, the sword. <defs> stay with every piece; the first group is the outline under the whole figure, its lines for the arm and the sword travel with them. Both shapes of string are read: the finished look (each part its own top-level group) and the plain bake
+function kywEl(s,i){ const re=/<(\/?)[a-zA-Z][^>]*?(\/?)>/g; re.lastIndex=i; let d=0, m; while((m=re.exec(s))){ if(m[1]) d--; else if(!m[2]) d++; if(d===0) return re.lastIndex; } return -1; }
+function kywKids(s,a,z){ const o=[]; let i=a; while(i<z){ const j=s.indexOf('<',i); if(j<0 || j>=z) break; const e=kywEl(s,j); if(e<0 || e>z) return null; o.push([j,e]); i=e; } return o; }
+function kywIds(t){ const o={}; let m; const re=/\bd="([^"]+)"|\bcx="([^"]+)" cy="([^"]+)"/g; while((m=re.exec(t))) o[m[1]? 'd'+m[1] : 'c'+m[2]+','+m[3]]=1; return o; }
+function kywSplit(full){ const a=full.indexOf('>'), z=full.lastIndexOf('</svg>'); if(a<0 || z<a) return null; const s=full.slice(a+1,z), T=kywKids(s,0,s.length); if(!T || T.length<7) return null;
+  let defs='', i=0; while(i<T.length && s.startsWith('<defs',T[i][0])){ defs+=s.slice(T[i][0],T[i][1]); i++; }
+  // the outline under the whole figure, one row a shape: a bare <g> of shapes, or (the finished look) <g filter=…><g data-grp="OUTLINE"> of <g>shape</g>. uo / uc = what wraps the rows, so a piece's outline keeps its look
+  let under=[], uo='<g>', uc='</g>'; if(i<T.length){ const t0=T[i][0], t1=T[i][1], OL='<g data-grp="OUTLINE">', q=s.indexOf(OL,t0);
+    if(s.startsWith('<g>',t0)){ const K=kywKids(s,t0+3,t1-4); if(K && K.length && K.every(c=>s.indexOf('<g',c[0])<0 || s.indexOf('<g',c[0])>=c[1])){ under=K.map(c=>s.slice(c[0],c[1])); i++; } }
+    else if(q>=0 && q===s.indexOf('>',t0)+1 && s.slice(t1-8,t1)==='</g></g>'){ const K=kywKids(s,q+OL.length,t1-8); if(!K) return null; under=K.map(c=>s.slice(c[0],c[1])); uo=s.slice(t0,q+OL.length); uc='</g></g>'; i++; } }
+  const K=T.slice(i).map(c=>s.slice(c[0],c[1])), SB='class="bsaber"', sb=x=>x.indexOf(SB)>=0, grp=x=>{ const m=/\bdata-grp="([^"]*)"/.exec(x); return m? m[1] : null; }, b=K.findIndex(sb); if(b<0) return null;
+  if(b<K.length-1){   // THE FINISHED LOOK: the sword is the last run of pieces, every one marked bsaber; his near arm stands right before it under the same part name
+    for(let j=b;j<K.length;j++) if(!sb(K[j])) return null; const g=grp(K[b]); if(g==null) return null; let a0=b; while(a0>0 && !sb(K[a0-1]) && grp(K[a0-1])===g) a0--; if(a0===b || a0===0) return null;
+    return { defs:defs, under:under, uo:uo, uc:uc, body:K.slice(0,a0).join(''), open:'<g>', arm:K.slice(a0,b).join(''), sword:K.slice(b).join('') }; }
+  const near=K[K.length-1], ns=near.indexOf(SB); if(ns<0 || !near.startsWith('<g')) return null;   // the plain bake: one last group, the arm with the sword's group inside it
+  const ga=near.lastIndexOf('<g transform="translate(',ns), gz=(ga<0)? -1 : kywEl(near,ga); if(gz<0) return null;
+  const open=near.slice(0,near.indexOf('>')+1), sword=near.slice(ga,gz), arm=near.slice(open.length,ga)+near.slice(gz,near.length-4);
+  return { defs:defs, under:under, uo:uo, uc:uc, body:K.slice(0,-1).join(''), open:open, arm:arm, sword:sword }; }
+function kywSvg(box,inner){ return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+box.join(' ')+'">'+inner+'</svg>'); }
+function kywBake(L){ const G=KYW_G, st=L[0], A=L[1], B=L[2], ik=c=>Object.keys(kywIds(c))[0], la=kywIds(st.open+st.arm+'</g>'), ls=kywIds(st.sword);
+  const pick=(R,f)=>R.uo+R.under.filter(f).join('')+R.uc, bodyOf=R=>{ const x=kywIds(R.open+R.arm+'</g>'+R.sword); return R.defs+pick(R,c=>!x[ik(c)])+R.body; };
+  return { bodyS:kywSvg(G.BODY,bodyOf(st)), bodyA:kywSvg(G.BODY,bodyOf(A)), bodyB:kywSvg(G.BODY,bodyOf(B)), arm:kywSvg(G.ARM,st.defs+pick(st,c=>la[ik(c)])+st.open+st.arm+'</g>'), sword:kywSvg(G.SWORD,st.defs+pick(st,c=>ls[ik(c)])+st.open+st.sword+'</g>') }; }
+function kywMake(){ if(KYW.art || KYW.mk || KYW.why || S.t<KYW.next) return; KYW.next=S.t+0.5; KYW.tries++;
+  const K=['kingyeti','kingyetiswinga','kingyetiswingb'], P='data:image/svg+xml;utf8,', L=[];
+  for(const k of K){ const im=IMG[k]; if(!im) return; if(typeof odeOn==='function' && odeOn() && KYW.tries<60 && !ODE.mine.has(im)) return;   // his finished look lands a moment after the boot's plain picture
+    const src=String(im.src||''); if(src.indexOf(P)!==0){ KYW.why='src:'+k; return; } let R=null; try{ R=kywSplit(decodeURIComponent(src.slice(P.length))); }catch(e){ R=null; } if(!R){ KYW.why='split:'+k; return; } L.push(R); }
+  const U=kywBake(L), A={}, N=Object.keys(U); let left=N.length; KYW.mk=1;
+  N.forEach(k=>{ const im=new Image(); im.onload=()=>{ im.onload=im.onerror=null; A[k]=im; if(--left===0){ KYW.art=A; KYW.mk=0; KYW.n.built++; } }; im.onerror=()=>{ im.onload=im.onerror=null; KYW.mk=0; KYW.why='decode:'+k; }; im.src=U[k]; }); }
+// THE PAINT, on drawSprite's own seat (the flip, the lean, the feet line), in mold units x k
+function kywBox(im,B,k){ cx.drawImage(im,(B[0]-60)*k,(B[1]-KYW_G.Y0)*k,B[2]*k,B[3]*k); }
+function kywCrescent(tau,s,k,cd){ const G=KYW_G, T=KYW_T, t1=cd? tau-T.coldS : tau; if(t1<T.c0 || t1>T.c1+0.08) return; const g0=cx.globalAlpha, Y=G.Y0, N=10, dt=0.008, AL=0.0923, Q=KYW_R0, C=KYW_CP, P=G.P, F=G.F, fx=F[0]-P[0], fy=F[1]-P[1], o=[0,0]; let m=-1;   // the blade's own path over the last 80 ms: ten sheets laid one inside the other, each reaching a step further back, so the light fades behind the edge with no seam (ten sheets of AL = 0.62 at the edge)
+  const pt=(r)=>{ const a=Q.a*Math.PI/180, c=Math.cos(a), n=Math.sin(a), th=(G.BL+Q.a+Q.w)*Math.PI/180; o[0]=(P[0]+fx*c-fy*n+Math.cos(th)*r-60)*k; o[1]=(P[1]+fx*n+fy*c+Math.sin(th)*r-Y)*k; };
+  for(let i=0;i<=N;i++){ kywPose(tau-dt*i,cd,s.a0,s.w0,s.ws,Q,s); if(Q.ph!==2 && Q.ph!==3) break; pt(G.R1); C[i*4]=o[0]; C[i*4+1]=o[1]; pt(G.R0); C[i*4+2]=o[0]; C[i*4+3]=o[1]; m=i; } if(m<1) return;
+  cx.fillStyle=KYW_C[0]; cx.globalAlpha=g0*AL; for(let j=1;j<=m;j++){ cx.beginPath(); cx.moveTo(C[0],C[1]); for(let i=1;i<=j;i++) cx.lineTo(C[i*4],C[i*4+1]); for(let i=j;i>=0;i--) cx.lineTo(C[i*4+2],C[i*4+3]); cx.closePath(); cx.fill(); }
+  cx.strokeStyle=KYW_C[1]; cx.lineWidth=3.2*k; cx.lineCap='butt'; for(let i=0;i<m;i++){ cx.globalAlpha=g0*0.74*(1-i/N); cx.beginPath(); cx.moveTo(C[i*4],C[i*4+1]); cx.lineTo(C[(i+1)*4],C[(i+1)*4+1]); cx.stroke(); }
+  cx.globalAlpha=g0; }
+function kywAt(im,B,k,x0,y0,ang,px,py){ cx.save(); try{ cx.translate(x0,y0); cx.rotate(ang); cx.translate(-px,-py); kywBox(im,B,k); }finally{ cx.restore(); } }   // a piece turned about its pivot
+function kywDraw(s,x,y,w,rot,Fc,t9,Q,A,tau,cd){ const G=KYW_G, k=w/230, Y=G.Y0, RM=reducedMotion(), lun=RM? 0 : Q.lunge*(w/283.7)*(-t9), P=G.P, F=G.F, ar=Q.a*Math.PI/180, c=Math.cos(ar), n=Math.sin(ar), fx=P[0]+(F[0]-P[0])*c-(F[1]-P[1])*n, fy=P[1]+(F[0]-P[0])*n+(F[1]-P[1])*c;
+  cx.save(); try{ cx.translate(x+lun,y); cx.scale(Fc,1); cx.rotate((rot||0)+(RM? 0 : Q.lean)); if(Q.sq && !RM) cx.scale(1+0.03*Q.sq,1-0.045*Q.sq);
+    const g0=cx.globalAlpha, B1=Q.b? A.bodyB : A.bodyA; if(Q.bs>0){ kywBox(A.bodyS,G.BODY,k); if(Q.bs<1){ cx.globalAlpha=g0*(1-Q.bs); kywBox(B1,G.BODY,k); cx.globalAlpha=g0; } } else kywBox(B1,G.BODY,k);   // his stand's body under the pose's, the pose's fading: nothing shows through him
+    if(KYW.smear && !RM && Q.ph>=2 && Q.ph<=3) kywCrescent(tau,s,k,cd);
+    kywAt(A.arm,G.ARM,k,(P[0]-60)*k,(P[1]-Y)*k,ar,(P[0]-60)*k,(P[1]-Y)*k);
+    kywAt(A.sword,G.SWORD,k,(fx-60)*k,(fy-Y)*k,(Q.a+Q.w)*Math.PI/180,(F[0]-60)*k,(F[1]-Y)*k);
+  }finally{ cx.restore(); } }
+// THE SEAT: true = the swing painted him this frame; false = the shipped picture does. defFl = the way the shipped picture faces him now: he starts from it and ends on it
+function kywPaint(e,x,y,w,rot,seatFoe,defFl){ if(!KYW.on || (!seatFoe && !KYW.hero)) return false; KYW.used=kywNow(); if(!KYW.art) kywMake();
+  const s=kywS(e), T=KYW_T, Q=KYW_Q; kywClk(e,s); if(kywYield(e)){ s.lt=-1e9; s.lph=0; kywSee(e,s); return false; } kywSee(e,s);   // a strike under a pose that outranks the swing is still noted: what is left of it plays when that pose ends
+ 
+  const cs=s.cold? T.coldS : 0, t1=S.t-s.T, end=T.home+cs, busy=(t1>=0 && t1<T.set+cs); let tau=t1, c=busy? 0 : kywComing(e,s,seatFoe);
+  if(c>0 && (S.t-s.wu>0.12 || s.lph===5)){ if(c<T.late) c=0; else { s.ws=-c; kywFrom(s); if(s.nx) s.dir=s.nx; } }   // a wind-up starts from the pose he is in, toward the side his man stands on (it is not asked again until the blow); too late for one = the strike comes cold
+  let cd=0; if(c>0){ s.wu=S.t; if(t1>=0 && t1<end) s.nw=1; tau=-c; kywPose(tau,0,s.a0,s.w0,s.ws,Q,s); }   // nw: this wind-up belongs to the NEXT blow: the last swing's clock has no more say
+  else if(t1>=0 && t1<end && !s.nw){ cd=s.cold; kywPose(t1,cd,s.a0,s.w0,s.ws,Q,s); }
+  else if(((s.lph===1 || s.lph===2) && S.t-s.lt<T.relax) || (s.lph===5 && S.t-s.rt<T.relax)){ if(s.lph!==5){ s.ra=s.la; s.rw=s.lw; s.rbs=s.lbs; s.rl=s.ll; s.ru=s.lu; s.rq=s.lq; s.rb=s.lb; s.rtn=s.ltn; s.rt=s.lt; } const u=kywSm(kywCl((S.t-s.rt)/T.relax)), v=1-u; Q.a=s.ra*v; Q.w=s.rw*v; Q.b=s.rb; Q.bs=s.rbs+(1-s.rbs)*u; Q.lean=s.rl*v; Q.lunge=s.ru*v; Q.sq=s.rq*v; Q.tn=s.rtn*v; Q.ph=5; KYW.n.relax++; }   // the blow never came (his man stepped away, his clock stopped): the sword lets go
+  else return false;
+  if(!Q.ph){ s.lph=0; return false; }
+  const N=KYW.n; N.frames++; if(Q.ph===1) N.wind++; else if(Q.ph===2) N.cut++; else if(Q.ph===3) N.follow++; else if(Q.ph===4) N.home++; if(e.kyHitAt!=null && S.t-e.kyHitAt<0.30) N.overFlinch++;
+  if(!s.dir) s.dir=seatFoe? -1 : 1; const t9=s.dir>0? -1 : 1, h=defFl? -1 : 1, fr=(S.t-s.lt<T.fresh), tg=kywMx(h,t9,Q.tn); let v=tg;   // the turn, flat like the toy he is: from the way he faces to his man and back, and never faster than a turn, whatever changes under it (the strike goes the other way, the seat flips)
+  if(reducedMotion()) v=(Q.tn>=0.5)? t9 : h; else { const b0=fr? s.lfc : h, m=3*(fr? S.t-s.lt : 1/60)/T.turn, d=tg-b0; v=b0+(d>m? m : (d<-m? -m : d)); }
+  const Fc=(Math.abs(v)<0.08)? ((v<0 || (v===0 && tg<0))? -0.08 : 0.08) : v; Q.fc=Fc;
+  s.la=Q.a; s.lw=Q.w; s.lbs=Q.bs; s.ll=Q.lean; s.lu=Q.lunge; s.lq=Q.sq; s.lb=Q.b; s.ltn=Q.tn; s.lfc=v; s.lph=Q.ph; s.lt=S.t;
+  if(KYW.art){ kywDraw(s,x,y,w,rot,Fc,t9,Q,KYW.art,tau,cd); return true; }
+  const im=IMG[(Q.ph===1 || Q.ph===5)? 'kingyetiswinga' : 'kingyetiswingb']; if(!im) return false; N.plain++; drawSprite('kingyeti',x,y,w,rot,0,im,t9<0); return true; }   // his drawing could not be cut (or is still on its way): the two shipped poses on the same clock
+function kywRead(o){ o=o||{}; if(o.zero){ for(const k in KYW.n) KYW.n[k]=0; KYW.err=0; KYW.e=''; } if(o.hero!=null) KYW.hero=o.hero? 1 : 0; if(o.bf!=null) KYW.bf=o.bf? 1 : 0; if(o.smear!=null) KYW.smear=o.smear? 1 : 0;
+  return { cv:GVT_CV, on:KYW.on, hero:KYW.hero, bf:KYW.bf, smear:KYW.smear, art:KYW.art? Object.keys(KYW.art).length : 0, mk:KYW.mk, tries:KYW.tries, why:KYW.why, wrapped:KYW.wrapped||null, n:Object.assign({},KYW.n), err:KYW.err, e:KYW.e }; }
+if(KYW.on){ KYW.wrapped={}; if(typeof setInterval==='function') setInterval(kywIdle,5000);
+  if(typeof drawKing==='function'){ const dk0=drawKing; drawKing=function(e,x,y,w,wob,seatFoe,defFl){ try{ if(kywPaint(e,x,y,w,wob,seatFoe,defFl)) return; }catch(err){ kywOops('draw',err); } return dk0.apply(this,arguments); }; KYW.wrapped.drawKing=1; }
+  if(typeof kbSwingSprite==='function'){ const ks0=kbSwingSprite; kbSwingSprite=function(u,x,y,w,rot,wob,im,flip){ if(u && u.type==='kingyeti' && KYW.bf){ try{ const pk=kyPoseK(u), ip=IMG[pk]; if((im===IMG.kingyeti || im===ip) && kywPaint(u,x,y,w,(rot||0)+(wob||0),false,(im===ip && KY_AIMED[pk])? !flip : flip)) return; }catch(err){ kywOops('bf',err); } /* an aimed pose comes with the seat's flip already turned: his own facing is the other one */ } return ks0.apply(this,arguments); }; KYW.wrapped.kbSwingSprite=1; }
+  if(typeof kysKingStrike==='function'){ const kk0=kysKingStrike; kysKingStrike=function(f,u){ try{ kywNote(f,u); }catch(err){ kywOops('note',err); } return kk0.apply(this,arguments); }; KYW.wrapped.kysKingStrike=1; } }
+setTimeout(function(){ try{ if(window.GVT && !GVT.kyw) GVT.kyw=kywRead; }catch(e){} },0);   // the rigs' door (GVT is built below)
+// ═══ END CARD-KYW ═══
 // ═══ CARD-KRX2 · THE KING REX FIGHT PATCH: VOLCANIC DIRT, THE LEAP TO THE FAR END, THE TRICERATOPS HITS HARDER, THE LITTLE FIRE DINOS' FIRE AT THEIR SIZE, MEGA PHASE 2's HEALTH (sec:CARD-KRX2; design/king-rex-patch-1113/00-CARD-KRX2.md; jumpr 3349, built on Maker 1 as M3349) ═══
 // FROM WYATT 11/13/2026, typed on the Big Mac, verbatim: "Add the following patch for the King Rex fight. Here are notes." King Rex Changes: "- Change BG color to be more like volcanic dirt" "- During phase 2 transition King rex should
 // Leap in the air and jump to the far end of the screen. Currently he Teleports" "- Triceratops need to hit harder" "- Fire too big from little fire Dinos, needs to look good" "- Mega Phase 2 Rex needs x2 HP on all Hatch Eggs & all hatched
