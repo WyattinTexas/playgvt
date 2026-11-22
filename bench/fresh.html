@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.18","md5":"80f15eabbed3d6cf657eaf164d9b0ab8","sha":"a3b140296d","at":"2026-11-22T07:37:53Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.19","md5":"4ddf4b4cb1fee013d0f5af74f6c6e2b3","sha":"8412badecd","at":"2026-11-22T08:37:24Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49870,6 +49870,18 @@ const BF_COST   = Object.assign({}, COSTS, { bfjeep:320, bftank:500, jeep2:320, 
 // (0121: the commando's 88 is 175's half rounded UP — the one non-integer half
 // on the board; every other bounty is exactly half its sticker)
 const BF_BOUNTY = { rifleman:20, minesweeper:45 /* CARD-SWM: the exactly-half law at 120 · CARD-SWN: 45 at 90 */, flame:60 /* CARD-BUG-1116 BUG 2 (Wyatt's phone 11/16/2026 3:50 PM, the Bug button): the exactly-half law at 120 */, mgunner:50, radioman:50, medic:25, bazooka:65, mortar:100, grenadier:60, sarge:50, commando:88, spy:38, bfjeep:125, bftank:250, jeep2:125, jeep3:125 /* CARD-V3J */, tank2:250, tank3:250 /* CARD-OCR-B3 */ };   // 0365: medic 25 = half of 50, the exactly-half law · v2.47: spy 38. v2.52: the three price cuts keep the exactly-half law — sweeper 80→40 · bazooka 130→65 · flame 140→70
+// ═══ CARD-TSC THE NIGHT'S THREE (design/wyatt-bugs-tsc-1121; Wyatt 11/21/2026 ~22:30 EST, typed, verbatim: "Reduce dog tags for kills by 50% and 75% after 30 seconds in 3v3 and higher
+// including battle of the frozen tundra" · "Increase spy damage by 3x" · "Other players arent currently seeing the Horses and the Shield sarges abilities. We played a game in campaign and on
+// lauras phone none of the cavalry damage I did visually happened nor was the damage recorded"): (1) bfBounty x tscKillX: a side of 3 or more pays half for the battle's first 30 s (bf.age)
+// and a quarter after · (2) UDEF.spy.dmg 1 -> 3 · (3) the `cav` and `gong` words carry the owner's wall clock (w) and the hearer ages them by its own (S.t is each page's own clock: two
+// phones are minutes apart, and the 3 s guard on S.t threw every word away). THE OFF SWITCH: ?tsc=0 on a device (gvt_tsc '0'; ?tsc=1 back), read at load. ═══
+const TSC={ on:(function(){ try{ const q=/[?&]tsc=([01])(?:&|$)/.exec(location.search||''); if(q) localStorage.setItem('gvt_tsc', q[1]); return localStorage.getItem('gvt_tsc')!=='0'; }catch(e){ return true; } })(),
+  team:3, x0:0.5, x1:0.25, cutT:30, spy:3, fresh:30, wrap:100000, n:{ fresh:0, stale:0 } };   // the side size the cut starts at · half · a quarter · after this many seconds · the spy's dmg · a word's freshness either way (s) · the wall clock's wrap (s)
+function tscKillX(){ const bf=S.bf; if(!TSC.on || !bf || (bf.team|0)<TSC.team) return 1; return (+bf.age||0)<TSC.cutT? TSC.x0 : TSC.x1; }   // the kill's dog tags: 3 v 3 and up, by the battle's own count-up
+function tscWall(){ return Math.round((Date.now()/1000)%TSC.wrap*100)/100; }   // the wall clock a word carries (seconds mod the wrap: inside the relay's 1e9 number bound)
+function tscStale(cm){ if(!TSC.on || !cm || typeof cm.w!=='number' || !isFinite(cm.w)) return null; let d=tscWall()-cm.w; const h=TSC.wrap/2; if(d>h) d-=TSC.wrap; else if(d<-h) d+=TSC.wrap;
+  const st=(d>TSC.fresh || d<-TSC.fresh); TSC.n[st? 'stale' : 'fresh']++; return st; }   // null = no wall clock on the word (an older build's): the hearer's old S.t rule judges it
+// ═══ END CARD-TSC ═══
 const BF_TICK   = 20;    // dog tags per 10s passive drip
 const BF_START  = 210;   // opening purse — the campaign's exact wallet
 // ═══ 1003 THE DOG TAG BOOST (FM-GVT-TAGS-BOOST-01; Wyatt 9/14 ~20:45 EDT, verbatim: "…for the 1v1s, let's increase it by a solid 30% from the get-go … Let's do a 35% boost on Western World and a 15% boost on any
@@ -58888,7 +58900,7 @@ function dcvPick(u){ const C=DSH.C, d=dshSt(u), L=TGT(u); let big=null, bd=C.CAV
 function dcvLane(u,ax,ay){ const C=DSH.C; if(ax==null || ay==null){ const p=dcvPick(u); ax=p.x; ay=p.y; }   // THE LANE'S END: from him toward the aim, no shorter than CAV_MIN and no longer than CAV_MAX, inside the rug's band (the dots and the charge read this one resolver)
   let dx=ax-u.x, dy=ay-u.y, q=Math.hypot(dx,dy); if(q<1){ dx=dshSt(u).fs; dy=0; q=1; } const len=Math.max(C.CAV_MIN,Math.min(C.CAV_MAX,q)); return dcvBand(u.x+dx/q*len, u.y+dy/q*len); }
 function dcvRim(dir){ const z=zoomZ(), camv=S.bf? S.bf.cam : cCamOn(), vx=camv? camv.x : 0, vw=VW/(z||1); return dir>0? vx-120 : vx+vw+120; }   // "run from off-screen to him": just past this glass's edge, behind his own toy box (a prop: every game agrees on WHEN he mounts, never on where a drawing starts)
-function dcvSend(u,cm){ try{ if(!S.coop || !u) return; if(S.bf){ if(!roomBattle() || u.seat!==bfMySeat()) return; cm.n=u.seat|0; } else { if(u.coopBy || !u.cid) return; cm.id=u.cid; } cm.t=+S.t.toFixed(2); coopSend(cm); }catch(e){ DSH.err++; } }
+function dcvSend(u,cm){ try{ if(!S.coop || !u) return; if(S.bf){ if(!roomBattle() || u.seat!==bfMySeat()) return; cm.n=u.seat|0; } else { if(u.coopBy || !u.cid) return; cm.id=u.cid; } cm.t=+S.t.toFixed(2); if(TSC.on && (cm.k==='cav' || cm.k==='gong')) cm.w=tscWall(); /* CARD-TSC: the owner's wall clock rides the call */ coopSend(cm); }catch(e){ DSH.err++; } }
 // ---- THE PRESS, THE DRAG, THE LIFT (the main canvas handlers call these three; a key is a finger: a press and a lift on the spot = a tap)
 function dcvPress(p,w){ const u=dcvSarge(); if(!u || !dcvCan(u) || (S.dcvCd||0)>0){ SFX.clack(); return false; }
   if(dcvNpl(u)!=null){ nplTell(u,'cav',1); return false; }
@@ -59009,7 +59021,7 @@ function dcvHear(cm,room){ if(!cm || (cm.k!=='cav' && cm.k!=='cvl' && cm.k!=='cv
     else { if(S.bf) return true; u=coopUnit(cm.id); if(u && !u.coopBy) u=null; }
     if(!u || u.type!=='sarge' || u.dead) return true; N.word++;
     if(cm.k==='dcr'){ const d=dshSt(u), w=Math.max(0,cm.w|0); d.cr=Math.max(0,Math.min(C.CRACKS,Math.floor(w/10))); d.scar=Math.max(0,Math.min(C.CRACKS,w%10)); d.mendT=0; N.told++; return true; }
-    if(cm.k==='cav'){ const age=(typeof cm.t==='number' && isFinite(cm.t))? S.t-cm.t : 0; if(age>C.CAV_FRESH || age<-C.CAV_FRESH){ N.stale++; return true; }   // THE REPLAY GUARD: a rejoin's replay from seq 0 plays no charge, no shing and no slow
+    if(cm.k==='cav'){ const age=(typeof cm.t==='number' && isFinite(cm.t))? S.t-cm.t : 0, w9=tscStale(cm); if(w9===true || (w9===null && (age>C.CAV_FRESH || age<-C.CAV_FRESH))){ N.stale++; return true; }   /* CARD-TSC: aged by the wall clock it carries */   // THE REPLAY GUARD: a rejoin's replay from seq 0 plays no charge, no shing and no slow
       if(!dshOf(u) || u.dcv || u.jetT>0 || u.dropT>0) return true; dcvCall(u,cm.r|0,true); return true; }
     if(cm.k==='cvh'){ const c=u.dcv; if(c && c.relay && !c.hit) c.oh=1; return true; }
     if(cm.k==='cvl'){ const c=u.dcv; if(c && c.relay && !c.lock && typeof cm.x==='number' && typeof cm.y==='number'){ const L=dcvBand(+cm.x,+cm.y); c.lane={ x:L.x, y:L.y }; c.lock=1; } return true; }
@@ -59225,7 +59237,7 @@ function dgnHear(cm,room){ if(!cm || cm.k!=='gong') return false; try{ const C=D
     if(room){ if(!S.bf) return true; const st=(typeof cm.n==='number')? (cm.n|0) : -1; u=S.units.find(function(v){ return v.type==='sarge' && (v.seat|0)===st && !v.dead; }); if(u && u.seat===bfMySeat()) u=null; }
     else { if(S.bf) return true; u=coopUnit(cm.id); if(u && !u.coopBy) u=null; }
     if(!u || u.type!=='sarge' || u.dead) return true; N.gongWord++;
-    const age=(typeof cm.t==='number' && isFinite(cm.t))? S.t-cm.t : 0; if(age>C.GONG_FRESH || age<-C.GONG_FRESH){ N.gongStale++; return true; }   // THE REPLAY GUARD: a rejoin's replay from seq 0 rings nothing
+    const age=(typeof cm.t==='number' && isFinite(cm.t))? S.t-cm.t : 0, w9=tscStale(cm); if(w9===true || (w9===null && (age>C.GONG_FRESH || age<-C.GONG_FRESH))){ N.gongStale++; return true; }   /* CARD-TSC: aged by the wall clock it carries */   // THE REPLAY GUARD: a rejoin's replay from seq 0 rings nothing
     if(!dshOf(u) || u.dcvR || u.jetT>0 || u.dropT>0) return true; dgnRing(u,true);
   }catch(e){ DSH.err++; } return true; }
 // ---- THE WRAPS BY NAME (no body of another card's function is edited here: each wrap asks its own question first and hands everything else on)
@@ -76789,7 +76801,7 @@ const UDEF = {
   // grit 2: the only 2 on the green roster — "a pretty light unit. Low
   // health." His cloak lives on the figure (cloakT), never in this row — the
   // campaign dump rig extracts this band verbatim.
-  spy:     { rng:70,  rate:3.84, dmg:1, air:false, grit:2, name:'SPY' },   // CARD-BUG-1116 BUG 2 (Wyatt's phone 11/16/2026 3:50 PM, the Bug button): "Raise Spy Damage by 2x" dmg 0.5 -> 1
+  spy:     { rng:70,  rate:3.84, dmg:(TSC.on? TSC.spy : 1) /* CARD-TSC: Wyatt 11/21 "Increase spy damage by 3x" (1 -> 3) */, air:false, grit:2, name:'SPY' },   // CARD-BUG-1116 BUG 2 (Wyatt's phone 11/16/2026 3:50 PM, the Bug button): "Raise Spy Damage by 2x" dmg 0.5 -> 1
   // 0340 JANE — the hideout's base-rescue ally (never in TRAY_ORDER or the
   // shop; janeIn() was her ONLY door, croak raid M/H on the first leak —
   // 0446: won at the duel's win door with her still standing, she takes a
@@ -94623,7 +94635,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.18';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.19';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -110259,7 +110271,7 @@ function campUnitStep(u,dt){
 }
 
 // ================= BATTLEFIELD: CLOCK, ECONOMY, OPPONENT =================
-function bfBounty(type){ return Math.round((BF_BOUNTY[type]||1) * (S.bf&&S.bf.ot?2:1) * bfTagX()); }   // 1003 THE DOG TAG BOOST: the bounty × the mode × the map (a rifleman 20 → 30 on a 1v1 regular map · King Croak 140 → 209) — the blob's own number (my seat) and the computer's purse credit both read this one seat
+function bfBounty(type){ return Math.round((BF_BOUNTY[type]||1) * (S.bf&&S.bf.ot?2:1) * bfTagX() * tscKillX() /* CARD-TSC: 3 v 3 and up, half then a quarter after 30 s */); }   // 1003 THE DOG TAG BOOST: the bounty × the mode × the map (a rifleman 20 → 30 on a 1v1 regular map · King Croak 140 → 209) — the blob's own number (my seat) and the computer's purse credit both read this one seat
 function clampCam(x){ const vis=VW/zoomZ(), hi=(S.bf?WORLD_W:W)-vis; return hi>=0? Math.max(0, Math.min(hi, x)) : hi/2; }   // 0963: the visible world is VW/z wide; a view wider than the world centres it   // v1.98: the grand campaign rug pans too — its world is W (0..0 on every narrow rug)
 function clampCamY(y){ return Math.max(0, Math.min(WORLD_H-H, y)); }   // 0..0 on every map but the tall one
 // 0628 THE MAP PANS DOWN (FM-GVT-JUICE-01 §6 P4 — Wyatt: "allow panning the map downward"; ⚑ Q18: the battle rug): a FLAT rug
