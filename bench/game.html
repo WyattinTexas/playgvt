@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.22","md5":"d2d534055d314452da30c75e0246fbdd","sha":"00fd7488d1","at":"2026-11-22T15:33:41Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.23","md5":"6ce69552390b409726bc764af9a121a7","sha":"eaa5bac005","at":"2026-11-22T16:08:08Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94635,7 +94635,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.22';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.23';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -226848,6 +226848,98 @@ if(tpb2On()) try{
 }catch(e){ TPB2.err++; }
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT && !GVT.tpb2) GVT.tpb2=tpb2Rig; }catch(e){ TPB2.err++; } }, 0);
 // ═══ END CARD-TPB2 ═══
+// ═══ CARD-TPB3 · THE TAN PUSH BACK, ROUND 3: THE TIDE HALF AS OFTEN ON 101 TO 170, AND NO MAN A TIDE DROPS PAYS A DOG TAG (sec:CARD-TPB3; design/tan-push-back-1116/r3/00-ROUND3-TPB.md; jumpr 3887 = the QuarterPounder's M3887, round 3 on his live loop, 11/18/2026).
+//   ISAAC by WhatsApp 11/18/2026 13:01 EST, answering the live build of rounds 1 and 2 (sec CARD-TPB and sec CARD-TPB2 above, live since v33.36), verbatim: "The tide logic is activating too much on these levels so
+//   let's decrease that by half (or whatever is activating it) because it'll really keep waves going for way too long because of the logic that's built in."; 14:08: "Let's also make a change to tide logic. The troops
+//   deployed under tide logic should not be worth any dog tags whatsoever, so they're all zero. Add that to the task."; 14:14, asked whether levels 1 to 25 too: "They should never pay anything at all anymore. Any troop
+//   dropped in Tide Logic just doesn't pay any dog tags because the whole point is to turn the tide of the battle. If you're just donating dog tags to the player, then that just gives them more in their favor."
+//   THE BUILD, two changes, each its own cells, ONE new switch, no line of the game changed and no line of rounds 1 and 2 (one wrap by name at load); the fights it was chosen by: r3/00-ROUND3-TPB.md § MEASURED.
+//   (1) THE HALF TIDE (TPB3.half, TPB3.TIDE): at load the dials named in TIDE are written into round 1's own cells (TPB.GAP and its neighbours), which sec CARD-TPB's tdlTick wrap lays into sec CARD-TDL's cells for a
+//   band tick only: solo campaign 101 to 170 never 130. GAP = the seconds between one pair of clusters and the next (round 1's 8). Levels 1 to 25 keep sec CARD-TDL's own dials, untouched. half 0 = round 1's dials
+//   stand. Under ?tpb=0 nothing is written: it is still the ONE switch for the band, all three rounds.
+//   (2) NO TIDE MAN PAYS (TPB3.nopay, oktPays wrapped by name: foeFell's own question "does this fall drop a tag?", sec CARD-SFT's precedent for a foe that pays nothing): a man a tide dropped (f.tdl, the mark sec
+//   CARD-TDL's tdlDrop gives every man it bears: cluster A by tdlPush, cluster B by tdlPend; on levels 1 to 25 and on the band alike, the tide has no other door) drops NO dog tag when he falls: no tag on the rug,
+//   nothing to the purse, no "+n". Every other man pays as ever (a wave's own men, the push's, a boss). The kill is still the killer's (his count, his medals, what his own hat or coin pays for a kill): only the
+//   fallen man's tag is asked. The tide's read of the lead is untouched (it counts stickers on the field, never the purse). nopay 0 = they pay again. TPB3.low 0 = on levels 1 to 25 (sec CARD-TDL's own
+//   rungs) the tide's men keep their tags and the zero pay holds on the band alone: MEASURED, an army with no upgrade at all wins fewer of levels 16 to 25 once the tide's men pay nothing there.
+//   ?tpb3=0 = round 3 off on this device (sticky in localStorage gvt_tpb3; ?tpb3=1 clears it): no cell is written, no wrap is installed, rounds 1 and 2 stand as they shipped and a tide's men pay. ?tpb=0 does NOT
+//   bring the tags back on levels 1 to 25: it is the band's switch, and under it the band has no tide man to pay. Hidden as the tide is (Isaac 10/21; Wyatt 10/22: no alert over the play).
+//   No dice, no wire byte, no save key, no new words, nothing on the server, no art. GVT.tpb3(set) = the rig's read and its door to the cells.
+var TPB3={ on:(function(){ try{ const q=/[?&]tpb3=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tpb3','0'); else localStorage.removeItem('gvt_tpb3'); } return localStorage.getItem('gvt_tpb3')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  v:3, half:1, TIDE:{ GAP:16 },   // ⚑ TPB3-Q: THE HALF TIDE on the band, one cell each (half 0 = round 1's own dials · TIDE = round 1's tide dials this round sets, by their own names: GAP seconds between pairs (round 1: 8) · MAX pairs a battle (12) · CLMIN / CLMAX a cluster's men (4 / 8) · LEAD the lead in dog tags it answers (200) · WAVES the last wave it reads (6) · LAG cluster B after A (4) · PLATEAU the most Tan men (50) · FIRST the wave that must have marched (1))
+  nopay:1, low:1,   // ⚑ TPB3-Q: NO TIDE MAN PAYS (nopay 0 = a tide's man drops his dog tag like any other) · low 1 = on levels 1 to 25 too (Isaac 14:14: every tide) · low 0 = there the tide's men keep their tags, the zero pay is the band's alone
+  was:{}, n:{ sync:0, zero:0 }, old:{}, err:0 };
+const TPB3_DIALS=['FIRST','LEAD','WAVES','CL','CLMIN','CLMAX','GAP','LAG','MAX','PLATEAU'];   // round 1's tide cells a TIDE entry may name (anything else is ignored)
+function tpb3On(){ return TPB3.on===1; }
+function tpb3Band(){ return (typeof tpbOn==='function') && tpbOn() && typeof TPB==='object' && !!TPB; }   // the band's ONE switch is round 1's
+function tpb3Sync(){ if(typeof TPB!=='object' || !TPB) return 0;   // (1) THE HALF TIDE: round 1's dials take this round's values; what an earlier call wrote is put back first, so a dial taken out of TIDE is round 1's own again
+  for(const k of Object.keys(TPB3.was)) TPB[k]=TPB3.was[k]; TPB3.was={};
+  if(!tpb3On() || !tpb3Band() || TPB3.half!==1 || !TPB3.TIDE) return 0; let c=0;
+  for(const k of TPB3_DIALS){ const v=TPB3.TIDE[k]; if(typeof v==='number' && isFinite(v) && typeof TPB[k]==='number'){ TPB3.was[k]=TPB[k]; TPB[k]=v; c++; } }
+  TPB3.n.sync++; return c; }
+function tpb3Low(){ const n=S.levelN|0; return typeof TDL==='object' && !!TDL && n>=TDL.FROM && n<=TDL.TO; }   // a rung of sec CARD-TDL's own range (levels 1 to 25)
+function tpb3Zero(f){ return !!(TPB3.nopay===1 && f && f.tdl===1 && (TPB3.low===1 || !tpb3Low())); }   // (2) a man a tide dropped: his fall drops no dog tag
+function tpb3Rig(set){ try{ if(set && typeof set==='object'){ if('half' in set) TPB3.half=set.half; if('nopay' in set) TPB3.nopay=set.nopay; if('low' in set) TPB3.low=set.low; if(set.TIDE && typeof set.TIDE==='object') TPB3.TIDE=Object.assign({}, set.TIDE); tpb3Sync(); }   // the rig's door: cells by name, this page only
+    const live={}; if(typeof TPB==='object' && TPB){ for(const k of TPB3_DIALS) live[k]=TPB[k]; }
+    return { cv:GVT_CV, on:TPB3.on, v:TPB3.v, band:tpb3Band()? 1 : 0, half:TPB3.half, TIDE:Object.assign({}, TPB3.TIDE), was:Object.assign({}, TPB3.was), live, nopay:TPB3.nopay, low:TPB3.low, n:Object.assign({}, TPB3.n), wraps:Object.keys(TPB3.old), err:TPB3.err }; }catch(e){ TPB3.err++; return { on:TPB3.on, err:TPB3.err, e:String(e&&e.message||e).slice(0,120) }; } }
+if(tpb3On()) try{
+  tpb3Sync();   // (1) THE HALF TIDE: the band's pace (nothing under ?tpb=0)
+  if(typeof oktPays==='function'){ TPB3.old.oktPays=oktPays;   // (2) NO TIDE MAN PAYS: foeFell's blob line asks oktPays last; a tide's man answers no (no tag is minted, so nothing lands 0.8 s later)
+    oktPays=function(f,u){ try{ if(tpb3Zero(f)){ TPB3.n.zero++; return false; } }catch(e){ TPB3.err++; } return TPB3.old.oktPays.apply(this, arguments); }; }
+}catch(e){ TPB3.err++; }
+setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT && !GVT.tpb3) GVT.tpb3=tpb3Rig; }catch(e){ TPB3.err++; } }, 0);
+// ═══ END CARD-TPB3 ═══
+// ═══ CARD-TGH · THE TIDE'S TWO BUGS (ISAAC 11/20): NOBODY GOES FOR A MAN STILL DROPPING IN, AND A MAN THE TIDE DROPPED PAYS NO DOG TAG THROUGH ANY DOOR (sec:CARD-TGH; design/tide-ghosts-1121/00-DESIGN-TGH.md; FROM ISAAC by his guest link 11/20/2026 14:07 EST, jumpr 4126, built on the QuarterPounder as M4126).
+//   ISAAC, verbatim (dictated): "not sure what happened in my last push about the tide logic, but once again, we have a bug where Sarge or Sarge's pet attacks the troops before they land, but they can't do any damage. They just sit there and wait.
+//   It looks super, super ugly and buggy. Also, we need to change it to where tide logic troops do not grant any dog-type kills. Find the cause of these two bugs and fix immediately, because in levels 101 through 170, waves are lasting way too long,
+//   and there's just a dog tag farm there."
+//   (1) THE GHOSTS. THE CAUSE (measured on client v34.13, design/tide-ghosts-1121 § THE CAUSE): on the campaign's rug a man still dropping in (dropT > 0: every tide cluster since CARD-TPI, the wave logic's backups since CARD-WFI) is INERT,
+//   INVULNERABLE (hurt) and UNTARGETABLE to every gun (bfCanTarget, campNearestFoe, the four doors CARD-WFI guarded). Two pickers never ask: SARGE'S BLADE (saberNext's rug branch: the saber's hunt, its next man, the two-step's window)
+//   skips only the burrowed, the man past the rug's east edge, the dying and the air, so the saber dashes to the ghost and swings at him until he lands; and THE PETS' TWO SKIP LISTS, petFlLive (Flappy's, read through petTtLive, petFrLive,
+//   petSbLive and mlwLive by most pets) and petPfLive (Puff's, read through petMeLive), skip a dropping man on the BATTLEGROUND only, so on the rug the pet locks on, runs in and bites (Sharky's gobble drags the ghosts into a pile).
+//   THE CURE: the ghost law the battleground already keeps in both lists, on the rug: a man with dropT > 0 off the battleground is nobody's pick. saberNext keeps its own pick unless it fell on a ghost, then asks itself again over the rug's
+//   men with the ghosts set aside (no line of the blade copied: its own filters, reach and order decide); petFlLive / petPfLive answer no for a ghost on the rug before their own list is read. From the tick he lands (wfiFoeDrop) he is every
+//   picker's man as before. Nothing changes on the battleground (both lists and bfNearestEnemy already skip a drop there), nothing for a man who is not dropping, no number, no reach, no clock. TGH.ghost 0 = this part off.
+//   (2) THE TAGS. Round 3 (sec CARD-TPB3, his words of 11/18: "They should never pay anything at all anymore") zeroes the fallen man's OWN tag (oktPays: no blob). But the KILLER'S GEAR still paid for him: noteKill, the one seat every kill
+//   reaches, pays THE BUCKET HAT's tags (10 a kill since BKH2; Isaac wears it), THE AVIATORS' 2 (+ BKH2's tenth), JANE'S COIN on TAILS and, wrapped over it later in the page, THE STRIPED SHIRT's plunder: a "+10" over every
+//   tide man Isaac's Sarge cut down. THE CURE: when round 3 says a fallen man pays
+//   nothing (its own question, tpb3Zero: a man the tide dropped, its cells nopay / low, its switch ?tpb3=0 obeyed), whatever noteKill paid into the purse for him is taken back and its "+n" is not shown (the purse's cream at once; Jane's coin when it lands). Everything
+//   else noteKill does stands (the kill is still the killer's: his count, his medals, the guardian's shield, Jane's stack on HEADS, the nutcracker's rally). Without round 3 in the page this part does nothing. TGH.pay 0 = this part off.
+//   ?tgh=0 on a device (sticky in localStorage gvt_tgh; ?tgh=1 clears it) = the game as before this card byte for byte (no wrap installed). No dice, no words, no save key, no wire byte, nothing on the server, no art.
+//   GVT.tgh() = the rig's read ({ on, ghost, pay, n, wraps, err }).
+var TGH={ on:(function(){ try{ const q=/[?&]tgh=([01])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_tgh','0'); else localStorage.removeItem('gvt_tgh'); } return localStorage.getItem('gvt_tgh')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  ghost:1, pay:1,   // ⚑ TGH-Q: the two parts, one cell each (ghost 0 = the blade and the pets may go for a dropping man again · pay 0 = the killer's gear pays for a tide man again)
+  n:{ blade:0, pet:0, kills:0, kept:0 }, old:{}, err:0 };   // n.blade = the blade's picks that fell on a ghost, asked again · n.pet = a ghost turned away by a pet's list (one per ask) · n.kills / n.kept = tide kills whose gear payout was taken back, and the tags so kept
+function tghOn(){ return TGH.on===1; }
+function tghGhost(f){ return !!(TGH.ghost===1 && f && !S.bf && f.dropT>0); }   // a man still dropping in on the campaign's rug (on the battleground every picker already skips him)
+function tghPayless(f){ return !!(TGH.pay===1 && f && f.tdl===1 && typeof tpb3Zero==='function' && typeof tpb3On==='function' && tpb3On() && tpb3Zero(f)); }   // round 3's own question: the tide dropped him and its zero pay holds for him
+function tghRig(){ return { cv:GVT_CV, on:TGH.on, live:tghOn(), ghost:TGH.ghost, pay:TGH.pay, n:Object.assign({}, TGH.n), wraps:Object.keys(TGH.old), err:TGH.err }; }
+if(tghOn()) try{
+  if(typeof saberNext==='function'){ TGH.old.saberNext=saberNext;   // (1) SARGE'S BLADE
+    saberNext=function(u, sw, r9){ const b=TGH.old.saberNext.apply(this, arguments); if(!tghGhost(b)) return b;   // the blade's own pick stands unless it fell on a ghost
+      const all=S.foes; let b2=null;
+      try{ S.foes=all.filter(f=>!tghGhost(f)); TGH.n.blade++; b2=TGH.old.saberNext.apply(this, arguments); }   // ask again over the rug's men with the ghosts set aside (this call only)
+      catch(e){ TGH.err++; b2=null; }
+      finally{ S.foes=all; }
+      return tghGhost(b2)? null : b2; }; }
+  if(typeof petFlLive==='function'){ TGH.old.petFlLive=petFlLive;   // (1) THE PETS: Flappy's list (and every pet that reads it)
+    petFlLive=function(f){ if(tghGhost(f)){ TGH.n.pet++; return false; } return TGH.old.petFlLive.apply(this, arguments); }; }
+  if(typeof petPfLive==='function'){ TGH.old.petPfLive=petPfLive;   // (1) THE PETS: Puff's list (and Merlin's, through petMeLive)
+    petPfLive=function(f, p){ if(tghGhost(f)){ TGH.n.pet++; return false; } return TGH.old.petPfLive.apply(this, arguments); }; }
+}catch(e){ TGH.err++; }
+setTimeout(()=>{ try{   // (2) THE KILLER'S GEAR, laid once the page's script has run: OVER every other wrap of noteKill (today the quests' kill count and THE STRIPED SHIRT's plunder, +2 a kill, both laid later in the page), so its take-back sees them all
+  if(tghOn() && typeof noteKill==='function' && !TGH.old.noteKill){ TGH.old.noteKill=noteKill;
+    noteKill=function(u, f){ if(!tghPayless(f)) return TGH.old.noteKill.apply(this, arguments);
+      const p0=S.plastic, t0=(META.stats? META.stats.tags : null), n0=(S.floats? S.floats.length : 0), q0=(u && u.cflQ)? u.cflQ.length : 0;
+      const r=TGH.old.noteKill.apply(this, arguments);
+      try{ const d=(+S.plastic||0)-(+p0||0);
+        if(d>0){ S.plastic=p0; TGH.n.kills++; TGH.n.kept+=d; if(META.stats && t0!=null) META.stats.tags=t0;
+          if(S.floats) for(let i=S.floats.length-1;i>=n0;i--){ const g=S.floats[i]; if(g && g.col==='#FFF3C4' && /^\+\d+$/.test(String(g.txt))) S.floats.splice(i, 1); }   // its "+n" in the purse's cream: never shown for tags never paid
+          if(u && u.cflQ) for(let i=q0;i<u.cflQ.length;i++){ if(u.cflQ[i]) u.cflQ[i].paid=0; } } }   // Jane's coin shows its "+n" when it lands (cflTick): TAILS! still, the tags not
+      catch(e){ TGH.err++; }
+      return r; }; }
+  if(typeof GVT==='object' && GVT && !GVT.tgh) GVT.tgh=tghRig; }catch(e){ TGH.err++; } }, 0);
+// ═══ END CARD-TGH ═══
 // ═══ CARD-KCX · KING CROAK'S EXACT FILES: THE TWO PLUSH TREASURES TAKE THE SAME NUMBERS (sec:CARD-KCX; design/king-croak-exact-1105/00-CARD-KCX.md; FROM LAURA, one of Wyatt's designers (her live switch: Wyatt 10/11/2026),
 // the jumpr guest link 11/5/2026 18:39 UTC (jumpr 3073, built on Maker 1 as M3073), verbatim: "NEW: EXACT FILES -- replace the ones from card 3024 (that export rounded every number to one decimal; these are the
 // originals, numbers untouched). Same names, same keys, same instructions as card 3024; put them wherever those went (game + sheet)." + her standing rule of 11/5/2026 (jumpr 3047): "Twins: when two sheet entries are
