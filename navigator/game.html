@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.20","md5":"338fb0014e1389cfff5882ebc7ba29d1","sha":"192c3fb238","at":"2026-11-22T09:08:53Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.21","md5":"fb9e8b89483e8483131a0637ecce73ec","sha":"07d3a58c77","at":"2026-11-22T09:36:51Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94635,7 +94635,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.20';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.21';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -242373,6 +242373,24 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.wdf) GVT.wdf=wdfRead; }catch(e
 // the wait, down to where they began; a call slow again within ZRB_NEAR calls of a halving says this device's painter needs the longer wait, and it then stays for the page's life (ZRB.held).
 // ?zrc=0 = this section as CARD-ZRB shipped it, on this device (remembered: gvt_zrc '0'); ?zrc=1 = on again. GVT.zrb() says zrc, held, eased and n.late / n.tap / n.ease, and each job's log row ends with the times
 // its warm was drawn again; GVT.zrb({ zrc }) flips it for the page's life. New names: ZRB_TAPS, ZRB_EASE, ZRB_NEAR, zrbTap, zrbEase. Zero words, css, save keys, server or sw bytes; no drawing changes (no tile).
+// ═ CARD-ZRW · THE ZOOM'S OWN REPAINT GOES FIRST: A JOB'S WARM IS NOT DRAWN WHILE THE PAGE'S OWN WORK AT THE NEW SCALE STILL NEEDS THE PAINTER (laid in this section by text-anchored hunks: design/zoom-warm-readers-1118/00-CARD-ZRW.md;
+// jumpr 3872, board M3872, built on the QuarterPounder; cut by CARD-ZRC, jumpr 3557, on Wyatt's same rule of 11/12/2026 16:39 EST: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a
+// laggy screen in the game").
+// THE FAULT, MEASURED (the app's own engine, macOS 27.0's, his save, the bedroom; the record's sections 1 and 3). While a job's warm rasters (a felt figure at 512: 117 to 229 ms there; at 1024: 223 to 416 ms) the painter answers
+// nobody else, and whatever of the page asks it for an answer in that time waits behind it on the main thread: CARD-WFL's atlas read stood 133 ms behind the river flags' warm at 512 (CARD-ZRC's logs) and 325 ms behind a
+// 1024 warm, her plush's bake 184 ms (this card's round of 11/19: holds of 370 and 197 ms on today's game). WHY THEY MEET: a job's turn came once the view was still and six frames on time, 0.3 to 1.2 s after the zoom, and the zoom's own repaint falls in that same second, each part on a clock of
+// its own: the atlas's sweep (every 1.5 s) makes its felt bitmaps again at the new scale, her plush is baked again at its own sweep (every second) and tinted after it, and the still room's look answers the zoom half a
+// second to a second after it (its lay at the new density). Fifteen runs on v33.48: a part of that repaint fell inside a warm's raster or in the 60 ms before its draw in 14 zooms of 15 at 1.8 and 10 of 15 at 2.5, and
+// the atlas's batch came after the first job's turn in 10 and 11 zooms of 15.
+// THE CURE: THE ZOOM'S OWN REPAINT GOES FIRST (zrbOwed). Before the first job's turn after the view moved: (1) the atlas: if it has not scanned since, its sweep is asked at once by its own door (wflSoon), and the turn waits while
+// a bitmap of its is in the making or waits its batch, for the scan that swaps the batch in, and for a scan it has asked of itself (its first scan at a new scale only takes the old bitmaps out); (2) the still room: the turn waits while a settle or a lay is in flight or due, and until its look at the scale has
+// answered this view; (3) her plush, after that lay and never beside it: its sweep is asked once (afxSweep), and the turn waits while a bake of hers is in the making. Then ZRB_CALM frames on time, as ever, and the warm is drawn into a painter that owes the page nothing.
+// The answers are owed once a view (ZRB.ans): the jobs after the first, and a draw again (CARD-ZRC, the call with it, never past ZRB_LATE), wait only for what is in the making (a bitmap of the atlas's, a lay, a bake of
+// hers). A scan the atlas owes is waited for ZRB_SOON ms at most; a turn waits ZRB_OWN ms at most: a wait that long says this page's repaint gives no answer, and the rule then steps aside for the page's life
+// (ZRB.ownOff). A room under a cover is not asked. A zoom that asks no bake changes nothing: nothing here runs without a job. WHAT A PLAYER SEES: the same pictures; after a first pinch to a new size the felt begins to sharpen about half a second later, and the last picture is sharp 0.2 to 0.45 s later.
+// ?zrw=0 = this section as CARD-ZRC left it, on this device (remembered: gvt_zrw '0'); ?zrw=1 = on again. GVT.zrb() says zrw, own (what the rule last waited for: atlas, lay, plush or nothing), ownOff and n.own / n.kick / n.owncap;
+// GVT.zrb({ zrw }) flips it for the page's life. New names: ZRB_OWN, ZRB_SOON, zrbOwed. LEANS ON, BY NAME (kit/needs.txt pins their lines): WFLB.t / making / q / soon and wflSoon, AFX.busy and afxSweep, DLGP.svg / lay / busy /
+// layDue / scT / scW, dlgRoomOk, msRoomHid. A card that changes how one of them says "through" changes zrbOwed with it. Zero words, css, save keys, server or sw bytes; no drawing changes (no tile).
 var ZRB=(function(){ const o={ on:0, word:'', wk:0, old:{}, q:[], by:new Map(), run:null, raf:0, last:0, view:'', down:0, wait:0, k:0, lf:0, calm:0, err:0, why:'', log:[],
     n:{ asked:0, again:0, lay:0, jobs:0, warm:0, nowarm:0, ran:0, gone:0, capped:0, slow:0, made:0, none:0 } };   // the zoom's bakes asked (each a job) · asked again while waiting · called through at once for a lay · jobs run · warmed · run without a warm · called through · let go (not worn) · run at the cap · slower than ZRB_SLOW · PNGs made · nulls
   try{ const qs=location.search||'', m=/[?&]zrb=(0|1|auto)(?![\w])/.exec(qs); if(m){ if(m[1]==='auto') localStorage.removeItem('gvt_zrb'); else localStorage.setItem('gvt_zrb', m[1]); }
@@ -242384,6 +242402,23 @@ ZRB.wait=ZRB_WAIT0; ZRB.k=ZRB_K0;
 const ZRB_TAPS=4, ZRB_EASE=2, ZRB_NEAR=6;   // CARD-ZRC: a job's warm is drawn again at most this many times · this many quick calls in a row halve a doubled wait · a call slow again within this many calls of a halving keeps the longer wait for the page's life
 ZRB.zrc=(function(){ try{ const m=/[?&]zrc=(0|1)(?![\w])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_zrc', '0'); else localStorage.removeItem('gvt_zrc'); } return localStorage.getItem('gvt_zrc')==='0'? 0 : 1; }catch(e){ return 1; } })();   // CARD-ZRC's own switch (?zrc=0 = this section as CARD-ZRB shipped it)
 ZRB.quick=0; ZRB.since=0; ZRB.eased=0; ZRB.held=0; ZRB.n.late=0; ZRB.n.tap=0; ZRB.n.ease=0;   // quick calls in a row · calls since the wait last came down · times it came down · 1 = the longer wait stays · jobs that met a late frame after their warm · warms drawn again · halvings
+const ZRB_OWN=4500, ZRB_SOON=800;   // CARD-ZRW: a job's turn waits at most this long (ms) for the zoom's own repaint (under ZRB_CAP: an old phone's own repaint may take seconds); a wait that long = the rule steps aside for the page's life · a scan the atlas owes is waited for at most this long
+ZRB.zrw=(function(){ try{ const m=/[?&]zrw=(0|1)(?![\w])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_zrw', '0'); else localStorage.removeItem('gvt_zrw'); } return localStorage.getItem('gvt_zrw')==='0'? 0 : 1; }catch(e){ return 1; } })();   // CARD-ZRW's own switch (?zrw=0 = this section as CARD-ZRC left it)
+ZRB.wt=-1; ZRB.wsT=0; ZRB.kick=0; ZRB.ans=0; ZRB.ownT=0; ZRB.ownOff=0; ZRB.own=''; ZRB.n.own=0; ZRB.n.kick=0; ZRB.n.owncap=0;   // the atlas's scans counted when the view last moved or its line was last busy · since when the atlas has owed a scan · the sweeps asked since the view moved (1 the atlas's, 2 her plush's) · 1 = the zoom's own repaint has answered this view · when this turn began to wait · 1 = the rule stepped aside · what is owed now · jobs whose turn waited · sweeps asked · waits cut at ZRB_OWN
+function zrbOwed(now, turn){ if(!ZRB.zrw || ZRB.ownOff) return ''; let why=''; const first=turn && !ZRB.ans;   // CARD-ZRW: '' = the page's own repaint owes the painter nothing; else what does (the rigs read it: GVT.zrb().own). turn 1 = a job's turn asks, 0 = a draw again. first = the first turn since the view moved: the sweeps are asked and the answers to this view waited for, once a view; after that (and for a draw again) only what is in the making
+  try{ if(typeof msRoomHid==='function' && msRoomHid()){ ZRB.own=''; return ''; }   // the room stands under a cover: nothing of it paints, nobody answers
+    if(typeof WFLB==='object' && WFLB && WFLB.on && WFLB.ok){   // CARD-WFL's atlas: a bitmap in the making or waiting its batch; and, for the first turn: no scan of its own since the view moved or since its line was last busy (its sweep is asked now by its own door, not in up to 1.5 s), or a scan of its own due (at a new scale its first scan only takes the old bitmaps out, and the scan its own watch asks 150 ms on makes them again): waited for, ZRB_SOON ms at most (a scan further off is a stirred toy's 3 s wait, not this zoom's)
+      if(WFLB.making || WFLB.q.length){ why='atlas'; ZRB.wt=WFLB.t; ZRB.wsT=0; }
+      else if(first && (WFLB.t===ZRB.wt || WFLB.soon)){ if(WFLB.t===ZRB.wt && !(ZRB.kick&1) && typeof wflSoon==='function'){ ZRB.kick|=1; ZRB.n.kick++; wflSoon(0); } if(!ZRB.wsT) ZRB.wsT=now; if(now-ZRB.wsT<ZRB_SOON) why='atlas'; }
+      else ZRB.wsT=0; }
+    if(!why && typeof DLGP==='object' && DLGP && DLGP.on && typeof dlgRoomOk==='function' && dlgRoomOk()){   // the still room: a settle or a lay in flight or due; and, for the first turn: its look at the scale has not answered this view yet (two looks half a second apart, then CARD-ZRP lays the room where it stands)
+      if(!DLGP.svg || !DLGP.lay || DLGP.busy || DLGP.layDue) why='lay'; else if(first && (DLGP.scW || !(DLGP.scT>ZRB.last))) why='lay'; }
+    if(!why && typeof AFX==='object' && AFX && typeof afxOn==='function' && afxOn()){   // CARD-AFX's plush and its tint, after the still room's lay (never beside it): for the first turn its sweep is asked once; then every bake of hers in the making (each reads its canvas when its picture loads)
+      if(first && !(ZRB.kick&2) && typeof afxSweep==='function'){ ZRB.kick|=2; ZRB.n.kick++; afxSweep(); }
+      for(const k in AFX.busy){ why='plush'; break; } }
+    if(first && !why) ZRB.ans=1;   // the zoom's own repaint has answered this view: the jobs after this one wait only for what is in the making
+  }catch(e){ ZRB.err++; why=''; }
+  ZRB.own=why; return why; }
 function zrbAddr(h, b){ const doc=afxnDoc(h); const z=doc? afxnSize(doc) : null; if(!z) return null;   // the address afxnBake hands the engine, made as its own lines make it (her document with its size said; kit/needs.txt pins those lines), and its filter steps (the painter's cost)
   const wide=z.w>=z.h, W=Math.max(1, Math.round(wide? b : b*z.w/z.h)), H=Math.max(1, Math.round(wide? b*z.h/z.w : b));
   const tag=z.tag.replace(/\s(width|height|viewBox)\s*=\s*("[^"]*"|'[^']*')/gi, '').replace(/^<svg\b/i, '<svg width="'+W+'" height="'+H+'" viewBox="'+z.vb+'"');
@@ -242392,7 +242427,7 @@ function zrbBigger(row, b){ if(!row) return false; for(const k in row){ if(row[k
 function zrbWho(h){ const o={ worn:0, soft:0 }; try{ const stage=document.getElementById('roomStage'); if(!stage) return o; const P=stage.getElementsByTagName('image'); for(let i=0;i<P.length;i++){ const e=P[i], a=e.__afxn; if(a && a.h===h) o.worn=1; if(!o.soft && e.getAttribute('href')===h && !e.__afxnSkip && afxNeed(e)>0) o.soft=1; } }catch(e){ ZRB.err++; o.worn=1; } return o; }   // an image of the room wears a bitmap of this drawing (worn) · one shown wears the drawing itself and waits for its bitmap (soft: a lay's, it must not wait; one the game keeps as its own, __afxnSkip, is not)
 function zrbBusy(){ try{ let any=false; AFXN.busy.forEach(function(row){ if(!any) for(const k in row){ any=true; break; } }); if(any) return true; if(typeof RFM==='object' && RFM && (RFM.aOn || RFM.q.length || RFM.run)) return true; }catch(e){ ZRB.err++; } return false; }   // another bake of the room in the making, or a lay's first moment
 function zrbStill(now){ let v=''; try{ v=RZ.z+'|'+RZ.tx+'|'+RZ.ty; if(RZ.pts && RZ.pts.size) ZRB.last=now; }catch(e){}   // the view and the fingers on the room
-  if(ZRB.down>0){ if(now-ZRB.last>ZRB_LOST) ZRB.down=0; else ZRB.last=now; } if(v!==ZRB.view){ ZRB.view=v; ZRB.last=now; } return now-ZRB.last>=ZRB_STILL; }
+  if(ZRB.down>0){ if(now-ZRB.last>ZRB_LOST) ZRB.down=0; else ZRB.last=now; } if(v!==ZRB.view){ ZRB.view=v; ZRB.last=now; ZRB.kick=0; ZRB.ans=0; ZRB.wsT=0; ZRB.wt=(typeof WFLB==='object' && WFLB)? WFLB.t : -1; } return now-ZRB.last>=ZRB_STILL; }   // CARD-ZRW: the view moved: the sweeps may be asked again, the answers are owed again, the atlas's scans counted from here
 function zrbAsk(h, b, self){ let res=null; const p=new Promise(function(ok){ res=ok; }), j={ h:h, b:b, self:self, p:p, res:res, t0:performance.now(), cv:null, im:null, px:0 };
   let m=ZRB.by.get(h); if(!m){ m={}; ZRB.by.set(h, m); } m[b]=j; ZRB.q.push(j); ZRB.n.asked++; zrbKick(); return p; }
 function zrbOut(j, u){ const now=performance.now(); try{ if(ZRB.log.length>=32) ZRB.log.shift(); ZRB.log.push([j.h.length, j.b, Math.round(j.t0), Math.round(j.tt || 0), Math.round(j.tl || 0), Math.round(j.tc || 0), Math.round(now), u? u.length : 0, j.taps|0]); }catch(e){}   // the rigs' log: [address length, size, asked, its turn, the warm drawn, called through, answered (performance.now ms), PNG length, the warm drawn again (times: CARD-ZRC)]
@@ -242403,11 +242438,14 @@ function zrbRoom(){ try{ return afxnRoomOk() && document.visibilityState!=='hidd
 function zrbKick(){ if(ZRB.raf || !(ZRB.q.length || ZRB.run)) return; try{ if(zrbRoom()) ZRB.raf=requestAnimationFrame(zrbTick); else { ZRB.calm=0; ZRB.lf=0; ZRB.raf=setTimeout(zrbTick, 500); } }catch(e){ ZRB.err++; } }   // a frame watch while the room is up; off it, a look every half second
 function zrbTick(){ ZRB.raf=0; const now=performance.now(); let still=false; try{ still=zrbStill(now); }catch(e){ ZRB.err++; }
   let late=false; if(ZRB.lf){ if(now-ZRB.lf<ZRB_FRAME) ZRB.calm++; else { ZRB.calm=0; late=true; } } ZRB.lf=now;   // the frames: how many in a row came on time (the room's own repaint, a swap's decode: the painter's other work) · CARD-ZRC: this one came late
-  const r=ZRB.run; if(r && r.tl && !r.tc){ const w=now-r.tl, wj=r.wait || ZRB.wait;
-    if(ZRB.zrc && r.cv){ if(late && !r.dirty){ r.dirty=1; if(!r.taps) ZRB.n.late++; } if(r.dirty && ZRB.calm>=ZRB_CALM && (r.taps|0)<ZRB_TAPS) zrbTap(r); }   // CARD-ZRC: a frame came late since the warm was last drawn (its own raster on the painter; or the engine threw its caches away and painted the page again, and the felt this job painted went with them): once the frames are on time again the warm is drawn again, and the call below waits ZRB_CALM frames for it
-    if((w>=wj && ZRB.calm>=ZRB_CALM) || w>=wj+ZRB_LATE) zrbCall(r); }   // the warm drawn: the call once the painter is through
-  if(!ZRB.run && ZRB.q.length){ const j=ZRB.q[0];
-    if(zrbRoom() && !zrbBusy()){ const capped=now-j.t0>=ZRB_CAP; if((still && ZRB.calm>=ZRB_CALM) || capped){ if(!(still && ZRB.calm>=ZRB_CALM)) ZRB.n.capped++; ZRB.q.shift(); zrbRun(j); } } }
+  const r=ZRB.run; if(r && r.tl && !r.tc){ const w=now-r.tl, wj=r.wait || ZRB.wait; let own='';   // CARD-ZRW: what of the page's own repaint is in the making when a draw again is due (the draw waits for it, and the call with it, never past ZRB_LATE)
+    if(ZRB.zrc && r.cv){ if(late && !r.dirty){ r.dirty=1; if(!r.taps) ZRB.n.late++; } if(r.dirty && ZRB.calm>=ZRB_CALM && (r.taps|0)<ZRB_TAPS && !(own=zrbOwed(now, 0))) zrbTap(r); }   // CARD-ZRC: a frame came late since the warm was last drawn (its own raster on the painter; or the engine threw its caches away and painted the page again, and the felt this job painted went with them): once the frames are on time again the warm is drawn again, and the call below waits ZRB_CALM frames for it
+    if((w>=wj && ZRB.calm>=ZRB_CALM && !own) || w>=wj+ZRB_LATE) zrbCall(r); }   // the warm drawn: the call once the painter is through
+  if(!ZRB.run && ZRB.q.length){ const j=ZRB.q[0]; let own='', asked=0;
+    if(zrbRoom() && !zrbBusy()){ const capped=now-j.t0>=ZRB_CAP;
+      if(still && !capped){ asked=1; own=zrbOwed(now, 1); if(own){ if(!j.ow){ j.ow=1; ZRB.n.own++; } if(!ZRB.ownT) ZRB.ownT=now; else if(now-ZRB.ownT>=ZRB_OWN){ ZRB.ownOff=1; ZRB.n.owncap++; own=''; } } }   // CARD-ZRW: THE ZOOM'S OWN REPAINT GOES FIRST (the atlas's bitmaps, her plush, the still room's lay at the new scale): this turn waits for it, ZRB_OWN ms at most
+      if((still && ZRB.calm>=ZRB_CALM && !own) || capped){ if(!(still && ZRB.calm>=ZRB_CALM)) ZRB.n.capped++; own=''; ZRB.q.shift(); zrbRun(j); } }
+    if(!asked || !own) ZRB.ownT=0; }   // the wait is counted only while the rule itself holds the turn
   zrbKick(); }
 function zrbRun(j){ ZRB.run=j; ZRB.n.jobs++; j.tt=performance.now();
   let row=null; try{ row=AFXN.pic.get(j.h); }catch(e){}
@@ -242442,9 +242480,9 @@ try{ if(typeof afxnBake==='function' && typeof AFXN==='object' && AFXN){ ZRB.old
 try{ const mark=function(){ ZRB.last=performance.now(); }, lift=function(){ ZRB.down=Math.max(0, ZRB.down-1); mark(); }, how={ capture:true, passive:true };   // the hand on the glass (passive, nothing claimed)
   window.addEventListener('pointerdown', function(){ ZRB.down++; mark(); }, how); window.addEventListener('pointerup', lift, how); window.addEventListener('pointercancel', lift, how);
   ['wheel', 'touchmove', 'gesturechange'].forEach(function(t){ window.addEventListener(t, mark, how); }); }catch(e){ ZRB.err++; }
-function zrbRead(o){ if(o && typeof o==='object'){ if('on' in o) ZRB.on=o.on? 1 : 0; if(o.wait!=null && +o.wait>=0) ZRB.wait=+o.wait; if('zrc' in o) ZRB.zrc=o.zrc? 1 : 0; }
+function zrbRead(o){ if(o && typeof o==='object'){ if('on' in o) ZRB.on=o.on? 1 : 0; if(o.wait!=null && +o.wait>=0) ZRB.wait=+o.wait; if('zrc' in o) ZRB.zrc=o.zrc? 1 : 0; if('zrw' in o) ZRB.zrw=o.zrw? 1 : 0; }
   return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:ZRB.on, word:ZRB.word, wk:ZRB.wk, wrapped:!!ZRB.old.afxnBake && afxnBake!==ZRB.old.afxnBake, q:ZRB.q.length+(ZRB.run? 1 : 0), run:!!ZRB.run, wait:ZRB.wait, k:ZRB.k,
-    zrc:ZRB.zrc, held:ZRB.held, eased:ZRB.eased, still:ZRB_STILL, cap:ZRB_CAP, down:ZRB.down, n:Object.assign({}, ZRB.n), log:ZRB.log.slice(), err:ZRB.err, why:ZRB.why }; }
+    zrc:ZRB.zrc, held:ZRB.held, eased:ZRB.eased, zrw:ZRB.zrw, own:ZRB.own, ownOff:ZRB.ownOff, still:ZRB_STILL, cap:ZRB_CAP, down:ZRB.down, n:Object.assign({}, ZRB.n), log:ZRB.log.slice(), err:ZRB.err, why:ZRB.why }; }
 try{ if(window.GVT && !GVT.zrb) GVT.zrb=zrbRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.zrb) GVT.zrb=zrbRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-ZRB ═══
