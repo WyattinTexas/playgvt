@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.33","md5":"3570119669ef925b509fd092d25a4179","sha":"246dbbc8d7","at":"2026-11-23T15:04:49Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.34","md5":"be7a201e2496e72e87daf268f07aaa1c","sha":"7aeda643e0","at":"2026-11-23T15:10:52Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94646,7 +94646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.33';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.34';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -246282,6 +246282,68 @@ try{ Object.assign(TR.es||(TR.es={}), { "COUNTDOWN TO LAUNCH":"CUENTA ATRÁS AL 
       yardPlane:LCD.yardPlane|0, baked:Object.keys(LCD.bake), imgs:Object.keys(LCD.img).filter(k=>LCD.img[k] && LCD.img[k].complete && LCD.img[k].naturalWidth).length, imgN:Object.keys(LCD.img).length, lap:LCD.lastLap||null, breath:st? lcdBreathAt(lcdT()) : 0, log:LCD.log.slice() }; };
   try{ if(window.GVT && !GVT.lcd) GVT.lcd=door; }catch(e){} setTimeout(function(){ try{ if(window.GVT && !GVT.lcd) GVT.lcd=door; }catch(e){} }, 0); })();
 // ═══ END CARD-LCD ═══
+// ═══ CARD-UCV · UNDER A COVER THE ROOM HOLDS OR RESTS: THE PICKER, THE CARDS OVER THE ROOM, THE COUNTDOWN AND THE SUPPLY DROP (sec:CARD-UCV; design/menufps-cures-1123/ucv/00-CARD-UCV.md; jumpr 4515, board J919;
+//   cut by the engine road's orchestrator from CARD-ENG2-MENUFPS, its cure C32: design/eng2-program-1115/menufps/cures/CARDS.md). FROM WYATT 11/21/2026 about 17:40 EST, verbatim: "Low frames are generally from the
+//   menu or if there are just too many units on the screen." His rule of 11/12/2026, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game" ═══
+// THE FAULT (CARD-ENG2-MENUFPS's judged rows, client v34.29): three covers let the page step or paint what they hide. (a) THE CARD over the room (#milePop, an 82 % veil): WebKit's main thread at 51.0 M instructions
+//   a frame, the bare room's own 50.9 M (the room ran on under the veil; phone est 32.7 at rest, 37.3 under a finger). (b) THE DAILY COUNTDOWN (#lcdStage, opaque, the whole glass): the room stepped and painted
+//   under it (est 14.3 at rest, 36.4 under a finger). (c) THE PICKER (#picker, opaque): frame() drew about 100 canvas calls a frame under it, after a fight the battle itself (showPicker hides #menu, so cvCovered is false).
+// THE CURE, wrapping by name; no shipped line changed:
+//   (1) THE PICKER: btyTitleCovers (read only at frame()'s skip) and btyCovered also answer true while #picker stands, in every mode but a fight's: no draw() under it, and CARD-BTY's heartbeat (5 a second) after
+//       20 s untouched (btyCovered is what btySleepy and GVT.bty read).
+//   (2) THE CARDS: hpaCard also answers true while #milePop stands in the menu with the fort's yard shut. CARD-HPA's own seats then hold the room still and painted behind the veil, as behind a #roomModal card,
+//       and CARD-HCT follows; CARD-YLO's two reads act only on the open fort, where this term is false. One observer on #milePop's class asks the funnel (msPauseSync): the hold lands in the deal's frame, lifts in the fold's.
+//   (3) THE FULL-GLASS STAGES: dlgfCover, wrapped over CARD-HPA's, takes HPA's mark off and answers true while the countdown or the supply drop (#sdiStage, opaque) stands FULLY drawn: the room paused and unpainted.
+//       Fully drawn = LCD.el in the page, not fading, 300 ms past its birth AND its own entrance (lcdIn, .26 s) finished; or body.sdi-up with the stage 300 ms past its arrival AND its entrance (sdiIn, .24 s)
+//       finished, not lifting. (The entrance's clock starts at its first painted frame, which a slow first frame, PRESS START's re-laid room on a phone, can hold back past the 300 ms: the room stays painted
+//       until the stage is opaque: the cold read's finding 1.) lcdDown is wrapped to ask the funnel after its own body (it lets LCD.el go as its .22 s fade starts); one observer on body's children and class
+//       asks it when a stage comes or goes and again 320 ms later, and the entrance's own end (animationend) asks it once more. So the room is painted again on the countdown's first fading frame and
+//       before the drop's lift (sdi-up leaves at the lift's start).
+// WHAT A PLAYER SEES: nothing new. Under the opaque picker, countdown and drop nothing shows through; behind a card the room stands still (CARD-HPA's law: its sounds wait with it, as behind a #roomModal card)
+//   while the card itself moves as ever. Dylan's countdown (CARD-LCD) and Isaac's drop (CARD-SDI) are untouched: only the unseen room under them rests. THE COUNTDOWN ENDS 11/25/2026 14:00 UTC (LCD.AT): its
+//   term goes quiet then, the rest stands.
+// OFF: ?ucv=0 = off for this load (?ucv=1 = on, and the device's off key cleared) · gvt_ucv '0' = off on this device · GVT.ucv({ on:0 }) = off for the page's life. GVT.ucv() = the rigs' read. Zero words, css, save keys, server or
+//   sw bytes; no sim line. New names: UCV, ucvPicker, ucvCardTerm, ucvStage, ucvAsk, ucvBody, ucvEars, ucvRead, ucvIn, gvt_ucv, GVT.ucv. FOR LATER CARDS: a wrap of btyTitleCovers, btyCovered, hpaCard, dlgfCover or
+//   lcdDown stands after END CARD-UCV and calls through.
+var UCV={ on:(function(){ try{ var q=/[?&]ucv=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.removeItem('gvt_ucv'); return q[1]==='1'? 1 : 0; } return localStorage.getItem('gvt_ucv')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  FULL:300, LATER:320, pk:null, sdi:null, sdiAt:0, key:null, t:0, ears:0, laid:0, err:0, n:{ pick:0, card:0, stage:0, asks:0 }, old:{} };   // var on purpose (the house's way): the switch · a stage is fully drawn FULL ms after it came · the funnel asked again LATER ms after a stage comes or goes · the picker's node · the drop's node and when it came · the ears' last word · the counts (the rigs' read) · the wrapped
+function ucvPicker(){ try{ if(!UCV.on || S.mode==='play') return false; let p=UCV.pk; if(!p || !p.isConnected) p=UCV.pk=document.getElementById('picker'); return !!(p && !p.classList.contains('hidden')); }catch(e){ UCV.err++; return false; } }   // (1) the opaque picker stands, in every mode but a fight's (read every frame: a fault answers the shipped false)
+function ucvCardTerm(){ return !!(UCV.on && S.mode==='menu' && milePopUp() && !hpaYardOpen()); }   // (2) a card stands on the ceremony host over the bare room, the fort's yard shut
+function ucvIn(el, name){ try{ const A=(typeof el.getAnimations==='function')? el.getAnimations() : null; if(!A) return false; for(let i=0;i<A.length;i++){ if(A[i].animationName===name && A[i].playState!=='finished') return false; } return true; }catch(e){ UCV.err++; return false; } }   // its own entrance has ended (none: reduced motion, a pinned stage, the drop's rest); unreadable = not yet
+function ucvStage(){ if(!UCV.on) return ''; const now=Date.now();   // (3) a full-glass stage FULLY drawn: '' none · 'lcd' the countdown · 'sdi' the supply drop
+  const L=(typeof LCD==='object' && LCD)? LCD.el : null; if(L && L.isConnected && !L.classList.contains('out') && now-(+LCD.bornAt||0)>=UCV.FULL && ucvIn(L, 'lcdIn')) return 'lcd';
+  const b=document.body, d=UCV.sdi; if(b && d && b.classList.contains('sdi-up') && d.isConnected && !d.classList.contains('lift') && now-UCV.sdiAt>=UCV.FULL && ucvIn(d, 'sdiIn')) return 'sdi';
+  return ''; }
+function ucvAsk(){ UCV.n.asks++; try{ msPauseSync(); }catch(e){ UCV.err++; } }   // the funnel asked: msPauseSync is the outermost wrapper of the moment, CARD-HCT's
+function ucvBody(){ if(!UCV.on) return; try{   // the ears on body: a stage came or went (its node, the drop's class on body) = the funnel asked now and again LATER ms on
+    const st=document.getElementById('sdiStage'); if(st!==UCV.sdi){ UCV.sdi=st; UCV.sdiAt=st? Date.now() : 0; }
+    const k=(st? 's' : '')+(document.body.classList.contains('sdi-up')? 'u' : '')+(document.getElementById('lcdStage')? 'l' : ''); if(k===UCV.key) return; UCV.key=k;
+    ucvAsk(); clearTimeout(UCV.t); UCV.t=setTimeout(ucvAsk, UCV.LATER); }catch(e){ UCV.err++; } }
+function ucvEars(){ if(UCV.ears || typeof MutationObserver!=='function' || !document.body) return; try{
+    const p=document.getElementById('milePop'); if(p) new MutationObserver(function(){ if(UCV.on) ucvAsk(); }).observe(p, { attributes:true, attributeFilter:['class'] });   // (2) a card dealt or folded: the funnel asked before the next paint
+    new MutationObserver(ucvBody).observe(document.body, { childList:true, attributes:true, attributeFilter:['class'] });   // (3) a stage comes or goes
+    document.body.addEventListener('animationend', function(e){ if(!UCV.on) return; const t=e.target; if(t && (t.id==='lcdStage' || t.id==='sdiStage') && (e.animationName==='lcdIn' || e.animationName==='sdiIn')) ucvAsk(); });   // (3) a stage's entrance has ended: the funnel asked now (a slow first frame held it back)
+    UCV.ears=1; const st=document.getElementById('sdiStage'); UCV.sdi=st; UCV.sdiAt=st? Date.now() : 0;
+    UCV.key=(st? 's' : '')+(document.body.classList.contains('sdi-up')? 'u' : '')+(document.getElementById('lcdStage')? 'l' : ''); }catch(e){ UCV.err++; } }   // primed with what stands now: the funnel is asked from the next change on
+try{ if(typeof btyTitleCovers==='function' && typeof btyCovered==='function'){ UCV.old.tc=btyTitleCovers; UCV.old.cv=btyCovered;   // (1) CARD-BTY's two reads: BY NAME
+    btyTitleCovers=function(){ if(UCV.old.tc.apply(this, arguments)) return true; if(!ucvPicker()) return false; UCV.n.pick++; return true; };   // frame()'s skip: nothing drawn under the picker
+    btyCovered=function(){ return !!(UCV.old.cv.apply(this, arguments) || ucvPicker()); };   // the heartbeat's read and the rig door's
+    UCV.laid|=1; } }catch(e){ UCV.err++; }
+try{ if(typeof hpaCard==='function' && typeof milePopUp==='function' && typeof hpaYardOpen==='function'){ UCV.old.card=hpaCard;   // (2) CARD-HPA's card: BY NAME
+    hpaCard=function(){ if(UCV.old.card.apply(this, arguments)) return true; if(!ucvCardTerm()) return false; UCV.n.card++; return true; };   // a #roomModal card, or a card over the bare room on the ceremony host
+    UCV.laid|=2; } }catch(e){ UCV.err++; }
+try{ if(typeof dlgfCover==='function' && typeof hpaMark==='function' && typeof lcdDown==='function'){ UCV.old.cover=dlgfCover; UCV.old.down=lcdDown;   // (3) the funnel's card term, over CARD-HPA's wrapper, and the countdown's going: BY NAME
+    dlgfCover=function(){ let w=''; try{ w=ucvStage(); }catch(e){ UCV.err++; w=''; } if(w){ try{ hpaMark(false); }catch(e){ UCV.err++; } UCV.n.stage++; return true; } return UCV.old.cover.apply(this, arguments); };   // a stage fully drawn: a cover, the room paused and unpainted
+    lcdDown=function(){ const r=UCV.old.down.apply(this, arguments); if(UCV.on) ucvAsk(); return r; };   // the countdown lets LCD.el go as its fade starts: the room painted on the fade's first frame
+    UCV.laid|=4; } }catch(e){ UCV.err++; }
+if(UCV.on) ucvEars();
+function ucvRead(o){ o=o||{}; if(o.on!=null){ UCV.on=(o.on && o.on!=='0')? 1 : 0; if(UCV.on){ ucvEars(); UCV.key=null; ucvBody(); } ucvAsk(); }   // a flip: the ears stand, the funnel asked afresh
+  let m=null, st=''; try{ m=document.getElementById('menu'); st=ucvStage(); }catch(e){ UCV.err++; }
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:UCV.on, laid:UCV.laid, ears:UCV.ears, picker:ucvPicker(), card:ucvCardTerm(), stage:st, sdiAt:UCV.sdiAt, under:!!(m && m.classList.contains('ms-under')),
+    mark:!!(m && m.classList.contains('hpa-still')), still:(typeof HPA==='object' && HPA)? (HPA.still|0) : null, hid:(typeof msRoomHid==='function')? msRoomHid() : null, n:Object.assign({}, UCV.n), err:UCV.err, dials:{ full:UCV.FULL, later:UCV.LATER } }; }
+try{ if(window.GVT && !GVT.ucv) GVT.ucv=ucvRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.ucv) GVT.ucv=ucvRead; }catch(e){} }, 0);   // the rigs' read (the house's way)
+// ═══ END CARD-UCV ═══
 // ═══ CARD-ENG2-D2BATTLE · PARTY FIGHTS' CURE: HQ'S BATTLE ID, THE PARTY'S ROAD, THE ROOMS THAT GATHER, THE SERVER'S OFF WORD (sec:CARD-ENG2-D2BATTLE; design/eng2-program-1115/d2battle/00-CARD-ENG2-D2BATTLE.md; board J283, the Big Mac; the engine road's D2ON cure 6 and D2's launch conditions) ═══
 // FROM WYATT 11/16/2026 ~11:25 EST, typed on the Big Mac, verbatim: "The report read we wont be finished by January. Our deadline is much sooner than that."
 // THE FAULT (D2's cold read C3-C3, C3-S2, C1-S4; D2ON's gate read §3 item 4): under card D2's switch (?net=1) each phone chose its party's road by its own address, named the relay's room by
