@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.40","md5":"3fcbcd561de7a40238090c43bfdde9af","sha":"a7291d36d1","at":"2026-11-23T22:18:45Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.41","md5":"c5c57e28ff6b218c340701147989ea58","sha":"a186c4e8f3","at":"2026-11-23T22:27:03Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94646,7 +94646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.40';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.41';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -251128,7 +251128,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
   }
   // a man the glass would show only in part (under half of his figure on the glass and clear of every control) steps out of the room on that glass: no sliver at an edge or round a door
   const CTL = '.bl3-pause,.bl3-stars,.bl3-tab,#glSq,.wt-gasq,.blv-lb,.bl3-sea,.bl3-lv,.bl3-rk,.bl3-un,.bl3-inv,.bl3-name';
-  const covers = (root, sarges) => Array.from(root.querySelectorAll(CTL + (sarges ? ',.bl3-party image' : ''))).map(e => e.getBoundingClientRect());   // a real place also counts the Sarges in front; a drawn place (Western Land) keeps round 5's reading, so its men stand as they stood
+  const covers = (root, sarges) => Array.from(root.querySelectorAll(CTL + (sarges ? ',.bl3-party image' : ''))).map(e => e.getBoundingClientRect()).concat((typeof bfo2Covers === 'function') ? bfo2Covers() : []);   /* CARD-BFO2: the GROUP button's box too */   // a real place also counts the Sarges in front; a drawn place (Western Land) keeps round 5's reading, so its men stand as they stood
   function seenPct(root, el, n) { const vw = innerWidth, vh = innerHeight, c = covers(root, true), r = el.getBoundingClientRect(); if (!r.width || !r.height) return 0; let ok = 0; n = n || 10;
     for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const x = r.left + r.width * (i + .5) / n, y = r.top + r.height * (j + .5) / n; if (x >= 0 && y >= 0 && x <= vw && y <= vh && !c.some(q => x >= q.left && x <= q.right && y >= q.top && y <= q.bottom)) ok++; }
     return Math.round(100 * ok / (n * n)); }
@@ -251378,20 +251378,20 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
     hide();
     let css = document.getElementById('blvCss'); if (!css) { css = document.createElement('style'); css.id = 'blvCss'; css.textContent = CSS + (window.BL5_CSS || '') + BL7.css + CSS2; document.head.appendChild(css); } try { BL7.scopeCSS(); } catch (e) {}
     MEM = members(); SIG = sigOf(MEM); ST = season(o.now);
-    const size = 1 + MEM.slice(1).filter(Boolean).length;
+    const size = 1 + MEM.slice(1).filter(Boolean).length, B2 = (typeof bfo2On === 'function') && bfo2On();   /* CARD-BFO2 (Isaac 11/23/2026): B2 = his three changes to the lobby stand (?bfo2=0 = as before) */
     const root = document.createElement('div'); root.id = 'bflobby3'; ROOT = root;
     root.innerHTML = '<div class="blv-stage"></div><svg class="bl3-party" viewBox="0 0 ' + VBW + ' ' + VBH + '" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>';
     let ga = ''; try { ga = gaTileHTML() || ''; } catch (e) { ga = ''; } GA = ga;
     root.insertAdjacentHTML('beforeend',
-      '<div class="bl3-top"><div class="bl3-word">THE <b>BATTLEFIELDS</b></div><div class="bl3-sub">' + esc(size > 1 ? 'YOUR PARTY · ' + size + ' OF 3' : 'INVITE UP TO 2 FRIENDS') + '</div></div>'
+      '<div class="bl3-top"><div class="bl3-word">THE <b>BATTLEFIELDS</b></div>' + ((B2 && size < 2) ? '' : '<div class="bl3-sub">' + esc(size > 1 ? 'YOUR PARTY · ' + size + ' OF 3' : 'INVITE UP TO 2 FRIENDS') + '</div>') + '</div>'   /* CARD-BFO2: alone, no line under the logo (INVITE UP TO 2 FRIENDS leaves); a party's line stays */
       + '<div class="bl3-tabs"><button type="button" class="bl3-tab fort" onclick="UI.blvFort()"><span class="bl3-iconseat" data-suffix="ro-fort"></span>' + esc(fortDefaultName()) + '</button>'
-      + '<button type="button" class="bl3-tab surp" onclick="UI.blvShop()"><span class="bl3-iconseat" data-suffix="ro-shop"></span>SARGE\'S SURPLUS</button></div>'
-      + '<div class="bl3-stars">' + SH_PIG + '<b>' + esc((META.starBank | 0).toLocaleString('en-US')) + '★</b></div>'
+      + (B2 ? '' : '<button type="button" class="bl3-tab surp" onclick="UI.blvShop()"><span class="bl3-iconseat" data-suffix="ro-shop"></span>SARGE\'S SURPLUS</button>') + '</div>'   /* CARD-BFO2: the Surplus's door moved to the stars button */
+      + (B2 ? '<button type="button" class="bl3-stars" aria-label="Sarge\'s Surplus" onclick="UI.blvShop()">' : '<div class="bl3-stars">') + SH_PIG + '<b>' + esc((META.starBank | 0).toLocaleString('en-US')) + '★</b>' + (B2 ? '</button>' : '</div>')   /* CARD-BFO2: the piggy and the stars are the Surplus's door in the Battlefields */
       + '<button type="button" class="bl3-pause" aria-label="pause" onclick="UI.blvPause()"><i></i><i></i></button>'
       + '<div class="bl3-left"></div>'
       + '<div class="bl3-me">' + seaHTML(ST) + lvHTML() + '</div>'
       + '<div class="bl3-play">' + rankedHTML(ST, size) + unHTML() + '</div>');
-    wt.appendChild(root); wt.classList.add('blv-on');
+    wt.appendChild(root); wt.classList.add('blv-on'); if (typeof bfo2Seat === 'function') bfo2Seat(root);   /* CARD-BFO2: the GROUP button's seat above RANKED, before the place deals its men */
     seat();   /* CARD-BLF: the two squares, one of each in the document, the Globe first */
     const crop = () => root.querySelectorAll('.bl3-iconseat').forEach(s => { const c = icon(s.dataset.suffix) || roomCrop(s.dataset.suffix, 4); if (c) { s.replaceWith(c); if (c.hasAttribute('data-art')) fitIcon(c); } });   /* CARD-BLF: the game's own painters first */
     crop(); if (root.querySelector('.bl3-iconseat')) setTimeout(() => { if (ROOT === root) crop(); }, 400);   // the room's still may land a beat after the door (bfrOpen)
@@ -251652,6 +251652,63 @@ try{
 }catch(e){ bfdErr('boot', e); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bfd) GVT.bfd=bfdRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-BFD ═══
+// ═══ sec:CARD-BFO2 · THE LOBBY'S TOP ROW AND ITS GROUP BUTTON (design/battlefields-open-ads-1121/00-DESIGN-BFO.md, section 10; jumpr 4385, round 2). FROM ISAAC by WhatsApp 11/23/2026 15:55 EST, verbatim:
+// "Let's push these changes live and then let's also move Sarge's Surplus to be opened by clicking on the piggy bank with the stars button in the top left of the screen (Battlefields only).
+// Also get rid of the text that says “Invite up to two friends” beneath the Battlefields logo in the top left of the screen. Add in the group button above the ranked button as well." ═══
+// All three stand only in the Battlefields' lobby (behind the code BATTLE, CARD-BBC) and only while BFO2.on: sec:CARD-BLV's show() and covers() ask this section (six counted lines there carry its name).
+// 1 THE SURPLUS'S DOOR IS THE STARS BUTTON: the lobby's stars pill (the piggy and the star count, beside the pause button) is a button whose tap is the tab's old door (UI.blvShop); the SARGE'S
+//   SURPLUS tab leaves the top row (the fort tab stays, seated by the row's own rule). HQ's own stars plate is not touched.
+// 2 THE LINE UNDER THE LOGO: alone, nothing is written under THE BATTLEFIELDS (INVITE UP TO 2 FRIENDS is gone) and the logo's plate takes the top row's height; in a party the line still reads
+//   YOUR PARTY · N OF 3.
+// 3 THE GROUP BUTTON ABOVE RANKED: the game's own GROUP button (#grpBtn: ONE button, re-homed into the open scene by grpBtnSync, with its count, its glow and its plates) was hidden while the lobby
+//   stood (the lobby's veil over the table's own children). It shows now, seated above the RANKED button at the play column's width and edges (bfo2Seat: measured at every lay of the lobby and
+//   written on #wartable as --bfo2-r, --bfo2-b, --bfo2-w, with the class bfo2-gb). While the party's sheet stands (the button's own .up) it goes to its own corner over the sheet, as on every party
+//   sheet of the game: the one door in and out. In the queue it hides by the table's own rule. A man of the lobby's stage that the button would cover by half or more steps out, as under every
+//   other control (bfo2Covers, read by the lobby's covers(); the button's box with BFO2.pad round it, its glow).
+// ?bfo2=0 = the lobby as before, all three (localStorage gvt_bfo2off '1'; ?bfo2=1 clears it). GVT.bfo2() = the read. No new word, no drawing, nothing sent to HQ, nothing in the save.
+var BFO2={ on:1, pad:10, box:null, seats:0, err:0, e:'' };
+function bfo2Err(w, e){ try{ BFO2.err++; BFO2.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function bfo2On(){ return !!BFO2.on; }
+function bfo2Seat(root){   // the GROUP button's seat above RANKED, measured on the lobby as it is laid; and the logo's plate when it stands alone
+  try{
+    const wt=document.getElementById('wartable'); if(!wt) return;
+    root=root || document.getElementById('bflobby3');
+    const rk=root? root.querySelector('.bl3-rk') : null, play=root? root.querySelector('.bl3-play') : null, top=root? root.querySelector('.bl3-top') : null;
+    if(top) top.classList.toggle('b2-one', !!BFO2.on && !top.querySelector('.bl3-sub'));
+    if(!BFO2.on || !rk || !play){ wt.classList.remove('bfo2-gb'); BFO2.box=null; return; }
+    const r=rk.getBoundingClientRect(), p=play.getBoundingClientRect();
+    let gap=8; try{ gap=parseFloat(getComputedStyle(play).rowGap) || 8; }catch(e){}
+    let h=0; try{ const gb=document.getElementById('grpBtn'); h=gb? gb.getBoundingClientRect().height : 0; }catch(e){}
+    if(!(h>20)) h=50;   // the button not made yet (grpBtnSync makes it at the table's door): its height on a phone
+    wt.style.setProperty('--bfo2-r', Math.max(0, Math.round(innerWidth-p.right))+'px');
+    wt.style.setProperty('--bfo2-b', Math.round(innerHeight-r.top+gap)+'px');
+    wt.style.setProperty('--bfo2-w', Math.round(p.width)+'px');
+    wt.classList.add('bfo2-gb');
+    BFO2.box={ left:p.left, right:p.right, top:r.top-gap-h, bottom:r.top-gap }; BFO2.seats++;
+  }catch(e){ bfo2Err('seat', e); }
+}
+function bfo2Covers(){ try{ const wt=document.getElementById('wartable'), b=BFO2.box, g=BFO2.pad; return (BFO2.on && b && wt && wt.classList.contains('bfo2-gb'))? [{ left:b.left-g, right:b.right+g, top:b.top-g, bottom:b.bottom+g }] : []; }catch(e){ return []; } }   // the GROUP button's box and its glow (BFO2.pad round it), for the lobby's own rule: a man half under a control steps out. The pad: this button stands over the stage where men stand, and the rule keeps a man who is exactly half under (seen on the rooftop: a man cut at the waist by the button's top edge)
+function bfo2Read(){ let g=null, wt=null;
+  try{ wt=document.getElementById('wartable'); const el=document.getElementById('grpBtn');
+    if(el){ const r=el.getBoundingClientRect(), cs=getComputedStyle(el); g={ box:[Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)], vis:cs.visibility, disp:cs.display, z:cs.zIndex, up:el.classList.contains('up'), host:el.parentNode? (el.parentNode.id || '') : '' }; } }catch(e){}
+  return { cv:GVT_CV, on:BFO2.on, cls:!!(wt && wt.classList.contains('bfo2-gb')), box:BFO2.box? [Math.round(BFO2.box.left), Math.round(BFO2.box.top), Math.round(BFO2.box.right-BFO2.box.left), Math.round(BFO2.box.bottom-BFO2.box.top)] : null, seats:BFO2.seats, grp:g, err:BFO2.err, e:BFO2.e }; }
+try{
+  (function(){
+    let q=null; try{ q=new URLSearchParams(location.search).get('bfo2'); }catch(e){}
+    try{ if(q==='0') localStorage.setItem('gvt_bfo2off', '1'); else if(q==='1') localStorage.removeItem('gvt_bfo2off'); }catch(e){}
+    try{ BFO2.on=localStorage.getItem('gvt_bfo2off')==='1'? 0 : 1; }catch(e){ BFO2.on=1; }
+    const st=document.createElement('style'); st.id='bfo2Css';
+    st.textContent='#bflobby3 button.bl3-stars{font-family:inherit;font-weight:inherit;letter-spacing:inherit;line-height:normal;color:inherit;margin:0;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;box-shadow:0 3px 0 rgba(0,0,0,.3)}'
+      +'#bflobby3 button.bl3-stars:active{transform:translateY(1px)}'
+      +'#bflobby3 .bl3-top.b2-one{justify-content:center;box-sizing:border-box;min-height:clamp(40px,6.6vh,50px)}'
+      +'#wartable.blv-on.bfo2-gb.bfo2-gb > #grpBtn{visibility:visible!important}'   /* the class twice: the lobby's own veil over the table's children (#wartable.blv-on > :not(#bflobby3):not(.ptySheet)) weighs two ids and two classes and is laid later */
+      +'#wartable.blv-on.bfo2-gb > #grpBtn:not(.up){z-index:41;right:var(--bfo2-r,14px);bottom:var(--bfo2-b,14px);width:var(--bfo2-w,auto);box-sizing:border-box;text-align:center;padding-left:8px;padding-right:8px}'
+      +'#wartable.blv-on.bfo2-gb > #grpBtn.up{z-index:46}';
+    (document.head || document.documentElement).appendChild(st);
+  })();
+}catch(e){ bfo2Err('boot', e); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bfo2) GVT.bfo2=bfo2Read; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-BFO2 ═══
 // ═══ sec:CARD-TUB · A ROOM CARD DEALT WHILE THE BATTLEFIELDS STAND IS SHOWN OVER THEM (design/prize-door-under-battlefields-1123/00-CARD-TUB.md; jumpr 4560; a side card of Isaac's CARD-BFD,
 // jumpr 4435, cut on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card, and a fix lands without asking) ═══
 // THE FAULT (client v34.36 and long before; read with a real finger's tap, Chrome for Testing and WebKit the same): while the Battlefields' door stands (Isaac's lobby, or the war table) a
