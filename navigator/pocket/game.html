@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.35","md5":"8afb47a98b910ca7d65e272eb8656d0d","sha":"f2808fb393","at":"2026-11-23T18:51:43Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.36","md5":"8062e05708225fbac6f0c390d2c8d9b7","sha":"2716f40837","at":"2026-11-23T19:33:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94646,7 +94646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.35';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.36';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -221616,7 +221616,7 @@ function mgrCardHold(){ try{ const el=document.getElementById('mgrCard'); if(el)
 function mgrCardTry(){   // ONE card, on a quiet second in the room; a player who went on by himself (a fight, a door) is not chased past three minutes
   try{
     if(Date.now()-MGR.t0>MGR.GIVE_MS){ MGR.card=-1; return; }
-    if(S.mode!=='menu' || !roomQuiet() || document.getElementById('mgrCard')) return;
+    if(S.mode!=='menu' || !(typeof bfoRoomQuiet==='function'? bfoRoomQuiet() : roomQuiet()) || document.getElementById('mgrCard')) return;
     const d=MGR.died, ft=mgrFeat(d), bf=d.k==='bf' || ft;   // ROUND 2: a featured battle that is still the day's is dealt the plain battle's card
     const el=document.createElement('div'); el.id='mgrCard';
     el.innerHTML='<div class="sqb-t" data-notr>'+TXT(d.k==='play'? 'THE FIGHT WAS CUT OFF' : 'THE BATTLE WAS CUT OFF')+'</div>'
@@ -221628,7 +221628,7 @@ function mgrCardTry(){   // ONE card, on a quiet second in the room; a player wh
     const go=el.querySelector('.mgr-go');
     if(go) go.onclick=()=>{ try{ audio(); }catch(e){} MGR.took='go'; mgrCardClear('go'); try{ openWarTable(); if(ft) UI.wtFeat(); else UI.wtPlay(d.n>2? d.n : d.n===2? 2 : 1); }catch(e){ mgrErr('go', e); } };   // the war table's own launcher of that size: the queue, the map the player stands on · ROUND 2: a featured battle goes back through its own door (the day's map and size)
     el.querySelector('.mgr-no').onclick=()=>{ try{ audio(); SFX.clack(); }catch(e){} MGR.took='no'; mgrCardClear('no'); };
-    el._t=setInterval(()=>{ try{ if(S.mode==='play' || MGR.shown+(Date.now()-MGR.cardT)>MGR.CARD_MS) mgrCardClear('fold'); else if(S.mode!=='menu' || !roomQuiet()) mgrCardHold(); }catch(e){ mgrCardClear('fold'); } }, 500);   // a fight the player went into, or 45 s shown = folded for good; anything else over the room = it steps aside
+    el._t=setInterval(()=>{ try{ if(S.mode==='play' || MGR.shown+(Date.now()-MGR.cardT)>MGR.CARD_MS) mgrCardClear('fold'); else if(S.mode!=='menu' || !(typeof bfoRoomQuiet==='function'? bfoRoomQuiet() : roomQuiet())) mgrCardHold(); }catch(e){ mgrCardClear('fold'); } }, 500);   // a fight the player went into, or 45 s shown = folded for good; anything else over the room = it steps aside
   }catch(e){ MGR.card=-1; mgrErr('card', e); }
 }
 function mgrRead(o){ o=o||{}; try{ if(o.died){ MGR.died=o.died; MGR.opened=0; MGR.card=0; MGR.shown=0; MGR.deals=0; MGR.took=''; MGR.t0=Date.now(); } }catch(e){ mgrErr('rig', e); }   // a rig may hand a death in (o.died = a note); the read alone changes nothing
@@ -251380,7 +251380,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
     blvHQ() { try { SFX.clack(); } catch (e) {} hqClose(); closeWarTable(); },
     blvRanked(n, ev) { const st = BLV_UI.season(); const chip = ev && ev.target && ev.target.closest ? ev.target.closest('[data-m]') : null; n = n || (chip ? +chip.dataset.m : 0);
       if (!n) { const on = document.querySelector('#bflobby3 .bl3-md span.on'); n = on ? +on.dataset.m : 1; }
-      if (!st.open) { try { SFX.clack(); } catch (e) {} BLV_UI.cap('RANKED OPENS ' + st.startLabel + ' · 9 AM ET · SEASON 1 RUNS 120 DAYS'); return; }
+      if (!st.open) { try { SFX.clack(); } catch (e) {} BLV_UI.cap('RANKED OPENS ' + st.startLabel + ' · 9 AM ET'); return; }   /* CARD-BFD (Isaac 11/22/2026: "when you click on Ranked, it says, "Season 1 runs 120 days." Just get rid of that line"): the season's length left this caption */
       try { audio(); SFX.blip(); } catch (e) {} UI.blvPlay(n); },   /* CARD-BLF: the queue runs with the lobby standing (no table) */
     blvUnranked() { try { audio(); SFX.blip(); } catch (e) {}   /* CARD-BLF (Isaac 11/21/2026): UNRANKED opens MORE BATTLES over the lobby; in a queue the pill nudges; a table with no sheet = today's table (the old road) */
       let q = false; try { q = !!BFQ; } catch (e) {} if (q) { try { bfqPulse(); } catch (e) {} return; }
@@ -251402,6 +251402,139 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
     return c0.apply(this, arguments); }; }
 })();
 // ═══ end sec:CARD-BLV ═══
+// ═══ sec:CARD-BFO · A FRESH OPEN LANDS IN HQ OR IN THE BATTLEFIELDS (design/battlefields-open-ads-1121/00-DESIGN-BFO.md; jumpr 4385). FROM ISAAC by WhatsApp 11/21/2026 17:57 EST, verbatim:
+// "if the player closes the app out while they're in battlefields, the next time they open the app, they open up straight to the battlefields. The only two places the app should land when it's
+// opened from a fresh open are the HQ or battlefields. If you close the app anywhere other than battlefields, you land in HQ, but if you close the app from battlefields or in a battle, you
+// automatically go back to the battlefields first." ═══
+// THE WORD: the page keeps one small word of where the player stands (localStorage gvt_bfo: 'bf' or 'hq', and the time), written only when the place changes. 'bf' = the Battlefields' door stands
+// open over the room (the lobby, or the war table: wartableOpen(), and whatever was opened from it while it stands), or a fight that began at that door is on the glass (its field, its verdict).
+// Everything else = 'hq'. The title writes nothing. A page cannot hear the app being closed, so the word is kept while the app lives and read by the next page that starts: that page IS the fresh open.
+// THE LANDING: PRESS START opens the room as ever (showMenu, wrapped by name); on the FIRST landing of a page whose word says 'bf', the Battlefields' door is opened over the room in the same
+// tick (the body of GO TO THE BATTLEFIELD: showMenu(); openWarTable()), so no frame of HQ is seen. A word that says 'hq', or no word, = the room, as before.
+// NEVER: a brand-new save (the opening shot and the opener are its road), a save still inside Sarge's tour (the tour's next stop is in the room), a friend's invite link (the party comes first).
+// WHO: the dial BFO.all. 0 = only a device that holds the new Battlefields (the code BATTLE: BLV.on; Wyatt 11/21/2026: the new Battlefields stand behind that code); 1 = every player (the war
+// table for those without the code). HOW LONG: the dial BFO.maxMs (0 = no limit, his words: "the next time they open the app").
+// A FIGHT THE PHONE CUT OFF (CARD-MGR): a page that died in a fight opens the room by itself, and with this card the Battlefields over it, where CARD-MGR's card (THE BATTLE WAS CUT OFF · BACK
+// TO THE BATTLE) could not show: it is dealt on a quiet ROOM. mgrCardTry's two reads of roomQuiet() ask bfoRoomQuiet() now (two counted hunks in sec:CARD-MGR; with this section gone they read
+// roomQuiet() as before): the room, or the Battlefields standing quiet over it (roomQuiet's own list with the war table let through for that one call).
+// ?bfo=0 = off on this device (localStorage gvt_bfooff '1'; ?bfo=1 clears it): the room at every open and CARD-MGR's card as before. GVT.bfo() = the read. Nothing is sent to HQ; the save is not touched.
+var BFO={ on:1, all:0, maxMs:0, K:'gvt_bfo', boot:null, place:'', landed:0, opened:0, why:'', ticks:0, writes:0, peek:0, err:0, e:'' };
+function bfoErr(w, e){ try{ BFO.err++; BFO.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function bfoLoad(){ try{ const o=JSON.parse(localStorage.getItem(BFO.K)||'null'); return (o && (o.p==='bf' || o.p==='hq') && typeof o.t==='number')? o : null; }catch(e){ return null; } }
+function bfoSave(p){ try{ localStorage.setItem(BFO.K, JSON.stringify({ p:p, t:Date.now() })); BFO.writes++; }catch(e){} }
+function bfoFight(){ const bf=S.bf; return !!(bf && !bf.opener && !bf.raid && !bf.away && !bf.bd && !bf.nem); }   // a fight that began at the Battlefields' door: the queue (ranked, unranked, the featured battle), the Globe, the Gauntlet, alone or in a party; the tutorial's opener, a raid, an away duel, the desert and the Nemesis have doors of their own in HQ
+function bfoPlace(){   // where the player stands right now: 'bf', 'hq', or '' at the title (no word yet)
+  try{
+    if(S.mode==='menu') return wartableOpen()? 'bf' : 'hq';
+    if(S.mode==='play' || S.mode==='win' || S.mode==='lose') return bfoFight()? 'bf' : 'hq';
+  }catch(e){ bfoErr('place', e); }
+  return '';
+}
+function bfoTick(){ try{ if(!BFO.on) return; BFO.ticks++; const p=bfoPlace(); if(p && p!==BFO.place){ BFO.place=p; bfoSave(p); } }catch(e){ bfoErr('tick', e); } }
+function bfoWho(){ try{ return !!BFO.all || !!(window.BLV && BLV.on); }catch(e){ return false; } }
+function bfoLand(inv){   // the first landing of this page: the room stands; does the Battlefields' door open over it?
+  try{
+    BFO.landed=1;
+    const b=BFO.boot;
+    if(!BFO.on){ BFO.why='off'; return; }
+    if(!b || b.p!=='bf'){ BFO.why=b? 'hq' : 'none'; return; }
+    if(BFO.maxMs>0 && Date.now()-b.t>BFO.maxMs){ BFO.why='old'; return; }
+    if(!bfoWho()){ BFO.why='code'; return; }
+    if(!(META.campaign>0 || META.opener)){ BFO.why='new'; return; }
+    if(inv){ BFO.why='invite'; return; }
+    if(tourDue()){ BFO.why='tour'; return; }
+    openWarTable(); BFO.opened=1; BFO.why='bf';
+  }catch(e){ bfoErr('land', e); }
+}
+function bfoQuiet(){   // the Battlefields' door stands over the room and nothing stands over IT: the room's own quiet read with the war table let through for this one call (doorSceneOpen reads BFO.peek), and the three things that stand over the Battlefields and are in no list of the room's: Fort Green, MORE BATTLES, the map tray
+  try{
+    if(!BFO.on || !bfoWho() || !wartableOpen()) return false;
+    for(const id of ['fortscene','wtLocker','wtMapTray']){ const el=document.getElementById(id); if(el && !el.classList.contains('hidden')) return false; }
+    BFO.peek=1; try{ return roomQuiet(); } finally{ BFO.peek=0; }
+  }catch(e){ BFO.peek=0; bfoErr('quiet', e); return false; }
+}
+function bfoRoomQuiet(){ return roomQuiet() || bfoQuiet(); }   // mgrCardTry's read: the room, or the Battlefields standing quiet over it
+function bfoRead(){ return { cv:GVT_CV, on:BFO.on, all:BFO.all, maxMs:BFO.maxMs, who:bfoWho(), boot:BFO.boot? Object.assign({}, BFO.boot) : null, stored:bfoLoad(), place:BFO.place, now:bfoPlace(), landed:BFO.landed, opened:BFO.opened, why:BFO.why, quiet:bfoQuiet(), ticks:BFO.ticks, writes:BFO.writes, err:BFO.err, e:BFO.e }; }
+try{
+  (function(){
+    let q=null; try{ q=new URLSearchParams(location.search).get('bfo'); }catch(e){}
+    try{ if(q==='0') localStorage.setItem('gvt_bfooff', '1'); else if(q==='1') localStorage.removeItem('gvt_bfooff'); }catch(e){}
+    try{ BFO.on=localStorage.getItem('gvt_bfooff')==='1'? 0 : 1; }catch(e){ BFO.on=1; }
+    try{ if(/[?&]bfoall=1(?:&|$)/.test(location.search||'')) BFO.all=1; }catch(e){}   // a tester's look at "every player" (the war table at the door)
+    BFO.boot=bfoLoad(); BFO.place=BFO.boot? BFO.boot.p : '';
+    const sm0=showMenu;
+    showMenu=function(){
+      const first=!BFO.landed && S.mode==='title'; let inv=false; try{ inv=!!coopJoinPend; }catch(e){}
+      const r=sm0.apply(this, arguments);
+      if(first && S.mode==='menu') bfoLand(inv);   /* the update gate may hold the title (its own showMenu returns with the title still up): no landing yet */
+      return r;
+    };
+    const ds0=doorSceneOpen;
+    doorSceneOpen=function(){ if(BFO.peek) return campSceneOpen()||parkSceneOpen()||raidSceneOpen(); return ds0.apply(this, arguments); };   /* bfoQuiet's one call: the room's quiet read with the war table let through */
+    setInterval(bfoTick, 1000);
+    document.addEventListener('visibilitychange', function(){ if(document.hidden) bfoTick(); });   // the word is true at the moment the app goes to the back
+    window.addEventListener('pagehide', bfoTick);
+  })();
+}catch(e){ bfoErr('boot', e); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bfo) GVT.bfo=bfoRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-BFO ═══
+// ═══ sec:CARD-BFD · THE LOBBY'S FORT TAB OPENS THE FORT OVER THE BATTLEFIELDS (design/battlefields-door-live-1123/00-CARD-BFD.md; jumpr 4435). FROM ISAAC by WhatsApp 11/22/2026 09:50 EST, verbatim:
+// "The Fort Green button on the top of the screen just isn't functional at all, so we need to make sure that works because it's very important." ═══
+// THE CAUSE (read on client v34.34 with a real finger's tap, Chrome for Testing and WebKit the same): the tab did its work and nobody could see it. UI.blvFort() opens the fort's yard
+// (openFortScene), and the yard lives INSIDE the room's layer (#fortscene in #menu, z 10) while the Battlefields stand OVER that layer (#wartable, a sibling at z 20): the yard opened behind
+// the lobby, and every point of the glass was still the lobby's. (The Surplus beside it is a sibling at z 20 laid after the table: it showed.)
+// THE CURE, wrapping by name, nothing edited in place: a yard OPENED WHILE THE BATTLEFIELDS' DOOR STANDS is shown over them. For as long as that yard stands the table wears .bfd-under
+// (z 9: under the room's layer, where the yard and its cards live) and the lobby's loops rest. The yard's ✕, or any other way the yard goes, brings the Battlefields back as they stood: the
+// same place, nothing laid again. The door is never shut for it, so the squad's bubble, a party and CARD-BFO's word stay as they are.
+// A table opened AFTER a yard (the yard was first, from HQ) stands over it, as before this card. The mark never outlives its yard or its table (bfdHeal, on every change of either one's class).
+// ?bfd=0 = off on this device (localStorage gvt_bfdoff '1'; ?bfd=1 clears it): the tab as before. GVT.bfd() = the read. Nothing is sent to HQ; the save is not touched.
+var BFD={ on:1, under:0, ups:0, downs:0, heals:0, ears:0, err:0, e:'' };
+function bfdErr(w, e){ try{ BFD.err++; BFD.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function bfdSet(v){   // 1 = the table under the room's layer (the yard shows); 0 = the table where it always stands
+  try{
+    const wt=document.getElementById('wartable'); if(!wt) return;
+    v=!!v; BFD.under=v? 1 : 0;
+    if(wt.classList.contains('bfd-under')===v) return;
+    wt.classList.toggle('bfd-under', v); if(v) BFD.ups++; else BFD.downs++;
+  }catch(e){ bfdErr('set', e); }
+}
+function bfdHeal(){   // whatever hid the yard or the table (a door's sweep, a fight's start), the table stands where it always does
+  try{ if(BFD.under && !(fortSceneOpen() && wartableOpen())){ BFD.heals++; bfdSet(0); } }catch(e){ bfdErr('heal', e); }
+}
+function bfdRead(){
+  let z=null, fort=null, wt=null;
+  try{ z=getComputedStyle(document.getElementById('wartable')).zIndex; }catch(e){}
+  try{ fort=fortSceneOpen(); wt=wartableOpen(); }catch(e){}
+  return { cv:GVT_CV, on:BFD.on, under:BFD.under, ups:BFD.ups, downs:BFD.downs, heals:BFD.heals, ears:BFD.ears, fort:fort, wt:wt, z:z, err:BFD.err, e:BFD.e };
+}
+try{
+  (function(){
+    let q=null; try{ q=new URLSearchParams(location.search).get('bfd'); }catch(e){}
+    try{ if(q==='0') localStorage.setItem('gvt_bfdoff', '1'); else if(q==='1') localStorage.removeItem('gvt_bfdoff'); }catch(e){}
+    try{ BFD.on=localStorage.getItem('gvt_bfdoff')==='1'? 0 : 1; }catch(e){ BFD.on=1; }
+    const st=document.createElement('style'); st.id='bfdCss';
+    st.textContent='#wartable.bfd-under.bfd-under{z-index:9}#wartable.bfd-under #bflobby3,#wartable.bfd-under #bflobby3 *{animation-play-state:paused!important}';
+    document.head.appendChild(st);
+    const of0=openFortScene;
+    openFortScene=function(){
+      let was=false; try{ was=!!BFD.on && wartableOpen() && !fortSceneOpen(); }catch(e){}
+      const r=of0.apply(this, arguments);
+      try{ if(was && fortSceneOpen()) bfdSet(1); }catch(e){ bfdErr('open', e); }
+      return r;
+    };
+    const cf0=closeFortScene;
+    closeFortScene=function(){ const r=cf0.apply(this, arguments); if(BFD.under) bfdSet(0); return r; };
+    const ow0=openWarTable;
+    openWarTable=function(){ if(BFD.under) bfdSet(0); return ow0.apply(this, arguments); };   // the Battlefields asked for again: they stand on top, as a table opened over a yard always has
+    if(typeof MutationObserver==='function'){
+      const mo=new MutationObserver(bfdHeal);
+      for(const id of ['fortscene','wartable']){ const el=document.getElementById(id); if(el) mo.observe(el, { attributes:true, attributeFilter:['class'] }); }
+      BFD.ears=1;
+    }
+  })();
+}catch(e){ bfdErr('boot', e); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bfd) GVT.bfd=bfdRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-BFD ═══
 // ═══ CARD-PES · PIRATE PARK'S ENEMY SNIPERS FIRE THE ENERGY SHOT: ON THE COVE'S FIGHTS EVERY PIRATE SNIPER'S 1ST, 3RD, 5TH ... AIMED SHOT IS THE TRIO OF LIGHT (sec:CARD-PES; design/pirate-snipers-energy-1118/00-CARD-PES.md; jumpr 3804, built on the QuarterPounder as M3804; cut by CARD-BJ5, jumpr 3695). FROM WYATT'S PHONE (the Bug button) 11/16/2026 10:56 PM EST, dictated, verbatim: "Remove the digging from the pirate units and have the pirate enemy snipers use energy shot against using the pirate levels" (the digging is sec:CARD-BJ5-PDG; this section is the second half) ═══
 // THE READ (v33.27): the cove's snipers are the Tan sniper row (tansniper: rng 205, fireCd 4.5, aim 1.4, pips 3) in CARD-LBW-TP's pirate dress: Pirate Park's fourth wave from rung 12 (SHARPSHOOTERS IN THE RIGGING), THE SUNKEN SHIP's wave pool.
 //   Each shot is the house's plain one: the drum fills, he halts, the aim tell (tanAimTell: a thin line at the nearest man) for his 1.4 s present-arms, then tanFire -> tanShoot's aimed round. Never the energy shot.
