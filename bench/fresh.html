@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.38","md5":"72e421de424f03e51049f0e85da15d4d","sha":"578115635c","at":"2026-11-23T21:05:50Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.39","md5":"2427c1399d4a2794ce87a6e756e7a952","sha":"ed0c91e8e2","at":"2026-11-23T21:36:42Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94646,7 +94646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.38';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.39';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -251586,6 +251586,70 @@ try{
 }catch(e){ bfdErr('boot', e); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bfd) GVT.bfd=bfdRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-BFD ═══
+// ═══ sec:CARD-TUB · A ROOM CARD DEALT WHILE THE BATTLEFIELDS STAND IS SHOWN OVER THEM (design/prize-door-under-battlefields-1123/00-CARD-TUB.md; jumpr 4560; a side card of Isaac's CARD-BFD,
+// jumpr 4435, cut on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card, and a fix lands without asking) ═══
+// THE FAULT (client v34.36 and long before; read with a real finger's tap, Chrome for Testing and WebKit the same): while the Battlefields' door stands (Isaac's lobby, or the war table) a
+// prize card comes up over them (#milePop, z 27: the landing's line of owed cards, dealt by showMenu() right before openWarTable() at PRESS START and at every way out of a Battlefields
+// fight). Its button walks the card's own door (UI.mileTake, MB_TAKE), and a door that deals a ROOM CARD lays it in #roomModal, inside the room's layer (#menu, z 10), UNDER the table
+// (#wartable, z 20). The OUTLAW TOYS card's door is the treasure chest (chestOpen): the tap showed nothing, Sarge's first line about the chest stood over the lobby, the chest's NEW! marks
+// were spent unseen, and the chest stood open in the room at the next BACK TO HQ (since CARD-BFD also over the yard, at the lobby's fort tab).
+// THE CURE, wrapping by name, nothing edited in place: A ROOM CARD DEALT WHILE THE TABLE STANDS IS SHOWN. For as long as that card stands the table wears .tub-under (z 9: under the room's
+// layer, CARD-BFD's own road for the yard) and the lobby's loops rest. The card looks as it does from HQ: the stacking is HQ's own, and what shows round a card that does not fill the glass
+// is the room's own dark (the off-screen law, #menu.ms-under, leaves a room under the table unpainted). The card's ✕, or any other way it folds, brings the Battlefields back as they stood:
+// nothing is laid again, and the door is never shut for it (the squad's bubble, a party and CARD-BFO's word stay as they are).
+// WHICH CARD: the rule reads the seat itself (#roomModal's children, one observer), so every door is covered, not the chest's alone: a card dealt by any hand while the table stands.
+// A CARD OF BEFORE: a card that already stood when the table was opened over it (the table was asked for after the card: a board's GO, a landing's own road) stays under it, as before this
+// card, until it folds or is dealt again. The mark never outlives its card or its table (tubSync, on every change of the seat's children and of the table's class).
+// ?tub=0 = off on this device (localStorage gvt_tuboff '1'; ?tub=1 clears it): a card dealt at the table lies under it, as before. GVT.tub() = the read. Nothing is sent to HQ; the save is not touched.
+var TUB={ on:1, under:0, old:null, ups:0, downs:0, olds:0, syncs:0, ears:0, err:0, e:'' };
+function tubErr(w, e){ try{ TUB.err++; TUB.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function tubSeat(){ const m=document.getElementById('roomModal'); return m? m.firstElementChild : null; }   // the card standing in the room's card seat (roomModal's one child), or null
+function tubSet(v){   // 1 = the table under the room's layer (the card shows); 0 = the table where it always stands
+  try{
+    const wt=document.getElementById('wartable'); if(!wt) return;
+    v=!!v; TUB.under=v? 1 : 0;
+    if(wt.classList.contains('tub-under')===v) return;
+    wt.classList.toggle('tub-under', v); if(v) TUB.ups++; else TUB.downs++;
+  }catch(e){ tubErr('set', e); }
+}
+function tubSync(){   // the seat's children or the table's class changed: the mark follows before the next paint
+  try{
+    TUB.syncs++;
+    const c=tubSeat();
+    if(TUB.old && TUB.old!==c) TUB.old=null;   // the card of before folded, or was dealt again
+    tubSet(!!TUB.on && !!c && !TUB.old && wartableOpen());
+  }catch(e){ tubErr('sync', e); }
+}
+function tubRead(){
+  let z=null, wt=null, card=null;
+  try{ z=getComputedStyle(document.getElementById('wartable')).zIndex; }catch(e){}
+  try{ wt=wartableOpen(); }catch(e){}
+  try{ const c=tubSeat(), k=c && c.querySelector('.rmcard'); card=c? String((k || c).className).slice(0,60) : null; }catch(e){}
+  return { cv:GVT_CV, on:TUB.on, under:TUB.under, old:TUB.old? 1 : 0, ups:TUB.ups, downs:TUB.downs, olds:TUB.olds, syncs:TUB.syncs, ears:TUB.ears, card:card, wt:wt, z:z, err:TUB.err, e:TUB.e };
+}
+try{
+  (function(){
+    let q=null; try{ q=new URLSearchParams(location.search).get('tub'); }catch(e){}
+    try{ if(q==='0') localStorage.setItem('gvt_tuboff', '1'); else if(q==='1') localStorage.removeItem('gvt_tuboff'); }catch(e){}
+    try{ TUB.on=localStorage.getItem('gvt_tuboff')==='1'? 0 : 1; }catch(e){ TUB.on=1; }
+    const st=document.createElement('style'); st.id='tubCss';
+    st.textContent='#wartable.tub-under.tub-under{z-index:9}#wartable.tub-under #bflobby3,#wartable.tub-under #bflobby3 *{animation-play-state:paused!important}';
+    document.head.appendChild(st);
+    const ow0=openWarTable;
+    openWarTable=function(){   // the table opened over a card that already stands: that card is a card of before, and the table stands on top, as it always has
+      try{ if(!wartableOpen()){ const c=tubSeat(); if(c){ TUB.old=c; TUB.olds++; } if(TUB.under) tubSet(0); } }catch(e){ tubErr('open', e); }
+      return ow0.apply(this, arguments);
+    };
+    if(typeof MutationObserver==='function'){
+      const mo=new MutationObserver(tubSync);
+      const rm=document.getElementById('roomModal'); if(rm) mo.observe(rm, { childList:true });
+      const wt=document.getElementById('wartable'); if(wt) mo.observe(wt, { attributes:true, attributeFilter:['class'] });
+      TUB.ears=(rm && wt)? 1 : 0;
+    }
+  })();
+}catch(e){ tubErr('boot', e); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.tub) GVT.tub=tubRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-TUB ═══
 // ═══ CARD-PES · PIRATE PARK'S ENEMY SNIPERS FIRE THE ENERGY SHOT: ON THE COVE'S FIGHTS EVERY PIRATE SNIPER'S 1ST, 3RD, 5TH ... AIMED SHOT IS THE TRIO OF LIGHT (sec:CARD-PES; design/pirate-snipers-energy-1118/00-CARD-PES.md; jumpr 3804, built on the QuarterPounder as M3804; cut by CARD-BJ5, jumpr 3695). FROM WYATT'S PHONE (the Bug button) 11/16/2026 10:56 PM EST, dictated, verbatim: "Remove the digging from the pirate units and have the pirate enemy snipers use energy shot against using the pirate levels" (the digging is sec:CARD-BJ5-PDG; this section is the second half) ═══
 // THE READ (v33.27): the cove's snipers are the Tan sniper row (tansniper: rng 205, fireCd 4.5, aim 1.4, pips 3) in CARD-LBW-TP's pirate dress: Pirate Park's fourth wave from rung 12 (SHARPSHOOTERS IN THE RIGGING), THE SUNKEN SHIP's wave pool.
 //   Each shot is the house's plain one: the drum fills, he halts, the aim tell (tanAimTell: a thin line at the nearest man) for his 1.4 s present-arms, then tanFire -> tanShoot's aimed round. Never the energy shot.
