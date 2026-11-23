@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.32","md5":"2ebf5fd40e2d005e43807e38bc468d4d","sha":"d997102955","at":"2026-11-23T11:29:29Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.33","md5":"3570119669ef925b509fd092d25a4179","sha":"246dbbc8d7","at":"2026-11-23T15:04:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94646,7 +94646,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.32';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.33';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -196851,6 +196851,47 @@ PMG2.old.ppvRender=ppvRender; ppvRender=function(){   // the wrap: every render 
 };
 PMG2.old.pmgRig=pmgRig; pmgRig=function(o){ const r=PMG2.old.pmgRig.apply(this, arguments); return pmg2Read(r); };   // the wrap: GVT.pmg's read grows this round's
 // ═══ END CARD-PMG-R2 ═══
+// ═══ CARD-PMH · THE CAP'S GLOW BREATHES ON THE COMPOSITOR (sec:CARD-PMH; design/menufps-cures-1123/pmh/00-CARD-PMH.md; cure 1 of 14 of CARD-ENG2-MENUFPS, cut by the engine road's orchestrator 11/23/2026; Wyatt 11/12/2026: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ═══
+// THE READ: CARD-PMG's gold glow round every LV 100 tile (one tight deal: the PROMOTION! picker and the fort's PROMOTIONS card) breathes by animating a three-layer box-shadow (PMG_CSS, its @keyframes
+// pmgGlow, 2.4 s ease-in-out alternate), so the cap tiles and the document under their halos are painted again every frame: the picker ran about 11 frames a second at phone speed in Chrome for
+// Testing and in WebKit (CARD-ENG2-MENUFPS, its judged rows), and the glow was nearly all of the painter's work.
+// THE CHANGE: one style node of its own (id pmhCss) laid with PMG's by wrapping pmgCss by name, and the class html.pmh-on. Every rule stands under html.pmg-on.pmh-on, inside @media (prefers-reduced-motion:
+// no-preference) and @supports (mix-blend-mode: plus-lighter) (an engine without it keeps the shipped breath). A cap tile (.pw-tile.maxed.pw-cap, never a locked one) takes no box-shadow and no animation
+// and is isolated; its ::before wears pmgGlow's 'from' stop and its ::after the 'to' stop (both read from PMG_CSS itself), each a still box-shadow cast from the tile's border box, under the tile's content
+// (z-index -1 inside the isolated tile), the two adding exactly (plus-lighter: a plain crossfade dims at mid-breath), fading out and in by opacity alone on PMG's own 2.4 s ease-in-out infinite alternate.
+// The compositor breathes them; nothing is painted again a frame. THE BORDER BOX: the halos sit outside the tile's border as this engine draws it (the 2.5 px border reads 2 px in Chrome, 2.333 px in
+// WebKit at 3 dots), read from the style node itself, which carries the same border (a style node is never drawn); read again at every deal, and the text laid again only when it reads otherwise.
+// Reduced motion keeps PMG's still shadow. A man promoted in place takes the halo at once (pmgLine gives him the classes). A locked tile (dealt only below LV 100) takes none, as today.
+// THE BEAT: a man promoted to 100 wears .lift for PW_BEAT (fortTileBeat), whose box-shadow !important hides PMG's breath today; while it stands the two halos are hidden (visibility), breathing
+// unseen from the moment he became a cap, so the beat looks as it did and the halo shows at its end in step with the breath PMG's tile would show (the cold read's finding 2).
+// OFF: ?pmh=0 for one load · gvt_pmh '0' on the device (?pmh=1 clears it) · GVT.pmh({ on:0 }) for the page's life. Off = no style node and no class: the page as it was. Zero save keys, zero server bytes, zero sw.js.
+var PMH={ on:(function(){ try{ const q=/[?&]pmh=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.removeItem('gvt_pmh'); return q[1]==='1'? 1 : 0; } return localStorage.getItem('gvt_pmh')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  stops:null, bw:null, n:0, err:0, old:{} };   // the switch (?pmh=0 this load only, the device's key, ?pmh=1 clears it) · pmgGlow's two stops · the border laid · styles laid · errors caught · the wrapped original
+PMH.stops=(function(){ try{ const m=/@keyframes pmgGlow\{from\{box-shadow:([^{}]+)\}to\{box-shadow:([^{}]+)\}\}/.exec(PMG_CSS); return m? { from:m[1], to:m[2] } : null; }catch(e){ return null; } })();   // no stops read = no halos, the shipped breath stays
+function pmhText(bw){ const S='html.pmg-on.pmh-on .pw-tile.maxed.pw-cap:not(.hpf-out):not(.wpf-out)';
+  return '@media (prefers-reduced-motion: no-preference){@supports (mix-blend-mode: plus-lighter){'+S+'{animation:none;box-shadow:none;isolation:isolate}'
+    +S+'::before,'+S+"::after{content:'';position:absolute;inset:-"+bw+'px;border-radius:inherit;z-index:-1;pointer-events:none;mix-blend-mode:plus-lighter;will-change:opacity;animation:2.4s ease-in-out infinite alternate}'
+    +S+'::before{box-shadow:'+PMH.stops.from+';animation-name:pmhDn}'+S+'::after{box-shadow:'+PMH.stops.to+';animation-name:pmhUp}'
+    +S+'.lift::before,'+S+'.lift::after{visibility:hidden}}}'
+    +'@keyframes pmhDn{from{opacity:1}to{opacity:0}}@keyframes pmhUp{from{opacity:0}to{opacity:1}}'; }
+function pmhCss(){ if(!PMH.on || !PMH.stops) return;   // at every tight deal, after PMG's own style: the halos' style laid once, and again only when the border reads otherwise (a zoom)
+  try{ let st=document.getElementById('pmhCss');
+    if(!st){ st=document.createElement('style'); st.id='pmhCss'; st.style.border='2.5px solid transparent'; document.head.appendChild(st); PMH.bw=null; }
+    let bw=parseFloat(getComputedStyle(st).borderTopWidth); if(!(bw>0 && bw<=2.5)) bw=2.5;
+    if(PMH.bw!==bw){ st.textContent=pmhText(bw); PMH.bw=bw; PMH.n++; }
+    document.documentElement.classList.add('pmh-on');
+  }catch(e){ PMH.err++; } }
+function pmhOff(){ try{ document.documentElement.classList.remove('pmh-on'); const st=document.getElementById('pmhCss'); if(st) st.remove(); PMH.bw=null; }catch(e){ PMH.err++; } }   // the page as it was: no class, no style node
+function pmhRig(o){ o=o||{}; if(o.on!=null){ PMH.on=o.on? 1 : 0; if(!PMH.on) pmhOff(); else if(document.documentElement.classList.contains('pmg-on')) pmhCss(); }   // the rig door (GVT.pmh): { on:0|1 } for the page's life; the read = the cap tiles as they stand
+  const caps=Array.from(document.querySelectorAll('.pw-tile.maxed.pw-cap')).map(e=>{ const cs=getComputedStyle(e), b=getComputedStyle(e,'::before'), a=getComputedStyle(e,'::after'), L=(typeof e.getAnimations==='function')? e.getAnimations({ subtree:true }) : [];
+    return { k:e.dataset.k, kind:e.dataset.kind, host:e.closest('#picker')? 'picker' : e.closest('#roomModal')? 'fort' : '?', locked:e.classList.contains('hpf-out') || e.classList.contains('wpf-out'), anim:cs.animationName, shadows:(cs.boxShadow.match(/rgba?\(/g)||[]).length, iso:cs.isolation,
+      before:{ content:b.content, anim:b.animationName, shadows:(b.boxShadow.match(/rgba?\(/g)||[]).length, blend:b.mixBlendMode, z:b.zIndex, inset:b.top }, after:{ content:a.content, anim:a.animationName, shadows:(a.boxShadow.match(/rgba?\(/g)||[]).length, blend:a.mixBlendMode, z:a.zIndex, inset:a.top },
+      anims:L.map(x=>[x.animationName||x.id||'', (x.effect && x.effect.pseudoElement)||'', x.playState]) }; });
+  return { on:PMH.on, html:document.documentElement.classList.contains('pmh-on'), css:!!document.getElementById('pmhCss'), stops:!!PMH.stops, bw:PMH.bw, n:PMH.n, err:PMH.err,
+    plus:!!(window.CSS && CSS.supports && CSS.supports('mix-blend-mode','plus-lighter')), wraps:{ pmgCss:pmgCss!==PMH.old.pmgCss && !!PMH.old.pmgCss }, caps:caps };
+}
+PMH.old.pmgCss=pmgCss; pmgCss=function(){ const r=PMH.old.pmgCss.apply(this, arguments); pmhCss(); return r; };   // the wrap: the halos' style lands with PMG's at every tight deal, under PMG's own class as well
+// ═══ END CARD-PMH ═══
 // ═══ CARD-MFS MOM'S FIGHT ON THE WHOLE GLASS, ROUND 2 (sec:CARD-MFS; design/mom-full-screen-1019/00-DESIGN-MFS.md; FROM ISAAC, designer, by his jumpr guest link 10/19/2026 12:49 EDT, jumpr 2354, with a screenshot of her round 2 on his phone between two black bars, verbatim: "we just found a new bug for Mom. For some reason, the screen isn't taking up the entire thing. It's super small, so we need to correct that. Make sure it looks like all the other battles, taking up the full screen and looking really crisp. Go ahead and fix that."; ROUND 2 by his WhatsApp 13:52 EDT, verbatim: "All right, a few changes: - Get rid of that door thing in the bottom right. It's pretty unnecessary. - The background for the fight should look like the bedroom. It's already in the code so just use that. - We need to move the toy box back to the left, more to the left side, like every other fight. - Make sure that when she stomps on the toy box it actually does damage. Another bug we notice is that she'll stomp and then turn away but no damage is done to the toy box. Make sure every time she makes contact with the toy box she's stomping it and doing damage to it. During Wave 3 make sure that we have three more treasures that the player has unlocked appear and that Mom can additionally kick at units.") ═══
 // THE READ: Mom's fight was the one battle fought with the view the room's own width (resize: VW = W = 960): on a 2.17 phone her field was 643 px of 874 between 115 px of the body's dark (his picture). ROUND 1 widened her view to the glass (ONE clause in resize's VW line, below) and seated the room's east edge on the glass's right edge.
 // ROUND 2 (his five asks): R1 THE DOOR GOES: the door gap and the hall's light (drawRoomFloor's last two paints) are not painted on her floor; she walks on from the glass's own right edge. R2 THE BEDROOM BEHIND HER: the hub's own room (roomSVG, "already in the code": the back wall, the shelves with his decorations, the window, the bed, the rug) is baked ONCE per fight into a canvas at the glass's own pixels (the TEX band's grammar: the string
@@ -212580,6 +212621,7 @@ window.GVT = {
   tro(o){ return troRig(o); },   // CARD-TRO: the whole-room dim under a tour page with no told light ({ on }, { light }) + the read (the dim, its path, the page)
   mfs(o){ return mfsRig(o); },   // CARD-MFS: Mom's fight on the whole glass, the bedroom behind her ({ on } · { room } · { K } · { wallDrop }) + the read (VW, the camera, the canvas's box and store, the bake, her state, the toys, the stomps and kicks, the wraps)
   pmg(o){ return pmgRig(o); },   // CARD-PMG: the promotion tiles' dress ({ on }) + the read (the chips, the glow, the fades, the rows)
+  pmh(o){ return pmhRig(o); },   // CARD-PMH THE CAP'S GLOW ON THE COMPOSITOR: the switch for the page's life ({ on }) and the read of the cap tiles' halos
   hgt(o){ return hgtRig(o); },   // CARD-HGT: THE HANGAR'S TAIL CUT, the rig door ({ on }, { lens }, { emg }) + the read (the wraps, the tail's dom, the doors)
   rcs(o){ return rcsRig(o); },   // CARD-RCS: the wind-up racecar's seat off the campaign box ({ on }) + the read (the park, the tap zone, the wrap)
   hsl(o){ return hslRig(o); },   // CARD-HSL: the hero select ({ on }, { open }) + the read (the page, the seat, the strip, the heads, the wraps)
