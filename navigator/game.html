@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.67","md5":"529f40938f4dae5428c814d5aba6e1a2","sha":"1e532c0298","at":"2026-11-24T23:08:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.68","md5":"ba9174d1d81ee0f7f78b52bc07cfb52e","sha":"26d591d750","at":"2026-11-24T23:30:18Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -56097,6 +56097,52 @@ PET_RUNGS.witchpet=[ {lv:10,id:'wxhot',name:'THE HOT RING',line:'Her ring of fir
 PET_RUNGS_WIRED.witchpet=1;   // CARD-P48: READ (wxRingDps · wxCd · wxRingR · wxHexL · wxBalls · wxHpMax · wxHexCd · wxToadT · wxR · wxThrowR · wxDownT)
 PET_RUNGS.nutcracker=[ {lv:10,id:'nulong',name:'THE LONG RALLY',line:'His rally lasts a second longer.'}, {lv:20,id:'nuloud',name:'THE LOUD BUGLE',line:'His rally reaches men farther from him.'}, {lv:30,id:'nubeat',name:'THE DOUBLE BEAT',line:'A sniper rifle kill sounds two rallies at once.'}, {lv:40,id:'nufar',name:'THE FAR BUGLE',line:'His rally reaches farther still.'}, {lv:50,id:'nucall',name:'THE CALL TO ARMS',line:'Every gun Sarge holds sounds his rally, not just the sniper rifle.'}, {lv:60,id:'nulonger',name:'THE LONGER RALLY',line:'His rally lasts longer still.'}, {lv:70,id:'nufresh',name:'THE FRESH RALLY',line:'Every new rally makes the ones still standing last again from the start.'}, {lv:80,id:'nuband',name:'THE BRAVE BAND',line:'One more rally can stand at once.'}, {lv:90,id:'nufield',name:'THE FIELD BUGLE',line:'His rally reaches farthest of all.'}, {lv:100,id:'nucrown',name:"THE KING'S MARCH",line:"Any Green man's kill near him sounds his rally."} ];
 PET_RUNGS_WIRED.nutcracker=1;   // CARD-P48: READ (nutT · nutR · nutMax · nutKill's two gates + the march · nutRally's renewal)
+// ═══ CARD-PBL · THE PETS' NEW DAMAGE BALANCE (jumpr 4646; design/pet-balance-live-1124/00-CARD-PBL.md; Wyatt by phone on Discord 11/24/2026 12:29 EST, answering the Pet Dials page: "looks good. Half everyone's damage and we're good to go. get these changes set live.") ═══
+// Every pet's OWN damage rides ONE line by his level: START + (TOP - START) x ((level - 1) / 99) ^ 1.5, level 1 = START, level 100 = TOP (slow early, steep late: Henry's puck's own shape).
+// The table is the one he approved on the Pet Dials page with every level-100 number halved (START kept at his "around 1"; design/tune-dashboards-1123/kit/build.py, BAL and HALF).
+// Each reader named in PBL.L asks pblOn() on its first line and keeps today's body after it, byte for byte: THE OFF SWITCH ?pbl=0 (the device key gvt_pbl; ?pbl=1 clears it), read at load.
+// ON TOP of the line, as today: the handler's hat (petPotX) wherever the reader or its caller multiplied by it; Scout's critical bite; Henry's puck spread and his miss; THE EMBER's +1 a beat
+// (Puff's fork: his choice, not his growth). The line REPLACES inside the readers: petMul and the rungs' damage steps (each rung keeps its name; a line the new damage made false is said again
+// below, digit-free, x7); Henry's two old cuts (HSD's half, HMS's 40 %: the line is the approved number). NOT TOUCHED: Sharky, every wait, reach and effect, all healing and all health,
+// Francis's charge, Puff's embers, Otto's burning patch, Slush's little balls. Sips's bats and his heal are shares of his sip, so they climb with his line.
+// BOTH SIMS: a pure function of the level the wire carries (p.r): no clock, no die. The power 1.5 is x*sqrt(x), exact in every engine (never Math.pow): a Chrome seat and an iPhone read the same bits.
+var PBL={ on:(function(){ try{ const q=String(location.search||''); if(/[?&]pbl=1(?:&|$)/.test(q)){ localStorage.removeItem('gvt_pbl'); return 1; } if(/[?&]pbl=0(?:&|$)/.test(q)){ localStorage.setItem('gvt_pbl','0'); return 0; } return localStorage.getItem('gvt_pbl')==='0'? 0 : 1; }catch(e){ return 1; } })(), pow:1.5, bite:12.5,
+  L:{ petFlDmg:[1,17.5], petTtDot:[0.3,10], petSbDmg:[1,50], petFrJabDmg:[0.5,10], petMeDps:[2,20], petPfDmg:[1,20], petTnDmg:[1,20], petKnDmg:[1,40], petOtDmg:[1.5,62.5], cyDmg:[1.5,52.5],
+      wxRingDps:[2,17.5], petBiDmg:[1,35], petRkDmg:[1.5,50], smhDmg:[1.5,75], oreDmg:[1,60], hsbDmg:[1.5,65], sipDmg:[1,22.5] } };   // a VAR (the TDZ law: a reader asked before this line reads the switch as off, never a throw) · [START, TOP] a reader · bite = Tiptoe's bite with THE DEEP BITE (without it his bite stays TT_BITE, as today)
+function pblOn(){ return !!(PBL && PBL.on); }
+function pblAt(n,p){ const r=PBL.L[n]; if(!r) return 0; const L=Math.max(1, Math.min(PET_LV_MAX, (p && p.r|0)||1)); if(L<=1) return r[0]; if(L>=PET_LV_MAX) return r[1];
+  const x=(L-1)/(PET_LV_MAX-1), y=(PBL.pow===1.5)? x*Math.sqrt(x) : Math.pow(x, PBL.pow); return r[0]+(r[1]-r[0])*y; }   // the line at his level, clamped 1..PET_LV_MAX, its two ends exact
+// THE LADDER'S WORDS (the card's step 4): a rung that used to add damage adds no step now (the line is the growth). Every name is kept; a line the new damage made false (a number of HP)
+// is said again, digit-free (the 0341 law), only while the switch is on. Its words in the seven other tongues follow (a key already in a table is left alone).
+const PBL_RUNG={ 'flappy.hardbite':'His bite hits harder.', 'flappy.heavybite':'His bite hits harder still.', 'tiptoe.deepbite':'Every bite hits hard up front.', 'slush.hardpack':'The ball hits harder.',
+  'slush.heavypack':'The ball hits harder still.', 'slush.boulder':"The ball is the giant snowman's own, full size, and it bowls a king a pace.", 'francis.sharppoint':'The jab hits harder.',
+  'puff.hottongue':'His fire burns hotter.', 'tiny.bigbite':'His bite hits harder.', 'tiny.hugebite':'His bite hits harder still.', 'knight.heavyhoof':'His leap hits harder still.',
+  'coyote.cysharpteeth':'His lunge hits harder.', 'bishop.heavymitre':'His slide hits harder still.' };
+if(pblOn()) try{ for(const q in PBL_RUNG){ const i=q.indexOf('.'), R=PET_RUNGS[q.slice(0,i)], id=q.slice(i+1); if(R) for(const r of R) if(r.id===id) r.line=PBL_RUNG[q]; } }catch(e){}
+if(pblOn()) try{ (function(){ const W9={
+  ar:{ "His bite hits harder.":"عضته تضرب أقوى.", "His bite hits harder still.":"تزداد عضته قوة أكثر فأكثر.", "Every bite hits hard up front.":"ضربة قوية فورية مع كل عضّة.", "The ball hits harder.":"تضرب الكرة أقوى.",
+    "The ball hits harder still.":"تزداد ضربة الكرة قوة أكثر فأكثر.", "The ball is the giant snowman's own, full size, and it bowls a king a pace.":"الكرة هي كرة رجل الثلج العملاق نفسها، بحجمها الكامل، وتُطيح بالملك خطوة.",
+    "The jab hits harder.":"الطعنة تصيب أقوى.", "His leap hits harder still.":"تزداد قفزته قوة أكثر فأكثر.", "His lunge hits harder.":"انقضاضته تصيب أقوى.", "His slide hits harder still.":"يزداد انزلاقه قوة أكثر فأكثر." },
+  ja:{ "His bite hits harder.":"かみつきが もっと いたい。", "His bite hits harder still.":"かみつきが さらに いたい。", "Every bite hits hard up front.":"かみついた しゅんかんに HP を ぐっと けずる。", "The ball hits harder.":"ゆきだまが もっと いたい。",
+    "The ball hits harder still.":"ゆきだまが さらに いたい。", "The ball is the giant snowman's own, full size, and it bowls a king a pace.":"おおきな ゆきだるまの ゆきだまと おなじ おおきさに なって、おうさまも いっぽ ふきとばす。",
+    "The jab hits harder.":"つきが もっと いたい。", "His leap hits harder still.":"ジャンプが さらに つよく あたる。", "His lunge hits harder.":"とびかかりが もっと いたい。", "His slide hits harder still.":"すべりが さらに いたい。" },
+  ko:{ "His bite hits harder.":"물기가 더 세게 맞는다.", "His bite hits harder still.":"물기가 한층 더 세게 맞는다.", "Every bite hits hard up front.":"물 때마다 HP를 바로 크게 깎는다.", "The ball hits harder.":"눈덩이가 더 세게 맞는다.",
+    "The ball hits harder still.":"눈덩이가 한층 더 세게 맞는다.", "The ball is the giant snowman's own, full size, and it bowls a king a pace.":"거대 눈사람의 눈덩이 그대로, 최대 크기에, 왕도 한 걸음 밀려나.",
+    "The jab hits harder.":"찌르기가 더 세게 맞는다.", "His leap hits harder still.":"뛰어들기가 한층 더 세게 맞는다.", "His lunge hits harder.":"덤벼들기가 더 세게 맞는다.", "His slide hits harder still.":"미끄러짐이 한층 더 세게 때린다." },
+  'zh-Hans':{ "His bite hits harder.":"他咬得更重。", "His bite hits harder still.":"他咬得还要更重。", "Every bite hits hard up front.":"每一口都先立刻重重咬掉生命。", "The ball hits harder.":"雪球打得更重。",
+    "The ball hits harder still.":"雪球打得还要更重。", "The ball is the giant snowman's own, full size, and it bowls a king a pace.":"雪球变成巨型雪人的那颗，满尺寸，还能把国王撞退一步。",
+    "The jab hits harder.":"戳刺打得更重。", "His leap hits harder still.":"他的跳跃打得还要更重。", "His lunge hits harder.":"他的猛扑打得更重。", "His slide hits harder still.":"他的滑行打得还要更重。" },
+  de:{ "His bite hits harder.":"Sein Biss trifft härter.", "His bite hits harder still.":"Sein Biss trifft noch härter.", "Every bite hits hard up front.":"Jeder Biss trifft sofort hart.", "The ball hits harder.":"Der Ball trifft härter.",
+    "The ball hits harder still.":"Der Ball trifft noch härter.", "The ball is the giant snowman's own, full size, and it bowls a king a pace.":"Der Ball ist der des Riesenschneemanns, in voller Größe, und er wirft einen König einen Schritt um.",
+    "The jab hits harder.":"Der Stoß trifft härter.", "His leap hits harder still.":"Sein Sprung trifft noch härter.", "His lunge hits harder.":"Sein Sprung trifft härter.", "His slide hits harder still.":"Sein Rutschen trifft noch härter." },
+  ru:{ "His bite hits harder.":"Его укус бьёт сильнее.", "His bite hits harder still.":"Его укус бьёт ещё сильнее.", "Every bite hits hard up front.":"Сильный урон сразу при каждом укусе.", "The ball hits harder.":"Снежок бьёт сильнее.",
+    "The ball hits harder still.":"Снежок бьёт ещё сильнее.", "The ball is the giant snowman's own, full size, and it bowls a king a pace.":"Снежок теперь как у гигантского снеговика, в полный размер, и он отбрасывает короля на шаг.",
+    "The jab hits harder.":"Укол бьёт сильнее.", "His leap hits harder still.":"Его прыжок бьёт ещё сильнее.", "His lunge hits harder.":"Его бросок бьёт сильнее.", "His slide hits harder still.":"Его скольжение бьёт ещё сильнее." },
+  es:{ "His bite hits harder.":"Su mordisco golpea más fuerte.", "His bite hits harder still.":"Su mordisco golpea aún más fuerte.", "Every bite hits hard up front.":"Cada mordisco golpea fuerte de entrada.", "The ball hits harder.":"La bola golpea más fuerte.",
+    "The ball hits harder still.":"La bola golpea aún más fuerte.", "The ball is the giant snowman's own, full size, and it bowls a king a pace.":"La bola es la del muñeco de nieve gigante, a tamaño completo, y derriba a un rey un paso.",
+    "The jab hits harder.":"El pinchazo golpea más fuerte.", "His leap hits harder still.":"Su salto golpea aún más fuerte.", "His lunge hits harder.":"Su salto golpea más fuerte.", "His slide hits harder still.":"Su deslizamiento golpea aún más fuerte." } };
+  for(const g in W9){ const d=TR[g]||(TR[g]={}); for(const k in W9[g]) if(d[k]===undefined) d[k]=W9[g][k]; } })(); }catch(e){}
+// ═══ END CARD-PBL ═══
 // v3.27 (card 07) ONE HEAD, ONE CHEST: no slot system exists — the six old
 // pieces all stack — but a cowboy hat OVER the steel pot (or a recon plate
 // UNDER the flak vest) would draw a lie. Each pair is mutually exclusive:
@@ -74796,7 +74842,7 @@ function petTnMen(p){ return petHas(p,'fivebites')? TN_MEN_BIG : petHas(p,'fourt
 function petTnR(p){ return petHas(p,'longnose')? TN_R_LONG : TN_R; }
 function petTnSpd(p){ return petHas(p,'fastfeet')? TN_SPRINT_FAST : TN_SPRINT; }
 function petTnSwing(p){ return petHas(p,'longswing')? TN_SWING_LONG : TN_SWING; }
-function petTnDmg(p){ return (TN_BITE+(petHas(p,'bigbite')? 1 : 0)+(petHas(p,'hugebite')? 1 : 0))*petMul(p.r|0)*petPotX(p); }
+function petTnDmg(p){ if(pblOn()) return pblAt('petTnDmg',p)*petPotX(p); return (TN_BITE+(petHas(p,'bigbite')? 1 : 0)+(petHas(p,'hugebite')? 1 : 0))*petMul(p.r|0)*petPotX(p); }
 function petTnCd(p){ return (petHas(p,'quickjig')? TN_CD_QUICK : TN_CD)/petMul(p.r|0); }
 function petTnHome(p){ p.state='idle'; p.tgt=null; p.phase='sprint'; p.t=0; p.cd=petTnCd(p); }
 function petTnTick(p,u,dt){   // THE BEAT: true while the machine owns the feet (the sprint, the bite, the dance, the down); the run home is the shared heel walk (phase 'sprint')
@@ -83865,7 +83911,7 @@ function petChsPet(p){ return !!p && (p.k==='bishop' || p.k==='rook'); }
 // ─── THE BISHOP ───
 function petBiR(p){ return petHas(p,'fardiag')? CHS_BI.R_FAR : petHas(p,'longdiag')? CHS_BI.R_LONG : CHS_BI.R; }
 function petBiW(p){ return petHas(p,'widewake')? CHS_BI.W_WIDE : CHS_BI.W; }
-function petBiDmg(p){ return petHas(p,'heavymitre')? CHS_BI.dmgH : petHas(p,'sharpmitre')? CHS_BI.dmgS : CHS_BI.dmg; }
+function petBiDmg(p){ if(pblOn()) return pblAt('petBiDmg',p); return petHas(p,'heavymitre')? CHS_BI.dmgH : petHas(p,'sharpmitre')? CHS_BI.dmgS : CHS_BI.dmg; }
 function petBiCd(p){ return (petHas(p,'quickerslide')? CHS_BI.cdQQ : petHas(p,'quickslide')? CHS_BI.cdQ : CHS_BI.cd)/petMul(p.r|0); }
 function petBiMoves(p){ return petHas(p,'doubleslide')? 2 : 1; }
 function petBiDiag(x,y,f){ const dx=f.x-x, dy=f.y-y; const d=Math.hypot(dx,dy); if(d<12) return false; const a=Math.abs(Math.atan2(Math.abs(dy),Math.abs(dx))*180/Math.PI-45); return a<=CHS_BI.deg; }   // on one of the four 45-degree lines from (x,y), within the cone
@@ -83891,7 +83937,7 @@ function petBiTick(p,u,dt){   // THE BEAT: true while the machine owns the feet 
   return false; }
 // ─── THE ROOK ───
 function petRkHp(p){ return Math.round(CHS_RK.hp*(petHas(p,'thickwall')? 1.5 : petHas(p,'stonewall')? 1.25 : 1)); }
-function petRkDmg(p){ return (petHas(p,'hardknock')? CHS_RK.dmgH : CHS_RK.dmg)*petPotX(p); }
+function petRkDmg(p){ if(pblOn()) return pblAt('petRkDmg',p)*petPotX(p); return (petHas(p,'hardknock')? CHS_RK.dmgH : CHS_RK.dmg)*petPotX(p); }
 function petRkReach(p){ return petHas(p,'farwatch')? CHS_RK.reachF : petHas(p,'widewatch')? CHS_RK.reachW : CHS_RK.reach; }
 function petRkSpd(p){ return petHas(p,'quickerstep')? CHS_RK.spdQQ : petHas(p,'quickstep')? CHS_RK.spdQ : CHS_RK.spd; }
 function petRkGun(p){ return petHas(p,'ironwall')? CHS_RK.gunIron : CHS_RK.gun; }
@@ -94694,7 +94740,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.67';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -128514,7 +128560,7 @@ function petFlSwing(p,ex){   // THE ONE RE-AIM (⚑ Q5): the locked man gone mid
 }
 function petFlHome(p){ p.state='climb'; p.phase='climb'; p.t=0; p.tgt=null; }   // RIGHT BACK TO SARGE: the rise + the flight home (the wait starts when he lands at heel)
 function petFlCd(p){ return FL_CD*(petHas(p,'norest')? 0.5 : 1)/petMul(p.r|0); }   // 0806q NO REST (40): the wait at home halves   // the wait shrinks with rank on the pets' own slope (2 s → 1.15 s at 100)
-function petFlDmg(p){ return (FL_DMG+(petHas(p,'hardbite')? 1 : 0)+(petHas(p,'heavybite')? 1 : 0))*petMul(p.r|0)*petPotX(p); }   // 0806q THE HARD BITE (30) +1 · THE HEAVY BITE (80) +1 — under the slope   // the bite grows with rank on the same curve (1.0 → 1.74 at 100) — the academy's +N% DAMAGE reads petMul too
+function petFlDmg(p){ if(pblOn()) return pblAt('petFlDmg',p)*petPotX(p); return (FL_DMG+(petHas(p,'hardbite')? 1 : 0)+(petHas(p,'heavybite')? 1 : 0))*petMul(p.r|0)*petPotX(p); }   // 0806q THE HARD BITE (30) +1 · THE HEAVY BITE (80) +1 — under the slope   // the bite grows with rank on the same curve (1.0 → 1.74 at 100) — the academy's +N% DAMAGE reads petMul too
 function petFlTick(p,u,dt){   // THE BEAT: returns true when the machine owns the frame (fly · pass · climb), false at heel so the shared heel walk runs
   if(p.alt==null) p.alt=1;
   if(p.state==='fly'){   // THE APPROACH: homing on the locked man's CURRENT position at the dive's own speed
@@ -128656,7 +128702,7 @@ setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.frk=frkRig; }catch(e)
 function sbR(lv){ lv=Math.max(1, Math.min(PET_LV_MAX, lv|0)); return SNB_R_MIN+(SNB_R_MAX-SNB_R_MIN)*(lv-1)/(PET_LV_MAX-1); }   // the ball's full size at a level: 8 at 1 · 9.6 at 10 · 13.3 at 30 · 16.9 at 50 · 20.5 at 70 · 26 at 100 (the design's §5 table)
 function petSbR(p){ return petHas(p,'boulder')? SNB_R_MAX : sbR(p.r|0); }   // THE BOULDER (100): the giant's own 26 whatever the level
 function petSbR0(p){ return Math.max(SNB_R0, petSbR(p)*0.5); }   // the size that LEAVES his mitt — the giant's own ratio (13 → 26); a golf ball's 6 at the low levels
-function petSbDmg(p){ return petHas(p,'boulder')? 4 : petHas(p,'heavypack')? 3 : petHas(p,'hardpack')? 2 : SNB_DMG; }   // THE HARD PACK (10) · THE HEAVY PACK (60) · THE BOULDER (100)
+function petSbDmg(p){ if(pblOn()) return pblAt('petSbDmg',p); return petHas(p,'boulder')? 4 : petHas(p,'heavypack')? 3 : petHas(p,'hardpack')? 2 : SNB_DMG; }   // THE HARD PACK (10) · THE HEAVY PACK (60) · THE BOULDER (100)
 function petSbRun(p){ return petHas(p,'longroll')? SNB_RUN_LONG : SNB_RUN; }   // THE LONG ROLL (20): half again as far
 function petSbWind(p){ return SNB_WIND*(petHas(p,'quickarm')? 0.5 : 1); }   // QUICK ARM (40): the wind-up halves
 function petSbCd(p){ return (petHas(p,'quickarm')? SNB_CD_QUICK : SNB_CD)/petMul(p.r|0); }   // the pack: 5 s (QUICK ARM 3) under the pets' own slope (2.9 s at 100)
@@ -128729,7 +128775,7 @@ function petPfNear(u,x,y,R,p){   // 0927: + the pet (THE ENGINE BURN's door)   /
 }
 function petPfPath(p){ return (p && (p.pa==='ember' || p.pa==='bellows'))? p.pa : ''; }   // 0927 THE FORK as the beat reads it (p.pa — mine off META.pet.path, a partner's off the wire's fifth field)
 function petPfRng(p){ return (petHas(p,'dragon')? PF_R3 : petHas(p,'longertongue')? PF_R2 : petHas(p,'longtongue')? PF_R1 : PF_R)*(petPfPath(p)==='bellows'? PF_PATH_RNG : 1); }   // THE LONG TONGUE (10) · THE LONGER TONGUE (60) · THE DRAGON'S BREATH (100) · THE BELLOWS ×1.35
-function petPfDmg(p){ return PF_DMG+(petHas(p,'hottongue')? PF_DMG_HOT : 0)+(petHas(p,'dragon')? PF_DMG_DRAGON : 0)+(petPfPath(p)==='ember'? PF_PATH_DMG : 0); }   // THE HOT TONGUE (30) · THE DRAGON'S BREATH (100) · THE EMBER +1
+function petPfDmg(p){ if(pblOn()) return pblAt('petPfDmg',p)+(petPfPath(p)==='ember'? PF_PATH_DMG : 0); return PF_DMG+(petHas(p,'hottongue')? PF_DMG_HOT : 0)+(petHas(p,'dragon')? PF_DMG_DRAGON : 0)+(petPfPath(p)==='ember'? PF_PATH_DMG : 0); }   // THE HOT TONGUE (30) · THE DRAGON'S BREATH (100) · THE EMBER +1
 function petPfSp(p){ return PF_SP*(petHas(p,'widecone')? PF_SP_WIDE : 1)*(petPfPath(p)==='bellows'? PF_PATH_SP : 1); }   // THE WIDE CONE (40) · THE BELLOWS ×1.4
 function petPfCap(p){ return PF_MULTI+(petHas(p,'widecone')? PF_CAP_WIDE : 0)+(petPfPath(p)==='bellows'? PF_PATH_CAP : 0); }   // the men one tongue admits: 3 → THE WIDE CONE 5 → THE BELLOWS +2
 function petPfDur(p){ return PF_DUR*(petHas(p,'thirdbeat')? PF_DUR_THIRD : 1); }   // THE THIRD BEAT (90): the tongue stands three beats
@@ -128851,8 +128897,8 @@ function petTtNear(p,u,x,y,R,ex){   // the nearest live Tan man inside R of (x,y
 }
 function petTtCd(p){ return (petHas(p,'quickfeet')? TT_CD_QUICK : TT_CD)/petMul(p.r|0); }   // the wait between trips: 3 s (QUICK FEET 2) under the pets' own slope (1.7 s at 100)
 function petTtDotT(p){ return petHas(p,'longburn')? TT_DOT_T_LONG : TT_DOT_T; }   // THE LONG BURN (10): 8 → 12 s
-function petTtDot(p){ return (petHas(p,'hotbite')? TT_DOT_HOT : TT_DOT)*petMul(p.r|0); }   // THE HOT BITE (30): 0.3 → 0.5 a second — under the slope (the academy's +N% reads petMul too)
-function petTtBiteDmg(p){ return petHas(p,'deepbite')? TT_BITE_DEEP : TT_BITE; }   // THE DEEP BITE (60): a pip up front
+function petTtDot(p){ if(pblOn()) return pblAt('petTtDot',p); return (petHas(p,'hotbite')? TT_DOT_HOT : TT_DOT)*petMul(p.r|0); }   // THE HOT BITE (30): 0.3 → 0.5 a second — under the slope (the academy's +N% reads petMul too)
+function petTtBiteDmg(p){ if(pblOn()) return petHas(p,'deepbite')? PBL.bite : TT_BITE; return petHas(p,'deepbite')? TT_BITE_DEEP : TT_BITE; }   // THE DEEP BITE (60): a pip up front
 function petTtMen(p){ return petHas(p,'thirdbite')? 3 : petHas(p,'secondbite')? 2 : TT_MEN; }   // THE SECOND BITE (40) · THE THIRD BITE (90)
 function petTtSrc(p){ const u=p.own; if(!S.bf) return p; return (u && !u.dead && S.units.indexOf(u)>=0)? u : null; }   // the funnel's src: the pet itself on the rug (foeFell credits petBy(p)=p), the OWNER's Sarge on the battleground (the tag pays the seat; the stamp carries the XP), nobody if he is gone
 function petTtHurt(p,f,dmg){ const src=petTtSrc(p); if(S.bf && src) src.petBy=p; hurt(f, dmg, src, 0); if(S.bf && src) src.petBy=null; }   // ONE door for the bite and every burn beat — Flappy's C3 grammar; fire9 = 0 (poison is not fire)
@@ -128952,7 +128998,7 @@ function petFrBlock(u){   // THE BLOCK — true = this damage event is Francis's
 function petFrLive(p,f){ if(!petFlLive(f)) return false; if((f.def && f.def.vehicle) || petTtKing(f)) return petHas(p,'oath'); return true; }   // the one skip list (Flappy's) + machines and kings only at THE OATH (100)
 function petFrJabR(p){ return petHas(p,'longarm')? FR_JAB_R_LONG : FR_JAB_R; }   // THE LONG ARM (20): 1 m → 2 m
 function petFrJabCd(p){ return FR_JAB_CD*(petHas(p,'quickhands')? 0.5 : 1)/petMul(p.r|0); }   // QUICK HANDS (30): twice as often — under the pets' slope
-function petFrJabDmg(p){ return petHas(p,'sharppoint')? FR_JAB_SHARP : FR_JAB; }   // THE SHARP POINT (10): half a pip → a whole pip
+function petFrJabDmg(p){ if(pblOn()) return pblAt('petFrJabDmg',p); return petHas(p,'sharppoint')? FR_JAB_SHARP : FR_JAB; }   // THE SHARP POINT (10): half a pip → a whole pip
 function petFrChargeR(p){ return petHas(p,'farcharge')? FR_CHARGE_R_FAR : petHas(p,'longcharge')? FR_CHARGE_R_LONG : FR_CHARGE_R; }   // 4 m · 6 m (70) · 8 m (90) of SARGE
 function petFrSrc(p){ const u=p.own; if(!S.bf) return p; return (u && !u.dead && S.units.indexOf(u)>=0)? u : null; }   // the funnel's src: the pet itself on the rug, the OWNER's Sarge on the battleground (the tag pays the seat; the stamp carries the XP), nobody if he is gone
 function petFrHurt(p,f,dmg){ const src=petFrSrc(p), was=!!(f.dead || (f.hp!=null && f.hp<=0)); if(S.bf && src) src.petBy=p; hurt(f, dmg*petPotX(p)+gcapFr(p), src, 0);   /* CARD-GCP: +8 a hit with the cap, flat, last */ if(S.bf && src) src.petBy=null; if(!was && (f.dead || (f.hp!=null && f.hp<=0))) petXp(p,'ko'); }   // ONE door for the jab and the charge (Tiptoe's grammar; fire9 0); a man his spear finishes pays 'ko'
@@ -129049,7 +129095,7 @@ function gcapFr(p){ return (p && p.k==='francis' && gcapU(p))? OF_GCAP_FR : 0; }
 function petMeReach(p){ return (petHas(p,'farreach')? ME_AGGRO_FAR : petHas(p,'longreach')? ME_AGGRO_LONG : ME_AGGRO)*(gcapU(p)? 1+OF_GCAP_ME : 1); }   // CARD-GCP: the cap's +200 %   // THE LONG REACH (40) · THE FAR REACH (90) — of SARGE's feet
 function petMeR(p){ return petHas(p,'widering')? ME_R_WIDE : ME_R; }   // THE WIDE RING (30): 1.5 m → the sage's own 2 m (FS_R)
 function petMeLife(p){ return petHas(p,'lastingfire')? ME_LIFE_LONG : ME_LIFE; }   // THE LASTING FIRE (60): 3 s → the sage's own 5 s (FS_LIFE)
-function petMeDps(p){ return ME_DPS+(petHas(p,'hotterfire')? ME_DPS_HOT : 0)+(petHas(p,'hottestfire')? ME_DPS_HOT : 0); }   // THE HOTTER FIRE (10) · THE HOTTEST FIRE (80): 1 → 1.5 → 2 HP a beat (FS_TICK)
+function petMeDps(p){ if(pblOn()) return pblAt('petMeDps',p); return ME_DPS+(petHas(p,'hotterfire')? ME_DPS_HOT : 0)+(petHas(p,'hottestfire')? ME_DPS_HOT : 0); }   // THE HOTTER FIRE (10) · THE HOTTEST FIRE (80): 1 → 1.5 → 2 HP a beat (FS_TICK)
 function petMeCd(p){ return ME_CD*(petHas(p,'quickstaff')? ME_CD_QUICK : 1)*(petHas(p,'quickerstaff')? ME_CD_QUICK : 1)/petMul(p.r|0); }   // THE QUICK STAFF (20) · THE QUICKER STAFF (70) — under the pets' own slope (9 s → 3.3 s at 100)
 function petMeHash(p,salt){ return evHash(String(S.t.toFixed(2))+':'+p.key+':'+(p.casts|0)+':'+salt); }   // Bilbo's die (⚑ Q18): the sim clock, the pet's key, his cast count — both sims roll the same number
 function petMeThree(p){ if(petHas(p,'firestorm')) return true; if(!petHas(p,'threerings')) return false; return (petMeHash(p,'3')%(petHas(p,'farreach')? ME_3_DEN_FAR : ME_3_DEN))===0; }   // THREE RINGS (50): "a chance" · more often at 90 · THE FIRESTORM (100): every time
@@ -129105,7 +129151,7 @@ function drawPetOrb(p){   // THE TELL at his staff: PUFF's inhale glow, wizard e
 let KN_DEAL=0;   // the roof's third toy: the card owed (dealt after the landing flare — knightDeal)
 function petKnR(p){ return petHas(p,'farl')? KN_R_FAR : petHas(p,'longl')? KN_R_LONG : KN_R; }   // THE LONG L (40) · THE FAR L (90) — of SARGE's feet
 function petKnW(p){ return petHas(p,'widestep')? KN_W_WIDE : KN_W; }   // THE WIDE STEP (30): the corridor
-function petKnDmg(p){ return petHas(p,'heavyhoof')? KN_DMG_HEAVY : petHas(p,'sharphoof')? KN_DMG_SHARP : KN_DMG; }   // THE SHARP HOOF (10) · THE HEAVY HOOF (60)
+function petKnDmg(p){ if(pblOn()) return pblAt('petKnDmg',p); return petHas(p,'heavyhoof')? KN_DMG_HEAVY : petHas(p,'sharphoof')? KN_DMG_SHARP : KN_DMG; }   // THE SHARP HOOF (10) · THE HEAVY HOOF (60)
 function petKnCd(p){ return (petHas(p,'quickerhop')? KN_CD_QUICKER : petHas(p,'quickhop')? KN_CD_QUICK : KN_CD)/petMul(p.r|0); }   // THE QUICK HOP (20) · THE QUICKER HOP (70) — under the pets' own slope
 function petKnMoves(p){ return petHas(p,'doublemove')? 2 : 1; }   // THE DOUBLE MOVE (50)
 function petKnFar(p,u,x,y,R,ex){   // THE TARGET = the FARTHEST live Tan man inside R of (x,y) (⚑ NP-Q11 REC: a knight leaps OVER the crowd — everyone on his two legs takes the hoof; the nearest man would leave nobody on the way); ex = the men already hit this move
@@ -129170,7 +129216,7 @@ function cyR(p){ return petHas(p,'cywidehunt')? CY_R_WIDE : CY_R; }
 function cySneak(p){ return petHas(p,'cyquietpaws')? CY_SNEAK_QUIET : CY_SNEAK; }
 function cyPounce(p){ return petHas(p,'cylongleap')? CY_POUNCE_LONG : CY_POUNCE; }
 function cySlowT(p){ return petHas(p,'cycoldtrail')? CY_SLOW_T_LONG : CY_SLOW_T; }
-function cyDmg(p){ return petHas(p,'cysharpteeth')? CY_DMG_SHARP : CY_DMG; }
+function cyDmg(p){ if(pblOn()) return pblAt('cyDmg',p); return petHas(p,'cysharpteeth')? CY_DMG_SHARP : CY_DMG; }
 function cyMen(p){ return petHas(p,'cypackrun')? 3 : petHas(p,'cysecondlunge')? 2 : 1; }
 function cyCd(p){ return CY_CD*(petHas(p,'cyshortrest')? 0.7 : 1)/petMul(p.r|0); }
 function cySlow(f,T){ const on=(f.chillT||0)>0 && f.chillX>0; f.chillX=Math.min(on? f.chillX : 1, CY_SLOW_X); f.chillT=Math.max(f.chillT||0, T); }   // THE SLOW on Slush's fields: never shallower than a chill already on him, never shorter
@@ -129301,7 +129347,7 @@ function cy3Shade(p){   // THE SHADOW he lurks in: a dark pool under him, and he
 // beat). Drawn by drawPet's overlay (drawPetFlames: a white-hot core in gold in orange, a lick trailing on the swoop's tangent; reduced motion = the ball alone). Not a unit: never targeted, never dies. ═══
 function petOtR(p){ return petHas(p,'farreach')? OT_R_FAR : petHas(p,'longflight')? OT_R_LONG : OT_R; }   // THE LONG FLIGHT (40) · THE FAR REACH (90) — of SARGE's feet
 function petOtAmp(p){ return petHas(p,'wideswoop')? OT_AMP_WIDE : OT_AMP; }   // THE WIDE SWOOP (30)
-function petOtDmg(p){ return OT_DMG+(petHas(p,'hotterflame')? OT_DMG_HOT : 0)+(petHas(p,'hottestflame')? OT_DMG_HOT : 0); }   // THE HOTTER FLAME (10) · THE HOTTEST FLAME (60)
+function petOtDmg(p){ if(pblOn()) return pblAt('petOtDmg',p); return OT_DMG+(petHas(p,'hotterflame')? OT_DMG_HOT : 0)+(petHas(p,'hottestflame')? OT_DMG_HOT : 0); }   // THE HOTTER FLAME (10) · THE HOTTEST FLAME (60)
 function petOtCd(p){ return OT_CD*(petHas(p,'quickbreath')? OT_CD_QUICK : 1)*(petHas(p,'quickerbreath')? OT_CD_QUICK : 1)/petMul(p.r|0); }   // THE QUICK BREATH (20) · THE QUICKER BREATH (70) — under the pets' own slope
 function petOtN(p){ return petHas(p,'firestorm')? 3 : petHas(p,'twoflames')? 2 : 1; }   // TWO FLAMES (50) · THE FIRESTORM (100)
 function petOtLife(p){ return petHas(p,'lastingfire')? OT_PATCH_L_LONG : OT_PATCH_L; }   // THE LASTING FIRE (80): the patch 3 → 5 s
@@ -129491,7 +129537,7 @@ function wxLerp(p,a,b){ return a+(b-a)*(wxLv(p)-1)/(PET_LV_MAX-1); }
 const WXL={ dps10:3.5*FCX /* CARD-FCX: x FCX = 35 */, cd20:3.2, ringR30:56, hexL40:270, hp60:2, hexCd70:6, toad80:2, R90:420, throwR90:300, down100:3 };   // CARD-P48: her ladder's numbers (the base stays WX_*)
 function wxHpMax(p){ return Math.round(wxLerp(p, WX_HP0, WX_HP1))+(petHas(p,'wxtough')? WXL.hp60 : 0); }   // 5 pips at level 1 → 9 at 100 · THE TOUGH HAT (60) two more
 function wxToadT(p){ return +(wxLerp(p, WX_TOAD_T0, WX_TOAD_T1)+(petHas(p,'wxlongspell')? WXL.toad80 : 0)).toFixed(3); }   // 3 s at level 1 → 5 s at 100 · THE LONG SPELL (80) two seconds more
-function wxRingDps(p){ return petHas(p,'wxhot')? WXL.dps10 : WX_RING_DPS; }   // THE HOT RING (10): 2.5 → 3.5 a second
+function wxRingDps(p){ if(pblOn()) return pblAt('wxRingDps',p); return petHas(p,'wxhot')? WXL.dps10 : WX_RING_DPS; }   // THE HOT RING (10): 2.5 → 3.5 a second
 function wxCd(p){ return petHas(p,'wxquick')? WXL.cd20 : WX_CD; }   // THE QUICK BROOM (20): the throw's rest 4.2 → 3.2 s (÷ petMul, as always)
 function wxRingR(p){ return petHas(p,'wxwide')? WXL.ringR30 : WX_RING_R; }   // THE WIDE RING (30): 42 → 56 px (the burst and the fire alike)
 function wxHexL(p){ return petHas(p,'wxlonghex')? WXL.hexL40 : WX_HEX_L; }   // THE LONG HEX (40): the cone's reach 210 → 270 px
@@ -201373,7 +201419,7 @@ SPRITES_SRC.smash=petTokenise("<g><ellipse cx=\"70\" cy=\"131\" rx=\"27\" ry=\"5
 FH_PET_BOX.smash=[40,48]; FR_PACE.smash=48; PTS_VERB.smash='SMASHES'; PTS_WEST.smash=1;   // the fort's box (the fort paints every owned pet), his pace (a stout march), the pets sheet's verb, west-authored
 const SMH_CD=7, SMH_R=1.6*TK_M, SMH_R0=5*TK_M, SMH_SPD=96, SMH_DMG=1, SMH_FLAT=1.2, SMH_WIND=0.3, SMH_SLAM=0.3, SMH_MARCH_T=2.2;   // THE SMASH's dials, one each: rested every 7 s (÷ petMul) · the slam's reach 1.6 m · he marches at a man within 5 m · 96 px/s · one pip (× petMul) · flat 1.2 s · the rear-up 0.3 s · the squat 0.3 s · a march that finds nobody gives up after 2.2 s
 const SMHL={ dmg10:1.5, cd20:5.5, r30:2.1*TK_M, flat40:1.8, dmg60:2, cd70:4.5, r80:2.6*TK_M, far90:8*TK_M };   // the ladder's numbers (the base stays SMH_*)
-function smhDmg(p){ return (petHas(p,'smhharder')? SMHL.dmg60 : petHas(p,'smhhard')? SMHL.dmg10 : SMH_DMG)*petMul(p.r|0); }   // THE HARD JAW (10) 1.5 · THE HARDER JAW (60) 2, under the pets' own slope
+function smhDmg(p){ if(pblOn()) return pblAt('smhDmg',p); return (petHas(p,'smhharder')? SMHL.dmg60 : petHas(p,'smhhard')? SMHL.dmg10 : SMH_DMG)*petMul(p.r|0); }   // THE HARD JAW (10) 1.5 · THE HARDER JAW (60) 2, under the pets' own slope
 function smhCd(p){ return (petHas(p,'smhquicker')? SMHL.cd70 : petHas(p,'smhquick')? SMHL.cd20 : SMH_CD)/petMul(p.r|0); }   // THE QUICK JAW (20) 5.5 s · THE QUICKER JAW (70) 4.5 s (÷ petMul, as always)
 function smhR(p){ return petHas(p,'smhwider')? SMHL.r80 : petHas(p,'smhwide')? SMHL.r30 : SMH_R; }   // THE WIDE SMASH (30) 2.1 m · THE WIDER SMASH (80) 2.6 m
 function smhFlat(p){ return petHas(p,'smhlong')? SMHL.flat40 : SMH_FLAT; }   // THE LONG FLAT (40): 1.2 → 1.8 s (under the dome's 2.0, gadRot's own reference)
@@ -201417,7 +201463,7 @@ const ORE_CD=6, ORE_CD_QUICK=4.5, ORE_R=100*TK_M, ORE_R_LONG=1e9, ORE_SPD=320, O
 const ORE_ICE_W=30, ORE_ICE_LIFE=6, ORE_ICE_LIFE_LONG=9, ORE_ICE_FADE=2.5, ORE_ICE_X=1.5, ORE_ICE_STEP=22, ORE_SLIP_T=1, ORE_SLIP_EVERY=0.7, ORE_IMM_MIN=3, ORE_IMM_MAX=5;   // THE ICE PATH (20, his word): 30 px wide · lives 6 s (THE SLICK ICE 9) then FADES SLOWLY over 2.5 s · everyone on it walks ×1.5 ("50% faster", both sides) · a point every 22 px of his slide · a slip = down 1 s · a roll on entering and every 0.7 s on the ice · then immune 3..5 s (seeded)
 const ORED={ slipPct:35, slipPctSlick:50 };   // the slip's odds a roll (THE SLICK ICE 50); an object so the rig can put its hand on the die (GVT.ore({slipPct}))
 const ORE_AHEAD=4*TK_M, ORE_EDGE=60, ORE_WADDLE=120, ORE_WADDLE_STRIDE=16, ORE_WADDLE_ROT=0.16, ORE_WADDLE_LIFT=2, ORE_SLIDE_PAD=0.5;   // CARD-OWA OREO GOES AHEAD ALONE (Wyatt's phone 10/22 00:15 EDT: "go ahead alone, waddle forward like a penguin, and dive into the enemy 100m range"): his station 4 m past the squad's front (⚑ OWA-Q1) · never within 60 px of the carpet's edge · the waddle 120 px/s on his own feet · a rock every 16 px of walk, ±0.16 rad, a 2 px lift · a slide's clock = its planned length ÷ 320 + half a second (never under ORE_SLIDE_MAX)
-function oreDmg(p){ return (petHas(p,'oreharder')? ORE_DMG_HARDER : petHas(p,'orehard')? ORE_DMG_HARD : ORE_DMG)*petMul(p.r|0)*petPotX(p); }   // THE HARD BUMP (10) 1.5 · THE HARDER BUMP (60) 2, under the pets' own slope + the handler's hat
+function oreDmg(p){ if(pblOn()) return pblAt('oreDmg',p)*petPotX(p); return (petHas(p,'oreharder')? ORE_DMG_HARDER : petHas(p,'orehard')? ORE_DMG_HARD : ORE_DMG)*petMul(p.r|0)*petPotX(p); }   // THE HARD BUMP (10) 1.5 · THE HARDER BUMP (60) 2, under the pets' own slope + the handler's hat
 function oreR(p){ return petHas(p,'orelong')? ORE_R_LONG : ORE_R; }   // CARD-OWA: 100 m of HIM; THE LONG SLIDE (30): anywhere on the carpet (was 6 → 8 m of Sarge)
 function oreShove(p){ return petHas(p,'oreshove')? ORE_SHOVE_BIG : ORE_SHOVE; }   // THE BIG SHOVE (40): 22 → 44 px
 function oreN(p){ return petHas(p,'oredouble')? 2 : 1; }   // THE DOUBLE SLIDE (50): one more slide at once while a man stands within reach of HIM
@@ -201764,6 +201810,7 @@ function hsbAt(R,s){   // the point on the rink at arc-length s from the start (
 function hsbNearest(R,x,y){ const L=hsbLen(R), n=Math.max(16, Math.ceil(L/HSB_SAMPLE)); let bs=0, bd=1e18; for(let i=0;i<n;i++){ const s=L*i/n, q=hsbAt(R,s), d=(q.x-x)*(q.x-x)+(q.y-y)*(q.y-y); if(d<bd){ bd=d; bs=s; } } return bs; }   // where he joins: the rink's nearest point (sampled every 12 px, once per join)
 function hsbRoll(kind){ return (HSB.dice && HSB.dice[kind]!=null)? HSB.dice[kind] : Math.random(); }   // one die: the rig's hand or the game's own (the rollCrit grammar: per-sim, the accepted-divergence class)
 function hsbDmg(p){   // THE CURVE: 1 at level 1, 55 at 100 on the power 1.5 (slow early, steep late), THE HARD SHOT (10) x1.15, THE HARDER SHOT (60) x1.30 → 82 at 100; the handler's hat on top; the puck's own spread ±8 % (75..90 at 100); never under 1
+  if(pblOn()){ let d=pblAt('hsbDmg',p); d*=petPotX(p); d*=1+HSB_SPREAD*(hsbRoll('spread')*2-1); return Math.max(1, Math.round(d)); }   // CARD-PBL: the approved line, his hat, the puck's spread (the same one die); HSD's half and HMS's 40 % no longer cut it
   const L=Math.max(1, Math.min(PET_LV_MAX, (p && p.r|0)||1)); let d=HSB_D1+(HSB_D100-HSB_D1)*Math.pow((L-1)/(PET_LV_MAX-1), HSB_POW);
   if(petHas(p,'hnrhard')) d*=HSB_HARD_X; if(petHas(p,'hnrharder')) d*=HSB_HARDER_X; d*=petPotX(p); d*=hsdHenryX(); d*=hmsDmgX(); /* CARD-HMS: x HMS.dmgX 0.6 on top (Wyatt by phone 11/3/2026 'reduce his damage by 40%'), before the spread and the rounding; the floor at one pip stands */   /* CARD-HSD: the whole curve x HSD.henryX (0.5; Wyatt by phone 11/2/2026 'Reduce henrys damage by half'), before the spread and the rounding; the floor at one pip below stands */
   d*=1+HSB_SPREAD*(hsbRoll('spread')*2-1); return Math.max(1, Math.round(d)); }
@@ -201840,7 +201887,7 @@ function sipAggroRig(o){ o=o||{}; if(o.on!=null) SIPA.on=o.on? 1 : 0;   // the d
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT) GVT.sipAggro=sipAggroRig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (sipRig's own grammar)
 // ═══ END CARD-SIPA (+ the gate: one line in petSipTick before its last return — `if(sipaOn() && sipHunt(p,u,dt)) return true;` — and petSipFresh clears the sortie flag p.hunting with the fresh Sarge) ═══
 function sipCd(p){ return (petHas(p,'sip20')? SIP_CD_QUICK : SIP_CD)/petMul(p.r|0); }   // QUICK SIPS (20): 4.0 → 3.0 s, under the pets' own slope (2.3 → 1.7 s at 100)
-function sipDmg(p){ return (petHas(p,'sip30')? SIP_DMG_BIG : SIP_DMG)*petPotX(p); }   // BIGGER BITE (30): 1 → 1.6 a sip; the handler's hat ×2 while it burns (Slush's grammar)
+function sipDmg(p){ if(pblOn()) return pblAt('sipDmg',p)*petPotX(p); return (petHas(p,'sip30')? SIP_DMG_BIG : SIP_DMG)*petPotX(p); }   // BIGGER BITE (30): 1 → 1.6 a sip; the handler's hat ×2 while it burns (Slush's grammar)
 function sipHealX(p){ return petHas(p,'sip40')? SIP_HEAL_BETTER : SIP_HEAL; }   // BETTER BLOOD (40): Sarge mends 0.5 → 0.8 of the drain
 function sipN(p){ return petHas(p,'sip50')? SIP_N2 : SIP_N; }   // DOUBLE DRAIN (50): the two nearest at once
 function sipLinger(p){ return petHas(p,'sip60'); }   // LINGERING LINK (60): the link holds 2.5 s and drains one more sip's worth over it
