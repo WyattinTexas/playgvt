@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.68","md5":"ba9174d1d81ee0f7f78b52bc07cfb52e","sha":"26d591d750","at":"2026-11-24T23:30:22Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.69","md5":"e587942414da02b4418295f92ecb78c1","sha":"0bb0405bd3","at":"2026-11-24T23:59:10Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94740,7 +94740,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.68';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.69';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -237027,6 +237027,313 @@ if(KYW.on){ KYW.wrapped={}; if(typeof setInterval==='function') setInterval(kywI
   if(typeof kysKingStrike==='function'){ const kk0=kysKingStrike; kysKingStrike=function(f,u){ try{ kywNote(f,u); }catch(err){ kywOops('note',err); } return kk0.apply(this,arguments); }; KYW.wrapped.kysKingStrike=1; } }
 setTimeout(function(){ try{ if(window.GVT && !GVT.kyw) GVT.kyw=kywRead; }catch(e){} },0);   // the rigs' door (GVT is built below)
 // ═══ END CARD-KYW ═══
+// ═══ CARD-KYD · KING YETI'S FIGHT, WYATT'S TEN POINTS OF 11/23: THE TANKS' SNOW ARMOR, THE TURRETS' ONE VOLLEY AND THEIR DEAD RING, THE POSTS OVER THE MINES, SERGEANT SNOWMAN'S HOP, HIS SWORD TWICE AS FAST AND CLEAVING, NO VANISH, THE FIVE SABER POWERS EVERY 3 TO 5 S, AND KING YETI IN THE SWORD DUEL (sec:CARD-KYD; design/king-yeti-duel-1124/00-CARD-KYD.md; jumpr 4563, board J1053; a KIND of sec:CARD-SWD) ═══
+// WYATT 11/23/2026 14:49 and 14:51 EST by phone on Discord (1574512320246456461, 1574512712598294549), verbatim: "Push all of this feedback for the King Yeti fight. Add this last point in: make sure that the interaction between King Yeti and a Saber/Claymore Sarge matches the code from the Emperor Bear fight. We want that kind of choreographed duel-like interaction to be the case for this fight as well."
+//   "- Add an armor factor to tanks that reduces incoming damage by 75% from snow units"
+//   "- Turrets should fire all three of their shots in a single volley into one enemy, even if it overkills the enemy. That way, they can't nuke every single tiny enemy trying to rush them so efficiently"
+//   "- Turrets have a minimum range, so they can't attack enemies within their circle. That way, the player needs to be more proactive about fighting around the objectives"
+//   "- Outpost turrets and other structures on the map should appear over sweeper mines"
+//   "- Sargent Snowman should jump every 4-6 seconds instead of 7.5"
+//   "- King Yeti attack speed should be twice as fast"
+//   "- Make sure his sword swings are cleaving (area attacks)"
+//   "- Remove invisibility power from King Yeti"
+//   "- Make sure he's using these saber powers: Dash Slam, Healing Circle, The Lance, Halo, Force Pop. Lance and Halos should be one shotting non-heavy units."
+//   "- Saber powers should be activated every 3-5 seconds"
+// THE SCOPE: THE ICE CASTLE (S.raid.k 'ice') at EASY, MEDIUM, HARD and MEGA (KYD_TIERS: CARD-KYS's four). The ULTRA MEGA night room ('u') keeps its own king and turrets; the Tundra and the Battlegrounds never read this.
+// WHERE EACH LANDS (his order):
+//   1 THE TANKS' SNOW ARMOR: on our TANK, V2 TANK and V3 TANK, every hit a snow unit lands takes KYD.TANK of what it took (a quarter): a round's pips (tanHit: the snowball, the court's claws, the king's
+//     pop) and a knockdown's dent (knock: a machine's one hit on the harness, now a quarter of one; every save of the knock keeps its say, and the last of his harness still goes over the knock's own rolled door).
+//   2 THE ONE VOLLEY: a post's burst (CARD-KYF's kyfFire, CARD-KYS's snowballs) throws its TUR_ROUNDS rounds into ONE mark, whoever holds it, even when the first round has already felled him (the rest are spent).
+//   3 THE DEAD RING: a post never fires on anyone standing inside its own ring (RAID_CAP_R, the ring a squad takes it in): it picks the nearest mark OUTSIDE the ring and inside its reach, or holds its fire;
+//     its drum turns to that mark (or holds still) and its pilot light is lit only when it has one.
+//   4 THE POSTS OVER THE MINES: the castle's posts (the two forward turrets and the home turret, each with its pile of snowballs) are painted after the mines and the dog tags, under every man (the first actor);
+//     the crate layer paints the toy box only.
+//   5 SERGEANT SNOWMAN'S HOP: one every KYD.HOP_MIN to KYD.HOP_MAX s, tell to tell (one die a hop on facts every sim of a party shares; was 7.5). His first big hop as CARD-RZB set it.
+//   6 TWICE AS FAST: King Yeti's sword clock (KING_SW_CD x his swx) and his big snowball's clock (FDEF fireCd x his fcx) x KYD.AS (a half): both of his attacks twice as often.
+//   7 THE CLEAVE: his swing (this section's, in the shipped swing's seat, so CARD-KYW's full swing paints it as before) lands on EVERY man inside KYD.CLEAVE_R (his swing's own trigger reach) and its fan,
+//     past the shipped cap of two and past CARD-RZB's cap of men a blow (KYD.CLEAVE_CAP 0); each a knock as before (the castle prices it: CARD-BDC2 x CARD-RZB).
+//   8 NO VANISH: his green vanish leaves his kit (his power clock below deals none, CARD-KYS's and CARD-KYA's clocks are parked for him).
+//   9 THE FIVE SABER POWERS (the old book's names, CBK_NAME): THE DASH SLAM (red: a tell, the lunge onto the man, the slam ring knocks), THE HEALING CIRCLE (orange: CARD-KYS's own channel, he and his court mend,
+//     walking by CARD-KYA), THE LANCE (yellow: his blade of yellow light flies 12 m at his man and back), THE HALO (yellow: the blade circles him for 4 s), THE FORCE POP (blue: the wall turns every round
+//     for 0.4 s, then the pop shoves every man near him and slaps him once). THE LANCE AND THE HALO FELL A NON-HEAVY MAN IN ONE STROKE (his bar emptied at the kill's own door, every save of the knock
+//     first); a heavy (the bazooka, the grenadier, the flame, the commando: CARD-KYF's own four, CARD-BDC2's three), a machine, Sarge and a hero take the king's blow (the castle's priced knock).
+//   10 EVERY 3 TO 5 S: one power every KYD.POW_MIN to KYD.POW_MAX s (one die a cast, shared facts), the next of the five whose own cooldown is up (the Saber Sarge's TK_CD, CARD-KYA's rule) and whose
+//     reason holds (a man in its reach: never on air), the one that has waited longest first; one short act at a time (the dash, the wall, a swing, a hop); his hop yields to a power due within KYD.HOP_YIELD s
+//     (CARD-KYS's 'a hop due within 1.2 s goes first' would push a power past 5 s).
+//   11 THE DUEL (his last point): King Yeti is a KIND of sec:CARD-SWD ('ky'). A saber or claymore Sarge's swing on him, or his sword's hit on such a Sarge (the swing, the bounce), inside SWD.OPEN of
+//     each other, OPENS A DUEL with him the favoured one, opt = { winA:'fell', winB:'wound', wound:0.25 } as the Emperor's: 2 to 5 clashes, the knock apart, the long held clash, then one die at 50 / 50:
+//     he cuts the Sarge down, or the Sarge's slash takes a quarter of his FULL bar and the Sarge walks back to his line. While they duel his walk, his sword, his powers, his hop and his snowball are held,
+//     his blades go back to his hand; when he lost it he reels (no new duel on him, no blow of his, for KYD.DUEL_CD_LOST s). No second duel is built: the piece is CARD-SWD's.
+// WRAPPED BY NAME (no body edited): kingKitTick · kysKingPost · kysBusy · kysKingStrike · kysKingLand · airMv · foeHalted · hurt · tanHit · knock · knockKill · kyfFire · raidTick · drawRaidPosts · olvActors · kysLand
+//   · ccnDrawOver · drawKing (draw only: the held clash's pose). Zero server, sw.js, CSS, save, wire or word bytes; no banner, no word on the glass (Wyatt 10/22: nothing new blocks the play).
+// THE SWITCH: ?kyd=0 on a device (gvt_kyd '0'; ?kyd=1 clears it) = the castle as it was there, outside rooms; a room or a party always runs the new rules (one sim on every seat: CARD-KYA's law).
+//   GVT.kyd() = the rigs' read; GVT.kyd({ dials }) sets a dial live; GVT.kyd({ zero:1 }) zeroes the counts.
+const KYD_TIERS={ e:1, m:1, h:1, g:1 };   // the castle's four tiers (the ULTRA MEGA room 'u' as it was)
+const KYD={
+  TANK:0.25,                       // 1 a snow unit's hit on our tank lands this share ("reduces incoming damage by 75%")
+  VOLLEY:1,                        // 2 1 = a post's rounds all go into one mark ("a single volley into one enemy"); 0 = CARD-KYF's fan
+  DEAD:1,                          // 3 1 = a post never fires inside its own ring ("a minimum range ... within their circle"); 0 = as before
+  OVER:1,                          // 4 1 = the posts paint over the mines; 0 = at the crate layer
+  HOP_MIN:4, HOP_MAX:6,            // 5 Sergeant Snowman: s tell to tell, one die a hop ("every 4-6 seconds instead of 7.5")
+  AS:0.5,                          // 6 his sword clock and his big snowball's clock x this ("twice as fast")
+  CLEAVE_R:130, CLEAVE_FAN:1.25, CLEAVE_CAP:0,   // 7 the swing's reach (KING_SW_TRIG: he swings only at a man it reaches) · its half-fan in rad (KING_SW_FAN) · 0 = every man inside (no cap)
+  DUEL:1, WOUND:0.25, DUEL_CD:1.0, DUEL_CD_LOST:2.6,   // 11 1 = he duels a blade Sarge · the share of his FULL bar a Sarge's winning slash takes · the beat before his next blow after a duel, and when he lost it
+  DUEL_GAP:46,                     // 11 px he stands further off than a man would (CARD-SWD's 54 px feet to feet is a man's: he is a big man, so the Sarge fences at his sword, not inside his legs)
+  POW_MIN:3, POW_MAX:5,            // 10 s between two of his powers, one die a cast ("every 3-5 seconds")
+  HOP_YIELD:2.2,                   // 10 his hop (CARD-KYS round 4) waits while a power is due inside this many s (a hop and its bounces take at most about 2 s)
+  CD:{ dash:8, heal:12, lance:10, halo:10, pop:10 },   // 9 each power's own cooldown, s (TK_CD: red 8, orange 12, yellow 10, blue 10)
+  ORDER:['dash','heal','lance','halo','pop'],          // his order ("Dash Slam, Healing Circle, The Lance, Halo, Force Pop")
+  DASH_SEEK:400, DASH_MAX:300, DASH_SHORT:44, DASH_T:0.32, DASH_TELL:0.45, DASH_R:72, DASH_REST:0.35,   // THE DASH SLAM: the eye, the longest lunge, he lands this short of the man, the lunge's clock, the tell, the slam ring, the breath after
+  HEAL_SEEK:300,                   // THE HEALING CIRCLE: a man this near (CARD-KYS's own eye, KING_TK_SEEK)
+  LANCE_LEN:336, LANCE_SPD:504, LANCE_HIT:34, LANCE_T:3,   // THE LANCE: 12 m out (YCR.lanceLen), 18 m/s (YCR.spd), the blade's reach on a man, the longest it may fly
+  HALO_R:112, HALO_T:4, HALO_W:6.5, HALO_GAP:0.7, HALO_HIT:34, HALO_SEEK:170,   // THE HALO: the circle (4 m round him: he is a big man), its 4 s (YCR.haloT), rad/s, once a man every 0.7 s (YCR.haloGap), the blade's reach, a man this near
+  POP_R:190, POP_WALL:0.4, POP_PUSH:160,   // THE FORCE POP: the pop's circle, the wall's 0.4 s (TK_BLUE_DEFL), the shove px
+  SRC_R:44,                        // 1 a knock is a snow unit's when one of the castle's bodies stands this near where it came from (or his own ball rolled there)
+  on:1, os:null, by:null, inLate:0, bl:[], seq:0,
+  n:{ tankHit:0, tankDent:0, tankOut:0, volley:0, over:0, dead:0, deadHold:0, aim:0, late:0, hop:0, seed:0, swing:0, cleaved:0, cleaveMulti:0, rest:0, plain:0, duel:0, duelCut:0, duelHop:0, reel:0, wound:0,
+     cast:0, wait:0, dash:0, slam:0, slamKO:0, heal:0, lance:0, halo:0, pop:0, popped:0, turned:0, blade:0, oneShot:0, heavyBlow:0 }, log:[], err:0, e:'' };
+KYD.on=(function(){ try{ const m=/[?&]kyd=([01])(?:&|$)/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_kyd','0'); else localStorage.removeItem('gvt_kyd'); } return localStorage.getItem('gvt_kyd')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-RTD's grammar)
+function kydErr(k,e){ KYD.err++; if(KYD.e.length<400) KYD.e+=k+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function kydLog(a){ if(KYD.log.length>=300) KYD.log.shift(); KYD.log.push([+((S && S.t)||0).toFixed(2)].concat(a)); }
+function kydParty(){ try{ return !!(S.coop || coopLaunching); }catch(e){ return false; } }
+function kydOn(){ try{ const R=S.raid; return !!((KYD.on===1 || kydParty()) && R && R.k==='ice' && R.cfg===S.cfg && KYD_TIERS[R.t] && !S.bf); }catch(e){ return false; } }   // THE ICE CASTLE, its four tiers (safe before this sec runs: the TDZ caught)
+function kydRoll(tag,f,n){ return rxRoll('kyd:'+tag+':'+rxDoorKey()+':'+swdSalt()+':'+(f? ((f.foN!=null)? (f.foN|0) : (f.id|0)) : 0)+':'+(n|0)); }   // THE ONE DIE on facts every sim of a party shares (the door, the party's code or the raid's start, the body's muster number, the count)
+function kydKingOn(f){ return !!(f && f.type==='kingyeti' && f.boss && !f.dead && kydOn()); }
+function kydManLive(u){ return !!(u && !u.dead && !(u.jetT>0) && !(u.dropT>0) && !u.falling && !(S.drag && S.drag.unit===u)); }
+// ── 1 THE TANKS' SNOW ARMOR ──
+const KYD_TANKS={ bftank:1, tank2:1, tank3:1 };   // our TANK, V2 TANK, V3 TANK
+function kydTank(u){ return !!(u && KYD_TANKS[u.type] && S.units.indexOf(u)>=0); }
+function kydSnowSrc(src){ return !!(src && (src===KYD.by || S.foes.indexOf(src)>=0)); }   // a round of one of the castle's bodies (every foe of the castle is a snow unit: the court, the snowmen, the pigs, the big yetis, the sergeants, the king)
+function kydSnowAt(x,y){ if(KYD.by) return true; if(!(isFinite(x) && isFinite(y))) return false; const R=KYD.SRC_R;
+  for(const f of S.foes){ if(!f.dead && Math.abs(f.x-x)<=R && Math.abs(f.y-y)<=R && Math.hypot(f.x-x,f.y-y)<=R) return true; }
+  if(S.gboul) for(const B of S.gboul){ if(B && !B.refl && !B.kref && Math.abs(B.x-x)<1 && Math.abs(B.y-y)<1) return true; }   // the Sergeant's rolling snowball knocks from its own spot
+  return false; }
+{ const t0=tanHit; tanHit=function(u,fx,fy,src,fire9){
+    if(!(KYD.TANK<1) || !u || u.dead || !KYD_TANKS[u.type] || !src || !kydSnowSrc(src) || !kydTank(u) || !kydOn()) return t0.apply(this,arguments);
+    const had=Object.prototype.hasOwnProperty.call(src,'pipN'), p0=src.pipN; src.pipN=((p0>0)? p0 : 1)*KYD.TANK; KYD.n.tankHit++;   // the round's pips at a quarter (the pip seat CARD-THP's grammar uses)
+    try{ return t0.apply(this,arguments); } finally{ if(had) src.pipN=p0; else delete src.pipN; } }; }
+{ const k0=knock; knock=function(u,sx,sy,rolled){
+    if(rolled===true || !(KYD.TANK<1) || !u || u.dead || !KYD_TANKS[u.type] || !kydTank(u) || !kydOn() || !kydSnowAt(sx,sy)) return k0.apply(this,arguments);
+    const h0=+(u.hits||0); let r, dent=false; u.hits=0;   // every save of the knock has its say; the dent it lands (one hit on the harness from zero) is read and laid on his own count at a quarter
+    try{ r=k0.apply(this,arguments); dent=!u.dead && (u.hits||0)>0.5; } finally{ if(!u.dead) u.hits=dent? h0+KYD.TANK : h0; }
+    if(dent){ u.hitT=0; KYD.n.tankDent++; if((u.hits||0)>=gritCap(u)-1e-6){ KYD.n.tankOut++; k0.call(this,u,sx,sy,true); } }   // the last of his harness: the knock's own rolled door (a machine with no grit left goes over)
+    return r; }; }
+// ── 2 THE ONE VOLLEY · 3 THE DEAD RING ──
+function kydTurOn(){ return !!((KYD.VOLLEY || KYD.DEAD) && kydOn()); }
+function kydTurPick(P){   // the nearest mark inside the post's reach and, with the dead ring, outside its ring (raidTick's own skip lists)
+  const lo=KYD.DEAD? RAID_CAP_R : -1; let best=null, bd=RAID_TUR_RNG;
+  if(P.o===1){ for(const f of S.foes){ if(f.dead || f.burrow || !(f.hp>0)) continue; const d=Math.hypot(f.x-P.x,f.y-P.y); if(d<=lo) continue; if(d<bd){ bd=d; best=f; } } }
+  else { for(const u of S.units){ if(u.dead || u.down || u.dropT>0 || u.jetT>0 || u.cloakT>0 || u.falling) continue; const d=Math.hypot(u.x-P.x,u.y-P.y); if(d<=lo) continue; if(d<bd){ bd=d; best=u; } } }
+  return best; }
+function kydGone(t,P){ return P.o===1? !!(t.dead || !(t.hp>0)) : !!(t.dead || kyfManOff(t)); }
+{ const f0=kyfFire; kyfFire=function(P,best,rd){
+    if(!kydTurOn()) return f0.apply(this,arguments);
+    let t=best; if(KYD.DEAD){ t=kydTurPick(P); if(t!==best) KYD.n.dead++; if(!t){ KYD.n.deadHold++; return true; } }   // nobody outside the ring: the gun holds (its trigger stays ready: the first mark that steps out or comes in reach takes the burst)
+    if(!KYD.VOLLEY){ return f0.call(this,P,t,rd); }
+    P.tur=kyfT(KYF_CD); const marks=[];
+    for(let r=0;r<TUR_ROUNDS;r++){ marks.push(t); if(!kydGone(t,P)) kyfRound(P,t); }   // all three into the one mark, the overkill spent on him
+    const q=(S.t-(P.kyfCue==null? -99 : P.kyfCue))>=KYF_CUE; if(q) P.kyfCue=S.t;
+    const L=SFX.laser; if(!q) SFX.laser=kyfNoop; try{ raidTurBurst(P,marks); } finally{ SFX.laser=L; }   // CARD-KYF's own burst painter and cue rate (CARD-KYS throws them as snowballs)
+    KYF.n.bursts++; KYD.n.volley++; return true; }; }
+{ const r0=raidTick; raidTick=function(dt){
+    const rd=S.raid, on=!!(rd && rd.posts && KYD.DEAD && kydOn()), A=on? rd.posts.map(P=>P.aim||0) : null;
+    const r=r0.apply(this,arguments);
+    if(on){ try{ rd.posts.forEach((P,i)=>{ if(!P.o || P.dead) return; const t=kydTurPick(P); P.turHot=!!t;   // the drum turns onto the mark it may shoot (raidTick's own ease), or holds still; the pilot light only with one
+        if(!t){ P.aim=A[i]; return; } const ga=Math.atan2((t.y-14)-(P.y-18.5), t.x-P.x); let d9=ga-A[i]; while(d9>Math.PI) d9-=Math.PI*2; while(d9<-Math.PI) d9+=Math.PI*2; P.aim=A[i]+d9*Math.min(1,dt*TUR_TRACK); KYD.n.aim++; }); }catch(e){ kydErr('aim',e); } }
+    try{ if(KYD.bl.length) kydBladeTick(dt); }catch(e){ kydErr('blade',e); }   // his yellow blades fly on the raid's own sim clock
+    return r; }; }
+// ── 4 THE POSTS OVER THE MINES: the crate layer's call is held, the posts are painted as the first actor (after the mines and the dog tags, under every man) ──
+function kydLate(){ return !!(KYD.OVER && !S.bf && kydOn()); }
+{ const d0=drawRaidPosts; drawRaidPosts=function(){ if(!KYD.inLate && kydLate()){ KYD.n.late++; return; } return d0.apply(this,arguments); }; }
+function kydPostsLate(){ KYD.inLate=1; try{ drawRaidPosts(); KYD.n.over++; }catch(e){ kydErr('late',e); } finally{ KYD.inLate=0; } }
+{ const o0=olvActors; olvActors=function(A){ const r=o0.apply(this,arguments); try{ if(Array.isArray(A) && S.raid && S.raid.posts && S.raid.posts.length && kydLate()) A.push({ y:-1e6+1, f:kydPostsLate }); }catch(e){ kydErr('act',e); } return r; }; }
+// ── 5 SERGEANT SNOWMAN'S HOP: the next tell 4 to 6 s after this one's ──
+function kydHopGap(f){ return KYD.HOP_MIN+kydRoll('hop',f,f.kysN|0)*Math.max(0,KYD.HOP_MAX-KYD.HOP_MIN); }
+{ const l0=kysLand; kysLand=function(f){ const r=l0.apply(this,arguments);
+    try{ if(f && KYD.HOP_MAX>0 && kydOn()){ const g=kydHopGap(f); f.kysT=Math.max(1, g-KYS_HOP_LOOK.wind-(f.kysFl||0)); f.kydHopG=+g.toFixed(3); KYD.n.hop++; } }catch(e){ kydErr('hop',e); }   // tell to tell (CARD-KYS's own measure); CARD-RZB's landing and first hop as they stand
+    return r; }; }
+// ── 6 TWICE AS FAST · 7 THE CLEAVE · 9 10 THE POWERS · 11 THE DUEL: King Yeti's kit ──
+function kydHeavy(u){ return !!(u && ((typeof KYF_HEAVY==='object' && KYF_HEAVY[u.type]) || (typeof BDC2==='object' && BDC2 && BDC2.heavy[u.type]) || (u.def && u.def.vehicle) || u.type==='sarge' || HEROES.indexOf(u.type)>=0)); }   // the heavies, the machines, Sarge and the heroes take the king's blow
+function kydSeed(f){ if(f.kydSeeded) return; f.kydSeeded=1; f.kySwCd=(f.kySwCd||0)*KYD.AS; f.fcx=(f.fcx||1)*KYD.AS; f.kydCd={}; KYD.ORDER.forEach((c,i)=>{ f.kydCd[c]=i*0.01; }); f.kydN=0; f.kydPowT=kydGap(f); f.kydWait=0; KYD.n.seed++; kydLog(['seed', f.foN|0, +f.kydPowT.toFixed(2)]); }   // his first frame: the shipped kit seeded his clocks, this card halves them; the first power one die in
+function kydGap(f){ return KYD.POW_MIN+kydRoll('pow',f,f.kydN|0)*Math.max(0,KYD.POW_MAX-KYD.POW_MIN); }
+function kydDuelSarge(f,u){ return !!(KYD.DUEL && SWD.on && u && u.type==='sarge' && SWD.kinds.sarge.is(u) && SWD.kinds.ky && SWD.kinds.ky.is(f)); }
+function kydDuelOpen(f,u){ const D=swdOpen(f,u,{ winA:'fell', winB:'wound', wound:KYD.WOUND, tag:'kyd' }); if(D){ KYD.n.duel++; kydLog(['duel', D.id, D.n, D.win]); } return D; }
+function kydCleave(f,m){   // his swing: every man inside its reach and fan (the shipped arc, so CARD-KYW reads which way it went)
+  const ang=Math.atan2(m.y-f.y,m.x-f.x), R=KYD.CLEAVE_R, FAN=KYD.CLEAVE_FAN, L=[]; let du=null;
+  S.fx.push({k:'arc',x:f.x,y:f.y-26,R:52,a0:ang-1.15,a1:ang+1.15,t:0,dur:0.34}); bfSfx(SFX.swish, f.x, f.y);
+  for(const u of S.units){ if(!kydManLive(u)) continue; const d=Math.hypot(u.x-f.x,u.y-f.y); if(d>R) continue;
+    let da=Math.abs(Math.atan2(u.y-f.y,u.x-f.x)-ang); if(da>Math.PI) da=Math.PI*2-da; if(da>=FAN) continue;
+    if(u.swd || u.swdRet) continue;   // a man in a duel or on his walk back is not cut (CARD-EBF's law)
+    if(!du && kydDuelSarge(f,u) && d<=SWD.OPEN){ if(f.swdRest>0 || u.swdRest>0){ KYD.n.rest++; continue; } du=u; continue; }   // the beat between two duels: nothing lands on him
+    L.push([d,u]); }
+  if(du){ if(kydDuelOpen(f,du)) KYD.n.duelCut++; else L.push([Math.hypot(du.x-f.x,du.y-f.y),du]); }   // his steel meets the Sarge's: the duel (a refused opening = the cut lands as on anyone)
+  if(KYD.CLEAVE_CAP>0 && L.length>KYD.CLEAVE_CAP){ L.sort((a,b)=>a[0]-b[0]); L.length=KYD.CLEAVE_CAP; }
+  const rz=(typeof RZB==='object' && RZB)? RZB : null, p=rz? rz.noCap : 0; if(rz && !(KYD.CLEAVE_CAP>0)) rz.noCap=1;   // a cleave is every man it reaches (CARD-RZB's own door for a blow that is not capped)
+  let n=0; try{ for(const q of L){ if(!q[1].dead){ knock(q[1],f.x,f.y); n++; } } } finally{ if(rz) rz.noCap=p; }
+  KYD.n.cleaved+=n; if(n>1) KYD.n.cleaveMulti++; }
+function kydSwingPre(f,dt){   // the shipped swing's own test one frame ahead: when it would fire, this section swings instead and sets both clocks for the shipped block's own dt
+  if(f.plWind>0 || f.plT>0 || f.kkFl || f.kkWind>0) return;   // a leap or a hop holds his kit (the swing block does not run)
+  const sw=(f.kySwing>0)? f.kySwing-dt : (f.kySwing||0);
+  if(!(f.kySwCd-dt<=0) || f.kyTk || sw>0) return;
+  if(f.kydDash){ f.kySwCd=Math.max(f.kySwCd,dt+1e-6); return; }   // mid-dash: the sword clock waits just above zero (the shipped block must not swing); the first frame after the dash swings
+  const m=kyNearMan(f,KING_SW_TRIG); if(!m) return;   // nobody in reach: the clock waits at zero, as shipped
+  kydCleave(f,m); f.kySwing=0.3+dt; f.kySwCd=KING_SW_CD*(f.swx||1)*KYD.AS+dt; KYD.n.swing++; }
+// THE POWERS
+function kydReason(f,c){ if(f.kydCd[c]>0) return null;
+  if(c==='dash') return kyNearMan(f,KYD.DASH_SEEK);
+  if(c==='heal'){ const m=kyNearMan(f,KYD.HEAL_SEEK); return (m && f.hp<f.hpMax && !(f.kysChanTo!=null && S.t<f.kysChanTo))? m : null; }   // CARD-KYS's own reason: a man near and his bar not full, never over a running channel
+  if(c==='lance'){ if(KYD.bl.some(e=>e.f===f && e.k==='lance')) return null; return kyNearMan(f,KYD.LANCE_LEN); }
+  if(c==='halo'){ if(KYD.bl.some(e=>e.f===f && e.k==='halo')) return null; return kyNearMan(f,KYD.HALO_SEEK); }
+  if(c==='pop') return kyNearMan(f,KYD.POP_R);
+  return null; }
+function kydBusy(f){ return !!(f.kydDash || (f.kydPop && f.kydPop.t>0) || f.kySwing>0 || f.kyTk || f.kyWave || f.kkFl || f.kkWind>0 || f.plWind>0 || f.plT>0); }   // one short act at a time
+function kydPowTick(f,dt){ if(!f.kydSeeded) return;
+  try{ kysCrysTick(f,dt); }catch(e){ kydErr('crys',e); }   // the running crystals (his Healing Circle's mend: CARD-KYS's channel)
+  if(f.kydDash) kydDashStep(f,dt);
+  if(f.kydPop) kydPopStep(f,dt);
+  for(const c of KYD.ORDER) f.kydCd[c]-=dt;
+  f.kydPowT-=dt;   // the clock runs through his hops: only the cast waits for the landing
+  if(f.plWind>0 || f.plT>0 || f.kkFl || f.kkWind>0) return;   // a leaping or hopping king casts nothing (the shipped leap law)
+  if(f.kydPowT>0 || kydBusy(f)) return;
+  let pick=null, pv=1e9, tg=null;
+  for(const c of KYD.ORDER){ const cd=f.kydCd[c]; if(cd>0 || cd>=pv) continue; const m=kydReason(f,c); if(!m) continue; pick=c; pv=cd; tg=m; }   // ready and with a reason: the one that has waited longest (ties: his order)
+  if(!pick){ if(!f.kydWait){ f.kydWait=1; KYD.n.wait++; } return; }   // nobody near: he waits for a man (never on air)
+  kydCast(f,pick,tg); f.kydCd[pick]=+KYD.CD[pick]||10; f.kydN=(f.kydN|0)+1; f.kydPowT=kydGap(f); f.kydWait=0; KYD.n.cast++; KYD.n[pick]++;
+  kydLog(['cast', pick, f.foN|0, Math.round(Math.hypot(tg.x-f.x,tg.y-f.y)), +f.kydPowT.toFixed(2)]); }
+function kydCast(f,c,m){ const RM=reducedMotion();
+  if(c==='dash'){ f.kydDash={ st:'tell', t:KYD.DASH_TELL, tg:m, fs:(m.x>=f.x)? 1 : -1 }; tkTellFx(f.x,f.y,tkHexOf('red')); bfSfx(SFX.tkgather,f.x,f.y); return; }   // THE DASH SLAM: the tell (the house's fairness law)
+  if(c==='heal'){ kysCast(f,'orange',m,null); return; }   // THE HEALING CIRCLE: CARD-KYS's own channel (CARD-KYA walks him through it)
+  if(c==='pop'){ const hx=tkHexOf('blue'); f.kydPop={ t:KYD.POP_WALL, n:0 }; S.fx.push({k:'ring',x:f.x,y:f.y-30,r:8,R:KYD.POP_R*0.5,t:0,dur:0.3,col:hx}); if(!RM) S.fx.push({k:'ring',x:f.x,y:f.y-30,r:4,R:KYD.POP_R*0.3,t:0,dur:0.22,col:'rgba(255,255,255,0.8)'}); bfSfx(SFX.snap,f.x,f.y); return; }   // THE FORCE POP: the wall goes up
+  const hx=tkHexOf('yellow'), e={ k:c, f:f, id:++KYD.seq, t0:S.t, x:f.x, y:f.y-40, ph:'out', tx:0, ty:0, ang:-Math.PI/2, hits:[], last:new Map(), tr:[] };   // THE LANCE / THE HALO: his blade of yellow light
+  if(c==='lance'){ const dx=m.x-f.x, dy=(m.y-16)-(f.y-40), d=Math.hypot(dx,dy)||1; e.tx=f.x+dx/d*KYD.LANCE_LEN; e.ty=(f.y-40)+dy/d*KYD.LANCE_LEN; }   // straight at his man and on past him, then home
+  else kydOrbit(e);
+  KYD.bl.push(e); S.fx.push({k:'ring',x:f.x,y:f.y-30,r:6,R:52,t:0,dur:0.3,col:hx}); if(!RM) S.fx.push({k:'ring',x:f.x,y:f.y-30,r:3,R:28,t:0,dur:0.22,col:'rgba(255,255,255,0.85)'}); bfSfx(SFX.swish,f.x,f.y); }
+function kydOrbit(e){ const f=e.f; e.x=f.x+Math.cos(e.ang)*KYD.HALO_R; e.y=f.y-16+Math.sin(e.ang)*KYD.HALO_R*0.6; }
+function kydDashStep(f,dt){ const P=f.kydDash; P.t-=dt; f.shot=0;   // his snowball's clock holds through the dash
+  if(P.st==='tell'){
+    if(!kydManLive(P.tg) || S.units.indexOf(P.tg)<0) P.tg=kyNearMan(f,KYD.DASH_SEEK);
+    if(P.tg) P.fs=(P.tg.x>=f.x)? 1 : -1;
+    if(P.t>0) return;
+    if(!P.tg){ f.kydDash=null; return; }   // nobody left to dash at: the tell lets go
+    const u=P.tg, dx=u.x-f.x, dy=u.y-f.y, d=Math.hypot(dx,dy)||1, dd=Math.min(KYD.DASH_MAX,Math.max(24,d-KYD.DASH_SHORT));
+    let tx=Math.max(60,Math.min(W-60,f.x+dx/d*dd)), ty=Math.max(84,Math.min(WORLD_H-104,f.y+dy/d*dd)); try{ const q=kysKFloor(tx,ty); tx=q.x; ty=q.y; }catch(e){}   // never nearer your toy box than his hop's floor
+    P.st='fly'; P.T=KYD.DASH_T*(0.55+0.45*dd/KYD.DASH_MAX); P.t=P.T; P.x0=f.x; P.y0=f.y; P.tx=tx; P.ty=ty; P.px=f.x; P.py=f.y; P.gn=0;
+    f.wkX=P.fs; f.wkT=S.t; bfSfx(SFX.swish,f.x,f.y); S.fx.push({k:'ring',x:f.x,y:f.y-16,r:60,R:8,t:0,dur:0.2,col:tkHexOf('red')}); return; }
+  if(P.st==='fly'){
+    const k=Math.min(1,1-P.t/P.T), s=k*k*(3-2*k), nx=P.x0+(P.tx-P.x0)*s, ny=P.y0+(P.ty-P.y0)*s; let wet=false; try{ wet=!!kbRvWater(nx,ny) && !kbRvWater(f.x,f.y); }catch(e){ wet=false; }
+    if(!voidAt(nx,ny) && !wet){ f.x=nx; f.y=ny; } f.airB=0; f.wkX=P.fs; f.wkT=S.t;
+    if(!reducedMotion()){ const gn=Math.floor((P.T-P.t)/0.035); if(gn>P.gn){ P.gn=gn; S.fx.push({k:'tracer',x1:P.px,y1:P.py-40,x2:f.x,y2:f.y-40,col:tkHexOf('red'),w:9,a:0.7,t:0,dur:0.22}); } P.px=f.x; P.py=f.y; }
+    if(k<1) return;
+    kydSlam(f); P.st='rest'; P.t=KYD.DASH_REST; return; }
+  if(P.t<=0) f.kydDash=null; }
+function kydSlam(f){ const R=KYD.DASH_R, hx=tkHexOf('red'), RM=reducedMotion(); let hit=0; const p=KYD.by; KYD.by=f;
+  try{ for(const u of S.units.slice()){ if(!kydManLive(u) || u.swd || u.swdRet) continue; if(Math.hypot(u.x-f.x,u.y-f.y)<=R+((u.def && u.def.w)||54)*0.3){ knock(u,f.x,f.y); hit++; } } } finally{ KYD.by=p; }   // every man in the ring: the king's knock (the castle prices it)
+  S.fx.push({k:'ring',x:f.x,y:f.y-16,r:8,R:R+20,t:0,dur:0.32,col:hx}); S.fx.push({k:'ring',x:f.x,y:f.y-16,r:4,R:Math.max(8,R-6),t:0,dur:0.22,col:'rgba(255,255,255,0.9)'});
+  S.fx.push({k:'flash',x:f.x,y:f.y-40,ang:1.57,R:RM? 20 : 40,lw:RM? 3 : 5,t:0,dur:0.14}); S.fx.push({k:'puff',x:f.x,y:f.y-6,t:0,dur:0.32,R:R});
+  if(!RM){ for(let dj=0;dj<12;dj++){ const da=(f.x*0.83+f.y*1.7+dj*0.5236)%6.283; S.fx.push({k:'wisp',x:f.x+Math.cos(da)*10,y:f.y-8+Math.sin(da)*6,col:hx,vx:Math.cos(da)*(46+((dj*29)%17)),vy:Math.sin(da)*22-14,up:20+(dj%3)*6,r0:2.2+(dj%2),r1:9+(dj%3)*2.25,t:0,dur:0.4}); } S.shake=Math.max(S.shake||0,0.4); }   // nem200Slam's own dress
+  bfSfx(SFX.tkslam,f.x,f.y); KYD.n.slam++; KYD.n.slamKO+=hit; }
+function kydPopStep(f,dt){ const P=f.kydPop; P.t-=dt; if(P.t>0) return; f.kydPop=null;
+  const hx=tkHexOf('blue'), sh={}; let n=0; const p=KYD.by; KYD.by=f;
+  try{ for(const u of S.units.slice()){ if(!kydManLive(u) || u.swd || u.swdRet) continue; if(Math.hypot(u.x-f.x,u.y-f.y)>KYD.POP_R) continue; tanHit(u,f.x,f.y,f); if(!u.dead) ggShove(u,f.x,f.y-18,f,sh,KYD.POP_PUSH); n++; } } finally{ KYD.by=p; }   // the slap (the Force Pop's one damage: a round) and the shove off him
+  S.fx.push({k:'tkarc',x:f.x,y:f.y,R:KYD.POP_R,t:0,dur:0.38,col:hx}); S.fx.push({k:'ring',x:f.x,y:f.y-14,r:10,R:KYD.POP_R,t:0,dur:0.34,col:hx});
+  bfSfx(SFX.jet,f.x,f.y); if(!reducedMotion()) S.shake=Math.max(S.shake||0,0.35); KYD.n.popped+=n; }
+// THE YELLOW BLADES: a non-heavy man falls in one stroke, a heavy takes the king's blow
+function kydBladeHit(f,u,x,y){ const one=!kydHeavy(u), rz=(typeof RZB==='object' && RZB)? RZB : null, p=rz? rz.noCap : 0, pb=KYD.by;
+  if(rz) rz.noCap=1; KYD.os=one? u : null; KYD.by=f;   // a blade is no blow of a crowd (CARD-RZB's door): each man it reaches is his own stroke
+  try{ knock(u,x,y); } finally{ KYD.os=null; KYD.by=pb; if(rz) rz.noCap=p; }
+  if(one) KYD.n.oneShot++; else KYD.n.heavyBlow++; KYD.n.blade++;
+  const hx=tkHexOf('yellow'); S.fx.push({k:'ring',x:u.x,y:u.y-16,r:4,R:26,t:0,dur:0.24,col:hx}); if(!reducedMotion()) S.fx.push({k:'flash',x:u.x,y:u.y-30,ang:0.6,R:12,lw:2.5,t:0,dur:0.16}); bfSfx(SFX.thock,u.x,u.y); }
+{ const k0=knockKill; knockKill=function(u,quiet){ if(KYD.os && KYD.os===u && !quiet && !u.dead){ const g=gritCap(u); if((u.hits||0)<g) u.hits=g; u.hitT=0; } return k0.apply(this,arguments); }; }   // the stroke reached the kill's door past every save: his bar is emptied first, so the castle's KO price (CARD-BDC2) lets the fall through
+function kydBladeEnd(e){ const f=e.f; if(f && !f.dead){ S.fx.push({k:'ring',x:f.x,y:f.y-40,r:3,R:16,t:0,dur:0.2,col:tkHexOf('yellow')}); } }
+function kydBladeTick(dt){ const L=KYD.bl;
+  for(let i=L.length-1;i>=0;i--){ const e=L[i], f=e.f;
+    if(!f || f.dead || S.foes.indexOf(f)<0 || f.swd || !kydOn()){ L.splice(i,1); continue; }
+    e.tr.push([e.x,e.y]); if(e.tr.length>7) e.tr.shift();
+    if(e.k==='halo'){ e.ang+=KYD.HALO_W*dt; kydOrbit(e);
+      for(const u of S.units){ if(!kydManLive(u) || u.swd || u.swdRet) continue; if(Math.hypot(u.x-e.x,(u.y-16)-e.y)>KYD.HALO_HIT) continue; const t9=e.last.get(u); if(t9!=null && S.t-t9<KYD.HALO_GAP) continue; e.last.set(u,S.t); kydBladeHit(f,u,e.x,e.y+16); }
+      if(S.t>=e.t0+KYD.HALO_T){ L.splice(i,1); kydBladeEnd(e); } continue; }
+    const back=(e.ph==='back'), tx=back? f.x : e.tx, ty=back? f.y-40 : e.ty, d=Math.hypot(tx-e.x,ty-e.y), st=KYD.LANCE_SPD*dt, at=(d<=st);
+    if(at){ e.x=tx; e.y=ty; } else { e.x+=(tx-e.x)/d*st; e.y+=(ty-e.y)/d*st; }
+    for(const u of S.units){ if(!kydManLive(u) || u.swd || u.swdRet || e.hits.indexOf(u)>=0) continue; if(Math.hypot(u.x-e.x,(u.y-16)-e.y)>KYD.LANCE_HIT) continue; e.hits.push(u); kydBladeHit(f,u,e.x,e.y+16); }   // a man on its path once a leg
+    if(at){ if(back){ L.splice(i,1); kydBladeEnd(e); continue; } e.ph='back'; e.hits=[]; bfSfx(SFX.snap,e.x,e.y); }
+    if(S.t>=e.t0+KYD.LANCE_T){ L.splice(i,1); kydBladeEnd(e); } } }
+// THE PICTURES (draw only: read, never written): the blades (CARD-YCR's own dress: the bar of yellow light, its white core, its afterimages, the halo's ring on the snow) and the Force Pop's wall
+function kydDraw(){ const L=KYD.bl, RM=reducedMotion(); let any=L.length>0; if(!any){ for(const f of S.foes){ if(f.kydPop){ any=true; break; } } } if(!any) return;
+  const hx=tkHexOf('yellow');
+  for(const f of S.foes){ const P=f.kydPop; if(!P || f.dead) continue; const q=Math.max(0,Math.min(1,P.t/KYD.POP_WALL)), bx=tkHexOf('blue'); cx.save(); cx.globalAlpha=0.18+0.22*q; cx.fillStyle=bx; cx.beginPath(); cx.ellipse(f.x,f.y-60,92,104,0,0,7); cx.fill(); cx.globalAlpha=0.7; cx.strokeStyle=bx; cx.lineWidth=3; cx.stroke(); cx.restore(); }   // the wall: a blue bubble round him while it stands
+  for(const e of L){ const f=e.f; if(!f || f.dead) continue;
+    if(e.k==='halo'){ cx.save(); cx.globalAlpha=0.45; cx.strokeStyle=hx; cx.lineWidth=2.5; cx.setLineDash([10,7]); cx.lineDashOffset=RM? 0 : -S.t*40; cx.beginPath(); cx.ellipse(f.x,f.y+3,KYD.HALO_R,KYD.HALO_R*0.6,0,0,7); cx.stroke(); cx.restore(); }
+    if(!RM && e.tr.length>1){ cx.save(); cx.lineCap='round'; cx.lineJoin='round'; const n=e.tr.length; for(let i=1;i<n;i++){ cx.globalAlpha=0.08+0.3*(i/n); cx.strokeStyle=hx; cx.lineWidth=4+7*(i/n); cx.beginPath(); cx.moveTo(e.tr[i-1][0],e.tr[i-1][1]); cx.lineTo(e.tr[i][0],e.tr[i][1]); cx.stroke(); } cx.restore(); }
+    let an; if(e.k==='halo') an=e.ang+Math.PI/2; else if(RM){ const p=e.tr.length>1? e.tr[e.tr.length-2] : null; an=p? Math.atan2(e.y-p[1],e.x-p[0]) : 0; } else an=S.t*20+e.t0*7;
+    const Lb=24, dx=Math.cos(an)*Lb, dy=Math.sin(an)*Lb;
+    cx.save(); cx.lineCap='round';
+    cx.globalAlpha=RM? 0.22 : 0.3; cx.strokeStyle=hx; cx.lineWidth=19; cx.beginPath(); cx.moveTo(e.x-dx,e.y-dy); cx.lineTo(e.x+dx,e.y+dy); cx.stroke();
+    cx.globalAlpha=1; cx.lineWidth=8; cx.beginPath(); cx.moveTo(e.x-dx,e.y-dy); cx.lineTo(e.x+dx,e.y+dy); cx.stroke();
+    cx.strokeStyle='#FFFFFF'; cx.lineWidth=3; cx.beginPath(); cx.moveTo(e.x-dx*0.85,e.y-dy*0.85); cx.lineTo(e.x+dx*0.85,e.y+dy*0.85); cx.stroke();
+    cx.fillStyle='#FFFFFF'; cx.beginPath(); cx.arc(e.x,e.y,3.2,0,7); cx.fill(); cx.restore(); } }
+{ const o0=ccnDrawOver; ccnDrawOver=function(){ const r=o0.apply(this,arguments); try{ if(kydOn()) kydDraw(); }catch(e){ kydErr('draw',e); } return r; }; }   // the world's top layer, over the men
+// THE KIND 'ky' for sec:CARD-SWD: King Yeti, the castle's boss, on the field
+function kydKingDuel(f){ try{ return !!(f && f.type==='kingyeti' && f.boss && !f.dead && f.hp>0 && S.foes.indexOf(f)>=0 && kydOn()); }catch(e){ return false; } }
+SWD.kinds.ky={
+  is:function(f){ return kydKingDuel(f); },
+  ok:function(f){ return kydKingDuel(f) && !f.kkFl && !(f.kkWind>0) && !f.kydDash && !(f.plT>0) && !(f.plWind>0) && f.x<W-10 && !f.burrow && !f.tease; },
+  hex:function(){ return '#6CBDF2'; },   // his sword's ice light (CARD-KYW's crescent)
+  lead:function(){ return SWD.HIT; },   // his arm goes with the beat: CARD-KYW's cold cut lands 0.22 s after the strike, the steel meets at 0.2
+  hold:function(f,o){ f.kySwing=0; if(f.kyTk){ const m=f.kyTk.u; if(m) m.kyHeldT=0; f.kyTk=null; } f.kyWave=null; f.kkWind=0; f.kkFl=null; f.kysLg=null; f.kydDash=null; f.kydPop=null; f.plWind=0; f.plT=0; f.airB=0; f.shot=0;
+    for(let i=KYD.bl.length-1;i>=0;i--){ if(KYD.bl[i].f===f){ kydBladeEnd(KYD.bl[i]); KYD.bl.splice(i,1); } } },   // the duel is his sword's alone: his blades go back to his hand, every short act lets go
+  free:function(f,o,D,why){ f.kySwing=0; f.kySwCd=Math.max(f.kySwCd||0,KYD.DUEL_CD); f.kydPowT=Math.max(f.kydPowT||0,KYD.DUEL_CD); if(f.kkT!=null) f.kkT=Math.max(f.kkT,1.5);
+    if(why==='b' && D){ f.swdRest=Math.max(f.swdRest||0,KYD.DUEL_CD_LOST); f.kySwCd=Math.max(f.kySwCd,KYD.DUEL_CD_LOST); f.kydPowT=Math.max(f.kydPowT,KYD.DUEL_CD_LOST); KYD.n.reel++; } },   // he lost the clash: his next blow waits and no new duel opens on him for that long (the Sarge has his walk back)
+  clamp:function(f,x,y){ try{ const D=SWD.live[f.swd]; if(D) x+=((f===D.a)? -D.fs : D.fs)*KYD.DUEL_GAP; }catch(e){} let p={ x:Math.max(60,Math.min(W-60,x)), y:Math.max(84,Math.min(WORLD_H-104,y)) }; try{ p=kysKFloor(p.x,p.y); }catch(e){} return p; },   // half a body further off the Sarge (KYD.DUEL_GAP); never off his band, never nearer your toy box than his hop's floor
+  face:function(f,fs){ f.wkX=fs; f.wkT=S.t; },
+  swing:function(f,fs){ f.kySwing=0.3; const a=(fs>0)? 0 : Math.PI; S.fx.push({k:'arc',x:f.x,y:f.y-26,R:52,a0:a-1.15,a1:a+1.15,t:0,dur:0.34}); bfSfx(SFX.swish,f.x,f.y); },   // CARD-KYW paints his whole swing off kySwing's rising edge and this arc's side
+  lock:function(){},
+  fell:function(f,by){ if(f.dead) return; f.hp=0; hitCheck(f,by); },
+  wound:function(f,by,share){ if(f.dead) return; f.hp=Math.max(0,f.hp-f.hpMax*share); KYD.n.wound++; try{ critFx(f); }catch(e){} S.fx.push({k:'ring',x:f.x,y:f.y-50,r:8,R:64,t:0,dur:0.3,col:SWD.kinds.sarge.hex(by)}); kydLog(['wound', +share, Math.round(f.hp)]); hitCheck(f,by); },   // the bar's own door
+  retreat:function(){}
+};
+{ const d0=drawKing; drawKing=function(e,x,y,w,wob,seatFoe,defFl){   // THE HELD CLASH, draw only: CARD-KYW's own puppet held at the moment his cut has landed (the blade driven low at the Sarge's), facing him (its state is a WeakMap beside the fighter: no sim field is written)
+    try{ if(seatFoe && e && e.swd && typeof KYW==='object' && KYW.on && typeof kywS==='function'){ const D=SWD.live[e.swd]; if(D && D.ph===3){ const s9=kywS(e); s9.T=S.t-KYW_T.set; s9.nw=0; s9.cold=0; s9.dir=(e===D.a)? D.fs : -D.fs; } } }catch(er){ kydErr('lock',er); }
+    return d0.apply(this,arguments); }; }
+function kydDuelFrame(f,dt){ f.shot=0; f.airB=0; if(f.kySwing>0) f.kySwing=Math.max(0,f.kySwing-dt); }   // the duel owns his frame: his snowball's clock holds, his swing's clock runs down for the next clash's rising edge
+// HIS KIT'S FRAME
+{ const k0=kingKitTick; kingKitTick=function(f,dt){
+    if(!kydKingOn(f)) return k0.apply(this,arguments);
+    try{ if(f.swdRest>0) f.swdRest-=dt; if(f.swd){ swdStep(f,dt); if(f.swd){ kydDuelFrame(f,dt); return; } } }catch(e){ kydErr('duel',e); f.swd=0; }
+    if(f.kyAbT==null){ const r=k0.apply(this,arguments); try{ kydSeed(f); }catch(e){ kydErr('seed',e); } return r; }   // his first frame: the shipped kit seeds its clocks, this card scales them
+    try{ if(!(f.kkFl || f.kkWind>0)) kysKingPre(f,dt); }catch(e){}   // the wheel's red seize and blue wave leave the wheel (CARD-KYS's own pre; its wrap calls it too: the second call finds nothing due)
+    try{ kydSwingPre(f,dt); }catch(e){ kydErr('swing',e); }
+    const r=k0.apply(this,arguments);
+    try{ kydPowTick(f,dt); }catch(e){ kydErr('pow',e); }
+    return r; }; }
+{ const p0=kysKingPost; kysKingPost=function(f,dt){ if(kydKingOn(f)) return; return p0.apply(this,arguments); }; }   // his powers are this card's clock (kydPowTick runs the running crystals itself): no seize, no wave, no vanish, no overdrive, no surge
+{ const b0=kysBusy; kysBusy=function(f){ if(kydKingOn(f) && f.kydSeeded && (f.kydDash || (f.kydPop && f.kydPop.t>0) || (f.kydPowT<KYD.HOP_YIELD && !(f.kydPowT<=0 && f.kydWait)))) return true; return b0.apply(this,arguments); }; }   // his dash and his wall hold the hop, and so does a power due inside KYD.HOP_YIELD s (the powers keep their 3 to 5 s; the hop takes the gap after a cast; a power waiting for a man never holds it)
+{ const a0=airMv; airMv=function(f,dt){ if(f && f.type==='kingyeti' && (f.kydDash || f.swd) && kydKingOn(f)){ f.airB=0; return 0; } return a0.apply(this,arguments); }; }   // the dash and the duel own his feet
+{ const h0=foeHalted; foeHalted=function(f,dt){ if(f && f.swd && f.type==='kingyeti' && SWD.live[f.swd]) return true; return h0.apply(this,arguments); }; }   // planted while he duels (the plant chain's head)
+{ const s0=kysKingStrike; kysKingStrike=function(f,u){   // the bounce's blow is his sword too: on a blade Sarge it opens the duel
+    try{ if(kydKingOn(f) && kydDuelSarge(f,u) && !u.swd && !u.swdRet && Math.hypot(u.x-f.x,u.y-f.y)<=SWD.OPEN && !(f.swdRest>0) && !(u.swdRest>0) && kydDuelOpen(f,u)){ KYD.n.duelHop++; return; } }catch(e){ kydErr('strike',e); }
+    return s0.apply(this,arguments); }; }
+{ const l0=kysKingLand; kysKingLand=function(f,F){ const r=l0.apply(this,arguments); if(f && f.swd && f.kkFl){ f.kkFl=null; } return r; }; }   // a duel opened on the landing ends the bounce's chain there
+// THE DAMAGE DOOR: the Force Pop's wall turns every round on him; a blade Sarge's swing on him opens the duel
+{ const h0=hurt; hurt=function(f,dmg,src,fire9){
+    if(!f || f.type!=='kingyeti' || !f.boss || !kydOn()) return h0.apply(this,arguments);
+    try{
+      if(f.kydPop && f.kydPop.t>0 && !SWD.blow && !(typeof pndThru==='function' && pndThru(src))){ KYD.n.turned++; const P=f.kydPop; P.n=(P.n|0)+1; if(!reducedMotion() || (P.n%3)===1){ const a=(P.n*2.399)%6.283; S.fx.push({k:'ring',x:f.x+Math.cos(a)*40,y:f.y-60+Math.sin(a)*46,r:3,R:15,t:0,dur:0.18,col:'#CDE6FF'}); } if((P.n%3)===1) bfSfx(SFX.snap,f.x,f.y); return; }   // turned on the wall (NEMESIS's spark)
+      if(src && !fire9 && src.type==='sarge' && kydDuelSarge(f,src)){
+        if(f.swd){ if(src.swd===f.swd) return; KYD.n.plain++; }   // he duels: his partner's steel lands nothing, another blade's swing lands plain
+        else if(src.swd || src.swdRet) return;
+        else if(Math.hypot(src.x-f.x,src.y-f.y)<=SWD.OPEN){ if(f.swdRest>0 || src.swdRest>0){ KYD.n.rest++; return; } if(kydDuelOpen(f,src)) return; } }
+    }catch(e){ kydErr('hurt',e); }
+    return h0.apply(this,arguments); }; }
+function kydRead(o){ o=o||{}; if(o.zero){ for(const k in KYD.n) KYD.n[k]=0; KYD.log.length=0; KYD.err=0; KYD.e=''; }
+  for(const k of ['TANK','VOLLEY','DEAD','OVER','HOP_MIN','HOP_MAX','AS','CLEAVE_R','CLEAVE_FAN','CLEAVE_CAP','DUEL','WOUND','DUEL_CD','DUEL_CD_LOST','POW_MIN','POW_MAX','HOP_YIELD','DUEL_GAP','DASH_SEEK','DASH_MAX','DASH_SHORT','DASH_T','DASH_TELL','DASH_R','DASH_REST','HEAL_SEEK','LANCE_LEN','LANCE_SPD','LANCE_HIT','LANCE_T','HALO_R','HALO_T','HALO_W','HALO_GAP','HALO_HIT','HALO_SEEK','POP_R','POP_WALL','POP_PUSH','SRC_R']) if(o[k]!=null && isFinite(+o[k])) KYD[k]=+o[k];
+  if(o.CD && typeof o.CD==='object'){ for(const c in o.CD){ if(c in KYD.CD && isFinite(+o.CD[c])) KYD.CD[c]=+o.CD[c]; } }
+  let king=null; try{ const f=S.foes.find(function(g){ return g.type==='kingyeti' && g.boss && !g.dead; }); if(f) king={ x:Math.round(f.x), y:Math.round(f.y), hp:+(+f.hp).toFixed(2), hpMax:+(+f.hpMax).toFixed(2), swd:f.swd|0, rest:+(f.swdRest||0).toFixed(2), swCd:+(+(f.kySwCd||0)).toFixed(2), swing:+(+(f.kySwing||0)).toFixed(2), swx:f.swx||1, fcx:f.fcx||1, powT:+(+(f.kydPowT||0)).toFixed(2), n:f.kydN|0, cd:f.kydCd? Object.assign({},f.kydCd) : null, dash:f.kydDash? f.kydDash.st : null, pop:f.kydPop? +f.kydPop.t.toFixed(2) : null, chan:(f.kysChanTo!=null && S.t<f.kysChanTo)? 1 : 0, cloak:+(f.cloakT||0).toFixed(2), van:f.kysVanTo!=null? 1 : 0 }; }catch(e){}
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:KYD.on, live:kydOn()? 1 : 0, party:kydParty()? 1 : 0, dials:{ TANK:KYD.TANK, VOLLEY:KYD.VOLLEY, DEAD:KYD.DEAD, OVER:KYD.OVER, HOP_MIN:KYD.HOP_MIN, HOP_MAX:KYD.HOP_MAX, AS:KYD.AS, CLEAVE_R:KYD.CLEAVE_R, CLEAVE_FAN:KYD.CLEAVE_FAN, CLEAVE_CAP:KYD.CLEAVE_CAP, DUEL:KYD.DUEL, WOUND:KYD.WOUND, POW_MIN:KYD.POW_MIN, POW_MAX:KYD.POW_MAX, CD:Object.assign({},KYD.CD), ORDER:KYD.ORDER.slice(), LANCE_LEN:KYD.LANCE_LEN, HALO_R:KYD.HALO_R, HALO_T:KYD.HALO_T, POP_R:KYD.POP_R, DASH_R:KYD.DASH_R },
+    n:Object.assign({},KYD.n), king:king, blades:KYD.bl.map(function(e){ return { k:e.k, id:e.id, ph:e.ph, x:Math.round(e.x), y:Math.round(e.y), t:+(S.t-e.t0).toFixed(2), hits:e.hits.length }; }), log:KYD.log.slice(-120), err:KYD.err, e:KYD.e,
+    key:(function(){ try{ return localStorage.getItem('gvt_kyd'); }catch(e){ return null; } })() }; };
+try{ GVT.kyd=kydRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && GVT.kyd!==kydRead) GVT.kyd=kydRead; }catch(e){} },0);   // the rigs' door (and again once the page has built GVT whole)
+// ═══ END CARD-KYD ═══
 // ═══ CARD-KRX2 · THE KING REX FIGHT PATCH: VOLCANIC DIRT, THE LEAP TO THE FAR END, THE TRICERATOPS HITS HARDER, THE LITTLE FIRE DINOS' FIRE AT THEIR SIZE, MEGA PHASE 2's HEALTH (sec:CARD-KRX2; design/king-rex-patch-1113/00-CARD-KRX2.md; jumpr 3349, built on Maker 1 as M3349) ═══
 // FROM WYATT 11/13/2026, typed on the Big Mac, verbatim: "Add the following patch for the King Rex fight. Here are notes." King Rex Changes: "- Change BG color to be more like volcanic dirt" "- During phase 2 transition King rex should
 // Leap in the air and jump to the far end of the screen. Currently he Teleports" "- Triceratops need to hit harder" "- Fire too big from little fire Dinos, needs to look good" "- Mega Phase 2 Rex needs x2 HP on all Hatch Eggs & all hatched
