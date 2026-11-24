@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.59","md5":"3657b20da82fd52c06a59476e2c2c242","sha":"687bee9627","at":"2026-11-24T18:54:22Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.60","md5":"00cdb85541770447a6b436764c4aa1f5","sha":"c84fd09d5b","at":"2026-11-24T19:17:20Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -49869,7 +49869,7 @@ let WORLD_H=600;
 // prediction, just a snappy one.
 const BASE_HP=70, DROP_T=2, MID_BUFFER=120, BF_MAX_TEAM=10;
 function bfWidth(team){ return 1920+(team-1)*128; }
-function bfClockFor(team){ return Math.min(150, 90+(team-1)*8); }
+function bfClockFor(team){ return Math.min(150, 90+(team-1)*8)+((NDT.on && team===1)? NDT.clock1 : 0); }   /* CARD-NDT: a 1 v 1 runs 105 s */
 // v2.88 2V2 BASE −30% (Wyatt 8/9, card 0239): "when you do a 2v2, the health of
 // both bases should be reduced by about 30" — winning PRETTY WELL should end a
 // 2v2 by razing before its 98s clock; only a genuinely even match should see
@@ -49902,6 +49902,27 @@ const BF_TYPES=['rifleman','mgunner','bazooka','mortar','minesweeper','flame','r
 // money so the playtested deploy cadence (a placement every 4-8s mid-game)
 // survives the switch: the old +1/10s on a 2-tag rifleman is +20/10s on a 40.
 // (…plus the two vehicles, at Wyatt's prices — the only BF-only line items.)
+// ═══ CARD-NDT THE NEW DOG TAGS (design/new-dog-tags-1124; the sheet and the playtest: design/dog-tag-lab-1124). Wyatt 11/24/2026, typed on Maker 1, verbatim: "We playtested and it was a success; implement live.
+// Increase the amount of time for the 1v1 battlegrounds matches by 15 seconds and increase overtime in all modes by 15 seconds." THE SHEET (his screenshot of 11/24, the numbers the playtest ran): the battleground's own
+// price list · every chair opens with 250 · 40 dog tags every 3 seconds, the same for every mode and map (the map, mode, side-size and group multipliers and the losing side's faster timer
+// are out: ndtX, NDT.trail) · NO BOUNTY for a kill · NO REFUND for a fallen unit · the last 30 seconds halve the payment time (the drip's own grammar already; the amount is never doubled) · ROUND 4 (his word the same day: "Cut the refund, cut the bounty for Campaign, and raise the starting purse to 250."): the campaign pays no refund for a fallen man (campRefund 0, the cave band's top-up too), mints no dog tag for a kill where its faucet pours (ndtNoKill), and a campaign level opens with 250 · ROUND 3 (his word the same day: "implement the changes for the campaign as well following our new unit costs for battlefield and the dog tag generation."): the campaign's price list is the sheet's too (COSTS; the bomber 300, the dogfighter 250 everywhere) and its faucet pours 40 every 3 s (was 20 every 3.33 s x the side-size and group multipliers); the campaign's kill tags, its half refund and each level's opening purse stand · ROUND 2 (his word the same day): the Desert's and the Tundra's extra pour of 30 every 5 s is out, and the coach's refund line is not said on a battleground.
+// + a 1 v 1's clock 90 -> 105 s (bfClockFor) · SUDDEN DEATH 30 -> 45 s on every battleground. The computer's difficulty income levers stand. THE OFF SWITCH: ?ndt=0 on a device (gvt_ndt '0'; ?ndt=1 back), read at load. ═══
+const NDT={ on:(function(){ try{ const q=/[?&]ndt=([01])(?:&|$)/.exec(location.search||''); if(q) localStorage.setItem('gvt_ndt', q[1]); return localStorage.getItem('gvt_ndt')!=='0'; }catch(e){ return true; } })(),
+  cost:{ rifleman:50, medic:50, spy:75, minesweeper:100, mgunner:100, radioman:75, grenadier:85, flame:100, bazooka:90, commando:110, mortar:120, bfjeep:200, jeep2:200, jeep3:200, bftank:300, tank2:300, tank3:300, dogfighter:250,
+    jane:200, kingcroak:210, kingyeti:220, kingrex:220, blackdragon:230, princess:210, kingbear:230, sarge:0 },   // King Kraken's cell is blank on the sheet: his 300 stands
+  bomber:300, start:250, tick:40, per:3, trail:1, clock1:15, sudden:45 };
+const NDT_PER=NDT.on? NDT.per : 10;          // the payment timer (s)
+const NDT_SUDDEN=NDT.on? NDT.sudden : 30;    // sudden death's clock (s)
+function ndtPrices(){ if(NDT.on){ Object.assign(COSTS, NDT.cost); Object.assign(BF_COST, NDT.cost); ndtWords(); } }   // ROUND 3: the campaign's list too (COSTS). At load and again at every battle's reset, every battleground's mint and every return to the room: the sweeper's two price cards and the late heroes' joins (the Dark Dragon, King Kraken) write BF_COST after load
+function ndtNoKill(){ return NDT.on && !!S.sq && !S.bf; }   // ROUND 4: no dog tag for a kill wherever the campaign's faucet pours (S.sq); the classic and rival doors have no faucet and keep their kill tags
+function ndtWords(){ if(NDT.w) return; const P=' (half his tags come home)', strip=v=>String(v).replace(/\s*[\uFF08(][^\uFF08()\uFF09]*[\uFF09)]/, '');   // ROUND 4: no refund anywhere, so the bazooka's backfire line loses its "(half his tags come home)": the English source and each language's row (its one parenthesis)
+  try{ for(const L in TR){ const D=TR[L]; for(const k of Object.keys(D)){ if(k.indexOf(P)>=0){ const k2=k.split(P).join(''); if(D[k2]==null) D[k2]=strip(D[k]); } } } }catch(e){}
+  try{ for(const id in ENH_INFO){ const f=ENH_INFO[id]; if(f) for(const q in f){ if(typeof f[q]==='string' && f[q].indexOf(P)>=0) f[q]=f[q].split(P).join(''); } } NDT.w=1; }catch(e){} }   // the first call (at load) runs before ENH_INFO stands: done is marked only once the English source was reached
+function ndtX(st){ return NDT.on? 1 : bfTagX()*rtxTagX()*(st.human? gtxX() : 1); }   // the passive amount is what is paid: no multiplier on the drip
+function ndtCampX(){ return NDT.on? 1 : bfTagX()*rtxTagX()*gtxX(); }   // ROUND 3: the campaign's faucet pays the passive amount too (the side-size and group multipliers out; a special fight's own dial, the castles' third act, the Showdown, survival, stands)
+function ndtDfCost(){ return NDT.on? NDT.cost.dogfighter : COSTS.dogfighter; }   // the dogfighter (ROUND 3: the campaign too)
+function ndtBmbCost(){ return BMB_COST; }                                                  // the bomber strike (ROUND 3: BMB_COST itself is the sheet's 300 everywhere)
+// ═══ END CARD-NDT (its seams carry CARD-NDT) ═══
 const BF_COST   = Object.assign({}, COSTS, { bfjeep:320, bftank:500, jeep2:320, jeep3:320 /* CARD-BUG-1116 BUG 2 (Wyatt's phone 11/16/2026 3:50 PM, the Bug button): 330 -> 320 */ /* CARD-V3J */ /* CARD-FSQ: the jeep +80 */, tank2:500, tank3:500 /* CARD-OCR-B3 */ });   // 0278e: the V2 fields at the jeep's own price — the power is the prize, not a discount
 // every bounty on this board is exactly half the sticker price — the vehicles
 // keep the rule, so killing a tank funds a tank of your own eventually
@@ -49920,8 +49941,8 @@ function tscWall(){ return Math.round((Date.now()/1000)%TSC.wrap*100)/100; }   /
 function tscStale(cm){ if(!TSC.on || !cm || typeof cm.w!=='number' || !isFinite(cm.w)) return null; let d=tscWall()-cm.w; const h=TSC.wrap/2; if(d>h) d-=TSC.wrap; else if(d<-h) d+=TSC.wrap;
   const st=(d>TSC.fresh || d<-TSC.fresh); TSC.n[st? 'stale' : 'fresh']++; return st; }   // null = no wall clock on the word (an older build's): the hearer's old S.t rule judges it
 // ═══ END CARD-TSC ═══
-const BF_TICK   = 20;    // dog tags per 10s passive drip
-const BF_START  = 210;   // opening purse — the campaign's exact wallet
+const BF_TICK   = NDT.on? NDT.tick : 20; ndtPrices();   /* CARD-NDT: 40, and the battleground's price list */    // dog tags per 10s passive drip
+const BF_START  = NDT.on? NDT.start : 210;   /* CARD-NDT: 250 */   // opening purse — the campaign's exact wallet
 // ═══ 1003 THE DOG TAG BOOST (FM-GVT-TAGS-BOOST-01; Wyatt 9/14 ~20:45 EDT, verbatim: "…for the 1v1s, let's increase it by a solid 30% from the get-go … Let's do a 35% boost on Western World and a 15% boost on any
 // regular-size map. For a general long map, let's do 25." — a MODE factor × a MAP factor, as he said them): every dog tag a battlefields battle pays — the drip (bfTick), the Desert's pour, the bounty
 // (bfBounty) — reads ONE door, bfTagX(), the third of the one-grammar doors (iceP3TagX / momP3TagX: identity 1 wherever it does not apply). Per-sim off the room's own words (the team count + the map id
@@ -49947,7 +49968,7 @@ function bfTagX(){ const bf=S.bf; return bf? ((bf.team|0)===1? BF_TAGX_1V1 : BF_
 // countdown on their own clock, and rejecting theirs over a few hundred
 // milliseconds of lag would put a man on their carpet and not on ours.
 const BF_SARGE_DOWN = 10;
-const BF_REFUND=0.25, BF_HERO_BACK=10;   // CARD-BRH THE QUARTER BACK + THE HERO'S RETURN (Wyatt 10/26/2026 ~19:10 EDT, a hand session, verbatim: "If your units are killed, we want to refund 25% of their cost … if your hero scores in their enemy's toy box, your hero will be available to play again after a 10-second cooldown"): a man KILLED on the battleground pays his owner's seat a quarter of the price that seat paid (bfRefund at hitCheck's one death door; a leak is a score, not a kill) · a HERO who scores in their toy box is back on the tray after ten seconds (bfHeroScored at bfLeak starts the seat's clock; bfTick opens the royal latch again through bfHeroBack; a hero KILLED stays spent, the 8/16 once-per-battle law)
+const BF_REFUND=NDT.on? 0 : 0.25 /* CARD-NDT: no refund for fallen units */, BF_HERO_BACK=10;   // CARD-BRH THE QUARTER BACK + THE HERO'S RETURN (Wyatt 10/26/2026 ~19:10 EDT, a hand session, verbatim: "If your units are killed, we want to refund 25% of their cost … if your hero scores in their enemy's toy box, your hero will be available to play again after a 10-second cooldown"): a man KILLED on the battleground pays his owner's seat a quarter of the price that seat paid (bfRefund at hitCheck's one death door; a leak is a score, not a kill) · a HERO who scores in their toy box is back on the tray after ten seconds (bfHeroScored at bfLeak starts the seat's clock; bfTick opens the royal latch again through bfHeroBack; a hero KILLED stays spent, the 8/16 once-per-battle law)
 // THE ROOKIE'S SARGE — CARD-RS (jumpr 1247e-3, THE FIRST FIVE NOTES 9/25 card 3
 // of 3; Wyatt 9/25 ~3:50 pm at the Go Machine, a brand-new save on the served
 // v12.41, verbatim: "Increase Sarge's HP by 5 at level 1; and we'll sneaky
@@ -50734,7 +50755,7 @@ function emgTick(dt){
 // TRAY_ORDER / the mystery box — the tray, the pool, the medals and every
 // stock army are blind to it by construction, which IS the secret.
 const BMB_LVL=50;          // the 0090 slot (its rationale lives on that table)
-const BMB_COST=350;        // 0580 THE MOTOR POOL GOES TO WAR (Wyatt 8/26: "lower the cost of using the bomber to 350. It should be usable in Battlegrounds as well as campaign"): 350 a sortie — was Wyatt's "600 to play" (DOG TAGS, the vehicle ladder's rung above the tank's 500). THE ONE DIAL: the HUD digits, the shop line ({0}-templated ×7 — zero dict rows), the afford gray and the rig read this cell. The battleground was ALWAYS wired (every gate is S.bf||S.tanBase, the button draws in both HUD branches, the room relay word) — the lock was the PRICE: a desert night's purse tops near 470 on its 130-s clock (210 + 20 a drip), so 600 was never on call; 350 lights at the 7th drip, ~70 s in
+const BMB_COST=NDT.on? NDT.bomber : 350;   /* CARD-NDT round 3: 300 */        // 0580 THE MOTOR POOL GOES TO WAR (Wyatt 8/26: "lower the cost of using the bomber to 350. It should be usable in Battlegrounds as well as campaign"): 350 a sortie — was Wyatt's "600 to play" (DOG TAGS, the vehicle ladder's rung above the tank's 500). THE ONE DIAL: the HUD digits, the shop line ({0}-templated ×7 — zero dict rows), the afford gray and the rig read this cell. The battleground was ALWAYS wired (every gate is S.bf||S.tanBase, the button draws in both HUD branches, the room relay word) — the lock was the PRICE: a desert night's purse tops near 470 on its 130-s clock (210 + 20 a drip), so 600 was never on call; 350 lights at the 7th drip, ~70 s in
 const BMB_N=6;             // bombs in the stick
 const BMB_DMG=13.5;        // 0609 (Wyatt 8/28: "Bomber is too weak. Increase its damage by 200%"): the ladder — 3 → 4.5 (0826, +50%) → 13.5 (this card, +200% = ×3; ⚑ Q1 a doubling would be 9 — one literal). A bomb = 13.5 vs the mortar's 1.5 and the mine's 3; the stick (BMB_N/BMB_LOAD), the burst (BMB_R), the price (BMB_COST 350) and the wire word stand (the campaign sink is f.hp -= dmg, a float lane); the relay carries n·r only, so an ally's sim reads its OWN BMB_DMG — an old client's bomb lands lighter on its own screen, the two-sims law already tolerates it
 const BMB_R=70;            // burst radius — between the mortar's 60 and the mine's 90
@@ -50786,7 +50807,7 @@ function bmbAloft(){ return !!(S.planes && S.planes.some(p=>p.mine && !p.gone));
 function bmbReady(){
   return !!(bmbOnCall() && S.mode==='play' && (S.bf || S.tanBase || hrdOn() || brbRaid())   /* CARD-HRD: the horde's run has no crate — the bomber still flies */   /* CARD-BRB: and a boss raid has none either (Wyatt: "You should be able to use the bomber in boss fights.") */
     && !(S.bf && (S.bf.resolved||S.bf.ending))
-    && !bmbAloft() && S.plastic>=BMB_COST);
+    && !bmbAloft() && S.plastic>=ndtBmbCost());
 }
 // The plane NEVER enters S.units: it never lands, never fights, never dies,
 // and must never be counted by sqMine, formations, leak, taps or medals. It
@@ -50924,7 +50945,7 @@ function bmbTick(dt){
 }
 function bmbCall(){
   if(!bmbReady()) return false;
-  S.plastic-=BMB_COST;
+  S.plastic-=ndtBmbCost();
   bmbSpawn(S.bf? bfMyTeam():null, S.bf? bfMySeat():null, true, bmbLoad(), bmbSpd(), bmbV2Owned());   // CARD-MCV2: the V2 flies every sortie once owned   // 0561a: the garage's stick and pace
   if(brbRaid()) S.floats.push(brbFloat()); else S.ann={txt:'BOMBER INBOUND!', t:2.4}; SFX.horn();   // raw key — the ann drawer TXT()s at draw (v1.29)   // CARD-BRB (Wyatt 10/22/2026: "please dont have these full screen alerts block gameplay like this moving forward when we are implementing anything new"): in a boss raid the word is a float at the toy box, never the centre banner (the float drawer TXT()s it the same way)
   if(S.coop) coopSend(bmbV2Owned()? {k:'bmb', n:bmbLoad(), r:bmbSpd(), t:'v2'} : {k:'bmb', n:bmbLoad(), r:bmbSpd()});   // CARD-MCV2 THE WIRE: + t:'v2' (a shipped CMD key, strings cut at 64: ZERO server bytes) so the ally's sim flies the same plane twice; an old build's ally ignores it   // k + the server-stamped p; 0561a: + the numbers it flew — n (the stick) and r (the pace) sit on the server's CMD_KEYS already (zero server change), so the ally's sim drops the same stick at the same pace (the two-sims law)
@@ -80845,8 +80866,8 @@ function dfLaunch(x,y,mine,o){ o=o||{}; if(!S.dfs) S.dfs=[]; const side=S.bf? (o
     hp:hp, hpMax:hp, dmg:(o.dmg>0)? Math.min(50,+o.dmg) : +(dfDmg()+(mine? pglDmg()+BOND_WAR.dmg*bondWarStack() /* CARD-OCR-B6: MY plane's round +2, flat (the word carries r); CARD-BWS: × the stack */ : 0)).toFixed(3) /* CARD-GGB PILOT GLOVES: MY plane's round +3 while Sarge wears them (the launch carries the number to a friend: r) */, base:V, oval:V, v2:!!(o.v2 || (mine && df2Owned())) /* CARD-OCR-B2: the face it flies: mine by the save, a friend's by the word (dfRelay) */, shots:0, airShots:0, boxShots:0, rounds:0, kills:0, hits:0, laps:0, down:null, by:null, gone:false, wob:((x*7+y*3)|0)%6 };   // gx · gy = the SHADOW on the carpet, alt = the height over it, x · y = the BODY in the air (what a gun aims at: the Corps' own grammar); hd = the heading (live in every state)
   p.src={ type:'dogfighter', def:UDEF.dogfighter, x:x, y:y, df:1, side:side, seat:seat };   // the strafe's shooter as hurt() reads one: a STUB (the bomber's law: no kills field, so no tally moves; never in S.units); on the battlefield it carries the side and the seat the bounty pays
   dfRows(p); S.dfs.push(p); dfLedger().launched++; bfSfx(SFX.prop,x,y); S.fx.push({k:'ring',x:x,y:y-6,r:10,R:46,t:0,dur:0.5,col:'rgba(191,227,154,0.9)'}); return p; }
-function dfDrop(x,y){ if(!dfOwned() || /* CARD-SKC NO LIMIT: the dfAloft() gate retired */ S.plastic<COSTS.dogfighter || (S.bf && (S.bf.resolved || S.bf.ending || !!(S.cfg && S.cfg.terrain && S.cfg.terrain.cq)))){ SFX.clack(); return null; }   // MY finger's drop (dropNew's seat): the purse, the launch, the word to a friend, the first time's card   // CARD-DF2: on the battlefield too (never on THE STARSHIP; never past the whistle)
-  S.plastic-=COSTS.dogfighter; const p=dfLaunch(x,y,true,{ hex:dyeHex()||GREEN }); S.placedAny=true;
+function dfDrop(x,y){ if(!dfOwned() || /* CARD-SKC NO LIMIT: the dfAloft() gate retired */ S.plastic<ndtDfCost() || (S.bf && (S.bf.resolved || S.bf.ending || !!(S.cfg && S.cfg.terrain && S.cfg.terrain.cq)))){ SFX.clack(); return null; }   // MY finger's drop (dropNew's seat): the purse, the launch, the word to a friend, the first time's card   // CARD-DF2: on the battlefield too (never on THE STARSHIP; never past the whistle)
+  S.plastic-=ndtDfCost(); const p=dfLaunch(x,y,true,{ hex:dyeHex()||GREEN }); S.placedAny=true;
   if(S.coop){ const w9={k:'dfl', x:Math.round(x), y:Math.round(y), n:p.hpMax, r:Math.round(p.dmg*100), w:p.spd, hex:p.hex}; if(p.v2) w9.t='v2'; coopSend(w9); }   /* CARD-OCR-B2: + t:'v2' when the V2 flies (CARD-MCV2's shipped CMD key, strings cut at 64: zero server bytes); the V1's word byte-still */   // the launch crosses with the numbers it flies (n the bar · r the round ×100 · w the pace · the owner's colour): every key on CMD_KEYS already
   premTry('dogfighter'); return p; }
 function dfRelay(cm){ const own=String(cm.p==null? '' : cm.p); if(!own) return; let side=null, seat=null;   // a friend's launch, off the relay: one aloft a commander (a replayed word folds); he paid on his own screen   // CARD-DF2: on the battlefield the server-stamped p is the SEAT (bmbRelay's own reading): his side is his chair's
@@ -92096,7 +92117,7 @@ const S = {
 };
 let idc=1;
 
-function reset(){
+function reset(){ ndtPrices();   /* CARD-NDT round 3 */
   S.plastic=170; S.lives=10; S.wave=0; S.waveActive=false; S.queue=[]; S.waveT=0;
   WORLD_H=H;      // only a tall map raises it (startBattlefield right after this wipe — or, 0197, a tall crate door via campGrandArm)
   T.y=300; T.x=130; FOE_BOT=H-12;   /* CARD-CFA-A: the chess fight seats the box on its stage (cfaBoxSeat); every battle door puts it home */   // 0197: the toy box and the foe floor snap home with the height — the tall crate door moves both to the waist
@@ -92218,7 +92239,7 @@ function startBattle(levelN, rival){
     buildFoeTint(rival.hex);
     S.ann={txt:'DEFEND THE ROOM!',t:2.2};
   } else {
-    S.plastic = 210;    // campaign: +40 dog tags to work with (Wyatt 7/24)
+    S.plastic = NDT.on? NDT.start : 210;    /* CARD-NDT round 4: 250 */ // campaign: +40 dog tags to work with (Wyatt 7/24)
     const fs=foeSkinHex(); if(fs) buildFoeTint(fs);   // v1.74: bake the green re-mold before the first Tan walks on
   }
   hideAllOverlays();
@@ -94673,7 +94694,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.60';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -105743,7 +105764,7 @@ function coopPanelSync(){
   if(!held) roomModal(coopPanelHTML());
 }
 
-function startBattlefield(mapId,diffOverride,teamSize,plan,rivX){
+function startBattlefield(mapId,diffOverride,teamSize,plan,rivX){ ndtPrices();   /* CARD-NDT */
   bfQueueTeardown();
   themeKill();   // v2.27: the menu theme stops the instant a game starts
   reset();                                     // invasion-style: wipe FIRST, then build the session
@@ -106484,7 +106505,7 @@ function bzbArm(bf, reason, fromRelay){ bf.bzbFuse=fromRelay? 0 : (reason==='tim
 function bzbShut(bf){ bf=bf||S.bf; if(!bf) return false; if(bf.resolved || (bf.ending && !bf.bzbFuse)) return true; const r=bf.bzbRef; return !!(r && !coopIsHost() && Date.now()-r.t<BZB.refMs); }
 function bzbMendHeld(){ const bf=S.bf; return !!(bf && (bf.phase==='sudden' || bzbShut(bf))); }   // the toy box's mend waits: the board is closed, or it is sudden death (the board is level until the first HIT)
 function bzbRing(bf, r9){ const mine=(bfMyTeam()==='foe')? (BF_FLIP[r9]||r9) : r9; if((mine==='time'||mine==='sudden'||mine==='edge') && !bf.jingled){ bf.jingled=true; SFX.victory(); } }   // the whistle's own ring, for a call the last step turned into this seat's win (bf.jingled: no path rings twice)
-function bzbLevel(bf){ bf.whistled=false; bf.ending=false; bf.jingled=false; S.slowmo=1; bf.phase='sudden'; bf.timeLeft=30; S.ann={txt:'SUDDEN DEATH · FIRST HIT WINS',t:3,warn:true}; SFX.horn(); }   // the last step levelled the board: the whistle is called off, SUDDEN DEATH (bfTick's own lines; the carpet runs again)
+function bzbLevel(bf){ bf.whistled=false; bf.ending=false; bf.jingled=false; S.slowmo=1; bf.phase='sudden'; bf.timeLeft=NDT_SUDDEN; S.ann={txt:'SUDDEN DEATH · FIRST HIT WINS',t:3,warn:true}; SFX.horn(); }   // the last step levelled the board: the whistle is called off, SUDDEN DEATH (bfTick's own lines; the carpet runs again)
 // a relayed verdict on a guest: the referee's board laid down again under the card (a beacon may have crossed it since bzbAdopt), and a KO's fallen box at 0 (the word is y-POV: 'ko' = the right box fell)
 function bzbSeat(bf, reason){ const r=bf.bzbRef; if(r && !coopIsHost() && Date.now()-r.t<BZB.refMs){ bzbSet(bf.base.you,r.y); bzbSet(bf.base.foe,r.f); } if(reason==='ko') bf.base.foe.hp=0; else if(reason==='koLoss') bf.base.you.hp=0; }
 // THE JUDGE AT THE CARD (bfWhistle's go): the word endBattlefield takes, or null when the card is called off (SUDDEN DEATH). A relayed word is the referee's and is never judged again; a word with no clock fuse
@@ -109922,8 +109943,8 @@ const VET_DMG_MUL=1.5, VET_GRIT=1;   // 0631 UPGRADE TRANSPARENCY: what the stri
 // so the army fund visibly fills between waves and the back-and-forth is
 // bankrolled. The battleground's own drip is untouched.
 const CAMP_TICK=BF_TICK;
-const CAMP_TICK_EVERY=10/3;
-function campRefund(t,vet){ return Math.round(COSTS[t]*(vet?1+VET_COST_MUL:1)*CAMP_REFUND); }
+const CAMP_TICK_EVERY=NDT.on? NDT.per : 10/3;   /* CARD-NDT round 3: the campaign's faucet every 3 s (CAMP_TICK is BF_TICK: 40) */
+function campRefund(t,vet){ if(NDT.on) return 0;   /* CARD-NDT round 4: no refund */ return Math.round(COSTS[t]*(vet?1+VET_COST_MUL:1)*CAMP_REFUND); }
 // THE FORWARD LINE survives only where there is no crate to take (the rival
 // sortie, the classic regression door): men advance to here and stand guard.
 const CAMP_FRONT_X=600;
@@ -110309,7 +110330,7 @@ function campUnitStep(u,dt){
 }
 
 // ================= BATTLEFIELD: CLOCK, ECONOMY, OPPONENT =================
-function bfBounty(type){ return Math.round((BF_BOUNTY[type]||1) * (S.bf&&S.bf.ot?2:1) * bfTagX() * tscKillX() /* CARD-TSC: 3 v 3 and up, half then a quarter after 30 s */); }   // 1003 THE DOG TAG BOOST: the bounty × the mode × the map (a rifleman 20 → 30 on a 1v1 regular map · King Croak 140 → 209) — the blob's own number (my seat) and the computer's purse credit both read this one seat
+function bfBounty(type){ if(NDT.on) return 0;   /* CARD-NDT: NO BOUNTY */ return Math.round((BF_BOUNTY[type]||1) * (S.bf&&S.bf.ot?2:1) * bfTagX() * tscKillX() /* CARD-TSC: 3 v 3 and up, half then a quarter after 30 s */); }   // 1003 THE DOG TAG BOOST: the bounty × the mode × the map (a rifleman 20 → 30 on a 1v1 regular map · King Croak 140 → 209) — the blob's own number (my seat) and the computer's purse credit both read this one seat
 function clampCam(x){ const vis=VW/zoomZ(), hi=(S.bf?WORLD_W:W)-vis; return hi>=0? Math.max(0, Math.min(hi, x)) : hi/2; }   // 0963: the visible world is VW/z wide; a view wider than the world centres it   // v1.98: the grand campaign rug pans too — its world is W (0..0 on every narrow rug)
 function clampCamY(y){ return Math.max(0, Math.min(WORLD_H-H, y)); }   // 0..0 on every map but the tall one
 // 0628 THE MAP PANS DOWN (FM-GVT-JUICE-01 §6 P4 — Wyatt: "allow panning the map downward"; ⚑ Q18: the battle rug): a FLAT rug
@@ -110828,7 +110849,7 @@ function bfTick(dt){
   // plus kill bounties. Whichever TEAM is behind on base damage ticks 25%
   // faster — symmetric, so it never reads as the computer cheating.
   const otm=bf.ot?2:1;
-  const boost={ you:(my<th?1.25:1), foe:(th<my?1.25:1) };
+  const ndtB=NDT.on? NDT.trail : 1.25, boost={ you:(my<th?ndtB:1), foe:(th<my?ndtB:1) };   /* CARD-NDT: no faster timer for the side behind */
   const inc=((BF_AI[bf.ai.diff]||{}).inc||1)*ffiOpInc(bf);        // the one visible handicap: enemy passive ticks slower on lower tiers · CARD-FFI R5 (Isaac 10/16 14:36): in the opener the Tan's drip x1.5 (fifty percent more men walk on)
   // ===== v2.43 THE DIRECTOR: the game reads the tide and works the gas =====
   // (Wyatt 8/5, the CPU speaking: "Hey, we're winning right now. Let's ease
@@ -110889,15 +110910,15 @@ function bfTick(dt){
     if(st.heroCd) for(const h in st.heroCd){ if(!(st.heroCd[h]>0)) continue; st.heroCd[h]=Math.max(0, st.heroCd[h]-dt);   // CARD-BRH THE HERO'S RETURN: the scoring hero's ten seconds, on the sim's own dt (Sarge's clock's law)
       if(st.heroCd[h]===0){ bfHeroBack(st.i,h); if(st.me){ const b=bf.base[bfMyTeam()]; S.floats.push({x:b.x+46, y:b.y-96, txt:TXT(heroName(h))+' READY!', t:0, col:'#BFE39A'}); SFX.ready(); bf.heroFlash=0.9; bf.heroFlashT=h; } } }   // the card flashes him back in, SARGE READY's own beat
     st.tagT += dt*otm*boost[st.team]*(st.team==='foe'? inc*gasFoe*(bf.nem?bf.nem.eff:1)*(bf.hard?HARD_INC:1) : 1);   // v2.43: the director's drip — identity (gas 1) wherever dirGain is 0. v3.12: NEMESIS pity is ONE lever — his income (and opening purse) at eff; it COMPOSES with inc and the director's gas (the mercy law: multiply, never assign)
-    if(st.tagT>=10){ st.tagT-=10;
-      const tick=Math.round(BF_TICK*bfTagX()*rtxTagX()*(st.human? gtxX() : 1));   /* CARD-FSQ: the recurring tags +9 % · CARD-RTX: not in a raid · CARD-TSZ: by the chairs a side (S.bf.team) · CARD-GTX: a human chair x0.95 in a group */   // 1003 THE DOG TAG BOOST: the drip × the mode × the map (a 1v1 on a regular map 30, a 2v2 there 25, a 1v1 on WESTERN LAND 35, the Desert 30) — every seat, the computers too (⚑ B-Q6); the float prints the boosted number
+    if(st.tagT>=NDT_PER){ st.tagT-=NDT_PER;   /* CARD-NDT: every 3 s */
+      const tick=Math.round(BF_TICK*ndtX(st) /* CARD-NDT */);   /* CARD-FSQ: the recurring tags +9 % · CARD-RTX: not in a raid · CARD-TSZ: by the chairs a side (S.bf.team) · CARD-GTX: a human chair x0.95 in a group */   // 1003 THE DOG TAG BOOST: the drip × the mode × the map (a 1v1 on a regular map 30, a 2v2 there 25, a 1v1 on WESTERN LAND 35, the Desert 30) — every seat, the computers too (⚑ B-Q6); the float prints the boosted number
       if(st.me){ S.plastic+=tick;
         S.floats.push({x:bf.base[bfMyTeam()].x+46,y:bf.base[bfMyTeam()].y-72,txt:'+'+tick,t:0,col:'#FFF3C4'}); }
       else st.purse+=tick;   // an allied commander's real purse lives on THEIR client
     }
-    if(bf.bd && BD_POUR_T>0 && BD_POUR>0 && !S.evHold && !st.empty){   // 0902 2.6 THE POUR (Wyatt: "give all players 30 dog tags every 5 seconds once the battle begins, because it's a long map"): every FIELDED chair, from the bell to the whistle, on its OWN clock beside the drip (tagT's beat and rate byte-still); the DOUBLE TAGS window doubles it (⚑ Q3); computers included (⚑ Q2); nothing in the hold (bfTick never runs there — belt and braces)
+    if(!NDT.on /* CARD-NDT round 2 (Wyatt 11/24: 'remove this', the Desert's and the Tundra's extra pour of 30 every 5 s): one income on every battleground */ && bf.bd && BD_POUR_T>0 && BD_POUR>0 && !S.evHold && !st.empty){   // 0902 2.6 THE POUR (Wyatt: "give all players 30 dog tags every 5 seconds once the battle begins, because it's a long map"): every FIELDED chair, from the bell to the whistle, on its OWN clock beside the drip (tagT's beat and rate byte-still); the DOUBLE TAGS window doubles it (⚑ Q3); computers included (⚑ Q2); nothing in the hold (bfTick never runs there — belt and braces)
       st.bdPourT=(st.bdPourT||0)+dt;
-      if(st.bdPourT>=BD_POUR_T){ st.bdPourT-=BD_POUR_T; const pour=Math.round(BD_POUR*otm*bfTagX()*rtxTagX()*(st.human? gtxX() : 1));   /* CARD-FSQ: +9 % · CARD-RTX: RTX-Q1 · CARD-GTX: a human chair x0.95 in a group */   // 1003 THE DOG TAG BOOST: the pour × the mode × the map (the Desert 6 a side on WESTERN LAND: 30 → 45; the DOUBLE TAGS window still doubles it)
+      if(st.bdPourT>=BD_POUR_T){ st.bdPourT-=BD_POUR_T; const pour=Math.round(BD_POUR*otm*ndtX(st) /* CARD-NDT */);   /* CARD-FSQ: +9 % · CARD-RTX: RTX-Q1 · CARD-GTX: a human chair x0.95 in a group */   // 1003 THE DOG TAG BOOST: the pour × the mode × the map (the Desert 6 a side on WESTERN LAND: 30 → 45; the DOUBLE TAGS window still doubles it)
         if(st.me){ S.plastic+=pour; S.floats.push({x:bf.base[bfMyTeam()].x+46,y:bf.base[bfMyTeam()].y-72,txt:'+'+pour,t:0,col:'#FFF3C4'}); }   // the drip's own float grammar — one every five seconds reads as income, not spam
         else st.purse+=pour; }
     }
@@ -110930,7 +110951,7 @@ function bfTick(dt){
       const z9=bzbLead(bf);   // CARD-BZB: the judge reads THE BOARD (the digits the card prints), not the damage book; the same read is made again when the card is dealt (bzbCall)
       if(z9>0) bfWhistle('time');   // 0552b D7: THE WHISTLE — the ring at the tick, the card BF_TIME_LEAD later
       else if(z9<0) bfWhistle('timeLoss');
-      else { bf.phase='sudden'; bf.timeLeft=30; S.ann={txt:'SUDDEN DEATH · FIRST HIT WINS',t:3,warn:true}; SFX.horn(); }
+      else { bf.phase='sudden'; bf.timeLeft=NDT_SUDDEN; S.ann={txt:'SUDDEN DEATH · FIRST HIT WINS',t:3,warn:true}; SFX.horn(); }
     } else {
       // never a flat draw: it goes to whoever has a man deepest in enemy ground
       let dy=0, df=0;
@@ -111049,7 +111070,7 @@ OpponentBrain.prototype.decide=function(view,budget){
   // to 0. The right question is "am I nearly there already", so the fund is a
   // short top-up after a fat bounty, never a hunger strike. Drip-only estimate
   // (bounties stop while it holds), so it under-buys rather than over-banks.
-  const drip=(BF_TICK/10)*(view.overtime?2:1)*(this.d.inc||1);
+  const drip=(BF_TICK/NDT_PER)*(view.overtime?2:1)*(this.d.inc||1);   /* CARD-NDT */
   const canFund=(t)=>{
     const fill=(BF_COST[t]-budget)/drip;                    // seconds of holding fire
     return fill <= Math.min(26, view.timeLeft*0.30) && (view.timeLeft-fill) >= 30;
@@ -126349,7 +126370,7 @@ function update(dt){
   if(S.sq && S.mode==='play' && !S.bf){
     S.tagT+=dt;
     if(S.tagT>=CAMP_TICK_EVERY){ S.tagT-=CAMP_TICK_EVERY;   // v1.40: three pours where there was one — “about three times faster income”
-      const pour=smtTagV(Math.round(((S.raid && S.raid.t==='u')? EV_TICK_U : CAMP_TICK)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()*rtxTagX()*gtxX()*bbsTagX()));   /* CARD-BBS-C5 THE DOG TAG MODIFIER: x BBS_TAGX[p] in the Showdown (bbsTagX; 20 -> 11 at four, 6 at ten; the house's x0.95 on top) */   /* CARD-SMT: ×0.3 in a survival run (smtTagV), identity everywhere else */   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   /* CARD-FSQ: the faucet +9 % · CARD-RTX: x1 in a raid · CARD-TSZ: by the commanders at the table (S.sq.p) · CARD-GTX: x0.95 in a group */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the faucet is gated !S.bf) · 0842 THE FAUCET CUT (the ADDENDUM, Wyatt 9/5 ~9:57 pm: "okay- lets do it."): the ULTRA MEGA room pours EV_TICK_U 15 (0824-NIGHT poured CAMP_TICK+10 = 30); everywhere else the same 20 it always was · 0648 D2: the castle's third act pours ×ICE_P3_TAGX (30; the 'u' room 23, was 45) — this float prints the poured number · 0662: ×momP3TagX rides for the one-grammar law — her fight never pours (S.sq stays null at startMomRaid), so the mom factor is provably 1 wherever this line runs
+      const pour=smtTagV(Math.round(((S.raid && S.raid.t==='u')? EV_TICK_U : CAMP_TICK)*iceP3TagX()*kyuTagX()*momP3TagX()*ndtCampX() /* CARD-NDT round 3 */ *bbsTagX()));   /* CARD-BBS-C5 THE DOG TAG MODIFIER: x BBS_TAGX[p] in the Showdown (bbsTagX; 20 -> 11 at four, 6 at ten; the house's x0.95 on top) */   /* CARD-SMT: ×0.3 in a survival run (smtTagV), identity everywhere else */   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   /* CARD-FSQ: the faucet +9 % · CARD-RTX: x1 in a raid · CARD-TSZ: by the commanders at the table (S.sq.p) · CARD-GTX: x0.95 in a group */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the faucet is gated !S.bf) · 0842 THE FAUCET CUT (the ADDENDUM, Wyatt 9/5 ~9:57 pm: "okay- lets do it."): the ULTRA MEGA room pours EV_TICK_U 15 (0824-NIGHT poured CAMP_TICK+10 = 30); everywhere else the same 20 it always was · 0648 D2: the castle's third act pours ×ICE_P3_TAGX (30; the 'u' room 23, was 45) — this float prints the poured number · 0662: ×momP3TagX rides for the one-grammar law — her fight never pours (S.sq stays null at startMomRaid), so the mom factor is provably 1 wherever this line runs
       S.plastic+=pour;
       S.floats.push(psfFloat('+'+pour));   // CARD-PSF (Wyatt 10/30: "the plus resources popup is really high"): the +N rises off the purse chip above the tray, in screen space — {166,280} was the toy box's v1.32 seat on a flat rug; a tall or grand rug's camera carried it into the sky
     }
@@ -130365,7 +130386,7 @@ function foeFell(f,u){
       // law, and a five-jack rug must never be a plastic faucet. Every other
       // death still drops the dog tag exactly as it always has.
       if(!(u&&u.side==='jax') && !FS_NOBLOB && !f.def.bubbleOf && !f.def.mine && oktPays(f,u))   /* CARD-OKT OWN KILLS, OWN TAGS: in a shared fight the tag drops on MY phone only for MY kill (a teammate's pays his own phone) */
-        S.blobs.push({x:f.x,y:f.y-8,v:smtTagV(Math.round(f.def.bounty*(f.bountyMul||1)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()*bbsTagX())),t:0});   /* CARD-BBS-C5 THE DOG TAG MODIFIER: the blob minted x BBS_TAGX[p] in the Showdown, its pickup pays that */   /* CARD-SMT: ×0.3 in a survival run (smtTagV, the remainder carried), identity everywhere else */   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the campaign's mint never runs under S.bf) · their dog tag — your bounty (0426: a foe burned dead in ground fire pays NOBODY — fire belongs to nobody, 0404, now at the ledger's last door; a pit fall keeps its v2.71 tag) · 0648 D2: the castle's third act pays ×ICE_P3_TAGX (iceP3TagX — identity 1 everywhere else) · 0662 Card I: MOM'S ROUND 3 pays ×MOM_P3_TAGX (momP3TagX — identity 1 everywhere else, the same one-door law)
+        if(!ndtNoKill() /* CARD-NDT round 4: no bounty in the campaign */) S.blobs.push({x:f.x,y:f.y-8,v:smtTagV(Math.round(f.def.bounty*(f.bountyMul||1)*iceP3TagX()*kyuTagX()*momP3TagX()*bfTagX()*bbsTagX())),t:0});   /* CARD-BBS-C5 THE DOG TAG MODIFIER: the blob minted x BBS_TAGX[p] in the Showdown, its pickup pays that */   /* CARD-SMT: ×0.3 in a survival run (smtTagV, the remainder carried), identity everywhere else */   /* CARD-KYU: x0.85 in the ULTRA room with 3+ real commanders */   // 1003 THE DOG TAG BOOST: ×bfTagX() the third door on the chain (identity here — the campaign's mint never runs under S.bf) · their dog tag — your bounty (0426: a foe burned dead in ground fire pays NOBODY — fire belongs to nobody, 0404, now at the ledger's last door; a pit fall keeps its v2.71 tag) · 0648 D2: the castle's third act pays ×ICE_P3_TAGX (iceP3TagX — identity 1 everywhere else) · 0662 Card I: MOM'S ROUND 3 pays ×MOM_P3_TAGX (momP3TagX — identity 1 everywhere else, the same one-door law)
       if(f.type==='crawler'){ META.stats.crawlerKills++; }
       if(f.boss){
         // a boss goes down LOUD: shake, a burst of smoke, and a victory shout
@@ -135200,7 +135221,7 @@ function drawCoach(){
   else if(coach.step===3){ }   /* CARD-FFG (FFR-Q2 at its REC; Wyatt 10/14: "We need the finger tells enough, and a lot of our players aren't going to be big readers" · "We're just going to use the finger"): the third pill OFF like the first two; the step and CARD-FFR's 2.2 s hold on the wave stand; the key's seven rows stand as orphans */
   else if(coach.step===4){
     // no finger — there is nothing to tap. The man tipped over; the pill says why.
-    if(coach.lostT>0){ coachPill(coach.lostSarge? 'SARGE IS DOWN. NOT FOR GOOD' : "HE'S DOWN FOR GOOD, BUT HALF HIS DOG TAGS COME BACK"); }   // 0494f (Wyatt 8/22: "it says 'Sarge is down for good' but that's not true"): a fresh Sarge is ready in BF_SARGE_DOWN seconds — the old line stays true for every other man (⚑ a second line A FRESH SARGE IN %1 SECONDS — NOT built)
+    if(coach.lostT>0 && !(NDT.on && !coach.lostSarge) /* CARD-NDT rounds 2 and 4 (Wyatt 11/24: 'remove the In-game text that mentions kill bounties or refunds', then 'Cut the refund ... for Campaign'): no refund anywhere, so HALF HIS DOG TAGS COME BACK is never said */){ coachPill(coach.lostSarge? 'SARGE IS DOWN. NOT FOR GOOD' : "HE'S DOWN FOR GOOD, BUT HALF HIS DOG TAGS COME BACK"); }   // 0494f (Wyatt 8/22: "it says 'Sarge is down for good' but that's not true"): a fresh Sarge is ready in BF_SARGE_DOWN seconds — the old line stays true for every other man (⚑ a second line A FRESH SARGE IN %1 SECONDS — NOT built)
   }   // 0668: step 5 paints NOTHING — the dog-tag toast is cut (Wyatt 9/1: "just absolutely cut out number five"); the step is the graduation gate alone
 }
 // 0871 THE WRONG SIDE OF THE LINE — the glove shows the way: from the refused drop point (world → screen through the flat rug's
@@ -139752,7 +139773,7 @@ function drawBmbBtn(x,y,bw,bh,K){
   cx.textAlign='center';
   cx.font=cf('bold '+Math.round(17*K)+'px');
   cx.fillStyle= on? '#FFF3C4':'#8b8f7a';
-  cx.fillText(BMB_COST, x+bw-24*K, y+bh-12*K);   // raw digits, l10n-exempt (the tray's prices)
+  cx.fillText(ndtBmbCost(), x+bw-24*K, y+bh-12*K);   // raw digits, l10n-exempt (the tray's prices)
   cx.fillStyle= on? CREAM:'#8b8f7a'; cx.font=cf('bold '+Math.round(12*K)+'px');
   fitText(cx, TXT('BOMBER'), x+bw/2, y+13*K, bw-6, 'bold', Math.round(12*K), Math.round(7*K));
 }
@@ -160941,7 +160962,7 @@ function tlfSay(line){   // Sarge's line in the yard: the gear lesson's slim con
   el.querySelector('.cm-txt').textContent=TXT(line); document.body.appendChild(el); TLT.say=el; tlfSaySeat(); void el.getBoundingClientRect(); el.classList.add('in'); try{ audio(); commChirp(); }catch(e){} }
 function tlfSaySeat(){ const el=TLT.say; if(!el) return; const nc=document.querySelector('#fortscene .fh-namecol'), r=nc? nc.getBoundingClientRect() : null; el.style.top=((r && r.height>0 && r.bottom<window.innerHeight*0.4)? Math.round(r.bottom+6) : 8)+'px'; el.style.left='50%'; }
 window.tlfProbe=function(){ return { on:TLT.on, leg:TLT.leg, arm:TLT.arm, at:TLT.at, say:TLT.sayK, door:tlfDoor(), lines:tlfLines(), shelf:flxShelfOn() }; };
-function showMenu(){
+function showMenu(){ ndtPrices();   /* CARD-NDT round 3 */
   LAND_N++;   // CARD-TP THE TOUR'S PACING: a landing (the tour's beats come one a landing — tourEndDue · labBeatDue read it)
   awayForfeit();   // 0393: an unresolved away battle folded at the door = the L on the record (the day burned at the serve; ⚑ forfeit rule)
   try{ gcfDoor(); }catch(e){}   // CARD-GCF THE DOOR: an unresolved computer torch fight folded back to the room = THE WALK-OUT (/ga/cpu won:0 how:walk — HQ's row is held again at once, the line dealt its turn)
@@ -218594,7 +218615,7 @@ function icn4TagX(){ const v=CAVES_TAGX[cavesTier()]; return (typeof v==='number
 function icn4RefX(){ const v=CAVES_REFUND[cavesTier()]; return (typeof v==='number' && isFinite(v) && v>0)? v : 0; }   // this tier's refund share (a tier the row lacks: 0 = the half alone)
 function icn4Books(u){ return !!(u && u.type!=='sarge' && !u.coopBy && !u.para && !u.emgV && !u.ckGift && !u.zomb && !u.floop); }   // knockKill's own books (the men a fall refunds), Sarge out: FREE
 function icn4Price(u){ const c=COSTS[u.type]; if(!(c>0)) return 0; try{ if(typeof capRung==='function' && capRung() && u.type===S.capLead) return 0; }catch(e){} return c*(u.vet? 1+VET_COST_MUL : 1); }   // what he cost: the drop's price (the hero in charge of a pair battle: free), a veteran's stripe in it
-function icn4Pay(u,got,nf){   // a man the band's drop just killed: top his half up to the whole sum
+function icn4Pay(u,got,nf){ if(NDT.on) return;   /* CARD-NDT round 4: no refund, so nothing to top up */   // a man the band's drop just killed: top his half up to the whole sum
   if(!icn4Books(u)){ ICN4.skip++; return; }
   const half=Math.round(campRefund(u.type,u.vet)*iceP3RefundX());   // knockKill's own refund, paid inside the call
   if(!(got>=half)){ ICN4.skip++; return; }   // the purse never took the half (a book this card does not know): nothing more
