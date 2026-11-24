@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.58","md5":"a4fd00df3d886bd13230a86e6f83d77e","sha":"e38041a035","at":"2026-11-24T18:38:38Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.59","md5":"3657b20da82fd52c06a59476e2c2c242","sha":"687bee9627","at":"2026-11-24T18:54:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94673,7 +94673,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.58';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.59';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -254390,13 +254390,18 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.bj2bdg) GVT.bj2bdg=bj2bdgRead;
 // THE HELD HAND-BACK (v2): iOS can end this page's process while the engine fights (the app's own handler loads the page again). The app holds the fight's end it
 //   could not hand back; a page that boots with the app's word asks for it once (k=held): a held end is replayed here, its head checked against the save this page
 //   holds now (a save that moved is refused, nothing written), and a fight still in hand is waited for. So a win is never lost to the page's process.
+// THE PAGE ASLEEP DRAWS NOTHING (v3; the web view's measure, the record's section 9 item 4): kept beside the engine's view, the page drew its own menu under it
+//   (7 % of a core in its process and 10 % in WebKit's GPU process, more than the engine's own 16 %). While the app holds a fight or a room the page's frames
+//   are HELD (requestAnimationFrame's callbacks kept, not run), and on every road back (a hand-back, the page's own door, a room's door) they are let go first.
+//   No visibility change: none of the page's hide hooks (sound, telemetry, the ads' count) runs. A hold left by an app that never came back ends by itself.
 // NAMES: HND_ON, HND, HND_MARKS, hndErr, hndWants, hndAsk, hndKnock, hndOwn, hndBack, hndReplay, hndFoot, hndSleep, hndHome, hndDoorStr, hndMarks, window.__GVTHAND;
+//   v3: HND_RAF, hndFrames;
 //   v2: HND_ROOM, hndRoomFacts, hndRoomOut, hndRoomBack, hndHeld;
 //   re-bound only when on: the solo battle doors of DET_DOOR (outermost, over card B's), detTickShut (the replay's foot) and showMenu (v2: its first call asks
 //   for a held end, every later one hands the room out while the app names it). Zero css, words, sw or pack bytes; no save key.
 var HND_ON=0;
 var HND_MARKS=['gvt_coach', 'gvt_fhint'];   // the device's marks a fight reads beside the save (the host's ask's storage)
-var HND=(function(){ const o={ on:0, why:'', e:'', n:0, down:0, own:0, cur:null, rp:null, last:null, app:null, room:null, st:{ asked:0, taken:0, refused:0, own:0, back:0, over:0, ended:0, replays:0, home:0, desync:0, err:0, rooms:0, roomBack:0, held:0 } };
+var HND=(function(){ const o={ on:0, why:'', e:'', n:0, down:0, own:0, cur:null, rp:null, last:null, app:null, room:null, st:{ asked:0, taken:0, refused:0, own:0, back:0, over:0, ended:0, replays:0, home:0, desync:0, err:0, rooms:0, roomBack:0, held:0, sleeps:0 } };
   try{ const q=String(location.search||'');
     if(/[?&]hand=0(?:&|#|$)/.test(q)) o.why='?hand=0';
     else if(!HND_ON && !/[?&]hand=1(?:&|#|$)/.test(q)) o.why='off';
@@ -254426,14 +254431,15 @@ function hndAsk(nm, D, a, self, f0){ const n=++HND.n, dargs=detDoorArgs(D, a), s
   const ask={ v:1, n:n, kind:'fight', cv:String(GVT_CV), door:hndDoorStr(nm, dargs), det:{ door:nm, dargs:dargs }, seed:seed, t0:t0, d0:d0, day:d0, zone:zone, sdig:detSaveDig(), save:JSON.stringify(META), storage:hndMarks() };
   HND.cur={ n:n, ask:ask, nm:nm, a:a, self:self, f0:f0, pass:FO_PASS|0, st:'asked', at:t0 }; HND.st.asked++;
   hndKnock('fight', n).then(function(j){ const C=HND.cur; if(!C || C.n!==n || C.st!=='asked') return;
-      if(j && (j.n|0)===n && j.taken===1){ C.st='taken'; HND.st.taken++; return; }
+      if(j && (j.n|0)===n && j.taken===1){ C.st='taken'; HND.st.taken++; hndFrames(1); return; }   // the engine has it: this page draws nothing under its view
       HND.st.refused++; hndOwn('the app did not take it: '+String((j && j.why) || 'no answer').slice(0, 120), 0, 0); })
     .catch(function(e){ const C=HND.cur; if(C && C.n===n && C.st==='asked'){ HND.st.refused++; hndOwn('the knock: '+String((e && e.message) || e).slice(0, 120), 1, 0); } });
   return n; }
-function hndOwn(why, down, home){ const C=HND.cur; HND.cur=null; if(down) HND.down=1; HND.st.own++; HND.last={ n:C? C.n : 0, end:'own', why:String(why).slice(0, 160), down:down? 1 : 0 };   // THE WAY BACK: the page's own door, as the player opened it
+function hndOwn(why, down, home){ hndFrames(0); const C=HND.cur; HND.cur=null; if(down) HND.down=1; HND.st.own++; HND.last={ n:C? C.n : 0, end:'own', why:String(why).slice(0, 160), down:down? 1 : 0 };   // THE WAY BACK: the page's own door, as the player opened it
   if(C && !C.held && S.mode!=='play'){ const p0=FO_PASS; HND.own=1; try{ FO_PASS=C.pass; C.f0.apply(C.self, C.a); }catch(e){ hndErr('own door', e); } finally{ FO_PASS=p0; HND.own=0; } }
   if(C && home) hndHome(C.n); }
 function hndBack(j){ try{ if(typeof j==='string') j=JSON.parse(j); }catch(e){ j=null; }
+  hndFrames(0);   // every hand-back: this page's frames first (the replay runs on them)
   if(j && typeof j==='object' && j.kind==='room') return hndRoomBack(j);
   const C=HND.cur; HND.st.back++;
   if(!C || !j || typeof j!=='object' || (j.n|0)!==C.n || C.st!=='taken'){ hndErr('back', 'a hand-back for no fight in hand ('+(j && typeof j==='object'? j.n : '?')+')'); return 0; }
@@ -254460,6 +254466,18 @@ function hndFoot(){ const R=HND.rp; if(!R || R.done || S.mode==='play') return; 
   HND.last={ n:R.n, end:'over', tick:R.tick, mode:R.mode, hash:R.hash, same:R.same, ms:R.ms, words:R.words };
   setTimeout(function(){ hndSleep(R); if(HND.rp===R) HND.rp=null; HND.st.home++; hndHome(R.n); }, 0); }
 function hndSleep(R){ if(!R || R.slept) return; R.slept=1; try{ DET.warp=R.warp; DET.every=R.every; if(R.ra){ if(typeof rlaAccOff==='function') rlaAccOff(); DET.ra=1; } }catch(e){ hndErr('sleep', e); } }   // card B's world back to its sleep
+var HND_RAF=null;   // v3: the page's frames held while the app holds its fight or its room
+function hndFrames(on){ try{
+    if(on){ if(HND_RAF) return; const raf0=window.requestAnimationFrame, caf0=window.cancelAnimationFrame, q=[];
+      const R=HND_RAF={ raf0:raf0, caf0:caf0, q:q, t0:performance.now(), safe:0 };
+      window.requestAnimationFrame=function(cb){ if(HND_RAF!==R) return raf0.call(window, cb); q.push(cb); return -q.length; };   // kept, not run: nothing drawn under the engine's view
+      window.cancelAnimationFrame=function(id){ if(HND_RAF===R && typeof id==='number' && id<0){ q[-id-1]=null; return; } return caf0.call(window, id); };
+      R.safe=setTimeout(function(){ if(HND_RAF===R){ hndErr('frames', 'held 15 minutes: let go'); hndFrames(0); } }, 900000);   // an app that never came back
+      HND.st.sleeps++; return; }
+    const R=HND_RAF; if(!R) return; HND_RAF=null; clearTimeout(R.safe);
+    window.requestAnimationFrame=R.raf0; window.cancelAnimationFrame=R.caf0; HND.sleptMs=Math.round(performance.now()-R.t0); HND.sleptHeld=R.q.length;
+    const q=R.q.splice(0); for(let i=0;i<q.length;i++) if(q[i]) R.raf0.call(window, q[i]);   // every loop the page had going, going again
+  }catch(e){ hndErr('frames', e); } }
 var HND_ROOM='bedroom';   // the room this page's menu is (F1's converted bedroom: its pads' doors are UI.room's)
 function hndRoomFacts(){ const F={}; const read=function(k, f){ try{ const v=f(); F[k]=(v===undefined)? null : v; }catch(e){ F[k]=null; } };   // the rows the bedroom's rules were written from, read by F1c's own expressions (design/eng2-convert-1116/f1c/rig/stateProbe.mjs)
   read('momDue', function(){ return momDue(); }); read('reducedMotion', function(){ return reducedMotion(); }); read('MAPPIN', function(){ return !!MAPPIN; });
@@ -254483,11 +254501,11 @@ function hndRoomOut(){ try{   // the menu stands: its room handed out by the sam
     const n=++HND.n, ask={ v:1, n:n, kind:'room', room:HND_ROOM, cv:String(GVT_CV), facts:hndRoomFacts() };
     HND.room={ n:n, ask:ask, st:'asked' }; HND.st.rooms++;
     hndKnock('room', n).then(function(j){ const R=HND.room; if(!R || R.n!==n || R.st!=='asked') return;
-        if(j && (j.n|0)===n && j.taken===1){ R.st='taken'; return; }
+        if(j && (j.n|0)===n && j.taken===1){ R.st='taken'; hndFrames(1); return; }
         HND.room=null; HND.last={ n:n, kind:'room', end:'own', why:String((j && j.why) || 'no answer').slice(0, 160), down:0 }; })   // the app does not show it: the page's own room stands (it is up)
       .catch(function(e){ const R=HND.room; if(R && R.n===n){ HND.room=null; HND.down=1; HND.last={ n:n, kind:'room', end:'own', why:'the knock: '+String((e && e.message) || e).slice(0, 120), down:1 }; } });
     return true; }catch(e){ hndErr('room', e); return false; } }
-function hndRoomBack(j){ const R=HND.room;
+function hndRoomBack(j){ hndFrames(0); const R=HND.room;
   if(!R || (j.n|0)!==R.n || R.st!=='taken'){ hndErr('back', 'a room\'s hand-back for no room in hand ('+j.n+')'); return 0; }
   HND.room=null; HND.st.roomBack++;
   if(j.end==='door' && typeof j.door==='string' && j.door){ HND.last={ n:R.n, kind:'room', end:'door', door:j.door, pad:String(j.pad||'') };
@@ -254499,7 +254517,7 @@ function hndHeld(){ try{   // THE HELD HAND-BACK: once, when this page stands, i
         if(!a || a.held!==1 || HND.cur || HND.rp){ if(HND.app.rooms.length) hndRoomOut(); return; }   // nothing held: the menu's room (when the app names it)
         const n=a.n|0; if(n>HND.n) HND.n=n;
         HND.cur={ n:n, ask:null, held:1, st:'taken', at:performance.now() }; HND.st.held++;
-        if(a.back) hndBack(a.back); })   // an end held: replayed now; a fight still in hand: its hand-back comes to this page
+        if(a.back) hndBack(a.back); else hndFrames(1); })   // an end held: replayed now; a fight still in hand: its hand-back comes to this page
       .catch(function(){}); }catch(e){ hndErr('held', e); } }
 if(HND.on){ try{
   for(const nm in DET_DOOR){ const D=DET_DOOR[nm], fn=D.fn||nm, f0=window[fn]; if(typeof f0!=='function' || f0.hndN) continue;
@@ -254513,7 +254531,7 @@ if(HND.on){ try{
   window.__GVTHAND={ v:1,
     ask:function(n){ const C=HND.cur, R=HND.room; if(R && R.n===(n|0)) return JSON.stringify(R.ask); return (C && C.n===(n|0) && C.ask)? JSON.stringify(C.ask) : ''; },   // the app reads the ask the page knocked for (a fight's or a room's)
     back:function(j){ try{ return hndBack(j); }catch(e){ hndErr('back', e); return 0; } },
-    state:function(){ return JSON.stringify({ on:HND.on, why:HND.why, down:HND.down, n:HND.n, cur:HND.cur? { n:HND.cur.n, st:HND.cur.st, held:HND.cur.held? 1 : 0 } : null, room:HND.room? { n:HND.room.n, st:HND.room.st } : null, rp:HND.rp? { n:HND.rp.n, tick:DET.tick, done:HND.rp.done } : null, last:HND.last, st:HND.st, e:HND.e }); } };
+    state:function(){ return JSON.stringify({ on:HND.on, why:HND.why, down:HND.down, n:HND.n, cur:HND.cur? { n:HND.cur.n, st:HND.cur.st, held:HND.cur.held? 1 : 0 } : null, room:HND.room? { n:HND.room.n, st:HND.room.st } : null, asleep:HND_RAF? { held:HND_RAF.q.length, ms:Math.round(performance.now()-HND_RAF.t0) } : null, sleptMs:HND.sleptMs||0, rp:HND.rp? { n:HND.rp.n, tick:DET.tick, done:HND.rp.done } : null, last:HND.last, st:HND.st, e:HND.e }); } };
 }catch(e){ HND.on=0; hndErr('lay', e); } }
 // ═══ END CARD-ENG2-E3-C2 ═══
 // ═══ CARD-BJ2-WWL · A WIN ON WESTERN LAND LANDS ON THE BATTLEFIELD, AS ON EVERY OTHER MAP (sec:CARD-BJ2-WWL; design/western-win-lands-1119/00-CARD-WWL.md; jumpr 3924, board M3924, built on the QuarterPounder; the side finding of CARD-BUG-1116 part 2, jumpr 3692 = M3692: design/bug-jump-p2-1116/cards/CARD-BJ2-WWL.md, seen on its base page in logs/side-western.out) ═══
