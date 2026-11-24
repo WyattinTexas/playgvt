@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.62","md5":"1a9d19c6b071d805b4fe551ca4220166","sha":"b1b8679cf3","at":"2026-11-24T20:59:59Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.63","md5":"894a481f7a2566159483b924d5bf90ac","sha":"c0c0cd56b9","at":"2026-11-24T21:21:50Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94694,7 +94694,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.62';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.63';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -216289,6 +216289,85 @@ try{ Object.assign(TR.ar||(TR.ar={}), {"TRY TRAINING GROUNDS":"جرّب ميدا
   Object.assign(TR.es||(TR.es={}), {"TRY TRAINING GROUNDS":"PROBAR EL CAMPO DE ENTRENAMIENTO", "The hangar is open, soldier. Swipe east and take a look.":"El hangar está abierto, soldado. Desliza al este y echa un vistazo."}); }catch(e){ FGT.err++; }   // the two new keys ×7
 try{ if(window.GVT && !GVT.fgt) GVT.fgt=fgtRig; }catch(e){ FGT.err++; }
 // ═══ END CARD-FGT ═══
+// ═══ CARD-FSL · FORT GREEN: WHAT IS NOT HIS YET STANDS AS A SILHOUETTE WITH A PADLOCK (sec:CARD-FSL; design/fort-silhouettes-1124/00-DESIGN-FSL.md). WYATT typed on Maker 1 11/24/2026, verbatim: "We want to have a black silhouette for each of the different artifacts in the scene that you can press into when they're not yet available, with a lock on it that follows our style guide. We also need to be able to scroll to the right so the players can see the hangar. The hangar will also be a black silhouette with a lock as well." ROUND 2: "we'll keep the black silhouettes ... It doesn't need to be over the promotions or anywhere on the wall ... Their current system is actually good ... those will just appear"; the plank as pictured ("hero bench ... unlocks when you get a hero"); the hangar redrawn, its lock "centered right in the middle"; the lab's lower, the roster's "in the middle of where they're firing", the bench's higher. ROUND 3: "can we make the sillouette color a bit better? It almost feels too black" -> "deep green #1. get this live. high priority".
+//   CARD-FGT's gates stand untouched (fgtOpen, FGT_LVL, fgtHolds: who opens when). What changes is the look of a CLOSED door of the YARD: FLOOP'S LAB, the ROSTER's range (its men and the wall's two sentries), the HERO BENCH, the PETS' pen and, on the east field, THE HANGAR stay painted, inked deep army green (38,48,35) by one svg filter, with their ground shadows; a brass padlock stands on each (the style guide's four rules: soft rims, light top and deeper foot, the keyhole flat, rich brass); the whole silhouette is one button: the clack, the lock rattles, a small wooden plank by it says the name and the way in for 2.6 s (nothing over the yard, no card).
+//   THE WALL keeps FGT's way: PROMOTIONS, TROPHIES and MEDALS are hidden, then they appear. THE EAST FIELD is dealt and the yard slides while the hangar is shut; only the building and its windsock are inked (the apron painted; the back roof and the door two lighter tones); FNX's wooden arrow stands at the yard's east edge until the field has been looked at once (META.first.fslEast, FSI's own ledger; no new save field). FGT's level-7 news (Sarge's line, its arrow, the shelf's NEW) is untouched.
+//   Four new keys x7. Zero server bytes, sw.js untouched, no Math.random. ?fsl=0 a device key (gvt_fsl) = CARD-FGT's yard as shipped; ?fsl=1 clears it. GVT.fsl() = the rigs' read + the levers { tap, hold }.
+var FSL={ on:(function(){ try{ const q=/[?&]fsl=([01])(?:&|$)/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_fsl','0'); else localStorage.removeItem('gvt_fsl'); } return localStorage.getItem('gvt_fsl')==='0'? 0 : 1; }catch(e){ return 1; } })(), v:1, err:0, last:null, taps:0, hold:0, open:null, tm:0, old:{} };
+(function(){
+  if(typeof FGT_MURALS!=='object' || typeof FGT!=='object') return;
+  const YARD=['flx','heroes','roster','pets'];                       // the doors that wear the ink (the wall's three keep FGT's hide)
+  const SEAT={ roster:[840,415] }, NUDGE={ flx:[0,24], heroes:[0,-20] };   // scene units: the range's lock in the middle of the firing · the lab's in the middle of its dome · the bench's sitting on the bench
+  const IK=[38,48,35], tone=(k,add)=>IK.map(v=>(Math.min(255, v*k+add)/255).toFixed(3)), TONES=[['fslK'].concat(tone(1,0)), ['fslK2'].concat(tone(1.35,26)), ['fslK3'].concat(tone(1.15,12))];   // the ink · the hangar's back roof · its door
+  const HG='html.fsl-on #fortBg.fgt-c-east .exr-east [data-fhg="hangar"] > ';
+  const LOCK='<svg class="fsl-pad" viewBox="0 0 40 48" aria-hidden="true"><defs><linearGradient id="fslB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd24a"/><stop offset="1" stop-color="#e09a1c"/></linearGradient><linearGradient id="fslS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2f5"/><stop offset="1" stop-color="#93a0ad"/></linearGradient></defs>'
+    +'<path d="M9 23 V14 a11 11 0 0 1 22 0 V23 h-5.6 V14 a5.4 5.4 0 0 0 -10.8 0 V23 Z" fill="url(#fslS)" stroke="#66727f" stroke-opacity=".55" stroke-width="1.2" stroke-linejoin="round"/>'
+    +'<path d="M11 13.4 a9 9 0 0 1 18 0" fill="none" stroke="#ffffff" stroke-opacity=".6" stroke-width="1.3" stroke-linecap="round"/>'
+    +'<rect x="3" y="20" width="34" height="26" rx="6" fill="url(#fslB)"/>'
+    +'<path d="M5.4 27 a4.6 4.6 0 0 1 4.6-4.6 h20 a4.6 4.6 0 0 1 4.6 4.6 v2.2 h-29.2z" fill="#fff1a6" opacity=".62"/>'
+    +'<path d="M3 37.5 h34 v2.5 a6 6 0 0 1-6 6 h-22 a6 6 0 0 1-6-6z" fill="#b9770f" opacity=".55"/>'
+    +'<rect x="3" y="20" width="34" height="26" rx="6" fill="none" stroke="#9a6a10" stroke-opacity=".55" stroke-width="1.2"/>'
+    +'<circle cx="20" cy="31.2" r="3.5" fill="#5a380e"/><path d="M18.4 32.4 h3.2 l1.1 6.8 h-5.4z" fill="#5a380e"/></svg>';
+  function fslOn(){ return !!FSL.on && fgtOn(); }
+  function how(id){ switch(id){   // the plank: the name, and the way in read off the game's own gates
+    case 'flx': return [t("FLOOP'S LAB"), tf('UNLOCKS AT LEVEL %1', FGT_LVL.flx)]; case 'east': return [t('THE HANGAR'), tf('UNLOCKS AT LEVEL %1', FGT_LVL.east)];
+    case 'roster': return [t('ROSTER'), tf('UNLOCKS AT CAMPAIGN LEVEL %1', PAINT_GIFT_LVL)]; case 'pets': return [t('PETS'), t('UNLOCKS WHEN YOU GET A PET')]; case 'heroes': return [t('HERO BENCH'), t('UNLOCKS WHEN YOU GET A HERO')]; } return ['', '']; }
+  function ink(sv){ if(!sv || sv.querySelector('#fslK')) return; const NS='http://www.w3.org/2000/svg';
+    TONES.forEach(tn=>{ const f=document.createElementNS(NS,'filter'); f.setAttribute('id',tn[0]); f.setAttribute('color-interpolation-filters','sRGB'); f.setAttribute('x','-5%'); f.setAttribute('y','-5%'); f.setAttribute('width','110%'); f.setAttribute('height','110%');
+      const m=document.createElementNS(NS,'feColorMatrix'); m.setAttribute('type','matrix'); m.setAttribute('values','0 0 0 0 '+tn[1]+'  0 0 0 0 '+tn[2]+'  0 0 0 0 '+tn[3]+'  0 0 0 1 0'); f.appendChild(m); sv.insertBefore(f, sv.firstChild); }); }
+  function union(els){ let b=null; els.forEach(e=>{ const r=e.getBoundingClientRect(); if(!(r.width>0 && r.height>0)) return; if(!b) b={ l:r.left, t:r.top, r:r.right, b:r.bottom }; else { b.l=Math.min(b.l,r.left); b.t=Math.min(b.t,r.top); b.r=Math.max(b.r,r.right); b.b=Math.max(b.b,r.bottom); } }); return b; }
+  function lockAt(bg, id, b, seat){ const r0=bg.getBoundingClientRect(), w=b.r-b.l, h=b.b-b.t, padH=Math.max(19, Math.min(Math.min(w,h)>150? 46 : 34, Math.min(w,h)*0.46)), pw=Math.max(w,44), ph=Math.max(h,44), cx=(b.l+b.r)/2-r0.left, cy=(b.t+b.b)/2-r0.top, f=fortFit(r0.width,r0.height); let ax=cx, ay=cy;
+    if(SEAT[id]){ ax=(SEAT[id][0]-f.ox)*f.s2; ay=(SEAT[id][1]-f.oy)*f.s2; } else if(NUDGE[id]){ ax=cx+NUDGE[id][0]*f.s2; ay=cy+NUDGE[id][1]*f.s2; } else if(seat){ ax=(seat.l+seat.r)/2-r0.left; ay=(seat.t+seat.b)/2-r0.top; }
+    const w2=how(id), el=document.createElement('button'); el.type='button'; el.className='fsl-lock'; el.id='fslLock-'+id; el.setAttribute('data-notr',''); el.setAttribute('aria-label', w2[0]+' · '+w2[1]);
+    el.style.left=(cx-pw/2)+'px'; el.style.top=(cy-ph/2)+'px'; el.style.width=pw+'px'; el.style.height=ph+'px';
+    el.innerHTML=LOCK.replace('class="fsl-pad"','class="fsl-pad" style="height:'+padH.toFixed(1)+'px;width:'+(padH*40/48).toFixed(1)+'px;left:'+(ax-(cx-pw/2)-padH*20/48).toFixed(1)+'px;top:'+(ay-(cy-ph/2)-padH/2).toFixed(1)+'px"');
+    el.onclick=function(e){ if(e && e.stopPropagation) e.stopPropagation(); FSL.tap(id); }; bg.appendChild(el); return el; }
+  function locks(){ try{ const bg=document.getElementById('fortBg'), sv=bg && bg.querySelector('svg.fhero'); if(!bg) return 0; bg.querySelectorAll('.fsl-lock,.fsl-tag').forEach(e=>e.remove()); if(!sv || !fslOn()){ bg.classList.remove('fgt-c-east'); cue(); return 0; }
+      ink(sv); const open=FSL.open; let n=0;
+      YARD.forEach(id=>{ if(!bg.classList.contains('fgt-c-'+id)) return; const b=union(Array.from(sv.querySelectorAll(FGT_MURALS[id][0]))); if(b){ lockAt(bg,id,b); n++; } });
+      const ex=bg.querySelector(':scope > .exr-east'), shut=!fgtOpen('east'); bg.classList.toggle('fgt-c-east', shut);
+      if(ex && shut){ ink(ex.querySelector('svg')); const A=q=>Array.from(ex.querySelectorAll(q)), face=union(A('[data-fhg="hangar"] > path:nth-child(7)')), hb=union(A('[data-fhg="hangar"] > path:nth-child(6),[data-fhg="hangar"] > path:nth-child(7)')); if(hb){ lockAt(bg,'east',hb,face); n++; } }
+      cue(); if(open && document.getElementById('fslLock-'+open)) FSL.tap(open, 1); else FSL.open=null; return n; }catch(e){ FSL.err++; FSL.last=String(e); return -1; } }
+  function eastSeen(){ try{ return !!fsiLedger().fslEast; }catch(e){ return true; } }
+  function eastMark(){ try{ const F=fsiLedger(); if(F.fslEast) return false; F.fslEast=1; saveMeta(); return true; }catch(e){ FSL.err++; return false; } }
+  function cue(){ try{ const sc=document.getElementById('fortscene'), b=document.getElementById('fslEast'), want=!!sc && fortSceneOpen() && fslOn() && !fgtOpen('east') && FXR.e>0 && !eastSeen() && FXR.x<FXR.e*0.5;   // the wooden arrow until the field has been looked at once
+      if(!want){ if(b) b.remove(); return false; } if(!b && typeof fnxEastHTML==='function') sc.insertAdjacentHTML('beforeend', fnxEastHTML().replace('id="fnxEast"','id="fslEast"').replace('class="fnx-east"','class="fnx-east fgt-east on"').replace('onclick="fnxPanEast(event)"','onclick="FSL.east(event)"')); return true; }catch(e){ FSL.err++; return false; } }
+  FSL.east=function(e){ eastMark(); const b=document.getElementById('fslEast'); if(b) b.remove(); return (typeof fnxPanEast==='function')? fnxPanEast(e) : false; };
+  FSL.tap=function(id, quiet){ try{ const bg=document.getElementById('fortBg'), el=document.getElementById('fslLock-'+id); if(!bg || !el) return false; if(!quiet){ FSL.taps++; try{ audio(); SFX.clack(); }catch(e){} el.classList.remove('rat'); void el.offsetWidth; el.classList.add('rat'); }
+      bg.querySelectorAll('.fsl-tag').forEach(e=>e.remove()); const pad=el.querySelector('.fsl-pad').getBoundingClientRect(), r0=bg.getBoundingClientRect(), w=how(id), tg=document.createElement('div'), up=(pad.top-r0.top)>120;
+      tg.className='fsl-tag '+(up? 'up' : 'dn'); tg.setAttribute('data-notr',''); tg.innerHTML='<b>'+escH(w[0])+'</b><i>'+escH(w[1])+'</i>'; tg.style.left=(pad.left+pad.width/2-r0.left)+'px';
+      try{ const pl=document.querySelector('#fbwHot .fh-sign, #fbwHot span, #fbwHot'); if(pl) tg.style.fontFamily=getComputedStyle(pl).fontFamily; }catch(e){}
+      bg.appendChild(tg); const th=tg.getBoundingClientRect().height; tg.style.top=(up? (pad.top-r0.top-th-9) : (pad.bottom-r0.top+9))+'px';
+      const tr=tg.getBoundingClientRect(), W=window.innerWidth||document.documentElement.clientWidth, edge=W-(document.getElementById('fslEast')? 66 : 6); if(tr.left<6) tg.style.left=(parseFloat(tg.style.left)+(6-tr.left))+'px'; else if(tr.right>edge) tg.style.left=(parseFloat(tg.style.left)-(tr.right-edge))+'px';
+      FSL.open=id; clearTimeout(FSL.tm); if(!FSL.hold) FSL.tm=setTimeout(function(){ FSL.open=null; if(tg.parentNode) tg.remove(); }, 2600); return true; }catch(e){ FSL.err++; FSL.last=String(e); return false; } };
+  // ── THE WRAPS (the CARD-FTS grammar: each once, the shipped function kept in FSL.old; FSL.on 0 = every wrap passes the call through)
+  try{ FSL.old.fgtShadows=fgtShadows; fgtShadows=function(bg){ if(!fslOn()) return FSL.old.fgtShadows.apply(this, arguments); let n=0; try{ const sv=bg && bg.querySelector('svg.fhero'); if(sv) sv.querySelectorAll('[data-fa="hang"]').forEach(e=>{ const nx=e.nextElementSibling, k=nx? (nx.getAttribute('data-fh')||'') : ''; if((k==='rankwall' && bg.classList.contains('fgt-c-promotions')) || (k==='wallcase' && bg.classList.contains('fgt-c-medals'))){ e.style.display='none'; n++; } }); }catch(e){ FSL.err++; } return n; }; }catch(e){ FSL.err++; }   // a silhouette keeps its ground shadow; the wall's two hang shadows still leave with their boards
+  try{ FSL.old.renderFortScene=renderFortScene; renderFortScene=function(){ const r=FSL.old.renderFortScene.apply(this, arguments); locks(); return r; }; }catch(e){ FSL.err++; }
+  try{ FSL.old.fortSceneLayout=fortSceneLayout; fortSceneLayout=function(){ const r=FSL.old.fortSceneLayout.apply(this, arguments); locks(); return r; }; }catch(e){ FSL.err++; }   // a turn of the phone re-seats the locks
+  try{ FSL.old.exrFortSync=exrFortSync; exrFortSync=function(bg, r, f){ if(fslOn() && !fgtOpen('east')){ try{ const ex=bg && bg.querySelector(':scope > .exr-east'); if(ex && ex.style.display==='none') ex.style.display=''; }catch(e){} return FGT.old.exrFortSync.apply(this, arguments); } return FSL.old.exrFortSync.apply(this, arguments); }; }catch(e){ FSL.err++; }   // THE FIELD SHUT: dealt and reachable all the same (FGT's own keep of the shipped sync)
+  try{ FSL.old.exrFortPan=exrFortPan; exrFortPan=function(){ const r=FSL.old.exrFortPan.apply(this, arguments); try{ if(fslOn() && fortSceneOpen() && !fgtOpen('east')){ if(FXR.e>0 && FXR.x>=FXR.e*0.5) eastMark(); cue(); } }catch(e){ FSL.err++; } return r; }; }catch(e){ FSL.err++; }   // a pan past half the reach = the field looked at
+  try{ document.documentElement.classList.toggle('fsl-on', !!FSL.on); const st=document.createElement('style'); st.id='fslCss'; st.textContent=YARD.map(id=>FGT_MURALS[id].map(q=>'html.fsl-on #fortBg.fgt-c-'+id+' '+q).join(',')+'{display:inline;filter:url(#fslK)}').join('')
+      +HG+'*:nth-child(n+6):not([data-fhg="hit"]){filter:url(#fslK)}'+HG+'path:nth-child(6){filter:url(#fslK2) !important}'+HG+'path:nth-child(10),'+HG+'rect:nth-child(11),'+HG+'rect:nth-child(12){filter:url(#fslK3) !important}'
+      +'#fslEast .fnx-eb,#fslEast .fnx-badge{display:none !important}.fsl-lock{position:absolute;z-index:6;margin:0;padding:0;border:0;background:none;display:block;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}'
+      +'.fsl-pad{display:block;position:absolute;filter:drop-shadow(0 1.5px 0 rgba(0,0,0,.45)) drop-shadow(0 0 5px rgba(255,214,90,.28));transform:translateZ(0);transform-origin:50% 12%}'
+      +'.fsl-lock.rat .fsl-pad{animation:fslRat .42s ease-in-out}@keyframes fslRat{0%,100%{transform:rotate(0)}20%{transform:rotate(-13deg)}45%{transform:rotate(11deg)}70%{transform:rotate(-6deg)}88%{transform:rotate(3deg)}}@media (prefers-reduced-motion:reduce){.fsl-lock.rat .fsl-pad,.fsl-tag{animation:none}}'
+      +'.fsl-tag{position:absolute;z-index:7;transform:translate(-50%,0);padding:5px 10px 5px;border-radius:6px;background:linear-gradient(#8a6238,#6a4522 58%,#583618);box-shadow:0 0 0 1.2px rgba(46,28,10,.55),0 2px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,226,170,.35);text-align:center;white-space:nowrap;pointer-events:none;animation:fslIn .16s ease-out}'
+      +'@keyframes fslIn{from{opacity:0;margin-top:4px}to{opacity:1;margin-top:0}}'
+      +'.fsl-tag b{display:block;color:#fff6df;font-weight:800;font-size:12px;letter-spacing:1.6px;text-shadow:0 1px 0 rgba(40,22,6,.7)}.fsl-tag i{display:block;margin-top:1px;font-style:normal;color:#ffd24a;font-weight:800;font-size:9px;letter-spacing:1px;text-shadow:0 1px 0 rgba(40,22,6,.7)}'
+      +'.fsl-tag:after{content:"";position:absolute;left:50%;margin-left:-5px;border:5px solid transparent}.fsl-tag.up:after{top:100%;border-top-color:#583618}.fsl-tag.dn:after{bottom:100%;border-bottom-color:#8a6238}';
+    document.head.appendChild(st); }catch(e){ FSL.err++; }
+  try{ Object.assign(TR.ar||(TR.ar={}), {"HERO BENCH":"مقعد الأبطال", "UNLOCKS WHEN YOU GET A HERO":"يُفتح عند حصولك على بطل", "UNLOCKS WHEN YOU GET A PET":"يُفتح عند حصولك على حيوان أليف", "UNLOCKS AT CAMPAIGN LEVEL %1":"يُفتح عند مستوى الحملة %1"});
+    Object.assign(TR.ja||(TR.ja={}), {"HERO BENCH":"ヒーローの ベンチ", "UNLOCKS WHEN YOU GET A HERO":"ヒーローを てにいれると かいほう", "UNLOCKS WHEN YOU GET A PET":"ペットを てにいれると かいほう", "UNLOCKS AT CAMPAIGN LEVEL %1":"キャンペーン レベル%1で かいほう"});
+    Object.assign(TR.ko||(TR.ko={}), {"HERO BENCH":"영웅의 벤치", "UNLOCKS WHEN YOU GET A HERO":"영웅을 얻으면 해금", "UNLOCKS WHEN YOU GET A PET":"펫을 얻으면 해금", "UNLOCKS AT CAMPAIGN LEVEL %1":"캠페인 레벨 %1에 해금"});
+    Object.assign(TR.zh||(TR.zh={}), {"HERO BENCH":"英雄长椅", "UNLOCKS WHEN YOU GET A HERO":"获得英雄后解锁", "UNLOCKS WHEN YOU GET A PET":"获得宠物后解锁", "UNLOCKS AT CAMPAIGN LEVEL %1":"战役第 %1 级解锁"});
+    Object.assign(TR.de||(TR.de={}), {"HERO BENCH":"HELDENBANK", "UNLOCKS WHEN YOU GET A HERO":"FREIGESCHALTET, SOBALD DU EINEN HELDEN HAST", "UNLOCKS WHEN YOU GET A PET":"FREIGESCHALTET, SOBALD DU EIN HAUSTIER HAST", "UNLOCKS AT CAMPAIGN LEVEL %1":"FREIGESCHALTET AB KAMPAGNEN-LEVEL %1"});
+    Object.assign(TR.ru||(TR.ru={}), {"HERO BENCH":"СКАМЬЯ ГЕРОЕВ", "UNLOCKS WHEN YOU GET A HERO":"ОТКРОЕТСЯ, КОГДА ПОЛУЧИШЬ ГЕРОЯ", "UNLOCKS WHEN YOU GET A PET":"ОТКРОЕТСЯ, КОГДА ПОЛУЧИШЬ ПИТОМЦА", "UNLOCKS AT CAMPAIGN LEVEL %1":"ОТКРЫВАЕТСЯ НА УРОВНЕ КАМПАНИИ %1"});
+    Object.assign(TR.es||(TR.es={}), {"HERO BENCH":"BANCO DE HÉROES", "UNLOCKS WHEN YOU GET A HERO":"SE DESBLOQUEA AL CONSEGUIR UN HÉROE", "UNLOCKS WHEN YOU GET A PET":"SE DESBLOQUEA AL CONSEGUIR UNA MASCOTA", "UNLOCKS AT CAMPAIGN LEVEL %1":"SE DESBLOQUEA EN EL NIVEL %1 DE CAMPAÑA"}); }catch(e){ FSL.err++; }   // the four new keys x7
+  function fslRig(o){ o=o||{}; try{ if(o.hold!=null) FSL.hold=o.hold? 1 : 0; if(o.tap) FSL.tap(o.tap); }catch(e){ FSL.err++; } const bg=document.getElementById('fortBg'), R=e=>{ const r=e.getBoundingClientRect(); return [r.left,r.top,r.width,r.height].map(v=>+v.toFixed(1)); }, tg=bg && bg.querySelector('.fsl-tag');
+    return { on:FSL.on, v:FSL.v, err:FSL.err, last:FSL.last, taps:FSL.taps, cls:bg? Array.from(bg.classList) : [], locks:bg? Array.from(bg.querySelectorAll('.fsl-lock')).map(e=>({ id:e.id.slice(8), box:R(e), pad:R(e.querySelector('.fsl-pad')) })) : [], tag:tg? [tg.querySelector('b').textContent, tg.querySelector('i').textContent, R(tg)] : null, fxr:{ x:FXR.x, e:FXR.e }, arrow:!!document.getElementById('fslEast'), east:bg? !!bg.querySelector(':scope > .exr-east') : false, seen:eastSeen() }; }
+  try{ if(window.GVT && !GVT.fsl) GVT.fsl=fslRig; }catch(e){ FSL.err++; }
+})();
+// ═══ END CARD-FSL ═══
 // ═══ CARD-BMT · THE BATTLEFIELD, THE LAYOUT ONLY (ISAAC 10/26/2026 by his guest link 13:17 + six rounds on WhatsApp; his go 14:27 "We like the one with the banner so go ahead and fully design, pass A, and push it"; J7, jumpr 2696; design/battlefield-mode-tabs-1026/00-DESIGN-BMT.md) ═══
 // The war table's pieces re-seated, nothing redrawn: TWO TABS over PLAY (1v1 lit by default, 2v2) = THE GAME MODE SELECTOR: a tap lights a tab and saves
 // META.bfMode; PLAY's tap queues the lit tab's size (UI.wtPlay wrapped by name: a 1 from PLAY becomes the lit tab's 2); the 2v2 GRAB AN ALLY pill goes; a party's
