@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.47","md5":"a628e7d43c7898a18a9a26857304b592","sha":"687b6a3b3b","at":"2026-11-24T04:57:29Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.48","md5":"30ea21edc8722ffa15e7fb9a7ac504e0","sha":"d69342ec67","at":"2026-11-24T05:28:23Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16837,12 +16837,12 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   function awHvy(j){ var t = j[0]; return awFes(t) * t.iw * t.ih >= HV_COST; }   // CARD-HMS's own line, by the drawing's OWN dots: such a drawing costs its whole price at any size it is made at
   function awStep(j, now){ var t = j[0]; if(!t.wd || t.ok) t.wd = now; QD.push(j); A.n.dear++; }   // into the slow line; its ROW's wait is counted from its first job that stepped in (a finished row that is asked for one more picture waits anew)
   function awBest(ok){ var b = -1, bn = 0, bw = 0; for(var i = 0; i < QD.length; i++){ var j = QD[i], t = j[0]; if(!ok(j)) continue; var n = t.nr > 0 ? 1 : 0; if(b < 0 || n > bn || (n === bn && t.wd < bw)){ b = i; bn = n; bw = t.wd; } } return b; }   // A ROW BEGUN IS FINISHED BEFORE ANOTHER IS BEGUN (a row reaches the shelf, and its drawing leaves the engine, only when all its pictures stand), then the row that has waited longest
-  function awRipe(now){ if(AFL && aflFight(now)){ A.n.aflHeld++; return -1; } var idle = AFL ? aflIdle(now, now - lastTouch) : now - lastTouch, gap = idle >= IDLE_MS ? Math.max(250, Math.min(SLOW_GAP, 60000 / QD.length)) : SLOW_GAP; if(now - lastDear < gap) return -1;
+  function awRipe(now){ if(AFL && aflFight(now)){ A.n.aflHeld++; return -1; } if(g3On && g3Turn(now)) return -1; var idle = AFL ? aflIdle(now, now - lastTouch) : now - lastTouch, gap = idle >= IDLE_MS ? Math.max(250, Math.min(SLOW_GAP, 60000 / QD.length)) : SLOW_GAP; if(now - lastDear < gap) return -1;
     var i = awBest(function(j){ return (awTold(j) > LONG_MS || awHvy(j)) ? idle >= IDLE_LONG : (idle >= IDLE_MS || now - j[0].wd >= AGE_MS); }); if(i >= 0) QD[i][3] = (idle >= IDLE_MS) ? 2 : 3; return i; }
   function awTurn(now){ var j, i; if(!AWD) return Q.shift() || QL.shift();
     for(i = 0; i < QD.length; i++){ j = QD[i]; if(j[0].pd === 2 && j[0].at && now - j[0].at < HOT_MS){ QD.splice(i, 1); j[3] = 4; return j; } }   // a waiting picture of a filtered drawing the painter still holds: at once, at a plain job's price
     if(QD.length && (i = awRipe(now)) >= 0){ j = QD.splice(i, 1)[0]; lastDear = now; return j; }   // nobody has touched the glass, or this job's row has waited AGE_MS: the slow line's turn
-    while((j = Q.shift() || QL.shift())){ if(awTold(j) > DEAR_MS){ awStep(j, now); continue; } return j; }   // a dear job at the head steps into the slow line; this turn makes the first plain one
+    var lim = g3Lim(), tj; while((j = Q.shift() || QL.shift())){ tj = awTold(j); if(tj > lim || g3Big(j, lim)){ if(tj <= DEAR_MS) A.n.g3step++; awStep(j, now); continue; } return j; }   // a dear job at the head steps into the slow line; this turn makes the first plain one
     return null; }
   function awPart(L, now){ for(var i = 0, k = 0; i < L.length && k < 48; k++){ if(awTold(L[i]) > DEAR_MS) awStep(L.splice(i, 1)[0], now); else i++; } }   // a door sorts the head of a line only (48 jobs: more than it can carry); the pump sorts the rest as it comes to them
   // ---- CARD-ADP (jumpr 3865, 11/18/2026; built on Maker 1 as M3865; cut by CARD-DOP, jumpr 3546, its flag DOP-F1; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
@@ -16881,9 +16881,11 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   // ---- END CARD-ADP's own lines (two more: awDoor's head and its notice's end, below; and the observer's last two lines) ----
   function awDoor(now, n0, keep, after){ if(after) return awJobs(now, n0); if(!AWD || now - doorAt < DOOR_GAP || now - A.t0 < START) return; doorAt = now; A.n.doors++; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid) return;
     if(aosNow() < calmTo){ A.n.calmedDoor = (A.n.calmedDoor || 0) + 1; return; }   // CARD-SFO2-F5 (laid by CARD-SFO2's landing, jumpr 3454m, on the builder's flag SFO2-F5): a door inside the calm the game asked for (__AWG.calm: the Surplus's paint and its X) makes no dear job; they wait in the slow line for an idle glass or their age
+    if(g3On && g3Show()){ A.n.g3door++; return; }   // CARD-GIG3: a door while a show stands (the stage's own deal among them) makes no dear job; they wait in the slow line for the show's end
     awPart(Q, now); awPart(QL, now); if(!QD.length) return;
     if(keep && ADP){ adpLater(n0, keep); return; } awJobs(now, n0); }   // CARD-ADP: a door the tree brought makes its jobs one frame after its own first paint (adpLater, above); a door told by hand makes them at once, as before
   function awJobs(now, n0){ if(!QD.length) return;   // CARD-ADP: a door's jobs (CARD-AWS's lines below, unchanged): inside its notice (a door told by hand, ?adp=0), or one frame after its first paint (awDoor called again with after = 1)
+    if(g3On && g3Show()){ A.n.g3door++; return; }   // CARD-GIG3, laid by its landing (jumpr 3920m, 11/23/2026) on CARD-ADP's door, which landed after the card was built: a door noted before a show whose jobs come due inside it (CARD-ADP makes a door's jobs one frame after its first paint) makes no dear job either; they wait in the slow line for the show's end
     for(var ci = 0, held = 0; ci < C.length; ci++){ if(C[ci].nr && !C[ci].jobs && !C[ci].ok && !C[ci].bad && ++held > 6) return; }   // THE CALM RULE's second half holds at a door too
     var all = Math.max(DOOR_MS, Math.min(4 * DOOR_MS, n0 / 20)), left = all, n = 0, i, j;   // a door carries what its own size says (a screen of 2,600 new elements 130 ms, of 10,000 the most: four times DOOR_MS)
     var fits = function(j){ var e = Math.max(awTold(j), 1); return !awHvy(j) && e <= 4 * DOOR_MS && (!n || e <= left); };   // not a heavy picture, not a job told longer than the largest door carries, not more than what is left of this door
@@ -16923,6 +16925,31 @@ const GL_DATA={"map":{"004":"stone","008":"open","010":"winter","012":"open","02
   function aflRested(now){ return now - lastTouch >= IDLE_MS; }   // a page nobody has touched counts as untouched from its start (lastTouch 0), as CARD-AWS's idle road does
   function aflIdle(now, idle){ var m = aflMode(now); if(idle < IDLE_MS && (m === 'win' || m === 'lose') && now - aflV >= AFL_VS){ A.n.aflRest++; return IDLE_MS; } return idle; }
   A.afl = function(){ return { on:AFL, vs:AFL_VS, mode:aflM, verdict:aflV ? aosNow() - aflV : -1, bm:A.n.aflBm, sbNo:A.n.aflSb, gate:A.n.aflGate, held:A.n.aflHeld, rest:A.n.aflRest }; };
+  // ---- CARD-GIG3 (jumpr 3920, built on the QuarterPounder as M3920, 11/19/2026; cut by CARD-GIG, jumpr 3566; Wyatt 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ----
+  // THE FAULT (design/atlas-on-a-show-1119/00-CARD-GIG3.md, section 1; CARD-GIG's record, its 2.8): a Masters' stage is a SHOW. The player watches it and nobody touches the glass, so on an empty shelf (a
+  //   first start, the first after the drawings change) CARD-AWS's idle road came true ten seconds into it, and the slow line's dear jobs (a dragon's mold: 25 to 45 ms of the page each) were made one
+  //   every second and a half in the middle of the show: 21 to 25 frames of 35 to 69 ms in one stage's 90 s, read in the app's own engine on his save.
+  // THE CURE: A SHOW IS NOT AN IDLE GLASS. While a Masters' stage stands (the game's own msaStands(): any of the seven, asked when the pump takes a turn):
+  //   (1) the slow line waits: neither the idle road nor the long-wait road makes a dear job, and a door (the stage's own deal among them) makes none;
+  //   (2) a job told over G3_MS (half a frame) steps into the slow line with the dear ones, where CARD-AWS's line is DEAR_MS (a frame): on a show the frame is the show's; and so does the first
+  //       picture of a drawing the atlas has never made when it is over G3_PX dots (its price is not known yet: such a first picture took 6 ms in one read and 47 ms in another);
+  //   (3) the plain jobs go on under THE CALM RULE, and with them the letting go of every drawing whose pictures all stand; a filtered drawing the painter still holds keeps its road (2 to 6 ms).
+  //   THE LINE A SHOW HELD IS OWED: once the stage has gone, while nobody touches the glass, the slow line's jobs come G3_GAP apart (the quick end of CARD-AWS's own idle road) until the line is
+  //   empty or the glass is touched; then CARD-AWS's own pace. So the shelf is done about when it would have been, plus the show's length. No line here reads the clock or makes a timer (CARD-AOS's
+  //   rule for this script: the pump's own time is handed in).
+  //   No drawing redrawn, restyled or replaced; the same pictures on the shelf. ?gig3=0 = the slow line as before on this device (gvt_gig3 '0'; ?gig3=1 clears it); with ?awgd=0 there is no slow line and
+  //   this card stands down with it. __AWG.gig3() = the rigs' read: the switch as read, whether a show stands now, the slow line's turns a show held, the doors it held, the jobs its half frame
+  //   sent to the slow line, the jobs owed at the end of the shows, the turns the owed pace hurried, whether a line is owed now, the slow line's length.
+  var g3On = AWD, G3_MS = 8, G3_PX = 200000, G3_GAP = 500, g3Was = 0, g3Owe = 0, g3End = 0; A.n.g3held = 0; A.n.g3door = 0; A.n.g3step = 0; A.n.g3owed = 0; A.n.g3quick = 0;
+  try{ var gq3 = /[?&]gig3=([01])(?![\w])/.exec(location.search || ''); if(gq3){ if(gq3[1] === '0') localStorage.setItem('gvt_gig3', '0'); else localStorage.removeItem('gvt_gig3'); } if(localStorage.getItem('gvt_gig3') === '0') g3On = 0; }catch(e){ oops('g3', e); }
+  function g3Show(){ try{ return typeof msaStands === 'function' && !!msaStands(); }catch(e){ oops('g3s', e); return false; } }   // the game's script stands after this one: its own question, asked when needed
+  function g3Lim(){ return (g3On && g3Show()) ? G3_MS : DEAR_MS; }   // (2): the plain lines' line, read once a turn
+  function g3Big(j, lim){ return lim < DEAR_MS && j[0].ms == null && j[1] * j[2] > G3_PX; }   // (2): on a show, the first picture of a drawing never made, over G3_PX dots
+  function g3Turn(now){ if(g3Show()){ A.n.g3held++; g3Was = 1; return 1; }   // (1): a show stands, the slow line waits
+    if(g3Was){ g3Was = 0; g3Owe = QD.length ? 1 : 0; g3End = now; A.n.g3owed += QD.length; }   // the show is over: the line it held is owed
+    if(g3Owe){ if(!QD.length || lastTouch > g3End) g3Owe = 0; else if(now - lastTouch >= IDLE_MS && now - lastDear >= G3_GAP && now - lastDear < SLOW_GAP){ lastDear = now - SLOW_GAP; A.n.g3quick++; } }   // the owed pace: CARD-AWS's own gap counts as passed once G3_GAP has
+    return 0; }
+  A.gig3 = function(){ return { on:g3On, show:g3Show() ? 1 : 0, held:A.n.g3held, door:A.n.g3door, step:A.n.g3step, owed:A.n.g3owed, quick:A.n.g3quick, owe:g3Owe, qd:QD.length }; };
   function kick(){ if(!pumpT) pumpT = aosLater(pump, Math.max(60, lastJobMs * 8, START - (aosNow() - A.t0))); if(!sweepT) sweepT = aosLater(sweep, 1000); }
   function pump(){ pumpT = 0; var hid = 0; try{ hid = document.hidden ? 1 : 0; }catch(e){} if(hid){ pumpT = aosLater(pump, 1000); return; }
     if(!Q.length && !QL.length && !QD.length) return;
@@ -94646,7 +94673,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.47';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.48';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
