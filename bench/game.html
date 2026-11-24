@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.64","md5":"c9987da1f33374315a0d0b5ab09701f9","sha":"896d34cc66","at":"2026-11-24T21:36:38Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.65","md5":"a213fbb421219ff47fd5e74d0fc1af05","sha":"86515ffe83","at":"2026-11-24T22:00:23Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94694,7 +94694,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.64';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.65';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -229779,6 +229779,417 @@ GVT.bpb=function(o){ o=o||{}; if(o.zero){ for(const k in BPB.n) BPB.n[k]=0; BPB.
   return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:BPB_ON, room:bpbRoom()? 1 : 0, floor:bpbFloor(), guard:KB_FOOT_XMIN, ring:LEAK_R, box:[T.x,T.y], dials:{ PAD:BPB.PAD, CAV:BPB.CAV }, n:Object.assign({},BPB.n), riders, log:o.log? BPB.log.slice() : BPB.log.length, err:BPB.err, e:BPB.e,
     key:(function(){ try{ return localStorage.getItem('gvt_bpb'); }catch(e){ return null; } })() }; };
 // ═══ END CARD-BPB ═══
+// ═══ CARD-SWD · THE SWORD DUEL: ANY TWO SWORD HOLDERS FIGHT ONE CHOREOGRAPHED DUEL (sec:CARD-SWD; design/emperor-bear-feedback-1124/00-CARD-EBF.md; jumpr 4645, board J1032; the general piece, switched on by sec:CARD-EBF for the Emperor Bear on foot against a saber or claymore Sarge) ═══
+// WYATT 11/23/2026 14:49 EST by phone on Discord (1574512320246456461), verbatim: "Interaction between saber/claymore sarge and phase 2 bear needs to be better, duel-like with emperor bear having slight upper hand. The interaction should go as follows: 2-5 sword clashes then they knock each other away, then come in and cinematically hold a long clash of swords then there is a 50/50 chance of one the two happening: Emperor bear cuts down Sarge; Sarge slashes emperor bear and does 25% of his full HP and retreats to the back line, then resumes as normal."
+// WYATT 11/24/2026 about 12:35 EST on Maker 1, verbatim: "We want to see it because we want to expand it. When Saber Sarge fights another Saber Sarge in Battlegrounds, it will do the same choreographed kind of fight (or if a Saber Sarge fights Emperor Bear on the battlefield, not on his horse, or even King Yeti). Any two units with swords"
+// THE PIECE: swdOpen(a, b, opt) starts a duel between ANY two rows that stand on the field (a man of S.units or a body of S.foes, either side). a is the favoured one (the slight upper hand), b the other. Who the two are is the input:
+//   each row is read through its KIND (SWD.kinds: is, ok, hex, lead, hold, free, clamp, face, swing, lock, fell, wound, retreat). This section brings the kind 'sarge' (a Sarge of any side with THE SABER or THE CLAYMORE in hand, either carpet);
+//   a card that wants another sword holder adds its kind (sec:CARD-EBF adds 'kb', the Emperor Bear on foot) and calls swdOpen. Nothing here reads the Pillow Fields, a raid, a king or whose man it is.
+//   THE DUEL, on the sim's own clock: 1 THE CLASHES, SWD.MIN to SWD.MAX of them (one die), steel on steel, nothing lands; with each one the favoured one drives the other SWD.DRIVE px back · 2 THE KNOCK APART: the last clash throws both SWD.PUSH px back ·
+//   3 they COME BACK IN · 4 THE LONG HELD CLASH, SWD.HOLD s, the blades locked, the favoured one pressing · 5 THE END, one die at SWD.ODDS: a wins = opt.winA ('fell': a cuts b down), b wins = opt.winB ('wound': b's slash takes
+//   opt.wound of a's FULL HP and b retreats to his back line, then fights on as before). Both dice are rolled at the opening on facts every sim of a shared fight holds (the door, the party's code or the raid's start, the two rows' wire names,
+//   the pair's count of duels): two phones play the same duel to the same end. No word, no banner, no card: it is played on the field, the picture and the sound carry it.
+//   WHILE THEY DUEL: each one's own machines are held by his kind (no march, no dash, no swing of his own, no cast, no jet); nothing either one throws at the other lands (hurt, tanHit); what the rest of the field throws at them lands as ever
+//   (SWD.GUARD 1 = nothing from outside lands either). A duel ends without an end (both free, nothing lands) the tick either one falls, leaves the field or is carried off.
+// STATE: on a row only numbers (swd = the duel's id, swdRest, swdN) and one plain bag (swdRet, the walk back); the duel itself lives in SWD.live. Every write is made on a sim tick; the drawing reads and never writes.
+// WRAPPED BY NAME (no body edited): campUnitStep · bfUnitStep · hurt · tanHit · knock · jetLaunch · csCast · update. Zero server, sw.js, CSS, save, wire or word bytes.
+// THE SWITCH: ?swd=0 on a device (gvt_swd '0'; ?swd=1 clears it) = no duel ever opens there (every caller's swdOpen answers null). GVT.swd() = the rigs' read; GVT.swd({dials}) sets a dial live; GVT.swd({force:'a'|'b', forceN:n}) = the film's door.
+const SWD={
+  MIN:2, MAX:5,        // 1 the clashes: from MIN to MAX of them
+  BEAT:0.5,            // ...seconds a clash (the swing in, steel on steel, the recover)
+  HIT:0.2,             // ...the steel meets this far into the beat
+  DRIVE:5,             // ...the favoured one drives the other back this many px a clash
+  APART:0.6, PUSH:66,  // 2 the knock apart: its seconds, and the px each one is thrown back
+  CLOSE:0.42,          // 3 they come back in
+  HOLD:1.8, PRESS:12,  // 4 the long held clash: its seconds, and the px the favoured one presses forward over it
+  END:0.34,            // 5 the last cut: the blow lands this long after the hold breaks
+  ODDS:0.5,            // ...the chance the favoured one (a) wins
+  WOUND:0.25,          // ...a 'wound' end takes this share of the loser's FULL HP (opt.wound says otherwise)
+  GAP:54,              // feet to feet while they fence
+  OPEN:130,            // a duel opens only when the two stand inside this
+  REST:0.6,            // neither is drawn into another duel for this long after one
+  BREATH:1.4,          // the one who walked back holds his blade this long at his back line before he fights on
+  BACK:260, BACKMAX:480, RET:330, RETMAX:2.2,   // the retreat to the back line: px straight back when none of his own stands behind him, the longest way, the pace, the longest it may take
+  GUARD:0,             // 1 = nothing from outside lands on either of them while they duel
+  force:null, forceN:0,   // the rigs' and the film's door (never saved, never on the wire): 'a' or 'b' decides the end, forceN the clashes
+  on:1, seq:0, live:{}, liveN:0, kinds:{}, q:[], blow:0,
+  n:{ open:0, clash:0, apart:0, lock:0, endA:0, endB:0, abort:0, gone:0, fell:0, wound:0, retreat:0, swallow:0, orphan:0, refused:0 }, log:[], err:0, e:'' };
+SWD.on=(function(){ try{ const m=/[?&]swd=([01])(?:&|$)/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_swd','0'); else localStorage.removeItem('gvt_swd'); } return localStorage.getItem('gvt_swd')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-RTD's grammar)
+function swdErr(k,e){ SWD.err++; if(SWD.e.length<400) SWD.e+=k+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function swdLog(a){ if(SWD.log.length>=400) SWD.log.shift(); SWD.log.push([+((S && S.t)||0).toFixed(2)].concat(a)); }
+function swdIsUnit(o){ return S.units.indexOf(o)>=0; }
+function swdKeyOf(o){ return swdIsUnit(o)? String(o.cid||('u'+(o.id|0))) : 'f'+((o.foN!=null)? (o.foN|0) : (o.id|0)); }   // a row's name on every sim of a shared fight: a man's wire id, a body's muster ordinal
+function swdSalt(){ try{ if(S.coop && COOP && COOP.code) return String(COOP.code); if(S.raid && S.raid.t0!=null) return String(Math.round((S.raid.t0||0)*1000)); }catch(e){} return '0'; }   // the party's code or the raid's start (CARD-RZB's rzbKey grammar); a card that opens duels in a match of two players names that match's own shared fact in opt.salt
+function swdKind(o){ for(const n in SWD.kinds){ let ok=false; try{ ok=!!SWD.kinds[n].is(o); }catch(e){ ok=false; } if(ok) return n; } return null; }
+function swdOf(o){ return (o && o.swd)? (SWD.live[o.swd]||null) : null; }
+function swdOnField(o){ return !!(o && (S.units.indexOf(o)>=0 || S.foes.indexOf(o)>=0)); }
+function swdSweep(){ for(const id in SWD.live){ const D=SWD.live[id]; let ok=false; try{ ok=swdOnField(D.a) && swdOnField(D.b); }catch(e){ ok=false; } if(!ok) swdEnd(D,'gone'); } }   // a duel whose rows have left the field (the fight ended or began again in the middle of it) is dropped: nothing of it outlives its fight
+function swdMineIn(D){ try{ for(const o of [D.a,D.b]){ if(swdIsUnit(o) && bfHumanU(o) && !o.coopBy) return true; } }catch(e){} return false; }   // MY Sarge is one of the two: the camera's small punch is his alone (the sniper's own law)
+// ── THE OPENING ──
+function swdOpen(a,b,opt){
+  try{
+    if(!SWD.on || !a || !b || a===b || a.swd || b.swd || a.swdRet || b.swdRet || a.swdRest>0 || b.swdRest>0) return null;
+    if(SWD.liveN>0) swdSweep();
+    const ka=swdKind(a), kb=swdKind(b); if(!ka || !kb){ SWD.n.refused++; return null; }
+    const Ka=SWD.kinds[ka], Kb=SWD.kinds[kb]; if(!Ka.ok(a) || !Kb.ok(b)){ SWD.n.refused++; return null; }
+    const dx=b.x-a.x, dy=b.y-a.y; if(Math.hypot(dx,dy)>SWD.OPEN){ SWD.n.refused++; return null; }
+    opt=opt||{};
+    const fs=(Math.abs(dx)>=6)? (dx>0? 1 : -1) : ((opt.fs<0)? -1 : 1);   // they fence along the carpet's long way (the figures are drawn from the side): a faces b
+    let mx=(a.x+b.x)/2, my=(a.y+b.y)/2; try{ if(kbRvAcross(a.x,b.x)){ mx=a.x+fs*SWD.GAP/2; my=a.y; } }catch(e){}   // a channel between them: the duel is fought on the favoured one's bank, the other steps over to him
+    const D={ id:++SWD.seq, a:a, b:b, ka:ka, kb:kb, fs:fs, t:0, ph:0, pt:0, c:0, sa:0, sb:0, n:0, win:'', spk:0, done:0,
+      mx:mx, my:my, ax0:a.x, ay0:a.y, bx0:b.x, by0:b.y,
+      winA:(opt.winA==='wound')? 'wound' : 'fell', winB:(opt.winB==='fell')? 'fell' : 'wound', wound:(opt.wound>0)? +opt.wound : SWD.WOUND, odds:(opt.odds!=null && isFinite(+opt.odds))? +opt.odds : SWD.ODDS, tag:String(opt.tag||'') };
+    a.swdN=(a.swdN|0)+1;
+    const key='swd:'+rxDoorKey()+':'+String(opt.salt!=null? opt.salt : swdSalt())+':'+swdKeyOf(a)+':'+swdKeyOf(b)+':'+a.swdN;
+    D.n=(SWD.forceN>0)? Math.max(1,SWD.forceN|0) : Math.max(SWD.MIN, Math.min(SWD.MAX, SWD.MIN+Math.floor(rxRoll(key+':n')*(SWD.MAX-SWD.MIN+1))));
+    D.win=(SWD.force==='a' || SWD.force==='b')? SWD.force : ((rxRoll(key+':w')<D.odds)? 'a' : 'b');
+    a.swd=D.id; b.swd=D.id; SWD.live[D.id]=D; SWD.liveN++;
+    try{ Ka.hold(a,b,D); Kb.hold(b,a,D); }catch(e){ swdErr('hold',e); }
+    SWD.n.open++; swdLog(['open', D.id, ka, kb, D.n, D.win, Math.round(D.mx), Math.round(D.my)]);
+    return D;
+  }catch(e){ swdErr('open',e); return null; }
+}
+// ── THE DUEL'S FRAME ──
+function swdPlace(o,K,x,y){ const p=K.clamp(o,x,y); let wet=false; try{ wet=!!kbRvWater(p.x,p.y) && !kbRvWater(o.x,o.y); }catch(e){ wet=false; }
+  if(!voidAt(p.x,p.y) && !wet){ o.x=p.x; o.y=p.y; } if(o.shv) o.shv=null; }   // the duel owns their feet: never into a pit, never off a bank into the channel; a shove from outside is spent
+function swdSparks(D,n){   // the sparks off the steel: hashed off the duel's own clock (kbParry's tip-tick grammar, no dice)
+  if(reducedMotion()) return; const mx=(D.a.x+D.b.x)/2, my=(D.a.y+D.b.y)/2-40, s0=D.id*7+D.c*13+Math.round(D.t*30);
+  for(let ti=0;ti<n;ti++){ const th=(((s0*0.6180339+ti*0.3819)%1)+1)%1, ta=th*6.283, ca=Math.cos(ta), sa=Math.sin(ta), td=3+((ti*0.37+th)%1)*5, tl=td+6+th*8; S.fx.push({k:'tracer',x1:mx+ca*td,y1:my+sa*td,x2:mx+ca*tl,y2:my+sa*tl,t:0,dur:0.12,col:'#EAF4FF',w:1.6}); } }
+function swdClash(D,big){   // steel on steel: 0 a clash of the exchange · 1 the last of them, the one that knocks them apart · 2 the lock
+  const a=D.a, b=D.b, Ka=SWD.kinds[D.ka], Kb=SWD.kinds[D.kb], RM=reducedMotion(), mx=(a.x+b.x)/2, my=(a.y+b.y)/2-40, i=D.c|0;
+  S.fx.push({k:'ring',x:mx,y:my,r:5,R:(big===1)? 60 : 36,t:0,dur:(big===1)? 0.32 : 0.22,col:(i&1)? Ka.hex(a) : Kb.hex(b)});
+  S.fx.push({k:'flash',x:mx,y:my,ang:(i&1)? 0.6 : -0.6,R:RM? 16 : ((big===1)? 34 : 24),lw:RM? 3 : 4,t:0,dur:0.14});
+  swdSparks(D,(big===1)? 9 : 5); bfSfx(SFX.snap,mx,my);
+  if(big===1){ bfSfx(SFX.thock,mx,my); if(!RM){ S.fx.push({k:'puff',x:a.x,y:a.y+2,t:0,dur:0.4,R:14}); S.fx.push({k:'puff',x:b.x,y:b.y+2,t:0,dur:0.4,R:14}); } }
+  if(!RM && swdMineIn(D)) S.shake=Math.max(S.shake||0,(big===1)? 0.2 : 0.1);
+  if(big!==2){ SWD.n.clash++; swdLog(['clash', D.id, i]); }
+  if(big===1){ SWD.n.apart++; swdLog(['apart', D.id, i]); } else if(big===2){ SWD.n.lock++; swdLog(['lock', D.id, i]); } }
+function swdSwings(D,k,tc){   // each one's swing for the clash that meets at tc (his kind says how long before the steel his arm must start)
+  const a=D.a, b=D.b, Ka=SWD.kinds[D.ka], Kb=SWD.kinds[D.kb];
+  if(D.sa<=k && D.pt>=tc-Ka.lead(a)){ D.sa=k+1; try{ Ka.swing(a,D.fs,k,D); }catch(e){ swdErr('swa',e); } }
+  if(D.sb<=k && D.pt>=tc-Kb.lead(b)){ D.sb=k+1; try{ Kb.swing(b,-D.fs,k,D); }catch(e){ swdErr('swb',e); } } }
+function swdAdvance(D,dt){   // one sim tick of the duel (the lead's own dt): the clock, the two places, the beats
+  const a=D.a, b=D.b, Ka=SWD.kinds[D.ka], Kb=SWD.kinds[D.kb], fs=D.fs, G=SWD.GAP/2;
+  const cl=function(k){ return Math.max(0,Math.min(1,k)); }, sm=function(k){ k=cl(k); return k*k*(3-2*k); }, eo=function(k){ k=cl(k); return 1-(1-k)*(1-k); };
+  D.t+=dt; D.pt+=dt; let ao=0, bo=0;   // each one's place along the line from the meeting point: a at -G+ao, b at +G+bo (both times the facing)
+  if(D.ph===0){   // 1 THE CLASHES
+    const k=Math.min(D.n-1, Math.floor(D.pt/SWD.BEAT)), tc=k*SWD.BEAT+SWD.HIT;
+    swdSwings(D,k,tc);
+    ao=bo=(D.c>0)? SWD.DRIVE*(D.c-1+eo((D.pt-((D.c-1)*SWD.BEAT+SWD.HIT))/0.18)) : 0;
+    if(D.c<=k && D.pt>=tc){ D.c=k+1; if(D.c>=D.n){ swdClash(D,1); D.ph=1; D.pt=0; ao=bo=SWD.DRIVE*(D.n-1); } else swdClash(D,0); }   // the LAST of the clashes is the one that knocks them apart
+  } else if(D.ph===1){   // 2 THE KNOCK APART
+    const e=eo(D.pt/(SWD.APART*0.7)), dr=SWD.DRIVE*(D.n-1); ao=dr-SWD.PUSH*e; bo=dr+SWD.PUSH*e;
+    if(D.pt>=SWD.APART){ D.ph=2; D.pt=0; D.sa=0; D.sb=0; bfSfx(SFX.swish,a.x,a.y); }
+  } else if(D.ph===2){   // 3 THEY COME BACK IN
+    const e=1-sm(D.pt/SWD.CLOSE), dr=SWD.DRIVE*(D.n-1); ao=dr-SWD.PUSH*e; bo=dr+SWD.PUSH*e;
+    swdSwings(D,0,SWD.CLOSE);
+    if(D.pt>=SWD.CLOSE){ D.ph=3; D.pt=0; D.spk=0.13; D.c=D.n+1; swdClash(D,2); }
+  } else if(D.ph===3){   // 4 THE LONG HELD CLASH
+    const dr=SWD.DRIVE*(D.n-1)+SWD.PRESS*sm(D.pt/SWD.HOLD); ao=bo=dr;
+    D.spk-=dt; if(D.spk<=0){ D.spk=0.13; swdSparks(D,3); if((Math.round(D.pt/0.13)%4)===0) bfSfx(SFX.clack,(a.x+b.x)/2,(a.y+b.y)/2); }
+    try{ Ka.lock(a,fs,D); Kb.lock(b,-fs,D); }catch(e){ swdErr('lock',e); }
+    if(D.pt>=SWD.HOLD){ D.ph=4; D.pt=0; const aw=(D.win==='a'); try{ (aw? Ka : Kb).swing(aw? a : b, aw? fs : -fs, 9, D); }catch(e){ swdErr('swe',e); } bfSfx(SFX.swish,(aw? a : b).x,(aw? a : b).y); }
+  } else {   // 5 THE END: the winner's cut goes through, the other is beaten back
+    const dr=SWD.DRIVE*(D.n-1)+SWD.PRESS, e=eo(D.pt/SWD.END), aw=(D.win==='a'); ao=dr+(aw? 10 : -8)*e; bo=dr+(aw? 8 : -10)*e;
+  }
+  const inK=sm(D.t/0.22), ax=D.mx+fs*(-G+ao), bx=D.mx+fs*(G+bo);   // the first beat walks each one from where he stood onto the line
+  swdPlace(a,Ka,D.ax0+(ax-D.ax0)*inK, D.ay0+(D.my-D.ay0)*inK); swdPlace(b,Kb,D.bx0+(bx-D.bx0)*inK, D.by0+(D.my-D.by0)*inK);
+  try{ Ka.face(a,fs,D); Kb.face(b,-fs,D); }catch(e){ swdErr('face',e); }
+  if(D.ph===4 && D.pt>=SWD.END) swdResolve(D); }
+function swdResolve(D){   // the end: both are free first, then the blow is OWED (it lands after this tick's update, outside every list being walked)
+  const aw=(D.win==='a'), W9=aw? D.a : D.b, L9=aw? D.b : D.a, mx=(D.a.x+D.b.x)/2, my=(D.a.y+D.b.y)/2-40, RM=reducedMotion();
+  S.fx.push({k:'ring',x:mx,y:my,r:6,R:64,t:0,dur:0.34,col:SWD.kinds[aw? D.ka : D.kb].hex(W9)}); S.fx.push({k:'flash',x:mx,y:my,ang:aw? 0.6 : -0.6,R:RM? 18 : 36,lw:RM? 3 : 5,t:0,dur:0.16}); swdSparks(D,9); bfSfx(SFX.snap,mx,my);
+  if(!RM && swdMineIn(D)) S.shake=Math.max(S.shake||0,0.22);
+  swdEnd(D,aw? 'a' : 'b');
+  SWD.q.push({ how:aw? D.winA : D.winB, W:W9, L:L9, kw:aw? D.ka : D.kb, kl:aw? D.kb : D.ka, share:D.wound, id:D.id }); }
+function swdEnd(D,why){   // the duel is over: both rows free, each one's kind hands his feet back
+  if(D.done) return; D.done=1; delete SWD.live[D.id]; SWD.liveN=Math.max(0,SWD.liveN-1);
+  for(const pr of [[D.a,D.ka,D.b],[D.b,D.kb,D.a]]){ const o=pr[0]; if(o && o.swd===D.id){ o.swd=0; o.swdRest=SWD.REST; try{ SWD.kinds[pr[1]].free(o,pr[2],D,why); }catch(e){ swdErr('free',e); } } }
+  if(why==='a') SWD.n.endA++; else if(why==='b') SWD.n.endB++; else if(why==='gone') SWD.n.gone++; else SWD.n.abort++;
+  swdLog(['end', D.id, why, +D.t.toFixed(2)]); }
+function swdFlush(){   // the owed blows land (after the frame's update)
+  const Q=SWD.q.splice(0); for(const q of Q){ SWD.blow=1; try{ const Kw=SWD.kinds[q.kw], Kl=SWD.kinds[q.kl];
+      if(q.how==='fell'){ SWD.n.fell++; swdLog(['fell', q.id]); Kl.fell(q.L,q.W); }
+      else { SWD.n.wound++; swdLog(['wound', q.id, q.share]); Kl.wound(q.L,q.W,q.share); if(Kw.ok(q.W)){ SWD.n.retreat++; Kw.retreat(q.W,q.L); } }
+    }catch(e){ swdErr('blow',e); } finally{ SWD.blow=0; } } }
+function swdStep(o,dt){   // one row's frame while it carries a duel: the lead (a) advances it, the other only checks his partner still stands
+  const D=SWD.live[o.swd];
+  if(!D){ o.swd=0; SWD.n.orphan++; try{ const k=swdKind(o); if(k) SWD.kinds[k].free(o,null,null,'orphan'); }catch(e){} return; }
+  let ok=false; try{ ok=!!(SWD.kinds[D.ka].ok(D.a) && SWD.kinds[D.kb].ok(D.b)); }catch(e){ ok=false; }
+  if(!ok){ swdEnd(D,'abort'); return; }
+  if(o===D.a) swdAdvance(D,dt); }
+// ── THE KIND 'sarge': a Sarge of any side with THE SABER (lightsaber) or THE CLAYMORE (commander) in hand, either carpet ──
+function swdRetStep(u,dt){   // the walk back to his back line (the 'wound' end's winner), then he fights on as before
+  const R=u.swdRet; R.t+=dt; const dx=R.x-u.x, dy=R.y-u.y, d=Math.hypot(dx,dy);
+  if(d<=6 || R.t>=SWD.RETMAX || u.dead || u.falling || u.jetT>0 || u.dropT>0 || (S.drag && S.drag.unit===u)){ u.swdRet=null; try{ SWD.kinds.sarge.free(u,null,null,'home'); }catch(e){} return; }   // at his back line: his breath, then he is his own man
+  const mv=Math.min(d,SWD.RET*dt), nx=u.x+dx/d*mv, ny=u.y+dy/d*mv; let wet=false; try{ wet=!!kbRvWater(nx,ny) && !kbRvWater(u.x,u.y); }catch(e){ wet=false; }
+  if(voidAt(nx,ny) || wet){ u.swdRet=null; try{ SWD.kinds.sarge.free(u,null,null,'bank'); }catch(e){} return; }   // a pit or the channel's bank ends the walk there
+  u.x=nx; u.y=ny; u.marching=true; u.wkX=(dx>=0)? 1 : -1; u.wkT=S.t; if(u.shv) u.shv=null; }
+SWD.kinds.sarge={
+  is:function(u){ try{ if(!u || u.dead || u.type!=='sarge' || !swdIsUnit(u)) return false; const sw=unitSargeStats(u); return (sw.w==='lightsaber' || sw.w==='commander') && !unarmedU(u,sw); }catch(e){ return false; } },
+  ok:function(u){ return !!(u && !u.dead && swdIsUnit(u) && !(u.jetT>0) && !u.falling && !(u.dropT>0) && !u.jhs && !u.hlbAir && !u.down && !(S.drag && S.drag.unit===u)); },
+  hex:function(u){ try{ return (unitSargeStats(u).w==='lightsaber')? (saberHexU(u)||'#EAF4FF') : '#C9D2D8'; }catch(e){ return '#EAF4FF'; } },
+  lead:function(u){ try{ return (unitSargeStats(u).w==='commander')? 0.17 : 0.1; }catch(e){ return 0.1; } },   // the claymore's swing winds 0.17 s before the steel, the saber's sweep 0.1
+  hold:function(u,o,D){ const sw=unitSargeStats(u); u.marching=false; u.swdRet=null;
+    if(sw.w==='commander'){ try{ cmdDashEnd(u); }catch(e){} u.cmdCut=0; u.cmdDuelK=0; }
+    else { try{ uaGround(u); }catch(e){} u.saberState='out'; u.saberTarget=o; u.saberFirstT=null; u.sabStand=1; u.saberSwing=0.5; } },
+  free:function(u,o,D,why){ try{ const sw=unitSargeStats(u);
+      const rest=(why==='home' || why==='bank')? SWD.BREATH : SWD.REST;
+      if(sw.w==='lightsaber'){ u.saberState='idle'; u.saberTarget=null; u.saberFirstT=null; u.sabStand=0; u.home={ x:u.x, y:u.y }; u.saberCd=Math.max(u.saberCd||0,rest); }
+      else if(sw.w==='commander'){ u.cmdBlkT=0; u.cmdCut=0; u.cmdSwT=Math.max(u.cmdSwT||0,rest); }
+    }catch(e){ swdErr('sfree',e); } },
+  clamp:function(u,x,y){ return { x:Math.max(24,Math.min((S.bf? WORLD_W : W)-24,x)), y:Math.max(24,Math.min(WORLD_H-24,y)) }; },
+  face:function(u,fs){ u.wkX=fs; u.wkT=S.t; u.cmdFs=fs; },
+  swing:function(u,fs,i){ const sw=unitSargeStats(u);
+    if(sw.w==='commander'){ u.cmdFx=CMD_SW_T; u.cmdFs=fs; u.cmdCut=0; u.cmdDuelK=0; u.cmdBlkT=0; S.fx.push({k:'cres',x:u.x+fs*15,y:u.y-22,fs:fs,a0:-1.48,a1:0.70,R:42,t:-0.15,dur:0.22,hold:0}); bfSfx(SFX.swish,u.x,u.y); }
+    else { u.sabCutT=S.t; S.fx.push({k:'arc',x:u.x,y:u.y-22,R:36,a0:(fs>0? SAB2_POSE_UP : Math.PI-SAB2_POSE_UP),a1:(fs>0? SAB2_POSE_DN : Math.PI-SAB2_POSE_DN),ccw:fs<0,lw:5,c1:this.hex(u),c2:'#ffffff',t:0,dur:SAB2_SWEEP_T}); bfSfx(SFX.laser,u.x,u.y); } },
+  lock:function(u,fs){ try{ if(unitSargeStats(u).w==='commander'){ u.cmdFs=fs; u.cmdBlkT=CMD_DASH.blkT*0.6; } }catch(e){} },   // the claymore held up in the block's own pose; the saber rests level at his man (the standing guard)
+  fell:function(u,by){ if(u.dead) return; if(u.hp!=null && u.hpMax>0){ u.hp=0; hitCheck(u,by); return; } u.hits=gritCap(u); u.hitT=0; knockKill(u); },   // cut down: the duel's die has spoken, so his bar is emptied and he falls through the fall's own door (no save rolls a second die: in a boss fight a knock is priced and would leave him standing)
+  wound:function(u,by,share){ if(u.dead) return; if(u.hp!=null && u.hpMax>0){ u.hp-=u.hpMax*share; hitCheck(u,by); return; } const g=gritCap(u); u.hits=(u.hits||0)+g*share; u.hitT=0; if(u.hits>=g-1e-6) knockKill(u); },
+  retreat:function(u,from){ const back=(S.bf && u.side==='foe')? 1 : -1; let bx=null;   // the back line: a stride behind the rearmost of his own on the field; nobody there = SWD.BACK straight back
+    for(const m of S.units){ if(m===u || m.dead || m.side==='nem' || (S.bf && m.side!==u.side) || (m.def && (m.def.vehicle || m.def.fly)) || m.jetT>0 || m.dropT>0) continue; if(bx==null || (back<0? m.x<bx : m.x>bx)) bx=m.x; }
+    let d=(bx==null)? SWD.BACK : Math.abs((bx+back*26)-u.x); if(bx!=null && (back<0? bx>u.x : bx<u.x)) d=SWD.BACK*0.5;   // he IS the rearmost: half the way all the same
+    d=Math.max(70,Math.min(SWD.BACKMAX,d)); const p=this.clamp(u,u.x+back*d,u.y); u.swdRet={ x:Math.round(p.x), y:Math.round(p.y), t:0 }; u.marching=true; }
+};
+// ── THE HOLDS: a man in a duel (or on his walk back) spends his frame there ──
+function swdUnitFrame(u,dt){   // true = the frame is the duel's (no march, no gun, no blade of his own)
+  if(u.swdRest>0) u.swdRest-=dt;
+  if(u.swd){ swdStep(u,dt); if(u.swd){ u.marching=false; return true; } }
+  if(u.swdRet){ swdRetStep(u,dt); if(u.swdRet) return true; }
+  return false; }
+{ const s0=campUnitStep; campUnitStep=function(u,dt){ if(u && (u.swd || u.swdRet || u.swdRest>0)){ try{ if(swdUnitFrame(u,dt)) return false; }catch(e){ swdErr('camp',e); u.swd=0; u.swdRet=null; } } return s0.apply(this,arguments); }; }
+{ const s0=bfUnitStep; bfUnitStep=function(u,dt){ if(u && !u.dead && (u.swd || u.swdRet || u.swdRest>0)){ try{ if(swdUnitFrame(u,dt)) return false; }catch(e){ swdErr('bf',e); u.swd=0; u.swdRet=null; } } return s0.apply(this,arguments); }; }
+// ── NOTHING EITHER ONE THROWS AT THE OTHER LANDS; SWD.GUARD shuts the rest of the field out too ──
+{ const h0=hurt; hurt=function(f,dmg,src,fire9){ if(SWD.liveN>0 && !SWD.blow && f && f.swd && SWD.live[f.swd] && ((src && src.swd===f.swd) || SWD.GUARD)){ SWD.n.swallow++; return; } return h0.apply(this,arguments); }; }
+{ const t0=tanHit; tanHit=function(u,fx,fy,src,fire9){ if(SWD.liveN>0 && !SWD.blow && u && u.swd && SWD.live[u.swd] && ((src && src.swd===u.swd) || SWD.GUARD)){ SWD.n.swallow++; return; } return t0.apply(this,arguments); }; }
+{ const k0=knock; knock=function(u,sx,sy,rolled){ if(SWD.liveN>0 && !SWD.blow && SWD.GUARD && u && u.swd && SWD.live[u.swd]){ SWD.n.swallow++; return; } return k0.apply(this,arguments); }; }
+// ── A MAN IN A DUEL HAS NO HAND FREE: my own tap cannot jet him out or cast through it (an order off the wire is a fact and passes; the duel then ends without an end) ──
+{ const j0=jetLaunch; jetLaunch=function(u,tx,ty,relay,airW){ if(u && u.swd && !relay && SWD.live[u.swd]) return; return j0.apply(this,arguments); }; }
+{ const c0=csCast; csCast=function(u,relay,dry,n){ if(u && u.swd && !relay && SWD.live[u.swd]) return false; return c0.apply(this,arguments); }; }
+{ const u0=update; update=function(dt){ const r=u0.apply(this,arguments);
+    if(SWD.q.length){ try{ swdFlush(); }catch(e){ swdErr('flush',e); } }
+    if(SWD.liveN>0 && ((SWD.tk=(SWD.tk|0)+1)%20)===0){ try{ swdSweep(); }catch(e){ swdErr('sweep',e); } }
+    return r; }; }
+GVT.swd=function(o){ o=o||{}; if(o.zero){ for(const k in SWD.n) SWD.n[k]=0; SWD.log.length=0; SWD.err=0; SWD.e=''; }
+  for(const k of ['MIN','MAX','BEAT','HIT','DRIVE','APART','PUSH','CLOSE','HOLD','PRESS','END','ODDS','WOUND','GAP','OPEN','REST','BREATH','BACK','BACKMAX','RET','RETMAX','GUARD']) if(o[k]!=null && isFinite(+o[k])) SWD[k]=+o[k];
+  if('force' in o) SWD.force=(o.force==='a' || o.force==='b')? o.force : null;
+  if('forceN' in o) SWD.forceN=Math.max(0,o.forceN|0);
+  const live=[]; for(const id in SWD.live){ const D=SWD.live[id]; live.push({ id:D.id, ka:D.ka, kb:D.kb, tag:D.tag, ph:D.ph, t:+D.t.toFixed(2), pt:+D.pt.toFixed(2), c:D.c, n:D.n, win:D.win, fs:D.fs, ax:Math.round(D.a.x), ay:Math.round(D.a.y), bx:Math.round(D.b.x), by:Math.round(D.b.y) }); }
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:SWD.on, kinds:Object.keys(SWD.kinds), dials:{ MIN:SWD.MIN, MAX:SWD.MAX, BEAT:SWD.BEAT, HIT:SWD.HIT, DRIVE:SWD.DRIVE, APART:SWD.APART, PUSH:SWD.PUSH, CLOSE:SWD.CLOSE, HOLD:SWD.HOLD, PRESS:SWD.PRESS, END:SWD.END, ODDS:SWD.ODDS, WOUND:SWD.WOUND, GAP:SWD.GAP, OPEN:SWD.OPEN, REST:SWD.REST, BREATH:SWD.BREATH, BACK:SWD.BACK, BACKMAX:SWD.BACKMAX, RET:SWD.RET, RETMAX:SWD.RETMAX, GUARD:SWD.GUARD },
+    force:SWD.force, forceN:SWD.forceN, n:Object.assign({},SWD.n), liveN:SWD.liveN, live:live, owed:SWD.q.length, log:SWD.log.slice(-160), err:SWD.err, e:SWD.e,
+    key:(function(){ try{ return localStorage.getItem('gvt_swd'); }catch(e){ return null; } })() }; };
+// ═══ END CARD-SWD ═══
+// ═══ CARD-EBF · THE EMPEROR BEAR FIGHT, WYATT'S TEN POINTS OF 11/23: THE DUEL ON FOOT, THE KNOCK AWAY FROM THE SADDLE, THE GRACEFUL RETREAT, THE TROT, THE CAVALRY, THE HEAVIES, THE CANNONS, THE PLANES, THE GRENADE (sec:CARD-EBF; design/emperor-bear-feedback-1124/00-CARD-EBF.md; jumpr 4645, board J1032; it stands on sec:CARD-SWD and on CARD-EBP) ═══
+// WYATT 11/23/2026 14:49 EST by phone on Discord (1574512320246456461), the EMPEROR BEAR section of his file, verbatim:
+//   "- 15% Range on the Grenader's grenade."
+//   "- Cannon reflect damage needs to be accurate (one shot cannons)"
+//   "- Cavalry need to have 20% less HP and show health bars"
+//   "- Heavy units level 70+ should survive cavalry/emperor bear charge at any difficulty"
+//   "- Emperor Bear needs to gracefully retreat and not zip away"
+//   "- Interaction between saber/claymore sarge and phase 2 bear needs to be better, duel-like with emperor bear having slight upper hand. The interaction should go as follows: 2-5 sword clashes then they knock each other away, then come in and cinematically hold a long clash of swords then there is a 50/50 chance of one the two happening: Emperor bear cuts down Sarge; Sarge slashes emperor bear and does 25% of his full HP and retreats to the back line, then resumes as normal."
+//   "- Phase 1 Bear should knock away saber/claymore sarge after 1-3 hits and he should take 50% of his full HP"
+//   "- Cannon shot animations need to come from correct spot (3-4 px higher)"
+//   "- Planes need to be more effective (bombers should one shot cannons and dogfighters do 30% more damage off rip)"
+//   "- No Emperor Bear standing around when no troops on field, should be trotting"
+// WHERE EACH LANDS (his order):
+//   1 THE GRENADE: UDEF.grenadier.rng x EBF.GREN_X at load (599 to 689; both carpets, as every change of that row was; the class card's own line follows).
+//   2 A SHELL SENT BACK DESTROYS THE CANNON IT LANDS ON: a returned shell (the Shield's gong, the commando's catch: cmdoReflLand) fells every cannon in its burst and the one that fired it (the nearest inside EBF.REFL_R, wherever it has rolled);
+//     the instant returns (the blue wall, the teal catch, the dome: tkDeflPop then hurt) fell the cannon that fired. The rug only.
+//   3 THE CAVALRY: the Pillow Fields' cavalrymen ride with EBF.CAV_HP of their bar, and a hurt one shows the game's own small bar over his head (the mounted picture never drew one).
+//   4 A HEAVY OF RANK 70 OR MORE OUTLIVES THE HOOVES: in the Pillow Fields, at every tier, the trample of the Emperor's horse or of a cavalryman never fells a Commando, a Flamer or a Bazooka (the damage chart's own heavy class) of rank
+//     EBF.HEAVY_RANK or more: the blow lands as ever and leaves him standing on EBF.HEAVY_FLOOR of his bar at the least. Every other blow fells him as before.
+//   5 THE RETREAT: the unhorse's run to the back of his side (CARD-EBP's scamper) eases in over EBF.RET_EASE s, never faster than EBF.RET_MAX px/s (it was up to 1,500), timed to stand there EBF.RET_RUN s after the keel.
+//     Too far to reach by the whistle: he whistles where he stands. His line at 2.0 s and the whistle at 3.0 s are his own numbers of 11/10 and stand.
+//   6 THE DUEL ON FOOT: a saber or claymore Sarge's swing on the Emperor on foot, or the Emperor's cut on such a Sarge, inside SWD.OPEN of each other, OPENS A DUEL (sec:CARD-SWD: he is the favoured one). Nothing of that swing or cut lands.
+//     INSIDE A DUEL: CARD-EBP's 20 % parry is not rolled (the clashes are the parries: every one is steel on steel) and kbAnswer answers nothing (the instant fell is the duel's own end now: "Emperor bear cuts down Sarge" lands at the end of the
+//     choreography, and it is a real fall: in this fight a king's cut was a priced blow that left a Sarge standing). OUTSIDE ONE (the switch off, ?swd=0, a swing from beyond SWD.OPEN, another blade's swing while he duels): the exchange of before, except that a second blade's swing on him while he duels is never parried.
+//   7 THE KNOCK AWAY FROM THE SADDLE: mounted (phase one, above and under 80 %), a saber or claymore Sarge lands EBF.P1_MIN to EBF.P1_MAX hits on him (one die a round, on shared facts); the last of them lands, then he knocks that Sarge away
+//     (the gravity gun's own slide, EBF.P1_HURL px) and it costs the Sarge EBF.P1_HP of his FULL bar.
+//   8 THE CANNON'S SHOT LEAVES THE MUZZLE: a cannon's ball, its flash and its smoke start EBF.MUZZLE px higher (the rug only).
+//   9 THE PLANES (the rug only, never the Battlegrounds): a bomber's bomb fells every cannon in its burst, the run is flown where cannons stand (a cannon counts EBF.BOMB_CAN bodies when the run picks its knot) and a cannon under the plane gets a bomb
+//     of its own; MY dogfighter's rounds land x EBF.DF_X from the first one (a boss's chip a round rises with it).
+//   10 NO STANDING AROUND: in the saddle with none of your men to ride at (nobody east of the leak guard), he TROTS his side of the field (EBF.TROT px/s between lane marks) and turns on the first man who comes.
+// WRAPPED BY NAME (no body edited): hurt · knock · knockKill · kbCut · kbTick · kbTrample · drawTeddy · dkStart · ebpRun · ebpSaddle · cmdoReflLand · tkDeflPop · cannonTick · splash · brbAnchor · bmbBelow · dfLaunch. Zero server, sw.js, CSS, save, wire or word bytes.
+// THE SWITCH: ?ebf=0 on a device (gvt_ebf '0'; ?ebf=1 clears it) = the fight, the planes and the grenade of before on that device (a party whose phones disagree runs two rules, CARD-EBP's own flag EBP-F1). GVT.ebf() = the rigs' read; GVT.ebf({dials}) sets a dial live.
+const EBF={
+  GREN_X:1.15,                    // 1 the grenade's reach
+  REFL:1, REFL_R:110,             // 2 a returned shell fells the cannon (1) · the cannon that fired is the nearest inside this of the landing
+  CAV_HP:0.8, CAV_BAR:1, CAV_BAR_UP:0.92,   // 3 the cavalry's bar x this · the small bar over a hurt one · its height over his feet in horse widths
+  HEAVY_RANK:70, HEAVY_FLOOR:0.15,   // 4 the rank · the share of his bar the hooves leave him at the least (CARD-RZB's own floor)
+  RET_MAX:420, RET_MIN:110, RET_RUN:2.0, RET_EASE:0.4,   // 5 the retreat: its top pace, its least, the seconds it is timed for after the keel, the ease-in
+  DUEL:1, WOUND:0.25, DUEL_CD:1.0, DUEL_CD_LOST:2.6, DUEL_REEL:0.6,   // 6 the duel on foot (1) · the share of his FULL bar a Sarge's winning slash takes · the beat before his next lunge once a duel is over, and when he lost it · his reel then
+  P1:1, P1_MIN:1, P1_MAX:3, P1_HP:0.5, P1_HURL:220, P1_R:160, P1_GAP:0.2,   // 7 the knock away (1) · the hits · the share of the Sarge's full bar · the slide · a hit counts inside this, and one a P1_GAP at most
+  MUZZLE:4,                       // 8 px
+  BOMB:1, BOMB_CAN:8, DF_X:1.3,   // 9 a bomb fells a cannon (1) · a cannon's weight in bodies when the run picks its knot · my dogfighter's rounds
+  TROT:105,                       // 10 px/s (the walk is 70, the gallop 140)
+  on:1, tramp:null, cutter:null, refl:null, pid:0, gren0:0,
+  n:{ duel:0, duelCut:0, rest:0, plain:0, p1hit:0, p1:0, wound:0, cav:0, bar:0, heavy:0, ret:0, refl:0, reflNow:0, muzzle:0, bomb:0, anchor:0, below:0, df:0, chip:0, trot:0, trotLeg:0 }, err:0, e:'' };
+EBF.on=(function(){ try{ const m=/[?&]ebf=([01])(?:&|$)/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_ebf','0'); else localStorage.removeItem('gvt_ebf'); } return localStorage.getItem('gvt_ebf')==='0'? 0 : 1; }catch(e){ return 1; } })();   // the switch, this device (CARD-RTD's grammar)
+function ebfErr(k,e){ EBF.err++; if(EBF.e.length<400) EBF.e+=k+':'+String(e&&e.message||e).slice(0,80)+' '; }
+function ebfFields(){ try{ return !!(EBF.on && !S.bf && fieldsRaid()); }catch(e){ return false; } }   // THE PILLOW FIELDS, any tier
+function ebfRug(){ return !!(EBF.on && !S.bf); }   // the rug (the campaign, the parks, the raids), never the Battlegrounds
+// ── 1 THE GRENADE ──
+if(EBF.on){ try{ const g0=UDEF.grenadier.rng, g1=Math.round(g0*EBF.GREN_X); EBF.gren0=g0; UDEF.grenadier.rng=g1;
+    if(typeof CLASSINFO==='object' && CLASSINFO && CLASSINFO.grenadier && typeof CLASSINFO.grenadier.good==='string') CLASSINFO.grenadier.good=CLASSINFO.grenadier.good.split(' '+g0+' ').join(' '+g1+' ');
+  }catch(e){ ebfErr('gren',e); } }
+// ── 6 THE DUEL ON FOOT: the Emperor's kind for sec:CARD-SWD ──
+function ebfKingFoot(f){ try{ return !!(f && !f.dead && f.type==='bearnaparte' && f.def && f.def.kb && (f.kbLife|0)===2 && f.gnSt==='foot' && f.hp>0 && !S.bf && S.foes.indexOf(f)>=0 && fieldsRaid()); }catch(e){ return false; } }   // THE PILLOW FIELDS' king on foot (never the prince, never the hero)
+function ebfSabreRot(D,me){   // his blade's angle off the duel's own clock (0 = up, + = toward the man he faces); read by the drawing, written nowhere
+  const cl=function(v){ return Math.max(0,Math.min(1,v)); }, eo=function(p){ p=cl(p); return 1-(1-p)*(1-p); };
+  if(D.ph===0){ const k=Math.min(D.n-1,Math.floor(D.pt/SWD.BEAT)), q=D.pt-k*SWD.BEAT, hi=(k%2===0), from=hi? -1.35 : 2.5, at=hi? 0.95 : 1.5, rest=hi? 0.5 : 1.15;   // a chop from over the shoulder, then a rising backhand, in turn
+    return (q<SWD.HIT)? from+(at-from)*eo(q/SWD.HIT) : at+(rest-at)*cl((q-SWD.HIT)/(SWD.BEAT-SWD.HIT)); }
+  if(D.ph===1) return (D.pt<0.16)? 0.95+(2.25-0.95)*eo(D.pt/0.16) : 2.25+(0.4-2.25)*cl((D.pt-0.16)/(SWD.APART-0.16));   // beaten wide, then gathered
+  if(D.ph===2){ const q=D.pt/SWD.CLOSE; return (q<0.55)? 0.4+(-1.1-0.4)*eo(q/0.55) : -1.1+(1.05+1.1)*eo((q-0.55)/0.45); }   // back over the shoulder on the way in, down onto the other blade
+  if(D.ph===3) return 1.05+(reducedMotion()? 0 : 0.035*Math.sin(S.t*34));   // the lock: the blades cross and strain
+  const q=D.pt/SWD.END; if(me) return (q<0.35)? 1.05+(-1.2-1.05)*eo(q/0.35) : -1.2+(2.0+1.2)*eo((q-0.35)/0.65);   // his cut goes through
+  return 1.05+(2.35-1.05)*eo(q/0.4);   // his blade beaten wide
+}
+SWD.kinds.kb={
+  is:function(f){ return ebfKingFoot(f); },
+  ok:function(f){ return ebfKingFoot(f) && f.x<W-10; },
+  hex:function(){ return '#C9D2D8'; },
+  lead:function(){ return SWD.HIT; },   // his arm starts with the beat (the drawing sweeps it off the duel's clock)
+  hold:function(f){ f.kbDash=null; f.kbWind=null; f.kbWalk=0; f.kbParT=0; f.kbLoop=null; f.kbAnsU=null; f.kbSargeT=0; },
+  free:function(f,o,D,why){ f.kbDash=null; f.kbWind=null; f.kbWalk=0; f.kbParT=0; f.kbAnsU=null; f.kbSargeT=0; f.kbHuntDone=1; f.kbDashCd=Math.max(f.kbDashCd||0,EBF.DUEL_CD);
+    if(why==='b' && D){ f.kbParT=EBF.DUEL_REEL; f.kbParFs=D.fs; f.kbDashCd=Math.max(f.kbDashCd,EBF.DUEL_CD_LOST); f.swdRest=Math.max(f.swdRest||0,EBF.DUEL_CD_LOST); } },   // he lost the clash: he reels (the parry's own stagger: planted, his sabre beaten wide), his next lunge waits and no new duel opens on him for that long (the Sarge has his walk back)
+  clamp:function(f,x,y){ const p=kbBand(x,y); return { x:Math.max(KB_FOOT_XMIN,p.x), y:p.y }; },   // never off the mat, never west of the leak guard
+  face:function(f,fs){ f.wkX=fs; f.wkT=S.t; },
+  swing:function(f,fs,i){ const c=CMD_DUEL_CUTS[(i|0)%2]; S.fx.push({k:'cres',x:f.x+fs*8,y:f.y-22,fs:fs,a0:Math.min(c.f,c.to),a1:Math.max(c.f,c.to),R:56,t:0,dur:0.5,hold:0.28}); bfSfx(SFX.swish,f.x,f.y); },
+  lock:function(){},
+  fell:function(f,by){ if(f.dead) return; f.hp=0; hitCheck(f,by); },
+  wound:function(f,by,share){ if(f.dead) return; f.hp=Math.max(0,f.hp-f.hpMax*share); EBF.n.wound++; try{ critFx(f); }catch(e){} S.fx.push({k:'ring',x:f.x,y:f.y-30,r:8,R:54,t:0,dur:0.3,col:SWD.kinds.sarge.hex(by)}); tdLog(f,'ebf-wound',+share); hitCheck(f,by); },   // the bar's own door (his act floor keeps its say)
+  retreat:function(){}
+};
+function ebfDuelOk(f,u){ return !!(EBF.on && EBF.DUEL && SWD.on && u && u.type==='sarge' && ebfKingFoot(f) && SWD.kinds.sarge.is(u)); }
+function ebfDuelOpen(f,u){ return swdOpen(f,u,{ winA:'fell', winB:'wound', wound:EBF.WOUND, tag:'ebf' }); }
+{ const k0=kbCut; kbCut=function(f,L){ if(!EBF.on || !EBF.DUEL || !SWD.on || !ebfKingFoot(f)) return k0.apply(this,arguments); const p=EBF.cutter; EBF.cutter=f; try{ return k0.apply(this,arguments); } finally{ EBF.cutter=p; } }; }   // his cut's own knock knows who cuts
+{ const n0=knock; knock=function(u,sx,sy,rolled){ const f=EBF.cutter;
+    if(f && u && !u.dead && !SWD.blow){ try{ if(ebfDuelOk(f,u)){
+        if(u.swd || u.swdRet) return;   // a man in a duel or on his walk back is not cut
+        if(f.swdRest>0 || u.swdRest>0){ EBF.n.rest++; return; }   // the beat between two duels: nothing lands
+        if(ebfDuelOpen(f,u)){ EBF.n.duelCut++; tdLog(f,'ebf-duel',u.type); return; } } }catch(e){ ebfErr('kcut',e); } }
+    return n0.apply(this,arguments); }; }
+{ const t0=kbTick; kbTick=function(f,dt){
+    if(f && (f.swd || f.swdRest>0)){ try{ if(f.swdRest>0) f.swdRest-=dt;
+        if(f.swd){ swdStep(f,dt); if(f.swd){ f.tdFeet=1; f.kbFootT=(f.kbFootT||0)+dt; f.kbWalk=0; f.kbDash=null; f.kbWind=null; kbMwfTick(f,dt); return; } }   // the duel owns his frame: no wind, no flight, no cut, no step (his men still answer his clock)
+      }catch(e){ ebfErr('ktick',e); f.swd=0; } }
+    return t0.apply(this,arguments); }; }
+// ── 7 THE KNOCK AWAY FROM THE SADDLE ──
+function ebfP1Hit(f,u){   // a blade Sarge's hit on him in the saddle has landed
+  if(u.dead || f.dead || f.gnSt!=='ride' || Math.hypot(u.x-f.x,u.y-f.y)>EBF.P1_R || S.t-(u.ebfP1t==null? -9 : u.ebfP1t)<EBF.P1_GAP) return;
+  u.ebfP1t=S.t; EBF.n.p1hit++;
+  if(!(u.ebfP1at>0)){ u.ebfP1k=(u.ebfP1k|0)+1; const span=Math.max(0,(EBF.P1_MAX|0)-(EBF.P1_MIN|0)); u.ebfP1at=(EBF.P1_MIN|0)+Math.min(span,Math.floor(rxRoll('ebf:p1:'+rxDoorKey()+':'+swdSalt()+':'+(f.foN|0)+':'+swdKeyOf(u)+':'+u.ebfP1k)*(span+1))); u.ebfP1n=0; }   // THE ONE DIE, on facts every sim shares
+  u.ebfP1n=(u.ebfP1n|0)+1; if(u.ebfP1n<u.ebfP1at) return;
+  u.ebfP1n=0; u.ebfP1at=0;
+  const fs=(u.x>=f.x)? 1 : -1, hw=(f.def.w||148)*1.35, c=CMD_DUEL_CUTS[1];
+  f.gnUp=Math.max(f.gnUp||0,0.4); f.wkX=fs; f.wkT=S.t;   // the rider's raised sword, he faces the man
+  S.fx.push({k:'ring',x:u.x,y:u.y-10,r:6,R:46,t:0,dur:0.3,col:'#C9D2D8'}); S.fx.push({k:'cres',x:f.x+fs*hw*0.16,y:f.y-hw*0.5,fs:fs,a0:Math.min(c.f,c.to),a1:Math.max(c.f,c.to),R:58,t:0,dur:0.7,hold:0.42}); bfSfx(SFX.swish,f.x,f.y); bfSfx(SFX.thock,u.x,u.y);
+  if(!reducedMotion() && bfHumanU(u) && !u.coopBy) S.shake=Math.max(S.shake||0,0.2);
+  try{ const sw=unitSargeStats(u); if(sw.w==='lightsaber'){ uaGround(u); u.saberState='idle'; u.saberTarget=null; u.saberFirstT=null; u.sabStand=0; u.saberCd=Math.max(u.saberCd||0,1.2); } else { cmdDashEnd(u); u.cmdSwT=Math.max(u.cmdSwT||0,1.0); } }catch(e){ ebfErr('p1arm',e); }   // his blade is beaten down: no strike out of the slide
+  try{ ggShove(u,f.x,f.y-18,f,null,EBF.P1_HURL); }catch(e){ ebfErr('p1shove',e); }
+  if(u.shv && u.type==='sarge' && unitSargeStats(u).w==='lightsaber') u.home={ x:u.x+u.shv.x*EBF.P1_HURL, y:u.y+u.shv.y*EBF.P1_HURL };   // his post lands with him
+  if(!(S.coop && u.coopBy && u.coopBy!=='bot')){ const g=gritCap(u); u.hits=(u.hits||0)+g*EBF.P1_HP; u.hitT=0; if(u.hits>=g-1e-6) knockKill(u); }   // half his FULL bar (an ally's man: his owner's sim speaks his life)
+  EBF.n.p1++; tdLog(f,'ebf-knock',u.type); }
+// ── 2 THE INSTANT RETURNS · 6 THE OPENING SWING · 7 THE HITS COUNTED · 9 THE DOGFIGHTER'S CHIP: one wrap of the damage door ──
+{ const p0=tkDeflPop; tkDeflPop=function(u,src){ if(EBF.on && EBF.REFL && !S.bf && src && src.type==='tcannon') EBF.refl={ src:src, t:S.t }; return p0.apply(this,arguments); }; }   // the wall, the teal catch and the dome say whose shot they turned
+{ const h0=hurt; hurt=function(f,dmg,src,fire9){
+    if(!EBF.on || !f) return h0.apply(this,arguments);
+    let p1=false;
+    try{
+      const L=EBF.refl; if(L){ EBF.refl=null; if(L.t===S.t && L.src===f && f.type==='tcannon' && !f.dead && f.hp>0 && !S.bf && src && S.units.indexOf(src)>=0){ EBF.n.reflNow++; f.hp=0; hitCheck(f,src); return; } }
+      if(src && src.df===1 && src.ebfX>1 && f.boss && !(f.def && f.def.fly) && !S.bf){ const C=Math.max(0.05,(f.hpMax||(f.def && f.def.hp)||1)*DF_BOSS_CHIP); if(Math.abs(dmg-C)<1e-9){ arguments[1]=src.ebfX*Math.min(src.ebfPer>0? src.ebfPer : C, C); EBF.n.chip++; } }
+      if(src && !fire9 && src.type==='sarge' && f.type==='bearnaparte'){
+        if(ebfDuelOk(f,src)){
+          if(f.swd){ if(src.swd===f.swd) return; EBF.n.plain++; const p=f.ebpPar; f.ebpPar=null; try{ return h0.apply(this,arguments); } finally{ f.ebpPar=p; } }   // he duels: his partner's steel lands nothing, another blade's swing lands plain (no parry roll)
+          if(src.swd || src.swdRet) return;
+          if(Math.hypot(src.x-f.x,src.y-f.y)<=SWD.OPEN){
+            if(f.swdRest>0 || src.swdRest>0){ EBF.n.rest++; return; }
+            if(ebfDuelOpen(f,src)){ EBF.n.duel++; tdLog(f,'ebf-duel',src.type); return; } } }
+        else if(EBF.P1 && f.def && f.def.kb && (f.kbLife|0)===1 && f.gnSt==='ride' && !f.dead && ebfFields() && SWD.kinds.sarge.is(src)) p1=true;
+      }
+    }catch(e){ ebfErr('hurt',e); }
+    const r=h0.apply(this,arguments);
+    if(p1){ try{ ebfP1Hit(f,src); }catch(e){ ebfErr('p1',e); } }
+    return r; }; }
+// ── 4 A HEAVY OF RANK 70 OR MORE OUTLIVES THE HOOVES ──
+function ebfHeavy(u){ try{ return !!(u && !u.dead && u.hp==null && BDC2.heavy[u.type] && perkRank(u)>=EBF.HEAVY_RANK); }catch(e){ return false; } }
+{ const t0=kbTrample; kbTrample=function(f){ if(!(EBF.HEAVY_FLOOR>0) || !ebfFields()) return t0.apply(this,arguments); const p=EBF.tramp; EBF.tramp=f; try{ return t0.apply(this,arguments); } finally{ EBF.tramp=p; } }; }
+{ const k0=knockKill; knockKill=function(u,quiet){
+    if(!(EBF.tramp && !quiet && ebfHeavy(u))) return k0.apply(this,arguments);
+    const g=gritCap(u), top=g*(1-EBF.HEAVY_FLOOR);
+    if((u.hits||0)>=g-1e-6){ u.hits=top; u.hitT=0; EBF.n.heavy++; S.fx.push({k:'ring',x:u.x,y:u.y-20,r:5,R:24,t:0,dur:0.22,col:'#FFE39A'}); return; }   // the hooves have emptied his bar: he stands on the floor (CARD-RZB's own ring)
+    const r=k0.apply(this,arguments); if(!u.dead && (u.hits||0)>top){ u.hits=top; EBF.n.heavy++; }   // the blow landed (the chart's price): never under the floor
+    return r; }; }
+// ── 3 THE CAVALRY ──
+{ const s0=dkStart; dkStart=function(f){ const r=s0.apply(this,arguments);
+    try{ if(f && f.type==='tcavalry' && !f.ebfHp && EBF.CAV_HP>0 && EBF.CAV_HP!==1 && ebfFields()){ f.ebfHp=1; f.hp=f.hpMax=Math.max(1,Math.round(f.hpMax*EBF.CAV_HP)); EBF.n.cav++; } }catch(e){ ebfErr('cav',e); }
+    return r; }; }
+function ebfCavBar(f){ const q=Math.max(0,Math.min(1,f.hp/f.hpMax)), by=f.y-(f.def.w||118)*1.35*EBF.CAV_BAR_UP; cx.fillStyle='rgba(0,0,0,0.4)'; cx.fillRect(f.x-16,by,32,4); cx.fillStyle=(q>0.4)? '#7FA35C' : '#D96A55'; cx.fillRect(f.x-16,by,32*q,4); EBF.n.bar++; }   // the game's own small bar (drawTeddy's bar(): 32 x 4, green above 40 %, red under)
+{ const d0=drawTeddy; drawTeddy=function(f,wbk){
+    const D=(f && f.swd && f.type==='bearnaparte' && f.gnSt==='foot')? SWD.live[f.swd] : null;
+    if(D){ const kw=f.kbWalk; f.kbWalk=1; let r; try{ r=d0.apply(this,arguments); } finally{ f.kbWalk=kw; }   // draw-only, restored: his sword is in his paw, not in the rug
+      try{ const fs=(f===D.a)? D.fs : -D.fs; kbDrawSabre(f.x+fs*14,f.y-40,fs*ebfSabreRot(D,(D.win==='a')===(f===D.a)),34); }catch(e){ ebfErr('sab',e); }
+      return r; }
+    const r=d0.apply(this,arguments);
+    if(r && f && f.type==='tcavalry' && EBF.CAV_BAR && !f.dead && f.hp<f.hpMax && f.hp>0){ try{ if(ebfFields()) ebfCavBar(f); }catch(e){ ebfErr('bar',e); } }
+    return r; }; }
+// ── 5 THE GRACEFUL RETREAT ──
+{ const r0=ebpRun; ebpRun=function(f,dt,E){ if(!EBF.on || !(EBF.RET_MAX>0)) return r0.apply(this,arguments);
+    const a=EBP.RUNMIN, b=EBP.RUNMAX, c=EBP.RUN, k=Math.max(0,Math.min(1,(E.t-EBP.KEEL)/Math.max(0.01,EBF.RET_EASE))), e=k*k*(3-2*k);
+    EBP.RUN=EBF.RET_RUN; EBP.RUNMAX=Math.max(30,EBF.RET_MAX*e); EBP.RUNMIN=Math.min(a,EBF.RET_MIN,EBP.RUNMAX); EBF.n.ret++;
+    try{ return r0.apply(this,arguments); } finally{ EBP.RUNMIN=a; EBP.RUNMAX=b; EBP.RUN=c; } }; }   // CARD-EBP's own runner under this card's pace (its dials put back the same call)
+// ── 10 NO STANDING AROUND: THE TROT ──
+function ebfTrotMark(i){   // the i-th lane mark of his side of the field, clear of the pillows (CARD-EBP's ebpSpot grammar), of the pits and of the channel
+  const ys=[FOE_TOP+70,(FOE_TOP+FOE_BOT)/2,FOE_BOT-70], xs=[0.60,0.80,0.68,0.86], rocks=(S.cfg && S.cfg.terrain && S.cfg.terrain.rocks) || []; const p=kbBand(W*xs[i%4],ys[i%3]); let x=Math.max(KB_FOOT_XMIN+60,p.x), y=p.y;
+  for(let n=0;n<8;n++){ let hit=null; for(const r of rocks){ if(Math.hypot(r.x-x,r.y-y)<(r.r||30)+46){ hit=r; break; } } if(!hit) break; y=kbBand(x,y+((y<(FOE_TOP+FOE_BOT)/2)? 56 : -56)).y; }
+  if(voidAt(x,y)) y=(FOE_TOP+FOE_BOT)/2; try{ if(kbRvWater(x,y)) x+=90; }catch(e){}
+  return { x:Math.round(x), y:Math.round(y) }; }
+function ebfTrot(f,dt){   // nobody to ride at: he trots his side of the field, lane mark to lane mark (no dice: the marks in turn); a mark he is not nearing (a pillow in his way) is passed over
+  let P=f.ebfTr; if(P){ P.t+=dt; P.ck+=dt; if(P.ck>=0.8){ const d=Math.hypot(P.x-f.x,P.y-f.y); if(P.d0-d<16) P.stuck=1; P.d0=d; P.ck=0; } }
+  if(!P || P.stuck || P.t>12 || Math.hypot(P.x-f.x,P.y-f.y)<=18){ const i=P? (P.i+1)%12 : (f.foN|0)%12, m=ebfTrotMark(i); P=f.ebfTr={ i:i, x:m.x, y:m.y, t:0, ck:0, d0:Math.hypot(m.x-f.x,m.y-f.y), stuck:0 }; EBF.n.trotLeg++; }
+  const w0=EBP.WALK; EBP.WALK=EBF.TROT; try{ ebpWalk(f,dt,P); } finally{ EBP.WALK=w0; } EBF.n.trot++; }   // CARD-EBP's own walker (the planks, the pillows steered, the leak guard, the dust) at the trot's pace
+{ const s0=ebpSaddle; ebpSaddle=function(f,dt){ const r=s0.apply(this,arguments);
+    try{ if(EBF.on && EBF.TROT>0 && f && !f.ebpU && !(f.kbStagT>0) && !f.dead) ebfTrot(f,dt); else if(f && f.ebfTr) f.ebfTr=null; }catch(e){ ebfErr('trot',e); }
+    return r; }; }
+// ── 2 A SHELL SENT BACK DESTROYS THE CANNON IT LANDS ON ──
+{ const r0=cmdoReflLand; cmdoReflLand=function(sh){
+    let C=null; try{ if(EBF.on && EBF.REFL && !S.bf && sh){ C=[]; let nb=null, nd=EBF.REFL_R;
+        for(const f of S.foes){ if(!f || f.dead || f.type!=='tcannon' || f.burrow) continue; const d=Math.hypot(f.x-sh.tx,f.y-sh.ty); if(d<=(sh.splash||0)+(f.def.w||0)*0.3) C.push(f); else if(d<nd){ nd=d; nb=f; } }
+        if(!C.length && nb) C.push(nb); } }catch(e){ C=null; ebfErr('refl0',e); }
+    const r=r0.apply(this,arguments);
+    if(C) for(const f of C){ try{ if(!f.dead && f.hp>0 && S.foes.indexOf(f)>=0){ f.hp=0; hitCheck(f,sh.src||null); EBF.n.refl++; } }catch(e){ ebfErr('refl',e); } }
+    return r; }; }
+// ── 8 THE CANNON'S SHOT LEAVES THE MUZZLE ──
+{ const c0=cannonTick; cannonTick=function(f,dt){ if(!(EBF.MUZZLE>0) || !ebfRug()) return c0.apply(this,arguments);
+    const n0=S.shots.length, x0=S.fx.length, r=c0.apply(this,arguments);
+    try{ let hit=0; for(let i=n0;i<S.shots.length;i++){ const sh=S.shots[i]; if(sh && sh.cot && sh.src===f){ sh.y-=EBF.MUZZLE; hit=1; } }
+      if(hit){ for(let i=x0;i<S.fx.length;i++){ const e=S.fx[i]; if(e && (e.k==='ring' || e.k==='puff') && typeof e.y==='number') e.y-=EBF.MUZZLE; } EBF.n.muzzle++; } }catch(e){ ebfErr('muz',e); }
+    return r; }; }
+// ── 9 THE PLANES ──
+{ const s0=splash; splash=function(x,y,R,dmg,vx2,src,mach){
+    let C=null; if(EBF.on && EBF.BOMB && !S.bf && mach===true && R===BMB_R && dmg===BMB_DMG && src && !src.type){ try{ C=[]; for(const f of S.foes){ if(f && !f.dead && f.type==='tcannon' && !f.burrow && Math.hypot(f.x-x,f.y-y)<=R+(f.def.w||0)*0.3) C.push(f); } }catch(e){ C=null; } }   // a bomber's bomb (bmbTick's one call: the bomb's own reach, its own number, the mine's stub)
+    const r=s0.apply(this,arguments);
+    if(C) for(const f of C){ try{ if(!f.dead && f.hp>0 && S.foes.indexOf(f)>=0){ f.hp=0; hitCheck(f,src); EBF.n.bomb++; } }catch(e){ ebfErr('bomb',e); } }
+    return r; }; }
+{ const a0=brbAnchor; brbAnchor=function(){ const r=a0.apply(this,arguments);
+    try{ if(EBF.on && EBF.BOMB && EBF.BOMB_CAN>0 && !S.bf){ const F=S.foes.filter(function(f){ return !(f.dead||f.burrow||f.falling) && f.x<=W-6; }), C=F.filter(function(f){ return f.type==='tcannon'; });
+        if(C.length){ const wt=function(x,y){ let n=0; for(const g of F) if(Math.abs(g.x-x)<=BMB_R && Math.abs(g.y-y)<=BMB_SW) n+=(g.type==='tcannon')? EBF.BOMB_CAN : 1; return n; };
+          let b=null, bn=-1, bd=0; for(const c of C){ const n=wt(c.x,c.y), d=Math.hypot(c.x-T.x,c.y-T.y); if(!b || n>bn || (n===bn && d<bd)){ b=c; bn=n; bd=d; } }
+          if(b && r && bn>=wt(r.x,r.y)){ EBF.n.anchor++; return { x:b.x, y:b.y }; } } } }catch(e){ ebfErr('anchor',e); }   // the run is flown along the cannon's own lane when that lane is worth as much (no dice: each seat reads its own field, brbAnchor's own law)
+    return r; }; }
+{ const b0=bmbBelow; bmbBelow=function(p){
+    try{ if(EBF.on && EBF.BOMB && !S.bf && p){ if(!p.ebfId) p.ebfId=++EBF.pid; const lead=(p.spd||BMB_SPD)*BMB_FALL+BMB_LOOK;
+        for(const f of S.foes){ if(f.dead || f.burrow || f.falling || f.type!=='tcannon' || f.x>W-6 || f.ebfBm===p.ebfId) continue; if(Math.abs(f.x-p.x)>lead || Math.abs(f.y-p.y)>BMB_SW) continue; f.ebfBm=p.ebfId; EBF.n.below++; return { x:f.x, y:f.y }; } } }catch(e){ ebfErr('below',e); }   // a cannon in the plane's shadow gets a bomb of its own, once a plane
+    return b0.apply(this,arguments); }; }
+{ const l0=dfLaunch; dfLaunch=function(x,y,mine,o){ const p=l0.apply(this,arguments);
+    try{ if(p && EBF.on && EBF.DF_X>0 && EBF.DF_X!==1 && !S.bf && mine && !(o && o.dmg>0) && p.dmg>0){ const d0=p.dmg; p.dmg=+(d0*EBF.DF_X).toFixed(3); if(p.src){ p.src.ebfX=EBF.DF_X; p.src.ebfPer=d0*DF_RUN_SHARE/DF_RUN_ROUNDS; } EBF.n.df++; } }catch(e){ ebfErr('df',e); }   // MY plane at its launch (the word to a friend's screen carries the number: he flies it as sent)
+    return p; }; }
+GVT.ebf=function(o){ o=o||{}; if(o.zero){ for(const k in EBF.n) EBF.n[k]=0; EBF.err=0; EBF.e=''; }
+  for(const k of ['REFL','REFL_R','CAV_HP','CAV_BAR','CAV_BAR_UP','HEAVY_RANK','HEAVY_FLOOR','RET_MAX','RET_MIN','RET_RUN','RET_EASE','DUEL','WOUND','DUEL_CD','DUEL_CD_LOST','DUEL_REEL','P1','P1_MIN','P1_MAX','P1_HP','P1_HURL','P1_R','P1_GAP','MUZZLE','BOMB','BOMB_CAN','DF_X','TROT']) if(o[k]!=null && isFinite(+o[k])) EBF[k]=+o[k];
+  let king=null; try{ const f=S.foes.find(function(g){ return g.type==='bearnaparte' && !g.dead; }); if(f) king={ x:Math.round(f.x), y:Math.round(f.y), hp:+f.hp.toFixed(2), hpMax:+f.hpMax.toFixed(2), life:f.kbLife|0, st:f.gnSt, swd:f.swd|0, rest:+(f.swdRest||0).toFixed(2), trot:f.ebfTr? [f.ebfTr.i, f.ebfTr.x, f.ebfTr.y] : null }; }catch(e){}
+  return { cv:(typeof GVT_CV==='string')? GVT_CV : null, on:EBF.on, fields:ebfFields()? 1 : 0, gren:[EBF.gren0, UDEF.grenadier.rng], dials:{ GREN_X:EBF.GREN_X, REFL:EBF.REFL, REFL_R:EBF.REFL_R, CAV_HP:EBF.CAV_HP, CAV_BAR:EBF.CAV_BAR, HEAVY_RANK:EBF.HEAVY_RANK, HEAVY_FLOOR:EBF.HEAVY_FLOOR, RET_MAX:EBF.RET_MAX, RET_MIN:EBF.RET_MIN, RET_RUN:EBF.RET_RUN, RET_EASE:EBF.RET_EASE, DUEL:EBF.DUEL, WOUND:EBF.WOUND, DUEL_CD:EBF.DUEL_CD, P1:EBF.P1, P1_MIN:EBF.P1_MIN, P1_MAX:EBF.P1_MAX, P1_HP:EBF.P1_HP, P1_HURL:EBF.P1_HURL, MUZZLE:EBF.MUZZLE, BOMB:EBF.BOMB, BOMB_CAN:EBF.BOMB_CAN, DF_X:EBF.DF_X, TROT:EBF.TROT },
+    n:Object.assign({},EBF.n), king:king, err:EBF.err, e:EBF.e, key:(function(){ try{ return localStorage.getItem('gvt_ebf'); }catch(e){ return null; } })() }; };
+// ═══ END CARD-EBF ═══
 // ═══ CARD-PTR · THE PARATROOPERS (sec:CARD-PTR; design/paratroopers-1110/00-CARD-PTR.md; board J58, lane gvt-p4). FROM WYATT, 11/10/2026 about 15:55 EST, typed on Maker 1, card 3 of 3 of his
 // Sky Fortress patch notes ("Please queue them optimally. 1. 1 to 3 different jumps in the jumpr queue implemented directly into the game."; the sisters CARD-BBL, the Big Bomber's lanes, and CARD-WVB, the
 // wave bombers). HIS NOTES THIS SECTION BUILDS, verbatim: "- Give the paratrooper plane x3 hp. Have it drop a parachuting enemy unit every 2 seconds, until destroyed. " · "- The first troop that will be
