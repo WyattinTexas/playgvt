@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.63","md5":"894a481f7a2566159483b924d5bf90ac","sha":"c0c0cd56b9","at":"2026-11-24T21:21:58Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.64","md5":"c9987da1f33374315a0d0b5ab09701f9","sha":"e30f18d2b6","at":"2026-11-24T21:36:46Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94694,7 +94694,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.63';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.64';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -249138,6 +249138,25 @@ function ldhHid(fn){ return function(){ if(!ldhHiding()) return fn.apply(this, a
 // 0.16 to 0.74 HIS SHADOW CROSSES THE FLOOR, east to west, over the line of four Tan men (the lamp dims, each man darkens as it passes over him) · 0.56 to 1.0 HE DROPS IN on his wings (fly1, fly2) and LANDS jaws open (the floor shakes, the dust), the roar · 1.3 to 2.3 THE JET, his own colours (orange, yellow, cream,
 // the blue heart at the mouth), down the line; the four men go over one after the next (1.5, 1.68, 1.86, 2.04: the stage's own tumble east, nobody dies: HJM-F3) · THE LANE LEFT BURNING along the floor where the jet touched, embers over it · BOOM at 3.0: the band (his role
 // line), DARK DRAGON, JOINS YOUR ARMY, his picture in the rays, TAKE COMMAND / PROCEED. Night violet with the castle's orange (HAU_WORLD.blackdragon). His molds are CARD-BDH's, unchanged (one drawing everywhere), each worn on the stage as a picture of itself; four drawings in the act, his light in two steps.
+// ═══ CARD-DJM · HIS WELCOME JET LEAVES HIS MOUTH (Wyatt 11/24/2026 on Maker 1: "look how the flame is covering his face instead of coming out of his mouth") ═══
+// The joining moment's jet (sec:CARD-LDH, ldhMoment) was a fat lick 54 wide from a hand-set point [340,138], swelling at once: its top edge climbed over his snout and eye.
+// Now it is drawn as his fight draws it (bdhPlume's shape, his own colours below rank 100: orange, yellow, cream, the blue heart): from his throat to his lips (BDH_ART.geo,
+// the points every fight uses), out along his mouth's own line, thin at the lips (geo.half) and widening away from him, to the same end as before (down the line, to the floor).
+// Drawing only: no fight, no save, no clock. ?djm=0 (device key gvt_djm) = the jet as before; ?djm=1 clears it.
+const DJM={ off:(function(){ try{ const q=String(location.search||''); if(/[?&]djm=1(?:&|$)/.test(q)){ localStorage.removeItem('gvt_djm'); return false; } if(/[?&]djm=0(?:&|$)/.test(q)){ localStorage.setItem('gvt_djm','0'); return true; } return localStorage.getItem('gvt_djm')==='0'; }catch(e){ return false; } })() };
+function djmJet(at,S9,hop,t,a,grow,f){
+  const G=(typeof BDH_ART==='object' && BDH_ART && BDH_ART.geo)||{}, lips=G.lips||[0.8321,0.6235], thr=G.throat||[0.7636,0.5832], d0=G.dir||[0.8969,0.4422], half=G.half||9.9;
+  const B=[-10,-84,432,362], bp=q=>[B[0]+q[0]*B[2], B[1]+q[1]*B[3]];   // his mold's box (BDH_ART.box), the stage's at() takes box units
+  const P0=at(bp(thr),S9,hop), P1=at(bp(lips),S9,hop), g=Math.max(0.02,grow), E=[P1[0]+529.2*g, P1[1]+107.3*g];   // the old jet's end (540 at 0.2 rad), reached as it grows
+  const len=Math.hypot(E[0]-P1[0],E[1]-P1[1]), C=[P1[0]+d0[0]*len*0.3, P1[1]+d0[1]*len*0.3], N=18, ph=t*13, wLip=half*S9, wEnd=46;   // wEnd: the fight's 24 at his 170 px, at the stage's scale
+  const pt=q=>{ const b=1-q; return [b*b*P1[0]+2*b*q*C[0]+q*q*E[0], b*b*P1[1]+2*b*q*C[1]+q*q*E[1]]; };
+  const tan=q=>{ const b=1-q, x=2*b*(C[0]-P1[0])+2*q*(E[0]-C[0]), y=2*b*(C[1]-P1[1])+2*q*(E[1]-C[1]), m=Math.hypot(x,y)||1; return [x/m,y/m]; };
+  const path=(col,up,dn,op)=>{ let d='M'+f(P0[0])+' '+f(P0[1]); for(const p of up) d+=' L'+f(p[0])+' '+f(p[1]); for(let i=dn.length-1;i>=0;i--) d+=' L'+f(dn[i][0])+' '+f(dn[i][1]); return '<path d="'+d+' Z" fill="'+col+'" opacity="'+f(op)+'"/>'; };
+  const plume=(col,k,reach,wave)=>{ const up=[], dn=[]; for(let i=0;i<=N;i++){ const q=i/N*reach, p=pt(q), tg=tan(q), nx=-tg[1], ny=tg[0]; let w=(wLip+(wEnd-wLip)*Math.pow(q,0.85))*k; if(q>reach*0.86) w*=Math.sqrt(Math.max(0,(reach-q)/(reach*0.14)));
+      const wv=wave*q*Math.sin(q*11-ph+k*5); up.push([p[0]+nx*(w+wv), p[1]+ny*(w+wv)]); dn.push([p[0]-nx*(w-wv*0.7), p[1]-ny*(w-wv*0.7)]); } return path(col,up,dn,a); };
+  const lens=(col,k,r)=>{ const M=10, up=[], dn=[]; for(let i=0;i<=M;i++){ const q=i/M*r, p=pt(q), tg=tan(q), nx=-tg[1], ny=tg[0], w=(wLip+wEnd*0.17*Math.sin(Math.PI*Math.min(1,i/M*0.92)))*k*(1-Math.pow(i/M,3)); up.push([p[0]+nx*w,p[1]+ny*w]); dn.push([p[0]-nx*w,p[1]-ny*w]); } return path(col,up,dn,a); };
+  return plume('#F07A28',1,1,5)+plume('#FFB52E',0.8,0.96,4)+plume('#FFE24A',0.6,0.9,3)+plume('#FFF6D8',0.4,0.8,2)+lens('#3D7BF0',1,0.34*grow+0.02)+lens('#D6ECFF',0.5,0.27*grow+0.02); }
+// ═══ END CARD-DJM ═══
 function ldhMoment(){
   if(typeof WPM!=='object' || !WPM || !WPM.M || !WPM.K || typeof WPM.hero!=='function' || typeof WPM.dark!=='function') return null;
   const K=WPM.K, f=K.f, seg=K.seg, hit=K.hit, lerp=K.lerp, EZ=K.EZ, tr=K.tr, FLOOR=K.FLOOR, FX0=K.FX0;
@@ -249191,7 +249210,7 @@ function ldhMoment(){
       if(F && hop>24) fx+='<ellipse cx="'+f(HX)+'" cy="'+(FLOOR+8)+'" rx="'+f(150*(1-hop/520))+'" ry="'+f(17*(1-hop/520))+'" fill="#000" opacity="'+f(.42*(1-hop/430))+'"/>';   // ...and comes down under him as he drops
       if(t>=1.0) fx+=dust(HX-110, FLOOR, seg(t,1.0,1.7), -1)+dust(HX+110, FLOOR, seg(t,1.0,1.7), 1);   // the landing's dust, both sides
       fx+=lane(t)+embers(t, A*(1-seg(t,2.85,3.0)*0.3));
-      if(br>0){ const m=at([340,138], S9, hop); fx+=jet(m, 0.2, 540*EZ.out(seg(t,1.3,1.55)), 54*br, t, br); }   // THE JET from his open mouth (his breath mold's lips, CARD-BDH's geo), down the line: past the four men's chests to the floor at the last
+      if(br>0){ if(DJM.off){ const m=at([340,138], S9, hop); fx+=jet(m, 0.2, 540*EZ.out(seg(t,1.3,1.55)), 54*br, t, br); } else fx+=djmJet(at, S9, hop, t, br, EZ.out(seg(t,1.3,1.55)), f); }   // THE JET from his open mouth (his breath mold's lips, CARD-BDH's geo), down the line: past the four men's chests to the floor at the last
       return { pal:Object.assign(WPM.dark(this,la),{ lampX:HX+270, lampA:Math.max(.004, la*(1-0.5*pass)) }),
         cam:{ x:tr([[0,600],[0.6,560,'io'],[1.0,540,'io'],[1.45,568,'io'],[2.4,572,'io'],[3.0,556,'io']],t), y:tr([[0,250],[1.0,258,'io']],t), z:tr([[0,1.14],[0.6,1.16,'io'],[1.0,1.22,'io'],[1.3,1.18,'io'],[2.4,1.2,'lin'],[2.85,1.24,'out']],t) },
         lt:lt, fig:F, men:MEN.map((m,i)=>man(m,kd[i],t,ltm[i])),
