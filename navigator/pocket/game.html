@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.56","md5":"314a517bfbb8c25a5750bd33aa0d4996","sha":"cf514fc25f","at":"2026-11-24T16:25:52Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.57","md5":"32dc5298f6fdb1db0db2ffff38731676","sha":"4eacd0e832","at":"2026-11-24T16:47:56Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94673,7 +94673,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.56';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.57';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -238545,6 +238545,74 @@ function slgRead(o){ o=o||{}; if(o.reset){ SLG.wcv.door=SLG.wcv.watch=SLG.wcv.la
     ofr:{ ph:Object.keys(PHB.buf).map(k=>PHB.buf[k].sampleRate), phN:PHB.n, phFail:PHB.fail, shake:SHAKEB.buf? SHAKEB.buf.sampleRate : null, n:Object.assign({}, (SLG_N && SLG_N.ofr) || {}) } }; }
 try{ if(window.GVT) GVT.slg=slgRead; }catch(e){}   // GVT.slg(): the rigs' door (o.reset clears the counts)
 // ═══ END CARD-SLG ═══
+// ═══ CARD-ENG2-RTP · THE RUG ROOM'S BOARDS AS A PICTURE (PNG), SO THE iPHONE'S WEBKIT STOPS RENDERING THEIR SVG UNDER THE FIGHT'S CANVAS AT EVERY FRAME (sec:CARD-ENG2-RTP; design/eng2-program-1115/rtp/00-CARD-ENG2-RTP.md; cut by the engine road's orchestrator 11/23/2026 from CARD-ENG2-GLF1 §12 item 1; Wyatt 11/12/2026: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ═══
+// THE READ (CARD-ENG2-GLF1 §3.2, design/eng2-program-1115/glf1/): since WebKit's change 309599@main (first shipped in Safari 27.0 = iOS 27, September 2026) a 2D canvas is painted into its page's
+// layer, so every changed frame of a fight repaints the rug room under #cv (0998 THE CAMPAIGN RUG I: #wrap.onrug's CSS background, built on Wyatt's 9/14 go), and WebKit renders the boards' SVG
+// tile (rugRoomTile) again at each repaint: 3.3 to 3.8 M instructions of its drawing process a frame at 2 dots a point, 5.3 M at an iPhone's 3. A bitmap is a blit on every repaint (the page's 0554d).
+// THE CHANGE, IN WEBKIT ALONE (Chrome shows its canvas as a layer of its own and pays nothing): the boards' very SVG (rugRoomTile(P), the same every call, its seed set inside it) drawn ONCE into a
+// PNG of the glass's own dots, kept as a data: URI (the page's CSP img-src is 'self' data:), and the room's rule laid again in a style node of its own (#rtproom, right after #rugroom; its selectors
+// weighted, html #wrap.onrug and html #wrap.onrug.onrug-night, so it wins in any order): rugRoomCSS's own text with the tile's url() replaced by the PNG's and the tile's size and offset snapped to
+// whole dots, so the bitmap is drawn unstretched (each by under half a dot). The night's picture is made only when a night field opens. Made again when the glass's scale or dots change (rugRoomVars,
+// wrapped by name: resize() alone calls it), once a burst of resizes is over; cached per size (a rotation back lays at once); a late make is dropped (a generation); the picture is decoded before it
+// is laid, and until then the room's own SVG shows: never an empty floor, never a picture of another size. Capped at 3 dots a point and 4 M dots a picture (over it the SVG stays).
+// Nothing else moves: no canvas byte, no class on #wrap (CARD-DFC's observer watches it), no layout, no input. The hem and the drop stay #rugroom's.
+// OFF: ?rtp=0 for one load · gvt_rtp '0' on the device (?rtp=1 clears it) · GVT.rtp({ on:0 }) for the page's life. Off = no #rtproom: the page as it was. Zero save keys, zero server bytes, zero sw.js.
+var RTP={ on:(function(){ try{ const q=/[?&]rtp=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='1') localStorage.removeItem('gvt_rtp'); return q[1]==='1'? 1 : 0; } return localStorage.getItem('gvt_rtp')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  wk:(function(){ try{ return /^Apple/.test(navigator.vendor||'')? 1 : 0; }catch(e){ return 0; } })(),
+  snap:1, laid:'', made:{}, keep:[], gen:0, t:0, n:0, mk:0, err:0, why:'', ms:[], old:{} };   // the switch · WebKit · whole dots · the key laid · the pictures by key · the laid pictures held · the make's generation · its timer · styles laid · makes · errors · the last refusal · ms a make · the wrapped
+const RTP_DPR=3, RTP_DOTS=4194304, RTP_WAIT=150, RTP_KEYS=4;   // the density cap (dots a point) · the largest picture (dots) · the quiet after the last resize before a make · the sizes kept besides the laid one
+function rtpGeom(){ const d=Math.min(RTP_DPR, window.devicePixelRatio||1), s=scale;   // the tile at the glass's own dots: rugRoomCSS's 920 x 150 world units at --s (= scale), its offset -140, -37
+  return { s:s, d:d, key:String(s)+'|'+d, w:Math.max(1, Math.round(920*s*d)), h:Math.max(1, Math.round(150*s*d)), x:Math.round(-140*s*d), y:Math.round(-37*s*d) }; }
+function rtpText(nm, g, uri){ const P=RUG_ROOM_PAL[nm], tile=rugRoomTile(P);   // the room's own rule with the PNG in the tile's place: null when its text is not as this section read it (the SVG stays)
+  const SZ='calc(920px * var(--s,1)) calc(150px * var(--s,1))', PS='calc(-140px * var(--s,1)) calc(-37px * var(--s,1))';
+  let t=rugRoomCSS(nm==='night'? 'html #wrap.onrug.onrug-night' : 'html #wrap.onrug', P); const i=t.indexOf('}\n'); if(i<0) return null; t=t.slice(0, i+2);   // its first rule alone: the background (the canvas's hem and drop stay #rugroom's)
+  if(t.split(tile).length!==2) return null; t=t.split(tile).join('url("'+uri+'")');
+  if(RTP.snap){ if(t.split(SZ).length!==2 || t.split(PS).length!==2) return null; t=t.split(SZ).join((g.w/g.d)+'px '+(g.h/g.d)+'px').split(PS).join((g.x/g.d)+'px '+(g.y/g.d)+'px'); }
+  return t; }
+function rtpDrop(){ try{ const st=document.getElementById('rtproom'); if(st) st.remove(); }catch(e){ RTP.err++; } RTP.laid=''; RTP.keep=[]; }   // the page as it was: the room's own SVG
+function rtpLay(key){ const M=RTP.made[key]; if(!M) return; let t='';   // the style node: the day's rule and the night's, each once its picture is made
+  ['day', 'night'].forEach(function(nm){ if(M[nm]){ const x=rtpText(nm, M.g, M[nm].uri); if(x) t+=x; else RTP.why='text'; } });
+  if(!t){ rtpDrop(); return; }
+  const rr=document.getElementById('rugroom'); if(!rr){ rtpDrop(); return; } let st=document.getElementById('rtproom');
+  if(!st){ st=document.createElement('style'); st.id='rtproom'; }
+  if(st.textContent!==t) st.textContent=t; if(rr.nextSibling!==st) rr.parentNode.insertBefore(st, rr.nextSibling);
+  if(RTP.laid!==key){ RTP.laid=key; RTP.n++; } RTP.keep=['day', 'night'].map(function(nm){ return M[nm] && M[nm].im; }).filter(Boolean); }   // the laid pictures' Images held (their decoded bitmaps are the room's)
+function rtpTrim(){ const ks=Object.keys(RTP.made).filter(function(k){ return k!==RTP.laid; }); while(ks.length>RTP_KEYS){ delete RTP.made[ks.shift()]; } }
+function rtpMake(key, nm, g){ const gen=++RTP.gen, t0=performance.now(); RTP.mk++;   // ONE make at a time: the SVG drawn into a canvas of the tile's dots, encoded, decoded, then laid
+  const m=/^url\("(data:image\/svg\+xml[^"]*)"\)$/.exec(rugRoomTile(RUG_ROOM_PAL[nm])); if(!m){ RTP.why='tile'; return; }
+  const img=new Image(), fail=function(w){ RTP.why=w; };
+  img.onload=function(){ try{ if(gen!==RTP.gen) return;
+      const cv=document.createElement('canvas'); cv.width=g.w; cv.height=g.h; cv.getContext('2d').drawImage(img, 0, 0, g.w, g.h);
+      const done=function(uri){ cv.width=cv.height=0;   // the drawing canvas let go
+        if(gen!==RTP.gen) return; if(!uri || uri.indexOf('data:image/png')!==0){ fail('encode'); return; }
+        const im=new Image(), land=function(){ if(gen!==RTP.gen) return; const M=RTP.made[key]||(RTP.made[key]={ g:g }); M[nm]={ uri:uri, im:im }; RTP.ms.push(Math.round(performance.now()-t0)); if(RTP.ms.length>8) RTP.ms.shift(); rtpTrim(); rtpSync('made'); };
+        im.src=uri; if(im.decode) im.decode().then(land, land); else { im.onload=land; im.onerror=function(){ fail('decode'); }; } };
+      if(cv.toBlob && typeof FileReader!=='undefined') cv.toBlob(function(b){ if(!b){ done(null); return; } const fr=new FileReader(); fr.onload=function(){ done(fr.result); }; fr.onerror=function(){ done(null); }; fr.readAsDataURL(b); }, 'image/png');
+      else done(cv.toDataURL('image/png'));
+    }catch(e){ RTP.err++; fail('make'); } };
+  img.onerror=function(){ fail('svg'); }; img.src=m[1]; }
+function rtpSync(why){ try{   // after every rugRoom() and every rugRoomVars(): the room's picture for the glass as it stands
+  if(!RTP.on || !RTP.wk){ clearTimeout(RTP.t); RTP.t=0; if(RTP.laid || document.getElementById('rtproom')) rtpDrop(); return; }
+  const w=document.getElementById('wrap'); if(!w || !w.classList.contains('onrug') || !document.getElementById('rugroom')) return;   // no room on the glass: what is laid matches nothing
+  const g=rtpGeom(), nm=w.classList.contains('onrug-night')? 'night' : 'day', M=RTP.made[g.key];
+  if(g.w*g.h>RTP_DOTS){ RTP.why='cap'; rtpDrop(); return; }
+  if(M && M[nm]){ rtpLay(g.key); return; }   // made already (a rotation back, the next fight): laid at once
+  if(RTP.laid && RTP.laid!==g.key) rtpDrop();   // a picture of another size never stands: the room's own SVG until the new one lands
+  clearTimeout(RTP.t); RTP.t=setTimeout(function(){ RTP.t=0; try{ const w2=document.getElementById('wrap'); if(!RTP.on || !w2 || !w2.classList.contains('onrug')) return;
+      const g2=rtpGeom(), n2=w2.classList.contains('onrug-night')? 'night' : 'day', M2=RTP.made[g2.key]; if(M2 && M2[n2]){ rtpLay(g2.key); return; } if(g2.w*g2.h>RTP_DOTS) return; rtpMake(g2.key, n2, g2); }catch(e){ RTP.err++; } }, RTP_WAIT);   // the glass as it stands once the burst is over
+}catch(e){ RTP.err++; } }
+function rtpRig(o){ o=o||{};   // the rig door (GVT.rtp): { on:0|1 } for the page's life · { snap:0|1 } and { wk:0|1 } the rigs' own levers (never a player's) · the read
+  if(o.on!=null){ RTP.on=o.on? 1 : 0; if(!RTP.on){ RTP.gen++; clearTimeout(RTP.t); RTP.t=0; rtpDrop(); } else rtpSync('door'); }
+  if(o.snap!=null && (o.snap? 1 : 0)!==RTP.snap){ RTP.snap=o.snap? 1 : 0; RTP.gen++; RTP.made={}; rtpDrop(); rtpSync('door'); }
+  if(o.wk!=null){ RTP.wk=o.wk? 1 : 0; rtpSync('door'); }
+  let g=null; try{ g=rtpGeom(); }catch(e){} const st=document.getElementById('rtproom'), w=document.getElementById('wrap'), cs=w? getComputedStyle(w) : null, bi=cs? String(cs.backgroundImage) : '', q=bi.split(', ');
+  return { on:RTP.on, wk:RTP.wk, snap:RTP.snap, laid:RTP.laid, key:g && g.key, tile:g && [g.w, g.h, g.x, g.y], css:!!st, after:!!(st && st.previousElementSibling && st.previousElementSibling.id==='rugroom'), made:Object.keys(RTP.made).map(function(k){ return k+':'+['day', 'night'].filter(function(n){ return RTP.made[k][n]; }).join('+'); }),
+    room:w? w.className : '', png:/data:image\/png/.test(bi), svg:/data:image\/svg/.test(bi), layers:q.length, size:cs? String(cs.backgroundSize).split(', ').pop() : '', pos:cs? String(cs.backgroundPosition).split(', ').pop() : '',
+    n:RTP.n, mk:RTP.mk, err:RTP.err, why:RTP.why, ms:RTP.ms.slice(), wait:!!RTP.t, wraps:{ rugRoom:rugRoom!==RTP.old.rugRoom && !!RTP.old.rugRoom, rugRoomVars:rugRoomVars!==RTP.old.rugRoomVars && !!RTP.old.rugRoomVars } }; }
+RTP.old.rugRoom=rugRoom; rugRoom=function(on){ const r=RTP.old.rugRoom.apply(this, arguments); rtpSync('room'); return r; };   // the wrap: after every door's room (and the hub's off), the picture for its glass
+RTP.old.rugRoomVars=rugRoomVars; rugRoomVars=function(){ const r=RTP.old.rugRoomVars.apply(this, arguments); rtpSync('vars'); return r; };   // the wrap: --s and the glass's dots moved (resize() alone calls it)
+if(window.GVT && !GVT.rtp) GVT.rtp=function(o){ return rtpRig(o); };   // the rig door, hung on the game's GVT (dealt above this line)
+// ═══ END CARD-ENG2-RTP ═══
 // ═══ CARD-SNC · THE ROOM COUNTS SARGE'S CRATES WITHOUT BUILDING THE WHOLE STORE (sec:CARD-SNC; design/surplus-census-no-parse-1114/00-CARD-SNC.md; jumpr 3383, board J108; cut by CARD-MFA THE MEMORY FLOOR AUDIT, jumpr 3371, on Wyatt's word). FROM WYATT, 11/13/2026 about 16:30 EST, verbatim:
 //   "audit our existing code architecture to detect what else we can do to keep this number as low as we can while not hurting gameplay" · his rule, 11/12/2026 16:39 EST, verbatim:
 //   "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game"
