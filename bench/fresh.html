@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.53","md5":"9b6b9faf811a88047c56c2c85d33da1b","sha":"b3b48454c8","at":"2026-11-24T14:43:48Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.54","md5":"fa906b36d312f03f551809c0bcfc654a","sha":"dd9ffab50a","at":"2026-11-24T15:03:37Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94673,7 +94673,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.53';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.54';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -251452,7 +251452,7 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
       + '<div class="bl3-tabs"><button type="button" class="bl3-tab fort" onclick="UI.blvFort()"><span class="bl3-iconseat" data-suffix="ro-fort"></span>' + esc(fortDefaultName()) + '</button>'
       + (B2 ? '' : '<button type="button" class="bl3-tab surp" onclick="UI.blvShop()"><span class="bl3-iconseat" data-suffix="ro-shop"></span>SARGE\'S SURPLUS</button>') + '</div>'   /* CARD-BFO2: the Surplus's door moved to the stars button */
       + (B2 ? '<button type="button" class="bl3-stars" aria-label="Sarge\'s Surplus" onclick="UI.blvShop()">' : '<div class="bl3-stars">') + SH_PIG + '<b>' + esc((META.starBank | 0).toLocaleString('en-US')) + '★</b>' + (B2 ? '</button>' : '</div>')   /* CARD-BFO2: the piggy and the stars are the Surplus's door in the Battlefields */
-      + '<button type="button" class="bl3-pause" aria-label="pause" onclick="UI.blvPause()"><i></i><i></i></button>'
+      + (((typeof bfo3Btn === 'function') && bfo3Btn()) || '<button type="button" class="bl3-pause" aria-label="pause" onclick="UI.blvPause()"><i></i><i></i></button>')   /* CARD-BFO3 (Isaac 11/24/2026: "change the pause button in the top right to just be a little gear icon because we're not really pausing anything"): the game's gear in the same button (?bfo3=0 = the two bars) */
       + '<div class="bl3-left"></div>'
       + '<div class="bl3-me">' + seaHTML(ST) + lvHTML() + '</div>'
       + '<div class="bl3-play">' + rankedHTML(ST, size) + unHTML() + '</div>');
@@ -251774,6 +251774,34 @@ try{
 }catch(e){ bfo2Err('boot', e); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bfo2) GVT.bfo2=bfo2Read; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-BFO2 ═══
+// ═══ sec:CARD-BFO3 · THE LOBBY'S PAUSE BUTTON IS A GEAR (design/battlefields-open-ads-1121/00-DESIGN-BFO.md, section 11; jumpr 4385, round 3). FROM ISAAC by WhatsApp 11/24/2026 08:43 EST, verbatim:
+// "Let's change the pause button in the top right to just be a little gear icon because we're not really pausing anything. We're just making some changes." ═══
+// In the Battlefields' lobby (behind the code BATTLE, CARD-BBC) the button top right wore two bars, the sign of a pause. It wears the game's own gear now (gly('gear'): the head's settings glyph, drawn,
+// never an emoji), in the same button, the same seat and the same size (a thumb's), and its door is the one it had (UI.blvPause: the lobby's sheet with BACK TO THE BATTLEFIELDS, SOUND and BACK TO HQ).
+// One counted line of sec:CARD-BLV's show() asks bfo3Btn(); every reader of the button knows it by its class .bl3-pause, which it keeps. A glyph that cannot be drawn = the two bars, as before.
+// ?bfo3=0 = the two bars (localStorage gvt_bfo3off '1'; ?bfo3=1 clears it). GVT.bfo3() = the read. No new word on the glass, no drawing of this card's, nothing sent to HQ, nothing in the save.
+var BFO3={ on:1, err:0, e:'' };
+function bfo3Btn(){   // the lobby's settings button, or '' = the pause button as before
+  try{ if(!BFO3.on) return ''; const g=gly('gear'); if(!g) return '';
+    return '<button type="button" class="bl3-pause b3-gear" aria-label="settings" onclick="UI.blvPause()">'+g+'</button>'; }
+  catch(e){ try{ BFO3.err++; BFO3.e=String((e && e.message) || e).slice(0,120); }catch(x){} return ''; }
+}
+function bfo3Read(){ let b=null; try{ const el=document.querySelector('#bflobby3 .bl3-pause'); if(el){ const r=el.getBoundingClientRect(); b={ gear:!!el.querySelector('svg.gly-gear'), bars:el.querySelectorAll('i').length, label:el.getAttribute('aria-label'), box:[Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)] }; } }catch(e){}
+  return { cv:GVT_CV, on:BFO3.on, btn:b, err:BFO3.err, e:BFO3.e }; }
+try{
+  (function(){
+    let q=null; try{ q=new URLSearchParams(location.search).get('bfo3'); }catch(e){}
+    try{ if(q==='0') localStorage.setItem('gvt_bfo3off', '1'); else if(q==='1') localStorage.removeItem('gvt_bfo3off'); }catch(e){}
+    try{ BFO3.on=localStorage.getItem('gvt_bfo3off')==='1'? 0 : 1; }catch(e){ BFO3.on=1; }
+    const st=document.createElement('style'); st.id='bfo3Css';
+    st.textContent='#bflobby3 .bl3-pause.b3-gear{color:#EDEADF}'
+      +'#bflobby3 .bl3-pause.b3-gear svg{display:block;flex:none;width:clamp(22px,5.6vh,30px);height:clamp(22px,5.6vh,30px)}'
+      +'#bflobby3 .bl3-pause.b3-gear:active{transform:translateY(1px)}';
+    (document.head || document.documentElement).appendChild(st);
+  })();
+}catch(e){ try{ BFO3.err++; }catch(x){} }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bfo3) GVT.bfo3=bfo3Read; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-BFO3 ═══
 // ═══ sec:CARD-TUB · A ROOM CARD DEALT WHILE THE BATTLEFIELDS STAND IS SHOWN OVER THEM (design/prize-door-under-battlefields-1123/00-CARD-TUB.md; jumpr 4560; a side card of Isaac's CARD-BFD,
 // jumpr 4435, cut on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card, and a fix lands without asking) ═══
 // THE FAULT (client v34.36 and long before; read with a real finger's tap, Chrome for Testing and WebKit the same): while the Battlefields' door stands (Isaac's lobby, or the war table) a
