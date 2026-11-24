@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.51","md5":"3854a9c379b2067e5ae9d6e6718ae94e","sha":"5509f8eb28","at":"2026-11-24T10:45:34Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.52","md5":"ae3724806b1a8c4d7f2e051f04a610b2","sha":"e887fca466","at":"2026-11-24T12:18:11Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94673,7 +94673,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.51';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.52';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -173587,8 +173587,23 @@ function odeMint(k){   // IMG[k]'s own drawing → the same drawing through lagS
   const hex=(body===raw.split('currentColor').join(GREEN))? GREEN : (body===raw.split('currentColor').join(TAN))? TAN : null; if(!hex){ ODE.miss++; return false; }
   const sk=ODE_AS[k] && SPRITES_SRC[ODE_AS[k]]? ODE_AS[k] : k; let v=body; try{ v=(sk===k)? lagSpr(body,k,hex) : lagSpr(amMold(sk).split('currentColor').join(hex),sk,hex); }catch(e){ v=body; } if(typeof v!=='string' || v===body){ ODE.same++; return false; }
   const nu=new Image(); ODE.mine.add(nu);
-  nu.onload=()=>{ if(IMG[k]!==im) return; IMG[k]=nu; ODE.minted++; ODE.keys[k]=hex; if(typeof SPR_WIDE!=='undefined' && SPR_WIDE[k] && typeof sprWideMint==='function'){ try{ sprWideMint(k, v); ODE.wide++; }catch(e){} } };
+  nu.onload=()=>{ if(IMG[k]!==im){ odtDrop(nu); return; } IMG[k]=nu; ODE.minted++; ODE.keys[k]=hex; if(typeof SPR_WIDE!=='undefined' && SPR_WIDE[k] && typeof sprWideMint==='function'){ try{ sprWideMint(k, v); ODE.wide++; }catch(e){} } };
   nu.src=P+encodeURIComponent(head+v+'</svg>'); return true; }
+// ═══ CARD-ODT · A MINT THE GAME DROPS AT ITS LOAD LETS ITS DRAWING GO (inside sec:CARD-ODE; design/dropped-mint-1119/00-CARD-ODT.md; jumpr 3935, built on the QuarterPounder as M3935; found by CARD-WSB,
+// jumpr 3845; Wyatt's rule of 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game") ═══
+// THE FAULT: odeMint's Image is thrown away at its load when IMG[k] has changed since the mint was asked (its branch `IMG[k]!==im`): CARD-BMU's sized re-mint of the King Bear family (bmuLate) and
+//   CARD-HLR-STRAP's strapped medics (hlrsImgs) read IMG[k] through CARD-ODL's door (the read asks for the mint) and their own picture lands first, or odeMint's own read of a key asks for it a second
+//   time and the same drawing is minted twice. No table holds that Image and nothing draws it, but it kept its drawing and ODE.mine kept it: on WebKit the atlas (sec:CARD-AWG-EARLY) lists every live
+//   picture, so a dropped drawing nobody drew got its stand-by pair, made at every start on the atlas's slow line (CARD-WSB's census of his bedroom).
+// THE CURE: a dropped mint leaves ODE.mine and, one task after its load, its drawing is taken off (removeAttribute('src')): CARD-IPF's worn lifts it from the atlas's list at the sweep's next visit,
+//   before any stand-by copy is asked, and the engine can let its document go. One task later, never in the load itself: the atlas's own load listener (added when the drawing was given, after this
+//   onload) reads the picture's size first (taken off before that, the picture reads 0 x 0 and the atlas marks its row bad). The timer is the browser's own, taken at load, so a drop inside card B's
+//   seeded world (?det=1) adds nothing to its tick clock. Nothing else changes: the drop branch never wrote IMG, so every key keeps the picture it holds, and a mint that is kept is untouched.
+// ?odt=0 = as before (this load only, never stored). odtRead() = the counts (drop: mints thrown away at their load; off: drawings taken off).
+var ODT={ on:(function(){ try{ return new URLSearchParams(location.search).get('odt')==='0'? 0 : 1; }catch(e){ return 1; } })(), drop:0, off:0, st:window.setTimeout };
+function odtDrop(nu){ ODT.drop++; if(ODT.on!==1) return; ODE.mine.delete(nu); ODT.st.call(window, function(){ try{ nu.removeAttribute('src'); ODT.off++; }catch(e){} }, 0); }
+function odtRead(){ return { on:ODT.on, drop:ODT.drop, off:ODT.off }; }
+// ═══ END CARD-ODT ═══
 function odeMintAll(){ if(!odeOn()) return; ODE.runs++; const ks=Object.keys(IMG); let i=0;
   const step=()=>{ const t0=Date.now(); while(i<ks.length && Date.now()-t0<12){ try{ odeMint(ks[i]); }catch(e){ ODE.miss++; } i++; } if(i<ks.length) setTimeout(step,0); else ODE.t=Date.now(); }; setTimeout(step,0); }
 try{ if(typeof buildSprites==='function' && !ODE.bs0){ const b0=buildSprites; ODE.bs0=b0;
