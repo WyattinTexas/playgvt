@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.84","md5":"13595b0ecf3d50c3ca767a96072559d5","sha":"50240c7c51","at":"2026-11-25T14:50:27Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.85","md5":"b3732126488ac219da3139e73e463838","sha":"8454cb8480","at":"2026-11-25T15:41:07Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94761,7 +94761,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.84';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.85';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -257496,11 +257496,14 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.bj1124_5) GVT.bj1124_5=bj1124_
 //   come as he left it ("leave the top 500 for now"), and the board's door (LEADERBOARD) at its head, since the button left the lobby. (3) THE TABLE: CARD-BFLOB round 3's design (his three anchors: TIN REX 100★
 //   1 level of XP no drop, KING REX 250★ 2 levels COMMON, PRINCESS CROAK 2,500★ 7 levels RARE; design/battlefields-lobby-isaac-1117/kit/season.json), every amount at RRW.k (0.5: "half the original"): the stars to the
 //   nearest 5 where a half falls between, the levels of XP in halves (½ a level is a real amount); the supply drops are not amounts that halve and stand as designed.
+// ROUND 2, FROM ISAAC by WhatsApp 11/25/2026 10:23 EST (3AA8A23E05DE968FC845), verbatim: "Change the top star rewards to as follows: - Private: 3000; - Sergeant: 3500; Colonel: 4000; Commander: 5000"
+//   RRW.top: those four ranks' stars AS HE SET THEM (shown as they are, not halved; were 3,500 · 4,500 · 5,800 · 7,500); their levels of XP and supply drops as before; every other rank as before.
 // ⚑ RRW-F1 (Wyatt's word, BFLOB-F3): the season as money (the entry, levels and crates paid by a PvP ladder, the loot box rules). This section SHOWS the table; nothing pays it (the payout is the season's own build).
 // THE OFF SWITCH: ?rrw=0 on a device (gvt_rrw '0'; ?rrw=1 back), read at load: the lobby as before. GVT.rrw() = the rigs' read. Zero server, sw.js, save or wire bytes; the words are the lobby's own kind (English, data-notr),
 // the rank names CARD-RNK's own keys. No new drawable thing for the sheet (the crests are CARD-RNK's).
 var RRW={ on:(function(){ try{ const q=/[?&]rrw=([01])(?:&|$)/.exec(location.search||''); if(q) localStorage.setItem('gvt_rrw', q[1]); return localStorage.getItem('gvt_rrw')!=='0'; }catch(e){ return true; } })(),
-  v:1, k:0.5, seats:0, opens:0, closes:0, boards:0, err:0, e:'', css:0, wrapped:0,
+  v:2, k:0.5, seats:0, opens:0, closes:0, boards:0, err:0, e:'', css:0, wrapped:0,
+  top:{ private:3000, sergeant:3500, colonel:4000, commander:5000 },   // Isaac 11/25 10:23: the top four ranks' stars as he set them (not halved)
   // CARD-BFLOB round 3's ladder as designed: [rank id, stars, levels of XP, supply drops]
   T:[['tinrex',100,1,[]], ['stego',150,1,[]], ['kingrex',250,2,['COMMON']], ['yeti',325,3,['COMMON']], ['sgtcold',425,3,['COMMON']], ['kingyeti',550,4,['COMMON']], ['outlaw',700,4,['UNCOMMON']],
      ['snake',900,5,['UNCOMMON']], ['croak',1150,5,['UNCOMMON']], ['gnome',1500,6,['UNCOMMON']], ['wizard',1950,6,['UNCOMMON']], ['princess',2500,7,['RARE']], ['teddy',3250,8,['RARE']], ['capteddy',4150,8,['RARE']],
@@ -257509,7 +257512,7 @@ function rrwErr(w,e){ RRW.err++; if(RRW.e.length<300) RRW.e+=w+':'+String((e && 
 function rrwStars(n){ return Math.round(n*RRW.k/5)*5; }   // half, to the nearest 5 where a half falls between
 function rrwLevels(n){ const v=Math.round(n*RRW.k*2)/2, w=Math.floor(v), h=(v-w)>=0.5; return { v:v, txt:(w>0? String(w) : '')+(h? '½' : '')+(v>1? ' LEVELS OF XP' : ' LEVEL OF XP') }; }
 function rrwDrops(d){ if(!d.length) return 'NO SUPPLY DROP'; const n=d.length, k=d[0]; return (n>1? n+' ' : '')+k+' SUPPLY DROP'+(n>1? 'S' : ''); }
-function rrwRows(){ return RRW.T.map(function(r){ return { id:r[0], stars:rrwStars(r[1]), lv:rrwLevels(r[2]), drop:rrwDrops(r[3]), was:[r[1], r[2], r[3].length] }; }); }
+function rrwRows(){ return RRW.T.map(function(r){ return { id:r[0], stars:(RRW.top && RRW.top[r[0]]!=null)? RRW.top[r[0]] : rrwStars(r[1]), lv:rrwLevels(r[2]), drop:rrwDrops(r[3]), was:[r[1], r[2], r[3].length] }; }); }
 function rrwMe(root){ try{ const m=(typeof rnkBoxMode==='function' && root)? rnkBoxMode(root) : 1, me=RNK.mes[m]||(m===1? RNK.me : null); if(!me) return { id:'', m:m }; return { id:rnkId(me.rank, !!me.gen), m:m }; }catch(e){ return { id:'', m:1 }; } }
 function rrwCssLay(){ if(RRW.css || !document.head) return; try{ const st=document.createElement('style'); st.id='rrwCss'; st.textContent=
   '#bflobby3.rrw-on .bl3-me .bl3-sea{display:none!important}'
