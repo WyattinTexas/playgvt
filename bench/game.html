@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.74","md5":"64c0d88ced6253a2ac838738140ccb7c","sha":"f4347cd6f8","at":"2026-11-25T02:56:08Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.75","md5":"6b2c66a376dc6ebbc676e3a2e350164e","sha":"abeb638158","at":"2026-11-25T04:27:47Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94761,7 +94761,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.74';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -256859,6 +256859,264 @@ function bj1118Rig(o){ o=o||{}; if(o.on!==undefined) BJ1118.on=o.on? 1 : 0; if(o
 if(window.GVT && !GVT.bj1118) GVT.bj1118=bj1118Rig;
 setTimeout(()=>{ try{ if(typeof GVT==='object' && GVT && !GVT.bj1118) GVT.bj1118=bj1118Rig; }catch(e){} }, 0);   // hung on the DEBUG API after it is built (the RFF grammar)
 // ═══ END CARD-BUG-1118 ═══
+// ═══ CARD-WRE THE WAR ROOM'S EVENTS: THE GAME SAYS WHAT THE PLAYER EXPORT NEEDS (sec:CARD-WRE; design/war-room-events-1124/00-CARD-WRE.md; jumpr 4695, board J1065).
+// FROM SKYLAR (his War Room, the team's analytics page), fronted by Wyatt: card B of the War Room tracking plan. Skylar 11/24/2026, verbatim: "I looked at the tracking plan,
+// and some things are only partially tracked, and some things are not tracked yet. Why is that a thing? We'll want all that tracked when we put this analytics tool into the game."
+// Card A (CARD-WRX) made HQ serve the "GVT Player Export v1" file from what HQ already records; its list of what it could not fill honestly is this card's list. So the game says it:
+// typed events on THE RULER'S OWN PIPE (the 0624 section: tel()'s queue TEL.q, kept in gvt_tel, batched to POST /gvt/tel, beaconed at every hide), every name beginning w:
+//   wck  [now, tz]                                        the phone's clock and time zone, laid FIRST in every post that carries a w event (telFlush, wrapped): HQ sets each event on its own clock
+//   wss  [t, sid, src, cold, away, minute, tz]            a SESSION starts: a cold boot, or a return after more than WRE_GAP_S away; src organic · invite (a party, squad, room or join link)
+//                                                         · push:torch / push:knock (back inside the knock's window after the game's own knock); minute = the start on the player's clock
+//   wse  [t, sid, s, end, adAgo, ai, ar, battles, last ad's place, recovered]   the session so far, at every hide (the last one stands); end = the War Room's screen word;
+//                                                         recovered 1 = the run died with no farewell and its session closes at the next boot, at its last known state
+//   wbs  [t, sid, bid, k, sub, lv, tier, humans]          a BATTLE starts, every mode: the seven doors CARD-AFD names (campaign, rival, Mom, training, the battleground's every kind,
+//                                                         the Toy Express, parks, raids) and any other door the 1 s watch meets standing (door '?')
+//   wbe  [t, sid, bid, o, s, humans]                      its verdict: w · l · r (RETREAT TO HQ, a fight left for the room); a fight with no wbe was walked away from (the app closed)
+//   wft  [t, sid, step, sinceInstall, x]                  a FIRST-RUN beat, once a device: open start intro opstart opener (x 1 won) tour1..tour4 tour name go1 l1 l5 l10 l20
+//   wad  [t, sid, place, fmt, shown, why]                 an AD OPPORTUNITY, shown or not: the verdict exits' break (retry continue picker bfagain flow) and the TV (rew); why it did not show
+//   wlc  [t, sid, choice, ms, o]                          the VERDICT'S CHOICE (retry bf hq on a loss; continue hq on a win) and the milliseconds the verdict stood
+//   wno  [t, sid, kind, act, n]                           NOTIFICATIONS: perm <state> (the permission as the page reads it) · torch / knock sent · <kind> open <seconds after it>
+//   wbuy [t, sid, sku, store, price, cur, fresh]          a PURCHASE credited: the store, the price the store showed (digits) and its symbol's currency
+//   wpf  [t, sid, plat, lang, tz, push, noads, paid, camp, stars, hrd]   the PROFILE, at every session start
+// Measurement only: no ad, price, rule, screen, word or sound changes; nothing waits on HQ (an older HQ skips the names it does not know, never an error). PRIVACY: the device id the ruler
+// already sends and nothing else (no name, no account, no address, no birthday). ?wre=0 = nothing of this card on this device (remembered: gvt_wre '0'); ?wre=1 clears it.
+// WRAPPED BY NAME, each calls through first and hands its value back as it is; the section stands LAST in the page's script so its wraps are the outermost (they see the state every
+// other card's wrap has made): the seven doors and the three verdicts of CARD-AFD, showMenu (a live fight left = r), telFlush (the clock), squadAdGate + telAd (the ad's place and
+// result), iapCredit, gaKnock, evKnockSys. GVT.wre() = the rigs' read (the state, the counts, the queue's w events). Zero css, words, save keys, server or sw.js bytes. ═══
+const WRE_GAP_S=30, WRE_NAMES={ wck:1, wss:1, wse:1, wbs:1, wbe:1, wft:1, wad:1, wlc:1, wno:1, wbuy:1, wpf:1 };
+const WRE=(function(){ const o={ on:1, why:'', err:0, e:'', n:0, sid:0, t0:0, hidT:0, hidSum:0, bye:0, src:'organic', ai:0, ar:0, adT:0, nb:0, lastPl:'-', bat:null, pend:'', pendT:0, adAsk:null, vd:null, ft:'', knock:null, pm:'', wraps:[], tick:0, scr:'menu' };
+  try{ const m=/[?&]wre=([01])(?![\w])/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_wre','0'); else localStorage.removeItem('gvt_wre'); } if(localStorage.getItem('gvt_wre')==='0'){ o.on=0; o.why='switch'; } }catch(e){ o.err++; }
+  return o; })();
+function wreNow(){ return Math.floor(Date.now()/1000); }
+function wreTz(){ try{ const z=-(new Date()).getTimezoneOffset(); return (z>=-720 && z<=840)? Math.round(z) : 0; }catch(e){ return 0; } }   // minutes from UTC (New York -300)
+function wreMin(){ try{ const d=new Date(); return d.getHours()*60+d.getMinutes(); }catch(e){ return 0; } }
+function wreW(v){ v=String(v==null? '' : v).toLowerCase().replace(/[^a-z0-9_:+?.-]/g, '').slice(0, 24); return v || '-'; }   // a word the box takes: [a-z0-9_:+?.-]{1,24}
+function wreI(v){ v=Number(v); return isFinite(v)? Math.max(-2000000000, Math.min(2000000000, Math.round(v))) : 0; }
+function wreEv(n, a){   // one event onto the ruler's queue: [name, t, sid, ...seats] (an int stays an int, anything else becomes a word)
+  if(!WRE.on || !WRE_NAMES[n]) return;
+  try{ const e=[n, wreNow(), WRE.sid|0]; for(const v of (a||[])) e.push(typeof v==='number'? wreI(v) : wreW(v));
+    TEL.q.push(e); if(TEL.q.length>TEL_KEEP) TEL.q=TEL.q.slice(-TEL_KEEP); telSave(); WRE.n++;
+    if(TEL.q.length>=TEL_BATCH) telFlush(); else telArm();
+  }catch(e){ WRE.err++; WRE.e=String((e && e.message) || e).slice(0, 80); }
+}
+function wreClock(){   // telFlush's seat: one wck at the head of the post when its first 39 events hold a w event (an old wck left by a refused post goes first)
+  try{ if(!WRE.on || !TEL.q.length) return; const q=TEL.q.filter(e=>!(e && e[0]==='wck')); let has=false;
+    for(let i=0; i<Math.min(q.length, 39); i++){ if(q[i] && WRE_NAMES[q[i][0]]){ has=true; break; } }
+    if(has) q.unshift(['wck', wreNow(), wreTz()]); TEL.q=q;
+  }catch(e){ WRE.err++; }
+}
+function wreLoad(k, d){ try{ const v=localStorage.getItem(k); return v==null? d : v; }catch(e){ return d; } }
+function wrePut(k, v){ try{ localStorage.setItem(k, String(v)); }catch(e){} }
+function wreNext(k){ const n=(parseInt(wreLoad(k, '0'), 10) || 0)+1; wrePut(k, n); return n; }   // a device's own counter (sessions gvt_wre_n, battles gvt_wre_b)
+function wreSave(){   // the session as it stands, for the boot after a run that died with no farewell
+  try{ if(!WRE.sid) return; const B=WRE.bat;
+    wrePut('gvt_wre_s', JSON.stringify({ sid:WRE.sid, t0:WRE.t0, hs:WRE.hidSum, last:wreNow(), scr:WRE.scr, adT:WRE.adT, ai:WRE.ai, ar:WRE.ar, nb:WRE.nb, pl:WRE.lastPl, bye:WRE.bye, bid:(B && B.live)? B.id : 0 }));
+  }catch(e){ WRE.err++; }
+}
+// ── the screen under the player, in the War Room's words (title intro opener tour menu battle win lose ad shop pitch picker)
+function wreTour(){ try{ const n=META.tour|0; return n>=1 && n<TOUR_DONE && META.tourEnd!==1 && S.mode==='menu'; }catch(e){ return false; } }
+function wreScr(){
+  try{ const s=telScreen();
+    if(s==='ad' || s==='ad+') return 'ad';
+    if(s==='pitch') return 'pitch';
+    if(s==='starpop' || s.indexOf('shop:')===0) return 'shop';
+    if(s==='title') return (typeof ciSeen==='function' && !ciSeen() && document.querySelector('.ci-skip'))? 'intro' : 'title';
+    if(s==='picker') return 'picker';
+    if(s.indexOf('play:')===0) return (S.bf && S.bf.opener)? 'opener' : 'battle';
+    if(s==='verdict:win') return 'win';
+    if(s==='verdict:lose') return 'lose';
+    if(wreTour()) return 'tour';
+    return 'menu';
+  }catch(e){ return 'menu'; }
+}
+// ── sessions
+function wreStart(cold, away){
+  try{ WRE.sid=wreNext('gvt_wre_n'); WRE.t0=wreNow(); WRE.hidSum=0; WRE.hidT=0; WRE.bye=0; WRE.ai=0; WRE.ar=0; WRE.nb=0; WRE.lastPl='-';
+    let src='organic';
+    try{ if(cold && (coopJoinPend || crewJoinPend)) src='invite'; }catch(e){}
+    try{ const k=WRE.knock; if(!cold && k && (Date.now()-k.at)<=k.win*1000){ src='push:'+k.kind; WRE.knock=null; wreEv('wno', [k.kind, 'open', Math.round((Date.now()-k.at)/1000)]); } }catch(e){}
+    WRE.src=src; WRE.scr=wreScr();
+    wreEv('wss', [src, cold? 1 : 0, Math.max(0, away|0), wreMin(), wreTz()]);
+    wreProfile(); wreSave();
+  }catch(e){ WRE.err++; }
+}
+function wreHide(){
+  try{ if(!WRE.on || !WRE.sid || WRE.bye) return; const now=wreNow(); WRE.bye=1; WRE.hidT=now; WRE.scr=wreScr();
+    wreEv('wse', [Math.max(0, now-WRE.t0-WRE.hidSum), WRE.scr, WRE.adT? Math.max(0, now-WRE.adT) : -1, WRE.ai, WRE.ar, WRE.nb, WRE.lastPl, 0]);
+    wreSave(); telFlush(true);
+  }catch(e){ WRE.err++; }
+}
+function wreShow(){
+  try{ if(!WRE.on || !WRE.bye) return; const now=wreNow(), away=Math.max(0, now-(WRE.hidT || now));
+    if(away>WRE_GAP_S) wreStart(0, away); else { WRE.hidSum+=away; WRE.bye=0; WRE.hidT=0; wreSave(); }
+  }catch(e){ WRE.err++; }
+}
+function wreBoot(){
+  try{ if(!WRE.on) return; let p=null; try{ p=JSON.parse(wreLoad('gvt_wre_s', 'null')); }catch(e){}
+    if(p && p.sid && !p.bye){   // the last run died with no farewell: its session closes now, at its last known state (its open fight, if any, has no wbe: walked away)
+      const keep=WRE.sid; WRE.sid=p.sid|0;
+      wreEv('wse', [Math.max(0, (p.last|0)-(p.t0|0)-(p.hs|0)), p.scr || 'menu', p.adT? Math.max(0, (p.last|0)-(p.adT|0)) : -1, p.ai|0, p.ar|0, p.nb|0, p.pl || '-', 1]);
+      WRE.sid=keep;
+    }
+    wreFtBoot(); wreStart(1, 0);
+  }catch(e){ WRE.err++; }
+}
+// ── battles: the kind of the fight that stands, read right after its door
+function wreRaidKey(k){ return ({ ice:'icecastle', bone:'rex', croak:'croak', fields:'pillow', palace:'palace', caves:'icecaves', sky:'sky', chess:'chess' })[k] || k || '-'; }
+function wreHumans(cap){ let h=1; try{ h=battleHumans(); }catch(e){} h=Math.max(1, h|0); return cap? Math.min(h, Math.max(1, cap|0)) : h; }
+function wreKind(door){
+  try{ const coop=!!S.coop;
+    if(S.bf){ const bf=S.bf; if(bf.watch) return null; const team=Math.max(1, bf.team|0);
+      if(bf.opener) return { k:'opener', sub:'-', lv:0, t:'-', h:1 };
+      let w=null; try{ w=bgmMode(bf); }catch(e){}
+      const h=wreHumans(team);
+      if(w==='globe') return { k:'globe', sub:'-', lv:0, t:'-', h:h };
+      if(w==='away') return { k:'away', sub:'-', lv:0, t:'-', h:h };
+      if(w==='gaunt') return { k:'gauntlet', sub:'-', lv:0, t:'-', h:h };
+      if(w==='bell') return { k:'desert', sub:'-', lv:0, t:'-', h:h };
+      if(w==='raid' || w==='nem') return { k:'rival', sub:w, lv:0, t:'-', h:h };
+      return { k:team>1? 'bfbig' : 'bf', sub:w || ('b'+team), lv:0, t:'-', h:h };
+    }
+    if(door==='startTraining' || S.train) return { k:'train', sub:'-', lv:0, t:'-', h:1 };
+    if(door==='texStart' || S.tex) return { k:'tex', sub:'-', lv:0, t:'-', h:1 };
+    if(S.raid && S.raid.cfg===S.cfg){ const t=String(S.raid.t || '-');
+      try{ if(evBattle()) return { k:'invasion', sub:wreRaidKey(S.raid.k), lv:0, t:t, h:wreHumans(0) }; }catch(e){}
+      return { k:coop? 'partyraid' : 'raid', sub:wreRaidKey(S.raid.k), lv:0, t:t, h:wreHumans(0) }; }
+    if(S.park && S.park.cfg===S.cfg) return { k:coop? 'partyraid' : 'park', sub:String(S.park.id || '-'), lv:S.park.n|0, t:'-', h:wreHumans(0) };
+    if(S.momRaid) return { k:'rival', sub:'mom', lv:0, t:'-', h:1 };
+    try{ if(hrdOn()) return { k:'survival', sub:'-', lv:0, t:'-', h:wreHumans(0) }; }catch(e){}
+    if(S.rival) return { k:'rival', sub:'-', lv:S.levelN|0, t:'-', h:1 };
+    const n=S.levelN|0;
+    if(coop) return { k:'coopcamp', sub:'-', lv:n, t:'-', h:wreHumans(0) };
+    return { k:n>200? 'third' : n>100? 'elite' : 'camp', sub:'-', lv:n, t:'-', h:1 };
+  }catch(e){ WRE.err++; return null; }
+}
+function wreBattleStart(door){
+  try{ if(!WRE.on || S.mode!=='play') return; const b=wreKind(door); if(!b) return;
+    if(WRE.bat && WRE.bat.live){ if(Date.now()-WRE.bat.at<2000) return; wreBattleEnd('r'); }   // told twice inside two seconds = the same fight; older = a fight a new door replaced without a verdict (a restart): a retreat
+    WRE.vd=null;
+    WRE.bat={ id:wreNext('gvt_wre_b'), at:Date.now(), hs:WRE.hidSum, k:b.k, h:b.h, live:1 }; WRE.nb++;
+    wreEv('wbs', [WRE.bat.id, b.k, b.sub, b.lv, b.t, b.h]);
+    if(b.k==='opener') wreFt('opstart', 0);
+    if(b.k==='camp' && b.lv===1) wreFt('go1', 0);
+    wreSave();
+  }catch(e){ WRE.err++; }
+}
+function wreBattleEnd(o){
+  try{ const B=WRE.bat; if(!B || !B.live) return; B.live=0;
+    const s=Math.max(0, Math.round((Date.now()-B.at)/1000)-Math.max(0, WRE.hidSum-B.hs));
+    wreEv('wbe', [B.id, o, s, B.h]); WRE.vd=(o==='w' || o==='l')? { o:o, at:Date.now() } : null;
+    if(B.k==='opener') wreFt('opener', o==='w'? 1 : 0);
+    wreSave();
+  }catch(e){ WRE.err++; }
+}
+function wreVerdictRead(){ try{ if(!WRE.bat || !WRE.bat.live) return; if(S.mode==='win') wreBattleEnd('w'); else if(S.mode==='lose') wreBattleEnd('l'); }catch(e){ WRE.err++; } }
+// ── first-run beats: once a device (gvt_wre_ft holds the done ones, space-separated); a save met before this card has what it already did marked unsent
+function wreFtHas(k){ return (' '+WRE.ft+' ').indexOf(' '+k+' ')>=0; }
+function wreFt(k, x){
+  try{ if(!WRE.on || wreFtHas(k)) return; WRE.ft=(WRE.ft? WRE.ft+' ' : '')+k; wrePut('gvt_wre_ft', WRE.ft);
+    let since=-1; try{ if(META.born>0) since=Math.max(0, Math.round((Date.now()-META.born)/1000)); }catch(e){}
+    wreEv('wft', [k, since, x|0]);
+  }catch(e){ WRE.err++; }
+}
+function wreFtMarks(){   // [step, done now] read off the save: the 1 s watch sends a step the first time it turns true
+  let c=0, t=0, te=0; try{ c=META.campaign|0; t=META.tour|0; te=META.tourEnd|0; }catch(e){}
+  return [['intro', !!META.ciDone], ['opener', !!META.opener], ['tour1', t>=1], ['tour2', t>=2], ['tour3', t>=3], ['tour4', t>=4], ['tour', te===1 || t>=TOUR_DONE],
+          ['l1', c>=1], ['l5', c>=5], ['l10', c>=10], ['l20', c>=20]];
+}
+function wreFtBoot(){
+  try{ WRE.ft=String(wreLoad('gvt_wre_ft', '') || '');
+    if(wreLoad('gvt_wre_ft', null)===null){   // this device's first run of this card
+      if(META_FRESH){ wrePut('gvt_wre_ft', ''); wreFt('open', 0); }
+      else { let c=0; try{ c=META.campaign|0; }catch(e){} const done=['open', 'start', 'name']; if(c>0 || META.opener) done.push('opstart'); if(c>0) done.push('go1');   // name: a veteran's rename is no first-run beat
+        for(const r of wreFtMarks()) if(r[1]) done.push(r[0]); WRE.ft=done.join(' '); wrePut('gvt_wre_ft', WRE.ft); }
+    }
+  }catch(e){ WRE.err++; }
+}
+function wreFtTick(){
+  try{ if(!wreFtHas('start')){ const ti=document.getElementById('title'); if(ti && ti.classList.contains('hidden')) wreFt('start', 0); }
+    if(!wreFtHas('name')){ const np=document.getElementById('nameProm'); if(np && !np.classList.contains('hidden')) wreFt('name', 0); }   // the name card stands (CHOOSE YOUR NAME)
+    for(const r of wreFtMarks()) if(r[1] && !wreFtHas(r[0]) && r[0]!=='opener') wreFt(r[0], 0);
+    if(META.opener && !wreFtHas('opener')) wreFt('opener', 1);
+  }catch(e){ WRE.err++; }
+}
+// ── ads: the exit's place, read at the tap (the capture phase: before the button's own listener), and why a break did not show
+function wrePlace(){ return (WRE.pend && Date.now()-WRE.pendT<3000)? WRE.pend : 'other'; }
+function wreWhy(){
+  try{ if(STEAM_SHELL) return 'steam'; if(ADS.provider==='placeholder') return 'noad'; if(META.paidEver) return 'paid'; if(adFree()) return 'noads'; if(adImmune()) return 'torch';
+    if(adNewbie()) return 'cradle'; if(typeof ad4Loaded==='function' && !ad4Loaded()) return 'nofill'; if(!maxIntOk()) return 'gap'; return 'cadence';
+  }catch(e){ return 'err'; }
+}
+function wreProfile(){
+  try{ let plat='web'; try{ if(STEAM_SHELL) plat='steam'; else if(window.GVTBillingAmazon) plat='amazon'; else if(window.GVTShellAndroid) plat='android'; else if(window.__GVTSHELL) plat='ios'; }catch(e){}
+    let push=0; try{ push=(GL.pushOn || GL.apnsOk || GL.fcmOk || (typeof Notification!=='undefined' && Notification.permission==='granted'))? 1 : 0; }catch(e){}
+    let noads=0; try{ noads=adFree()? 1 : 0; }catch(e){}
+    wreEv('wpf', [plat, String(LANG || 'en'), wreTz(), push, noads, META.paidEver? 1 : 0, META.campaign|0, META.starBank|0, META.hrdBest|0]);
+  }catch(e){ WRE.err++; }
+}
+function wrePerm(){   // the permission as the page reads it (the web's Notification; a shell's push token = granted), sent when it moves
+  try{ let st=''; try{ if(GL.apnsOk || GL.fcmOk) st='granted'; }catch(e){}
+    if(!st){ try{ if(typeof Notification!=='undefined') st=String(Notification.permission || ''); }catch(e){} }
+    if(!st || st===WRE.pm) return; const was=wreLoad('gvt_wre_pm', ''); WRE.pm=st; if(was===st) return; wrePut('gvt_wre_pm', st); wreEv('wno', ['perm', st, 0]);
+  }catch(e){ WRE.err++; }
+}
+function wreTick(){
+  try{ if(!WRE.on) return; WRE.tick++;
+    if(!document.hidden){ WRE.scr=wreScr();
+      if(S.mode==='play' && !(WRE.bat && WRE.bat.live)) wreBattleStart('?');   // a fight from a door no wrap stands on
+      else if(WRE.bat && WRE.bat.live){ if(S.mode==='win' || S.mode==='lose') wreVerdictRead(); else if(S.mode==='menu') wreBattleEnd('r'); }
+    }
+    wreFtTick(); if(WRE.tick%5===0){ wrePerm(); wreSave(); }
+  }catch(e){ WRE.err++; }
+}
+function wreWrap(name, f0, before, after){   // by name: before() and after() never throw into the game, the door's value goes back as it is
+  const w=function(){ if(before) try{ before.apply(this, arguments); }catch(e){ WRE.err++; } const r=f0.apply(this, arguments); if(after) try{ after.apply(this, arguments); }catch(e){ WRE.err++; } return r; };
+  try{ w.toString=function(){ return String(f0); }; }catch(e){}
+  WRE.wraps.push(name); return w;
+}
+if(WRE.on){
+  try{
+    if(typeof telFlush==='function') telFlush=wreWrap('telFlush', telFlush, ()=>wreClock(), null);
+    for(const d of ['startBattle', 'startMomRaid', 'startTraining', 'startBattlefield', 'texStart', 'startParkBattle', 'startRaidBattle']){
+      const f0=window[d]; if(typeof f0!=='function') continue; const w=wreWrap(d, f0, null, ()=>wreBattleStart(d));
+      if(d==='startBattle') startBattle=w; else if(d==='startMomRaid') startMomRaid=w; else if(d==='startTraining') startTraining=w; else if(d==='startBattlefield') startBattlefield=w;
+      else if(d==='texStart') texStart=w; else if(d==='startParkBattle') startParkBattle=w; else startRaidBattle=w;
+    }
+    if(typeof endBattle==='function') endBattle=wreWrap('endBattle', endBattle, null, ()=>wreVerdictRead());
+    if(typeof endBattlefield==='function') endBattlefield=wreWrap('endBattlefield', endBattlefield, null, ()=>wreVerdictRead());
+    if(typeof hrdEnd==='function') hrdEnd=wreWrap('hrdEnd', hrdEnd, null, ()=>{ if(WRE.bat && WRE.bat.live){ if(S.mode==='win') wreBattleEnd('w'); else if(S.mode==='lose') wreBattleEnd('l'); else if(S.mode==='menu') wreBattleEnd('r'); } });
+    if(typeof showMenu==='function') showMenu=wreWrap('showMenu', showMenu, ()=>{ if(WRE.bat && WRE.bat.live && S.mode==='play') wreBattleEnd('r'); else wreVerdictRead(); }, null);
+    if(typeof campFlowLaunch==='function') campFlowLaunch=wreWrap('campFlowLaunch', campFlowLaunch, ()=>{ WRE.pend='flow'; WRE.pendT=Date.now(); }, null);
+    if(typeof bfAgainLaunch==='function') bfAgainLaunch=wreWrap('bfAgainLaunch', bfAgainLaunch, ()=>{ WRE.pend='bfagain'; WRE.pendT=Date.now(); }, null);
+    if(typeof squadAdGate==='function'){ const g0=squadAdGate; let busy=false;
+      squadAdGate=wreWrap('squadAdGate', g0, ()=>{ busy=false; try{ busy=!!ad4Busy(); }catch(e){} WRE.adAsk=null; }, ()=>{ if(busy) return; const pl=wrePlace(); let brk=false; try{ brk=!!(AD_LAST && AD_LAST.brk && Date.now()-AD_LAST.t<2000); }catch(e){}
+        if(brk) WRE.adAsk={ pl:pl, at:Date.now() }; else wreEv('wad', [pl, 'int', 0, wreWhy()]); }); }
+    if(typeof telAd==='function') telAd=wreWrap('telAd', telAd, null, (kind, r)=>{ const disp=!!(r && (r.displayed || (kind==='rew' && r.completed)));
+      if(kind==='int'){ const a=WRE.adAsk; if(!a) return; WRE.adAsk=null; wreEv('wad', [a.pl, 'int', disp? 1 : 0, disp? '-' : (r? 'fail' : 'nofill')]); if(disp){ WRE.ai++; WRE.adT=wreNow(); WRE.lastPl=a.pl; } }
+      else if(kind==='rew'){ wreEv('wad', ['tv', 'rew', disp? 1 : 0, (r && r.completed)? 'done' : disp? 'quit' : 'fail']); if(disp){ WRE.ar++; WRE.adT=wreNow(); WRE.lastPl='tv'; } } });
+    if(typeof iapCredit==='function'){ let had=true;   // a purchase the game's own ledger GAINS on this call: a replay (the shells re-offer every unfinished transaction at each load) gains nothing and sends nothing
+      iapCredit=wreWrap('iapCredit', iapCredit, (d)=>{ had=true; try{ if(d && d.tx!=null) had=iapLedger().t.indexOf(String(d.tx).slice(0,64))>=0; }catch(e){ had=true; } }, (d)=>{
+        if(had || !d || d.tx==null) return; let got=false; try{ got=iapLedger().t.indexOf(String(d.tx).slice(0,64))>=0; }catch(e){} if(!got) return; const sku=String(d.sku || '');
+        let store='web'; try{ if(window.GVTBillingAmazon) store='amazon'; else if(window.GVTShellAndroid) store='play'; else if(window.__GVTSHELL) store='apple'; }catch(e){}
+        let price='-', cur='-'; try{ const pr=(IAP_STATE && IAP_STATE.prices && IAP_STATE.prices[sku]) || ''; const ps=String(pr); const m=/[0-9][0-9.,]*/.exec(ps); if(m) price=m[0].replace(/,/g, '.');
+          cur=/\$/.test(ps)? 'dol' : /€/.test(ps)? 'eur' : /£/.test(ps)? 'gbp' : /¥/.test(ps)? 'yen' : ps? 'x' : '-'; }catch(e){}   // dol = a dollar sign (US, Canada, Australia ...): the store's own currency code never reaches the page
+        wreEv('wbuy', [sku.split('.').slice(-2).join('.'), store, price, cur, 1]); }); }
+    if(typeof gaKnock==='function') gaKnock=wreWrap('gaKnock', gaKnock, null, ()=>{ WRE.knock={ kind:'torch', at:Date.now(), win:90 }; wreEv('wno', ['torch', 'sent', 0]); });
+    if(typeof evKnockSys==='function') evKnockSys=wreWrap('evKnockSys', evKnockSys, null, (lane)=>{ WRE.knock={ kind:'knock', at:Date.now(), win:45 }; wreEv('wno', ['knock', 'sent', lane==='bd'? 1 : 0]); });
+  }catch(e){ WRE.err++; WRE.e='wrap:'+String((e && e.message) || e).slice(0, 60); }
+  document.addEventListener('click', ev=>{ try{ const el=ev.target && ev.target.closest && ev.target.closest('#retryBtn,#againBtn,#pickOutBtn,#hqBtn,#winHqBtn,#bfBtn'); if(!el) return;
+      const id=el.id, pl=({ retryBtn:'retry', againBtn:'continue', pickOutBtn:'picker', hqBtn:'hq', winHqBtn:'hq', bfBtn:'bf' })[id] || 'other'; WRE.pend=pl; WRE.pendT=Date.now();
+      const v=WRE.vd; if(v && (id==='retryBtn' || id==='hqBtn' || id==='bfBtn' || id==='againBtn' || id==='winHqBtn')){ WRE.vd=null; wreEv('wlc', [id==='winHqBtn'? 'hq' : id==='againBtn'? 'continue' : id==='retryBtn'? 'retry' : id==='bfBtn'? 'bf' : 'hq', Date.now()-v.at, v.o]); }
+    }catch(e){ WRE.err++; } }, true);
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) wreHide(); else wreShow(); });
+  window.addEventListener('pagehide', wreHide);
+  window.addEventListener('pageshow', e=>{ if(e && e.persisted) wreShow(); });
+  wreBoot();
+  setInterval(wreTick, 1000);
+}
+try{ GVT.wre=function(){ return { cv:GVT_CV, on:WRE.on, why:WRE.why, err:WRE.err, e:WRE.e, n:WRE.n, sid:WRE.sid, src:WRE.src, ai:WRE.ai, ar:WRE.ar, nb:WRE.nb, scr:WRE.scr, ft:WRE.ft, pm:WRE.pm,
+  bat:WRE.bat? { id:WRE.bat.id, k:WRE.bat.k, live:WRE.bat.live } : null, wraps:WRE.wraps.slice(), q:TEL.q.filter(e=>e && WRE_NAMES[e[0]]).map(e=>e.slice()) }; }; }catch(e){}
+// ═══ END CARD-WRE ═══
 </script>
 <svg id="bcnDefs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;pointer-events:none"><defs><filter id="bcnS" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,210,74)" flood-opacity="0.7"/></filter><filter id="bcnCS" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.952" flood-color="rgb(255,210,74)" flood-opacity="0.7"/></filter><filter id="bcnT" x="-70%" y="-70%" width="240%" height="240%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,210,74)" flood-opacity="0.95"/><feDropShadow dx="0" dy="0" stdDeviation="24" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnH0" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnW0" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnC0" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="3.968" flood-color="rgb(255,210,74)" flood-opacity="0.55"/></filter><filter id="bcnH1" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnW1" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnC1" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.299" flood-color="rgb(255,210,74)" flood-opacity="0.57"/></filter><filter id="bcnH2" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnW2" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnC2" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.63" flood-color="rgb(255,210,74)" flood-opacity="0.59"/></filter><filter id="bcnH3" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnW3" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnC3" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.96" flood-color="rgb(255,211,74)" flood-opacity="0.61"/></filter><filter id="bcnH4" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnW4" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnC4" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.291" flood-color="rgb(255,211,74)" flood-opacity="0.63"/></filter><filter id="bcnH5" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnW5" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnC5" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.622" flood-color="rgb(255,211,74)" flood-opacity="0.65"/></filter><filter id="bcnH6" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnW6" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnC6" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.952" flood-color="rgb(255,211,74)" flood-opacity="0.67"/></filter><filter id="bcnH7" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnW7" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnC7" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.283" flood-color="rgb(255,211,74)" flood-opacity="0.69"/></filter><filter id="bcnH8" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnW8" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnC8" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.614" flood-color="rgb(255,212,74)" flood-opacity="0.71"/></filter><filter id="bcnH9" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnW9" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnC9" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.944" flood-color="rgb(255,212,74)" flood-opacity="0.73"/></filter><filter id="bcnH10" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnW10" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnC10" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.275" flood-color="rgb(255,212,74)" flood-opacity="0.75"/></filter><filter id="bcnH11" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnW11" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnC11" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.606" flood-color="rgb(255,212,74)" flood-opacity="0.77"/></filter><filter id="bcnH12" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnW12" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnC12" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.937" flood-color="rgb(255,212,74)" flood-opacity="0.79"/></filter><filter id="bcnH13" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnW13" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnC13" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.267" flood-color="rgb(255,213,74)" flood-opacity="0.81"/></filter><filter id="bcnH14" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnW14" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnC14" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.598" flood-color="rgb(255,213,74)" flood-opacity="0.83"/></filter><filter id="bcnH15" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnW15" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnC15" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.929" flood-color="rgb(255,213,74)" flood-opacity="0.85"/></filter><filter id="bcnH16" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnW16" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnC16" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.259" flood-color="rgb(255,213,74)" flood-opacity="0.87"/></filter><filter id="bcnH17" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnW17" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnC17" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.59" flood-color="rgb(255,213,74)" flood-opacity="0.89"/></filter><filter id="bcnH18" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnW18" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnC18" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.921" flood-color="rgb(255,214,74)" flood-opacity="0.91"/></filter><filter id="bcnH19" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnW19" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnC19" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.251" flood-color="rgb(255,214,74)" flood-opacity="0.93"/></filter><filter id="bcnH20" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnW20" x="-34%" y="-34%" width="168%" height="168%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnC20" x="-27%" y="-27%" width="154%" height="154%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.582" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter><filter id="bcnB0" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="rgb(255,210,74)" flood-opacity="0.4"/></filter><filter id="bcnB1" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="rgb(255,210,74)" flood-opacity="0.423"/></filter><filter id="bcnB2" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="rgb(255,210,74)" flood-opacity="0.446"/></filter><filter id="bcnB3" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="5.5" flood-color="rgb(255,210,74)" flood-opacity="0.469"/></filter><filter id="bcnB4" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="rgb(255,211,74)" flood-opacity="0.492"/></filter><filter id="bcnB5" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="6.5" flood-color="rgb(255,211,74)" flood-opacity="0.515"/></filter><filter id="bcnB6" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="rgb(255,211,74)" flood-opacity="0.537"/></filter><filter id="bcnB7" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="7.5" flood-color="rgb(255,211,74)" flood-opacity="0.56"/></filter><filter id="bcnB8" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="rgb(255,211,74)" flood-opacity="0.583"/></filter><filter id="bcnB9" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="8.5" flood-color="rgb(255,212,74)" flood-opacity="0.606"/></filter><filter id="bcnB10" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="rgb(255,212,74)" flood-opacity="0.629"/></filter><filter id="bcnB11" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="9.5" flood-color="rgb(255,212,74)" flood-opacity="0.652"/></filter><filter id="bcnB12" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="rgb(255,212,74)" flood-opacity="0.675"/></filter><filter id="bcnB13" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="10.5" flood-color="rgb(255,212,74)" flood-opacity="0.698"/></filter><filter id="bcnB14" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="rgb(255,212,74)" flood-opacity="0.721"/></filter><filter id="bcnB15" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="11.5" flood-color="rgb(255,212,74)" flood-opacity="0.744"/></filter><filter id="bcnB16" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="rgb(255,213,74)" flood-opacity="0.767"/></filter><filter id="bcnB17" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="12.5" flood-color="rgb(255,213,74)" flood-opacity="0.79"/></filter><filter id="bcnB18" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13" flood-color="rgb(255,213,74)" flood-opacity="0.812"/></filter><filter id="bcnB19" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="13.5" flood-color="rgb(255,213,74)" flood-opacity="0.835"/></filter><filter id="bcnB20" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="rgb(255,213,74)" flood-opacity="0.858"/></filter><filter id="bcnB21" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="14.5" flood-color="rgb(255,214,74)" flood-opacity="0.881"/></filter><filter id="bcnB22" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="rgb(255,214,74)" flood-opacity="0.904"/></filter><filter id="bcnB23" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="15.5" flood-color="rgb(255,214,74)" flood-opacity="0.927"/></filter><filter id="bcnB24" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="rgb(255,214,74)" flood-opacity="0.95"/></filter></defs></svg>
 <script>/* CARD-OLR round 34 BEGIN: html.olrmen while her look is on (the men's rule above) */try{ if(typeof olrOn==='function' && olrOn()) document.documentElement.classList.add('olrmen'); }catch(e){}/* CARD-OLR round 34 END */</script>
