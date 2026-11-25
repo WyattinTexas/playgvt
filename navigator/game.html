@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.75","md5":"6b2c66a376dc6ebbc676e3a2e350164e","sha":"abeb638158","at":"2026-11-25T04:27:52Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.76","md5":"a3431aab6360f4a2927d7c1459cc9308","sha":"3ccfbfb3b6","at":"2026-11-25T04:41:11Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94761,7 +94761,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.75';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.76';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -253630,6 +253630,30 @@ try{
 }catch(e){ bppFail(e); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bpp) GVT.bpp=bppRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-BPP ═══
+// ═══ sec:CARD-BPW · THE BATTLE PASS PLATE SPEAKS IN PICTURES AND COLOURS (design/battle-pass-plate-1124/00-CARD-BPW.md; FROM WYATT by phone on Discord 11/24/2026 20:58 EST) ═══
+// His words, verbatim: "I feel like instead of it saying its "headgear," it could just show its icon. For instance, if it showed its icon, someone would know that it's a piece of headgear
+// because they saw the icon for the beanie. Do we have to say the word "common"? What if we take the name of the object and then just make that a certain color, and the color determines its rarity?"
+// ONE wrap by name of sec:CARD-BPP's bppInfoHTML (the chosen prize's plate, top right of the battle pass screen); no line of sec:CARD-BPP is edited.
+//   A piece of gear: the kind's word (HEADGEAR, ARMOR, BOOTS ...) gives way to the piece's own picture, the very bitmap its frame on the film wears (bppTilePic), the word kept as the
+//   picture's alt for a screen reader; the rarity pill (COMMON ...) is gone, and the piece's NAME wears its rarity's colour: the film's own five (sec:CARD-BPP's ways: grey common,
+//   green uncommon, blue rare, purple epic, gold legendary), lightened where a letter on the dark plate needs it.
+//   A supply drop: its name wears its crate's colour (its name, which says its rarity, and its ONE TOY INSIDE line as they were). Stars: as they were.
+// THE SWITCH: ?bpw=0 on a device (gvt_bpw '0'; ?bpw=1 clears it) = the plate as it was.
+var BPW={ on:(function(){ try{ const m=/[?&]bpw=([01])(?:&|$)/.exec(location.search||''); if(m){ if(m[1]==='0') localStorage.setItem('gvt_bpw','0'); else localStorage.removeItem('gvt_bpw'); } return localStorage.getItem('gvt_bpw')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  INK:['#D2D6DA','#9CCB6F','#7DB3E6','#B992F0','#FFD24A'], n:0, err:0 };
+function bpwCss(){ if(document.getElementById('bpwCss')) return; const st=document.createElement('style'); st.id='bpwCss';
+  st.textContent=BPW.INK.map(function(c, i){ return '#bppScreen .bpp-name.bpw-r'+i+'{color:'+c+'}'; }).join('')
+    +'#bppScreen .bpp-kind.bpw-pic{display:flex;align-items:center;height:calc(var(--u)*7.6);margin-top:calc(var(--u)*.5);padding-bottom:0}'
+    +'#bppScreen .bpp-kind.bpw-pic img{height:100%;width:auto;max-width:calc(var(--u)*14);object-fit:contain;display:block;filter:drop-shadow(0 calc(var(--u)*.35) 0 rgba(0,0,0,.5))}';
+  (document.head||document.documentElement).appendChild(st); }
+function bpwPlate(h, sel){ const row=bppRow(sel), T=document.createElement('template'); T.innerHTML=h; const C=T.content, nm=C.querySelector('.bpp-name');
+  const tr=row.id? bppTier(row.id) : (row.drop!=null? (row.drop|0) : -1);
+  if(nm && tr>=0 && tr<BPW.INK.length) nm.classList.add('bpw-r'+tr);
+  const kd=row.id? C.querySelector('.bpp-kind') : null;
+  if(kd){ const sp=kd.querySelector('span'), word=sp? sp.textContent : ''; kd.className='bpp-kind bpw-pic'; kd.innerHTML=bppTilePic(row.id); const im=kd.querySelector('img'); if(im) im.setAttribute('alt', word); }
+  return T.innerHTML; }
+if(typeof bppInfoHTML==='function'){ const bpwO=bppInfoHTML; bppInfoHTML=function(st, sel){ const h=bpwO.apply(this, arguments); if(!BPW.on) return h; try{ bpwCss(); const o=bpwPlate(h, sel); BPW.n++; return o; }catch(e){ BPW.err++; return h; } }; }
+// ═══ END CARD-BPW ═══
 // ═══ sec:CARD-TUB · A ROOM CARD DEALT WHILE THE BATTLEFIELDS STAND IS SHOWN OVER THEM (design/prize-door-under-battlefields-1123/00-CARD-TUB.md; jumpr 4560; a side card of Isaac's CARD-BFD,
 // jumpr 4435, cut on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card, and a fix lands without asking) ═══
 // THE FAULT (client v34.36 and long before; read with a real finger's tap, Chrome for Testing and WebKit the same): while the Battlefields' door stands (Isaac's lobby, or the war table) a
