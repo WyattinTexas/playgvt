@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.80","md5":"778bc9c5d3a6e31148fd17ce5f215590","sha":"67f529d655","at":"2026-11-25T05:34:34Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.81","md5":"a38cf505ebde92ffd8f26feaa4641b71","sha":"530f742726","at":"2026-11-25T05:46:51Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94761,7 +94761,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.80';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.81';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -235152,6 +235152,27 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.bdh) GVT.bdh=function(o){ o=o|
     molds:Object.keys(BDH_ART.mold).map(m=>[m, !!(IMG[m] && IMG[m].width>0)]), w:unitW('blackdragon'), giant:[RAM_SPARE.indexOf('blackdragon')>=0?1:0, HERO_REFL.blackdragon?1:0], khp:KHP.who.blackdragon?1:0, feats:BDH_FEATS.map((r,i)=>hsRungName('blackdragon',i+1)), rankMine:META.up.blackdragon|0, burns:BDH.burns.length, toss:BDH.toss.length, gulps:Object.assign({}, BDH.n), geo:BDH_ART.geo, lanes:BDH.lanes.slice(), fires:(S.fires||[]).filter(p=>p.bdh).length,
     unit:u? { id:u.id, x:Math.round(u.x), y:Math.round(u.y), hp:u.hp, hpMax:u.hpMax, hits:u.hits|0, grit:(function(){ try{ return gritCap(u); }catch(e){ return null; } })(), rank:bdhRank(u), pose:(u.bdhPose && S.t<u.bdhPoseT)? u.bdhPose : '', act:u.bdh && u.bdh.act? u.bdh.act.k : null, dmg:u.bdh? +(+u.bdh.dmg).toFixed(3) : 0, lastBite:u.bdh? u.bdh.lastBite : null, n:u.bdh? Object.assign({}, u.bdh.n) : null, cd:u.bdh? { bt:+u.bdh.bt.toFixed(2), wb:+u.bdh.wb.toFixed(2), gp:+u.bdh.gp.toFixed(2), so:+u.bdh.so.toFixed(2) } : null, lift:Math.round(u.bdhLift||0), img:(function(){ try{ const im=unitImg('blackdragon',u); for(const k in IMG) if(IMG[k]===im) return k; }catch(e){} return ''; })() } : null }; }; }catch(e){} }, 0);
 // ═══ END CARD-BDH ═══
+// ═══ CARD-DDH · DARK DRAGON'S HP: STRONG AT LEVEL 1, THE HIGHEST OF EVERY HERO AT LEVEL 100 (sec:CARD-DDH; design/dragon-hp-1124/00-CARD-DDH.md). FROM WYATT, typed on the Big Mac 11/24/2026 ~21:05 EST, verbatim: "Is Dark Dragon balanced? verse the other heroes? We want him to be strong at level 1 hp wise; and at level 100 the highest of all of the other heroes". Shown the table and offered 100 at level 1 and 450 at level 100: "450 is good." ═══
+// THE TWO HP NUMBERS A HERO HAS, both moved here, for a bare dragon (no soul, no picks, no gifts: they land above as for every hero):
+// 1 THE CAMPAIGN RUG (gritCap0, the hits he takes; the table Wyatt was shown): his grit 60 -> 100, and HIS SLOPE, flat after the soul like the kings' +120: +164 along a straight line from his rank 1 to his rank 100.
+//   So 100 at rank 1 (only King Croak's 131 above him) and 450 at rank 100 (King Rex 417, King Yeti 416). Before: 60 and 246.
+// 2 THE HERO CARD = THE BATTLEGROUND (heroHP, heroBfPool, placeUnit, roomDressUnit: one number since CARD-USH round 2): his mat base 36 -> 90 (BF_MOVE) and his row of THE BOOK 360 -> 400 (HP_RANK100, CARD-HHB's: the card at rank 100 = the book + the kings' +120).
+//   So his card reads 100 at rank 1 (only King Croak's 121 above him) and 520 at rank 100 (King Rex 480). Before: 47 and 480 (tied with King Rex). 450 on the card would have put him under King Rex: 520 keeps the lead 450 had on the table (DDH-Q1, his word).
+// Every rank between rises; no rank of either number falls below what it was. Values only on the card's side (UDEF, BF_MOVE and HP_RANK100 are read off the page by the engine twin); the rug's slope is a wrap of gritCap0 (dragon only).
+// THE ORDER: sec:CARD-BDH's boot joins him above this line (bdhJoin), so this section sets his three numbers right after that join and wraps bdhJoin for every later join (the code DRAGON, a room's zero). sec:CARD-BDH's text is untouched.
+// THE SWITCH: ?ddh=0 = today's numbers on this load only (never remembered: nothing here is wrapped and nothing is set). GVT.ddh() = the rigs' read.
+const DDH={ on:(function(){ try{ return /[?&]ddh=0(?:&|$)/.test(String(location.search||''))? 0 : 1; }catch(e){ return 1; } })(), grit:100, bf0:90, book:400, top:164, from:1, n:0, err:0 };
+function ddhGrit(u){ if(!u || u.zomb || u.type!=='blackdragon' || !DDH.on) return 0; const r=Math.max(0, Math.min(RANK_MAX, perkRank(u)|0)); return (r<=DDH.from)? 0 : Math.round(DDH.top*(r-DDH.from)/(RANK_MAX-DDH.from)); }
+function ddhApply(){ if(!DDH.on || !BDH.joined || !UDEF.blackdragon) return 0; UDEF.blackdragon.grit=DDH.grit; if(BF_MOVE.blackdragon) BF_MOVE.blackdragon.hp=DDH.bf0; HP_RANK100.blackdragon=DDH.book; DDH.n++; return 1; }
+if(DDH.on){
+  { const j0=bdhJoin; bdhJoin=function(){ const n=j0.apply(this, arguments); try{ ddhApply(); }catch(e){ DDH.err++; } return n; }; }
+  { const g0=gritCap0; gritCap0=function(u){ return g0.apply(this, arguments)+ddhGrit(u); }; }
+  try{ ddhApply(); }catch(e){ DDH.err++; }
+}
+setTimeout(function(){ try{ if(window.GVT && !GVT.ddh) GVT.ddh=function(){ const k='blackdragon', R=[0,1,25,50,75,100], card={}, rug={};
+  if(UDEF[k]) for(const r of R){ try{ card[r]=heroHP(k,r); }catch(e){ card[r]=null; } try{ rug[r]=Math.ceil(gritCap({ type:k, nrk:r, def:UDEF[k], hp:1, maxHp:1 })); }catch(e){ rug[r]=null; } }
+  return { cv:GVT_CV, on:DDH.on, n:DDH.n, err:DDH.err, joined:BDH.joined, T:{ grit:DDH.grit, bf0:DDH.bf0, book:DDH.book, top:DDH.top, from:DDH.from }, grit:UDEF[k]? UDEF[k].grit : null, bf0:BF_MOVE[k]? BF_MOVE[k].hp : null, book:HP_RANK100[k]==null? null : HP_RANK100[k], card, rug }; }; }catch(e){} }, 0);
+// ═══ END CARD-DDH ═══
 // ═══ CARD-BFI · THE BLUE FIRE INCINERATES, AND STANDS OVER THE MEN IT TOUCHES (sec:CARD-BFI; design/blue-fire-incinerates-1113/00-CARD-BFI.md; jumpr 3323). FROM WYATT'S PHONE (jumpr remote), 11/12/2026 22:13 EST, dictated, verbatim: "The blue fire needs to incinerate and be on a higher layer than units its colliding with" (his screenshot: the Dark Dragon's blue jet painted UNDER the riflemen standing in it). ═══
 // THE CAUSE: sec:CARD-BDH paints his jet (bdhJetDraw) from its wrap of drawUnit, so the jet sat at the DRAGON's depth in draw()'s sort of the figures by y: every man lower on the glass was painted after it, over the fire. The house's other tongue (King Rex's breath) is an fx, over every figure.
 // A · THE JET STANDS OVER THE MEN: inside the figures' pass his jet is OWED, not painted (the canvas transform he was drawn under is kept), and it is painted in draw()'s AIR SEAT (sgrDraw's: after every figure and the shots, under the smoke, the fx, the numbers and the floats). The picture is sec:CARD-BDH's own painter, untouched (the breath on the ground and THE SOAR's falling fire).
