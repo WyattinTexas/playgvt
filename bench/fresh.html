@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.71","md5":"dbd97ea7be106c4d6507aed4523e1c37","sha":"c23940e02e","at":"2026-11-25T01:01:49Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"34.72","md5":"6b7a1744d22789d91f0ac4545b2e679c","sha":"c856ae0318","at":"2026-11-25T01:13:55Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94740,7 +94740,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.71';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.72';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -252529,7 +252529,8 @@ setTimeout(function(){ try{ if(window.GVT && !GVT.fsr) GVT.fsr=fsrRead; }catch(e
   // friend code): THE NEW BATTLEFIELDS open on this device and stay (gvt_blv '1', META.battleCode); the same word again = the war table as before. Never spent. ═══
   if (typeof codeRedeem === 'function') { const c0 = codeRedeem; codeRedeem = function () { try { const inp = document.getElementById('shCodeIn'); const word = inp ? codeNorm(inp.value) : '';
       if (word === 'BATTLE' || word === 'CODEBATTLE') { inp.value = ''; try { inp.blur(); } catch (e) {}
-        const was = !!BLV.on; let msg;
+        let doorOpen = false; try { doorOpen = (typeof RNK !== 'undefined') && !!RNK && RNK.blv === 'open'; } catch (e) {}   /* CARD-BLC (Wyatt 11/24/2026 on Maker 1: "Set Isaac's new battlefields live. It doesn't need a code anymore to access."): while HQ's door word is open (CARD-RK1's rnkDoor), the code BATTLE only ever OPENS the lobby on this device, never closes it (it wrote gvt_blv '0', which rnkDoor keeps: the old table) */
+        const was = !!BLV.on && !doorOpen; let msg;
         if (was) { try { localStorage.setItem('gvt_blv', '0'); } catch (e) {} try { META.battleCode = 0; saveMeta(); } catch (e) {} try { BLV_UI.hide(); } catch (e) {} BLV.mode = 'lobby'; BLV.on = false; try { if (wartableOpen()) renderWarTable(); } catch (e) {}   /* CARD-BLF (session 4354's find): the table painted again, so no ✕ of the lobby's is left on it */ msg = 'THE BATTLEFIELDS ARE AS BEFORE'; }
         else { try { localStorage.setItem('gvt_blv', '1'); } catch (e) {} try { META.battleCode = 1; saveMeta(); } catch (e) {} BLV.install(); BLV.on = String(BLV.err || '').indexOf('missing') !== 0; msg = 'THE NEW BATTLEFIELDS ARE OPEN. GO TO THE BATTLEFIELDS DOOR.'; }
         codeSay(t(msg), 'yes'); try { SFX.fanfare(); } catch (e) {} codeShut(1); try { if (S.mode === 'menu') renderMenu(); } catch (e) {} try { evToast(t(msg)); } catch (e) {} return; } } catch (e) {}
