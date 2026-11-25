@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.82","md5":"1ba10f1ef84cc291d76732b55f4f5c7b","sha":"26e37b83b4","at":"2026-11-25T06:26:28Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.83","md5":"0df124cbe099a8d90cb061657ac9934f","sha":"75381b10f8","at":"2026-11-25T09:54:45Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94761,7 +94761,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.82';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.83';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -252903,6 +252903,34 @@ try{
 }catch(e){ try{ BFO3.err++; }catch(x){} }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bfo3) GVT.bfo3=bfo3Read; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-BFO3 ═══
+// ═══ CARD-BUG-1124-6 · NO LAWN GRASS UNDER THE MEN ON THE HOUSE'S ROOF (sec:CARD-BUG-1124-6; design/bug-jump-1124-p2/00-CARD-BUG-1124-P2.md; jumpr 4713, THE BUG JUMP OF TUE 11/24, the night's bug 6; built on the QuarterPounder as M4713).
+// FROM WYATT'S PHONE (the jumpr remote, the Bug button), 11/24/2026 10:23 PM, dictated, verbatim: "There shouldn't be grass under the feet of the soldiers that are on the roof. Visual bug."
+//   (his screenshot: the Battlefields' lobby, the BACKYARD set: the two men on the house's roof, either side of the hole, each on a tuft of lawn grass; at the glass's right edge a man on Dino Park's blue dinosaur, on grass too.)
+// WHY: sec:CARD-BLV's stage sets lay every man as oneWorker(..., BL7.tuft(k, h)): the tuft is asked by the PLACE, never by what the man stands on. The backyard's tuft is the mown lawn's (two greens), so the
+//   two men its STATIONS stand on the roof wore lawn on the roof's planks, and the two it stands on Dino Park's blue dinosaur (one at his snout, one on his back) wore lawn on the dinosaur.
+// WHAT (two names of window.BL7 wrapped BY NAME at load, no line of sec:CARD-BLV touched): BL7.scene hands each man's row to the set's own painter as before and notes, for that one call, whether the man
+//   stands ON something (BJ1124_6.seats: a station, every man of it, or one man's seat, station@x,feet y); BL7.tuft gives '' while such a man is laid. His figure, his shadow, his motion, his seat and his
+//   depth are as they were; every man on the lawn keeps his tuft (Dino Park's rifleman by the fern among them); the winter field's snow, the rooftop and the bedroom are not touched.
+// Switch: ?bj1124_6=0 on a device = the tufts as before (gvt_bj1124_6 '0'; ?bj1124_6=1 clears it; read at load: off = no wrap is installed). GVT.bj1124_6() = the rigs' read (also GVT.bj1124(6)).
+// FOR LATER CARDS: a card that moves a man of the backyard onto or off the roof or the blue dinosaur (or adds one there) reads BJ1124_6.seats: a seat named by station@x,y that moves falls back to the
+//   lawn's tuft, as before this card. Zero words, css, save keys, server, sw.js or wire bytes. No new drawable thing (nothing for the character sheet).
+var BJ1124_6={ on:(function(){ try{ var q=/[?&]bj1124_6=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_bj1124_6','0'); else localStorage.removeItem('gvt_bj1124_6'); } return localStorage.getItem('gvt_bj1124_6')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  seats:{ backyard:['roof', 'dino@1400,372', 'dino@1452,384'] },   // where a man of a set stands ON something that is not its ground: the roof (every man on it); Dino Park's mortar on the blue dinosaur's snout and its medic on his back
+  up:0, wrapped:0, n:{ bare:0, kept:0 }, err:0, old:{} };   // the switch · the seats · the man being laid stands on something · the names taken · tufts withheld, tufts laid · errors caught · the wrapped originals
+function bj1124_6Up(k, s){ const L=BJ1124_6.seats[k]; if(!L || !Array.isArray(s)) return false; const st=String(s[1]); return L.indexOf(st)>=0 || L.indexOf(st+'@'+s[3]+','+s[4])>=0; }   // s = the set's own row [army, station, kind, x, feet y, height, ...]
+if(BJ1124_6.on) try{ if(typeof BL7==='object' && BL7 && typeof BL7.scene==='function' && typeof BL7.tuft==='function'){
+  BJ1124_6.old.scene=BL7.scene; BJ1124_6.old.tuft=BL7.tuft;
+  BL7.scene=function(k, manFn){ if(typeof manFn!=='function') return BJ1124_6.old.scene.apply(this, arguments);
+    return BJ1124_6.old.scene.call(this, k, function(s, j){ const was=BJ1124_6.up; try{ BJ1124_6.up=bj1124_6Up(k, s)? 1 : 0; }catch(e){ BJ1124_6.up=0; BJ1124_6.err++; }
+      try{ return manFn.apply(this, arguments); } finally{ BJ1124_6.up=was; } }); };   // the set's painter calls BL7.tuft inside manFn, once a man
+  BL7.tuft=function(k, h){ if(BJ1124_6.up){ BJ1124_6.n.bare++; return ''; } BJ1124_6.n.kept++; return BJ1124_6.old.tuft.apply(this, arguments); };
+  BJ1124_6.wrapped=1;
+} }catch(e){ BJ1124_6.err++; }
+function bj1124_6Read(){ let men=null; try{ const sv=document.querySelector('#bflobby3 svg.bl7-stage[data-scene="backyard"]'); if(sv) men=Array.from(sv.querySelectorAll('.bl3-work')).map(function(w){ return [w.getAttribute('data-station'), +w.getAttribute('data-j'), w.querySelectorAll('path').length]; }); }catch(e){}
+  return { bug:6, cv:GVT_CV, on:BJ1124_6.on, wrapped:BJ1124_6.wrapped, seats:JSON.parse(JSON.stringify(BJ1124_6.seats)), n:Object.assign({}, BJ1124_6.n), men:men, err:BJ1124_6.err }; }   // men = the laid backyard's [station, row, the tuft's strokes]
+try{ (window.BJ1124R=window.BJ1124R||{})[6]=bj1124_6Read; if(window.GVT && !GVT.bj1124_6) GVT.bj1124_6=bj1124_6Read; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT){ if(!GVT.bj1124_6) GVT.bj1124_6=bj1124_6Read; if(!GVT.bj1124) GVT.bj1124=function(n){ const R=window.BJ1124R||{}; return n? (R[n]? R[n]() : null) : Object.keys(R).map(function(k){ return R[k](); }); }; } }catch(e){} }, 0);   // the rig door (the house's way): one door for the night's bugs, each section its own reader
+// ═══ END CARD-BUG-1124-6 ═══
 // ═══ sec:CARD-RNK · RANKED 1v1, 2v2 AND 3v3 (CARD-RK1, design/ranked-live-1124/00-CARD-RK1.md, rounds 1 and 2; jumpr 4675; FROM ISAAC 11/24/2026 15:08 EST, his push to live of
 // CARD-GTT's page: "Yes make all these changes live and make sure all of this along with everything behind code BATTLE goes live at 9 AM tomorrow."; ROUND 2 the same
 // evening, his word of 18:37 EST on ranked 1v1's landing: "we only go live at 9 AM if all the modes are complete so make sure those are done tonight") ═══
