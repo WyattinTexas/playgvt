@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.05","md5":"e1554ebafd94ee6db617cf6c3627fbb4","sha":"1ea8d94445","at":"2026-11-26T11:36:37Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.06","md5":"a50a5a8c768a12dd14ddff4214c08ef2","sha":"00de5bab9d","at":"2026-11-26T11:55:53Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94769,7 +94769,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='35.05';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='35.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -259246,7 +259246,7 @@ function b1rURI(){ if(B1R_URI) return B1R_URI;   // THE CUP (drawn for this card
   B1R_URI='data:image/svg+xml,'+encodeURIComponent(v); return B1R_URI; }
 function b1rTrophyHTML(n){ return '<span class="trc-t b1r"><img class="trc-fig" src="'+b1rURI()+'" alt=""><span class="trc-plinth"><i></i><b class="trc-no" data-notr>'+escH(trcOrd(n))+'</b></span></span>'; }   // the case's own trophy grammar (the figure, the walnut plinth, the brass plate with the place)
 function b1rSeatHTML(r){ const n=r[0]|0, of=r[2]|0||30;
-  return '<div class="trc-seat b1r-seat" data-k="b1r"><span class="trc-box">'+b1rTrophyHTML(n)+'</span><span class="trc-lab"><span class="trc-nm" data-notr>'+escH(t('PRE-BETA CHAMPION'))+'</span>'
+  return '<div class="trc-seat b1r-seat" data-k="b1r"><span class="trc-box">'+b1rTrophyHTML(n)+'</span><span class="trc-lab"><span class="trc-nm" data-notr>'+escH(b1cName())+'</span>'
     +'<span class="trc-sub" data-notr>'+escH(tf('BETA 1 · TOP %1', of))+'</span></span></div>'; }   // the place stands on the brass plate; the line says what it is
 function b1rLay(p, r){   // the seat FIRST on the case's second shelf (the heroes' shelf), the shelves' columns grown to hold it
   if(!p || !r) return 0; const sh=p.querySelectorAll('.trc-shelves .trc-shelf'); if(sh.length<2 || sh[1].querySelector('.b1r-seat')) return 0;
@@ -259266,7 +259266,7 @@ function b1rCard(r){ const p=document.getElementById('milePop'); if(!p) return f
   p.innerHTML='<div class="mb-card mbfeat trc-card b1r-card">'
     +'<span class="mb-band" data-notr>'+escH(t('BETA 1'))+'</span>'
     +'<span class="mb-band wk" data-notr>'+escH(t('TROPHY CASE'))+'</span>'
-    +'<h2 class="mb-h" data-notr>'+escH(t('PRE-BETA CHAMPION'))+'</h2>'
+    +'<h2 class="mb-h" data-notr>'+escH(b1cName())+'</h2>'
     +'<span class="mb-win">'+MB_RAYS+'<span class="trc-cardart">'+b1rTrophyHTML(n)+'</span></span>'
     +'<span class="mb-line" data-notr>'+escH(tf('YOU FINISHED %1 OF THE TOP %2 ON THE RATING BOARD IN BETA 1. A GOLD TROPHY STANDS IN YOUR CASE.', trcOrd(n).toUpperCase(), of))+'</span>'
     +'<button type="button" class="mb-take" data-notr onclick="UI.b1rTake()">'+escH(t('CHECK IT OUT!'))+'</button>'
@@ -259296,6 +259296,76 @@ if(B1R.on){
 }
 try{ GVT.b1r=()=>({ on:B1R.on? 1 : 0, err:B1R.err, e:B1R.e, wrapped:B1R.wrapped, mine:b1rM() }); }catch(e){}
 // ═══ END CARD-B1R ═══
+// ═══ CARD-B1C · THE BETA 1 TROPHY IS "BETA 1 CHAMPION", AND ITS CARD COMES AT LOG-IN (sec:CARD-B1C; design/beta1-champion-1126/00-CARD-B1C.md; board J1136; a small card after CARD-B1R) ═══
+// FROM WYATT 11/26/2026 04:41 EST, by phone on Discord (1575446378597978162), verbatim: "Change from “prebeta champion” to “Beta 1 Champion” and make sure that the player gets this upon logging in,
+// not from finishing a PvP game or something. This is crediting the player who played in the first beta. Now we're on the second beta."
+// THE NAME: b1cName() = BETA 1 CHAMPION. sec:CARD-B1R's two seats ask it (the card's title; the cup's seat in the case and on THEIR case); the seven tongues' rows stand below.
+// THE FAULT: the cup's card rode the landing's line alone (b1rSweep behind trcSweep in ceremonyChain). A landing sends the sync and runs the line in the same tick (showMenuTail), so at the open
+//   HQ's answer (pbc) came a moment after the line had run, and the card then waited for the NEXT landing: the way home from a fight (on a device whose fresh open lands in the Battlefields,
+//   CARD-BFO, the lobby after a PvP game: his picture).
+// THE CURE, wrapping by name (b1rAdopt, b1rSweep, showMenu), nothing else edited in place:
+//   THE ARRIVAL (B1C.arr): open from the page's start until a fight's way home (showMenu finds play, win or lose), and open again when the app comes back to the room after B1C.AWAY ms away.
+//   THE QUIET SECOND: once the cup is latched and its card not dealt, a watch of this card's own (one beat a second, alive only while the card is owed: a player without the cup never runs it)
+//     deals the card on the SECOND quiet second in a row of the place a fresh open lands: the room (the hall's own law: roomQuiet, never over Sarge's tour or a held tail) or the Battlefields
+//     standing quiet over it (CARD-BFO's bfoQuiet), and only where a card on the ceremony host would be the top of the glass (b1cTop: the browser's own hit test; CARD-RQY's fault class).
+//   THE LINE'S SEAT (b1rSweep in the chain) deals only in the room (S.mode menu) while the arrival is open: the first landing of an open (a cup latched on an earlier open), a fold at the
+//     room. A fight's own screens (a verdict's fold, the PLAY AGAIN lane, the campaign's flow) and its way home deal no cup card: a cup not dealt in this arrival waits for the next open.
+//     Never over a fight; once a player (sec:CARD-B1R's own ledger, META.b1r[4]).
+// OFF: ?b1c=0 = the game as it stood before this card (the old name, the line's seat alone, no watch). GVT.b1c() = the read.
+var B1C={ on:1, err:0, e:'', wrapped:0, arr:1, q:0, tid:0, hidAt:0, how:'', sw0:null, AWAY:300000, NEED:2, n:{ arm:0, tick:0, deal:0, held:0, gone:0, back:0 } };
+try{ if(/[?&]b1c=0(?:&|#|$)/.test(location.search||'')) B1C.on=0; }catch(e){}
+function b1cErr(w, e){ try{ B1C.err++; B1C.e=(w+': '+String((e && e.message) || e)).slice(0,160); }catch(x){} }
+function b1cName(){ return t((B1C && !B1C.on)? 'PRE-BETA CHAMPION' : 'BETA 1 CHAMPION'); }   // the trophy's name: the card's title, the cup's seat in the case and on THEIR case (sec:CARD-B1R's two seats ask here)
+function b1cOwed(){ try{ if(!B1R.on) return false; const r=b1rM(); return !!(r && !r[4]); }catch(e){ return false; } }   // my cup stands latched and its card has not been dealt
+function b1cTop(){   // would a card on the ceremony host be the top of the glass at its middle? A clear pane laid for this one read right after the host, on the host's own storey, asked by the browser's own hit test, then removed: no frame is drawn in between and the host is not touched
+  let d=null;
+  try{ const p=document.getElementById('milePop'); if(!p || !p.parentNode) return false;
+    d=document.createElement('div'); d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:auto;background:transparent;z-index:'+(parseInt(getComputedStyle(p).zIndex,10)||27);
+    p.parentNode.insertBefore(d, p.nextSibling);
+    return document.elementFromPoint(Math.floor(innerWidth/2), Math.floor(innerHeight/2))===d;
+  }catch(e){ b1cErr('top', e); return false; }
+  finally{ try{ if(d && d.parentNode) d.parentNode.removeChild(d); }catch(e){} } }
+function b1cQuiet(){   // the place a fresh open lands, standing quiet: the room, or the Battlefields' door standing quiet over it; nothing above the host
+  try{
+    if(S.mode!=='menu' || document.hidden || milePopUp() || trcIsOpen()) return false;
+    if(tourLive() || tailHeld()) return false;
+    let q=false; try{ q=!!roomQuiet(); }catch(e){ q=false; }
+    if(!q){ try{ q=(typeof bfoQuiet==='function') && !!bfoQuiet(); }catch(e){ q=false; } }
+    return q && b1cTop();
+  }catch(e){ b1cErr('quiet', e); return false; } }
+function b1cStop(){ if(B1C.tid){ clearInterval(B1C.tid); B1C.tid=0; } B1C.q=0; }
+function b1cGone(){ if(B1C.arr){ B1C.arr=0; B1C.n.gone++; } B1C.q=0; }   // a fight: this arrival is over
+function b1cArm(){   // the watch starts: at the latch (b1rAdopt's wrap), and at the page's start for a cup latched on an earlier open
+  try{ if(!B1C.on || B1C.tid || !b1cOwed()) return 0; B1C.n.arm++; B1C.q=0; B1C.tid=setInterval(b1cTick, 1000); return 1; }catch(e){ b1cErr('arm', e); return 0; } }
+function b1cDeal(){   // the cup's card on the ceremony host by sec:CARD-B1R's own seat (seen stamped flag-first, the card, its fanfare)
+  try{ const f=B1C.sw0; if(typeof f!=='function') return false; const ok=!!f(); if(ok){ B1C.n.deal++; B1C.how='quiet'; b1cStop(); } return ok; }catch(e){ b1cErr('deal', e); return false; } }
+function b1cTick(){
+  try{
+    if(!B1C.on || !b1cOwed()){ b1cStop(); return; }   // nothing owed (its card was dealt, by the line or here): the watch ends
+    B1C.n.tick++;
+    const m=S.mode;
+    if(m==='play' || m==='win' || m==='lose'){ b1cGone(); return; }
+    if(!B1C.arr || !b1cQuiet()){ B1C.q=0; return; }
+    if(++B1C.q<B1C.NEED) return;   // the second quiet second in a row: the opening's own screens go first
+    B1C.q=0; b1cDeal();
+  }catch(e){ b1cErr('tick', e); } }
+// THE WORDS (drafts in seven tongues, beside sec:CARD-B1R's; an English game never reads them)
+try{ const W={ ja:{ 'BETA 1 CHAMPION':'ベータ 1 チャンピオン' }, ko:{ 'BETA 1 CHAMPION':'베타 1 챔피언' }, 'zh-Hans':{ 'BETA 1 CHAMPION':'公测 1 冠军' }, de:{ 'BETA 1 CHAMPION':'BETA-1-CHAMPION' },
+    ru:{ 'BETA 1 CHAMPION':'ЧЕМПИОН БЕТЫ 1' }, es:{ 'BETA 1 CHAMPION':'CAMPEÓN DE LA BETA 1' }, ar:{ 'BETA 1 CHAMPION':'بطل بيتا 1' } };
+  for(const L in W){ const d=TR[L]||(TR[L]={}); for(const k in W[L]) if(!(k in d)) d[k]=W[L][k]; } }catch(e){ b1cErr('words', e); }
+if(B1C.on){
+  try{ const o=b1rSweep; B1C.sw0=o;
+    b1rSweep=function(){ let m=''; try{ m=S.mode; }catch(e){} if(m==='play' || m==='win' || m==='lose') b1cGone();   /* the line run on a fight's own screens (a verdict's fold, the PLAY AGAIN lane, the campaign's flow) */
+      if(!B1C.arr || m!=='menu'){ try{ if(b1cOwed()) B1C.n.held++; }catch(e){} return false; }   /* a fight's screens and its way home: the cup's card waits for the next open */
+      const r=o.apply(this, arguments); if(r){ B1C.n.deal++; B1C.how='line'; } return r; }; B1C.wrapped++; }catch(e){ b1cErr('wrap b1rSweep', e); }
+  try{ const o=b1rAdopt; b1rAdopt=function(){ const r=o.apply(this, arguments); try{ if(r){ const m=S.mode; if(m==='play' || m==='win' || m==='lose') b1cGone(); b1cArm(); } }catch(e){ b1cErr('adopt', e); } return r; }; B1C.wrapped++; }catch(e){ b1cErr('wrap b1rAdopt', e); }   // HQ's answer during a fight closes the arrival at once
+  try{ const o=showMenu; showMenu=function(){ try{ const m=S.mode; if(m==='play' || m==='win' || m==='lose') b1cGone(); }catch(e){ b1cErr('door', e); } return o.apply(this, arguments); }; B1C.wrapped++; }catch(e){ b1cErr('wrap showMenu', e); }
+  try{ document.addEventListener('visibilitychange', function(){ try{ if(document.hidden){ B1C.hidAt=Date.now(); return; }
+      const a=B1C.hidAt; B1C.hidAt=0; if(a && Date.now()-a>=B1C.AWAY && S.mode==='menu' && !B1C.arr){ B1C.arr=1; B1C.q=0; B1C.n.back++; } }catch(e){ b1cErr('vis', e); } }); }catch(e){ b1cErr('ears', e); }
+  setTimeout(function(){ b1cArm(); }, 0);   // a cup latched on an earlier open and never dealt: the line's seat deals it at this open's first landing; the watch stands behind it
+}
+try{ GVT.b1c=function(){ return { cv:GVT_CV, on:B1C.on, err:B1C.err, e:B1C.e, wrapped:B1C.wrapped, arr:B1C.arr, q:B1C.q, watch:B1C.tid? 1 : 0, owed:b1cOwed()? 1 : 0, how:B1C.how, name:b1cName(), n:Object.assign({}, B1C.n) }; }; }catch(e){}
+// ═══ END CARD-B1C ═══
 // ═══ CARD-ENG2-D2HOLDS2 · PARTY FIGHTS THROUGH THE RELAY: THE CAVALRY'S CALL LANDS FOR A SEAT, ON CARD-ENG2-D2HOLDS'S BASE (sec:CARD-ENG2-D2HOLDS2; design/eng2-program-1115/d2holds2/00-CARD-ENG2-D2HOLDS2.md; jumpr 4546, board M4546, built on the QuarterPounder; Wyatt's party night, 11/22/2026) ═══
 // FROM WYATT 11/22/2026 about 21:58 EST, typed after party fights with two others, verbatim: "The buttons on the right aren't working for any players who are playing right now in a party. The jetpack, nothing: literally none of the buttons on the right work. We're also able to deploy our Sarge infinitely, which isn't correct."
 // THE FAULT (read on main's page v34.39 with CARD-ENG2-D2HOLDS laid): the cavalry's call (the Shield's won part, CARD-SHD2) is a hold, card B2b's GRIP dcvPress, AIM dcvAimMove and LIFT dcvAimUp, and
