@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"35.02","md5":"3aebf457b4d28dee824e3b096011e988","sha":"2785de7c43","at":"2026-11-26T09:48:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"35.03","md5":"cf4dc00d734ba37f6d93cc33615d32ec","sha":"5717f10d5b","at":"2026-11-26T10:53:06Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94769,7 +94769,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='35.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='35.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -254713,6 +254713,22 @@ if(typeof bpgOpen==='function'){ const bpg3Post0=bpgOpen; bpgOpen=function(){ co
 function bpg3Read(){ return { cv:GVT_CV, on:BPG.on, avail:bpgAvail(), pid:BPG.pid, pass:bpgIsPass(BPG.pid), learned:BPG3.learned, from:BPG3.from, at:BPG3.at, asks:BPG3.asks, door:BPG3.door, answers:BPG3.answers, seen:BPG3.seen, price:BPG.price, sells:bpgSells(), err:BPG3.err, e:BPG3.e }; }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bpg3) GVT.bpg3=bpg3Read; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-BPG ═══
+// ═══ sec:CARD-BPN · THE POSTER'S EMPTY HANDS: NO PISTOL IN ANY SARGE'S HAND ON THE BATTLE PASS POSTER (design/battle-pass-get-1125/bpn/00-CARD-BPN.md; jumpr 4733, board J1104) ═══
+// FROM WYATT 11/26/2026 03:56 EST by phone on Discord, answering the news of the poster ("every Sarge holds the pistol"), verbatim: "Remove the pistols from all of their hands"
+// THE ONE CHANGE: the poster's seven Sarges (and the bare figure the poster measures them by) are painted from the game's own empty-handed figure, SPRITES_SRC.sarge (the figure
+// every owned-by-you portrait is built on, hands empty by design since v1.69; the room guide's own salute), dressed in their sets and fixes exactly as before. sec:CARD-BPG's
+// painter is wrapped by name, at load: while it paints one Sarge (its one synchronous call of sargeWepURI) the weapon key 'pistol' reads as 'sarge', a key SARGE_ART does not
+// hold, so sargeWepURI's own fallback draws the empty-handed figure. Nothing else moves: no other screen paints through bpgPaintFig, and sargeWepURI is the game's own again the
+// moment that call returns (the pass screen's own Sarge, bppPaintMan, is not touched).
+// THE SWITCH: ?bpn=0 on a device (localStorage gvt_bpnoff '1'; ?bpn=1 clears it) = the poster as v34.93 drew it (the pistol). GVT.bpn() = the rigs' read.
+const BPN={ on:1, n:0, keys:{} };
+try{ (function(){ let q=null; try{ q=new URLSearchParams(location.search).get('bpn'); }catch(e){} try{ if(q==='0') localStorage.setItem('gvt_bpnoff', '1'); else if(q==='1') localStorage.removeItem('gvt_bpnoff'); }catch(e){} try{ BPN.on=localStorage.getItem('gvt_bpnoff')==='1'? 0 : 1; }catch(e){ BPN.on=1; } })(); }catch(e){ BPN.on=1; }
+if(typeof bpgPaintFig==='function' && typeof sargeWepURI==='function'){ const bpn0=bpgPaintFig; const bpnW=function(f, CH, out){ if(!BPN.on) return bpn0.apply(this, arguments);
+    const s0=sargeWepURI; sargeWepURI=function(wk, a, b, c, d){ const k=(wk==='pistol')? 'sarge' : wk; BPN.n++; BPN.keys[k]=(BPN.keys[k]||0)+1; return s0(k, a, b, c, d); };
+    try{ return bpn0.apply(this, arguments); }finally{ sargeWepURI=s0; } };
+  bpnW.bpn=1; bpgPaintFig=bpnW; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bpn) GVT.bpn=function(){ return { on:BPN.on, n:BPN.n, keys:Object.assign({}, BPN.keys), wrapped:!!(typeof bpgPaintFig==='function' && bpgPaintFig.bpn), art:(typeof SARGE_ART==='object' && SARGE_ART)? (SARGE_ART.sarge===undefined? 'fallback' : 'held') : '?' }; }; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-BPN ═══
 // ═══ sec:CARD-TUB · A ROOM CARD DEALT WHILE THE BATTLEFIELDS STAND IS SHOWN OVER THEM (design/prize-door-under-battlefields-1123/00-CARD-TUB.md; jumpr 4560; a side card of Isaac's CARD-BFD,
 // jumpr 4435, cut on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card, and a fix lands without asking) ═══
 // THE FAULT (client v34.36 and long before; read with a real finger's tap, Chrome for Testing and WebKit the same): while the Battlefields' door stands (Isaac's lobby, or the war table) a
