@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.00","md5":"1c2621f52e985227024af841cf9b010f","sha":"ad12cbe20f","at":"2026-11-26T08:43:39Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.01","md5":"8fd8dd532a7d7897b8e29d9161158551","sha":"5159d32d50","at":"2026-11-26T09:17:55Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94769,7 +94769,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='35.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='35.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -254686,6 +254686,32 @@ Object.assign(TR["es"]||(TR["es"]={}), {"GET IT NOW": "¡CONSÍGUELO YA!", "IT'S
 // ── the switch (CARD-BFO3's grammar): ?bpg=0 = the pass screen as before on this device; ?bpg=1 clears it ──
 try{ (function(){ let q=null; try{ q=new URLSearchParams(location.search).get('bpg'); }catch(e){} try{ if(q==='0') localStorage.setItem('gvt_bpgoff', '1'); else if(q==='1') localStorage.removeItem('gvt_bpgoff'); }catch(e){} try{ BPG.on=localStorage.getItem('gvt_bpgoff')==='1'? 0 : 1; }catch(e){ BPG.on=1; } })(); }catch(e){ bpgFail(e); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.bpg) GVT.bpg=bpgRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ── CARD-BPG3 (jumpr 4755, board J1127; FROM WYATT 11/25/2026 22:37 EST by phone, verbatim: "Get the battle pass available for purchase"; design/battle-pass-get-1125/bpg3/00-CARD-BPG3.md): THE PASS'S ID FROM THE SHELL'S OWN ANSWER ──
+// THE PAGE NEVER NAMES THE PASS'S PRODUCT ID (rule 15: the follower's machine check refuses a page whose product ids differ from the approved store build's game, and a store build of the downloaded
+// structure has no game of its own, so a page that names a new id is refused against every floor there can be: CARD-BPG2's flag BPG2-F2). IT LEARNS IT: a shell whose own fixed list names the pass
+// answers it, with its price, in the products answer once its store holds the product, and delivers its transactions with their product id; an id that ENDS .bpass.season (bpgIsPass: a test on the
+// ending, never the whole id) becomes BPG.pid, and this section's own road takes it from there (the price read, the plate's GET IT NOW, the store's own sheet, bpgCredit, HQ told). Every build in the
+// field today lists six products and never answers it: COMING SOON there, as before. What turns it on: a store build that names the pass (iPhone 1.0.17 (39) and later, Play vc11, the Fire vc1008) AND
+// the product on that store; a later answer without it turns the button back to COMING SOON (the console's "remove from sale" is the off switch on a live store).
+// WRAPPED BY NAME, OUTSIDE this section's own wraps (they run after these): GVTN._iapProducts (learn first, then the price is read as before); iapCredit (learn from a transaction that comes before any
+// answer, a replay at launch, so the pass's own wrap above credits it once: CARD-BLP5b's held doors first, the ack only after the disk re-read); bppOpen and bpgOpen (each open of the pass screen or of
+// the poster asks the shell for its shelf once when there is one and the pass is not priced yet, so the gold plate reads GET IT NOW without the shop having been opened first). ?bpg=0 learns nothing and
+// asks nothing: a pass transaction then stays unfinished and unacked (iapCredit's own law for a product the page does not know) and is credited once the switch is back. GVT.bpg3() = the rigs' read.
+var BPG3={ learned:'', from:'', at:0, asks:0, door:'', answers:0, seen:0, err:0, e:'' };
+function bpg3Fail(e){ try{ BPG3.err++; BPG3.e=String((e && e.message) || e).slice(0,160); }catch(x){} }
+function bpgIsPass(id){ return typeof id==='string' && id.length<=80 && /^[A-Za-z0-9_][A-Za-z0-9_.]*\.bpass\.season$/.test(id); }
+function bpgLearn(id, from){ if(!BPG.on || !bpgIsPass(id)) return false; if(BPG.pid!==id){ BPG.pid=id; BPG3.learned=id; BPG3.from=String(from||''); BPG3.at=Date.now(); } return true; }
+function bpg3Owned(){ try{ const s=bppState(); return !!(s && s.own); }catch(e){ return false; } }
+function bpgAsk(door){ if(!BPG.on || !bpgAvail() || (BPG.pid && BPG.price)) return 0; BPG3.asks++; BPG3.door=String(door||''); try{ IAP.products(); }catch(e){ bpg3Fail(e); } return 1; }
+try{ if(window.GVTN && typeof GVTN._iapProducts==='function'){ const bpg3Prod0=GVTN._iapProducts; GVTN._iapProducts=function(list){
+    try{ BPG3.answers++; if(Array.isArray(list)) list.forEach(function(d){ if(d && bpgLearn(d.sku, 'shelf')) BPG3.seen++; }); }catch(e){ bpg3Fail(e); } return bpg3Prod0.apply(this, arguments); }; } }catch(e){ bpg3Fail(e); }
+if(typeof iapCredit==='function'){ const bpg3Credit0=iapCredit; iapCredit=function(d){ try{ if(d && d.tx!=null && d.sku!==BPG.pid) bpgLearn(d.sku, 'tx'); }catch(e){ bpg3Fail(e); } return bpg3Credit0.apply(this, arguments); }; }
+// the pass screen's open also lays this section's style (bpgCss, once a page; it was laid only at the poster's first open, so until then the plate stood with no door look: no breathing gold, and
+// a selling plate never gold): THE FAULT FOUND ON THE WAY (BPG3-F1), mended here because GET IT NOW must stand on the gold plate at the first open
+if(typeof bppOpen==='function'){ const bpg3Pass0=bppOpen; bppOpen=function(){ const R=bpg3Pass0.apply(this, arguments); try{ if(R && BPG.on) bpgCss(); if(R && !bpg3Owned()) bpgAsk('pass'); }catch(e){ bpg3Fail(e); } return R; }; }
+if(typeof bpgOpen==='function'){ const bpg3Post0=bpgOpen; bpgOpen=function(){ const had=BPG.root, R=bpg3Post0.apply(this, arguments); try{ if(R && !had && !BPG.pid) bpgAsk('poster'); }catch(e){ bpg3Fail(e); } return R; }; }   // an id already known asks through the poster's own line (its price, as before)
+function bpg3Read(){ return { cv:GVT_CV, on:BPG.on, avail:bpgAvail(), pid:BPG.pid, pass:bpgIsPass(BPG.pid), learned:BPG3.learned, from:BPG3.from, at:BPG3.at, asks:BPG3.asks, door:BPG3.door, answers:BPG3.answers, seen:BPG3.seen, price:BPG.price, sells:bpgSells(), err:BPG3.err, e:BPG3.e }; }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bpg3) GVT.bpg3=bpg3Read; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-BPG ═══
 // ═══ sec:CARD-TUB · A ROOM CARD DEALT WHILE THE BATTLEFIELDS STAND IS SHOWN OVER THEM (design/prize-door-under-battlefields-1123/00-CARD-TUB.md; jumpr 4560; a side card of Isaac's CARD-BFD,
 // jumpr 4435, cut on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card, and a fix lands without asking) ═══
