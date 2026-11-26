@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.99","md5":"01a3296605153a04081b59f7851420f5","sha":"b60a58fc55","at":"2026-11-26T08:09:59Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"35.00","md5":"1c2621f52e985227024af841cf9b010f","sha":"ad12cbe20f","at":"2026-11-26T08:43:51Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94769,7 +94769,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.99';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='35.00';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -125987,7 +125987,7 @@ function texFightTap(p){   // the hook at texTapAt's head: the plane glyph, a do
   return false; }
 function texFightTick(dt){   // the hook at texTick's end: the clock, the low tunnel's call and knock, the file, the stands, the Tan's fire, the shots, the plane, the ends
   const X=S.tex, F=X.fg, sg=X.sarge;
-  if(F.lost || F.won){ if(X.end){ texEndTick(dt); return; } /* CARD-TRN-B3 */ if(S.t-(F.lost||F.won)>=(F.lost? TEX_FG.lose : TEX_FG.win)){ if(TEX_END.on) texFinish(); else texEnd(); } return; }
+  if(F.lost || F.won){ if(X.end){ texEndTick(dt); return; } /* CARD-TRN-B3 */ if(S.t-(F.lost||F.won)>=(F.lost? TEX_FG.lose : TEX_FG.win)){ if(TEX_END.on && !(TXL.on && F.lost)) texFinish(); else texEnd(); } return; }   // CARD-TXL (jumpr 3960): a LOST lap ('down' or 'clock') goes home after B2's fade by texEnd(), unpaid; texFinish() is the won lap's alone (texWon's X.end plays it)
   F.clock+=dt; if(F.clock>=TEX_FG.lap){ texLost('clock'); return; }
   const nc=X.car+1; if(X.next!=null && nc<TEX_CARS.length && TEX_CARS[nc].low && F.lowSaid!==nc){ F.lowSaid=nc; F.lowWarn=1; texSay('DUCK!'); }
   if(X.tun && X.tun.dark && TEX_CARS[X.tun.to].low && !X.tun.lowHit){ X.tun.lowHit=1; F.lowWarn=0; texLowHit(); }
@@ -126190,6 +126190,20 @@ function texEndRead(){ const X=S.tex; if(!X) return null; const C=X.cine, E=X.en
   boss:b? { hp:+b.hp.toFixed(1), hpMax:b.hpMax, x:Math.round(b.x), down:b.tx.down|0, mode:b.tx.bs? b.tx.bs.mode : null, said:b.tx.bs? b.tx.bs.said : 0, faceX:b.faceX } : null, blocks:X.fg? (X.fg.blocks|0) : 0,
   end:E? { ph:E.ph, t:+E.t.toFixed(2), said:E.said, steam:E.steam.length } : null, done:X.done|0, over:X.over|0, paid:X.paid|0, cap:X.cap|0, laps:META.texLaps|0, dropSeen:META.texDropSeen|0, capOwed:META.texCapOwed|0, capOwned:(typeof outfitOwns==='function')? (outfitOwns('condcap')? 1 : 0) : null }; }
 // ═══ CARD-TRN-B3 ends ═══
+// ═══ CARD-TXL (jumpr 3960, built on the QuarterPounder as M3960) A LOST LAP OF THE TOY EXPRESS GOES HOME UNPAID (design/tex-lost-lap-1119/00-CARD-TXL.md). Cut by the landing of CARD-ENG2-BEYP14 (M3860),
+// which met it while it read the Toy Express for the engine road (its log tex-lost.log.hex). Wyatt's rule of 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want
+// a laggy screen in the game". THE FAULT (since CARD-TRN-B3): texFightTick's end of a lap called texFinish() after its fade for every end that runs no win sequence, and the one end that runs none is a LOST lap
+// (texWon hands a won lap to texWinStart). So a lap lost by 'down' (Sarge and his three down at once) or by 'clock' (the train home before the engine fell) was paid as a WON one: THE EXPRESS IS GREEN on the
+// game's win screen, the lap banked, +50 stars on a first lap or +25 after it, and on a first lap THE CONDUCTOR'S CAP. B3's own header said what a loss does: "The loss keeps B2's fade home."
+// THE CURE: ONE condition in texFightTick's first line. A lost lap plays B2's fade (TEX_FG.lose, the black over the set) and goes home by texEnd(), as B2 did: no lap banked, no stars, no cap, no verdict, no
+// save write. A won lap never reaches that branch (X.end stands from texWon on) and is played and paid as before. Zero save keys, words, wire, server or sw bytes; no new picture, no new sound.
+// Switch: TXL.on (1 shipped; 0 = HEAD's lap to the byte, the loss paid as a win). No address word and no device key, on purpose: a remembered ?txl=0 would hand a player back a lap that pays for losing.
+// GVT.txl() = the rigs' read; GVT.txl({ on:0|1 }) flips it for the page's life. ═══
+var TXL={ on:1 };
+function txlRead(o){ if(o && o.on!==undefined) TXL.on=o.on? 1 : 0; return { cv:(typeof GVT_CV!=='undefined'? GVT_CV : ''), on:TXL.on }; }
+try{ if(window.GVT && !GVT.txl) GVT.txl=txlRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.txl) GVT.txl=txlRead; }catch(e){} }, 0);   // the rig door (the house's way: GVT is laid later in the page)
+// ═══ CARD-TXL ends ═══
 function update(dt){
   if(S.tex){ S.t+=dt; texTick(dt); return; }   // CARD-TRN-B1 THE TOY EXPRESS: the set's own tick; nothing of the campaign's sim runs under it (the clock advances for the figures' own sway)
   S.t+=dt; S.hintT+=dt;
