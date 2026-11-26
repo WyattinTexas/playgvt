@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.06","md5":"a50a5a8c768a12dd14ddff4214c08ef2","sha":"00de5bab9d","at":"2026-11-26T11:55:53Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.07","md5":"fb5a989ae87483eb0e5e474f50642272","sha":"b092c3a495","at":"2026-11-26T12:36:17Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94769,7 +94769,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='35.06';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='35.07';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -249521,14 +249521,15 @@ var KTC={ on:(function(){ try{ const q=/[?&]ktc=([01])/.exec(location.search||''
   words:{ SHIELD:1, CODESHIELD:1, SHIELDOFF:2, CODESHIELDOFF:2 }, looks:['gvt_knf','gvt_sfa','gvt_ssc'], sayOn:'THE KNIGHT SET IS YOURS TO TEST\u2026', sayOff:'THE KNIGHT SET TEST IS OFF\u2026',
   wrapped:0, busy:0, gave:0, said:'', n:{ typed:0, on:0, off:0, same:0, till:0, gave:0, lost:0, told:0 }, err:0, e:'' };   // the switch · the words (1 on, 2 off) · the three looks' off keys · the two gold lines · a word under way · the books (the rig reads them; nothing in the game does)
 function ktcErr(e){ KTC.err++; KTC.e=String(e && e.message || e).slice(0,200); }
-function ktcKey(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function ktcKey(k){ try{ const F=window.DET_SWF; return (F && F.dev===1 && typeof F.G==='function')? F.G.call(localStorage, k) : localStorage.getItem(k); }catch(e){ return null; } }   // THE DEVICE'S OWN KEY (CARD-KTC-SEED, below)
 function ktcMark(){ return ktcKey('gvt_ktcT')==='1'; }   // THE TESTER'S MARK: this device typed SHIELD and has not typed SHIELD OFF since
 function ktcLook(){ for(const k of KTC.looks){ if(ktcKey(k)==='0') return true; } return false; }   // an off key of her look, of the knights' shields or of Sarge's shield stands on this device
+function ktcKns(){ const F=window.DET_SWF; if(!(F && F.dev===1)) return KNS.on; const v=ktcKey('gvt_kns'); return v==='1'? 1 : v==='0'? 0 : KNS.on; }   // THE KNIGHT SET FOR THIS DEVICE (CARD-KTC-SEED, below): KNS.on, but on a seeded page (KNS.on there is the shipped default) the device's own key
 function ktcTill(){ try{ const c=SECRET_CODES.SHIELD; return !!(c && typeof c.take==='function' && (META.codes||[]).indexOf('SHIELD')<0 && !c.has()); }catch(e){ return false; } }   // the till still owes this army THE SHIELD (CARD-SLK's row: not typed yet, not hers yet)
 function ktcKeys(off){   // the device's keys, written before anything is said · off: never the off key '0' (this device is every player's device again)
-  try{ if(off){ localStorage.removeItem('gvt_ktcT'); if(localStorage.getItem('gvt_kns')==='1') localStorage.removeItem('gvt_kns'); localStorage.setItem('gvt_ktcS','off'); }
-    else { localStorage.setItem('gvt_kns','1'); localStorage.setItem('gvt_ktcT','1'); for(const k of KTC.looks){ if(localStorage.getItem(k)==='0') localStorage.removeItem(k); } localStorage.setItem('gvt_ktcS','on');
-      if(localStorage.getItem('gvt_kns')!=='1' || localStorage.getItem('gvt_ktcT')!=='1') throw new Error('the device kept no mark'); }
+  try{ if(off){ localStorage.removeItem('gvt_ktcT'); if(ktcKey('gvt_kns')==='1') localStorage.removeItem('gvt_kns'); localStorage.setItem('gvt_ktcS','off'); }
+    else { localStorage.setItem('gvt_kns','1'); localStorage.setItem('gvt_ktcT','1'); for(const k of KTC.looks){ if(ktcKey(k)==='0') localStorage.removeItem(k); } localStorage.setItem('gvt_ktcS','on');
+      if(ktcKey('gvt_kns')!=='1' || ktcKey('gvt_ktcT')!=='1') throw new Error('the device kept no mark'); }
     return true; }catch(e){ ktcErr(e); try{ localStorage.removeItem('gvt_ktcS'); }catch(e2){} return false; } }
 function ktcGo(off){ const line=t(off? KTC.sayOff : KTC.sayOn);   // the STUDIO word's line: the fanfare, the rooms fold, the gold line on the room, the page starts again (KNS.on is read once, at the start)
   try{ SFX.fanfare(); }catch(e){} try{ codeShut(1); }catch(e){ ktcErr(e); } try{ evToast(line); }catch(e){}
@@ -249537,7 +249538,7 @@ function ktcAgain(){   // THE START · an address that carries a switch of the K
   try{ const s0=location.search||'', q=s0.replace(/^\?/,'').split('&').filter(function(p){ return p && !/^(kns|knf|sfa|ssc)=[01]$/.test(p); }), s1=q.length? '?'+q.join('&') : '';
     if(s1!==s0){ location.replace(location.pathname+s1+(location.hash||'')); return; } location.reload(); }catch(e){ KTC.busy=0; ktcErr(e); } }
 function ktcWord(inp, kind, till){ if(KTC.busy) return true; KTC.n.typed++; const off=(kind===2), owes=!off && ktcTill();   // A WORD at the counter · kind 1 SHIELD (on), 2 SHIELD OFF
-  if(off? (!ktcMark() && ktcKey('gvt_kns')!=='1') : (!owes && ktcMark() && KNS.on===1 && !ktcLook())){   // nothing would change on this device (on already · nothing of the word to put away): the gold line, nothing starts
+  if(off? (!ktcMark() && ktcKey('gvt_kns')!=='1') : (!owes && ktcMark() && ktcKns()===1 && !ktcLook())){   // nothing would change on this device (on already · nothing of the word to put away): the gold line, nothing starts
     KTC.n.same++; inp.value=''; try{ inp.blur(); }catch(e){} codeSay(t(off? KTC.sayOff : KTC.sayOn),'yes'); return true; }
   if(!ktcKeys(off)){ codeSay(t('NO SUCH CODE. CHECK THE SPELLING AND TRY AGAIN'),'no'); shopDeny('shCodeCase'); return false; }   // a device that keeps nothing (its storage is shut): the till's own miss, nothing started
   KTC.busy=1; if(off) KTC.n.off++; else KTC.n.on++;
@@ -249555,7 +249556,7 @@ if(KTC.on===1 && typeof codeRedeem==='function' && typeof KNS==='object' && KNS)
 (function(){ if(KTC.on!==1 || !(typeof KNS==='object' && KNS)) return;   // THE START AFTER A WORD (and every start of a device that carries the mark)
   let say=''; try{ say=localStorage.getItem('gvt_ktcS')||''; if(say) localStorage.removeItem('gvt_ktcS'); }catch(e){ say=''; }   // the word's one line, owed once
   try{ if(ktcMark()){
-      if(KNS.on!==1){ KTC.n.lost++; say=''; try{ localStorage.removeItem('gvt_ktcT'); }catch(e2){} }   // a mark without the Knight Set (an address that carries ?kns=0 turned it off): the mark goes
+      if(ktcKns()!==1){ KTC.n.lost++; say=''; try{ localStorage.removeItem('gvt_ktcT'); }catch(e2){} }   // a mark without the Knight Set (an address that carries ?kns=0 turned it off): the mark goes
       else if(typeof META==='object' && META && META.enh && Array.isArray(META.enh.own) && ENH_ORDER.indexOf(KNS.id)>=0 && !enhOwns(KNS.id)){   // THE HAND-OVER: owned and NEW!, never fitted (the one grant door)
         if(grantOwned('enh',KNS.id)){ KTC.gave=1; KTC.n.gave++; saveMeta(); } } } }catch(e){ ktcErr(e); }
   if(say==='on' && KNS.on===1 && ktcMark() && !KTC.gave) KTC.said=KTC.sayOn;   // handed over just now: the room's READY TO DEPLOY card is the telling; owned already: one gold line
@@ -249568,6 +249569,17 @@ GVT.ktc=function(){ const g=function(f){ try{ return f(); }catch(e){ return null
   return { cv:g(function(){ return GVT_CV; }), on:KTC.on, wrapped:KTC.wrapped, busy:KTC.busy, mark:ktcMark(), till:ktcTill(), look:ktcLook(), kns:g(function(){ return KNS.on; }), key:ktcKey('gvt_kns'), owed:ktcKey('gvt_ktcS'), looks:KTC.looks.map(function(k){ return ktcKey(k); }),
     at:g(function(){ return ENH_ORDER.indexOf(KNS.id); }), own:g(function(){ return enhOwns(KNS.id); }), fit:g(function(){ return enhOn(KNS.id); }), shows:g(function(){ return labShows(KNS.id); }), fresh:g(function(){ return freshIs('enh',KNS.id); }),
     told:g(function(){ return META.lab.told.indexOf(KNS.id)>=0; }), aside:g(function(){ return META.knsAside===undefined? 0 : 1; }), gave:KTC.gave, said:KTC.said, words:Object.keys(KTC.words), n:Object.assign({},KTC.n), err:KTC.err, e:KTC.e }; };
+// CARD-KTC-SEED · THE WORD READS THE DEVICE'S OWN KEYS ON A SEEDED PAGE TOO (jumpr 3981, built on the QuarterPounder as M3981, 11/19/2026; the record design/ktc-seed-1119/00-CARD-KTC-SEED.md).
+//   A FIX (found by the cold read of card 3832's pre-land, its DEC-8; Wyatt's standing rule, 11/12/2026 16:39 EST, verbatim: "Yes fix- and dont ask in these situations. Its clearly implied that we do not want a laggy screen in the game").
+//   WHAT WAS WRONG: on a seeded page (?det=1, or ?net=1) card B4B9's hunk F answers null for every switch key on its device list, so a fight there reads every switch's shipped default; the Knight Set's own key
+//   is on that list. The word read the device back through that answer: SHIELD wrote its keys, read null, said NO SUCH CODE and started nothing (CARD-SLK's row for Sarge's Shield never ran), while the next
+//   start handed the Knight Set over all the same; SHIELD OFF left the Knight Set's own key behind; and an off key of her look (on the list too) was never lifted.
+//   THE CURE: every read of the word is the DEVICE's own (ktcKey above: while hunk F stands, DET_SWF.dev 1, it reads through the browser's own getter that hunk F keeps, DET_SWF.G; on any other page it is
+//   the same getItem as before). On a seeded page the word now answers, writes and starts the page again exactly as on a plain page. And where the word and the start ask whether the Knight Set is on for
+//   THIS DEVICE (the word's "on already", the start's "a mark without the Knight Set") they ask ktcKns: KNS.on, but on a seeded page, where KNS.on is the shipped default, the device's own key ('1' on, '0' off,
+//   none = the default). Under a Knight Set off for everyone a seeded start took the tester's mark away there, and the next plain start handed nothing over (the rig's dark twins, rig/seedKTC.mjs sequence D).
+//   The page's own switches still answer their shipped defaults on a seeded page (KNS.on and every look read hunk F's answer as before): nothing a fight reads is touched. On a plain page DET_SWF does not
+//   exist, ktcKns is KNS.on, and every line runs as it ran.
 // ═══ end sec:CARD-KTC ═══
 // (THE LANDING'S TWO LINES, jumpr 3610m, board J385: Maker 1's section above ends with its own line; the house's foot kits seat a later section after the last closing line of the form below and stop when it is not the script's last line, so the landing writes that line for this card. design/knight-set-test-code-1116/land-3610m/LANDING-3610m.md, L-F1)
 // ═══ END CARD-KTC ═══
