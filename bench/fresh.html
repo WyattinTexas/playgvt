@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.03","md5":"cf4dc00d734ba37f6d93cc33615d32ec","sha":"5717f10d5b","at":"2026-11-26T10:52:57Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
+<script>/* GVT FRESH PAGE */window.__FRESH_STAMP={"cv":"35.04","md5":"5bcbed3f5ffdc97d27d8f81634649e62","sha":"05f57f8e50","at":"2026-11-26T11:14:20Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3,"fresh":"58ad92454c"};</script>
 <script src="fresh-pre.js?v=58ad92454c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94769,7 +94769,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='35.03';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='35.04';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -253637,6 +253637,50 @@ if(RTQ.on){ (function(){
 })(); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.rtq) GVT.rtq=function(o){ if(o && typeof o==='object' && ('wait' in o)) RTQ.wait=o.wait|0; return rtqRead0(); }; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar); { wait } = a rig's fixed wait, held inside 9 to 15 s
 // ═══ END CARD-RTQ ═══
+// ═══ sec:CARD-NRC · A BATTLE'S OPENING BANNER NEVER COUNTS THE REAL COMMANDERS (CARD-RQF round 3, design/ranked-queue-fill-1125/00-CARD-RQF.md; jumpr 4749, board J1115;
+// FROM WYATT 11/26/2026 ~04:33 EST, typed into the card's session, verbatim: "We also noticed the alert, like "two real commanders" or "real commander," when there's a real
+// commander opponent, and we need that removed. That is not acceptable for when someone's in a ranked match or a match in Battlegrounds. They shouldn't have to see that.") ═══
+// WHAT WAS SO: a battle that rides a room (a real commander in another chair) opened under roomStartBattle's own banner, BATTLEFIELD · 2 v 2 · 2 REAL COMMANDERS (pbpAnn; a
+// private battle and the nights said the same after their own names), laid over the banner startBattlefield had made a line earlier (2 v 2 · THE CROSSING). A battle against
+// the computer rides no room and shows startBattlefield's banner alone: so the count also told a commander, at the first second of a ranked battle, whether the other chair
+// was real. The green line under the bar with the same words has been gone since 10/29 (CARD-NGL, BF_TITLE_LINE).
+// WHAT LANDS: (1) A BATTLEFIELDS BATTLE (the queue, ranked or not; a party's war or split; a squad's fill or VS: pbpKind 'bf') KEEPS THE BANNER startBattlefield MADE, the very
+// one a battle against the computer shows: nothing on the glass says who is real. THE QUEUE'S REFEREE TOO: his queue has folded when his room starts (the deploy folds it
+// first), so pbpKind read his battle as a private room and it opened under PRIVATE BATTLE (read 11/26 with two real seats: one phone PRIVATE BATTLE, the other BATTLEFIELD);
+// the queue's room is noted as the queue folds (bfQueueTeardown wrapped), and a room so noted is a Battlefields battle on every phone. (2) A battle with a name of its own (the globe's fight, a private battle, the nights)
+// keeps its name and its size and loses the count: PRIVATE BATTLE · 2 v 2, THE BATTLE OF THE DESERT · 6 v 6. The count is the banner's last part in all eight tongues
+// (read 11/26 in the seven tables), so the words are the tables' own, cut at their last dot. The gauntlet's banner never counted and is not touched.
+// HOW: pbpAnn wrapped by name (roomStartBattle calls it by name where the banner is made, so the fix stands on every road to that line, a start the relay deferred too);
+// roomStartBattle wrapped by name for the nights alone, whose banner is written in its own body (the nights are never deferred: rlyFamOf); bfQueueTeardown wrapped by
+// name for the note of the queue's room (kept three minutes, read by the room's code). No line of another section is
+// edited, no word is new, nothing is written on S.bf, COOP or the save, no Math.random is drawn. ?nrc=0 = none of it: no wrap laid, every banner as before (localStorage
+// gvt_nrcoff '1'; ?nrc=1 clears it). GVT.nrc() = the read.
+var NRC={ on:1, laid:0, err:0, e:'', last:'', q:null, st:{ bf:0, cut:0, night:0, note:0 } };
+(function(){ try{ const q=/[?&]nrc=([01])(?:&|#|$)/.exec(String(location.search||''));
+    if(q){ try{ if(q[1]==='0') localStorage.setItem('gvt_nrcoff', '1'); else localStorage.removeItem('gvt_nrcoff'); }catch(e){} }
+    try{ NRC.on=localStorage.getItem('gvt_nrcoff')==='1'? 0 : 1; }catch(e){ NRC.on=1; } if(q) NRC.on=(q[1]==='0')? 0 : 1; }catch(e){ NRC.on=1; } })();
+function nrcErr(w, e){ try{ NRC.err++; NRC.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function nrcCut(txt){ const s=String(txt==null? '' : txt), i=s.lastIndexOf(' · '); return (i>0 && s.indexOf(' · ')<i)? s.slice(0, i) : s; }   // NAME · N v N · the count -> NAME · N v N (a line of fewer than three parts is left whole)
+function nrcQueued(){ try{ const q=NRC.q; return !!(q && COOP && COOP.code && String(COOP.code)===q.room && Date.now()-q.t<180000); }catch(e){ return false; } }   // this room is the one a Battlefields queue found its commanders in
+function nrcBanner(a, team, ppl){   // the banner of a room's start: a = what pbpAnn itself answered (a battle with a name of its own) or null (a private battle)
+  const k=(S.bf && S.bf.pbp && S.bf.pbp.k)||'', s0=S.ann;
+  if((k==='bf' || (k==='room' && nrcQueued())) && s0 && typeof s0.txt==='string' && s0.txt){ NRC.st.bf++; NRC.last=s0.txt; return s0; }   // the banner startBattlefield made stands: the one a battle against the computer shows
+  if(a && typeof a.txt==='string'){ a.txt=nrcCut(a.txt); NRC.st.cut++; NRC.last=a.txt; return a; }   // a name of its own: the name and the size
+  const n=Math.max(1, ppl|0), t9=nrcCut(tf(n===1? 'PRIVATE BATTLE · %1 v %1 · %2 REAL COMMANDER' : 'PRIVATE BATTLE · %1 v %1 · %2 REAL COMMANDERS', team, n));   // a private battle: its own words (the tables' own), without the count
+  NRC.st.cut++; NRC.last=t9; return { txt:t9, t:3.0 }; }
+function nrcNight(){ const a=S.ann; if(!(COOP && COOP.bd && S.bf && S.bf.room && a && a.t===3.0 && typeof a.txt==='string')) return 0;   // the nights' banner is written in the room's own start: its count leaves right after
+  const t9=nrcCut(a.txt); if(t9===a.txt) return 0; a.txt=t9; NRC.st.night++; NRC.last=t9; return 1; }
+function nrcRead0(){ return { on:NRC.on, laid:NRC.laid, err:NRC.err, e:NRC.e, last:NRC.last, q:NRC.q? NRC.q.room : null, st:Object.assign({}, NRC.st) }; }
+if(NRC.on){ (function(){
+  try{ if(typeof pbpAnn!=='function' || typeof roomStartBattle!=='function' || typeof bfQueueTeardown!=='function' || typeof tf!=='function'){ nrcErr('lay', 'a name this section stands on is missing'); return; }
+    const p0=pbpAnn; pbpAnn=function(team, ppl){ const a=p0.apply(this, arguments); try{ return nrcBanner(a, team, ppl); }catch(e){ nrcErr('banner', e); return a; } };
+    const r0=roomStartBattle; roomStartBattle=function(){ const r=r0.apply(this, arguments); try{ nrcNight(); }catch(e){ nrcErr('night', e); } return r; };
+    const t0=bfQueueTeardown; bfQueueTeardown=function(){ try{ const q=(typeof BFQ!=='undefined')? BFQ : null; if(q && q.crewRoom){ NRC.q={ room:String(q.crewRoom), t:Date.now() }; NRC.st.note++; } }catch(e){ nrcErr('note', e); } return t0.apply(this, arguments); };   // the queue's room, noted as the queue folds
+    NRC.laid=1;
+  }catch(e){ nrcErr('lay', e); }
+})(); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.nrc) GVT.nrc=nrcRead0; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-NRC ═══
 // ═══ sec:CARD-BPP · THE BATTLE PASS SCREEN, BEHIND THE CODE BATTLE (design/battle-pass-projector-1123/00-CARD-BPB.md, the build; 00-DESIGN-BPP.md, the design pass, rounds 1 to 8; jumpr 4664).
 // FROM ISAAC by WhatsApp 11/24/2026 14:11 EST, his go, verbatim: "Turn up the speed of the animations a little bit. You can barely even tell they're happening so make them 50% faster and more present.
 // Then push to Code Battle. The Battle Pass tab should be where the Sergeant Surplus tab used to be and then the icon for it should be the film reel. Let's revert back to just the film reel for where
