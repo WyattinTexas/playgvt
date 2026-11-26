@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.93","md5":"69e67723e46e11ac9f366d6e794c8ba6","sha":"77ee4b95de","at":"2026-11-26T04:57:16Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.94","md5":"a613daeb0f69cfcbbd68115eab854a63","sha":"1f62c97435","at":"2026-11-26T05:20:07Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94768,7 +94768,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.93';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.94';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -253387,6 +253387,43 @@ if(RNK.on){ (function(){
 })(); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.rnk) GVT.rnk=rnkRead0; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-RNK ═══
+// ═══ sec:CARD-RQF · A PARTY'S RANKED WIN IS TOLD TO HQ (design/ranked-queue-fill-1125/00-CARD-RQF.md; jumpr 4749, board J1115; FROM WYATT 11/25/2026 22:44 EST by phone on Discord, verbatim:
+// "We won 2 ranked PvP games, but we're still not on the leaderboard."; 22:57 EST: "Get the fix live") ═══
+// WHAT HQ'S OWN DATA SAID THAT NIGHT: two seats in a party won ranked 2v2 battles at 22:41 and 22:43 EST; the ranked log held no row of mode 2, from anybody, ever. The phones had told HQ
+// the party's order (the mark) and never a verdict.
+// THE CAUSE: sec:CARD-RNK stamps a party's ranked war in rnkPartyWar, called from its wrap of startBattlefield, and that function refuses a battle that has no bf.room. A room's launch
+// (roomStartBattle, spcStart) writes S.bf.room only AFTER startBattlefield has returned. So with a party the stamp never landed (CARD-STTL starts a party's war with no queue to tag): the
+// verdict's own seat saw no ranked battle, nothing was told to HQ, no MMR moved, no line stood on the result face, no row came to the ranked board. (The rig that proved the party's road
+// stood in for the party and wrote S.bf.room itself before the call.)
+// THE CURE: rnkPartyWar wrapped BY NAME. A room's launch is read from the launch's own words (coopLaunching, the room's code on COOP), never from bf.room. Everything else is that section's
+// law as it was written: the season open on HQ's clock, a size HQ serves (2v2, 3v3), the party's lobby behind the war (PTY_BACK), the tap's own side stamped at once (RNK.want, 120 s), a
+// member's side asking HQ (lob) and stamped on its yes while the battle still stands. Two guards the old line's refusal used to hide: a watcher's chair is never stamped (COOP.watch), nor a
+// war with a commander on the other side (the party's own split moves no MMR: the other chairs are the computer's, as rnkSend tells HQ).
+// No line of another section is edited, nothing is written on S, S.bf or the save, no dice are drawn, no word is asked of HQ that the section did not ask before.
+// ?rqf=0 = the page as it stood (localStorage gvt_rqfoff '1'; ?rqf=1 clears it). GVT.rqf() = the rigs' read.
+var RQF={ on:1, laid:0, err:0, e:'', st:{ wars:0, own:0, asks:0, yes:0, no:0, watch:0, split:0, old:0 } };
+(function(){ try{ const q=/[?&]rqf=([01])(?:&|#|$)/.exec(String(location.search||''));
+    if(q){ try{ if(q[1]==='0') localStorage.setItem('gvt_rqfoff', '1'); else localStorage.removeItem('gvt_rqfoff'); }catch(e){} }
+    try{ RQF.on=localStorage.getItem('gvt_rqfoff')==='1'? 0 : 1; }catch(e){ RQF.on=1; } if(q) RQF.on=(q[1]==='0')? 0 : 1; }catch(e){ RQF.on=1; } })();
+function rqfErr(w, e){ try{ RQF.err++; RQF.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function rqfHouse(bf){ try{ const ss=bf.seats||[]; for(let i=0;i<ss.length;i++){ const st=ss[i]; if(st && st.human && st.team!==bf.myTeam) return false; } return true; }catch(e){ return false; } }   // every chair of the other team is the computer's
+function rqfPartyWar(size){   // a party's war starting on this glass, read AT THE LAUNCH (startBattlefield has just returned; the room's own word on S.bf comes a line later)
+  const bf=S.bf; if(!bf || RNK.bf || !rnkLive() || !rnkOpenNow() || !(size>=2 && size<=RNK.mx)) return;
+  let on=false, code=''; try{ on=!!coopLaunching && !!COOP && !!COOP.code; code=String((typeof PTY_BACK!=='undefined' && PTY_BACK && PTY_BACK.code)||''); }catch(e){}
+  if(!on || !code) return;
+  RQF.st.wars++;
+  if(COOP.watch){ RQF.st.watch++; return; }
+  if(!rqfHouse(bf)){ RQF.st.split++; return; }
+  const w=RNK.want; if(w && w.code===code && Date.now()-w.t<120000){ RQF.st.own++; rnkStamp(bf, size); return; }   // the tap's own side; a member's side asks HQ
+  RQF.st.asks++; RNK.st.asks++;
+  rnkPost({ lob:code }).then(function(j){ try{ if(j && j.ok && j.rk && (j.rk.lob|0)>0){ if(S.bf===bf && !RNK.bf && !bf.resolved){ RQF.st.yes++; rnkStamp(bf, size); } } else RQF.st.no++; }catch(e){ rqfErr('ask', e); } }, function(){}); }
+function rqfRead0(){ return { on:RQF.on, laid:RQF.laid, err:RQF.err, e:RQF.e, st:Object.assign({}, RQF.st) }; }
+if(RQF.on){ (function(){
+  try{ if(typeof rnkPartyWar!=='function' || typeof rnkStamp!=='function' || typeof rnkPost!=='function' || typeof RNK!=='object' || !RNK){ rqfErr('lay', 'the ranked section is not in the page'); return; }
+    const p0=rnkPartyWar; rnkPartyWar=function(size){ try{ return rqfPartyWar(size|0); }catch(e){ rqfErr('party war', e); RQF.st.old++; return p0.apply(this, arguments); } }; RQF.laid=1; }catch(e){ rqfErr('wrap rnkPartyWar', e); }
+})(); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.rqf) GVT.rqf=rqfRead0; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-RQF ═══
 // ═══ sec:CARD-BPP · THE BATTLE PASS SCREEN, BEHIND THE CODE BATTLE (design/battle-pass-projector-1123/00-CARD-BPB.md, the build; 00-DESIGN-BPP.md, the design pass, rounds 1 to 8; jumpr 4664).
 // FROM ISAAC by WhatsApp 11/24/2026 14:11 EST, his go, verbatim: "Turn up the speed of the animations a little bit. You can barely even tell they're happening so make them 50% faster and more present.
 // Then push to Code Battle. The Battle Pass tab should be where the Sergeant Surplus tab used to be and then the icon for it should be the film reel. Let's revert back to just the film reel for where
