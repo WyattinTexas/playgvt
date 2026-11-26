@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"35.01","md5":"8fd8dd532a7d7897b8e29d9161158551","sha":"5159d32d50","at":"2026-11-26T09:17:55Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"35.02","md5":"3aebf457b4d28dee824e3b096011e988","sha":"2785de7c43","at":"2026-11-26T09:48:10Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94769,7 +94769,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='35.01';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='35.02';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -258515,6 +258515,111 @@ function rrwRead(){ let lay=null; try{ const root=document.getElementById('bflob
 try{ if(window.GVT && !GVT.rrw) GVT.rrw=rrwRead; }catch(e){}
 setTimeout(function(){ try{ if(window.GVT && !GVT.rrw) GVT.rrw=rrwRead; }catch(e){} }, 0);   // the rig door (the house's way)
 // ═══ END CARD-RRW ═══
+// ═══ sec:CARD-BMN · THE BATTLEFIELDS MENU: UNRANKED UNTIL FIVE, THE SEASON'S REWARDS BY PARK, BOTH SQUARES ALWAYS (design/battlefields-menu-isaac-1125/00-DESIGN-BMN.md; jumpr 4723, built on the QuarterPounder as M4723). FROM ISAAC by his guest link 11/25/2026, verbatim:
+// "there's a bunch of changes we need to make to the battlefields menu:
+// - Until the player play any ranked games, they should just be unranked. Our system starts you at 100 MMR in the background, but to the player, it just shows up as unranked. After they play 5 matches, they get a ranking. The system still works the same in the background, but they just don't know the rank until after 5 matches.
+// - For these season rewards, let's have it sorted by park. Once you click in the park, you see the rewards for each of the ranks within that park, instead of just having it all on one screen. That's way too much.
+// - I had a little bug when I first opened the battlefields menu: I only saw a torch, but I opened the season rewards and then exited out, and then the torch and the globe were there. Just make sure that doesn't happen. Always show both."
+// A DESIGN PASS'S KIT: nothing of it is live until his "push to live". Three parts, every hook a wrap BY NAME; no line of another section edited; zero server, sw.js, save or wire bytes.
+//   1 UNRANKED UNTIL FIVE (rnkBoxHTML, rnkLine, rnkRows, rrwMe wrapped): while HQ's count of the season's battles in a mode (me.n, HQ's own number) is under BMN.place (5), the lobby's rank box says UNRANKED
+//     with five pips (no crest, no rank, no MMR), the result screen's ranked line says PLACEMENT BATTLE N OF 5, the board's own row says UNRANKED and the rewards mark no rank of yours; the fifth battle's line is the
+//     reveal (YOU ARE RANKED!, the crest, the rank, the MMR). HQ's sums are untouched: 100 MMR from the start, every battle counted as before.
+//   2 THE REWARDS BY PARK (rrwHTML, rrwOpen wrapped): CARD-RRW's sheet opens on six cards (DINO PARK, YETI PARK, WESTERN LAND, GNOME PARK, BEAR PARK, THE ARMY), each with its ranks' crests and its stars; a tap opens
+//     that park's ranks, each with its stars, levels of XP and supply drop (RRW's own rows and numbers, nothing changed); ‹ ALL PARKS goes back. YOUR park and rank are marked.
+//   3 BOTH SQUARES ALWAYS (glTileHTML, gaTileHTML, glSquare wrapped; the waiting faces tap bmnGlTap / bmnGaTap). THE CAUSE: the Globe's square waits for HQ's first globe beat (glTileHTML gives nothing while GL.ok is not true), asked
+//     2.5 s after the page loads and then every 2 minutes for a quiet commander (a lost first answer = 2 minutes without it); the torch's square comes from the 30 s menu beat. A lobby opened in those seconds (the
+//     app opening straight into the Battlefields: CARD-BFO's door) showed the torch alone, and the next lay (the season's rewards closing) found both. NOW, while the lobby stands, each square has a waiting face
+//     until HQ answers (its own name and picture, CONNECTING…), the lobby asks HQ's globe beat the moment it stands without one and every 5 s while it does, and a tap on the waiting Globe opens it when HQ answers.
+// THE PARTS: BMN.p (un · park · sq), each 1; a landing that takes one part alone sets the others 0. THE OFF SWITCH: ?bmn=0 on a device (gvt_bmn '0'; ?bmn=1 back), read at load: the lobby as before. GVT.bmn() = the rigs' read. The words are the lobby's own kind (English, data-notr). No new drawable thing.
+var BMN={ on:(function(){ try{ const q=/[?&]bmn=([01])(?:&|#|$)/.exec(location.search||''); if(q) localStorage.setItem('gvt_bmn', q[1]); return localStorage.getItem('gvt_bmn')!=='0'; }catch(e){ return true; } })(),
+  v:1, p:{ un:1, park:1, sq:1 }, place:5, wait:'CONNECTING…', askT:0, glWant:0, wrapped:0, css:0, err:0, e:'', view:'parks', st:{ boxes:0, lines:0, rows:0, asks:0, glWait:0, gaWait:0, opens:0, parks:0, park:0, backs:0 } };
+const BMN_PARKS=[['dino','DINO PARK',['tinrex','stego','kingrex']], ['yeti','YETI PARK',['yeti','sgtcold','kingyeti']], ['west','WESTERN LAND',['outlaw','snake','croak']],
+  ['gnome','GNOME PARK',['gnome','wizard','princess']], ['bear','BEAR PARK',['teddy','capteddy','emperor']], ['army','THE ARMY',['private','sergeant','colonel','commander','general']]];
+function bmnErr(w,e){ BMN.err++; if(BMN.e.length<300) BMN.e+=w+':'+String((e && e.message)||e).slice(0,80)+' '; }
+function bmnN(me){ return me? Math.max(0, me.n|0) : 0; }
+function bmnPlacing(me){ return !!(BMN.on && !(me && me.gen) && bmnN(me)<BMN.place); }   // HQ's count of the season's battles in that mode, under five = still placing
+function bmnMeOf(m){ try{ return RNK.mes[m]||(m===1? RNK.me : null); }catch(e){ return null; } }
+function bmnPips(n){ let h=''; for(let i=0;i<BMN.place;i++) h+='<i'+(i<n? ' class="on"' : '')+'></i>'; return '<span class="bmn-pips" aria-hidden="true">'+h+'</span>'; }
+function bmnLobby(){ try{ return !!(BMN.on && typeof BLV==='object' && BLV && BLV.on && window.BLV_UI && BLV_UI.isOpen()); }catch(e){ return false; } }
+function bmnCss(){ if(BMN.css || !document.head) return; try{ const st=document.createElement('style'); st.id='bmnCss'; st.textContent=
+  '.bmn-q{flex:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:clamp(34px,9.4vh,56px);aspect-ratio:200/240;border-radius:46% 46% 50% 50%/40% 40% 60% 60%;background:radial-gradient(90% 80% at 50% 30%,#5b5446,#2a251d);border:2px solid rgba(255,210,74,.6);color:#ffd24a;font-size:clamp(18px,5vh,30px);font-weight:700;line-height:1;box-shadow:inset 0 -3px 0 rgba(0,0,0,.35)}'
+  +'.rnk-vline .bmn-q{width:auto;height:2.2em;font-size:1em}'
+  +'.bmn-pips{display:inline-flex;gap:3px;vertical-align:middle;margin-right:6px}.bmn-pips i{display:block;width:.62em;height:.62em;border-radius:50%;border:1.5px solid #ffd24a;box-sizing:border-box}.bmn-pips i.on{background:#ffd24a}'
+  +'.bl3-rank.bmn-un .n{color:#cfc6b2;letter-spacing:.08em}'
+  +'.rnk-v.bmn-un i{color:#cfc6b2}'
+  +'#rrwSheet .rrw-list.bmn-list{grid-auto-flow:row;grid-template-rows:none;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:clamp(6px,1.8vh,12px)}'
+  +'#rrwSheet .rrw-list.bmn-list.bmn-ranks{grid-template-columns:repeat(var(--bmn-n,3),minmax(0,1fr));grid-auto-rows:minmax(0,1fr)}'
+  +'#rrwSheet .bmn-park{position:relative;font:inherit;color:inherit;letter-spacing:.06em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(2px,.8vh,6px);min-width:0;min-height:0;padding:6px 8px;border-radius:14px;cursor:pointer;'
+  +'background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:2px solid rgba(255,210,74,.28);box-shadow:0 4px 0 rgba(0,0,0,.35);-webkit-tap-highlight-color:transparent}'
+  +'#rrwSheet .bmn-park:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.35)}#rrwSheet .bmn-park.me{border-color:#ffd24a;background:linear-gradient(180deg,rgba(255,210,74,.22),rgba(255,210,74,.08))}'
+  +'#rrwSheet .bmn-crests{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:clamp(34px,15vh,88px);width:100%;min-width:0}#rrwSheet .bmn-crests img{height:100%;width:auto;min-width:0;max-width:calc((100% - 12px) / var(--c,3));flex:0 1 auto;aspect-ratio:200/240;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}'
+  +'#rrwSheet .bmn-park b{font-size:clamp(14px,4.2vh,25px);color:#fff3c4;white-space:nowrap}#rrwSheet .bmn-park small{font-size:clamp(11px,3vh,17px);color:#ffd24a;white-space:nowrap}'
+  +'#rrwSheet .bmn-park > i,#rrwSheet .bmn-rank > i{position:absolute;top:6px;right:8px;font-style:normal;font-size:clamp(9px,2.1vh,12px);color:#1A140C;background:#ffd24a;border-radius:5px;padding:0 5px;letter-spacing:.08em}'
+  +'#rrwSheet .bmn-rank{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(1px,.6vh,5px);min-width:0;min-height:0;padding:6px;border-radius:14px;background:rgba(255,255,255,.05);border:2px solid rgba(255,210,74,.2);text-align:center}'
+  +'#rrwSheet .bmn-rank.me{background:rgba(255,210,74,.16);border-color:#ffd24a}#rrwSheet .bmn-rank img{height:clamp(46px,25vh,136px);width:auto;aspect-ratio:200/240;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}'
+  +'#rrwSheet .bmn-rank b{font-size:clamp(13px,4vh,24px);color:#fff3c4;white-space:nowrap}#rrwSheet .bmn-rank span{font-size:clamp(11px,3.1vh,18px);white-space:nowrap;line-height:1.15}'
+  +'#rrwSheet .bmn-rank .s{color:#ffd24a;font-size:clamp(15px,4.6vh,27px)}#rrwSheet .bmn-rank .l{color:#BFE39A}#rrwSheet .bmn-rank .d{color:#9fc6ff}#rrwSheet .bmn-rank .d.none{color:rgba(255,255,255,.35)}#rrwSheet .bmn-rank .gen{color:#cfc6b2;white-space:normal}'
+  +'#rrwSheet .bmn-back{flex:none;font:inherit;font-size:clamp(11px,2.6vh,15px);letter-spacing:.08em;color:#fff3c4;background:rgba(255,255,255,.08);border:2px solid rgba(255,210,74,.55);border-radius:10px;padding:6px 10px;cursor:pointer}';
+  document.head.appendChild(st); BMN.css=1; }catch(e){ bmnErr('css',e); } }
+// ════ 1 · UNRANKED UNTIL FIVE ════
+function bmnBoxHTML(m, me){ const n=bmnN(me); return '<span class="bmn-q" aria-hidden="true">?</span><div><div class="t">'+escH(t('YOUR RANK'))+' · '+rnkModeWord(m)+'</div><div class="n">UNRANKED</div><div class="m">'+bmnPips(n)+'<b>'+n+'</b> OF '+BMN.place+' BATTLES</div></div>'; }
+function bmnLineHTML(won, k){ const n=bmnN(k), mw=rnkModeWord((k.m|0)||1);
+  if(n<BMN.place) return '<span class="bmn-q" aria-hidden="true">?</span><span>'+escH(t('RANKED '+mw))+'</span>'+(k.capped? '<span>'+escH(t("TODAY'S RANKED BATTLES ARE PLAYED"))+'</span>' : '<b>PLACEMENT BATTLE '+n+' OF '+BMN.place+'</b>')+bmnPips(n)+'<span>UNRANKED · '+(BMN.place-n)+' TO GO</span>';
+  const id=rnkId(k.rank, false); return '<img src="'+rnkBadge(id)+'" alt=""><span>'+escH(t('RANKED '+mw))+'</span><b class="upw">YOU ARE RANKED!</b><span>'+rnkWord(id, k.stars, false)+' · '+rnkNum(k.mmr)+' MMR</span>'; }
+function bmnWrapRanked(){
+  if(typeof rnkBoxHTML==='function'){ const b0=rnkBoxHTML; rnkBoxHTML=function(m){ try{ const me=bmnMeOf(m); if(bmnPlacing(me)){ BMN.st.boxes++; return bmnBoxHTML(m, me); } }catch(e){ bmnErr('box',e); } return b0.apply(this, arguments); }; BMN.wrapped++; }
+  if(typeof rnkSeat==='function'){ const s0=rnkSeat; rnkSeat=function(){ const r=s0.apply(this, arguments); try{ const box=document.querySelector('#bflobby3 .bl3-me .bl3-rank'); if(box){ const un=!!box.querySelector('.bmn-q'); if(box.classList.contains('bmn-un')!==un) box.classList.toggle('bmn-un', un); } }catch(e){ bmnErr('seat',e); } return r; }; BMN.wrapped++; }
+  if(typeof rnkLine==='function'){ const l0=rnkLine; rnkLine=function(won, k){ const r=l0.apply(this, arguments); try{ if(!BMN.on || !k || k.closed || k.dup || k.gen) return r; const n=bmnN(k); if(n<1 || n>BMN.place) return r;
+      const el=document.getElementById(won? 'rnkWinLine' : 'rnkLoseLine'); if(!el || el.classList.contains('off')) return r; el.innerHTML=bmnLineHTML(won, k); BMN.st.lines++; }catch(e){ bmnErr('line',e); } return r; }; BMN.wrapped++; }
+  if(typeof rnkRows==='function'){ const w0=rnkRows; rnkRows=function(m){ const out=w0.apply(this, arguments); try{ const me=bmnMeOf(m||1); if(Array.isArray(out) && bmnPlacing(me)){ const n=bmnN(me);
+      out.forEach(function(r){ if(r && r.you){ r.val='<span class="rnk-v bmn-un" data-notr><i>UNRANKED</i><b>'+n+'/'+BMN.place+'</b><small>BATTLES</small></span>'; BMN.st.rows++; } }); } }catch(e){ bmnErr('rows',e); } return out; }; BMN.wrapped++; }
+  if(typeof rrwMe==='function'){ const r0=rrwMe; rrwMe=function(root){ const r=r0.apply(this, arguments); try{ if(r && bmnPlacing(bmnMeOf(r.m||1))) return { id:'', m:r.m||1, un:bmnN(bmnMeOf(r.m||1)) }; }catch(e){ bmnErr('me',e); } return r; }; BMN.wrapped++; } }
+// ════ 2 · THE REWARDS BY PARK ════
+function bmnRowsBy(){ const by={}; try{ rrwRows().forEach(function(r){ by[r.id]=r; }); }catch(e){ bmnErr('rows',e); } return by; }
+function bmnParkOf(id){ for(const p of BMN_PARKS) if(p[2].indexOf(id)>=0) return p[0]; return ''; }
+function bmnSea(){ try{ return BLV_UI.season(); }catch(e){ return null; } }
+function bmnHeadHTML(view, me){ const sea=bmnSea(), n=(sea && sea.n)|0 || 1, P=BMN_PARKS.find(function(p){ return p[0]===view; });
+  const sub=P? ('EACH RANK\'S REWARD AT THE END OF SEASON '+n) : (me && me.un!=null? ('YOU ARE UNRANKED · '+me.un+' OF '+BMN.place+' BATTLES · TAP A PARK') : ('TAP A PARK FOR ITS RANKS\' REWARDS'+((sea && sea.endLabel)? ' · ENDS '+sea.endLabel : '')));
+  return (P? '<button type="button" class="bmn-back" data-bmn-back="1">‹ ALL PARKS</button>' : '')+'<div class="rrw-title"><b>'+(P? escH(P[1]) : 'SEASON '+n+' REWARDS')+'</b><small>'+escH(sub)+'</small></div><button type="button" class="rrw-board">LEADERBOARD</button>'; }
+function bmnParksHTML(me){ const by=bmnRowsBy(), mine=bmnParkOf(me && me.id);
+  return BMN_PARKS.map(function(p){ const st=p[2].filter(function(id){ return by[id]; }).map(function(id){ return by[id].stars; });
+    const rng=st.length? (rnkNum(Math.min.apply(null, st))+'★ - '+rnkNum(Math.max.apply(null, st))+'★') : '';
+    return '<button type="button" class="bmn-park'+(p[0]===mine? ' me' : '')+'" data-park="'+p[0]+'"><span class="bmn-crests" style="--c:'+p[2].length+'">'+p[2].map(function(id){ return '<img src="'+rnkBadge(id)+'" alt="">'; }).join('')+'</span><b>'+escH(p[1])+'</b><small>'+rng+'</small>'+(p[0]===mine? '<i>YOU</i>' : '')+'</button>'; }).join(''); }
+function bmnRanksHTML(key, me){ const by=bmnRowsBy(), P=BMN_PARKS.find(function(p){ return p[0]===key; }); if(!P) return '';
+  return P[2].map(function(id){ const r=by[id], you=!!(me && me.id===id);
+    const pay=r? ('<span class="s">'+rnkNum(r.stars)+'★</span><span class="l">'+r.lv.txt+'</span><span class="d'+(r.drop==='NO SUPPLY DROP'? ' none' : '')+'">'+r.drop+'</span>') : '<span class="gen">THE TOP 10 · REWARDS TO COME</span>';
+    return '<div class="bmn-rank'+(you? ' me' : '')+'" data-rank="'+id+'"><img src="'+rnkBadge(id)+'" alt=""><b>'+escH(t(RNK_ROW[id][0]))+'</b>'+pay+(you? '<i>YOU</i>' : '')+'</div>'; }).join(''); }
+function bmnView(sh, view){ try{ if(!sh) return; const me=rrwMe(document.getElementById('bflobby3')), head=sh.querySelector('.rrw-head'), list=sh.querySelector('.rrw-list'); if(!head || !list) return;
+    const P=BMN_PARKS.find(function(p){ return p[0]===view; }); BMN.view=P? view : 'parks';
+    head.innerHTML=bmnHeadHTML(BMN.view, me); list.className='rrw-list bmn-list'+(P? ' bmn-ranks' : ''); list.setAttribute('data-bmn', BMN.view); if(P) list.style.setProperty('--bmn-n', String(P[2].length)); else list.style.removeProperty('--bmn-n');
+    list.innerHTML=P? bmnRanksHTML(view, me) : bmnParksHTML(me); list.scrollTop=0;
+    const bd=head.querySelector('.rrw-board'); if(bd) bd.addEventListener('click', function(){ try{ RRW.boards++; }catch(e){} rrwClose(); try{ UI.blvBoard(); }catch(e){ bmnErr('board',e); } }); }catch(e){ bmnErr('view',e); } }
+function bmnWrapRewards(){
+  if(typeof rrwOpen!=='function') return; const o0=rrwOpen;
+  rrwOpen=function(){ const r=o0.apply(this, arguments); try{ if(!BMN.on || !r) return r; bmnCss(); const sh=document.getElementById('rrwSheet'); if(!sh) return r; BMN.st.parks++; bmnView(sh, 'parks');
+      sh.addEventListener('click', function(ev){ try{ const b=ev.target && ev.target.closest && ev.target.closest('[data-bmn-back]'); if(b){ try{ SFX.clack(); }catch(e){} BMN.st.backs++; bmnView(sh, 'parks'); return; }
+        const p=ev.target && ev.target.closest && ev.target.closest('[data-park]'); if(p){ try{ audio(); SFX.blip(); }catch(e){} BMN.st.park++; bmnView(sh, p.getAttribute('data-park')); } }catch(e){ bmnErr('tap',e); } }); }catch(e){ bmnErr('open',e); } return r; };
+  BMN.wrapped++; }
+// ════ 3 · BOTH SQUARES ALWAYS ════
+function bmnAsk(force){ try{ const now=Date.now(); if(GL.ok===true || GL.ok===false){ BMN.tries=0; return; } if(GL.busy || (!force && now-BMN.askT<Math.min(30000, 5000*Math.pow(2, Math.min(3, BMN.tries|0))))) return; BMN.askT=now; BMN.tries=(BMN.tries|0)+1; BMN.st.asks++; glSoon(0); }catch(e){ bmnErr('ask',e); } }   // HQ's globe beat asked now (the lobby stands without HQ's word): 5 s, 10, 20, then every 30 s while no answer comes
+function bmnWrapSquares(){
+  if(typeof glTileHTML==='function'){ const g0=glTileHTML; glTileHTML=function(){ const h=g0.apply(this, arguments); try{ if(h || GL.ok===false || !bmnLobby()) return h; bmnAsk(); BMN.st.glWait++;
+      return '<button type="button" class="wt-glsq wait bmn-wait" id="glSq" onclick="bmnGlTap()" data-notr><canvas class="gl-mini" id="glMini" width="184" height="118"></canvas><span class="gs-plq"><span class="n">'+escH(TXT('THE GLOBE'))+'</span><small>'+escH(BMN.wait)+'</small></span></button>'; }catch(e){ bmnErr('gl',e); return h; } }; BMN.wrapped++; }
+  if(typeof gaTileHTML==='function'){ const a0=gaTileHTML; gaTileHTML=function(){ const h=a0.apply(this, arguments); try{ if(h || !bmnLobby()) return h; BMN.st.gaWait++;
+      return '<button type="button" class="wt-gasq a open bmn-wait" id="gaSq" onclick="bmnGaTap()" data-notr><span class="gs-fire">'+torchSVG('unlit','sq')+'</span><span class="gs-plq">'+GA_RING+'<span class="n" data-notr>'+escH(TXT('THE TORCH'))+'</span><small data-notr>'+escH(BMN.wait)+'</small></span></button>'; }catch(e){ bmnErr('ga',e); return h; } }; BMN.wrapped++; }
+  if(typeof glSquare==='function'){ const q0=glSquare; glSquare=function(){ const r=q0.apply(this, arguments); try{ if(BMN.glWant && GL.ok===true){ const w=BMN.glWant; BMN.glWant=0; if(Date.now()-w<12000 && bmnLobby() && S.mode==='menu' && !GL.open){ BMN.st.opens++; UI.glOpen(); } } }catch(e){ bmnErr('glsq',e); } return r; }; BMN.wrapped++; }
+  }
+function bmnGlTap(){ try{ if(BMN.on && GL.ok!==true && GL.ok!==false && bmnLobby()){ BMN.glWant=Date.now(); bmnAsk(1); try{ audio(); SFX.blip(); }catch(e){} try{ BLV_UI.cap('THE GLOBE IS CONNECTING\u2026'); }catch(e){} return; } }catch(e){ bmnErr('gltap',e); } return UI.glOpen(); }   // the waiting Globe's own tap (kept after HQ answers: then it is UI.glOpen)
+function bmnGaTap(){ try{ if(BMN.on && !EV.ga && bmnLobby()){ try{ SFX.clack(); }catch(e){} try{ BLV_UI.cap('THE TORCH IS CONNECTING\u2026'); }catch(e){} return; } }catch(e){ bmnErr('gatap',e); } return UI.gaTap(); }   // the waiting torch's own tap (the lobby lays the real square when HQ's beat brings it)
+if(BMN.on){ try{ bmnCss(); if(BMN.p.un) bmnWrapRanked(); if(BMN.p.park) bmnWrapRewards(); if(BMN.p.sq) bmnWrapSquares(); }catch(e){ bmnErr('install',e); } }   // BMN.p: each part its own dial (a landing of one part alone sets the others 0 in its copy)
+function bmnRead(){ let lay=null; try{ const root=document.getElementById('bflobby3'); if(root){ const left=root.querySelector('.bl3-left'), sh=document.getElementById('rrwSheet'), box=root.querySelector('.bl3-me .bl3-rank');
+    lay={ globe:!!(left && left.querySelector('#glSq')), torch:!!(left && left.querySelector('#gaSq')), globeWait:!!(left && left.querySelector('#glSq.bmn-wait')), torchWait:!!(left && left.querySelector('#gaSq.bmn-wait')),
+      box:box? { un:box.classList.contains('bmn-un'), n:((box.querySelector('.n')||{}).textContent||''), m:((box.querySelector('.m')||{}).textContent||'') } : null,
+      sheet:sh? { view:BMN.view, parks:sh.querySelectorAll('.bmn-park').length, ranks:sh.querySelectorAll('.bmn-rank').length, me:Array.from(sh.querySelectorAll('.bmn-park.me,.bmn-rank.me')).map(function(e){ return e.getAttribute('data-park')||e.getAttribute('data-rank'); }) } : null }; } }catch(e){ bmnErr('read',e); }
+  return { cv:GVT_CV, v:BMN.v, on:BMN.on? 1 : 0, place:BMN.place, wrapped:BMN.wrapped, css:BMN.css, st:Object.assign({}, BMN.st), lay:lay, err:BMN.err, e:BMN.e }; }
+try{ if(window.GVT && !GVT.bmn) GVT.bmn=bmnRead; }catch(e){}
+setTimeout(function(){ try{ if(window.GVT && !GVT.bmn) GVT.bmn=bmnRead; }catch(e){} }, 0);   // the rig door (the house's way)
+// ═══ END CARD-BMN ═══
 // ═══ CARD-TCHB · THE CHOICE AFTER THE TUTORIAL GAME (sec:CARD-TCHB; design/choice-screen-build-1124/00-CARD-TCHB.md; the screen: design/choice-screen-1124/00-DESIGN-TCH.md, the roads: 03-DESIGN-TCH-B.md on air/choice-screen).
 // FROM WYATT, typed on Maker 1 11/24/2026: ~14:00 "Run a design pass for a Choice Screen we are going to put inside the tutorial instead of having sarge talk about the campaign & battlefields. Two big buttons [...]"
 // (the pick, rounds 6-10: PLAY THE CAMPAIGN · BATTLE OTHER PLAYERS under WHAT WILL YOU DO FIRST, SOLDIER?) · ~17:00 "let's go with B" (the choice right after the tutorial game's win) · ~17:30 "When the PvP player exits
