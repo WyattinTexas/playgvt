@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.92","md5":"c8adca50595119d54eb978af9fb055c6","sha":"93fac4dc15","at":"2026-11-26T04:37:18Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.93","md5":"69e67723e46e11ac9f366d6e794c8ba6","sha":"77ee4b95de","at":"2026-11-26T04:57:11Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94768,7 +94768,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.92';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.93';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -254061,6 +254061,382 @@ function bpwPlate(h, sel){ const row=bppRow(sel), T=document.createElement('temp
   return T.innerHTML; }
 if(typeof bppInfoHTML==='function'){ const bpwO=bppInfoHTML; bppInfoHTML=function(st, sel){ const h=bpwO.apply(this, arguments); if(!BPW.on) return h; try{ bpwCss(); const o=bpwPlate(h, sel); BPW.n++; return o; }catch(e){ BPW.err++; return h; } }; }
 // ═══ END CARD-BPW ═══
+// ═══ sec:CARD-BPG · GET THE BATTLE PASS: THE POSTER THAT SELLS THE PASS (design/battle-pass-get-1125/00-CARD-BPG.md, the build, jumpr 4733; Isaac's design pass CARD-BPO, design/battle-pass-offer-1124/00-DESIGN-BPO.md, rounds 1 to 4) ═══
+// FROM WYATT, typed on the Big Mac 11/25/2026 ~18:50 EST, verbatim: "Why are players not able to purchase the Battle Pass yet? What's going on?", then on the open questions: "Get it in. Yes, go with the
+// recommendations. Come on, go, go, go." ISAAC'S DESIGN (his notes of 11/24/2026, verbatim in the design record's section 1): round 1 "a new pop-up ad/purchase screen ... similar to the Dark Dragon screen and
+// the Supply Drop screen ... a big fat buy button"; round 2 "We want the screen to look more like a poster than anything ... show more and say less ... a creation, an ethereal nice thing for Season 1,
+// Genesis"; round 3 "'Genesis' should be the emphasized text and 'Battle Pass' should be under it"; round 4 "It should just take you to Battlefield ... after 3 seconds, it disappears and gets replaced with
+// the 'To the Battlefields' button ... In the top right, to the left of the X, add how many days are left in the pass."
+// WHAT IT IS: ONE POSTER OVER THE WHOLE GLASS (no footer; the X in its usual corner), laid over the battle pass screen (sec:CARD-BPP) inside the war table: the sky of Genesis (deep blue, its stars twinkling,
+// a light breaking in from the left, a beam, a shooting star every 7 s, the gold star of Genesis with its rays turning slowly behind the middle Sarge), SEASON n, GENESIS big in gold, BATTLE PASS glowing under
+// it, seven Sarges in seven sets of the pass on a heap of the pass's stars and in clouds, three prizes floating top left with a sticker each (NO ADS on the TV, the reel's stars, the reel's supply drops on a
+// crate), the days left beside the X, and ONE big gold button. A tap on a Sarge: he hops, his set's name shows over him, a few stars burst from him.
+// THE RECOMMENDATIONS TAKEN (BPO-Q1..Q6, BPO-F1..F5): Q1 A the doors are the pass screen's own (its plate top left, a locked prize's lock line, a second tap on a chosen locked frame), never by itself at the
+// door (F3) · Q3 A one number for the poster and the reel (BPP_REEL's own sum: 2,500 since round 10) · Q4 after the purchase IT'S YOURS! alone for 3 s, then the one button TO THE BATTLEFIELDS (the pass screen
+// and the poster go: the lobby) · Q6 B a crate beside the stars, its sticker the reel's own count of supply drops · F2 the pass gives NO ADS until its season ends (below) · F5 nothing on the poster that the
+// pass does not give: every Sarge holds the pistol every Sarge already carries (the pass screen's own pose), never a weapon or a shield of the shop's · F1 the price is the store's own ($4.99 a season, Wyatt's
+// word), shown only on the store's own sheet (Isaac round 2: "We also don't need to show the price right away").
+// THE STORES (rule 15: real money is STORE-BOUND): NO PRODUCT ID STANDS IN THIS PAGE. The phones' follower refuses a pack whose product ids differ from the approved store build's game, and each shell carries
+// its own list of them, so a store sells the pass only when (1) the store holds the product (Wyatt's step), (2) a store build carries its id and (3) a later card writes the id here (BPG.pid, one line)
+// after HQ's verb (below) is live. Until then the button reads COMING SOON on every road (the web and Steam sell nothing by design) and a tap on it shakes it. The road itself is built here: the price from
+// the shell's own answer (GVTN._iapProducts, wrapped by name), the store's own sheet (IAP.buy), the credit (iapCredit wrapped by name for this id alone; every other product is the original's), the
+// ledger's once-a-transaction law and the ack only after the disk re-read (iapCredit's own lines, taken whole).
+// THE AD RULE'S LINE (BPO-F2): a battle pass buyer is ad-free until his season ends: META.adFreeT is raised to the season's last moment (the 30 and 365 day timers' own road; adFree() reads it), and the
+// pass is the ONE purchase that does not set META.paidEver (the payer exemption that retires interstitials for good): after the season the ads come back unless he holds NO ADS of his own.
+// HQ'S HALF, FOR THE STORE-BOUND CARD: HQ's book has bpass.own since server v183 and nothing sets it yet. The phone tells HQ the season it bought (POST /gvt/pass/own { sn, tx }) at the credit, and again
+// whenever HQ's answer says own 0 while the phone holds the season (at most once a minute); the verb answers { ok, own } and sets the row. A paid tier's claim needs HQ's own 1 (bpp_claim's err pass), so the
+// verb lands BEFORE an id is written here.
+// THE SAVE: META.bpg = { sn (the season's word, 's1'), end (its last moment, ms), tx, t }: the locks open from it (bppState and bppFromHQ wrapped by name), whatever HQ said. No other key.
+// EVERY PICTURE A FINISHED BITMAP (Isaac 11/21/2026, the atlas rule): each Sarge is the game's own drawing (sargeWepURI, the pass screen's own road) painted once to a canvas and cut to his painted box;
+// the sky's stars, the star of Genesis and its rays, the heap, the clouds, the TV, the stars and the crate are each painted once to a canvas that stands on the glass as it is (nothing encoded). EVERYTHING
+// THAT MOVES MOVES BY TRANSFORM AND OPACITY ALONE: css animations for the loops, the Web Animations API for a tap's hop and the purchase's answer; no script runs a frame. Still when the device asks for less
+// motion (or a rig holds the clock).
+// THE POSTER'S OWN FIXES OF A PIECE (Isaac round 3, as the design's rig drew them): laid on GGR_P only while that Sarge's drawing is WRITTEN (one synchronous call of sargeWepURI) and put back at once, so no
+// other screen ever reads them: THE WINGED HELM's wings swept 26 degrees and 1.3 times, THE ANGEL WINGS 1.4 times, opened 10 degrees and painted under his whole body, THE WIZARD'S ROBE and THE SPACE SUIT 4
+// units lower, THE TOMB GUARD'S COLLAR's kilt 5 lower and 1.2 times longer. A fix that finds nothing to move is left out (the piece as the game draws it) and counted (GVT.bpg().fixMiss).
+// THE SWITCH: ?bpg=0 on a device (localStorage gvt_bpgoff '1'; ?bpg=1 clears it) = the pass screen as before (its plate THE BATTLE PASS · COMING SOON, no door, no poster). GVT.bpg() = the rigs' read;
+// GVT.bpg({ open, close, pid, price, phase, clock, tap }) lays a state by hand (a rig's; nothing is bought).
+var BPG={ on:1, err:0, e:'', root:null, pid:'', price:'', busy:0, busyT:0, phase:'', door:'', q:[], qn:0, gen:0, baked:0, failed:0, fixMiss:0, T:[], clock:null, told:0, toldT:0, opens:0, taps:0, star:'', U:4, OX:0, OY:0, W:0, H:0, bareP:null, shootA:null, rz:0 };
+// THE SEVEN SARGES (Isaac's table of round 3 and round 4): his set, his army's colour (ARMIES), his seat on the poster's box of 186 x 100 units (x = his middle, foot = where he stands, H = the bare man's
+// height, flip = facing the middle from the right, z = depth), the poster's own fixes of a piece (fx) and a back piece painted under his whole body (under)
+var BPG_FIGS=[
+  { k:'sky', n:'THE SKY SET', ids:['wingedhelm','angelwings'], hex:'#7FA35C', x:93, foot:80.5, H:40, flip:0, z:3, fx:[{ id:'wingedhelm', slot:'head', op:'sweep', a:26, f:1.3 }, { id:'angelwings', slot:'back', op:'spread', a:10, f:1.4 }], under:['angelwings'] },
+  { k:'wizard', n:'THE WIZARD SET', ids:['wizardhat','wizardrobe','staff'], hex:'#8E6BAE', x:64, foot:87, H:35, flip:0, z:1, fx:[{ id:'wizardrobe', slot:'body', op:'lower', dy:4 }] },
+  { k:'recon', n:'THE RECON SET', ids:['nvghelm','ghillie'], hex:'#7FA35C', x:45, foot:97, H:49, flip:0, z:2 },
+  { k:'tomb', n:'THE TOMB SET', ids:['jackalhelm','tombcollar'], hex:'#C09E6C', x:21, foot:110, H:66, flip:0, z:5, fx:[{ id:'tombcollar', slot:'body', op:'kilt', ymin:70, dy:5, sy:1.2 }] },
+  { k:'pilot', n:'THE PILOT SET', ids:['flyinghelm','flightjacket'], hex:'#C09E6C', x:117, foot:87, H:35, flip:1, z:1 },
+  { k:'knight', n:'THE KNIGHT SET', ids:['knighthelm','breastplate'], hex:'#C05A4A', x:147, foot:97, H:49, flip:1, z:2 },
+  { k:'astronaut', n:'THE ASTRONAUT SET', ids:['spacehelm','spacesuit'], hex:'#4AA5A0', x:165, foot:110, H:66, flip:1, z:5, fx:[{ id:'spacesuit', slot:'body', op:'lower', dy:4 }] } ];
+// THE THREE PRIZES IN THE SKY (round 3: NO ADS a little to the left, the stars beside it; Q6 B: a crate beside the stars): x, y = the middle on the box, s = the size, r = the turn
+var BPG_FLOAT=[ { k:'tv', x:12, y:11, s:11, r:-8, tag:'red' }, { k:'stars', x:28.5, y:11, s:11, r:6, tag:'gold' }, { k:'crate', x:45, y:11, s:11, r:-5, tag:'gold' } ];   // 3.5 units right of the design's: a longer tongue's NO ADS keeps inside the side inset
+var BPG_EM={ x:93, y:52, r:20 };
+// ── the small hands ──
+function bpgFail(e){ try{ BPG.err++; BPG.e=String((e && e.message) || e).slice(0,160); }catch(x){} }
+function bpgT(s){ try{ return t(s); }catch(e){ return s; } }
+function bpgU(n){ return 'calc(var(--u)*'+n+')'; }
+function bpgEsc(s){ try{ return escH(String(s)); }catch(e){ return String(s).replace(/[&<>"']/g, ''); } }
+function bpgLess(){ try{ return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){ return false; } }
+function bpgStill(){ return BPG.clock!=null || bpgLess(); }
+function bpgDpr(){ return Math.max(1, Math.min(3, window.devicePixelRatio||1)); }
+function bpgRnd(i){ const x=Math.sin(i*127.1+311.7)*43758.5453; return x-Math.floor(x); }
+function bpgStarPath(r, k){ let d=''; for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, q=i%2? r*(k||0.45) : r; d+=(i? 'L' : 'M')+(Math.cos(a)*q).toFixed(2)+' '+(Math.sin(a)*q).toFixed(2)+' '; } return d+'Z'; }
+function bpgAvail(){ try{ return !!IAP.avail(); }catch(e){ return false; } }
+function bpgSells(){ return !!(BPG.on && BPG.pid && BPG.price && bpgAvail()); }
+// the season: the lobby's own reader (the pass screen's), with its own sum where the lobby is not laid
+function bpgSeason(){ let s=null; try{ s=BLV_UI.season(); }catch(e){ s=null; } if(s && s.end>0) return s;
+  const T0=Date.UTC(2026,10,25,14,0,0), L=120*864e5, now=Date.now(), k=now<T0? 0 : Math.floor((now-T0)/L), en=T0+(k+1)*L;
+  return { n:k+1, open:now>=T0, start:T0+k*L, end:en, days:Math.max(1, Math.ceil(((now<T0? T0 : en)-now)/864e5)) }; }
+function bpgDaysWord(){ const s=bpgSeason(); return !s.open? bpgT('OPENS SOON') : bpgT(s.days+(s.days===1? ' DAY LEFT' : ' DAYS LEFT')); }
+// the reel's own numbers (Q3 A and Q6 B: one number for the poster and the reel)
+function bpgReel(){ let st=0, dr=0; try{ BPP_REEL.forEach(function(w){ String(w).split('+').forEach(function(p){ const c=p.charAt(0); if(c==='s') st+=(+p.slice(1)||0); else if(c==='d') dr++; }); }); }catch(e){} return { stars:st, drops:dr }; }
+function bpgNum(n){ let L='en-US'; try{ L={ de:'de-DE', es:'es-ES', ru:'ru-RU', ja:'ja-JP', ko:'ko-KR', 'zh-Hans':'zh-CN' }[LANG]||'en-US'; }catch(e){} try{ return Number(n).toLocaleString(L); }catch(e){ return String(n); } }
+// ── the season bought: the phone's own word ──
+function bpgMine(){ let m=null; try{ m=META.bpg; }catch(e){} return (m && typeof m==='object' && typeof m.sn==='string')? m : null; }
+function bpgOwns(sn){ const m=bpgMine(); if(!m) return false; const s=bpgSeason(), want=(sn && sn!=='hand')? String(sn) : 's'+s.n; return m.sn===want && Date.now()<(+m.end||0); }
+// ── every picture painted once: a drawing given to an Image off the page, painted onto ITS OWN canvas (the canvas stands on the glass as it is), one at a time in line ──
+function bpgImg(uri){ return new Promise(function(res, rej){ const I=new Image(); I.onload=function(){ I.onload=I.onerror=null; res(I); }; I.onerror=function(){ I.onload=I.onerror=null; rej(new Error('no picture')); }; I.src=uri; }); }
+function bpgSvgURI(svg){ svg=String(svg||''); if(svg.indexOf('xmlns=')<0) svg=svg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"'); return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg); }
+// fit = the drawing laid inside the canvas at its own shape (a prize's picture); glow = a soft light baked round it (no filter on the glass)
+function bpgBake(cv, svg, w, h, o){ o=o||{}; if(!cv) return Promise.resolve(0); return bpgImg(bpgSvgURI(svg)).then(function(I){ const W=Math.max(1, Math.round(w)), H=Math.max(1, Math.round(h)); cv.width=W; cv.height=H; const g=cv.getContext('2d');
+    let dw=W, dh=H, dx=0, dy=0; if(o.fit){ const nw=I.naturalWidth||W, nh=I.naturalHeight||H, pad=o.pad||0, k=Math.min((W-2*pad)/nw, (H-2*pad)/nh); dw=nw*k; dh=nh*k; dx=(W-dw)/2; dy=(H-dh)/2; }
+    if(o.glow){ g.shadowColor='rgba(190,225,255,.8)'; g.shadowBlur=o.glow; } g.drawImage(I, dx, dy, dw, dh); return 1; }, function(){ return 0; }); }
+function bpgJob(key, make){ BPG.q.push({ key:key, make:make }); setTimeout(bpgPump, 0); }
+function bpgPump(){ if(BPG.qn || !BPG.q.length) return; const R=BPG.root; if(!R){ BPG.q=[]; return; } const job=BPG.q.shift(), gen=BPG.gen; BPG.qn=1; let p;
+  try{ p=Promise.resolve(job.make(R)); }catch(e){ bpgFail(e); p=Promise.resolve(0); }
+  const done=function(ok){ if(gen!==BPG.gen) return; BPG.qn=0; if(ok){ BPG.baked++; const el=R.querySelector('[data-k="'+job.key+'"]'); if(el) el.classList.remove('bpg-wait'); } else BPG.failed++; setTimeout(bpgPump, 0); };
+  p.then(done, function(e){ bpgFail(e); done(0); }); }
+// ── THE POSTER'S OWN FIXES OF A PIECE'S DRAWING (the design's rig/steps/pull.mjs modArt, carried): parsed and written by the browser's own SVG parser ──
+function bpgFixArt(str, m){ if(m.op==='lower') return '<g transform="translate(0,'+m.dy+')">'+str+'</g>';
+  const doc=new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">'+str+'</svg>', 'image/svg+xml'), root=doc.documentElement; if(!root || root.getElementsByTagName('parsererror').length) return null;
+  let par=root, k=1; while(par.children.length===1 && par.children[0].tagName==='g'){ const sm=/scale\(([-\d.]+)/.exec(par.children[0].getAttribute('transform')||''); if(sm) k*=Math.abs(parseFloat(sm[1])); par=par.children[0]; }
+  const kids=Array.from(par.children), NS='http://www.w3.org/2000/svg';
+  const tl=function(tr){ const m2=/translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(tr||''); return m2? [+m2[1], +m2[2]] : [0, 0]; };
+  const pos=function(el){ const p=tl(el.getAttribute('transform')); if(p[0] || p[1]) return p; const gs=el.querySelectorAll('g'); for(let i=0;i<gs.length;i++){ const q=tl(gs[i].getAttribute('transform')); if(q[0] || q[1]) return q; }   // a group with no place of its own takes the place of its first part
+    const pth=el.querySelector('path'), q2=/M\s*([-\d.]+)[ ,]+([-\d.]+)/.exec((pth && pth.getAttribute('d'))||''); return q2? [+q2[1], +q2[2]] : p; };
+  const wrap=function(els, tr){ if(!els.length) return 0; const g=doc.createElementNS(NS, 'g'); g.setAttribute('transform', tr); par.insertBefore(g, els[0]); els.forEach(function(e){ g.appendChild(e); }); return els.length; };
+  let n=0;
+  if(m.op==='kilt') n=wrap(kids.filter(function(e){ return pos(e)[1]>=m.ymin; }), 'translate(0 '+(m.dy/k).toFixed(3)+')'+(m.sy? ' translate(0 '+m.ymin+') scale(1 '+m.sy+') translate(0 '+(-m.ymin)+')' : ''));
+  else if(m.op==='sweep'){   // each WHOLE wing (its feathers, their shades and vein lines) turned and grown about the point where it meets the dome
+    const side=function(L){ return kids.filter(function(e){ const pth=e.querySelector('path'), d=(pth && pth.getAttribute('d'))||'', x=pos(e)[0], feather=d.indexOf('M-18 14 Q-6 -18 22 -16')===0;
+      const vein=!feather && !!pth && pth.getAttribute('fill')==='none' && /^M\s*[-\d.]+/.test(d) && (x<50 || x>90) && /translate\(0 0\)/.test(e.getAttribute('transform')||''); return (feather || vein) && (L? x<70 : x>=70); }); };
+    const P=m.pivot||[44, 62]; n+=wrap(side(true), 'translate('+P[0]+' '+P[1]+') rotate('+m.a+') scale('+m.f+') translate('+(-P[0])+' '+(-P[1])+')');
+    n+=wrap(side(false), 'translate('+(140-P[0])+' '+P[1]+') rotate('+(-m.a)+') scale('+m.f+') translate('+(P[0]-140)+' '+(-P[1])+')'); }
+  else if(m.op==='spread'){ n+=wrap(kids.filter(function(e){ return pos(e)[0]<70; }), 'translate(56.75 82.23) rotate('+(-m.a)+') scale('+m.f+') translate(-56.75 -82.23)'); n+=wrap(kids.filter(function(e){ return pos(e)[0]>=70; }), 'translate(83.26 82.23) rotate('+m.a+') scale('+m.f+') translate(-83.26 -82.23)'); }
+  if(!n) return null; const XS=new XMLSerializer(); return Array.from(root.childNodes).map(function(c){ return XS.serializeToString(c); }).join(''); }
+// the fixes laid only while fn WRITES the drawing (synchronous), put back at once
+function bpgWithFix(fx, fn){ const undo=[]; try{ (fx||[]).forEach(function(m){ try{ const P=GGR_P[m.id]; if(!P || !P.art || P.art[m.slot]==null){ BPG.fixMiss++; return; } const s2=bpgFixArt(P.art[m.slot], m); if(s2==null){ BPG.fixMiss++; return; } undo.push([P.art, m.slot, P.art[m.slot]]); P.art[m.slot]=s2; }catch(e){ BPG.fixMiss++; bpgFail(e); } }); return fn(); }
+  finally{ for(let i=undo.length-1;i>=0;i--) undo[i][0][undo[i][1]]=undo[i][2]; } }
+// ONE SARGE PAINTED: the game's own drawing (the pistol: the pass screen's own pose, BPO-F5), his back piece under his whole body where the poster asks, cut to his painted box (onto `out`, or measured only)
+function bpgPaintFig(f, CH, out){ let man='', under=null; const back=(f.under||[]).filter(function(id){ try{ return f.ids.indexOf(id)>=0 && !!(GGR_P[id] && GGR_P[id].art && GGR_P[id].art.back); }catch(e){ return false; } });
+  bpgWithFix(f.fx, function(){ const wear=f.ids.filter(function(id){ return back.indexOf(id)<0 && !!GGR_P[id]; }); man=sargeWepURI('pistol', f.hex, undefined, undefined, wear);
+    if(back.length) under=bpgSvgURI('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140">'+back.map(function(id){ return GGR_P[id].art.back; }).join('').split('currentColor').join(f.hex||'#7FA35C')+'</svg>'); });
+  return Promise.all([bpgImg(man), under? bpgImg(under) : Promise.resolve(null)]).then(function(A){ const im=A[0], un=A[1], CW=Math.max(1, Math.round(CH*(im.naturalWidth||120)/(im.naturalHeight||140)));
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH; const g=cv.getContext('2d'); if(un) g.drawImage(un, 0, 0, CW, CH); g.drawImage(im, 0, 0, CW, CH); const px=g.getImageData(0, 0, CW, CH).data;
+    let x0=CW, y0=CH, x1=-1, y1=-1; for(let y=0;y<CH;y++){ const row=y*CW*4+3; for(let x=0;x<CW;x++){ if(px[row+x*4]>10){ if(x<x0) x0=x; if(x>x1) x1=x; if(y<y0) y0=y; if(y>y1) y1=y; } } }
+    if(x1<0){ cv.width=cv.height=0; throw new Error('nothing painted'); } const w=x1-x0+1, h=y1-y0+1;
+    if(out){ out.width=w; out.height=h; out.getContext('2d').drawImage(cv, x0, y0, w, h, 0, 0, w, h); } cv.width=cv.height=0; return { x0:x0, y0:y0, x1:x1, y1:y1, w:w, h:h, CH:CH }; }); }
+function bpgCH(H){ return Math.max(160, Math.min(1024, Math.ceil(H*BPG.U*bpgDpr()/0.72/8)*8)); }   // dots enough for his height on this glass (a hat reaches higher)
+function bpgBare(){ if(BPG.bareP) return BPG.bareP; const p=bpgPaintFig({ ids:[], hex:'#7FA35C' }, 1024, null); BPG.bareP=p; p.then(null, function(){ if(BPG.bareP===p) BPG.bareP=null; }); return p; }
+// he stands on the poster as the design's arithmetic says: his box against the bare man's (h, w in bare heights; dx, dy = how far his middle and his foot stand from the bare man's)
+function bpgFigJob(R, f){ return bpgBare().then(function(B){ const el=R.querySelector('[data-fig="'+f.k+'"]'), cv=el && el.querySelector('canvas'); if(!cv) return 0; const CH=bpgCH(f.H);
+  return bpgPaintFig(f, CH, cv).then(function(P){ if(BPG.root!==R) return 0; const sc=CH/B.CH, bh=B.h*sc, bx=(B.x0+B.x1)*sc/2, by1=B.y1*sc, H=f.H;
+    const h=P.h/bh, w=P.w/bh, dx=((P.x0+P.x1)/2-bx)/bh, dy=(P.y1-by1)/bh, ww=w*H, hh=h*H, left=f.x+(f.flip? -1 : 1)*dx*H-ww/2, top=f.foot+dy*H-hh;
+    el.style.left=bpgU(+left.toFixed(2)); el.style.top=bpgU(+top.toFixed(2)); el.style.width=bpgU(+ww.toFixed(2)); el.style.height=bpgU(+hh.toFixed(2)); el.setAttribute('data-box', [left, top, ww, hh].map(function(v){ return v.toFixed(2); }).join(' ')); return 1; }); }); }
+// ── the drawings made for the poster (the design's look/screens/poster.js, carried): in the box's own units ──
+function bpgRaysSVG(){ let s=''; for(let i=0;i<20;i++){ const a0=i/20*Math.PI*2, a1=a0+Math.PI/20*(i%2? 0.45 : 0.7), R=64; s+='<path d="M0 0 L'+(Math.cos(a0)*R).toFixed(2)+' '+(Math.sin(a0)*R).toFixed(2)+' L'+(Math.cos(a1)*R).toFixed(2)+' '+(Math.sin(a1)*R).toFixed(2)+' Z" fill="url(#g)"/>'; }
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-64 -64 128 128"><defs><radialGradient id="g"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".55" stop-color="#BFE2FF" stop-opacity=".22"/><stop offset="1" stop-color="#8FC6FF" stop-opacity="0"/></radialGradient></defs>'+s+'</svg>'; }
+function bpgEmbSVG(){ const r=BPG_EM.r, k=0.47; let f=''; for(let i=0;i<5;i++){ const a=-Math.PI/2+i*2*Math.PI/5, al=a-Math.PI/5, ar=a+Math.PI/5, tip=[Math.cos(a)*r, Math.sin(a)*r], L=[Math.cos(al)*r*k, Math.sin(al)*r*k], R2=[Math.cos(ar)*r*k, Math.sin(ar)*r*k];
+    f+='<path d="M0 0 L'+tip.map(function(v){ return v.toFixed(2); }).join(' ')+' L'+L.map(function(v){ return v.toFixed(2); }).join(' ')+' Z" fill="#FFE680"/><path d="M0 0 L'+tip.map(function(v){ return v.toFixed(2); }).join(' ')+' L'+R2.map(function(v){ return v.toFixed(2); }).join(' ')+' Z" fill="#F0A818"/>'; }
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-22 -22 44 44"><path d="'+bpgStarPath(r*1.07, k)+'" fill="#8A4A06" opacity=".55" transform="translate(0 1.1)"/>'+f+'<path d="'+bpgStarPath(r, k)+'" fill="none" stroke="#FFF3B8" stroke-width=".55" stroke-linejoin="round"/><circle r="'+(r*0.16).toFixed(2)+'" fill="#FFFBEA" opacity=".9"/></svg>'; }
+function bpgPileSVG(){ const top=function(x){ return 79+21*Math.pow((x-93)/42, 2); }; let s='<defs><radialGradient id="p" cx=".5" cy=".75" r=".6"><stop offset="0" stop-color="#FFE27A" stop-opacity=".95"/><stop offset=".6" stop-color="#F5A81A" stop-opacity=".6"/><stop offset="1" stop-color="#F5A81A" stop-opacity="0"/></radialGradient><radialGradient id="c" cx=".5" cy=".3" r=".75"><stop offset="0" stop-color="#F4FAFF"/><stop offset=".6" stop-color="#BCD8FF"/><stop offset="1" stop-color="#6F9BEA"/></radialGradient></defs>';
+  s+='<path d="M48 112 L48 104 Q60 '+top(60).toFixed(1)+' 93 78 Q126 '+top(126).toFixed(1)+' 138 104 L138 112 Z" fill="url(#p)"/>'; const pts=[];
+  for(let i=0;i<150;i++){ const x=52+bpgRnd(i+50)*82, t0=top(x); if(t0>106) continue; const y=t0+Math.pow(bpgRnd(i+90), 0.8)*(112-t0); pts.push([x, y, 2.2+bpgRnd(i+130)*2.6, bpgRnd(i+170)*72, bpgRnd(i+210)]); }
+  pts.sort(function(a, b){ return a[1]-b[1]; }); pts.forEach(function(q){ s+='<g transform="translate('+q[0].toFixed(2)+' '+q[1].toFixed(2)+') rotate('+q[3].toFixed(1)+')"><path d="'+bpgStarPath(q[2], 0.46)+'" fill="'+(q[4]>0.66? '#FFE27A' : q[4]>0.33? '#FFCB2E' : '#F2A91C')+'" stroke="#A9610A" stroke-width=".38" stroke-linejoin="round"/></g>'; });
+  const cb=function(cx, cy, rx, ry, o){ return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="url(#c)" opacity="'+o+'"/>'; };
+  s+=cb(93, 122, 70, 16, 0.97)+[[46, 110, 9], [60, 108.4, 10], [76, 107.4, 11], [93, 107, 12], [110, 107.4, 11], [126, 108.4, 10], [140, 110, 9]].map(function(c){ return cb(c[0], c[1], c[2], +(c[2]*0.8).toFixed(2), 0.97); }).join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 74 146 66">'+s+'</svg>'; }
+function bpgCloudSVG(side){ const m=side==='r', b=function(cx, cy, rx, ry, c, o){ return '<ellipse cx="'+(m? 186-cx : cx)+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="'+c+'" opacity="'+o+'"/>'; }, G='url(#c)';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+(m? '110' : '-42')+' 84 118 68"><defs><radialGradient id="c" cx=".45" cy=".35" r=".7"><stop offset="0" stop-color="#F4FAFF"/><stop offset=".55" stop-color="#B9D7FF"/><stop offset="1" stop-color="#5D8FE6"/></radialGradient></defs>'
+    +b(-6, 101, 34, 12, '#2A55C4', 0.85)+b(10, 97, 22, 9, G, 0.92)+b(30, 100, 20, 8, G, 0.88)+b(48, 103, 18, 7, G, 0.8)+b(20, 104, 30, 7, '#DCEBFF', 0.75)+b(22, 128, 52, 22, G, 0.95)
+    +[[2, 95.5, 6.5], [10, 92.8, 7.2], [19, 94.6, 6], [27, 96.4, 5.4], [35, 97.6, 4.8], [43, 99.6, 4.4], [51, 101.2, 3.8]].map(function(c){ return b(c[0], c[1], c[2], +(c[2]*0.82).toFixed(2), G, 0.95); }).join('')+'</svg>'; }
+function bpgFloatSVG(k){ if(k==='tv') return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 78 70">'+tvArt(true, { theater:1, clip:'bpgTvA' })+'<svg x="6.24" y="21.4" width="65.52" height="67.2" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16.5" fill="none" stroke="#D8402C" stroke-width="4.4"/><path d="M8.6 31.4 L31.4 8.6" stroke="#D8402C" stroke-width="4.4" stroke-linecap="round"/></svg></svg>';
+  if(k==='stars') return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-13 -13 26 26">'+[[-6.2, 4.6, 5.4, -14], [6.4, 4.4, 5.6, 12], [0.2, 6.8, 5, 4], [0, -3.2, 8.2, 0]].map(function(q){ return '<g transform="translate('+q[0]+' '+q[1]+') rotate('+q[3]+')"><path d="'+bpgStarPath(q[2], 0.46)+'" fill="#FFCB2E" stroke="#A9610A" stroke-width="0.9" stroke-linejoin="round"/><path d="'+bpgStarPath(q[2]*0.55, 0.46)+'" fill="#FFE98A" opacity=".7"/></g>'; }).join('')+'</svg>';
+  return bppCrateSVG(1, 0); }   // the uncommon supply drop's own crate (sec:CARD-BPP's road to the drops' own drawing)
+function bpgStarSVG(){ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 24 24"><path d="'+bpgStarPath(10.5, 0.46)+'" fill="#FFCB2E" stroke="#B8740A" stroke-width="1.5" stroke-linejoin="round"/><path d="M0 -7 L1.9 -2.6 L-3.4 -2.4 Z" fill="#FFF6C8" opacity=".85"/></svg>'; }
+// the sky's stars in the glass's own dots: three groups that twinkle in turn, and the glints (group 3)
+function bpgSkySVG(grp){ const W=Math.max(1, Math.round(BPG.W)), H=Math.max(1, Math.round(BPG.H)), U=BPG.U; let s='';
+  if(grp<3){ for(let i=grp;i<190;i+=3){ const x=bpgRnd(i)*W, y=Math.pow(bpgRnd(i+700), 1.35)*H*0.92, r=(0.16+Math.pow(bpgRnd(i+1400), 3)*0.5)*U, a=0.45+bpgRnd(i+2100)*0.55; s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+r.toFixed(2)+'" fill="#EAF6FF" opacity="'+a.toFixed(2)+'"/>'; } }
+  else for(let i=0;i<9;i++){ const x=(0.06+bpgRnd(i+3000)*0.88)*W, y=(0.04+bpgRnd(i+3300)*0.5)*H, r=(1.1+bpgRnd(i+3600)*1.3)*U, q=r*0.16;
+    s+='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+')"><path d="M0 '+(-r).toFixed(1)+' L'+q.toFixed(1)+' 0 L0 '+r.toFixed(1)+' L'+(-q).toFixed(1)+' 0 Z M'+(-r).toFixed(1)+' 0 L0 '+q.toFixed(1)+' L'+r.toFixed(1)+' 0 L0 '+(-q).toFixed(1)+' Z" fill="#FFFFFF"/><circle r="'+(r*0.22).toFixed(2)+'" fill="#FFFFFF"/></g>'; }
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+s+'</svg>'; }
+// ── the style ──
+function bpgCss(){ if(document.getElementById('bpgCss')) return; const u=bpgU, st=document.createElement('style'); st.id='bpgCss'; st.textContent=''
+  +'#wartable.blv-on.bpg-on.bpg-on > #bpgScreen{visibility:visible!important;z-index:49}'
+  +'#bpgScreen{position:absolute;inset:0;z-index:49;overflow:hidden;color:#fff;background:#071038;font-family:var(--uih,"Arial Narrow",Impact,sans-serif);font-weight:700;text-transform:none;text-align:left;line-height:normal;letter-spacing:normal;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;--bsl:var(--bmt-sal,env(safe-area-inset-left,0px));--bsr:var(--bmt-sar,env(safe-area-inset-right,0px))}'
+  +'#bpgScreen *{box-sizing:border-box}#bpgScreen canvas{display:block;position:absolute;pointer-events:none}#bpgScreen .bpg-wait{visibility:hidden}#bpgScreen img{-webkit-user-drag:none;-webkit-touch-callout:none}'
+  +'.bpg-probe{position:absolute;left:0;top:0;width:var(--bsl);height:var(--bsr);visibility:hidden;pointer-events:none}'
+  +'.bpg-sky{position:absolute;inset:0;background:linear-gradient(180deg,#050B2E 0%,#0A1A63 30%,#1537A8 54%,#1B44BC 66%,#122F93 82%,#0B1E66 100%)}'
+  +'.bpg-neb{position:absolute;inset:0;background:radial-gradient(38% 30% at 22% 26%,rgba(122,92,255,.30),rgba(122,92,255,0) 70%),radial-gradient(34% 28% at 80% 22%,rgba(64,170,255,.30),rgba(64,170,255,0) 70%),radial-gradient(30% 26% at 66% 70%,rgba(150,110,255,.18),rgba(150,110,255,0) 70%)}'
+  +'#bpgScreen canvas.bpg-sf{left:0;top:0;width:100%;height:100%;animation:bpgTw 4.8s ease-in-out infinite}#bpgScreen canvas.bpg-sf.g1{animation-duration:3.9s;animation-delay:-1.3s}#bpgScreen canvas.bpg-sf.g2{animation-duration:5.6s;animation-delay:-2.6s}#bpgScreen canvas.bpg-sf.g3{animation:bpgGl 5.7s ease-in-out infinite}'
+  +'@keyframes bpgTw{0%,100%{opacity:.24}50%{opacity:1}}@keyframes bpgGl{0%,100%{opacity:.1}50%{opacity:1}}'
+  +'.bpg-left{position:absolute;inset:0;background:radial-gradient(26% 46% at 0% 50%,rgba(236,248,255,.95),rgba(150,205,255,.55) 32%,rgba(90,150,255,0) 72%);animation:bpgBr 10.7s ease-in-out infinite}'
+  +'.bpg-beam{position:absolute;left:0;width:100%;background:radial-gradient(72% 50% at 50% 50%,rgba(220,240,255,.62),rgba(140,195,255,.28) 42%,rgba(120,170,255,0) 75%);animation:bpgBr2 13.2s ease-in-out infinite}'
+  +'.bpg-bloom{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,252,236,1),rgba(255,236,170,.75) 22%,rgba(170,215,255,.45) 50%,rgba(120,180,255,0) 100%);animation:bpgBr3 8.2s ease-in-out infinite}'
+  +'@keyframes bpgBr{0%,100%{opacity:.72}50%{opacity:1}}@keyframes bpgBr2{0%,100%{opacity:.64}50%{opacity:1}}@keyframes bpgBr3{0%,100%{opacity:.8}50%{opacity:1}}'
+  +'.bpg-shoot{position:absolute;left:0;top:0;width:0;height:0;transform-origin:100% 50%;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.95));opacity:0;pointer-events:none;will-change:transform,opacity}'
+  +'.bpg-shoot b{position:absolute;right:'+u(-.75)+';top:50%;width:'+u(1.5)+';height:'+u(1.5)+';margin-top:'+u(-.75)+';border-radius:50%;background:#fff;box-shadow:0 0 '+u(2)+' '+u(.8)+' rgba(207,232,255,.55)}'
+  +'.bpg-box{position:absolute;z-index:0;width:'+u(186)+';height:'+u(100)+'}'
+  +'#bpgScreen canvas.bpg-rays{left:'+u(29)+';top:'+u(-12)+';width:'+u(128)+';height:'+u(128)+';z-index:1;animation:bpgSpin 90s linear infinite}@keyframes bpgSpin{to{transform:rotate(360deg)}}'
+  +'#bpgScreen canvas.bpg-emb{left:'+u(71)+';top:'+u(30)+';width:'+u(44)+';height:'+u(44)+';z-index:2}'
+  +'.bpg-fl{position:absolute;z-index:8;pointer-events:none;animation:bpgBob 6.9s ease-in-out infinite}@keyframes bpgBob{0%,100%{transform:translateY(-8%)}50%{transform:translateY(8%)}}'
+  +'.bpg-rot,.bpg-wob{position:absolute;left:0;top:0;width:100%;height:100%}.bpg-wob{animation:bpgWob 9.4s ease-in-out infinite}@keyframes bpgWob{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}'
+  +'#bpgScreen .bpg-fl canvas{left:0;top:0;width:100%;height:100%}'
+  +'.bpg-tag{position:absolute;left:50%;transform:translate(-50%,-50%);padding:'+u(.55)+' '+u(1.5)+';border-radius:'+u(1.6)+';font-style:normal;font-size:max('+u(3.05)+',11px);font-weight:900;letter-spacing:.06em;line-height:1.05;white-space:nowrap;text-align:center;pointer-events:none;z-index:2;box-shadow:0 '+u(.45)+' 0 rgba(0,0,30,.45),0 0 '+u(1.6)+' rgba(255,255,255,.35)}'
+  +'.bpg-tag.wrap{white-space:normal;line-height:1.08}.bpg-tag.red{background:#D8402C;color:#fff;border:'+u(.4)+' solid #fff}.bpg-tag.gold{background:linear-gradient(180deg,#FFE98A,#F5B62A);color:#3A1F02;border:'+u(.4)+' solid #FFF6CF}'
+  +'.bpg-fig{position:absolute;cursor:pointer}.bpg-flip,.bpg-hop{position:absolute;left:0;top:0;width:100%;height:100%}.bpg-flip.on{transform:scaleX(-1)}'
+  +'#bpgScreen .bpg-fig canvas{left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;animation:bpgSway 8.8s ease-in-out infinite}@keyframes bpgSway{0%,100%{transform:rotate(-.7deg) scale(.994)}50%{transform:rotate(.7deg) scale(1.006)}}'
+  +'#bpgScreen canvas.bpg-pile{left:'+u(20)+';top:'+u(74)+';width:'+u(146)+';height:'+u(66)+';z-index:35}#bpgScreen canvas.bpg-cl{top:'+u(84)+';width:'+u(118)+';height:'+u(68)+';z-index:25}#bpgScreen canvas.bpg-cl.l{left:'+u(-42)+'}#bpgScreen canvas.bpg-cl.r{left:'+u(110)+'}'
+  +'.bpg-kick{position:absolute;z-index:60;left:50%;transform:translateX(-50%);top:'+u(3)+';font-size:max('+u(3.2)+',11px);font-weight:900;letter-spacing:.42em;padding-left:.42em;color:#FFE7A0;white-space:nowrap;text-shadow:0 0 '+u(1.2)+' rgba(255,214,120,.65),0 '+u(.3)+' 0 rgba(10,20,70,.9)}'
+  +'.bpg-t{position:absolute;z-index:60;left:50%;transform:translateX(-50%);font-family:var(--uii,Impact,"Arial Narrow",sans-serif);font-weight:900;line-height:1;white-space:nowrap;letter-spacing:.01em;pointer-events:none}'
+  +'.bpg-t b{position:absolute;left:0;top:0;font-weight:900;white-space:nowrap}.bpg-t .sh{color:#C2560E;text-shadow:0 '+u(.5)+' 0 #C2560E,0 '+u(1)+' 0 #8A360A,0 '+u(1.8)+' '+u(2.2)+' rgba(0,0,30,.6)}'
+  +'.bpg-t .fr{background:linear-gradient(180deg,#FFFBE0 0%,#FFE27A 36%,#FFC21F 62%,#F39A12 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}'
+  +'.bpg-gen{position:absolute;z-index:60;left:50%;transform:translateX(-50%);font-size:'+u(5.4)+';font-weight:900;letter-spacing:.55em;padding-left:.55em;color:#F4FBFF;white-space:nowrap;pointer-events:none;text-shadow:0 0 '+u(1)+' #BFE6FF,0 0 '+u(3)+' #5AB0FF,0 0 '+u(6)+' rgba(60,140,255,.8)}'
+  +'.bpg-bw{position:absolute;left:'+u(93)+';top:'+u(82.2)+';transform:translateX(-50%);z-index:70}'
+  +'.bpg-buy{position:relative;display:flex;align-items:center;justify-content:center;min-width:'+u(46)+';max-width:'+u(84)+';height:'+u(10.6)+';margin:0;padding:0 '+u(4)+';border-radius:'+u(2.6)+';background:linear-gradient(180deg,#FFEC92 0%,#FFCB3A 50%,#F09A14 100%);border:'+u(.55)+' solid #FFF6CF;box-shadow:0 '+u(1.1)+' 0 #A9610A,0 0 '+u(4)+' rgba(255,214,90,.65),0 '+u(2.4)+' '+u(2)+' rgba(0,0,30,.5);overflow:hidden;cursor:pointer;text-align:center;font:inherit;color:inherit;-webkit-appearance:none;appearance:none;transform-origin:50% 50%}'
+  +'#bpgScreen.sells .bpg-buy{animation:bpgPulse 2.7s ease-in-out infinite}@keyframes bpgPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}'
+  +'.bpg-buy .l{position:relative;font-family:var(--uii,Impact,"Arial Narrow",sans-serif);font-size:'+u(6.4)+';font-weight:900;line-height:1;color:#3A1F02;letter-spacing:.03em;text-shadow:0 '+u(.3)+' 0 #FFF2B8;white-space:nowrap;pointer-events:none}'
+  +'.bpg-buy .sheen{position:absolute;left:0;top:-20%;height:140%;width:22%;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));pointer-events:none;opacity:0;animation:bpgSheen 2.6s linear infinite}'
+  +'@keyframes bpgSheen{0%{transform:translateX(-140%) skewX(-20deg);opacity:1}62%{transform:translateX(730%) skewX(-20deg);opacity:1}62.1%,100%{transform:translateX(730%) skewX(-20deg);opacity:0}}'
+  +'#bpgScreen.soon .bpg-buy{background:linear-gradient(180deg,#EADFB4 0%,#D2BE80 50%,#AC955C 100%);border-color:#F6EED2;box-shadow:0 '+u(1.1)+' 0 #77612E,0 '+u(2.4)+' '+u(2)+' rgba(0,0,30,.5)}#bpgScreen.soon .bpg-buy .l{color:#3B2C0C;text-shadow:0 '+u(.3)+' 0 #F8EFCF}#bpgScreen.soon .bpg-buy .sheen{animation-duration:4.2s}'
+  +'#bpgScreen.busy .bpg-buy{transform:scale(.94);animation:none}'
+  +'#bpgScreen.after .bpg-buy{background:linear-gradient(180deg,#B8EE8A 0%,#6CC24A 50%,#3F9A2E 100%);border-color:#E8FFD2;box-shadow:0 '+u(1.1)+' 0 #23661A,0 0 '+u(4)+' rgba(150,255,120,.55)}#bpgScreen.after .bpg-buy .l{color:#0E3008;text-shadow:0 '+u(.3)+' 0 #D9FFC0}'
+  +'.bpg-won{position:absolute;left:'+u(93)+';top:'+u(86.4)+';transform:translate(-50%,-50%);padding:'+u(1.4)+' '+u(6)+';border-radius:'+u(2.6)+';background:linear-gradient(180deg,#FFF3B0,#FFD23F 45%,#F2A91C);border:'+u(.6)+' solid #FFF6CF;font-family:var(--uii,Impact,"Arial Narrow",sans-serif);font-size:'+u(8.6)+';line-height:1;font-weight:900;color:#3A1F02;white-space:nowrap;z-index:69;pointer-events:none;box-shadow:0 0 '+u(5)+' rgba(255,220,110,.85),0 '+u(.8)+' 0 #A9610A;display:none}'
+  +'#bpgScreen.yours .bpg-won{display:block}#bpgScreen.yours .bpg-bw{display:none}'
+  +'.bpg-pill{position:absolute;transform:translateX(-50%);padding:'+u(.75)+' '+u(2.2)+';border-radius:'+u(2.2)+';background:rgba(8,16,52,.86);border:'+u(.35)+' solid rgba(190,225,255,.75);font-size:max('+u(3.1)+',11px);font-weight:900;letter-spacing:.07em;white-space:nowrap;pointer-events:none;z-index:68;box-shadow:0 0 '+u(2.4)+' rgba(120,190,255,.6)}'
+  +'.bpg-pills,.bpg-spark{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:66}.bpg-pills{z-index:68}'
+  +'#bpgScreen img.bpg-spk{position:absolute;left:0;top:0;display:block;pointer-events:none;will-change:transform,opacity}'
+  +'.bpg-confetti{position:absolute;inset:0;pointer-events:none;z-index:93;overflow:hidden}.bpg-flash{position:absolute;inset:0;pointer-events:none;z-index:96;opacity:0;background:radial-gradient(circle at 50% 52%,rgba(255,252,230,1),rgba(255,226,120,.9) 34%,rgba(160,210,255,0) 78%)}'
+  +'.bpg-days{position:absolute;padding:0 '+u(2.4)+';height:'+u(7.2)+';line-height:'+u(7.2)+';border-radius:'+u(3.6)+';background:rgba(8,16,52,.86);border:'+u(.35)+' solid rgba(190,225,255,.75);font-size:max('+u(3.3)+',11px);font-weight:900;letter-spacing:.07em;color:#F4FBFF;white-space:nowrap;z-index:89;box-shadow:0 0 '+u(2.4)+' rgba(120,190,255,.45);pointer-events:none}'
+  +'.bpg-x{position:absolute;width:'+u(10)+';height:'+u(10)+';margin:0;padding:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#E3523C,#B32A1C);border:'+u(.7)+' solid #FFE9C9;box-shadow:0 '+u(.7)+' 0 #6E160D,0 '+u(1.3)+' '+u(1)+' rgba(0,0,0,.4);cursor:pointer;z-index:90;-webkit-appearance:none;appearance:none}'
+  +'.bpg-x:before,.bpg-x:after{content:"";position:absolute;left:50%;top:50%;width:52%;height:'+u(1.1)+';margin:'+u(-.55)+' 0 0 -26%;border-radius:'+u(.6)+';background:#fff;transform:rotate(45deg)}.bpg-x:after{transform:rotate(-45deg)}'
+  +'#bpgScreen.still,#bpgScreen.still *{animation:none!important}#bpgScreen.still .bpg-shoot{opacity:0!important}'
+  +'@media (prefers-reduced-motion: reduce){#bpgScreen,#bpgScreen *{animation:none!important}}'
+  // THE DOORS ON THE PASS SCREEN (its own --u): the plate top left reads as a gold door; a locked prize's lock line a door too
+  +'#bppScreen .bpp-have.bpg-door{cursor:pointer;background:linear-gradient(180deg,rgba(70,52,14,.96),rgba(30,22,8,.96));border-color:#FFD24A;box-shadow:0 0 0 '+u(.25)+' rgba(255,210,74,.35),0 0 '+u(2.4)+' rgba(255,210,74,.45)}'
+  +'#bppScreen .bpp-have.bpg-door.sells{background:linear-gradient(180deg,#FFEC92,#FFCB3A 50%,#F09A14);border-color:#FFF6CF}#bppScreen .bpp-have.bpg-door.sells .a{color:#3A1F02}#bppScreen .bpp-have.bpg-door.sells .b{color:#4A2E06;font-weight:700}'
+  +'#bppScreen .bpp-state.lk.bpg-door{cursor:pointer;border-color:#FFD24A;box-shadow:0 0 '+u(1.6)+' rgba(255,210,74,.35)}'
+  // the plate breathes a gold light so it reads as a door with no word more (a light of its own, opacity alone)
+  +'#bppScreen .bpp-have.bpg-door{position:relative}#bppScreen .bpp-have.bpg-door:after{content:"";position:absolute;left:'+u(-.4)+';top:'+u(-.4)+';right:'+u(-.4)+';bottom:'+u(-.4)+';border-radius:'+u(2.3)+';box-shadow:0 0 '+u(2.6)+' '+u(.5)+' rgba(255,210,74,.7);opacity:0;pointer-events:none;animation:bpgDoor 2.4s ease-in-out infinite}'
+  +'@keyframes bpgDoor{0%,100%{opacity:0}50%{opacity:1}}@media (prefers-reduced-motion: reduce){#bppScreen .bpp-have.bpg-door:after{animation:none;opacity:.6}}#bppScreen.still .bpp-have.bpg-door:after{animation:none;opacity:.6}';
+  (document.head||document.documentElement).appendChild(st); }
+// ── the poster laid ──
+function bpgHTML(){ const RL=bpgReel(), sea=bpgSeason(); let fl='', figs='';
+  BPG_FLOAT.forEach(function(f, i){ const tag=f.k==='tv'? bpgT('NO ADS') : f.k==='stars'? bpgNum(RL.stars) : bpgNum(RL.drops);
+    fl+='<div class="bpg-fl" data-fl="'+f.k+'" style="left:'+bpgU(f.x-f.s/2)+';top:'+bpgU(f.y-f.s/2)+';width:'+bpgU(f.s)+';height:'+bpgU(f.s)+';animation-delay:'+(-i*1.7).toFixed(1)+'s"><div class="bpg-rot" style="transform:rotate('+f.r+'deg)"><div class="bpg-wob" style="animation-delay:'+(-i*1.1).toFixed(1)+'s"><canvas class="bpg-wait" data-k="fl:'+f.k+'"></canvas></div></div>'
+      +'<i class="bpg-tag '+f.tag+'" data-tag="'+f.k+'" style="top:'+bpgU(+(f.s*1.12).toFixed(2))+'">'+bpgEsc(tag)+'</i></div>'; });
+  BPG_FIGS.forEach(function(f, i){ figs+='<div class="bpg-fig bpg-wait" data-fig="'+f.k+'" data-k="fig:'+f.k+'" style="z-index:'+(f.z*10)+'"><div class="bpg-flip'+(f.flip? ' on' : '')+'"><div class="bpg-hop"><canvas style="animation-delay:'+(-i*1.3).toFixed(1)+'s"></canvas></div></div></div>'; });
+  const nm=bpgEsc(bpgT('GENESIS'));
+  return '<div class="bpg-sky"></div><div class="bpg-neb"></div>'+[0, 1, 2, 3].map(function(g){ return '<canvas class="bpg-sf g'+g+' bpg-wait" data-k="sf'+g+'"></canvas>'; }).join('')
+    +'<div class="bpg-left"></div><div class="bpg-beam"></div><div class="bpg-bloom"></div><i class="bpg-shoot"><b></b></i>'
+    +'<div class="bpg-box"><canvas class="bpg-rays bpg-wait" data-k="rays"></canvas><canvas class="bpg-emb bpg-wait" data-k="emb"></canvas>'+fl+figs
+    +'<canvas class="bpg-cl l bpg-wait" data-k="cl:l"></canvas><canvas class="bpg-cl r bpg-wait" data-k="cl:r"></canvas><canvas class="bpg-pile bpg-wait" data-k="pile"></canvas>'
+    +'<div class="bpg-kick">'+bpgEsc(bpgT('SEASON '+sea.n))+'</div><div class="bpg-t"><b class="sh">'+nm+'</b><b class="fr">'+nm+'</b></div><div class="bpg-gen">'+bpgEsc(bpgT('BATTLE PASS'))+'</div>'
+    +'<div class="bpg-bw"><button type="button" class="bpg-buy"><span class="l" data-w=""></span><i class="sheen"></i></button></div><div class="bpg-won"></div><div class="bpg-spark"></div><div class="bpg-pills"></div></div>'
+    +'<div class="bpg-confetti"></div><div class="bpg-flash"></div><div class="bpg-days"></div><button type="button" class="bpg-x" aria-label="close"></button><i class="bpg-probe"></i>'; }
+function bpgIns(){ const R=BPG.root, p=R && R.querySelector('.bpg-probe'); if(!p) return [0, 0]; const r=p.getBoundingClientRect(); return [Math.max(0, r.width||0), Math.max(0, r.height||0)]; }
+function bpgSize(){ const R=BPG.root; if(!R) return; const W=R.clientWidth, H=R.clientHeight, ins=bpgIns(), U=Math.max(1, Math.min(H/100, (W-ins[0]-ins[1])/186)), OX=ins[0]+((W-ins[0]-ins[1])-186*U)/2, OY=(H-100*U)/2;
+  BPG.U=U; BPG.OX=OX; BPG.OY=OY; BPG.W=W; BPG.H=H; R.style.setProperty('--u', U.toFixed(4)+'px'); const box=R.querySelector('.bpg-box'); box.style.left=OX.toFixed(1)+'px'; box.style.top=OY.toFixed(1)+'px';
+  const ex=OX+BPG_EM.x*U, ey=OY+BPG_EM.y*U, bl=52*U, bm=R.querySelector('.bpg-bloom'), be=R.querySelector('.bpg-beam');
+  bm.style.cssText='left:'+(ex-bl).toFixed(1)+'px;top:'+(ey-bl).toFixed(1)+'px;width:'+(2*bl).toFixed(1)+'px;height:'+(2*bl).toFixed(1)+'px'; be.style.top=(ey-26*U).toFixed(1)+'px'; be.style.height=(52*U).toFixed(1)+'px';
+  // GENESIS as big as its line allows (86 units wide and 15 high at the most), BATTLE PASS under it
+  const T=R.querySelector('.bpg-t'), fr=T.querySelector('.fr'); T.style.fontSize=(10*U).toFixed(2)+'px'; const w0=fr.scrollWidth||1, fs=Math.min(15, 10*86/(w0/U));
+  T.style.fontSize=(fs*U).toFixed(2)+'px'; T.style.width=fr.scrollWidth+'px'; T.style.height=(fs*U).toFixed(2)+'px'; T.style.top=(6.6*U).toFixed(2)+'px'; R.querySelector('.bpg-gen').style.top=((6.6+fs*0.96)*U).toFixed(2)+'px';
+  const x=R.querySelector('.bpg-x'), d=R.querySelector('.bpg-days'); x.style.right=(ins[1]+2.2*U).toFixed(1)+'px'; x.style.top=(2.4*U).toFixed(1)+'px'; d.style.right=(ins[1]+2.2*U+10*U+1.8*U).toFixed(1)+'px'; d.style.top=(3.8*U).toFixed(1)+'px';
+  bpgShoot(); bpgFitBuy(); bpgFitWords(); }
+// the shooting star: one flight of 1.15 s every 7 s across the top, by transform and opacity (the compositor's work)
+function bpgShoot(){ const R=BPG.root; if(!R) return; const el=R.querySelector('.bpg-shoot'); if(!el) return; try{ if(BPG.shootA) BPG.shootA.cancel(); }catch(e){} BPG.shootA=null; if(bpgStill() || typeof el.animate!=='function') return;
+  const U=BPG.U, x0=BPG.OX+36*U, y0=BPG.OY-4*U, x1=BPG.OX+178*U, y1=BPG.OY+36*U, ang=Math.atan2(y1-y0, x1-x0)*180/Math.PI, L=Math.sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
+  el.style.left=(x0-30*U).toFixed(1)+'px'; el.style.top=(y0-0.25*U).toFixed(1)+'px'; el.style.width=(30*U).toFixed(1)+'px'; el.style.height=(0.5*U).toFixed(2)+'px';
+  const tf=function(p){ return 'rotate('+ang.toFixed(2)+'deg) translateX('+(L*p).toFixed(1)+'px)'; }, F=1150/7000, K=[];
+  for(let i=0;i<=8;i++){ const p=i/8; K.push({ offset:+(p*F).toFixed(4), transform:tf(1-Math.pow(1-p, 3)), opacity:+Math.sin(Math.PI*p).toFixed(3) }); } K.push({ offset:1, transform:tf(1), opacity:0 });
+  try{ BPG.shootA=el.animate(K, { duration:7000, iterations:Infinity, delay:1800 }); }catch(e){ bpgFail(e); } }
+// a longer tongue's words keep their places (11 px at the least): a sticker wraps at its space or draws in to its own slot (the TV's never past the box's edge); the days beside the X draw in clear of the title
+function bpgFitWords(){ const R=BPG.root; if(!R || !BPG.U) return; const U=BPG.U;
+  R.querySelectorAll('.bpg-tag').forEach(function(tg){ const f=BPG_FLOAT.filter(function(x){ return x.k===tg.getAttribute('data-tag'); })[0]; if(!f) return; const slot=(f.k==='tv'? 2*(f.x-0.8) : 16)*U; tg.classList.remove('wrap'); tg.style.maxWidth=''; tg.style.fontSize='';
+    if(tg.offsetWidth>slot+0.5 && /\s/.test(tg.textContent)){ tg.classList.add('wrap'); tg.style.maxWidth=slot.toFixed(1)+'px'; }
+    let fs=parseFloat(getComputedStyle(tg).fontSize)||12, n=0; while(tg.scrollWidth>tg.clientWidth+0.5 || tg.offsetWidth>slot+0.5){ if(fs<=11 || n++>20) break; fs-=0.5; tg.style.fontSize=fs+'px'; }
+    if(tg.offsetWidth>slot+0.5){ tg.classList.add('wrap'); tg.style.maxWidth=slot.toFixed(1)+'px'; } });
+  // left to right, each sticker clear of the one before it (a small glass's 11 px words): one that would touch slides right just enough, under its own prize still
+  const bx=R.querySelector('.bpg-box').getBoundingClientRect(); let prev=bx.left+0.2*U; BPG_FLOAT.forEach(function(f){ const tg=R.querySelector('.bpg-tag[data-tag="'+f.k+'"]'); if(!tg) return; tg.style.marginLeft='0px'; const r=tg.getBoundingClientRect(), need=prev+0.6*U-r.left;
+    if(need>0){ tg.style.marginLeft=need.toFixed(1)+'px'; prev=r.right+need; } else prev=r.right; });
+  const d=R.querySelector('.bpg-days'), T=R.querySelector('.bpg-t'); if(d && T){ d.style.fontSize=''; let fs=parseFloat(getComputedStyle(d).fontSize)||13, n=0; while(d.getBoundingClientRect().left-T.getBoundingClientRect().right<U){ if(fs<=11 || n++>20) break; fs-=0.5; d.style.fontSize=fs+'px'; } } }
+function bpgFitBuy(){ const R=BPG.root; if(!R || !BPG.U) return; const l=R.querySelector('.bpg-buy .l'); if(!l) return; const U=BPG.U, w=l.getAttribute('data-w'), base=(w==='GET IT NOW')? 6.4 : 5.6; l.style.fontSize=(base*U).toFixed(2)+'px';
+  const max=76*U, have=l.scrollWidth||0; if(have>max) l.style.fontSize=(base*U*max/have).toFixed(2)+'px'; }
+// every picture in line, the sky first (what is seen first), then the bare man and the seven
+function bpgBakeAll(){ const R=BPG.root; if(!R) return; const U=BPG.U, k=U*Math.min(2, bpgDpr()), q=function(s){ return R.querySelector(s); };
+  bpgJob('star', function(){ const c=document.createElement('canvas'); return bpgBake(c, bpgStarSVG(), 48, 48).then(function(ok){ if(ok) BPG.star=c.toDataURL('image/png'); c.width=c.height=0; return ok; }); });
+  bpgSky();
+  bpgJob('rays', function(){ return bpgBake(q('.bpg-rays'), bpgRaysSVG(), 128*U, 128*U); });
+  bpgJob('emb', function(){ return bpgBake(q('.bpg-emb'), bpgEmbSVG(), 44*k, 44*k); });
+  BPG_FLOAT.forEach(function(f){ bpgJob('fl:'+f.k, function(){ return bpgBake(q('[data-k="fl:'+f.k+'"]'), bpgFloatSVG(f.k), f.s*k, f.s*k, { fit:1, pad:1.4*k, glow:1.2*k }); }); });
+  bpgJob('cl:l', function(){ return bpgBake(q('.bpg-cl.l'), bpgCloudSVG('l'), 118*k, 68*k); }); bpgJob('cl:r', function(){ return bpgBake(q('.bpg-cl.r'), bpgCloudSVG('r'), 118*k, 68*k); });
+  bpgJob('pile', function(){ return bpgBake(q('.bpg-pile'), bpgPileSVG(), 146*k, 66*k); });
+  BPG_FIGS.forEach(function(f){ bpgJob('fig:'+f.k, function(R2){ return bpgFigJob(R2, f); }); }); }
+function bpgSky(){ const R=BPG.root; if(!R) return; [0, 1, 2, 3].forEach(function(g){ bpgJob('sf'+g, function(){ return bpgBake(R.querySelector('.bpg-sf.g'+g), bpgSkySVG(g), BPG.W, BPG.H); }); }); }
+// ── the state on the glass: the button's word, the days, the phase ──
+function bpgPaint(){ const R=BPG.root; if(!R) return; const sells=bpgSells(), ph=BPG.phase;
+  R.classList.toggle('sells', sells && !ph); R.classList.toggle('soon', !sells && !ph); R.classList.toggle('busy', !!BPG.busy && !ph); R.classList.toggle('yours', ph==='yours'); R.classList.toggle('after', ph==='after'); R.classList.toggle('still', bpgStill());
+  const l=R.querySelector('.bpg-buy .l'), w=ph==='after'? 'TO THE BATTLEFIELDS' : sells? 'GET IT NOW' : 'COMING SOON'; if(l && l.getAttribute('data-w')!==w){ l.setAttribute('data-w', w); l.textContent=bpgT(w); bpgFitBuy(); }
+  const d=R.querySelector('.bpg-days'), dw=bpgDaysWord(); if(d && d.textContent!==dw){ d.textContent=dw; bpgFitWords(); }
+  const wn=R.querySelector('.bpg-won'), ww=bpgT("IT'S YOURS!"); if(wn && wn.textContent!==ww) wn.textContent=ww; }
+// ── the door: the poster opened by a tap of the player's on the pass screen (BPO-Q1 A), never by itself (BPO-F3) ──
+function bpgOpen(door){ try{ if(!BPG.on || BPG.root) return BPG.root; const wt=document.getElementById('wartable'); if(!wt) return null; let st=null; try{ st=bppState(); }catch(e){} if(st && st.own && door!=='rig') return null;   // he holds the pass: no poster
+    bpgCss(); BPG.gen++; BPG.q=[]; BPG.qn=0; BPG.fixMiss=0; BPG.door=String(door||''); BPG.opens++; BPG.phase=''; BPG.busy=0;
+    const R=document.createElement('div'); R.id='bpgScreen'; R.setAttribute('data-notr', ''); BPG.root=R; R.innerHTML=bpgHTML(); wt.appendChild(R); wt.classList.add('bpg-on');
+    bpgSize(); bpgPaint(); bpgBakeAll(); R.addEventListener('click', bpgTap); window.addEventListener('resize', bpgResize);
+    if(BPG.pid && !BPG.price && bpgAvail()){ try{ IAP.products(); }catch(e){} }   // the store's own price, asked (it lands through GVTN._iapProducts)
+    return R; }catch(e){ bpgFail(e); bpgShut(); return null; } }
+function bpgShut(){ BPG.T.forEach(function(x){ clearTimeout(x); }); BPG.T=[]; BPG.gen++; BPG.q=[]; BPG.qn=0; clearTimeout(BPG.rz); try{ if(BPG.shootA) BPG.shootA.cancel(); }catch(e){} BPG.shootA=null; window.removeEventListener('resize', bpgResize);
+  const wt=document.getElementById('wartable'); if(wt) wt.classList.remove('bpg-on'); const el=document.getElementById('bpgScreen'); if(el) el.remove(); BPG.root=null; BPG.phase=''; BPG.busy=0; }
+function bpgResize(){ if(!BPG.root) return; clearTimeout(BPG.rz); BPG.rz=setTimeout(function(){ try{ if(!BPG.root) return; const w=BPG.W, h=BPG.H; bpgSize(); if(Math.abs(w-BPG.W)>1 || Math.abs(h-BPG.H)>1) bpgSky(); }catch(e){ bpgFail(e); } }, 120); }
+function bpgTap(ev){ const R=BPG.root, tg=ev && ev.target; if(!R || !tg || !tg.closest) return; if(tg.closest('.bpg-x')){ try{ audio(); SFX.clack(); }catch(e){} bpgShut(); return; }
+  if(tg.closest('.bpg-buy')){ bpgBuyTap(); return; } const f=tg.closest('.bpg-fig'); if(f) bpgFig(f.getAttribute('data-fig')); }
+// ── a tap on a Sarge: he hops, his set's name over him for 1.5 s, a few stars burst from him ──
+function bpgHop(f, delay){ const R=BPG.root, el=R && R.querySelector('[data-fig="'+f.k+'"] .bpg-hop'); if(!el || bpgStill() || typeof el.animate!=='function') return; const up=(-4.2*BPG.U).toFixed(1);
+  try{ el.animate([{ transform:'translateY(0)' }, { transform:'translateY('+up+'px)' }, { transform:'translateY(0)' }], { duration:520, delay:delay||0, easing:'ease-in-out' }); }catch(e){} }
+function bpgFig(k){ const R=BPG.root; if(!R || BPG.phase) return; const f=BPG_FIGS.filter(function(x){ return x.k===k; })[0]; if(!f) return; BPG.taps++; try{ audio(); SFX.blip(); }catch(e){} bpgHop(f, 0);
+  const pl=R.querySelector('.bpg-pills'); if(pl){ Array.from(pl.querySelectorAll('[data-pill="'+f.k+'"]')).forEach(function(e){ e.remove(); }); const head=f.foot-f.H*1.08, d=document.createElement('div'); d.className='bpg-pill'; d.setAttribute('data-pill', f.k); d.textContent=bpgT(f.n);
+    d.style.left=bpgU(Math.max(20, Math.min(166, f.x))); d.style.top=bpgU(+Math.max(30, Math.min(80, head-5.4)).toFixed(2)); pl.appendChild(d);
+    if(!bpgStill() && typeof d.animate==='function'){ try{ d.animate([{ opacity:0 }, { opacity:1, offset:0.11 }, { opacity:1, offset:0.8 }, { opacity:0 }], { duration:1500, fill:'forwards' }); }catch(e){} }
+    if(BPG.clock==null) BPG.T.push(setTimeout(function(){ try{ d.remove(); }catch(e){} }, 1500)); }
+  bpgSparks(f); }
+function bpgSparks(f){ const R=BPG.root, sp=R && R.querySelector('.bpg-spark'); if(!sp || bpgStill() || !BPG.star) return; const U=BPG.U, cx=f.x*U, cy=(f.foot-f.H*0.62)*U, s=2.4*U;
+  for(let j=0;j<8;j++){ const a=j/8*Math.PI*2+BPG.taps, im=document.createElement('img'); im.className='bpg-spk'; im.alt=''; im.src=BPG.star; im.style.width=im.style.height=s.toFixed(1)+'px'; sp.appendChild(im);
+    const p=function(d, up){ return 'translate('+(cx+Math.cos(a)*d-s/2).toFixed(1)+'px,'+(cy+Math.sin(a)*d-s/2-up).toFixed(1)+'px)'; };
+    try{ const an=im.animate([{ transform:p(3*U, 0), opacity:1 }, { transform:p(12*U, 4*U), opacity:0 }], { duration:800, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards' }); an.onfinish=function(){ try{ im.remove(); }catch(e){} }; }catch(e){ im.remove(); } } }
+// ── GET IT NOW: the store's own sheet; COMING SOON: a shake; TO THE BATTLEFIELDS: the lobby ──
+function bpgBuyTap(){ const R=BPG.root; if(!R || BPG.phase==='yours') return;
+  if(BPG.phase==='after'){ try{ audio(); SFX.blip(); }catch(e){} bpgShut(); try{ bppShut(0); }catch(e){} return; }   // Isaac round 4: "It should just take you to Battlefield"
+  if(BPG.busy && Date.now()-BPG.busyT<90000) return; if(!bpgSells()){ bpgNo(); return; }
+  BPG.busy=1; BPG.busyT=Date.now(); try{ IAP_STATE.busy=BPG.pid; }catch(e){} bpgPaint(); try{ audio(); SFX.blip(); }catch(e){}
+  try{ IAP.buy(BPG.pid); }catch(e){ BPG.busy=0; bpgPaint(); } }
+function bpgNo(){ const b=BPG.root && BPG.root.querySelector('.bpg-buy'); try{ audio(); SFX.clack(); }catch(e){} BPG.nos=(BPG.nos|0)+1;
+  if(b && !bpgStill() && typeof b.animate==='function'){ try{ b.animate([{ transform:'translateX(0)' }, { transform:'translateX(-4%)' }, { transform:'translateX(4%)' }, { transform:'translateX(-2.5%)' }, { transform:'translateX(0)' }], { duration:360, easing:'ease-out' }); }catch(e){} } }
+// the answer: a gold flash, IT'S YOURS! alone for 3 s while the seven hop in a wave and stars rain, then the one button TO THE BATTLEFIELDS (Isaac round 4)
+function bpgYours(){ const R=BPG.root; if(!R) return; BPG.phase='yours'; bpgPaint(); try{ SFX.fanfare(); }catch(e){}
+  if(!bpgStill()){ try{ R.querySelector('.bpg-flash').animate([{ opacity:1 }, { opacity:0 }], { duration:900, easing:'cubic-bezier(.2,.7,.3,1)' }); }catch(e){}
+    try{ R.querySelector('.bpg-won').animate([{ transform:'translate(-50%,-50%) scale(.2)' }, { transform:'translate(-50%,-50%) scale(1.08)', offset:0.7 }, { transform:'translate(-50%,-50%) scale(1)' }], { duration:520, easing:'ease-out' }); }catch(e){}
+    BPG_FIGS.forEach(function(f, i){ bpgHop(f, i*110); }); bpgConfetti(); }
+  BPG.T.push(setTimeout(function(){ if(BPG.root!==R) return; BPG.phase='after'; bpgPaint(); if(!bpgStill()){ try{ R.querySelector('.bpg-buy').animate([{ transform:'scale(.3)' }, { transform:'scale(1.06)', offset:0.7 }, { transform:'scale(1)' }], { duration:420, easing:'ease-out' }); }catch(e){} } }, 3000)); }
+function bpgConfetti(){ const R=BPG.root, C=R && R.querySelector('.bpg-confetti'); if(!C || bpgStill() || !BPG.star) return; const W=BPG.W, H=BPG.H, U=BPG.U;
+  for(let i=0;i<44;i++){ const im=document.createElement('img'); im.alt=''; im.className='bpg-spk'; im.src=BPG.star; const w=(2.6+bpgRnd(i+21)*3.4)*U, x=((i*0.618034)%1)*W, rot=(i%2? 1 : -1)*500; im.style.width=im.style.height=w.toFixed(1)+'px'; C.appendChild(im);
+    try{ const an=im.animate([{ transform:'translate('+x.toFixed(1)+'px,'+(-8*U).toFixed(1)+'px) rotate(0deg)' }, { transform:'translate('+x.toFixed(1)+'px,'+(H+4*U).toFixed(1)+'px) rotate('+rot+'deg)' }], { duration:1800, delay:Math.round(bpgRnd(i+40)*900), easing:'linear', fill:'both' }); an.onfinish=function(){ try{ im.remove(); }catch(e){} }; }catch(e){ im.remove(); } } }
+// ── THE CREDIT (iapCredit's own law for this one id): once a transaction, the stamp in the same save as the ledger, the ack only after the disk re-read ──
+function bpgCredit(d){ try{ IAP_STATE.busy=null; }catch(e){} BPG.busy=0; if(d.tx==null){ bpgPaint(); return; }
+  const tx=String(d.tx).slice(0,64), led=iapLedger(), fresh=led.t.indexOf(tx)<0, loaded=iapWasLoaded(tx) && !fresh;   // iapWasLoaded first, never short-circuited (iapCredit's own warning)
+  if(fresh){ const s=bpgSeason(); META.bpg={ sn:'s'+s.n, end:+s.end, tx:tx, t:Date.now() };
+    META.adFreeT=Math.max(+META.adFreeT||0, +s.end);   // BPO-F2: NO ADS until the season ends (the timers' own road); never META.paidEver (the ad rule's line above)
+    led.t.push(tx); if(led.t.length>300) led.t=led.t.slice(-300); }
+  saveMeta(); const done=iapOnDisk(tx); if(done) IAP.ack(tx, loaded? 'dedupe' : 'fresh'); try{ if(d.sku) IAP_STATE.note[d.sku]=done? 'ok' : 'held'; }catch(e){}
+  if(fresh && done){ BPG.told=0; bpgTellHQ(); if(BPG.root) bpgYours(); }
+  try{ if(BPP.root) bppLay(1); }catch(e){ bpgFail(e); } try{ bppTabSync(); }catch(e){} bpgPaint(); }
+function bpgTellHQ(){ const m=bpgMine(), now=Date.now(); if(!m || BPG.told || now-BPG.toldT<60000) return; BPG.told=1; BPG.toldT=now;
+  try{ bppNet('/pass/own', { sn:m.sn, tx:m.tx }).then(function(d){ if(!(d && d.ok)) BPG.told=0; }, function(){ BPG.told=0; }); }catch(e){ BPG.told=0; } }
+// ── the wraps, by name: nothing of another section is edited ──
+// CARD-BLP5b's own law kept (its held doors): while a stock army is worn the whole save is the fight's, so a store credit waits in BLB.heldQ and is taken once the account is back (written then, it
+// would be wiped by the doff after the store was acked): this id's credit waits in the same queue, in its order
+if(typeof iapCredit==='function'){ const bpgCredit0=iapCredit; iapCredit=function(d){ try{ if(d && BPG.pid && d.sku===BPG.pid){ if(d.tx!=null && typeof blbHeldOn==='function' && blbHeldOn() && typeof blbHeldTick==='function'){ (BLB.heldQ||(BLB.heldQ=[])).push([bpgCredit, [d]]); blbHeldTick(); return; } return bpgCredit(d); } }catch(e){ bpgFail(e); } return bpgCredit0.apply(this, arguments); }; }
+try{ if(window.GVTN && typeof GVTN._iapProducts==='function'){ const bpgProd0=GVTN._iapProducts; GVTN._iapProducts=function(list){ const r=bpgProd0.apply(this, arguments);
+    try{ if(BPG.pid && Array.isArray(list)){ let p=''; list.forEach(function(d){ if(d && d.sku===BPG.pid) p=bpgEsc(String(d.price||d.displayPrice||'').slice(0,24)); }); const was=bpgSells(); BPG.price=p; bpgPaint(); if(was!==bpgSells() && BPP.root) bppLay(1); } }catch(e){ bpgFail(e); } return r; }; }
+  if(window.GVTN && typeof GVTN._iapResult==='function'){ const bpgRes0=GVTN._iapResult; GVTN._iapResult=function(d){ try{ if(d && BPG.pid && d.sku===BPG.pid){ BPG.busy=0; bpgPaint(); } }catch(e){} return bpgRes0.apply(this, arguments); }; } }catch(e){ bpgFail(e); }
+// the season the phone bought opens the locks, whatever HQ last said (and HQ is told)
+if(typeof bppState==='function'){ const bpgState0=bppState; bppState=function(){ const s=bpgState0.apply(this, arguments); try{ if(s && !s.own && bpgOwns(s.sn)) s.own=1; }catch(e){} return s; }; }
+if(typeof bppFromHQ==='function'){ const bpgHQ0=bppFromHQ; bppFromHQ=function(d){ const s=bpgHQ0.apply(this, arguments); try{ if(s && !s.own && bpgOwns(s.sn)){ s.own=1; bpgTellHQ(); } }catch(e){} return s; }; }
+// THE DOORS (BPO-Q1 A): the plate top left (THE BATTLE PASS · COMING SOON, or GET IT NOW where a store sells it) and a locked prize's lock line open the poster; a second tap on a chosen locked frame too
+function bpgDoor(h, sel, attrs){ const T=document.createElement('template'); T.innerHTML=h; const el=T.content.querySelector(sel); if(!el) return h; Object.keys(attrs).forEach(function(k){ if(k==='cls') attrs.cls.split(' ').forEach(function(c){ if(c) el.classList.add(c); }); else el.setAttribute(k, attrs[k]); }); return { T:T, el:el }; }
+if(typeof bppLeftHTML==='function'){ const bpgLeft0=bppLeftHTML; bppLeftHTML=function(st){ const h=bpgLeft0.apply(this, arguments); if(!BPG.on || !st || st.own) return h;
+    try{ const sells=bpgSells(), o=bpgDoor(h, '.bpp-have.soon', { cls:'bpg-door'+(sells? ' sells' : ''), role:'button', onclick:"UI.bpgOpen('plate')" }); if(typeof o==='string') return o; if(sells){ const b=o.el.querySelector('.b'); if(b) b.textContent=bpgT('GET IT NOW'); } return o.T.innerHTML; }catch(e){ bpgFail(e); return h; } }; }
+if(typeof bppInfoHTML==='function'){ const bpgInfo0=bppInfoHTML; bppInfoHTML=function(st, sel){ const h=bpgInfo0.apply(this, arguments); if(!BPG.on || !st || st.own) return h;
+    try{ const o=bpgDoor(h, '.bpp-state.lk', { cls:'bpg-door', role:'button', onclick:"UI.bpgOpen('lock')" }); return (typeof o==='string')? o : o.T.innerHTML; }catch(e){ bpgFail(e); return h; } }; }
+if(typeof bppTap==='function'){ const bpgTap0=bppTap; bppTap=function(ev){ try{ const fr=ev && ev.target && ev.target.closest? ev.target.closest('.bpp-fr') : null;
+      if(fr && BPG.on && BPP.root && fr.classList.contains('sel')){ const k=+fr.getAttribute('data-t'), st=bppState(); if(!st.own && BPP_FREE.indexOf(k)<0){ bpgOpen('frame'); return; } } }catch(e){ bpgFail(e); } return bpgTap0.apply(this, arguments); }; }
+// the pass screen going (its X, TO THE BATTLEFIELDS, the table shut) takes the poster with it
+if(typeof bppShut==='function'){ const bpgShut0=bppShut; bppShut=function(){ try{ if(BPG.root) bpgShut(); }catch(e){} return bpgShut0.apply(this, arguments); }; }
+try{ Object.assign(UI, { bpgOpen:function(door){ try{ audio(); SFX.blip(); }catch(e){} bpgOpen(door); } }); }catch(e){ bpgFail(e); }
+// ── the rig's read (GVT.bpg): what stands on the glass; a state laid by hand (nothing is bought, nothing is asked of a store) ──
+function bpgRead(o){ try{ if(o && typeof o==='object'){ if(o.pid!==undefined) BPG.pid=o.pid? String(o.pid).slice(0,80) : ''; if(o.price!==undefined) BPG.price=o.price? bpgEsc(String(o.price).slice(0,24)) : '';
+      if(o.clock!==undefined) BPG.clock=(o.clock==null)? null : +o.clock; if(o.close) bpgShut(); if(o.open) bpgOpen(typeof o.open==='string'? o.open : 'rig');
+      if(o.phase!==undefined && BPG.root) BPG.phase=o.phase? String(o.phase) : ''; if(o.tap && BPG.root) bpgFig(String(o.tap)); if(BPG.root){ bpgPaint(); if(o.clock!==undefined) bpgShoot(); } } }catch(e){ bpgFail(e); }
+  const R=BPG.root, out={ cv:GVT_CV, on:BPG.on, open:!!R, err:BPG.err, e:BPG.e, baked:BPG.baked, failed:BPG.failed, waiting:BPG.q.length+BPG.qn, fixMiss:BPG.fixMiss, door:BPG.door, opens:BPG.opens, nos:BPG.nos|0,
+    pid:!!BPG.pid, price:BPG.price, sells:bpgSells(), phase:BPG.phase, busy:BPG.busy, own:bpgMine(), owns:bpgOwns(null), adFreeT:+(META.adFreeT||0), paidEver:!!META.paidEver, still:bpgStill(), reel:bpgReel(), season:bpgSeason() };
+  if(!R) return out;
+  try{ const R0=R.getBoundingClientRect(), W=R.clientWidth, H=R.clientHeight, vis=function(e){ if(!e) return false; const cs=getComputedStyle(e); return cs.display!=='none' && cs.visibility!=='hidden' && +cs.opacity>0 && e.getClientRects().length>0; };
+    const box=function(e){ const r=e.getBoundingClientRect(); return { l:+(r.left-R0.left).toFixed(1), t:+(r.top-R0.top).toFixed(1), r:+(r.right-R0.left).toFixed(1), b:+(r.bottom-R0.top).toFixed(1) }; };
+    const q=function(s){ return Array.from(R.querySelectorAll(s)).filter(vis).map(function(e){ const b=box(e); b.k=s; b.w=(e.textContent||'').trim().slice(0,40); return b; }); };
+    const read=[].concat(q('.bpg-kick'), q('.bpg-t'), q('.bpg-gen'), q('.bpg-bw'), q('.bpg-won'), q('.bpg-days'), q('.bpg-x'), q('.bpg-tag'), q('.bpg-pill')); out.boxes=read; out.ins=bpgIns(); out.u=+BPG.U.toFixed(3); out.glass=[W, H];
+    out.off=read.filter(function(b){ return b.l<-0.5 || b.t<-0.5 || b.r>W+0.5 || b.b>H+0.5; }).map(function(b){ return b.k; });
+    out.inset=read.filter(function(b){ return /bpg-bw|bpg-x|bpg-days|bpg-tag|bpg-won/.test(b.k) && (b.l<out.ins[0]-0.5 || b.r>W-out.ins[1]+0.5); }).map(function(b){ return b.k; });
+    const hit=function(a, b){ return a.l<b.r-0.5 && b.l<a.r-0.5 && a.t<b.b-0.5 && b.t<a.b-0.5; }, title=/^\.bpg-(kick|t|gen)$/;   /* the title's three lines are one block: their letter boxes touch by design */
+    out.over=[]; for(let i=0;i<read.length;i++) for(let j=i+1;j<read.length;j++) if(!(title.test(read[i].k) && title.test(read[j].k)) && hit(read[i], read[j])) out.over.push(read[i].k+' x '+read[j].k);
+    const wd=Array.from(R.querySelectorAll('.bpg-kick,.bpg-t .fr,.bpg-gen,.bpg-buy .l,.bpg-tag,.bpg-pill,.bpg-won,.bpg-days')).filter(vis); out.words=wd.map(function(e){ return (e.textContent||'').trim(); });
+    out.small=+Math.min.apply(null, wd.filter(function(e){ return !e.classList.contains('fr'); }).map(function(e){ return parseFloat(getComputedStyle(e).fontSize)||99; }).concat([99])).toFixed(2);
+    out.buyWord=(R.querySelector('.bpg-buy .l')||{}).textContent||''; out.days=(R.querySelector('.bpg-days')||{}).textContent||''; out.cls=R.className;
+    out.figs={}; BPG_FIGS.forEach(function(f){ const el=R.querySelector('[data-fig="'+f.k+'"]'), cv=el && el.querySelector('canvas'); out.figs[f.k]={ painted:!!(el && !el.classList.contains('bpg-wait') && cv && cv.width>1), box:(el && vis(el))? box(el) : null, px:cv? [cv.width, cv.height] : null, at:el? el.getAttribute('data-box') : null }; });
+    out.cans=Array.from(R.querySelectorAll('canvas')).map(function(c){ const p=c.closest('[data-k]')||c; return { k:p.getAttribute('data-k')||'', ok:c.width>1 && !p.classList.contains('bpg-wait') }; });
+    out.top=(function(){ const e=document.elementFromPoint(R0.left+W/2, R0.top+H/2); return !!(e && R.contains(e)); })(); }catch(e){ out.readErr=String(e).slice(0,160); }
+  return out; }
+// ── the words in the game's six other tongues and Arabic (the poster's own; SEASON {0}, GENESIS, BATTLE PASS, NO ADS, COMING SOON, THE KNIGHT SET and the days stand in the game's words already) ──
+Object.assign(TR["ar"]||(TR["ar"]={}), {"GET IT NOW": "احصل عليه الآن", "IT'S YOURS!": "إنه لك!", "TO THE BATTLEFIELDS": "إلى ساحات المعركة", "THE SKY SET": "طقم السماء", "THE WIZARD SET": "طقم الساحر", "THE RECON SET": "طقم الاستطلاع", "THE TOMB SET": "طقم المقبرة", "THE PILOT SET": "طقم الطيار", "THE ASTRONAUT SET": "طقم رائد الفضاء"});
+Object.assign(TR["ja"]||(TR["ja"]={}), {"GET IT NOW": "いますぐ ゲット", "IT'S YOURS!": "きみのものだ！", "TO THE BATTLEFIELDS": "バトルフィールドへ", "THE SKY SET": "スカイ・セット", "THE WIZARD SET": "まほうつかい・セット", "THE RECON SET": "ていさつ・セット", "THE TOMB SET": "ファラオ・セット", "THE PILOT SET": "パイロット・セット", "THE ASTRONAUT SET": "うちゅうひこうし・セット"});
+Object.assign(TR["ko"]||(TR["ko"]={}), {"GET IT NOW": "지금 받기", "IT'S YOURS!": "이제 네 거야!", "TO THE BATTLEFIELDS": "배틀필드로", "THE SKY SET": "하늘 세트", "THE WIZARD SET": "마법사 세트", "THE RECON SET": "정찰 세트", "THE TOMB SET": "무덤 세트", "THE PILOT SET": "조종사 세트", "THE ASTRONAUT SET": "우주비행사 세트"});
+Object.assign(TR["zh-Hans"]||(TR["zh-Hans"]={}), {"GET IT NOW": "立即获取", "IT'S YOURS!": "归你了！", "TO THE BATTLEFIELDS": "前往战场", "THE SKY SET": "天空套装", "THE WIZARD SET": "巫师套装", "THE RECON SET": "侦察套装", "THE TOMB SET": "古墓套装", "THE PILOT SET": "飞行员套装", "THE ASTRONAUT SET": "宇航员套装"});
+Object.assign(TR["de"]||(TR["de"]={}), {"GET IT NOW": "JETZT HOLEN", "IT'S YOURS!": "GEHÖRT DIR!", "TO THE BATTLEFIELDS": "ZU DEN SCHLACHTFELDERN", "THE SKY SET": "DAS HIMMELS-SET", "THE WIZARD SET": "DAS ZAUBERER-SET", "THE RECON SET": "DAS AUFKLÄRER-SET", "THE TOMB SET": "DAS GRAB-SET", "THE PILOT SET": "DAS PILOTEN-SET", "THE ASTRONAUT SET": "DAS ASTRONAUTEN-SET"});
+Object.assign(TR["ru"]||(TR["ru"]={}), {"GET IT NOW": "ПОЛУЧИ СЕЙЧАС", "IT'S YOURS!": "ТЕПЕРЬ ОН ТВОЙ!", "TO THE BATTLEFIELDS": "НА ПОЛЯ БОЯ", "THE SKY SET": "НЕБЕСНЫЙ НАБОР", "THE WIZARD SET": "НАБОР ВОЛШЕБНИКА", "THE RECON SET": "НАБОР РАЗВЕДЧИКА", "THE TOMB SET": "НАБОР ГРОБНИЦЫ", "THE PILOT SET": "НАБОР ПИЛОТА", "THE ASTRONAUT SET": "НАБОР АСТРОНАВТА"});
+Object.assign(TR["es"]||(TR["es"]={}), {"GET IT NOW": "¡CONSÍGUELO YA!", "IT'S YOURS!": "¡ES TUYO!", "TO THE BATTLEFIELDS": "A LOS CAMPOS DE BATALLA", "THE SKY SET": "EL SET DEL CIELO", "THE WIZARD SET": "EL SET DE MAGO", "THE RECON SET": "EL SET DE RECONOCIMIENTO", "THE TOMB SET": "EL SET DE LA TUMBA", "THE PILOT SET": "EL SET DE PILOTO", "THE ASTRONAUT SET": "EL SET DE ASTRONAUTA"});
+// ── the switch (CARD-BFO3's grammar): ?bpg=0 = the pass screen as before on this device; ?bpg=1 clears it ──
+try{ (function(){ let q=null; try{ q=new URLSearchParams(location.search).get('bpg'); }catch(e){} try{ if(q==='0') localStorage.setItem('gvt_bpgoff', '1'); else if(q==='1') localStorage.removeItem('gvt_bpgoff'); }catch(e){} try{ BPG.on=localStorage.getItem('gvt_bpgoff')==='1'? 0 : 1; }catch(e){ BPG.on=1; } })(); }catch(e){ bpgFail(e); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.bpg) GVT.bpg=bpgRead; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
+// ═══ END CARD-BPG ═══
 // ═══ sec:CARD-TUB · A ROOM CARD DEALT WHILE THE BATTLEFIELDS STAND IS SHOWN OVER THEM (design/prize-door-under-battlefields-1123/00-CARD-TUB.md; jumpr 4560; a side card of Isaac's CARD-BFD,
 // jumpr 4435, cut on Wyatt's rule of 11/12/2026: a second fault found on the way gets its own card, and a fix lands without asking) ═══
 // THE FAULT (client v34.36 and long before; read with a real finger's tap, Chrome for Testing and WebKit the same): while the Battlefields' door stands (Isaac's lobby, or the war table) a
