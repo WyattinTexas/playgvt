@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.89","md5":"2e003d3e00e22b0cdd4adc617f24dfce","sha":"298b92013e","at":"2026-11-26T01:09:35Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
+<script>/* GVT NAVIGATOR */window.__NAV_STAMP={"cv":"34.90","md5":"2b264e1425ac094b8b6fdc68dc9bd743","sha":"8e119a9c92","at":"2026-11-26T01:19:52Z","src":"playgvt","pre":"e3b7ed22eb","js":"a09ba2fc1c","nav":1};</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94768,7 +94768,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.89';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.90';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -234088,6 +234088,93 @@ GVT.sfa=function(o){ if(o && typeof o==='object' && 'on' in o) SFA.on=o.on? 1 : 
     men:g(function(){ return S.units.filter(function(u){ return u.knsL===1 && !u.dead; }).map(function(u){ const h=knsHex(u), p=(typeof knfPal==='function')? knfPal(h) : null, st=sfaSeat(u);
       return { id:u.id, side:u.side, seat:(u.seat==null? null : u.seat), dye:(st && st.dye) || null, seatHex:(st && st.hex) || null, mc:u.mcBy!=null, hex:h, crest:p? (p.c||'') : null, plate:p? p.P : null, plume:p? p.A : null }; }); }) }; };
 // ═══ end sec:CARD-SFA ═══
+// ═══ sec:CARD-L100S · THE SHIELD'S LEVEL 100 GIFT: PICK +20 HP OR +10 DAMAGE (jumpr 4707, built on the QuarterPounder as M4707; the plan design/bug-jump-1123/cards/CARD-L100S.md; the record design/shield-l100-gift-1124/00-CARD-L100S.md).
+// FROM WYATT by the Bug button, Mon 11/23/2026 11:50 PM EST (BUG 3 of 3 of CARD-BUG-1123, jumpr 4614, sent on as its own card), verbatim: "Level 100 shield trophy should let you pick between 20 HP or 10 Damage"
+// It is the word CARD-L100's flag L100-Q2 waited for ("Say the word and the irons get a seat"), for THE SHIELD alone, with his own numbers. THE GIFT CARD deals on the ceremony host right behind the Shield's trophy card
+//   (l100Sweep wrapped by name: a class that is owed deals first, then the Shield): LEVEL 100 · THE GIFT · THE SHIELD, the iron's picture (LAB_ARM_ART's shield, trcWpnURI), ONE pick of two in his order: +20 HP (TAKES MORE HITS)
+//   or +10 DAMAGE (EVERY BASH HITS HARDER). The choice lands in the save at once and never twice: META.l100.pick.shield = 'h' | 'd' (CARD-L100's own cell, its own key: l100Owed walks TRC_ORDER and never reads it).
+// +10 DAMAGE, flat after every multiplier, on every hit THE SHIELD deals: the bash (dshBashLand), the jeep's whole bash at the stop (dshJeepStop), RETURN TO SENDER (dshRet: its rounds and its rays) and the cavalry's
+//   trample (dcvTrample: a bash's damage, men and jeeps). The ENERGY SWORD (dcvCut) reads its own number, never the bash's: no gift. Each of the four doors latches its Sarge (L100S.lt) around the hit it deals (a queued
+//   hit: around the owed closure, when the frame's foot runs it); hurt, wrapped by name INSIDE CARD-DSP's paint (this section is laid right above it), adds the gift to a latched hit at its first door (a hurt inside a hurt never
+//   takes it twice), so a paint's multiplier never multiplies the gift.
+// +20 HP: Sarge with the Shield in hand, on CARD-DSP's road for red's +200 HP: the campaign rug's grit read live (gritCap0) and the battleground's plastic at the placing (placeUnit: MY chair's man off my save; a human
+//   chair's relayed copy off the word his chair remembered before the birth, roomSeatRemember, so every screen lands the same pool).
+// OWNERSHIP = CARD-L100's: MY Sarge reads the save; a relayed copy reads its token (ls1:h / ls1:d on the placement word's mo beside c1, laid by gowToks and read by gowWireIn, both wrapped by name: the 'sl' law, an old client's
+//   ENH filter drops it); a mirror (nrk), a foe and a computer chair read nothing. Every gift asks dshOf too (the Shield in THAT Sarge's hand, his bag's own word on every screen), last: a save with no pick pays nothing.
+// THE SHEETS print the number the fight reads: sgFive, ppvSargeAt and ppvIronAt with the Shield as the bag's iron, +10 DAMAGE or +20 HP; the picker's Shield tile at the cap reads +20 HP / +10 DAMAGE in MAXED's own line
+//   (pickCardsHTML, ppCardRefresh, pmgChips), as l100Tag does for a class.
+// THE SWITCH: ?l100s=0 (sticky, the device key gvt_l100s '0'; ?l100s=1 lifts it) = the game as it was for MY Shield: no card, my save's pick not read, no token sent, the tile MAXED. A relayed ally's token still plays on my
+//   screen (CARD-SHA's law of the doors and the engine: both screens must agree on his fight). Zero server bytes, zero sw.js bytes, two new words x7, no new drawing (no tile).
+var L100S={ on:(function(){ try{ const q=/[?&]l100s=([01])(?![\w])/.exec(location.search||''); if(q){ if(q[1]==='0') localStorage.setItem('gvt_l100s','0'); else localStorage.removeItem('gvt_l100s'); } return localStorage.getItem('gvt_l100s')==='0'? 0 : 1; }catch(e){ return 1; } })(),
+  dmg:10, hp:20,   // HIS NUMBERS: the two dials
+  lt:null, dep:0, n:{ dmg:0, hp:0, card:0, take:0, tok:0, read:0 }, err:0, e:'' };   // the latch (the Sarge whose Shield hit is being dealt) · the depth of hurt under the latch · the books (a rig's, never read by the game)
+function l100sErr(e){ L100S.err++; L100S.e=String(e && e.message || e).slice(0,200); }
+function l100sGot(){ try{ const p=l100M().pick[DSH.wk]; return (p==='d' || p==='h')? p : ''; }catch(e){ l100sErr(e); return ''; } }   // the save's pick ('' none yet), whatever the switch
+function l100sMine(){ return L100S.on? l100sGot() : ''; }   // MY pick as the game reads it (the switch is mine)
+function l100sOwed(){ return !!(L100S.on && dshOn() && trcIsW(DSH.wk) && trcLv(DSH.wk)>=RANK_MAX && !l100sGot()); }   // the Shield at 100 (the trophy's own test) with no gift picked
+function l100sTake(id){ if(!L100S.on || (id!=='d' && id!=='h') || !dshOn() || !trcIsW(DSH.wk) || trcLv(DSH.wk)<RANK_MAX) return false; const M=l100M(); if(M.pick[DSH.wk]) return false; M.pick[DSH.wk]=id; saveMeta(); L100S.n.take++; return true; }   // THE CHOICE, the one writer (the card's tap and the rig): in the save at once, never twice
+function l100sTokOf(mo){ if(!Array.isArray(mo)) return ''; const m=mo.find(function(x){ return typeof x==='string' && x.slice(0,4)==='ls1:'; }); const p=m? m.slice(4,5) : ''; return (p==='d' || p==='h')? p : ''; }   // the owner's pick off a word's mo ('' none)
+function l100sOf(u){   // the gift this Sarge carries ('' none): MY Sarge reads the save; a relayed copy reads its token; a mirror, a foe and a computer chair read nothing; and only with the Shield in his hand (asked last: no pick, no cost)
+  if(!u || u.type!=='sarge') return ''; let p;
+  if(u.coopMods || u.coopBy || u.coopMR!=null) p=(u.coopL100S==='d' || u.coopL100S==='h')? u.coopL100S : '';
+  else if(u.nrk!=null || u.side==='foe' || (S.bf && !bfHumanU(u))) p='';
+  else p=l100sMine();
+  return (p && dshOf(u))? p : ''; }
+function l100sDmg(u){ return (l100sOf(u)==='d')? L100S.dmg : 0; }
+function l100sHp(u){ return (l100sOf(u)==='h')? L100S.hp : 0; }
+function l100sTag(){ const p=l100sMine(); return p==='d'? '+'+L100S.dmg+' DAMAGE' : p==='h'? '+'+L100S.hp+' HP' : 'MAXED'; }   // the Shield's tile at the cap (the hook translates: +{0} DAMAGE, +{0} HP, MAXED)
+// ---- THE GIFT CARD (l100Card's grammar: band · band · head · the picture in the rays · one line · the picks as the picker's own .pickcard)
+function l100sCard(){ const p=document.getElementById('milePop'); if(!p) return false; const nm=t(SARGE_WEAPONS[DSH.wk].name), sub=trcName(DSH.wk); let opts='';
+  for(const id of ['h','d']){ const d=(id==='d'); opts+='<div class="pickcard l100s-opt" id="l100s-'+id+'" style="min-width:0;flex:1 1 0;padding:10px 6px 8px" onclick="UI.l100sPick(\''+id+'\',this)">'+l100ArtSVG(id)+'<b style="font-size:1rem">'+(d? '+'+L100S.dmg+' DAMAGE' : '+'+L100S.hp+' HP')+'</b><small>'+(d? 'EVERY BASH HITS HARDER' : 'TAKES MORE HITS')+'</small></div>'; }
+  p.innerHTML='<div class="mb-card mbfeat l100s-card">'
+    +'<span class="mb-band" data-notr>'+escH(t('LEVEL 100'))+'</span>'
+    +'<span class="mb-band wk" data-notr>'+escH(tf('THE GIFT · %1', nm))+'</span>'
+    +'<h2 class="mb-h" data-notr>'+escH(nm)+'</h2>'
+    +'<span class="mb-win" style="height:clamp(64px,16vh,110px)">'+MB_RAYS+'<img src="'+trcWpnURI(DSH.wk)+'" alt=""></span>'
+    +'<span class="mb-line" data-notr>'+escH(tf('YOUR %1 REACHED LEVEL 100. PICK ONE GIFT. IT STAYS FOREVER.', sub))+'</span>'
+    +'<div class="pickrow" style="margin:2px 0 4px;gap:10px;flex-wrap:nowrap;align-self:stretch">'+opts+'</div>'
+    +'</div>';
+  p.classList.remove('hidden'); L100S.n.card++; try{ SFX.fanfare(); }catch(e){} return true; }
+function l100sSweep(){ if(milePopUp() || trcIsOpen() || !l100sOwed()) return false; return l100sCard(); }   // the chain's seat, behind every class's gift card (and so behind the Shield's trophy card: trcSweep sits before l100Sweep)
+{ const s0=l100Sweep; l100Sweep=function(){ const r=s0.apply(this,arguments); if(r) return r; try{ return l100sSweep(); }catch(e){ l100sErr(e); return false; } }; }
+UI.l100sPick=function(id,el){ if(!l100sTake(id)) return; audio(); SFX.snap(); mileFold(); if(!ceremonyNext()) renderMenu(); };   // the card's tap: the save, the quiet fold, the next owed card, then the room repaints (UI.l100Pick's own steps)
+// ---- THE WIRE: MY pick rides the placement word beside c1 (gowToks: the campaign's order and the room's place and kit words alike); every apply door reads it raw (gowWireIn: coopApply, coopRedress, roomRedress, roomDressUnit)
+{ const g0=gowToks; gowToks=function(t){ const o=g0.apply(this,arguments); try{ if(t==='sarge'){ const p=l100sMine(); if(p){ L100S.n.tok++; return (o||[]).concat('ls1:'+p); } } }catch(e){ l100sErr(e); } return o; }; }
+{ const w0=gowWireIn; gowWireIn=function(u,cm){ const r=w0.apply(this,arguments); try{ if(u && u.type==='sarge'){ const p=l100sTokOf(cm && cm.mo); u.coopL100S=p || null; if(p) L100S.n.read++; } }catch(e){ l100sErr(e); } return r; }; }
+// ---- +10 DAMAGE: the latch around each Shield hit, the gift at hurt's door
+function l100sQ(u,n0){ try{ for(let i=n0;i<DSH.q.length;i++){ const f=DSH.q[i]; if(typeof f!=='function' || f.l100s) continue; const g=function(){ const w=L100S.lt; L100S.lt=u; try{ return f.apply(this,arguments); } finally{ L100S.lt=w; } }; g.l100s=1; DSH.q[i]=g; } }catch(e){ l100sErr(e); } }   // an owed hit the door just queued: latched to its Sarge when the frame's foot runs it
+{ const b0=dshBashLand; dshBashLand=function(u){ if(!l100sDmg(u)) return b0.apply(this,arguments); const w=L100S.lt; L100S.lt=u; try{ return b0.apply(this,arguments); } finally{ L100S.lt=w; } }; }   // THE BASH
+{ const j0=dshJeepStop; dshJeepStop=function(u){ const n0=DSH.q.length, r=j0.apply(this,arguments); if(r && DSH.q.length>n0 && l100sDmg(u)) l100sQ(u,n0); return r; }; }   // a jeep stopped dead: its one WHOLE bash, owed
+{ const r0=dshRet; dshRet=function(u){ const n0=DSH.q.length, r=r0.apply(this,arguments); if(DSH.q.length>n0 && l100sDmg(u)) l100sQ(u,n0); return r; }; }   // RETURN TO SENDER: the round or the ray sent back, owed
+{ const t0=dcvTrample; dcvTrample=function(u){ if(!l100sDmg(u)) return t0.apply(this,arguments); const n0=DSH.q.length, w=L100S.lt; L100S.lt=u; try{ return t0.apply(this,arguments); } finally{ L100S.lt=w; l100sQ(u,n0); } }; }   // THE TRAMPLE: a bash's damage on each man, a jeep's whole bash owed
+{ const h0=hurt; hurt=function(f,dmg,src,fire9){ if(!L100S.lt || L100S.dep>0) return h0.apply(this,arguments);   // no latch (every hit of the game but the Shield's four): byte-what-it-was
+    let a=null; try{ if(src && src===L100S.lt && f && f!==src && +dmg>0){ const g=l100sDmg(src); if(g>0){ a=Array.prototype.slice.call(arguments); a[1]=(+dmg)+g; L100S.n.dmg++; } } }catch(e){ l100sErr(e); a=null; }
+    L100S.dep++; try{ return a? h0.apply(this,a) : h0.apply(this,arguments); } finally{ L100S.dep--; } }; }
+// ---- +20 HP: the rug's grit read live; the battleground's plastic at the placing
+{ const g0=gritCap0; gritCap0=function(u){ const c=g0.apply(this,arguments); try{ if(!S.bf && u && u.type==='sarge' && !u.zomb){ const g=l100sHp(u); if(g>0) return c+g; } }catch(e){ l100sErr(e); } return c; }; }
+function l100sPlaceHp(u){ if(bfHumanU(u)) return l100sHp(u); const w=roomSeatSW(u); return (w && l100sTokOf(w.mo)==='h' && dshOf(u))? L100S.hp : 0; }   // MY chair's man off my save; a human chair's copy off its chair's remembered word (a computer chair has none: 0)
+{ const p0=placeUnit; placeUnit=function(){ const u=p0.apply(this,arguments); try{ if(S.bf && u && u.type==='sarge' && u.hpMax>0){ const g=l100sPlaceHp(u); if(g>0){ u.hpMax+=g; u.hp=u.hpMax; L100S.n.hp++; } } }catch(e){ l100sErr(e); } return u; }; }
+// ---- THE SHEETS AND THE TILES: the number the fight reads
+function l100sFive(f){ try{ if(f && f.w===DSH.wk && dshOn()){ const p=l100sMine(); if(p==='d'){ f.dmg=(+f.dmg||0)+L100S.dmg; if(Array.isArray(f.pips)) f.pips[1]=usPip(f.dmg, UNIT_SHEET_BANDS.dmg, true); } else if(p==='h'){ f.hp=+hitFmt((+f.hp||0)+L100S.hp); if(Array.isArray(f.pips)) f.pips[0]=usPip(f.hp, UNIT_SHEET_BANDS.hp); } } }catch(e){ l100sErr(e); } return f; }
+sgFive=(function(o){ return function(){ return l100sFive(o.apply(this,arguments)); }; })(sgFive);
+ppvSargeAt=(function(o){ return function(){ return l100sFive(o.apply(this,arguments)); }; })(ppvSargeAt);
+ppvIronAt=(function(o){ return function(){ return l100sFive(o.apply(this,arguments)); }; })(ppvIronAt);
+function l100sTileHTML(h){ try{ if(typeof h!=='string' || !dshOn()) return h; const tag=l100sTag(); if(tag==='MAXED') return h; const i=h.indexOf('pk-w-'+DSH.wk+'"'); if(i<0) return h; const s=h.indexOf('<small>',i); if(s<0) return h; const e=h.indexOf('</small>',s); if(e<0 || h.slice(s+7,e)!=='MAXED') return h; return h.slice(0,s+7)+escH(tag)+h.slice(e); }catch(e){ l100sErr(e); return h; } }   // the Shield's tile's cap line, in place
+pickCardsHTML=(function(o){ return function(){ return l100sTileHTML(o.apply(this,arguments)); }; })(pickCardsHTML);
+{ const c0=ppCardRefresh; ppCardRefresh=function(el,kind,key){ const r=c0.apply(this,arguments); try{ if(el && kind==='w' && key===DSH.wk && dshOn() && ((META.sargeUp && META.sargeUp[key])|0)>=RANK_MAX){ const sm=el.querySelector('small'); if(sm && sm.textContent==='MAXED') sm.textContent=l100sTag(); } }catch(e){ l100sErr(e); } return r; }; }   // the shipped line alone (a wall tile CARD-PMG dressed reads the gift off pmgChips, below)
+pmgChips=(function(o){ return function(kind,k,r){ const L=o.apply(this,arguments); try{ if(kind==='w' && k===DSH.wk && r>=RANK_MAX && Array.isArray(L) && dshOn()){ const c=L.find(function(x){ return Array.isArray(x) && x[0]==='cap'; }); if(c) c[1]=l100sTag(); } }catch(e){ l100sErr(e); } return L; }; })(pmgChips);
+// ---- THE WORDS, in the seven languages (English is the key; drafts for his pen, the L100 keys' grammar; ja and es cut to fit his glass, 852x393, on one or two lines as the class card's do): LEVEL 100 · THE GIFT · %1 · THE SHIELD · SHIELD · YOUR %1 REACHED LEVEL 100 ... · +{0} HP · +{0} DAMAGE already stand x7
+try{ const W={ "TAKES MORE HITS":["يتحمّل ضربات أكثر","もっと たえる","더 많이 버틴다","更扛打","HÄLT MEHR TREFFER AUS","ВЫДЕРЖИТ БОЛЬШЕ УДАРОВ","AGUANTA MÁS GOLPES"],
+    "EVERY BASH HITS HARDER":["كل ضربة درع أقوى","たいあたり アップ","방패 치기가 더 세진다","每一下盾牌撞击都更狠","JEDER SCHILDSTOSS SITZT HÄRTER","КАЖДЫЙ УДАР ЩИТОМ СИЛЬНЕЕ","SU ESCUDO PEGA MÁS FUERTE"] };
+  const L=['ar','ja','ko','zh-Hans','de','ru','es']; for(const k in W){ W[k].forEach(function(v,i){ try{ Object.assign(TR[L[i]]||(TR[L[i]]={}), { [k]:v }); }catch(e){ l100sErr(e); } }); } }catch(e){ l100sErr(e); }
+// ---- the rig's door (GVT.l100s): the switch (rig only), the books, the cell, every Sarge's gift
+function l100sProbe(){ const g=function(f){ try{ return f(); }catch(e){ return null; } }, mine=l100sMine();
+  return { cv:GVT_CV, on:L100S.on, dials:{ dmg:L100S.dmg, hp:L100S.hp }, got:l100sGot(), mine:mine, owed:l100sOwed(), rank:g(function(){ return trcLv(DSH.wk); }), seat:g(function(){ return trcIsW(DSH.wk); }), tag:l100sTag(), tok:mine? 'ls1:'+mine : null,
+    card:!!document.querySelector('#milePop .l100s-card'), cardOpts:Array.from(document.querySelectorAll('#milePop .l100s-opt')).map(function(e){ return e.id; }), cell:g(function(){ return JSON.parse(JSON.stringify(l100M().pick)); }), n:Object.assign({},L100S.n), err:L100S.err, e:L100S.e,
+    men:g(function(){ return S.units.filter(function(u){ return u.type==='sarge' && !u.dead; }).map(function(u){ return { id:u.id, seat:(u.seat==null? null : u.seat), side:u.side||null, w:g(function(){ return unitSargeStats(u).w; }), gift:l100sOf(u), tokIn:u.coopL100S||null, hp:u.hp, hpMax:u.hpMax, hits:u.hits||0, cap:S.bf? null : g(function(){ return gritCap(u); }) }; }); }) }; }
+GVT.l100s=function(o){ if(o && typeof o==='object' && 'on' in o) L100S.on=o.on? 1 : 0; return l100sProbe(); };
+GVT.l100sTake=function(id){ return l100sTake(id); };   // the rig's hand on the choice (the one writer)
+// ═══ end sec:CARD-L100S ═══
 // ═══ sec:CARD-DSP · CARD-SCP (jumpr 4071) THE SHIELD'S COLOURS: EACH ARMY'S SHIELD HAS ITS OWN POWER, AND TWO NEW COLOURS, NAVY (THE FLEUR-DE-LIS) AND LIGHT BLUE (THE SUN) (jumpr 4071, run by hand on seat O, board HSCP; the record design/shield-colours-1121/00-CARD-SCP.md).
 // FROM WYATT, typed on Maker 1, 11/19/2026, verbatim: "Each shield color has its own power, starting with blue. The blue shield gives attack based on how long the game has gone on for: +3 damage every 10 seconds" · "The red shield gains 25% luck and your hero Hp is increased by 200" ·
 //   "The Tan Shield Cavalry Charge cooldown is cut in half and its damage is increased x2" · "The green shield gains +4 HP every 5 seconds" · "The purple shield. Gong knockback and general knockback is twice as far" · "The black shield gains 7% movement speed, 7% crit chance and 7% crit damage" ·
