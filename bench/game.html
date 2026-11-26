@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.91","md5":"6e741efb1a91819ac70b40d39f6b527f","sha":"f128e12877","at":"2026-11-26T04:22:37Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
+<script>/* GVT PLAYTEST BENCH */window.__BENCH_STAMP={"cv":"34.92","md5":"c8adca50595119d54eb978af9fb055c6","sha":"93fac4dc15","at":"2026-11-26T04:37:18Z","src":"playgvt","pre":"101efa8848","js":"1dc9a8540d","bench":3};</script>
 <script src="bench-pre.js?v=101efa8848"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94768,7 +94768,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.91';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.92';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -195682,6 +195682,88 @@ function fnxRead(){ const q=s=>Array.from(document.querySelectorAll(s)), R=e=>{ 
     fxr:(typeof FXR==='object')? { x:+(+FXR.x||0).toFixed(1), e:+(+FXR.e||0).toFixed(1) } : null, ledgers:{ sargeSeen:(META.sargeSeen||[]).slice(), gearSeen:(META.gearSeen||[]).slice(), rackSeen:(META.rackSeen||[]).length }, log:FNX.log.slice(-30) }; }
 setTimeout(()=>{ try{ if(window.GVT && !GVT.fnx) GVT.fnx=fnxRead; }catch(e){} }, 0);
 // ═══ END CARD-FNX ═══
+// ═══ CARD-W2T · IN THE OUTFITTER, A SECOND TAP ON A WEAPON OPENS THAT WEAPON'S ANIMATION PAGE (sec:CARD-W2T; design/weapon-second-tap-1125/00-CARD-W2T.md; FROM WYATT, typed on the Big Mac 11/25/2026 ~20:05 EST, verbatim: "When you click into the outfitter and you select the Shield or any of the other weapons, when you hit it a second time, it should load the animation page for that weapon and show how it's used." Then: "Get these fixed up in live"; jumpr 4741, board J1111, the small-card lane) ═══
+// THE TAP: on SARGE'S EQUIPMENT a tap on the iron already IN HAND opens that iron's sheet (UI.wepInfo, the page the small chip under Sarge opens: THE LIVING PORTRAIT, Sarge working the iron on a loop, its upgrade story, GOOD AT and BAD AT).
+//   The first tap is the game's own, byte for byte: it equips and opens no page (the saber's first tap still asks the colour, THE CLAYMORE's still asks its philosophies while a seat stands empty). The saber's rite, while the free crystal is owed, opens first as before.
+//   UI.fortWep is wrapped BY NAME over CARD-FNX's wrap (this section stands after END CARD-FNX); the page's road passes fnxTap itself, so an iron's "!" still drops on its tap.
+// EVERY IRON HAS ITS PAGE: THE CLAYMORE had none (no WEPINFO row, no MN_WEP row: UI.wepInfo returned at once). It gets both here: two manual sentences (x7 at this section's foot) and its portrait, the fight's own
+//   moves in the fight's own steel (the first hits BLOCKED with the steel ring, the slow walk in, one sweep over the crescent's own angles that cuts every man in reach; the ember of THE FLAME BLADE, the ice of THE ICE BLADE).
+// THE SHIELD'S PORTRAIT SHOWS RETURN TO SENDER once the part is fitted (the lab's won part of Shield rank 5): a third round stops at the shield and goes back at the man who fired it (the fight's pale tracer and ring),
+//   drawn over CARD-SHD's scene, which stands as it was (the two rounds stopped, the walk in, the bash).
+// CRYSTALS AND PHILOSOPHIES lose nothing: both keep their buttons under Sarge, and the saber's and THE CLAYMORE's page carries the same button.
+// THE CLOSE lands where he was: the page's own doors (the cross, the dark, the SARGE'S QUARTERS link) all pass UI.fort('outfitter'); its wrap here puts back the view he was on (ALL or WEAPONS) and the shelf's scroll.
+// NOT THIS CARD, as before: the bench's irons out in the yard (UI.fortIron) and a locked iron's lock sheet.
+// ?w2t=0 = the taps of before (this load): no wrap acts, THE CLAYMORE has no page and no chip, the Shield's portrait is CARD-SHD's. No save byte, no wire, no server or sw byte. w2tRead() = the rig's read.
+var W2T={ on:(function(){ try{ return /[?&]w2t=0(?![\w])/.test(location.search||'')? 0 : 1; }catch(e){ return 1; } })(), keep:null, w0:null, i0:null, f0:null, s0:null, n:{ open:0, page:0, put:0, deal:0, err:0 }, why:'' };
+function w2tOn(){ return W2T.on===1; }
+function w2tHas(wk){ return !!(SARGE_WEAPONS[wk] && WEPINFO[wk] && MN_WEP[wk]); }   // the iron has its page: the two rows UI.wepInfo and wepDoorHTML ask for
+function w2tQuarters(){ return fortSceneOpen() && FORT_TAB==='outfitter' && !!document.querySelector('#roomModal .eq-fit'); }   // SARGE'S EQUIPMENT stands
+function w2tSecond(wk){ return w2tOn() && wkOwned(wk) && (META.sargeWeapon||'pistol')===wk && w2tHas(wk) && w2tQuarters() && !(wk==='lightsaber' && sabRiteOwed()); }   // a tap on the iron in hand (the rite first while it is owed)
+function w2tSteel(){ return (typeof fbOn==='function' && fbOn())? '#FF8A3A' : (typeof ibOn==='function' && ibOn())? '#7FD4FF' : '#C9D2D8'; }   // the swing's colour in the fight (cmdSwingFire): steel, the ember, the ice
+// ───── THE CLAYMORE'S PAGE (the two rows, laid while the switch is on)
+if(W2T.on===1){ try{
+  if(!WEPINFO.commander) WEPINFO.commander={ good:'A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.', bad:'Arm\'s reach only, and a slow walk. He never fires a shot, and his blocks run out.' };   // dash-free and digit-free (the 0532 law); the keys x7 at the foot
+  if(!MN_WEP.commander) MN_WEP.commander={ T:3.6, f(c,p,now,still){ const M=[112,126,140], col=w2tSteel(), sx=mnLeg(p,[0.95,0.6],[2.6,0.8],MN_FX,MN_FX+40), k=mnAt(p,1.6,0.45), hx=sx+13, hy=MN_GY-34;   // mnPortrait's own contract (p = seconds into the cycle T, 0 under reduced motion; still = the standing frame)
+      M.forEach((m,i)=>{ const t0=1.72+i*0.05, kd=mnAt(p,t0,0.75); mnFoe(c,m,(still || p<t0)? -1 : (kd<0? 1 : kd),now,still,mnIn(p,still),18+i*5); });   // three men in his reach: the one sweep takes all three
+      mnShadow(c,sx,MN_GY,15); mnSprite(c,mnImgW('commander'),sx,MN_GY,54,(still? 0 : MN_IDLE(now))+(k>=0? -0.14*Math.sin(Math.PI*k) : 0));   // Sarge with the blade he owns (sargeArtW: the Claymore, the High Blade, the Flame Blade, the Ice Blade), leaning into the cut
+      if(still) return;
+      [0.25,0.6].forEach(t0=>{ const kt=mnAt(p,t0,0.2), mx=M[0]-18; if(kt>=0){ const x=mx+(hx-mx)*kt; mnTracer(c,Math.min(mx,x+14),hy,x,hy,0.9); } const ks=mnAt(p,t0+0.2,0.26); if(ks>=0){ mnFlash(c,hx,hy,6,ks,0.4); mnRing(c,sx,MN_GY-24,4,22,ks,'#C9D2D8'); } });   // the first hits are BLOCKED: the fight's own steel ring about him
+      if(k>=0){ const a0=-1.48, a1=0.70, swp=a0+(a1-a0)*Math.min(1,k*2.2), px=sx+8, py=MN_GY-24;   // THE SWEEP over the crescent's own angles (cmdSwingFire's a0 and a1): three arcs in the blade's colour under the white edge
+        c.lineCap='round'; [[44,7,0.85],[36,4,0.55],[28,3,0.35]].forEach(a=>{ c.globalAlpha=(1-k)*a[2]; c.lineWidth=a[1]; c.strokeStyle=col; c.beginPath(); c.arc(px,py,a[0],a0,swp); c.stroke(); });
+        c.globalAlpha=(1-k)*0.9; c.lineWidth=2.5; c.strokeStyle='#fff'; c.beginPath(); c.arc(px,py,44,a0,swp); c.stroke(); c.lineCap='butt'; c.globalAlpha=1;
+        mnRing(c,sx,MN_GY-16,6,50,k,col); } } };   // the landing's ring: every man inside it is cut
+}catch(e){ W2T.n.err++; W2T.why='rows: '+String(e && e.message || e).slice(0,80); } }
+// ───── THE SHIELD'S THIRD ROUND GOES BACK (RETURN TO SENDER fitted): drawn over CARD-SHD's scene with that scene's own seats (the man at 124, the shield's face at his x + 20, his walk)
+function w2tRetOn(){ return typeof dshOn==='function' && dshOn() && typeof enhOn==='function' && enhOn('returntosender'); }
+function w2tShieldRet(c,p){ const TX=124, sx=mnLeg(p,[0.9,0.6],[2.3,0.8],MN_FX,MN_FX+42), hx=sx+20, hy=MN_GY-31, mx=TX-20, ty=MN_GY-27;
+  const k=mnAt(p,0.95,0.2); if(k>=0){ const x=mx+(hx-mx)*k; mnTracer(c,Math.min(mx,x+14),hy,x,hy,0.9); }   // it flies in as the first two did
+  const kr=mnAt(p,1.15,0.14); if(kr>=0){ const q0=Math.max(0,kr-0.45), X=function(q){ return hx+(TX-4-hx)*q; }, Y=function(q){ return hy+(ty-hy)*q; }; mnFlash(c,hx,hy,7,kr,0.4); c.globalAlpha=0.95; c.strokeStyle='#EAF4FF'; c.lineWidth=2.5; c.beginPath(); c.moveTo(X(q0),Y(q0)); c.lineTo(X(kr),Y(kr)); c.stroke(); c.globalAlpha=1; }   // and goes back at the man who fired it: the fight's pale tracer
+  const kg=mnAt(p,1.29,0.2); if(kg>=0) mnRing(c,TX-4,ty,4,16,kg,'#EAF4FF'); }   // the fight's pale ring on him
+try{ if(W2T.on===1 && MN_WEP.shield && typeof MN_WEP.shield.f==='function' && !W2T.s0){ const s0=MN_WEP.shield.f; W2T.s0=s0;
+  MN_WEP.shield.f=function(c,p,now,still){ s0.call(this,c,p,now,still); if(still) return; try{ if(w2tOn() && w2tRetOn()) w2tShieldRet(c,p); }catch(e){ W2T.n.err++; } }; } }catch(e){ W2T.n.err++; }
+// ───── THE PAGE: marked, the view and the scroll it was opened from kept, the blade's own button under its lines
+function w2tPage(wk,k){ const m=document.getElementById('roomModal'), cv=m && m.querySelector('canvas.mnport'), card=cv && cv.closest('.rmcard'); W2T.keep=null; if(!card) return false;   // no page was dealt (an iron with no rows)
+  card.setAttribute('data-w2t', wk); W2T.keep=k||null; W2T.n.page++;
+  let btn='';
+  if(fortSceneOpen() && wkOwned(wk)){
+    if(wk==='commander' && cmdOwned()) btn='<button type="button" class="mbtn alt fh-philbtn" onclick="UI.fortPhilOpen()">PHILOSOPHIES</button>';
+    else if(wk==='lightsaber' && sabHasSaber() && !sabRiteOwed()) btn='<button type="button" class="mbtn alt fh-philbtn" onclick="UI.fortCrystalOpen()">CRYSTALS</button>'; }
+  if(btn){ const a=card.querySelector('a[onclick*="outfitter"]'), at=a? a.closest('p') : null, d=document.createElement('div'); d.className='w2t-btn'; if(at && at.parentNode===card) card.insertBefore(d, at); else card.appendChild(d); d.innerHTML=btn; }   // the holder stands in the card first: the page's write hook puts a word in his tongue only where it is on the glass
+  return true; }
+function w2tPut(k){ if(!k || !w2tQuarters()) return false;   // the quarters stand again: the view he was on, the scroller where it was (fortSync's own idiom)
+  if(k.view!==EQT_VIEW && eqtHas(k.view)){ EQT_VIEW=k.view; fortDeal('outfitter'); W2T.n.deal++; }   // a fresh deal lands on ALL (outfitterHTML's law): his view dealt in place, as a tab's tap deals it
+  const sc=document.querySelector('#roomModal .rmback'); if(sc) sc.scrollTop=k.st; W2T.n.put++; return true; }
+// ───── THE WRAPS (at load, each once, the shipped function kept as W2T.<x>0)
+try{ if(typeof UI==='object' && UI){
+  if(typeof UI.fortWep==='function' && !W2T.w0){ const w0=UI.fortWep; W2T.w0=w0;
+    UI.fortWep=function(wk){ let go=false; try{ go=w2tSecond(wk); }catch(e){ W2T.n.err++; go=false; }
+      if(!go) return w0.apply(this,arguments);   // the first tap, a locked road, the rite, the switch off: the game's own tap
+      W2T.n.open++; const open=function(){ UI.wepInfo(wk); };
+      return (typeof fnxTap==='function')? fnxTap('iron',wk,open,this,arguments) : open(); }; }
+  if(typeof UI.wepInfo==='function' && !W2T.i0){ const i0=UI.wepInfo; W2T.i0=i0;
+    UI.wepInfo=function(wk){ let k=null; try{ if(w2tOn() && wkOwned(wk) && w2tHas(wk) && w2tQuarters()){ const sc=document.querySelector('#roomModal .rmback'); k={ wk:wk, view:EQT_VIEW, st:sc? sc.scrollTop : 0 }; } }catch(e){ W2T.n.err++; k=null; }
+      const r=i0.apply(this,arguments);
+      try{ if(w2tOn()) w2tPage(wk,k); }catch(e){ W2T.n.err++; W2T.keep=null; }
+      return r; }; }
+  if(typeof UI.fort==='function' && !W2T.f0){ const f0=UI.fort; W2T.f0=f0;
+    UI.fort=function(tab){ let k=null; try{ if(W2T.keep && tab==='outfitter'){ if(w2tOn() && document.querySelector('#roomModal .rmcard[data-w2t]')) k=W2T.keep; W2T.keep=null; } }catch(e){ W2T.n.err++; k=null; }
+      const r=f0.apply(this,arguments);
+      if(k){ try{ w2tPut(k); }catch(e){ W2T.n.err++; } }
+      return r; }; }
+} }catch(e){ W2T.n.err++; W2T.why='wraps: '+String(e && e.message || e).slice(0,80); }
+function w2tRead(){ const m=document.getElementById('roomModal'), card=m && m.querySelector('.rmcard[data-w2t]'), cv=m && m.querySelector('canvas.mnport'), sc=m && m.querySelector('.rmback'), h=m && m.querySelector('.rmcard h3');
+  return { on:W2T.on, n:Object.assign({}, W2T.n), why:W2T.why, keep:W2T.keep? { wk:W2T.keep.wk, view:W2T.keep.view, st:W2T.keep.st } : null, page:card? card.getAttribute('data-w2t') : null, cv:!!cv, title:h? h.textContent : '',
+    btn:card? Array.prototype.map.call(card.querySelectorAll('.w2t-btn button'), function(b){ return b.getAttribute('onclick'); }) : [], quarters:w2tQuarters(), view:EQT_VIEW, st:sc? sc.scrollTop : 0, hand:META.sargeWeapon||'pistol',
+    has:SARGE_ORDER.reduce(function(o,wk){ o[wk]=w2tHas(wk); return o; }, {}), ret:w2tRetOn(), wraps:[!!W2T.w0, !!W2T.i0, !!W2T.f0, !!W2T.s0] }; }
+// ───── THE WORDS x7 (THE CLAYMORE's two manual sentences; PHILOSOPHIES and CRYSTALS are the tables' own rows)
+Object.assign(TR["ja"]||(TR["ja"]={}), {"A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.":"はがねの つるぎと がんじょうな からだ。さいしょの こうげきを いくつか ブロックして、ひとふりで とどく はんいの てきを みんな きる。","Arm's reach only, and a slow walk. He never fires a shot, and his blocks run out.":"うでの とどく はんいだけで、あるくのも おそい。てっぽうは いっさい うたないし、ブロックには かぎりが ある。"});   // CARD-W2T THE CLAYMORE's page, ja
+Object.assign(TR["ko"]||(TR["ko"]={}), {"A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.":"강철 검과 근육 벽. 처음 몇 번의 공격을 막고, 휘두를 때마다 닿는 적을 모두 베어.","Arm's reach only, and a slow walk. He never fires a shot, and his blocks run out.":"팔이 닿는 데까지만, 걸음도 느려. 총은 한 발도 안 쏘고, 막는 횟수에는 끝이 있어."});   // CARD-W2T, ko
+Object.assign(TR["zh-Hans"]||(TR["zh-Hans"]={}), {"A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.":"一把钢剑加一身肌肉。他能挡下开头几下攻击，每挥一剑都会砍中够得着的所有敌人。","Arm's reach only, and a slow walk. He never fires a shot, and his blocks run out.":"只有手臂那么远，走得也慢。他从不开枪，而且格挡的次数有限。"});   // CARD-W2T, zh-Hans
+Object.assign(TR["de"]||(TR["de"]={}), {"A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.":"Eine Stahlklinge und eine Wand aus Muskeln. Er blockt die ersten Treffer, und jeder Hieb trifft alle Gegner in Reichweite.","Arm's reach only, and a slow walk. He never fires a shot, and his blocks run out.":"Nur Armlänge, und ein langsamer Schritt. Er feuert nie einen Schuss, und seine Blocks gehen ihm aus."});   // CARD-W2T, de
+Object.assign(TR["ru"]||(TR["ru"]={}), {"A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.":"Стальной клинок и гора мышц. Он отбивает первые удары, а каждый взмах рубит всех врагов, до кого дотянется.","Arm's reach only, and a slow walk. He never fires a shot, and his blocks run out.":"Только на длину руки, и шаг медленный. Он никогда не стреляет, а блоки у него кончаются."});   // CARD-W2T, ru
+Object.assign(TR["es"]||(TR["es"]={}), {"A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.":"Una hoja de acero y un muro de músculos. Bloquea los primeros golpes, y cada tajo corta a todos los enemigos a su alcance.","Arm's reach only, and a slow walk. He never fires a shot, and his blocks run out.":"Solo al alcance del brazo, y camina despacio. Nunca dispara un tiro, y sus bloqueos se acaban."});   // CARD-W2T, es
+Object.assign(TR["ar"]||(TR["ar"]={}), {"A steel blade and a wall of muscle. He blocks the first few hits, and every swing cuts all the enemies in reach.":"نصل من فولاذ وجدار من عضلات. يصدّ أول الضربات، وكل ضربة من سيفه تصيب كل الأعداء في مداه.","Arm's reach only, and a slow walk. He never fires a shot, and his blocks run out.":"مدى الذراع فقط، ومشيته بطيئة. لا يطلق رصاصة واحدة أبدًا، وصدّاته تنفد."});   // CARD-W2T, ar
+// ═══ END CARD-W2T ═══
 // ═══ CARD-FNO · THE "!" LEAVES WHEN ITS BOX IS OPENED (sec:CARD-FNO; design/fort-news-open-1021/00-CARD-FNO.md; FROM DYLAN, jumpr guest link 10/21/2026 17:11 UTC = 13:11 EDT, jumpr 2419, built on Maker 1 as M2419, verbatim: "Can we remove the exclamation indicators once you open any of the cues for new gear? It seems to be lingering even after a clicktrough.")
 // WHAT HE MET (CARD-FNX as shipped, v24.65, its FNX-Q1 REC): a box's "!" (SARGE'S QUARTERS · HEROES · PETS in the yard, THE HANGAR's plank and the wooden arrow) stood until EVERY new thing under it had been tapped; a king's or a pet's stood until he took command or the heel. A click through the box and back
 //   left the "!" standing, and the shelf's FORT GREEN ⚔NEW with it. Skylar's own words had asked for the open: "When the player clicks on the box that has the exclamation point, the exclamation point/notification goes away."
