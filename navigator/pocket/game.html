@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.96","md5":"e4399b39618dc12a9812cd3465a98dcc","sha":"1bb681a2c4","at":"2026-11-26T06:51:24Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
+<script>/* GVT NAVIGATOR · POCKET */window.__NAV_STAMP={"cv":"34.97","md5":"6d897069cfd1196c148fd355af712f3c","sha":"1317294736","at":"2026-11-26T07:18:15Z","src":"playgvt","pre":"e3b7ed22eb","js":"86f3cb4d14","nav":1,"pocket":1};window.GVT_TIER=0;/* the pocket is a rig: tier 0 */</script>
 <script src="nav-pre.js?v=e3b7ed22eb"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -94768,7 +94768,7 @@ function bfQueueStart(size,opts){
 // the server clamps every commanded nx to ≤½ the stale/TTL window its poll
 // keeps alive, so the brake can never evict the seats it protects. The three
 // party-gone strings stay sacred: a stretch is a longer wait, never a miss.
-let GVT_CV='34.96';        // the `cv` version key the poll helpers stamp (0290's histogram)
+let GVT_CV='34.97';        // the `cv` version key the poll helpers stamp (0290's histogram)
 let NX_CAP_MUL=4;         // accepted-nx clamp: [class default, default × this]
 function nxMul(nx,srvDef){ nx=nx|0; if(!(nx>0)||!(srvDef>0)) return 1;
   return Math.max(1, Math.min(NX_CAP_MUL, nx/srvDef)); }
@@ -253424,6 +253424,204 @@ if(RQF.on){ (function(){
 })(); }
 setTimeout(function(){ try{ if(window.GVT && !GVT.rqf) GVT.rqf=rqfRead0; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar)
 // ═══ END CARD-RQF ═══
+// ═══ sec:CARD-RTQ · THE RANKED TEAM QUEUE FILLS, AND REAL COMMANDERS TAKE ITS CHAIRS (CARD-RQF round 2, design/ranked-queue-fill-1125/00-CARD-RQF.md; jumpr 4749, board J1115;
+// FROM WYATT 11/25/2026 22:44 EST by phone on Discord, verbatim: "When you queue for the 2v2 ranked, it just throws you into a game and then says the two real commanders line. It
+// needs to fill up the queue like it usually does, like the players join, and then that way other real players have a chance to actually join the game."; 22:57: "Get the fix live") ═══
+// WHAT WAS SO: a party's ranked team order ran the party's own start (ptyBfWar, then CARD-STTL's seat wait of 8 s at most: his word of 11/22, a party's start takes every player
+// straight to the level), and HQ's matchmaker paired real commanders at 1v1 only: in a 2v2 or a 3v3 the other team was always the computer's.
+// WHAT IT IS NOW, only where HQ says it keeps the pool (rqs on the ranked read; HQ's sec:CARD-RTQ) and only for a RANKED order of 2v2 or 3v3:
+//   1 A PARTY'S RANKED ORDER ASKS BEFORE IT MAKES A ROOM (ptyBfWar wrapped): HQ answers a waiting table's room, or none (2.5 s at most; BATTLE STATIONS… stands meanwhile).
+//   2 NONE = THE PARTY OPENS A TABLE: its own war room as ever, but the start WAITS THE GAME'S OWN 9 TO 15 SECONDS (the queue's fill, Wyatt 8/5: "so it gives real players a
+//     chance to join") behind CARD-STTL's seat wait (sttlHostTick wrapped). The opener says so to HQ every second and a half; HQ's clock is the table's.
+//   3 A TABLE FOUND = THE PARTY SITS DOWN AT IT, on the other side: its leader joins side f and his lobby carries the room as the war's ticket with the split's own word, so each
+//     member's own follow joins sideless (HQ seats a party only at a table whose own side is full: the thinner side is the other side).
+//   4 A COMMANDER ALONE who queues ranked 2v2 or 3v3 asks HQ too (bfQueueStart wrapped): a table found = his queue becomes that table's mirror (the proving queue's own guest
+//     road, a seat on side f); none = his queue as before.
+//   5 THE QUEUE IS SHOWN ON EVERY SEATED PHONE WHERE IT STANDS: the queue's own pill, clock and roster (CALLING ALL SOLDIERS…, <NAME> DROPPED IN · 3 OF 4, OPEN SEAT), drawn from
+//     the room's own roster. No walk, no ring, no new word on the glass. When the wait is over the opener starts the battle and the computer takes every chair nobody took.
+//   6 EACH VERDICT OF A ROOM'S BATTLE NAMES ITS ROOM (rnkPost wrapped): HQ weighs it against the real commanders who sat on the other side (a table's roster; at 1v1 the pair
+//     its own matchmaker dealt). A war at a table is stamped with commanders on both sides (rqfHouse wrapped: sec:CARD-RQF's rule read the other chairs as the computer's).
+//   7 A RANKED QUEUE THAT FOUND A REAL COMMANDER KEEPS ITS MARK (bfQueueTeardown wrapped). sec:CARD-RNK notes the queue's room when the queue folds (RNK.carry) and stamps the
+//     battle after startBattlefield; but startBattlefield's own first line folds the queue once more, and that second call, with no queue left, wiped the note. So a ranked
+//     queue that found a real commander (the proving queue's 1v1 pair, a seat at a table) was never stamped and its verdict never told: the same fault as round 1's, on the
+//     queue's road. The note now survives a fold that folds nothing.
+// Every other start is byte-still: 1v1, every queue without ranked, a party's own start anywhere else (CARD-STTL's law stands), the split, the claim's war, a war above 3v3.
+// HOW: every hook is a wrap BY NAME (rnkTake, rnkPost, rqfHouse, ptyBfWar, sttlHostTick, bfQueueStart, bfQueueTeardown) and one clock of half a second that reads four words when this phone sits
+// in no room. No line of another section is edited, no Math.random is drawn (the wait comes from crypto), nothing is written on S, S.bf or the save.
+// ?rtq=0 = none of it: no wrap laid, no clock, no word asked of HQ (localStorage gvt_rtqoff '1'; ?rtq=1 clears it). GVT.rtq() = the rigs' read; GVT.rtq({ wait:ms }) = a rig's fixed wait.
+var RTQ={ on:1, hq:0, laid:0, err:0, e:'', t:null, s:null, tbl:null, ask:0, skip:'', face:0, fn:0, fs:null, wait:0, st:{ asks:0, finds:0, found:0, guests:0, solo:0, opens:0, starts:0, succ:0, back:0, room:0, kept:0 } };
+(function(){ try{ const q=/[?&]rtq=([01])(?:&|#|$)/.exec(String(location.search||''));
+    if(q){ try{ if(q[1]==='0') localStorage.setItem('gvt_rtqoff', '1'); else localStorage.removeItem('gvt_rtqoff'); }catch(e){} }
+    try{ RTQ.on=localStorage.getItem('gvt_rtqoff')==='1'? 0 : 1; }catch(e){ RTQ.on=1; } if(q) RTQ.on=(q[1]==='0')? 0 : 1; }catch(e){ RTQ.on=1; } })();
+function rtqErr(w, e){ try{ RTQ.err++; RTQ.e=w+': '+String((e && e.message) || e).slice(0,120); }catch(x){} }
+function rtqLive(){ try{ return !!(RTQ.on && RTQ.hq && rnkLive() && rnkOpenNow()); }catch(e){ return false; } }   // this section on, HQ keeps the pool, the season open
+function rtqWaitMs(){ if(RTQ.wait) return Math.max(9000, Math.min(15000, RTQ.wait|0)); let r=0.5; try{ const a=new Uint32Array(1); crypto.getRandomValues(a); r=a[0]/4294967296; }catch(e){} return 9000+Math.floor(r*6000); }   // the queue's own fill: 9 to 15 s (never the fight's dice); RTQ.wait = a rig's fixed wait inside the same bounds (GVT.rtq({ wait }))
+function rtqRq(q, mark){ return rnkPost(mark? { mark:String(mark), rq:q } : { rq:q }).then(function(j){ return (j && j.ok && j.rk && j.rk.rq) || null; }); }   // one word of the queue on the ranked door's read; a tap's own side says the party's mark IN THE SAME REQUEST (the tap's own mark is a request of its own: under load HQ could read the queue's word first and refuse an order it had not heard of yet)
+function rtqTable(room){ try{ return !!(RTQ.tbl && room && RTQ.tbl.room===String(room)); }catch(e){ return false; } }
+// THE QUEUE'S FACE on this glass: the queue's own pill and roster, from the room's roster (a seat a commander took wears his name; the others read OPEN SEAT)
+function rtqFace(m, t0){
+  try{ bfqEnsure(); const chip=document.getElementById('bfqChip'), ros=document.getElementById('bfqRoster'); if(!chip || !ros || !COOP) return;
+    if(!RTQ.face){ RTQ.face=1; RTQ.fn=0; RTQ.fs={}; chip.classList.add('on', 'rtq'); ros.classList.add('on'); try{ crewHoldClear(); }catch(e){}
+      const sub0=document.getElementById('bfqSub'); if(sub0) sub0.textContent=t('CALLING ALL SOLDIERS…'); }
+    const mem=COOP.members||[], side=COOP.side||'y', k=Math.max(1, Math.min(10, m|0));
+    const col=function(sd, label){ let rows=''; for(let i=0;i<k;i++){ const mm=mem.find(function(x){ return x.side===sd && (x.slot|0)===i; });
+        rows+=mm? '<div class="bfq-row"><span class="bfq-chip" style="background:'+escH(String(mm.hex||'#7fa35c'))+'"></span>'+escH(String(mm.name||'A COMMANDER'))+(((mm.seat|0)===(COOP.seat|0))? ' · YOU' : '')+'</div>'
+               : '<div class="bfq-row open"><span class="bfq-chip empty"></span>OPEN SEAT</div>'; }
+      return '<div class="bfq-col"><h5>'+label+'</h5>'+rows+'</div>'; };
+    const h=col(side, 'YOUR SQUAD')+col(side==='y'? 'f' : 'y', 'THEIR SQUAD'); if(ros.__rtq!==h){ ros.innerHTML=h; ros.__rtq=h; }
+    const n=mem.length, seen=RTQ.fs||(RTQ.fs={}); let nw=null;
+    for(let i=0;i<n;i++){ const key=String(mem[i].seat); if(!seen[key]){ if(RTQ.fn>0) nw=mem[i]; seen[key]=1; } }   // a seat taken since the last look: its commander dropped in
+    if(nw){ const sub=document.getElementById('bfqSub'); if(sub) sub.innerHTML='<b data-notr>'+escH(String(nw.name||'A COMMANDER').toUpperCase())+'</b> DROPPED IN · '+n+' OF '+(2*k); try{ SFX.blip(); bfqPulse(); }catch(e){} }
+    RTQ.fn=n;
+    const s=Math.max(0, ((Date.now()-(t0||Date.now()))/1000)|0), tm=document.getElementById('bfqTime'); if(tm) tm.textContent=((s/60)|0)+':'+String(s%60).padStart(2, '0');
+  }catch(e){ rtqErr('face', e); } }
+function rtqFold(){ if(!RTQ.face) return; RTQ.face=0; RTQ.fn=0; RTQ.fs=null;
+  try{ const chip=document.getElementById('bfqChip'), ros=document.getElementById('bfqRoster'); if(ros) ros.__rtq=null;
+    if(typeof BFQ==='undefined' || !BFQ){ if(chip) chip.classList.remove('on'); if(ros) ros.classList.remove('on');
+      setTimeout(function(){ try{ if(!RTQ.face && chip) chip.classList.remove('rtq'); }catch(e){} }, 700); }   // the pill fades with its WITHDRAW still hidden (the next queue's pill gets it back)
+    else if(chip) chip.classList.remove('rtq'); }catch(e){} }
+// A COMMANDER ALONE at a table: his queue's own roster, laid from the room's (the proving queue's mirror shape)
+function rtqPlan(q){
+  try{ const mem=(COOP && COOP.members)||[], side=(COOP && COOP.side)||'f'; const mine=mem.filter(function(x){ return x.side===side && (x.seat|0)!==(COOP.seat|0); }), theirs=mem.filter(function(x){ return x.side!==side; });
+    const lay=function(seats, who){ for(let i=0;i<seats.length;i++){ const st=seats[i], mm=who[i]; if(mm){ st.name=String(mm.name||'A COMMANDER'); if(mm.hex) st.hex=mm.hex; q.in[st.i]=true; } else q.in[st.i]=false; } };
+    lay(q.plan.filter(function(s){ return s.team==='you' && s.i!==0; }), mine); lay(q.plan.filter(function(s){ return s.team==='foe'; }), theirs);
+    const n=mem.length, seen=q.rtqSeen||(q.rtqSeen={}); let nw=null, first=!q.rtqN;
+    for(let i=0;i<n;i++){ const key=String(mem[i].seat); if(!seen[key]){ if(!first) nw=mem[i]; seen[key]=1; } }
+    q.rtqN=n; q.joined=n; const sub=document.getElementById('bfqSub');
+    if(sub && first){ const h=mem.find(function(x){ return x.host; }); sub.innerHTML='<b data-notr>'+escH(String((h && h.name)||'A COMMANDER').toUpperCase())+'</b> DROPPED IN · '+n+' OF '+(q.size*2); }
+    else if(sub && nw){ sub.innerHTML='<b data-notr>'+escH(String(nw.name||'A COMMANDER').toUpperCase())+'</b> DROPPED IN · '+n+' OF '+(q.size*2); try{ SFX.blip(); bfqPulse(); }catch(e){} }
+    bfqRoster(); }catch(e){ rtqErr('plan', e); } }
+// 2 THE OPENER'S WAIT, behind CARD-STTL's seat wait. true = this tick is the table's: the party's start waits
+function rtqHostTick(){
+  if(!RTQ.on) return false;
+  let w=null; try{ w=STTL.w; }catch(e){ return false; }
+  let T=RTQ.t;
+  if(!w){ if(T){ RTQ.t=null; rtqFold(); } return false; }
+  if(T && T.room!==w.room){ RTQ.t=T=null; rtqFold(); }
+  if(!COOP || !coopRoom() || COOP.code!==w.room || S.coop || COOP.wantBattle || S.mode!=='menu'){ if(T){ RTQ.t=null; rtqFold(); } return false; }   // the war moved on: CARD-STTL's own tick folds it
+  const now=Date.now();
+  if(!T){
+    if(RTQ.skip===w.room) return false;
+    const size=w.size|0, code=String((typeof PTY_BACK!=='undefined' && PTY_BACK && PTY_BACK.code)||'');
+    if(!rtqLive() || !(size>=2 && size<=RNK.mx) || !code){ RTQ.skip=w.room; return false; }
+    const want=RNK.want, own=!!(want && want.code===code && now-want.t<120000);   // the tap's own side knows its order; a member's tap is known to HQ (the party's mark)
+    T=RTQ.t={ room:w.room, m:size, lob:code, own:own? 1 : 0, st:own? 'open' : 'ask', t0:now, ms:rtqWaitMs(), until:0, last:0, busy:0, ack:0, askT:now, fullT:0 }; T.until=now+T.ms;
+    if(!own){ RTQ.st.asks++; rnkPost({ lob:code }).then(function(j){ if(RTQ.t!==T || T.st!=='ask') return; if(j && j.ok && j.rk && (j.rk.lob|0)>0){ T.st='open'; T.t0=Date.now(); T.until=T.t0+T.ms; } else T.st='no'; }, function(){ if(RTQ.t===T && T.st==='ask') T.st='no'; }); }
+  }
+  if(T.st==='ask' && now-T.askT>1500) T.st='no';   // HQ's word did not come: the start as before
+  if(T.st==='open' && !T.ack && now-T.t0>3000) T.st='no';   // HQ never took the table: the start as before
+  if(T.st==='no'){ RTQ.skip=T.room; RTQ.t=null; rtqFold(); return false; }
+  if(T.st==='ask') return true;
+  if(!T.busy && now-T.last>=1500){ T.busy=1; T.last=now;   // the opener's word, every second and a half: HQ's clock is the table's
+    rtqRq({ open:T.room, m:T.m, lob:T.lob, w:T.ms }, (T.own && !T.ack)? T.lob : '').then(function(q){ T.busy=0; if(RTQ.t!==T) return;
+        if(q && q.on===1 && q.room===T.room){ if(!T.ack){ T.ack=1; RTQ.st.opens++; } T.until=Date.now()+(q.left|0); RTQ.tbl={ room:T.room, t:Date.now() }; }
+        else if(q && !T.ack) T.st='no'; }, function(){ T.busy=0; }); }
+  rtqFace(T.m, T.t0);
+  if((COOP.members||[]).length>=2*T.m){ if(!T.fullT) T.fullT=now; } else T.fullT=0;   // every chair a commander's: a short beat, then the start
+  if(T.ack && (now>=T.until || (T.fullT && now-T.fullT>=1500))){
+    try{ rtqRq({ shut:T.room }).then(function(){}, function(){}); }catch(e){}
+    RTQ.st.starts++; RTQ.skip=T.room; RTQ.t=null; rtqFold(); return false; }   // the wait is over: CARD-STTL's own tick starts the battle on this very tick
+  return true; }
+// 5 A SEATED PHONE that is not the opener: HQ's word on the table every second and a half while it sits; the face from it
+function rtqSeatTick(){
+  if(!RTQ.on) return;
+  let ok=false, mir=false;
+  try{ const q=(typeof BFQ!=='undefined')? BFQ : null; mir=!!(q && q.mirror && COOP && q.crewRoom===COOP.code && rtqTable(COOP.code));
+    ok=!!(RTQ.hq && COOP && coopRoom() && COOP.code && COOP.state==='open' && !S.coop && S.mode==='menu' && !COOP.watch && !COOP.wantBattle && !(STTL.w && STTL.w.room===COOP.code)
+      && (!q || mir) && ((typeof PTY_BACK!=='undefined' && PTY_BACK) || rtqTable(COOP.code))); }catch(e){ ok=false; }
+  let s=RTQ.s;
+  if(!ok){ if(s){ RTQ.s=null; if(!RTQ.t) rtqFold(); } return; }
+  const now=Date.now(), room=String(COOP.code);
+  if(!s || s.room!==room) s=RTQ.s={ room:room, on:0, m:0, t0:now, until:0, last:0, busy:0, miss:0, said:0 };
+  if(!s.busy && now-s.last>=1500 && s.miss<4){ s.busy=1; s.last=now;
+    rtqRq({ peek:room }).then(function(q){ s.busy=0; if(RTQ.s!==s) return;
+        if(q && q.room===room){ s.m=q.m|0; s.t0=Date.now()-(q.age|0); s.until=Date.now()+(q.left|0); s.on=(q.on===1)? 1 : 2; RTQ.tbl={ room:room, t:Date.now() }; } else s.miss++; }, function(){ s.busy=0; }); }
+  if(s.on===1 && now<s.until){ if(mir) rtqPlan(BFQ); else rtqFace(s.m, s.t0); }
+  else if(s.on && RTQ.face){ rtqFold(); try{ crewHold('BATTLE STATIONS…', 'Hold tight. The battle is loading. Do not back out.', 25000); }catch(e){} }
+  // THE NEXT REFEREE: the opener is gone and the room made this phone its referee: once the table's clock is out it starts the battle (nobody is left sitting at a table)
+  if(s.on && COOP.host && !s.said && now>s.until+4000){ s.said=1; RTQ.st.succ++; try{ rtqRq({ shut:room }).then(function(){}, function(){}); }catch(e){} COOP.ui='lobby'; COOP.wantBattle=true; clearTimeout(COOP.pollT); coopTick(); } }
+// 3 THE PARTY SITS DOWN AT A WAITING TABLE (ptyBfWar's own shape up to the room: the place, the party's way back, the ticket; the room is the table's, the side is f)
+function rtqGuest(room, lob, fall){
+  const mv=(ptyPlace()!=='bf'); if(mv) ptyMoveHere('bf', false);
+  clearTimeout(lob.pollT); if(mv) lob.wantPlc=null;
+  PTY_BACK={ code:lob.code, place:'bf' };
+  CREW.gatedLaunch=1;   // SQUAD AD LAW: 2+ humans, no gate
+  COOP=coopFresh('lobby', 'room'); COOP.bfWar=1; const forParty=COOP;
+  const back=function(){ if(COOP!==forParty) return; RTQ.st.back++; COOP=lob; PTY_BACK=null; coopTick(); try{ ptyRender(); }catch(e){} fall(); };   // the table went in the window: the party's own room, as before
+  coopPost('join', { code:room, side:'f' }, '/room/').then(function(r){
+    if(COOP!==forParty){ if(r && r.ok) coopPost('leave', { code:r.code }, '/room/').catch(function(){}); return; }
+    if(!(r && r.ok)){ back(); return; }
+    COOP.code=r.code; COOP.host=!!r.host; COOP.seat=r.seat|0; COOP.role=String(r.seat|0);
+    COOP.members=r.members||[]; COOP.pc=r.players||1; COOP.state=r.state||'open';
+    COOP.team=r.team||1; COOP.map=r.map||COOP.map; COOP.side=r.side||'f'; COOP.slot=r.slot|0; roomSeatColours();
+    CREW.bfPaid=r.code; RTQ.tbl={ room:String(r.code), t:Date.now() }; RTQ.st.guests++; try{ STTL.lob=null; }catch(e){}
+    try{ SFX.horn(); }catch(e){} coopTick();
+    coopPost('poll', Object.assign({ code:lob.code, seq:lob.seq|0, bfc:r.code, pick:'vs' }, mv? { plc:'bf' } : {}), '/lobby/').catch(function(){});   // the war's ticket on the party's lobby: each member's own follow, sideless
+    crewHold('BATTLE STATIONS…', 'Hold tight. The battle is loading. Do not back out.', 25000);
+  }).catch(function(){ back(); }); }
+// 4 A COMMANDER ALONE: his ranked team queue asks HQ; a table found = his queue becomes its mirror (bfSeekGuest's own shape)
+function rtqSolo(q, size){ RTQ.st.finds++;
+  rtqRq({ find:1, m:size }).then(function(a){ try{
+      if(!a || !a.room || BFQ!==q || q.state!=='searching' || q.mirror || q.again || S.mode!=='menu') return;
+      if(q.crewRoom){ if(COOP && coopRoom() && COOP.code===q.crewRoom && (COOP.members||[]).length<=1){ q.crewRoom=null; crewRoomDrop(); } else return; }   // a squadmate already sits under this queue: the squad's own room stays
+      try{ crewShedLobby(); crewShedRoom(true); }catch(e){}
+      if(crewCoopLive()) return;   // a live party owns the wire
+      RTQ.st.found++; COOP=coopFresh('lobby', 'room'); const forParty=COOP;
+      coopPost('join', { code:a.room, side:'f' }, '/room/').then(function(j){
+          if(COOP!==forParty || BFQ!==q){ if(j && j.ok) coopPost('leave', { code:j.code }, '/room/').catch(function(){}); if(COOP===forParty) COOP=null; return; }
+          if(!(j && j.ok)){ COOP=null; return; }   // the table went in the window: the queue runs on as before
+          COOP.code=j.code; COOP.host=!!j.host; COOP.seat=j.seat|0; COOP.role=String(j.seat|0);
+          COOP.members=j.members||[]; COOP.pc=j.players||1; COOP.state=j.state||'open';
+          COOP.team=j.team||1; COOP.map=j.map||COOP.map; COOP.side=j.side||'f'; COOP.slot=j.slot|0; roomSeatColours();
+          q.seek=null; q.timers.forEach(function(x){ clearTimeout(x); }); q.timers=[];   // the scripted drops stand down: real names hold the chairs
+          q.crewRoom=j.code; q.mirror=true; q.state='found'; CREW.bfPaid=j.code; q.foundT=Date.now();
+          RTQ.tbl={ room:String(j.code), t:Date.now() }; RTQ.st.solo++; rtqPlan(q); try{ SFX.horn(); }catch(e){} coopTick();
+        }).catch(function(){ if(COOP===forParty) COOP=null; });
+    }catch(e){ rtqErr('solo', e); } }, function(){}); }
+function rtqRead0(){ const T=RTQ.t, s=RTQ.s; return { on:RTQ.on, hq:RTQ.hq, laid:RTQ.laid, live:rtqLive(), err:RTQ.err, e:RTQ.e, face:RTQ.face, ask:RTQ.ask, tbl:RTQ.tbl? RTQ.tbl.room : null,
+    t:T? { room:T.room, m:T.m, st:T.st, ack:T.ack, ms:T.ms, left:T.until-Date.now() } : null, s:s? { room:s.room, on:s.on, m:s.m, left:s.until-Date.now(), miss:s.miss } : null, st:Object.assign({}, RTQ.st) }; }
+if(RTQ.on){ (function(){
+  try{ if(typeof rnkTake!=='function' || typeof rnkPost!=='function' || typeof rqfHouse!=='function' || typeof ptyBfWar!=='function' || typeof sttlHostTick!=='function' || typeof bfQueueStart!=='function' || typeof bfQueueTeardown!=='function' || typeof RNK!=='object' || !RNK){ rtqErr('lay', 'a name this section wraps is not in the page'); return; }
+    try{ const st=document.createElement('style'); st.id='rtqCss'; st.textContent='#bfqChip.rtq .qx{display:none}'; document.head.appendChild(st); }catch(e){ rtqErr('css', e); }   // the table's short wait has no WITHDRAW (as CARD-STTL's seat wait has none)
+    // HQ's word that it keeps the pool: every ranked read's rk says rqs
+    const k0=rnkTake; rnkTake=function(rk){ try{ if(rk && typeof rk==='object' && ('on' in rk)) RTQ.hq=(rk.rqs===1)? 1 : 0; }catch(e){} return k0.apply(this, arguments); };
+    // 6 a verdict from a room's battle names the room: HQ reads the other side's real commanders off its own books
+    const p0=rnkPost; rnkPost=function(body){ try{ if(RTQ.hq && body && ('won' in body) && (body.m|0)>=1 && S.bf && S.bf.room && COOP && COOP.code){ body=Object.assign({}, body, { room:String(COOP.code) }); RTQ.st.room++; } }catch(e){} return p0.call(this, body); };
+    const h0=rqfHouse; rqfHouse=function(bf){ try{ if(COOP && COOP.code && rtqTable(COOP.code)) return true; }catch(e){} return h0.apply(this, arguments); };   // a war at a ranked table: commanders on both sides
+    // 1 the party's ranked team order asks HQ before it makes a room
+    const w0=ptyBfWar; ptyBfWar=function(vs, size, m9){
+      let L=null, k=0, nAll=0, own=false, relay=false;
+      try{ if(vs || m9 || !rtqLive()) return w0.apply(this, arguments);
+        L=ptyLobby(); if(!L || !COOP.host || S.mode!=='menu' || BFQ || S.coop || PTY.duel) return w0.apply(this, arguments);   // the order's own refusals are the base's
+        nAll=(COOP.members||[]).length; k=Math.max(1, Math.min(BF_MAX_TEAM, Math.max(size|0, nAll)));
+        const want=RNK.want; own=!!(want && want.code===String(L.code) && Date.now()-want.t<120000); try{ relay=(STTL.inLead|0)>0; }catch(e){ relay=false; }
+        if(!(k>=2 && k<=RNK.mx) || nAll<2 || !(own || relay)) return w0.apply(this, arguments);   // not a ranked order this phone knows of (a member's tap comes by the leader's relay: HQ knows it by the party's mark)
+      }catch(e){ rtqErr('order', e); return w0.apply(this, arguments); }
+      if(RTQ.ask) return;   // the order is already asking
+      RTQ.ask=1; RTQ.st.finds++; const self=this, args=arguments, lob=L; let done=false;
+      try{ crewHold('BATTLE STATIONS…', null, 6000); }catch(e){}   // the order is heard at once (the game's own line for a war that forms), while HQ is asked
+      const go=function(a){ if(done) return; done=true; RTQ.ask=0;
+        try{ if(COOP!==lob || !ptyLobby() || S.mode!=='menu' || BFQ || S.coop || PTY.duel){ try{ crewHoldClear(); }catch(e){} return; }   // the world moved while HQ answered: the order is dropped (the next tap gives it again)
+          if(a && a.room){ RTQ.st.found++; rtqGuest(String(a.room), lob, function(){ try{ w0.apply(self, args); }catch(e){ rtqErr('own room', e); } }); return; } }catch(e){ rtqErr('seat', e); }
+        w0.apply(self, args); };
+      setTimeout(function(){ go(null); }, 2500);   // HQ's word did not come: the party's own room, as before
+      try{ rtqRq({ find:1, m:k, lob:String(lob.code) }, own? String(lob.code) : '').then(function(a){ go(a); }, function(){ go(null); }); }catch(e){ go(null); } };
+    // 2 the opener's wait rides CARD-STTL's own tick
+    const t0=sttlHostTick; sttlHostTick=function(){ let hold=false; try{ hold=rtqHostTick(); }catch(e){ rtqErr('host tick', e); hold=false; try{ RTQ.t=null; rtqFold(); }catch(x){} } if(hold) return; return t0.apply(this, arguments); };
+    // 4 a commander alone: his ranked team queue asks HQ once it stands
+    const q0=bfQueueStart; bfQueueStart=function(size, opts){ let had=null, rk=false;
+      try{ had=BFQ; rk=!!(rtqLive() && (RNK.arm || (opts && opts.rk)) && !(opts && (opts.gate || opts.again || opts.feat))); }catch(e){ rk=false; }
+      const r=q0.apply(this, arguments);
+      try{ const q=BFQ; if(rk && q && q!==had && q.size>=2 && q.size<=RNK.mx && !q.feat && !q.again && !q.seek) rtqSolo(q, q.size|0); }catch(e){ rtqErr('queue', e); }
+      return r; };
+    // 7 the note of a ranked queue's room survives a fold that folds nothing (startBattlefield's own first line)
+    const d0=bfQueueTeardown; bfQueueTeardown=function(){ let keep=null; try{ keep=RNK.carry; }catch(e){} const r=d0.apply(this, arguments);
+      try{ if(keep && !RNK.carry && (typeof BFQ==='undefined' || !BFQ) && Date.now()-keep.t<180000){ RNK.carry=keep; RTQ.st.kept++; } }catch(e){} return r; };
+    setInterval(function(){ try{ rtqSeatTick(); }catch(e){ rtqErr('seat tick', e); } }, 500);
+    RTQ.laid=1; }catch(e){ rtqErr('wrap', e); }
+})(); }
+setTimeout(function(){ try{ if(window.GVT && !GVT.rtq) GVT.rtq=function(o){ if(o && typeof o==='object' && ('wait' in o)) RTQ.wait=o.wait|0; return rtqRead0(); }; }catch(e){} }, 0);   // the late attach (CARD-FSP's grammar); { wait } = a rig's fixed wait, held inside 9 to 15 s
+// ═══ END CARD-RTQ ═══
 // ═══ sec:CARD-BPP · THE BATTLE PASS SCREEN, BEHIND THE CODE BATTLE (design/battle-pass-projector-1123/00-CARD-BPB.md, the build; 00-DESIGN-BPP.md, the design pass, rounds 1 to 8; jumpr 4664).
 // FROM ISAAC by WhatsApp 11/24/2026 14:11 EST, his go, verbatim: "Turn up the speed of the animations a little bit. You can barely even tell they're happening so make them 50% faster and more present.
 // Then push to Code Battle. The Battle Pass tab should be where the Sergeant Surplus tab used to be and then the icon for it should be the film reel. Let's revert back to just the film reel for where
